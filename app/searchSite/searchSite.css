@@ -1,0 +1,28 @@
+#search_site {
+	background: url('img/field_bkg.jpg') repeat-x top left;
+	height: 20px;
+}
+#search_site_submit {
+	background: url('img/submit_bkg.png') no-repeat top left;
+	border-width: 0px;
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+
+#search_site_check {
+	background: url('img/check_bkg.png') no-repeat top left;
+	border-width: 0px;
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+
+#search_site_check_options {
+	background-color: #eeeeee;
+	color: #000000;
+	padding: 0 10px;
+	border:1px solid #000000;
+	width: 280px;
+	height:100px;
+}

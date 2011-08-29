@@ -1,0 +1,21 @@
+/* BLOCKS */
+#block_2 {
+	background-color: #aa0f3b;
+	height:81px;
+}
+
+#block_3 {
+	background-color: #fff;
+	height:auto;
+}
+
+#block_4 {
+	background-color: #bb3f63;
+	height:auto;
+}
+#block_5 { 
+	background: transparent;
+}
+
+#block_2 section.public, #block_5 section.public { margin: 0px auto; width:960px;  }
+

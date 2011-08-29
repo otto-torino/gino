@@ -1,0 +1,51 @@
+table.userTableList {
+	width:100%;
+}
+
+table.userTableList th {
+	padding:2px;
+	border: 1px solid #000;
+	background-color:#666;
+	color: #fff;
+}
+table.userTableList th a:visited, table.userTableList th a:link {
+	color: #fff;
+}
+
+table.userTableList th[class^=thOrder] {
+	background-color:#888;
+}
+
+table.userTableList td {
+	padding:2px;
+	border: 1px solid #000;
+}
+table.userTableList th.noBorder, table.userTableList td.noBorder {
+	border: 0px;
+	background-color:#fff;
+}
+table.userTableList td.tdIcon {
+	border: 0px;
+	background-color: #fff;
+
+}
+table.userTableList tr.trOdd {
+	background-color: #eee;
+}
+table.userTableList tr.trEven {
+	background-color: #fff;
+}
+
+table.userCard {
+	width: 100%;
+}
+table.userCard td {
+	border:1px solid #999;
+	background:#fff;
+	padding:5px;
+}
+table.userCard th {
+	border:1px solid #999;
+	background:#eee;
+	padding:5px;
+}

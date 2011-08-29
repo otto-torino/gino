@@ -1,0 +1,140 @@
+/* Root = Horizontal, Secondary = Vertical */
+nav#menu ul.mainmenu {
+  margin: 0;
+  border: 0 none;
+  padding: 0;
+  width: auto; /*For KHTML*/
+  list-style: none;
+  width:178px;
+}
+nav#menu ul.mainmenu li {
+  margin: 0;
+  border: 0 none;
+  padding: 0;
+  float:none;
+# float: left; /*ie*/
+  display: block; /*ie*/
+# display: inline; 
+  list-style: none;
+  position: relative;
+  height: 24px;
+  text-align:left;
+  width:178px;
+}
+/* SUBMENUS */
+
+nav#menu ul.mainmenu ul {
+  margin: 0;
+  border: 0 none;
+  padding: 0;
+  width: auto;
+  list-style: none;
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 178px;
+  z-index:10;
+}
+
+nav#menu ul.mainmenu ul:after /*From IE 7 lack of compliance*/{
+  clear: both;
+  display: block;
+  font: 1px/0px serif;
+  content: ".";
+  height: 0;
+  visibility: hidden;
+}
+
+nav#menu ul.mainmenu ul li {
+  width: 160px;
+  float: left; /*For IE 7 lack of compliance*/
+  display: block !important;
+  display: inline; /*For IE*/
+  text-align:left;
+  z-index:10;
+}
+
+/* Root Menu */
+nav#menu ul.mainmenu a {
+  border: 1px solid #FFF;
+  border-right-color: #CCC;
+  border-bottom-color: #CCC;
+  border-left-color: #EEE;
+  padding: 0 10px;;
+  float: none !important; /*For Opera*/
+  display: block;
+  background: #EEE;
+  color: #666;
+  font: bold 10px/22px Verdana, Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  height: auto !important;
+  height: 1%; /*For IE*/
+}
+
+nav#menu ul.mainmenu a.withChildrenV {
+  border: 1px solid #FFF;
+  border-right-color: #CCC;
+  border-bottom-color: #CCC;
+  border-left-color: #EEE;
+  padding: 0 10px;
+  float: none !important; /*For Opera*/
+  float: left; /*For IE*/
+  display: block;
+  background-image: url('img/icoMoreV.png');
+  background-repeat:no-repeat;
+  background-position: right center;
+  color: #666;
+  font: bold 10px/22px Verdana, Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  height: auto !important;
+  height: 1%; /*For IE*/
+}
+nav#menu ul.mainmenu a.withSelected {
+  background-color:#aaa;
+  color: #fff;
+}
+/* Root Menu Hover Persistence */
+nav#menu ul.mainmenu a:hover {
+  background-color: #CCC;
+  color: #FFF;
+}
+
+/* 2nd Menu */
+nav#menu ul.mainmenu li:hover li a,
+nav#menu ul.mainmenu li.iehover li a {
+  float: none;
+}
+
+nav#menu ul.mainmenu ul ul {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 160px;
+}
+
+/* Do Not Move - Must Come Before display:block for Gecko */
+nav#menu ul.mainmenu li:hover ul ul,
+nav#menu ul.mainmenu li.iehover ul ul {
+  display: none;
+}
+
+nav#menu ul.mainmenu li:hover ul,
+nav#menu ul.mainmenu ul li:hover ul {
+  display: block;
+}
+
+nav#menu ul.mainmenu li.iehover ul,
+nav#menu ul.mainmenu ul li.iehover ul {
+  display: block;
+}
+
+nav#menu li.persistHover,
+nav#menu a.persistHover
+{
+	background: #CCC;
+	color: #FFF;
+}
+
+nav#menu div.pathToSelVoice {
+	margin: 5px 0px 5px 0px;
+}

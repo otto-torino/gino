@@ -1,0 +1,67 @@
+div#abiPaintContainer {
+	background-color: #e7e7e7;
+	border:1px solid #000;
+	width: 569px;
+	padding:5px;
+}
+table tr.iconRow td {
+	vertical-align: top;
+	padding: 0px 3px;
+}
+td.canvasCell {
+	padding: 0px 3px;
+	padding-top:3px;
+}
+table tr.iconRow td.preSeparator {
+	padding-right: 4px;
+}
+table tr.iconRow td.postSeparator {
+	border-left: 1px solid #000;
+	padding-left: 4px;
+}
+input#textContent {
+	margin-top:2px;
+	height:16px;
+}
+input#pencilColor {
+	margin-top:2px;
+	height:16px;
+}
+input#saveImage {
+	margin-top:2px;
+	background-color:#ff6600;
+	color:#fff;
+	cursor:pointer;
+}
+input#clearStage {
+	margin-top:2px;
+	background-color:#ff6600;
+	color:#fff;
+	cursor:pointer;
+}
+span.sharp {
+	font-size: 14px;
+}
+div#abiPaintContainer canvas {
+	border:1px solid #000;
+	background-color:#fff;
+}
+img.APico {
+	border:2px solid #e7e7e7;
+	cursor:pointer;
+}
+img.APicoSel {
+	border:2px solid #ff6600;
+	cursor: pointer;
+}
+div#APdownload {
+	padding: 3px 3px;
+	text-align:right;
+}
+.APtips {
+	background-color:#ccc;
+	color:#000;
+	opacity:0.5;
+	padding:5px;
+	max-width:200px;
+}

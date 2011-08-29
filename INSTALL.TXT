@@ -1,0 +1,57 @@
+
+--------------------------------------------------------
+INSTALLAZIONE
+--------------------------------------------------------
+
+La procedura di installazione prevede i seguenti passaggi:
+
+1) Scompattare il sito nell’area web
+
+2) Importare il database (gino.sql)
+
+- utilizzare un programma apposito (ad esempio phpMyAdmin)
+- da shell:
+# mysqladmin -h localhost -u root -p create dbname
+# mysql -u root -p dbname < gino.sql
+
+Nel database inserire la funzione 'replace_ci' utilizzata dal file lib/class.search.php:
+
+DELIMITER $$
+
+DROP FUNCTION IF EXISTS `replace_ci`$$
+CREATE FUNCTION `replace_ci` ( str TEXT,needle CHAR(255),str_rep CHAR(255))
+RETURNS TEXT
+DETERMINISTIC
+BEGIN
+DECLARE return_str TEXT;
+SELECT replace(lower(str),lower(needle),str_rep) INTO return_str;
+RETURN return_str;
+END$$
+
+DELIMITER ;
+
+3) Impostare i parametri base del sito nel file 'configuration.php'
+
+- parametri database: SERVER_NAME, SERVER_PORT, DBNAME, DBUSER, DBPWD
+- altri parametri: SESSION_NAME, MAX_FILE_SIZE
+
+5) Verificare che le directory all'interno delle quali l'applicazione crea automaticamente altre directory oppure crea o modifica file attraverso l’interfaccia web, possiedano i permessi adeguati.
+La tipologia di permessi da impostare varia in riferimento agli utenti e ai gruppi proprietari delle directory. In generale nel caso in cui l'utente e il gruppo siano gli stessi del server web (su debian www-data:www-data) è sufficiente impostare [755], mentre negli altri casi [777].
+Le sotto-directory create dall'applicativo prenderanno direttamente i permessi corretti.
+
+- Directory temporanea (per la gestione degli upload). Suoi sistemi *nix è generalmente /tmp: [777].
+- Directory dei contenuti (contents/directory/).
+- Directory dei template (templates).
+- Directory dei css (css), in particolare i file main.css e admin.css.
+
+Nel caso del trasferimento di un sito occorre verificare i permessi delle sotto-directory di 'page', di modo che la struttura delle pagine sia la seguente:
+contents/		page/			id/		file
+755 (775)		755 (777)		755		644
+contents:	www-site.www-data
+a seguire:	www-data.www-data
+
+--------------------------------------------------------
+UTENTE DI DEFAULT
+--------------------------------------------------------
+
+amministratore|admin12

@@ -1,0 +1,26 @@
+body {
+	font-family: Verdana, Arial;
+	font-size:11px;
+	text-align:center;
+}
+div#errorImg {
+	width:320px;
+	height:210px;
+	background:url('../img/gino_error.jpg');
+	margin:auto;
+}
+table {
+	text-align:left;
+	margin:auto;
+	border-collapse:collapse;
+}
+th {
+	background-color: #ff6600;
+	color:#fff;
+	padding:5px;
+}
+td {
+	background-color: #eee;
+	color:#000;
+	padding:5px;
+}

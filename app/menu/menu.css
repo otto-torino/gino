@@ -1,0 +1,44 @@
+/* fron-end */
+img.ico_more_menu {
+	margin-bottom:3px;
+#	margin-bottom:2px;
+	margin-left:5px;
+}
+section#pathmenu img.ico_more {
+	margin-bottom:3px;
+#	margin-bottom:2px;
+	margin-left:5px;
+}
+
+/* back office */
+.sortHandler {
+	cursor:move;
+	float:left;
+	background-image: url('img/ico_sort.gif');
+	background-position: center center;
+	background-repeat: no-repeat;
+	width:20px;
+	height:20px;
+	margin-right:3px;
+}
+
+table.menuInfo {
+	width:100%;
+	border-collapse: separate;
+	background-color:#0099cc;
+}
+table.menuInfo th {
+	color:#fff;
+}
+table.menuInfo tr {
+}
+table.menuInfo tr td {
+	background-color: #fff;
+	padding: 5px;
+}
+table.menuInfo tr td:first-child {
+	background-color: #eee;
+}
+
+
+

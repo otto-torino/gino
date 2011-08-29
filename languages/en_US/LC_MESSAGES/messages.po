@@ -1,0 +1,1600 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-11-29 10:53+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: lib/evt.php:482
+msgid "Il metodo richiamato non esiste"
+msgstr ""
+
+#: lib/error.php:22
+msgid "non sono stati compilati i campi obbligatori."
+msgstr "compulsory field needed"
+
+#: lib/error.php:23
+msgid "non è stato compilato almeno un campo."
+msgstr "no field filled"
+
+#: lib/error.php:24
+msgid "il file non può essere inserito perché non conforme alle specifiche."
+msgstr "usupported file format"
+
+#: lib/error.php:25
+msgid "il nome del file è già presente. cambiare nome al file."
+msgstr "file name already present; please change name"
+
+#: lib/error.php:26
+msgid "non sono stati compilati tutti i campi."
+msgstr "some fields are missing"
+
+#: lib/error.php:27
+msgid "le due password non corrispondono."
+msgstr "password doens't match"
+
+#: lib/error.php:28
+msgid "l'email non è valida."
+msgstr "invalid email"
+
+#: lib/error.php:29
+msgid "il nome utente scelto è già utilizzato."
+msgstr "user already present"
+
+#: lib/error.php:30
+msgid "errore tecnico. contattare l'amministratore di sistema."
+msgstr "technical error; please contact system administrator"
+
+#: lib/error.php:31
+msgid "l'accesso alla pagina è concesso previa autenticazione."
+msgstr "access requests authentication"
+
+#: lib/error.php:32
+msgid "la pagina richiesta non è disponibile."
+msgstr "page not available"
+
+#: lib/error.php:33
+msgid "il codice lingua è già presente."
+msgstr "language code already present"
+
+#: lib/error.php:34
+msgid "scegliere almeno un campo di ricerca."
+msgstr "choose at least one search field"
+
+#: lib/error.php:35
+msgid "la password inserita non rispetta il numero di caratteri richiesto."
+msgstr "invalid password character number"
+
+#: lib/error.php:36
+msgid "il carrello risulta vuoto."
+msgstr ""
+
+#: lib/error.php:37
+msgid "sessione non valida o utente non registrato."
+msgstr "invalid session or unknown user"
+
+#: lib/error.php:38
+msgid "il numero di ordine non è valido."
+msgstr "invalid session or unknown user"
+
+#: lib/variables.php:50
+msgid "-"
+msgstr "-"
+
+#: lib/classes/class.htmlcode.php:187 lib/evt-classes/class_free.php:99
+msgid "categorie"
+msgstr "categories"
+
+#: lib/classes/class.htmlcode.php:247 lib/classes/class.htmlcode.php:312
+#: lib/evt-classes/class_publication.php:1241
+msgid "pagine"
+msgstr "pages"
+
+#: lib/classes/class.htmlcode.php:408
+msgid "menu elementi"
+msgstr "items menu"
+
+#: lib/classes/class.htmlcode.php:408 lib/evt-classes/class_position.php:131
+msgid "moduli"
+msgstr "forms"
+
+#: lib/classes/class.htmlcode.php:408
+msgid "posizionamento"
+msgstr "position"
+
+#: lib/classes/class.htmlcode.php:408 lib/evt-classes/class_mailing.php:670
+#: lib/evt-classes/class_mailing.php:194
+msgid "utenti"
+msgstr "users"
+
+#: lib/classes/class.htmlcode.php:413
+msgid "lingue"
+msgstr "languages"
+
+#: lib/classes/class.pagelist.php:141
+msgid "su"
+msgstr "up"
+
+#: lib/evt-classes/class_admin.php:65 lib/evt-classes/class_menu.php:225
+msgid "amministrazione"
+msgstr "administration"
+
+#: lib/evt-classes/class_article.php:157
+msgid "articoli"
+msgstr "article"
+
+#: lib/evt-classes/class_article.php:158
+#: lib/evt-classes/class_publication.php:1247
+msgid "keywords"
+msgstr "keywords"
+
+#: lib/evt-classes/class_article.php:248
+#: lib/evt-classes/class_calendar.php:168 lib/evt-classes/class_free.php:136
+#: lib/evt-classes/class_mailing.php:190
+#: lib/evt-classes/class_module.php:118 lib/evt-classes/class_news.php:143
+#: lib/evt-classes/class_publication.php:149
+#: lib/evt-classes/class_section.php:157 lib/evt-classes/class_users.php:149
+msgid "inserimento"
+msgstr "insert"
+
+#: lib/evt-classes/class_article.php:249
+#: lib/evt-classes/class_article.php:2056
+#: lib/evt-classes/class_article.php:2196
+#: lib/evt-classes/class_article.php:2360
+#: lib/evt-classes/class_article.php:2650
+#: lib/evt-classes/class_article.php:2826
+#: lib/evt-classes/class_article.php:3344
+#: lib/evt-classes/class_article.php:3690
+#: lib/evt-classes/class_article.php:3795
+#: lib/evt-classes/class_calendar.php:1024 lib/evt-classes/class_css.php:128
+#: lib/evt-classes/class_docs.php:467 lib/evt-classes/class_docs.php:725
+#: lib/evt-classes/class_free.php:137 lib/evt-classes/class_free.php:863
+#: lib/evt-classes/class_free.php:1183 lib/evt-classes/class_free.php:1406
+#: lib/evt-classes/class_language.php:580
+#: lib/evt-classes/class_mailing.php:191
+#: lib/evt-classes/class_mailing.php:727 lib/evt-classes/class_mailing.php:787
+#: lib/evt-classes/class_mailing.php:1149
+#: lib/evt-classes/class_menu.old.php:289
+#: lib/evt-classes/class_menu.old.php:398
+#: lib/evt-classes/class_menu.old.php:655 lib/evt-classes/class_menu.php:111
+#: lib/evt-classes/class_menu.php:357 lib/evt-classes/class_menu.php:466
+#: lib/evt-classes/class_menu.php:723 lib/evt-classes/class_module.php:119
+#: lib/evt-classes/class_module.php:372 lib/evt-classes/class_news.php:144
+#: lib/evt-classes/class_news.php:621
+#: lib/evt-classes/class_publication.php:150
+#: lib/evt-classes/class_publication.php:1135
+#: lib/evt-classes/class_publication.php:1549
+#: lib/evt-classes/class_publication.php:1773
+#: lib/evt-classes/class_section.php:158
+#: lib/evt-classes/class_section.php:1041
+#: lib/evt-classes/class_section.php:1393
+#: lib/evt-classes/class_section.php:1399
+#: lib/evt-classes/class_section.php:1542
+#: lib/evt-classes/class_section.php:1688
+#: lib/evt-classes/class_section.php:2394
+#: lib/evt-classes/class_section.php:2499 lib/evt-classes/class_users.php:150
+#: lib/evt-classes/class_users.php:475 lib/evt-classes/class_users.php:539
+#: lib/evt-classes/class_users.php:994 lib/evt-classes/class_users.php:1052
+msgid "modifica"
+msgstr "modify"
+
+#: lib/evt-classes/class_article.php:250 lib/evt-classes/class_free.php:138
+#: lib/evt-classes/class_mailing.php:192
+#: lib/evt-classes/class_menu.php:112 lib/evt-classes/class_module.php:120
+#: lib/evt-classes/class_news.php:145
+#: lib/evt-classes/class_publication.php:151
+#: lib/evt-classes/class_section.php:159 lib/evt-classes/class_users.php:151
+msgid "elenco"
+msgstr "list"
+
+#: lib/evt-classes/class_article.php:251 lib/evt-classes/class_free.php:139
+#: lib/evt-classes/class_language.php:50 lib/evt-classes/class_mailing.php:193
+#: lib/evt-classes/class_menu.php:113 lib/evt-classes/class_module.php:121
+#: lib/evt-classes/class_news.php:146
+#: lib/evt-classes/class_publication.php:152
+#: lib/evt-classes/class_section.php:160 lib/evt-classes/class_users.php:152
+msgid "pagina precedente"
+msgstr "previous page"
+
+#: lib/evt-classes/class_article.php:252 lib/evt-classes/class_free.php:140
+#: lib/evt-classes/class_menu.php:114 lib/evt-classes/class_module.php:122
+#: lib/evt-classes/class_publication.php:153
+#: lib/evt-classes/class_section.php:161
+msgid "collegamento alla pagina"
+msgstr "link to page"
+
+#: lib/evt-classes/class_article.php:253
+#: lib/evt-classes/class_article.php:3639 lib/evt-classes/class_free.php:141
+#: lib/evt-classes/class_menu.php:115
+#: lib/evt-classes/class_publication.php:154
+#: lib/evt-classes/class_section.php:162
+#: lib/evt-classes/class_section.php:2343
+msgid "traduzioni"
+msgstr "translation"
+
+#: lib/evt-classes/class_article.php:254
+#: lib/evt-classes/class_article.php:2561
+#: lib/evt-classes/class_section.php:163
+#: lib/evt-classes/class_section.php:1301
+msgid "contenuti"
+msgstr "content"
+
+#: lib/evt-classes/class_article.php:255
+#: lib/evt-classes/class_article.php:3360
+msgid "keyword"
+msgstr "keyword"
+
+#: lib/evt-classes/class_article.php:256
+msgid "puntatore"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:665
+msgid "In primo piano"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:704 lib/evt-classes/class_free.php:363
+#: lib/evt-classes/class_news.php:387
+#: lib/evt-classes/class_publication.php:499
+#: lib/evt-classes/class_users.php:273
+msgid "elenco completo"
+msgstr "complete list"
+
+#: lib/evt-classes/class_article.php:715 lib/evt-classes/class_article.php:754
+msgid "ricerca di base"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:719 lib/evt-classes/class_article.php:752
+msgid "ricerca per keywords"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:729
+#: lib/evt-classes/class_article.php:1642
+#: lib/evt-classes/class_article.php:2098
+#: lib/evt-classes/class_article.php:2239
+#: lib/evt-classes/class_article.php:2405
+#: lib/evt-classes/class_article.php:3708 lib/evt-classes/class_docs.php:342
+#: lib/evt-classes/class_docs.php:421 lib/evt-classes/class_docs.php:489
+#: lib/evt-classes/class_free.php:786 lib/evt-classes/class_free.php:932
+#: lib/evt-classes/class_free.php:1203 lib/evt-classes/class_mailing.php:811
+#: lib/evt-classes/class_mailing.php:1168 lib/evt-classes/class_news.php:675
+#: lib/evt-classes/class_publication.php:1053
+#: lib/evt-classes/class_publication.php:1224
+#: lib/evt-classes/class_publication.php:1569
+#: lib/evt-classes/class_section.php:727
+#: lib/evt-classes/class_section.php:1082
+#: lib/evt-classes/class_section.php:2412
+msgid "titolo"
+msgstr "title"
+
+#: lib/evt-classes/class_article.php:732
+#: lib/evt-classes/class_article.php:2411
+#: lib/evt-classes/class_publication.php:1227
+#: lib/evt-classes/class_users.php:439
+msgid "autore"
+msgstr "author"
+
+#: lib/evt-classes/class_article.php:737 lib/evt-classes/class_article.php:815
+msgid "cerca"
+msgstr "find"
+
+#: lib/evt-classes/class_article.php:1022
+msgid "la ricerca non ha prodotto risultati."
+msgstr "no item found"
+
+#: lib/evt-classes/class_article.php:1133
+msgid "sezione di pagina"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1151
+#: lib/evt-classes/class_article.php:1160
+#: lib/evt-classes/class_article.php:1183
+#: lib/evt-classes/class_section.php:524 lib/evt-classes/class_section.php:533
+#: lib/evt-classes/class_section.php:556
+msgid "media pagina"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1210
+msgid ""
+"Questo testo è riproducibile alle condizioni previste e descritte nel sito"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1214
+#: lib/evt-classes/class_article.php:2621
+#: lib/evt-classes/class_article.php:3926
+#: lib/evt-classes/class_section.php:584
+#: lib/evt-classes/class_section.php:1361
+#: lib/evt-classes/class_section.php:2630
+msgid "elementi ancora da inserire."
+msgstr "item to be insered"
+
+#: lib/evt-classes/class_article.php:1223
+msgid "altri articoli dello stesso autore"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1227
+msgid "non ci sono altri articoli dello stesso autore"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1230
+msgid "versione stampabile"
+msgstr "print version"
+
+#: lib/evt-classes/class_article.php:1252
+#: lib/evt-classes/class_section.php:345 lib/evt-classes/class_section.php:346
+#: lib/evt-classes/class_section.php:608
+#: lib/evt-classes/class_section.php:1612
+msgid "testo da sostituire"
+msgstr "text to be sobstituted"
+
+#: lib/evt-classes/class_article.php:1258
+#: lib/evt-classes/class_section.php:614
+msgid ""
+"Per creare un link a questa pagina all'interno di un'altra pagina copiare e "
+"incollare la stringa. E' inoltre necessario sostituire il nome del "
+"collegamento con il testo desiderato."
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1348 lib/evt-classes/class_docs.php:533
+#: lib/evt-classes/class_free.php:278 lib/evt-classes/class_news.php:273
+#: lib/evt-classes/class_publication.php:294
+#: lib/evt-classes/class_section.php:660 lib/evt-classes/class_users.php:231
+msgid "non risultano formati permessi."
+msgstr "wrong file format"
+
+#: lib/evt-classes/class_article.php:1356 lib/evt-classes/class_free.php:712
+#: lib/evt-classes/class_free.php:1329 lib/evt-classes/class_mailing.php:760
+#: lib/evt-classes/class_mailing.php:1071
+#: lib/evt-classes/class_menu.old.php:370 lib/evt-classes/class_menu.php:438
+#: lib/evt-classes/class_module.php:245
+#: lib/evt-classes/class_publication.php:979
+#: lib/evt-classes/class_publication.php:1694
+#: lib/evt-classes/class_section.php:668 lib/evt-classes/class_users.php:349
+msgid "informazioni"
+msgstr "information"
+
+#: lib/evt-classes/class_article.php:1360
+#: lib/evt-classes/class_section.php:672
+msgid ""
+"<p>l'<b>inserimento</b> di una nuova pagina avviene nella lingua impostata "
+"di default.</p><p>quando si accede all'interfaccia di <b>modifica</b> di una "
+"pagina viene proposta la modifica della pagina nella lingua di navigazione."
+"<br />è peraltro possibile inserire e modificare i testi della pagina in "
+"tutte le lingue disponibili attraverso il gestore di traduzioni cui si "
+"accede dall'interfaccia automatica di modifica.</p><p>le suddette "
+"indicazioni sono valide anche per i <b>contenuti</b> di una pagina.</p>"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1364
+#: lib/evt-classes/class_section.php:676 lib/evt-classes/class_users.php:351
+msgid "..."
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1380
+msgid "nuovo articolo"
+msgstr "new article"
+
+#: lib/evt-classes/class_article.php:1434 lib/evt-classes/class_free.php:922
+#: lib/evt-classes/class_publication.php:1214
+msgid "categoria"
+msgstr "category"
+
+#: lib/evt-classes/class_article.php:1471
+msgid "sotto-categoria"
+msgstr "subcategory"
+
+#: lib/evt-classes/class_article.php:1494
+msgid "la ricerca non ha prodotto risultati"
+msgstr "no item found"
+
+#: lib/evt-classes/class_article.php:1499
+msgid "seleziona una categoria"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1505
+msgid "cambia i riferimenti"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1526
+msgid "eliminazione articolo"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1527
+msgid "ATTENZIONE: l'eliminazione è definitiva."
+msgstr ""
+
+#: lib/evt-classes/class_article.php:1528
+#: lib/evt-classes/class_calendar.php:896
+#: lib/evt-classes/class_mailing.php:727 lib/evt-classes/class_mailing.php:884
+#: lib/evt-classes/class_module.php:688 lib/evt-classes/class_section.php:1210
+msgid "elimina"
+msgstr "delete"
+
+#: lib/evt-classes/class_article.php:1641
+#: lib/evt-classes/class_article.php:2393
+#: lib/evt-classes/class_section.php:726
+#: lib/evt-classes/class_section.php:1071
+msgid "intestazione"
+msgstr "header"
+
+#: lib/evt-classes/class_article.php:1643
+#: lib/evt-classes/class_article.php:2101
+#: lib/evt-classes/class_article.php:2242
+#: lib/evt-classes/class_article.php:3711
+#: lib/evt-classes/class_section.php:728
+#: lib/evt-classes/class_section.php:1085
+#: lib/evt-classes/class_section.php:2415
+msgid "sottotitolo"
+msgstr "subtitles"
+
+#: lib/evt-classes/class_article.php:1802
+msgid "albero articoli"
+msgstr "articles tree"
+
+#: lib/evt-classes/class_article.php:2055 lib/evt-classes/class_free.php:1407
+#: lib/evt-classes/class_publication.php:1774
+msgid "modifica categoria"
+msgstr "modify category"
+
+#: lib/evt-classes/class_article.php:2072 lib/evt-classes/class_free.php:1417
+#: lib/evt-classes/class_publication.php:1793
+msgid "nuova categoria"
+msgstr "new category"
+
+#: lib/evt-classes/class_article.php:2073
+#: lib/evt-classes/class_article.php:2213
+#: lib/evt-classes/class_article.php:2378
+#: lib/evt-classes/class_article.php:2659
+#: lib/evt-classes/class_article.php:2839
+#: lib/evt-classes/class_article.php:3351
+#: lib/evt-classes/class_article.php:3697
+#: lib/evt-classes/class_article.php:3801
+#: lib/evt-classes/class_calendar.php:1037
+#: lib/evt-classes/class_calendar.php:1050 lib/evt-classes/class_docs.php:476
+#: lib/evt-classes/class_docs.php:732 lib/evt-classes/class_free.php:884
+#: lib/evt-classes/class_free.php:1190 lib/evt-classes/class_free.php:1416
+#: lib/evt-classes/class_language.php:589
+#: lib/evt-classes/class_menu.old.php:410
+#: lib/evt-classes/class_menu.old.php:661 lib/evt-classes/class_menu.php:110
+#: lib/evt-classes/class_menu.php:478 lib/evt-classes/class_menu.php:729
+#: lib/evt-classes/class_module.php:383 lib/evt-classes/class_news.php:650
+#: lib/evt-classes/class_publication.php:1166
+#: lib/evt-classes/class_publication.php:1556
+#: lib/evt-classes/class_publication.php:1792
+#: lib/evt-classes/class_section.php:1056
+#: lib/evt-classes/class_section.php:1407
+#: lib/evt-classes/class_section.php:1567
+#: lib/evt-classes/class_section.php:1717
+#: lib/evt-classes/class_section.php:2401
+#: lib/evt-classes/class_section.php:2505 lib/evt-classes/class_users.php:555
+msgid "inserisci"
+msgstr "insert"
+
+#: lib/evt-classes/class_article.php:2104
+#: lib/evt-classes/class_article.php:2245
+#: lib/evt-classes/class_menu.old.php:251
+#: lib/evt-classes/class_menu.old.php:439 lib/evt-classes/class_menu.php:319
+#: lib/evt-classes/class_menu.php:507
+msgid "visibile"
+msgstr "visible"
+
+#: lib/evt-classes/class_article.php:2195
+msgid "modifica sottocategoria"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2212
+msgid "nuova sottocategoria"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2324
+msgid "keywords assegnate"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2334
+msgid "non sono state ancora assegnate delle keywords"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2337
+msgid "assegnazione keywords"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2408
+msgid "occhiello"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2434
+msgid "articolo pubblico"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2440
+msgid "approvazione"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2603
+#: lib/evt-classes/class_section.php:1340
+msgid "file abbinato"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2648
+#: lib/evt-classes/class_article.php:2658
+#: lib/evt-classes/class_section.php:1387
+#: lib/evt-classes/class_section.php:1406
+msgid "scegli un'azione"
+msgstr "choose an action"
+
+#: lib/evt-classes/class_article.php:2649
+#: lib/evt-classes/class_section.php:1388
+msgid "cancella"
+msgstr "delete"
+
+#: lib/evt-classes/class_article.php:2651
+#: lib/evt-classes/class_section.php:1394
+msgid "inserisci prima"
+msgstr "add before"
+
+#: lib/evt-classes/class_article.php:2652
+#: lib/evt-classes/class_section.php:1395
+msgid "inserisci dopo"
+msgstr "add after"
+
+#: lib/evt-classes/class_article.php:2664
+#: lib/evt-classes/class_mailing.php:494
+#: lib/evt-classes/class_section.php:1413
+msgid "procedi"
+msgstr "go on"
+
+#: lib/evt-classes/class_article.php:2825
+#: lib/evt-classes/class_section.php:1541
+#: lib/evt-classes/class_section.php:1687
+msgid "modifica contenuto"
+msgstr "modify content"
+
+#: lib/evt-classes/class_article.php:2838
+#: lib/evt-classes/class_section.php:1716
+msgid "nuovo contenuto"
+msgstr "new content"
+
+#: lib/evt-classes/class_article.php:2870
+#: lib/evt-classes/class_section.php:1596
+#: lib/evt-classes/class_section.php:1753
+msgid "layout"
+msgstr "layout"
+
+#: lib/evt-classes/class_article.php:2883
+#: lib/evt-classes/class_section.php:1767
+msgid "media"
+msgstr "media"
+
+#: lib/evt-classes/class_article.php:2884
+#: lib/evt-classes/class_article.php:2895
+msgid "formati accettati"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2887
+#: lib/evt-classes/class_article.php:2898
+msgid "file inserito"
+msgstr "inserted file"
+
+#: lib/evt-classes/class_article.php:2888
+msgid "media registrato"
+msgstr "recorded media"
+
+#: lib/evt-classes/class_article.php:2894
+#: lib/evt-classes/class_section.php:1787
+msgid "file (solo per il layout)"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:2917
+#: lib/evt-classes/class_article.php:3812
+#: lib/evt-classes/class_section.php:2516
+msgid "testo del blocco pagina"
+msgstr "page block text"
+
+#: lib/evt-classes/class_article.php:3175
+#: lib/evt-classes/class_section.php:2190
+msgid "cambia ordine"
+msgstr "change order"
+
+#: lib/evt-classes/class_article.php:3375
+#: lib/evt-classes/class_article.php:3386
+#: lib/evt-classes/class_article.php:3492
+msgid "elenco keywords"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:3415
+msgid "elimina selezionati"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:3423
+#: lib/evt-classes/class_article.php:3548
+msgid "non ci sono keywords registrate"
+msgstr ""
+
+#: lib/evt-classes/class_article.php:3541 lib/evt-classes/class_layout.php:143
+#: lib/evt-classes/class_mailing.php:1293 lib/evt-classes/class_module.php:618
+msgid "aggiorna"
+msgstr "upgrade"
+
+#: lib/evt-classes/class_article.php:3648 lib/evt-classes/class_free.php:1138
+#: lib/evt-classes/class_menu.old.php:611 lib/evt-classes/class_menu.php:679
+#: lib/evt-classes/class_news.php:1038
+#: lib/evt-classes/class_publication.php:1504
+#: lib/evt-classes/class_section.php:2352
+msgid " - lingua principale"
+msgstr " - main language"
+
+#: lib/evt-classes/class_article.php:3889
+#: lib/evt-classes/class_section.php:2593
+msgid "Layout blocchi di pagina"
+msgstr "page blocks ayout"
+
+#: lib/evt-classes/class_article.php:3913
+#: lib/evt-classes/class_menu.old.php:304 lib/evt-classes/class_menu.php:372
+#: lib/evt-classes/class_section.php:2617
+msgid "cambia"
+msgstr "change"
+
+#: lib/evt-classes/class_calendar.php:167
+#: lib/evt-classes/class_mailing.php:1237
+#: lib/evt-classes/class_mailing.php:1238
+#: lib/evt-classes/class_mailing.php:1239
+#: lib/evt-classes/class_mailing.php:1244
+#: lib/evt-classes/class_mailing.php:1253
+#: lib/evt-classes/class_mailing.php:1262
+#: lib/evt-classes/class_section.php:164
+msgid "visualizza"
+msgstr "view"
+
+#: lib/evt-classes/class_calendar.php:184
+msgid "calendario"
+msgstr "calendar"
+
+#: lib/evt-classes/class_calendar.php:326
+#: lib/evt-classes/class_calendar.php:759
+msgid "progetto"
+msgstr "project"
+
+#: lib/evt-classes/class_calendar.php:720
+msgid "calendario - ricerca"
+msgstr "calendar - find"
+
+#: lib/evt-classes/class_calendar.php:723
+msgid "da"
+msgstr "from"
+
+#: lib/evt-classes/class_calendar.php:730
+msgid "a"
+msgstr "to"
+
+#: lib/evt-classes/class_calendar.php:739
+#: lib/evt-classes/class_mailing.php:803 lib/evt-classes/class_mailing.php:851
+msgid "utente"
+msgstr "user"
+
+#: lib/evt-classes/class_calendar.php:764
+msgid "genera il calendario"
+msgstr "create calendar"
+
+#: lib/evt-classes/class_calendar.php:856
+#: lib/evt-classes/class_calendar.php:1081
+msgid "partecipanti"
+msgstr "taking part"
+
+#: lib/evt-classes/class_calendar.php:871
+msgid "non risultano persone registrate"
+msgstr ""
+
+#: lib/evt-classes/class_calendar.php:1061 lib/evt-classes/class_news.php:670
+msgid "giorno"
+msgstr "day"
+
+#: lib/evt-classes/class_calendar.php:1067
+#: lib/evt-classes/class_calendar.php:1289
+msgid "ora"
+msgstr "hour"
+
+#: lib/evt-classes/class_calendar.php:1072
+#: lib/evt-classes/class_calendar.php:1289
+msgid "luogo"
+msgstr "location"
+
+#: lib/evt-classes/class_calendar.php:1075
+#: lib/evt-classes/class_calendar.php:1289
+msgid "evento"
+msgstr "event"
+
+#: lib/evt-classes/class_calendar.php:1078 lib/evt-classes/class_docs.php:422
+#: lib/evt-classes/class_docs.php:693 lib/evt-classes/class_free.php:787
+#: lib/evt-classes/class_free.php:1365
+#: lib/evt-classes/class_publication.php:1729
+msgid "descrizione"
+msgstr "description"
+
+#: lib/evt-classes/class_calendar.php:1137
+msgid "non risultano utenti validi."
+msgstr ""
+
+#: lib/evt-classes/class_calendar.php:1142
+msgid "progetti"
+msgstr "projects"
+
+#: lib/evt-classes/class_calendar.php:1287
+msgid "invito incontro del"
+msgstr "invitation meeting on"
+
+#: lib/evt-classes/class_calendar.php:1291
+#: lib/evt-classes/class_mailing.php:1596
+msgid ""
+"Nota: questa email è generata automaticamente dal sistema, non rispondete a "
+"questo messaggio."
+msgstr "Note: this is automatically generated by the system. Do not answer to this message."
+
+#: lib/evt-classes/class_css.php:66
+msgid "determinazione CSS"
+msgstr "CSS determination"
+
+#: lib/evt-classes/class_css.php:90
+msgid "colonne area pubblica"
+msgstr "public area columns"
+
+#: lib/evt-classes/class_css.php:102 lib/evt-classes/class_css.php:121
+msgid "width left"
+msgstr "width left"
+
+#: lib/evt-classes/class_css.php:104 lib/evt-classes/class_css.php:123
+msgid "width center"
+msgstr "width center"
+
+#: lib/evt-classes/class_css.php:106 lib/evt-classes/class_css.php:125
+msgid "width right"
+msgstr "width right"
+
+#: lib/evt-classes/class_css.php:109
+msgid "colonne area privata"
+msgstr ""
+
+#: lib/evt-classes/class_docs.php:61
+msgid "Documenti"
+msgstr ""
+
+#: lib/evt-classes/class_docs.php:76 lib/evt-classes/class_free.php:129
+msgid "elenco documenti registrati"
+msgstr "recorded documents list"
+
+#: lib/evt-classes/class_docs.php:239
+msgid "elenco documenti"
+msgstr "documents list"
+
+#: lib/evt-classes/class_docs.php:315 lib/evt-classes/class_docs.php:445
+#: lib/evt-classes/class_free.php:836
+#: lib/evt-classes/class_publication.php:1102
+msgid "non risultano documenti."
+msgstr "no documents found"
+
+#: lib/evt-classes/class_docs.php:322 lib/evt-classes/class_docs.php:706
+#: lib/evt-classes/class_free.php:448 lib/evt-classes/class_free.php:748
+#: lib/evt-classes/class_free.php:928 lib/evt-classes/class_free.php:1387
+#: lib/evt-classes/class_publication.php:584
+#: lib/evt-classes/class_publication.php:1015
+#: lib/evt-classes/class_publication.php:1220
+#: lib/evt-classes/class_publication.php:1754
+msgid "non risultano categorie registrate."
+msgstr "no categories recorded"
+
+#: lib/evt-classes/class_docs.php:343 lib/evt-classes/class_docs.php:492
+#: lib/evt-classes/class_docs.php:747 lib/evt-classes/class_free.php:935
+#: lib/evt-classes/class_free.php:1205 lib/evt-classes/class_free.php:1442
+#: lib/evt-classes/class_mailing.php:1100
+#: lib/evt-classes/class_mailing.php:1438 lib/evt-classes/class_news.php:677
+#: lib/evt-classes/class_publication.php:1054
+#: lib/evt-classes/class_publication.php:1571
+#: lib/evt-classes/class_publication.php:1827
+#: lib/evt-classes/class_section.php:1820
+msgid "testo"
+msgstr "text"
+
+#: lib/evt-classes/class_docs.php:344 lib/evt-classes/class_docs.php:423
+#: lib/evt-classes/class_docs.php:504
+msgid "nome del file"
+msgstr "file name"
+
+#: lib/evt-classes/class_docs.php:370
+msgid "non risultano pubblicazioni."
+msgstr "no publication found"
+
+#: lib/evt-classes/class_docs.php:420
+msgid "selezione"
+msgstr "select"
+
+#: lib/evt-classes/class_docs.php:435
+msgid "elimina i file selezionati"
+msgstr "delete selected files"
+
+#: lib/evt-classes/class_docs.php:498
+msgid "file"
+msgstr "file"
+
+#: lib/evt-classes/class_docs.php:500 lib/evt-classes/class_free.php:941
+#: lib/evt-classes/class_news.php:683 lib/evt-classes/class_news.php:699
+#: lib/evt-classes/class_publication.php:1256
+msgid "formati permessi"
+msgstr "allowed format"
+
+#: lib/evt-classes/class_docs.php:507 lib/evt-classes/class_free.php:950
+#: lib/evt-classes/class_publication.php:1265
+msgid "pubblico"
+msgstr "public"
+
+#: lib/evt-classes/class_docs.php:675 lib/evt-classes/class_free.php:1343
+#: lib/evt-classes/class_publication.php:136
+#: lib/evt-classes/class_publication.php:1708
+msgid "elenco categorie"
+msgstr "categories list"
+
+#: lib/evt-classes/class_docs.php:692 lib/evt-classes/class_docs.php:744
+#: lib/evt-classes/class_free.php:1364 lib/evt-classes/class_free.php:1439
+#: lib/evt-classes/class_publication.php:1728
+#: lib/evt-classes/class_publication.php:1824
+msgid "nome categoria"
+msgstr "category name"
+
+#: lib/evt-classes/class_free.php:98
+msgid "area di scambio"
+msgstr "work area"
+
+#: lib/evt-classes/class_free.php:130
+msgid "elenco categorie registrate"
+msgstr "recorded categories list"
+
+#: lib/evt-classes/class_free.php:334
+#: lib/evt-classes/class_publication.php:417
+msgid "ultimi aggiornamenti"
+msgstr "last updates"
+
+#: lib/evt-classes/class_free.php:367 lib/evt-classes/class_free.php:522
+#: lib/evt-classes/class_publication.php:709
+msgid "non risultano contributi."
+msgstr ""
+
+#: lib/evt-classes/class_free.php:369
+msgid "inserisci contributo"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:714
+#: lib/evt-classes/class_publication.php:981
+msgid ""
+"informazioni generali:<p>nell'<b>inserimento</b> di un nuovo documento i "
+"campi \"titolo\" e \"testo del riassunto\" vengono registrati nel linguaggio "
+"predefinito.</p><p>nella <b>modifica</b> di un documento i campi \"titolo\" "
+"e \"testo del riassunto\" vengono inseriti e modificati direttamente nel "
+"linguaggio utilizzato nella navigazione.<br />se la traduzione in questo "
+"linguaggio non è presente, nei campi vengono presentati i testi del "
+"linguaggio predefinito.</p>"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:785
+#: lib/evt-classes/class_publication.php:1052
+msgid "&nbsp;"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:788
+#: lib/evt-classes/class_publication.php:1055
+msgid "azioni"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:824
+#: lib/evt-classes/class_publication.php:1090
+msgid "elimina selezione"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:864
+msgid "modifica documentazione"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:885
+msgid "nuova documentazione"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:941
+#: lib/evt-classes/class_publication.php:1256
+msgid "allega file"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:947
+#: lib/evt-classes/class_publication.php:1262
+msgid "file allegato"
+msgstr ""
+
+#: lib/evt-classes/class_free.php:1129 lib/evt-classes/class_menu.old.php:605
+#: lib/evt-classes/class_menu.php:673 lib/evt-classes/class_news.php:1030
+#: lib/evt-classes/class_publication.php:1495
+msgid "gestione traduzioni"
+msgstr "translation management"
+
+#: lib/evt-classes/class_free.php:1331
+#: lib/evt-classes/class_publication.php:1696
+msgid ""
+"informazioni generali:<p>per attivare le categorie occorre impostare la "
+"variabile '$this->_category' presente all'interno della classe col valore "
+"'yes'.</p>"
+msgstr ""
+
+#: lib/evt-classes/class_index.php:221
+msgid "area privata"
+msgstr "private area"
+
+#: lib/evt-classes/class_index.php:396
+msgid "gestione contenuti"
+msgstr "content management"
+
+#: lib/evt-classes/class_index.php:416
+msgid "gestione elementi strutturali"
+msgstr "structural elements management"
+
+#: lib/evt-classes/class_language.php:502
+msgid "lingue registrate"
+msgstr "recorder languages"
+
+#: lib/evt-classes/class_language.php:530
+msgid "nuova lingua"
+msgstr "new language"
+
+#: lib/evt-classes/class_language.php:550
+msgid "gestione lingua"
+msgstr "language management"
+
+#: lib/evt-classes/class_language.php:598
+msgid "etichetta lingua"
+msgstr "language label"
+
+#: lib/evt-classes/class_language.php:601
+msgid "codice lingua"
+msgstr "language code"
+
+#: lib/evt-classes/class_language.php:614
+msgid "codice stato"
+msgstr "state code"
+
+#: lib/evt-classes/class_language.php:629
+msgid "principale"
+msgstr "principal"
+
+#: lib/evt-classes/class_language.php:634
+msgid "attiva"
+msgstr "active"
+
+#: lib/evt-classes/class_layout.php:49
+msgid "Gestione layout"
+msgstr "layout management"
+
+#: lib/evt-classes/class_layout.php:100
+msgid "modifica layout"
+msgstr "modify layout"
+
+#: lib/evt-classes/class_layout.php:113
+msgid "numero di colonne"
+msgstr "number of columns"
+
+#: lib/evt-classes/class_layout.php:128
+msgid "posizionamento menu"
+msgstr "menu position"
+
+#: lib/evt-classes/class_mailing.php:123 lib/evt-classes/class_mailing.php:450
+#: lib/evt-classes/class_mailing.php:1097
+#: lib/evt-classes/class_mailing.php:1161
+msgid "newsletter"
+msgstr "newsletter"
+
+#: lib/evt-classes/class_mailing.php:195
+msgid "invio newsletter"
+msgstr "send newsletter"
+
+#: lib/evt-classes/class_mailing.php:198
+msgid "Gentilissimo"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:198
+msgid "Gentilissima"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:198
+msgid "Spettabile"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:452
+msgid "per iscriverti alla newsletter compila il form presente nella seguente"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:453
+msgid "pagina"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:475 lib/evt-classes/class_mailing.php:542
+msgid "iscrizione newsletter"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:477
+msgid "spiegazioni....."
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:482 lib/evt-classes/class_mailing.php:819
+#: lib/evt-classes/class_module.php:600 lib/evt-classes/class_module.php:677
+#: lib/evt-classes/class_publication.php:1237
+#: lib/evt-classes/class_users.php:436 lib/evt-classes/class_users.php:572
+msgid "nome"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:485 lib/evt-classes/class_mailing.php:822
+#: lib/evt-classes/class_users.php:576
+msgid "cognome"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:488 lib/evt-classes/class_mailing.php:825
+msgid "azienda/ente"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:491 lib/evt-classes/class_mailing.php:831
+#: lib/evt-classes/class_users.php:437 lib/evt-classes/class_users.php:607
+msgid "email"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:520
+msgid "è avvenuta l'iscrizione di"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:670
+msgid "mailing"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:717 lib/evt-classes/class_mailing.php:834
+msgid "abilitato"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:722
+msgid "non abilitato"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:749
+msgid "non risultano corrispondenze che iniziano con la lettera"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:762
+msgid ""
+"selezionare un utente dall'elenco a sinistra per poter operare modifiche."
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:799 lib/evt-classes/class_users.php:554
+msgid "nuovo utente"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:828
+msgid "riferimento"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:883
+msgid "l'eliminazione è definitiva."
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:967
+msgid "newsletter inviate"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:971
+msgid "newsletter da inviare"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1050
+msgid "elenco newsletter"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1073
+msgid ""
+"selezionare una mailing list dall'elenco a sinistra per poter operare sui "
+"suoi contenuti."
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1099
+#: lib/evt-classes/class_mailing.php:1437
+msgid "soggetto"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1157
+msgid "nuova mailing"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1171
+msgid "testo email"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1233
+msgid "elenco articoli"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1243
+msgid "articoli selezionati almeno in una mailing list"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1243
+#: lib/evt-classes/class_mailing.php:1252
+msgid "selezionare per aggiungere alla mailing"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1252
+msgid "articoli mai selezionati in una mailing list"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1261
+msgid "articoli presenti nella mailing list"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1269
+msgid "articoli mai selezionati"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1270
+msgid "articoli già selezionati"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1271
+msgid "articoli della mailing list"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1300
+msgid "non risultano elementi corrispondenti alla richiesta."
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1424
+msgid "invio mailing"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1473
+msgid "invia mailing"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1513
+msgid "per leggere l'articolo"
+msgstr ""
+
+#: lib/evt-classes/class_mailing.php:1598
+msgid ""
+"Se non desiderate piu' ricevere questa newsletter potete comunicarlo a "
+"info@agendaliberale.it"
+msgstr ""
+
+#: lib/evt-classes/class_menu.php:88
+msgid "Gestione menu"
+msgstr "menu management"
+
+#: lib/evt-classes/class_menu.php:305
+msgid "elementi visibili"
+msgstr "visible items"
+
+#: lib/evt-classes/class_menu.php:310
+msgid "elementi non visibili"
+msgstr "invisible items"
+
+#: lib/evt-classes/class_menu.php:315
+msgid "elementi del menu"
+msgstr "menu items"
+
+#: lib/evt-classes/class_menu.php:317
+#: lib/evt-classes/class_menu.php:504 lib/evt-classes/class_menu.php:739
+#: lib/evt-classes/class_module.php:417
+msgid "voce di menu"
+msgstr "menu items"
+
+#: lib/evt-classes/class_menu.php:318
+#: lib/evt-classes/class_menu.php:497
+msgid "modulo"
+msgstr "form"
+
+#: lib/evt-classes/class_menu.php:322
+msgid "ordinamento"
+msgstr "sorting"
+
+#: lib/evt-classes/class_menu.php:178
+msgid "home"
+msgstr ""
+
+#: lib/evt-classes/class_menu.php:230
+msgid "logout"
+msgstr ""
+
+#: lib/evt-classes/class_menu.php:440
+msgid ""
+"informazioni generali:<p>nell'<b>inserimento</b> di una nuova voce di menu "
+"il campo \"titolo\" viene registrato nel linguaggio predefinito.</p><p>nella "
+"<b>modifica</b> di una voce di menu il campo \"titolo\" viene modificato "
+"direttamente nel linguaggio utilizzato nella navigazione.<br />se la "
+"traduzione in questo linguaggio non è presente, nel campo viene presentato "
+"il testo del linguaggio predefinito.</p><p>quando una voce di menu passa "
+"dallo stato non visible a quello visibile, il suo posizionamento avviene "
+"all'ultimo posto dell'elenco</p>"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:83
+msgid "Gestione moduli"
+msgstr "Forms management"
+
+#: lib/evt-classes/class_module.php:247
+msgid "linee guida da inserire"
+msgstr "guidelines to be insered"
+
+#: lib/evt-classes/class_module.php:292
+msgid "elenco moduli"
+msgstr "form list"
+
+#: lib/evt-classes/class_module.php:334
+msgid "accesso"
+msgstr "access"
+
+#: lib/evt-classes/class_module.php:337
+msgid "no"
+msgstr "not"
+
+#: lib/evt-classes/class_module.php:338
+msgid "si"
+msgstr "yes"
+
+#: lib/evt-classes/class_module.php:339 lib/evt-classes/class_module.php:603
+#: lib/evt-classes/class_users.php:440
+msgid "attivo"
+msgstr "active"
+
+#: lib/evt-classes/class_module.php:371
+msgid "modifica modulo"
+msgstr "modify module"
+
+#: lib/evt-classes/class_module.php:382
+msgid "nuovo modulo"
+msgstr "new module"
+
+#: lib/evt-classes/class_module.php:402
+msgid "nome funzione"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:406
+msgid "nome classe"
+msgstr "call name"
+
+#: lib/evt-classes/class_module.php:410
+msgid "nome modulo"
+msgstr "form name"
+
+#: lib/evt-classes/class_module.php:422
+msgid "accesso pubblico"
+msgstr "public access"
+
+#: lib/evt-classes/class_module.php:427 lib/evt-classes/class_users.php:599
+msgid "livello di accesso"
+msgstr "access level"
+
+#: lib/evt-classes/class_module.php:444
+msgid "livello di accesso amministrativo"
+msgstr "administrative access level"
+
+#: lib/evt-classes/class_module.php:598
+msgid "attivazione modulo"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:602
+msgid "non attivo"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:614
+msgid "disattivato"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:675
+msgid "eliminazione modulo"
+msgstr ""
+
+#: lib/evt-classes/class_module.php:678
+msgid "tipologia"
+msgstr "type"
+
+#: lib/evt-classes/class_news.php:97
+msgid "news"
+msgstr "news"
+
+#: lib/evt-classes/class_news.php:448 lib/evt-classes/class_news.php:555
+msgid "immagine news"
+msgstr "news image"
+
+#: lib/evt-classes/class_news.php:500 lib/evt-classes/class_news.php:585
+msgid "nuova news"
+msgstr "add news"
+
+#: lib/evt-classes/class_news.php:566
+msgid "elimina se selezionati"
+msgstr "delete selected items"
+
+#: lib/evt-classes/class_news.php:625 lib/evt-classes/class_news.php:633
+#: lib/evt-classes/class_section.php:1693
+#: lib/evt-classes/class_section.php:1701
+msgid "elimina il file registrato"
+msgstr "delete recorded file"
+
+#: lib/evt-classes/class_news.php:671
+msgid "mese"
+msgstr "month"
+
+#: lib/evt-classes/class_news.php:672
+#: lib/evt-classes/class_publication.php:1233
+msgid "anno"
+msgstr "year"
+
+#: lib/evt-classes/class_news.php:683
+msgid "immagine"
+msgstr "image"
+
+#: lib/evt-classes/class_news.php:686 lib/evt-classes/class_news.php:702
+#: lib/evt-classes/class_section.php:1770
+#: lib/evt-classes/class_section.php:1771
+#: lib/evt-classes/class_section.php:1790
+#: lib/evt-classes/class_section.php:1791
+msgid "file registrato"
+msgstr "recorded file"
+
+#: lib/evt-classes/class_news.php:687 lib/evt-classes/class_news.php:703
+msgid "nuovo file (elimina quello registrato)"
+msgstr "new file (it will delete the recorded one)"
+
+#: lib/evt-classes/class_news.php:699
+msgid "file da collegare"
+msgstr ""
+
+#: lib/evt-classes/class_news.php:1043
+msgid "novità"
+msgstr "news"
+
+#: lib/evt-classes/class_position.php:57
+msgid "Gestione posizionamento"
+msgstr "position management"
+
+#: lib/evt-classes/class_position.php:103
+msgid "funzioni di sistema (definite in class_index.php)"
+msgstr "system functions (ad defined in class_index.php)"
+
+#: lib/evt-classes/class_position.php:122
+#: lib/evt-classes/class_position.php:153
+msgid "posizione"
+msgstr "position"
+
+#: lib/evt-classes/class_position.php:154
+msgid "codice modulo"
+msgstr "module code"
+
+#: lib/evt-classes/class_position.php:172
+msgid "situazione attuale"
+msgstr "present situation"
+
+#: lib/evt-classes/class_position.php:174
+msgid ""
+"tabella che racchiude la composizione dei diversi layout di visualizzazione"
+msgstr "visualizing layouts composition table"
+
+#: lib/evt-classes/class_position.php:222
+msgid "sinistra"
+msgstr "left"
+
+#: lib/evt-classes/class_position.php:226
+msgid "centro"
+msgstr "center"
+
+#: lib/evt-classes/class_position.php:230
+msgid "destra"
+msgstr "right"
+
+#: lib/evt-classes/class_publication.php:109
+msgid "pubblicazioni"
+msgstr "publications"
+
+#: lib/evt-classes/class_publication.php:135
+msgid "elenco pubblicazioni"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:362
+msgid "testo collegamento"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:463
+#: lib/evt-classes/class_publication.php:658
+msgid "vai all'articolo"
+msgstr "read"
+
+#: lib/evt-classes/class_publication.php:1136
+msgid "modifica pubblicazione"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1167
+msgid "nuova pubblicazione"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1230
+msgid "altri autori"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1235
+msgid "rivista"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1239
+msgid "numero"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1243
+msgid "collegamento esterno alla pubblicazione"
+msgstr ""
+
+#: lib/evt-classes/class_publication.php:1244
+msgid "esempio"
+msgstr "example"
+
+#: lib/evt-classes/class_publication.php:1250
+msgid "abstract"
+msgstr "abstract"
+
+#: lib/evt-classes/class_section.php:113
+msgid "Gestione pagine"
+msgstr ""
+
+#: lib/evt-classes/class_section.php:482
+msgid "porzione di pagina"
+msgstr ""
+
+#: lib/evt-classes/class_section.php:495
+msgid "impossibile aprire il file."
+msgstr "file cannot be opened"
+
+#: lib/evt-classes/class_section.php:870
+msgid "albero pagine"
+msgstr "pages tree"
+
+#: lib/evt-classes/class_section.php:941
+msgid "non risultano moduli registrati."
+msgstr "no form recorded"
+
+#: lib/evt-classes/class_section.php:1186
+msgid "questa pagina può essere eliminata solo eliminando il relativo modulo"
+msgstr ""
+
+#: lib/evt-classes/class_section.php:1190
+#: lib/evt-classes/class_section.php:1208
+msgid "eliminazione pagina"
+msgstr ""
+
+#: lib/evt-classes/class_section.php:1191
+msgid ""
+"ATTENZIONE: l'eliminazione di questa pagina è definitiva e comporta "
+"l'eliminazione di tutte le pagine figlie."
+msgstr ""
+
+#: lib/evt-classes/class_section.php:1209
+msgid ""
+"ATTENZIONE: l'eliminazione è definitiva e comporta l'eliminazione delle "
+"pagine che seguono nell'albero."
+msgstr ""
+
+#: lib/evt-classes/class_section.php:1408
+msgid "crea unico contenitore"
+msgstr "create a single case"
+
+#: lib/evt-classes/class_section.php:1566
+msgid "contenuto pagina"
+msgstr "page content"
+
+#: lib/evt-classes/class_section.php:1614
+msgid "inserire eventuali file nella directory"
+msgstr "insert file into directory"
+
+#: lib/evt-classes/class_section.php:1615
+msgid "nei collegamenti a questi file utilizzare il codice seguente"
+msgstr "insering these files use the following code"
+
+#: lib/evt-classes/class_section.php:1620
+msgid "file da includere"
+msgstr "file to be included"
+
+#: lib/evt-classes/class_section.php:1641
+msgid "codice html"
+msgstr "html code"
+
+#: lib/evt-classes/class_section.php:1642
+msgid "testo pagina"
+msgstr "page text"
+
+#: lib/evt-classes/class_section.php:1773
+#: lib/evt-classes/class_section.php:1793
+msgid "new file (it will delete the recorded one)"
+msgstr ""
+
+#: lib/evt-classes/class_section.php:1781
+#: lib/evt-classes/class_section.php:1801
+msgid "formati validi"
+msgstr ""
+
+#: lib/evt-classes/class_users.php:90
+msgid "la redazione"
+msgstr ""
+
+#: lib/evt-classes/class_users.php:153 lib/evt-classes/class_users.php:587
+#: lib/evt-classes/class_users.php:992
+msgid "password"
+msgstr "password"
+
+#: lib/evt-classes/class_users.php:419
+msgid "utenti registrati"
+msgstr "recorded users"
+
+#: lib/evt-classes/class_users.php:434
+msgid "elenco utenti con accesso al sistema"
+msgstr "system qualified users list"
+
+#: lib/evt-classes/class_users.php:438 lib/evt-classes/class_users.php:611
+msgid "telefono"
+msgstr "telephone"
+
+#: lib/evt-classes/class_users.php:487
+msgid "non risultano utenti"
+msgstr "no user found"
+
+#: lib/evt-classes/class_users.php:506
+msgid "tutti"
+msgstr "all"
+
+#: lib/evt-classes/class_users.php:535
+msgid "gestione utente"
+msgstr "user management"
+
+#: lib/evt-classes/class_users.php:536
+msgid "data di registrazione"
+msgstr "recording date"
+
+#: lib/evt-classes/class_users.php:582
+msgid "username"
+msgstr "username"
+
+#: lib/evt-classes/class_users.php:593
+msgid "la password viene generata in automatico"
+msgstr "password will be generated automatically"
+
+#: lib/evt-classes/class_users.php:615
+msgid "curriculum"
+msgstr ""
+
+#: lib/evt-classes/class_users.php:621
+msgid "immagine registrata"
+msgstr "recorded image"
+
+#: lib/evt-classes/class_users.php:628
+msgid "fotografia"
+msgstr ""
+
+#: lib/evt-classes/class_users.php:890
+msgid "nuova registrazione"
+msgstr "new registration"
+
+#: lib/evt-classes/class_users.php:891
+msgid ""
+"è avvenuta la registrazione di un nuovo utente. è necessario provvedere alla "
+"validazione."
+msgstr "a new user has been recorded. Validation in needed"
+
+#: lib/evt-classes/class_users.php:986
+msgid "nuova password"
+msgstr "new password"
+
+#: lib/evt-classes/class_users.php:993
+msgid "ripeti password"
+msgstr "retype password"
