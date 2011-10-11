@@ -738,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
 --
 
 INSERT INTO `sys_conf` (`id`, `user_role`, `admin_role`, `multi_language`, `dft_language`, `precharge_mdl_url`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_name`, `email_from_app`, `mobile`, `password_crypt`, `email_admin`, `enable_cache`, `permalinks`) VALUES
-(1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'Gino 4.0.1', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
+(1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'Gino 1.0b', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
 
 -- --------------------------------------------------------
 
