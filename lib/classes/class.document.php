@@ -339,11 +339,6 @@ class Document {
 	private function getEvent() {
 
 		$evtKey = isset($_GET[EVT_NAME])? is_array($_GET[EVT_NAME])? key($_GET[EVT_NAME]):false:false;
-		/*
-		echo "<br />evtkey: ";
-		var_dump($evtKey);
-		echo "--END--";
-		*/
 		
 		if(!$evtKey) return null;
 		if(preg_match('#^[^a-zA-Z0-9_-]+?#', $evtKey)) return null;

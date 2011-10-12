@@ -64,7 +64,7 @@ class PageList{
 	 * @param string	$queryTot
 	 * @param string	$type
 	 * @param array		$options:
-	 * 			permalink_primary [boolean]: indica se il parametro 'start' deve essere trattato come parametro primario con i permalinks 
+	 * 			permalink_primary [boolean]: indica se il parametro 'start' deve essere gestito come parametro primario con i permalink
 	 */
 	function __construct($items_for_page, $queryTot, $type, $options=array()) {
 		
