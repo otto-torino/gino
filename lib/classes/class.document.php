@@ -22,57 +22,30 @@ class Document {
 		$access = new access();
 		$this->_session_role = $access->userRole();
 		$this->_auth = (isset($_SESSION['userId']))? true:false;
-
 	}
 
+	/*
+	 * Esempi:
+	 * ["QUERY_STRING"]=> string(18) "articoli/viewList/"
+	 * ["REQUEST_URI"]=> string(41) "/gino/articoli/viewList/?b3JkZXI9dGl0bGU="
+	 * ["SCRIPT_NAME"]=> string(15) "/gino/index.php"
+	 */
 	public function render() {
 
-		/*
-		var_dump($_SERVER);
-		array(32) {
-		["REDIRECT_STATUS"]=> string(3) "200"
-		["HTTP_HOST"]=> string(9) "localhost"
-		["HTTP_USER_AGENT"]=> string(83) "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:7.0.1) Gecko/20100101 Firefox/7.0.1"
-		["HTTP_ACCEPT"]=> string(63) "text/html,application/xhtml+xml,application/xml;q=0.9,* / *;q=0.8"
-		["HTTP_ACCEPT_LANGUAGE"]=> string(35) "it-it,it;q=0.8,en-us;q=0.5,en;q=0.3"
-		["HTTP_ACCEPT_ENCODING"]=> string(13) "gzip, deflate"
-		["HTTP_ACCEPT_CHARSET"]=> string(30) "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
-		["HTTP_CONNECTION"]=> string(10) "keep-alive"
-		["HTTP_REFERER"]=> string(32) "http://localhost/gino4/index.php"
-		["HTTP_COOKIE"]=> string(38) "GINO_SESSID=ur41u4us1vtvshoguvjhgijrm1"
-		["HTTP_CACHE_CONTROL"]=> string(9) "max-age=0"
-		["PATH"]=> string(29) "/usr/bin:/bin:/usr/sbin:/sbin"
-		["SERVER_SIGNATURE"]=> string(0) ""
-		["SERVER_SOFTWARE"]=> string(66) "Apache/2.2.17 (Unix) mod_ssl/2.2.17 OpenSSL/0.9.8r DAV/2 PHP/5.3.4"
-		["SERVER_NAME"]=> string(9) "localhost"
-		["SERVER_ADDR"]=> string(9) "127.0.0.1"
-		["SERVER_PORT"]=> string(2) "80"
-		["REMOTE_ADDR"]=> string(9) "127.0.0.1"
-		["DOCUMENT_ROOT"]=> string(28) "/Library/WebServer/Documents"
-		["SERVER_ADMIN"]=> string(15) "you@example.com"
-		["SCRIPT_FILENAME"]=> string(44) "/Library/WebServer/Documents/gino4/index.php"
-		["REMOTE_PORT"]=> string(5) "51994"
-		["REDIRECT_QUERY_STRING"]=> string(18) "articoli/viewList/"
-		["REDIRECT_URL"]=> string(25) "/gino4/articoli/viewList/"
-		["GATEWAY_INTERFACE"]=> string(7) "CGI/1.1"
-		["SERVER_PROTOCOL"]=> string(8) "HTTP/1.1"
-		["REQUEST_METHOD"]=> string(3) "GET"
-		["QUERY_STRING"]=> string(18) "articoli/viewList/"
-		["REQUEST_URI"]=> string(42) "/gino4/articoli/viewList/?b3JkZXI9dGl0bGU="
-		["SCRIPT_NAME"]=> string(16) "/gino4/index.php"
-		["PHP_SELF"]=> string(16) "/gino4/index.php"
-		["REQUEST_TIME"]=> int(1317736683)
-		}
-		*/
-		
 		if(pub::variable('permalinks') == 'yes')
+		{
 			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('pToLink'=>true, 'vserver'=>'REQUEST_URI'));
+			$relativeUrl = $query_string;
+		}
 		else
+		{
 			$query_string = $_SERVER['QUERY_STRING'];
+			$relativeUrl = preg_replace("#".SITE_WWW.OS."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");
+		}
 		
 		$this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
 
-		$skinObj = skin::getSkin(urldecode($query_string));
+		$skinObj = skin::getSkin(urldecode($relativeUrl));
 		if($skinObj===false) exit(error::syserrorMessage("document", "render", _("skin inesistente"), __LINE__));
 
 		$buffer = '';
@@ -152,8 +125,7 @@ class Document {
 		$headline .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"".LANG."\" xml:lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
 		$headline .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
-		
-		$headline .= "<base href=\"".SITE_WWW."/\" />\n";	// PERMALINKS
+		$headline .= "<base href=\"".SITE_WWW."/\" />\n";
 
 		if(isset($meta_title)) $headline .= "<meta name=\"title\" content=\"".$meta_title."\" />\n";
 		if(!empty($description)) $headline .= "<meta name=\"description\" content=\"".$description."\" />\n";

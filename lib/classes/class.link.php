@@ -162,7 +162,7 @@ class Link {
 	}
 	
 	// Presenta un collegamento prendendo l'indirizzo da un campo del DB (classe menu)
-	// es. page/displayItem/id/8
+	// es. page/displayItem/8, page/displayItem/id/8
 	// es. index.php?evt[page-displayItem]&id=6
 	public static function linkFromDB($link){
 		
@@ -177,7 +177,7 @@ class Link {
 	 * 
 	 * utilizzando QUERY_STRING viene scartato il valore codificato base64
 	 * 
-	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/id/5
+	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
 	 */
 	public function convertLink($params, $options=array()){
 		
@@ -192,7 +192,7 @@ class Link {
 			}
 			elseif($vserver == 'REQUEST_URI')
 			{
-				$search = SITE_WWW.'/';
+				$search = preg_quote(SITE_WWW.OS);
 				$query_string =  preg_replace("#$search#", "", $params);
 			}
 		}

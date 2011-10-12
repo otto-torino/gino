@@ -72,7 +72,7 @@ class index extends AbstractEvtClass{
 		$GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
 		
 		$func = new sysfunc();
-		$GINO .= $func->Autenticazione($control, $this->_className);
+		$GINO .= $func->tableLogin($control, $this->_className);
 		$GINO .= "</div>";
 		
 		return $GINO;

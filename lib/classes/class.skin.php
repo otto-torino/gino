@@ -80,11 +80,10 @@ class skin extends propertyObject {
 		return $res;
 	}
 
-	public static function getSkin($queryString) {
+	public static function getSkin($relativeUrl) {
 
 		$db = new db;
-		$relativeUrl = preg_replace("#".SITE_WWW.OS."#", "", $_SERVER['SCRIPT_NAME']).((!empty($queryString))?"?$queryString":"");
-
+		
 		$query = "SELECT id, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
@@ -108,7 +107,6 @@ class skin extends propertyObject {
 			return false;
 		}
 		else return false;
-
 	}
 
 	public static function removeCss($id) {
