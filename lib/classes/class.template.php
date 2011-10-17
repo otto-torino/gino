@@ -166,7 +166,7 @@ class template extends propertyObject {
 		else {
 			for($i=1, $blocks_list=array(); $i<11; $i++) $blocks_list[$i] = $i;
 
-			$onchange = "onchange=\"ajaxRequest('post', '$this->_index?pt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
+			$onchange = "onchange=\"ajaxRequest('post', '$this->_home?pt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
 			$buffer = $gform->cselect('blocks_number', $gform->retvar('blocks_number', $this->_blocks_number), $blocks_list, array(_("Numero blocchi"), _("Selezionare il numero di blocchi che devono comporre il layout")), array("js"=>$onchange));
 			$buffer .= $gform->cell($this->tplBlockForm(), array("id"=>"blocks_form"));
 		}
