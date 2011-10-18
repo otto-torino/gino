@@ -1,0 +1,57 @@
+### BEGIN .htaccess
+
+# BEGIN Compression (DEFLATE)
+<IfModule mod_deflate.c>
+# compress text, html, javascript, css, xml:
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE application/rss+xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+FileEtag none
+
+# BEGIN Caching (DEFLATE)
+<IfModule mod_expires.c>
+# activate mod_expires
+ExpiresActive On
+
+# 1 YEAR
+<FilesMatch "\.(ico|png|jpe?g|gif|flv|pdf|swf|flv|doc|mp3|mp4|mov|avi)$">
+ExpiresDefault A29030400
+
+<IfModule mod_headers.c>
+Header set Cache-Control "max-age=29030400"
+</IfModule>
+</FilesMatch>
+
+# 6 WEEKS
+<FilesMatch "\.(css|js)$">
+ExpiresDefault A3628800
+
+<IfModule mod_headers.c>
+Header set Cache-Control "max-age=3628800, proxy-revalidate"
+</IfModule>
+</FilesMatch>
+
+# NO CACHE
+<FilesMatch "\.(php|s?pl|cgi|scgi|fcgi)$">
+ExpiresActive Off
+
+<IfModule mod_headers.c>
+Header set Cache-Control "private, no-cache, no-store, proxy-revalidate, no-transform"
+</IfModule>
+</FilesMatch>
+</IfModule>
+# END Caching
+
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?$1 [L]
