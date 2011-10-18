@@ -943,7 +943,7 @@ INSERT INTO `sys_layout_skin` (`id`, `label`, `rexp`, `urls`, `template`, `css`,
 (7, 'Pagine Private', '#evt\\[(?!index)#', '', '3', 0, 7, 'yes', 0),
 (8, 'Home Privata', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 0, 9, 'yes', 0),
 (9, 'Pagine Mobile', '#mobile=1(&.*)?$#', '', '8', 1, 2, '', 0),
-(10, 'Home Mobile', '', '', '7', 1, 1, 'yes', 0);
+(10, 'Home Mobile', '#mobile=1(&.*)?$#', '', '7', 1, 1, 'yes', 0);
 
 -- --------------------------------------------------------
 

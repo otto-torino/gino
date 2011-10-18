@@ -35,13 +35,12 @@ class Document {
 		if(pub::variable('permalinks') == 'yes')
 		{
 			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('pToLink'=>true, 'vserver'=>'REQUEST_URI'));
-			$relativeUrl = $query_string;
 		}
 		else
 		{
 			$query_string = $_SERVER['QUERY_STRING'];
-			$relativeUrl = preg_replace("#".SITE_WWW.OS."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");
 		}
+		$relativeUrl = preg_replace("#".SITE_WWW.OS."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");
 		
 		$this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
 
