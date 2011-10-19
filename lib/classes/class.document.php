@@ -124,8 +124,9 @@ class Document {
 		$headline .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"".LANG."\" xml:lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
 		$headline .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
-		$headline .= "<base href=\"".SITE_WWW."/\" />\n";
-
+		$pub = new pub();
+		$headline .= "<base href=\"".$pub->getUrl('root').SITE_WWW."/\" />\n";
+		
 		if(isset($meta_title)) $headline .= "<meta name=\"title\" content=\"".$meta_title."\" />\n";
 		if(!empty($description)) $headline .= "<meta name=\"description\" content=\"".$description."\" />\n";
 		if(!empty($keywords)) $headline .= "<meta name=\"keywords\" content=\"".$keywords."\" />\n";

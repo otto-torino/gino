@@ -81,6 +81,18 @@ class pub extends EvtHandler{
 		$this->setOptionUser();
 	}
 	
+	public function getUrl($value){
+		
+		if($value == 'path')
+			return $this->_url_path;
+		elseif($value == 'login')
+			return $this->_url_path_login;
+		elseif($value == 'root')
+			return $this->_url_root;
+		else
+			return null;
+	}
+	
 	private function setURL(){
 		
 		$this->_url_path = $_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
