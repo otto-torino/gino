@@ -607,6 +607,9 @@ function share($site, $url, $title=null, $description=null) {
 }
 
 function shareAll($social, $url, $title=null, $description=null) {
+
+	if($social==="all") $social = array("facebook", "twitter", "linkedin", "digg", "googleplus");
+
 	$items = array();
 	foreach($social as $s) {
 		if($s=='facebook') {

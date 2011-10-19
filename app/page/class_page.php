@@ -463,7 +463,7 @@ class page extends AbstractEvtClass{
 						$GINO .= $content;
 					}
 					if($social=='yes') {
-						$GINO .= shareAll(array("facebook", "twitter", "linkedin", "digg", "googleplus"), $this->_url_root."/".$this->_plink->aLink($this->_instanceName, 'displayItem', array("id"=>$item_id)), $title);
+						$GINO .= shareAll("all", $this->_url_root."/".$this->_plink->aLink($this->_instanceName, 'displayItem', array("id"=>$item_id)), $title);
 					}
 				}
 				else
