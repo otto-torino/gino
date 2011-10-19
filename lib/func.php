@@ -598,9 +598,40 @@ function share($site, $url, $title=null, $description=null) {
 	elseif($site=='linkedin') {
 		$buffer = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode(pub::variable('head_title'))."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
 	}
+	elseif($s=='googleplus') {
+		$buffer = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
+	}
 
 	return $buffer;
 
+}
+
+function shareAll($social, $url, $title=null, $description=null) {
+
+	if($social==="all") $social = array("facebook", "twitter", "linkedin", "digg", "googleplus");
+
+	$items = array();
+	foreach($social as $s) {
+		if($s=='facebook') {
+			$items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";	
+		}
+		elseif($s=='twitter') {
+			$items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
+		}
+		elseif($s=='linkedin') {
+			$items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode(pub::variable('head_title'))."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
+		}
+		elseif($s=='googleplus') {
+			$items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
+		}
+		elseif($s=='digg') {
+			$items[] = "<a href=\"http://digg.com/submit?phase=2&amp;url=".$url."&amp;title=".$title."\"><img src=\"".SITE_IMG."/share_digg.png\" alt=\"Share on LinkedIn\"></a>";
+		}
+	}
+
+	$buffer = implode(" ", $items);
+
+	return "<div class=\"share\">".$buffer."</div>";
 }
 
 function traslitterazione($numero, $decimale=false)

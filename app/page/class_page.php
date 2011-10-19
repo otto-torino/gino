@@ -282,7 +282,17 @@ class page extends AbstractEvtClass{
 			$id = cleanVar($_GET, 'id', 'int', '');
 
 			$title = htmlChars(pub::variable('head_title'))." - ".htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $id, 'item_id'));
-			$description = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $id, 'item_id'));
+
+			$query = "SELECT content_id, layout, img, link, filename FROM ".$this->_tbl_content." WHERE item='$id' AND text!='' ORDER BY order_list LIMIT 0,1";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a) > 0)
+			{
+				$content_id = htmlChars($a[0]['content_id']);
+				$content_text = htmlChars($this->_trd->selectTXT($this->_tbl_content, 'text', $content_id, 'content_id'), $content_id);
+				$description = cutHtmlText( $content_text, 500, '...', true, false, true);
+			}
+			else 
+				$description = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $id, 'item_id'));
 			$image_src = is_file(SITE_ROOT.OS."img".OS."logo.jpg")
 					? $this->_url_root."/img/logo.jpg"
 					: null;
@@ -453,11 +463,7 @@ class page extends AbstractEvtClass{
 						$GINO .= $content;
 					}
 					if($social=='yes') {
-						$GINO .= "<p class=\"line\" style=\"padding-top:0px;\"></p>\n";
-						
-						$GINO .= "<p>".share("facebook", $this->_url_root.$this->_home."?evt[$this->_instanceName-displayItem]&id=$item_id");
-						$GINO .= " &#160;".share("twitter", $this->_url_root.$this->_home."?evt[$this->_instanceName-displayItem]&id=$item_id");
-						$GINO .= "</p>";
+						$GINO .= shareAll("all", $this->_url_root."/".$this->_plink->aLink($this->_instanceName, 'displayItem', array("id"=>$item_id)), $title);
 					}
 				}
 				else
