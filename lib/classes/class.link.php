@@ -131,6 +131,24 @@ class Link {
 						
 						$link = preg_replace("#^(.*)\?([a-zA-Z0-9+/.=]+)$#", "$1?$p_secondary", $link);
 					}
+					else
+					{
+						$last = substr($link, -2);
+						if($last != '/?')
+						{
+							if($last[1] == '?')
+							{
+								$link = substr($link, 0, -1);
+								$link = $link.'/?';
+							}
+							elseif($last[1] == '/')
+								$link = $link.'?';
+							else
+								$link = $link.'/?';
+						}
+						
+						$link .= base64_encode($params);
+					}
 				}
 				else
 				{
