@@ -108,9 +108,9 @@ class options extends pub {
 					if($this->editableField($f->name)) {
 						// Required
 						$field_option = $class_instance->_optionsLabels[$f->name];
-						if(is_array($field_option) AND key_exists('label', $field_option))
+						if(is_array($field_option) AND array_key_exists('label', $field_option))
 						{
-							if(key_exists('required', $field_option) AND $field_option['required'] == true)
+							if(array_key_exists('required', $field_option) AND $field_option['required'] == true)
 								$required .= $f->name.",";
 						}
 						else $required .= $f->name.",";
@@ -131,12 +131,12 @@ class options extends pub {
 					
 					// Required
 					$field_option = $class_instance->_optionsLabels[$f->name];
-					if(is_array($field_option) AND key_exists('label', $field_option))
+					if(is_array($field_option) AND array_key_exists('label', $field_option))
 					{
-						if(key_exists('required', $field_option) AND $field_option['required'] == true)
+						if(array_key_exists('required', $field_option) AND $field_option['required'] == true)
 							$required .= $f->name.",";
 						
-						if(key_exists('value', $field_option) AND $field_option['value'] != '')
+						if(array_key_exists('value', $field_option) AND $field_option['value'] != '')
 							${$f->name} = $field_option['value'];
 					}
 					else $required .= $f->name.",";
@@ -163,10 +163,10 @@ class options extends pub {
 
 				$field_option = $class_instance->_optionsLabels[$f->name];
 				
-				if(is_array($field_option) AND key_exists('label', $field_option))
+				if(is_array($field_option) AND array_key_exists('label', $field_option))
 				{
 					$field_label = $field_option['label'];
-					$field_required = key_exists('required', $field_option) ? $field_option['required'] : false;
+					$field_required = array_key_exists('required', $field_option) ? $field_option['required'] : false;
 				}
 				else
 				{

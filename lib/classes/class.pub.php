@@ -313,17 +313,13 @@ class pub extends EvtHandler{
 			foreach($a as $b)
 			{
 				if(is_bool($options)) $trsl = $options;	// for compatibility with old version
-				elseif(is_array($options) AND key_exists('translation', $options)) $trsl = $options['translation'];
+				elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
 				else $trsl = false;
 				
-				if($trsl && $this->_multi_language=='yes') $value = $this->_trd->selectTXT($tbl_name, $option, $b['id']);
+				if($trsl && $this->_multi_language=='yes')
+					$value = $this->_trd->selectTXT($tbl_name, $option, $b['id']);
 				else
-				{
 					$value = $b[$option];
-					
-					//if(empty($b[$option]) AND is_array($options) AND $options['value']) $value = $options['value'];
-					//else $value = $b[$option];
-				}
 			}
 		}
 		else
