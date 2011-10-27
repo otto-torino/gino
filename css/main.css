@@ -878,6 +878,10 @@ table.generic th {
 	color:#fff;
 	padding:2px;
 }
+table.generic a:link, table.generic a:visited {
+	color:#ddfd04;
+}
+
 table.generic td {
 	border: 1px solid #000;
 	color:#000;

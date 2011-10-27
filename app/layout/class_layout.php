@@ -80,10 +80,10 @@ class layout extends AbstractEvtClass {
 
 		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=$this->_block&action=$this->_act_insert\">".pub::icon('insert')."</a>";
 
-		$style_sel = "style=\"color:#000;\"";
-		$title = "[ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css\" ".(($this->_block=='css')?$style_sel:"").">css</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template\" ".(($this->_block=='template')?$style_sel:"").">template</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin\" ".(($this->_block=='skin')?$style_sel:"").">skin</a> ]";
+		$class_sel = "class=\"selected\"";
+		$title = "[ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css\" ".(($this->_block=='css')?$class_sel:"").">css</a> ]";
+		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template\" ".(($this->_block=='template')?$class_sel:"").">template</a> ]";
+		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin\" ".(($this->_block=='skin')?$class_sel:"").">skin</a> ]";
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title, 'headerLinks'=>$link_insert));
 
 		if($this->_block == 'skin') $buffer = $this->skinList();
