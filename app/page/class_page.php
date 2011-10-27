@@ -294,7 +294,7 @@ class page extends AbstractEvtClass{
 			else 
 				$description = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $id, 'item_id'));
 			$image_src = is_file(SITE_ROOT.OS."img".OS."logo.jpg")
-					? $this->_url_root."/img/logo.jpg"
+					? $this->_url_root.SITE_WWW."/img/logo.jpg"
 					: null;
 			return array("meta_title"=>$title, "description"=>$description, "image_src"=>$image_src);
 		}
@@ -463,7 +463,7 @@ class page extends AbstractEvtClass{
 						$GINO .= $content;
 					}
 					if($social=='yes') {
-						$GINO .= shareAll("all", $this->_url_root."/".$this->_plink->aLink($this->_instanceName, 'displayItem', array("id"=>$item_id)), $title);
+						$GINO .= shareAll("all", $this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instanceName, 'displayItem', array("id"=>$item_id)), $title);
 					}
 				}
 				else
