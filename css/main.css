@@ -574,6 +574,11 @@ div.abiWin footer {
 
 }
 
+.share {
+	margin-top: 8px;
+	text-align: right;
+}
+
 /* authentication */
 .auth
 {
