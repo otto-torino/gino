@@ -466,7 +466,7 @@ class module extends AbstractEvtClass{
 		$required = '';
 		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionEditModuleActive]", '', $required);
 		$GINO .= $gform->hidden('id', $id);
-		$GINO .= $gform->cradio('active', $active, array("yes"=>_("si"),"no"=>_("no")), 'no', array(_("Attivo"), _("Assicurarsi di eliminare i moduli che si disattivano dai template")), array("required"=>false));
+		$GINO .= $gform->cradio('active', $active, array("yes"=>_("si"),"no"=>_("no")), 'no', array(_("Attivo"), _("Assicurarsi di eliminare dai template i moduli che si vogliono disattivare")), array("required"=>false));
 		$GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
 		$GINO .= $gform->cform();
 

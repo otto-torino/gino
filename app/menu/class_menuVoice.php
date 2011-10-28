@@ -121,7 +121,7 @@ class menuVoice extends propertyObject {
 		$title = "<a name=\"top\">$title</a>";
 
 		$pub = new pub;
-		$link_delete = ($this->_p['id'])? "<a href=\"".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']."&action=delete\">".$pub->icon('delete', _("elimina voce"))."</a>":"";
+		$link_delete = ($this->_p['id'])? "<a href=\"".$_SERVER['QUERY_STRING']."&action=delete\">".$pub->icon('delete', _("elimina voce"))."</a>":"";
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title, 'headerLinks'=>array($link_delete)));
 		$required = 'label,type,role1,authView';

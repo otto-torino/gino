@@ -68,7 +68,11 @@ class sysClass extends abstractEvtClass {
 		$GINO .= "<div class=\"vertical_2\">\n";
 		if($id && $this->_action==$this->_act_modify) $GINO .= $this->formEditSysClass($id);
 		elseif($id && $this->_action==$this->_act_delete) $GINO .= $this->formRemoveSysClass($id);
-		elseif($this->_action == $this->_act_insert) $GINO .= $this->formInsertSysClass();
+		elseif($this->_action == $this->_act_insert)
+		{
+			$GINO .= $this->formInsertSysClass();
+			$GINO .= $this->formManualSysClass();
+		}
 		else $GINO .= $this->info();
 		$GINO .= "</div>\n";
 		$GINO .= "<div class=\"null\"></div>\n";
@@ -114,7 +118,6 @@ class sysClass extends abstractEvtClass {
 		$htmlsection->content = $GINO;
 		
 		return $htmlsection->render();
-
 	}
 
 	private function formInsertSysClass() {
@@ -125,8 +128,7 @@ class sysClass extends abstractEvtClass {
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Installazione modulo di sistema")));
 
 		$GINO = "<p>"._("Caricare il pacchetto del modulo. Se la procedura di installazione va a buon fine modificare il modulo appena inserito per personalizzarne l'etichetta ed eventualmente altri parametri.")."</p>\n";
-		$required = '';
-
+		
 		$required = 'archive';
 		$GINO .= $gform->form($this->_home."?evt[".$this->_className."-actionInsertSysClass]", true, $required);
 		$GINO .= $gform->cfile('archive', '', _("Archivio"), array("extensions"=>$this->_archive_extensions, "del_check"=>false, "required"=>true));
@@ -277,7 +279,6 @@ class sysClass extends abstractEvtClass {
 			}
 		}	
 		
-		
 		/*
 		 * Removing installations' files
 		 */
@@ -286,7 +287,120 @@ class sysClass extends abstractEvtClass {
 		if(is_readable($class_dir.OS.$class_name.".sql")) @unlink($class_dir.OS.$class_name.".sql");
 
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
+	}
+	
+	private function formManualSysClass() {
+		
+		$gform = new Form('mform', 'post', true);
+		$gform->load('mdataform');
 
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Installazione manuale")));
+
+		$GINO = "<p>"._("Per eseguire l'installazione manuale, dopo aver effettuato il submit del form seguire la procedura indicata").":</p>\n";
+		$GINO .= "<ul>";
+		$GINO .= "<li>creare la directory app/nomeclasse e copiare tutti i file della libreria</li>";
+		$GINO .= "<li>creare la directory contents/nomeclasse se è previsto l'upload di file</li>";
+		$GINO .= "<li>di default le classi vengono create rimovibili</li>";
+		$GINO .= "<li>eseguire manualmente le query di creazione delle tabelle</li>";
+		$GINO .= "</ul>";
+		
+		$required = 'label,name,rolegroup,tblname';
+		$GINO .= $gform->form($this->_home."?evt[".$this->_className."-actionManualSysClass]", false, $required);
+		
+		$instance = 'yes';
+		$js = "onchange=\"ajaxRequest('post', '{$this->_home}?pt[{$this->_className}-instanceClass]', 'opt='+$(this).value, 'instance_class')\"";
+		$GINO .= $gform->cselect('instance', $instance, array('yes'=>_("istanziabile"), 'no'=>_("non istanziabile")), _("Tipo di classe"), array('js'=>$js));
+		$GINO .= $gform->cell($this->instanceClass($instance), array("id"=>"instance_class"));
+		
+		$GINO .= $gform->cinput('label', 'text', '', _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>100));
+		$GINO .= $gform->cinput('name', 'text', '', _("Nome classe"), array("required"=>true, "size"=>40, "maxlength"=>100));
+		$GINO .= $gform->cinput('rolegroup', 'text', '', _("ID gruppo amministratore della classe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+		$GINO .= $gform->ctextarea('description', '', _("Descrizione"), array("cols"=>45, "rows"=>4));
+		$GINO .= $gform->cinput('tblname', 'text', '', _("Nome radice delle tabelle"), array("required"=>true, "size"=>40, "maxlength"=>30));
+		$GINO .= $gform->cinput('version', 'text', '', _("Versione"), array("required"=>false, "size"=>40, "maxlength"=>200));
+		
+		$GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
+		$GINO .= $gform->cform();
+
+		$htmlsection->content = $GINO;
+		return $htmlsection->render();
+	}
+	
+	public function instanceClass($instance='') {
+	
+		$ajax = cleanVar($_POST, 'opt', 'string', '');
+		if($ajax != '')
+			$instance = $ajax;
+		
+		$gform = new Form('mform', 'post', false);
+		$gform->load('mdataform');
+		
+		$GINO = '';
+		
+		if($instance == 'no')
+		{
+			$GINO .= $gform->startTable();
+			$role_list = $this->_access->listRole();
+			$role = $this->_access->default_role;
+			$GINO .= $gform->cradio('role1', $role, $role_list, '', _("Permessi di visualizzazione"), array("aspect"=>"v"));
+			$GINO .= $gform->cradio('role2', $role, $role_list, '', _("Ruolo 2"), array("aspect"=>"v"));
+			$GINO .= $gform->cradio('role3', $role, $role_list, '', _("Ruolo 3"), array("aspect"=>"v"));
+			$GINO .= $gform->endTable();
+		}
+		
+		return $GINO;
+	}
+
+	public function actionManualSysClass() {
+		
+		$this->accessType($this->_access_admin);
+		
+		$gform = new Form('mform', 'post', false);
+		$gform->save('mdataform');
+		$req_error = $gform->arequired();
+
+		$link_error = $this->_home."?evt[$this->_className-manageSysClass]&action=$this->_act_insert";
+		
+		if($req_error > 0) 
+			exit(error::errorMessage(array('error'=>1), $link_error));
+
+		$label = cleanVar($_POST, 'label', 'string', '');
+		$name = cleanVar($_POST, 'name', 'string', '');
+		$rolegroup = cleanVar($_POST, 'rolegroup', 'int', '');
+		$description = cleanVar($_POST, 'description', 'string', '');
+		$tblname = cleanVar($_POST, 'tblname', 'string', '');
+		$version = cleanVar($_POST, 'version', 'string', '');
+		
+		$role1 = cleanVar($_POST, 'role1', 'int', '');
+		$role2 = cleanVar($_POST, 'role2', 'int', '');
+		$role3 = cleanVar($_POST, 'role3', 'int', '');
+		
+		if(preg_match("/[\.\/\\\]/", $name)) exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+		
+		// Default values
+		$type = 'class';
+		$instance = 'yes';
+		$removable = 'yes';
+
+		$query = "SELECT id FROM ".$this->_tbl_module_app." WHERE name='$name'";
+		$a = $this->_db->selectquery($query);
+		if(sizeof($a)>0) {
+			exit(error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
+		}
+
+		$query = "SELECT MAX(order_list) AS mo FROM ".$this->_tbl_module_app;
+		$a = $this->_db->selectquery($query);
+		$ol = $a[0]['mo']+1;
+
+		$query = "INSERT INTO ".$this->_tbl_module_app." (label, name, type, role1, role2, role3, masquerade, role_group, tbl_name, order_list, instance, description, removable, class_version) VALUES 
+		('$label', '$name', '$type', '$role1', '$role2', '$role3', 'no', '$rolegroup', '$tblname', '$ol', '$instance', '$description', '$removable', '$version')";	
+		$result = $this->_db->actionquery($query);
+
+		if(!$result) {
+			exit(error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
+		}
+		
+		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
 	}
 
 	private function formEditSysClass($id) {
