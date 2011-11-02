@@ -576,27 +576,27 @@ class Form {
 	 * @param string $name			nome input
 	 * @param string $value			valore attivo
 	 * @param string $label			testo <label>
-	 * @param string $required		campo obbligatorio ('req')
-	 * @param string $style1		stile <label>
-	 * @param string $style2		stile <p>
-	 * @param string|boolean $note	note (true->note di default, false->nessuna nota, [string]->note ad hoc)
-	 * @param string $fck_toolbar	toolbarset (Basic, Full)
-	 * @param string $fck_width		larghezza(%)
-	 * @param integer $fck_height	altezza (pixel)
-	 * @param bool $img_prew		mostrare o meno il browser di immagini di sistema
-	 * @param bool $trnsl			traduzione 
-	 * @param string $tbl			tabella in cui è presente il campo da tradurre
-	 * @param string $field			campo da tradurre
-	 * @param string $id_name   	nome del campo id nella tabella
-	 * @param int $id_value      	valore del campo id 
+	 * @param array $options		opzioni
 	 * @return string
 	 * 
-	 * @example $this->_gform->fcktextarea('ctext', $value, _("testo"), 'req', 'subtitle', '', true, 'Basic', '100%', 200, true, $this->_tbl_news, 'text', 'item_id', $news_id)
+	 * Opzioni:
+	 * --------------
+	 * string $required			campo obbligatorio ('req')
+	 * string $style1			stile <label>
+	 * string $style2			stile <p>
+	 * string|boolean $note		note (true->note di default, false->nessuna nota, [string]->note ad hoc)
+	 * string $fck_toolbar		toolbarset (Basic, Full)
+	 * string $fck_width		larghezza(%)
+	 * integer $fck_height		altezza (pixel)
+	 * bool $img_prew			mostrare o meno il browser di immagini di sistema
+	 * bool $trnsl				traduzione 
+	 * string $tbl				tabella in cui è presente il campo da tradurre
+	 * string $field			campo da tradurre
+	 * string $id_name   		nome del campo id nella tabella
+	 * int $id_value      		valore del campo id
+	 * 
+	 * @example $this->_gform->fcktextarea('ctext', $value, _("testo"), array("required"=>true, "notes"=>true, "img_preview"=>true, "trnsl"=>true, "field"=>"ctext", "fck_toolbar"=>$_fck_toolbar)
 	 */
-	
-	// name, value, label, options('required', 'pattern', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'tbl_trnsl', 'field_trnsl', 'id_trnsl', 'other', 'text_add', 'notes', 'img_preview')	
-
-	//public function fcktextarea($name, $value, $label, $required, $style1, $style2, $note, $fck_toolbar, $fck_width, $fck_height, $img_prew=true, $trnsl=false, $tbl='', $field='', $id_value=''){
 	public function fcktextarea($name, $value, $label, $options){
 
 		$this->setOptions($options);
@@ -899,6 +899,7 @@ class Form {
 	
 	/**
 	 * Gestione completa del file. Integra il checkbox di eliminazione del file.
+	 * Non è gestita l'obbligatorietà del campo.
 	 *
 	 * @param string $name			nome dell'input file
 	 * @param string $value			nome file
@@ -908,7 +909,6 @@ class Form {
 	 * Opzioni:
 	 * --------------
 	 * extensions		array	estensioni valide
-	 * required			string	campo obbligatorio ('req')
 	 * classLabel
 	 * preview			boolean	mostra l'anteprima di una immagine
 	 * previewSrc		string	percorso relativo dell'immagine
@@ -923,15 +923,11 @@ class Form {
 	 * @param integer $max			maxlength
 	 * @param string $other			altro nel tag input, ad esempio javascript
 	 * @param string $action		insert | modify
-	 * @param string $link_action	link ajax (vedi multipleUploadForm())
+	 * @param string $link_action	link ajax
 	 * 
 	 * @example
-	 * $this->_gform->cfile('file1', $filename, _("testo label"), 'req', 'subtitle', 'line', $this->_extension_file, 30, 30, '', $action, 'check_file1', $this->_preview_image, $www_file)
+	 * $this->_gform->cfile('file1', $filename, _("testo label"), array("extensions"=>$extension, "del_check"=>true, "preview"=>true, "previewSrc"=>/www/address/file1))
 	 */
-	
-	// name, type, value, options('required', 'pattern', 'size', 'maxlength', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'tbl_trnsl', 'field_trnsl', 'id_trnsl', 'other', 'text_add')	
-
-	// OLD cfile($name_file, $value, $label, $required, $style1, $style2, $valid_extension, $size, $max, $other, $action, $name_check, $preview, $www_file, $link_action=''){
 	public function cfile($name, $value, $label, $options){
 
 		$this->setOptions($options);
