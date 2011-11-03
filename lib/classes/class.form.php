@@ -1103,25 +1103,21 @@ class Form {
 	 * @param array $valid_extension	estensioni lecite di file
 	 * @param string $directory			directory di upload (/path/to/directory/)
 	 * @param string $link_error		parametri da aggiungere al reindirizzamento
-	 * 
-	 * 
-	 * @param string $prefix_file
-	 * @param string $prefix_thumb
-	 * @param string $directory			directory di upload (/path/to/directory/)
-	 * @param array $valid_extension	estensioni lecite di file
-	 * @param string $redirect			reindirizzamento causa errore (nella forma: nome_classe-funzione_classe)
-	 * @param string $link				parametri da aggiungere al reindirizzamento
-	 * @param integer $max_file_size	dimensione massima di un upload (bytes)
-	 * @return string
+	 * @param string $table				tabella da aggiornare inserendo il nome del file (UPDATE)
+	 * @param string $field				nome del campo del file
+	 * @param string $idName			nome del campo ID
+	 * @param string $id				valore del campo ID
+	 * @param array $options
+	 * @return boolean
 	 * 
 	 * Opzioni:
 	 * --------------
-	 * check_type			1=controlla il tipo di file, 0=non controllare			-> attiva 'types_allowed'
-	 * types_allowed		array per alcuni tipi di file (mime types)
-	 * prefix				per fornire un prefisso a prescindere dal ridimensionamento
-	 * prefix_file
-	 * prefix_thumb
-	 * max_file_size
+	 * check_type		integer		1=controlla il tipo di file, 0=non controllare	-> attiva 'types_allowed'
+	 * types_allowed	array		array per alcuni tipi di file (mime types)
+	 * prefix			string		per fornire un prefisso a prescindere dal ridimensionamento
+	 * prefix_file		string		nel caso: $resize = true
+	 * prefix_thumb		string		nel caso: $resize = true
+	 * max_file_size	integer		dimensione massima di un upload (bytes)
 	 * width
 	 * thumb_width
 	 * height
