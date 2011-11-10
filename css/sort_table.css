@@ -1,0 +1,66 @@
+/* CSS per l'ordinamento delle tabelle */
+.sortTable{
+    width:100%;
+    margin:20px 0;
+    border-collapse:collapse;
+    color:#3F3F3F;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:12px;
+}
+.focusedColumn{
+    background-color:#F4F4F4;
+}
+.zebra .focusedColumn{
+    background-color:#E4E4E4;
+}
+
+.downArrow{
+    background:url('../img/sort_downcolumnarrow.png') no-repeat;
+    text-indent:15px;
+    background-position: 5px 5px;
+}
+.upArrow{
+    background:url('../img/sort_upcolumnarrow.png') no-repeat;
+    text-indent:15px;
+    background-position: 5px 5px;
+
+}
+.SortTableHeader{
+	background:url('../img/sort_bg-panel-header.gif');
+	border-top: 1px solid #E1E9F8;
+}
+.sortTable tr:hover{
+    background:#FFF9C3;
+}
+.sortTable tr.SortTableHeader:hover{
+    background:url('../img/sort_bg-panel-header.gif');
+}
+.sortTable th{
+    font-size:110%;
+    text-align:left;
+    border-bottom: 1px solid #E1E9F8;
+    border-left: 1px solid #E1E9F8;
+    height:25px;
+    margin: 10px 0 10px 0;
+    padding:0 5px 0 5px;
+    cursor:pointer;
+}
+.sortTable th:first-child{
+    border-left: 1px solid #E1E9F8;
+    border-left: 0;
+}
+
+.sortTable tr:hover td.focusedColumn{
+    background:#FEF6AF;
+}
+.sortTable td{
+    padding:0 10px 0 5px;
+    height:30px;
+    border-bottom: 1px solid #E1E9F8;
+}
+.sortTable .Right{
+    text-align:right;
+}
+.TableSorterFloatLeft{
+    float:left;
+}
