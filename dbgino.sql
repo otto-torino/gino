@@ -879,7 +879,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
   `label` varchar(200) NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- Dump dei dati per la tabella `sys_layout_css`
@@ -887,7 +887,8 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
 
 INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
 (1, 'mobile.css', 'Css per la visione mobile', ''),
-(2, 'admin.css', 'Css area amministrativa', '');
+(2, 'admin.css', 'Css area amministrativa', ''),
+(3, 'home.css', 'Css gino base', 'Personalizza homepage e pagine di gino base');
 
 -- --------------------------------------------------------
 
@@ -934,14 +935,14 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
 --
 
 INSERT INTO `sys_layout_skin` (`id`, `label`, `rexp`, `urls`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
-(1, 'Home Pubblica', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 0, 8, 'no', 0),
-(2, 'Pagine Pubbliche', '#evt\\[(?!index)#', '', '3', 0, 6, 'no', 0),
+(1, 'Home Pubblica', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 8, 'no', 0),
+(2, 'Pagine Pubbliche', '#evt\\[(?!index)#', '', '3', 3, 6, 'no', 0),
 (3, 'Home Amministrazione', '', 'index.php?evt[index-admin_page]', '5', 2, 5, 'yes', 0),
 (4, 'Pagine Amministrazione', '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', '', '6', 2, 4, 'yes', 0),
-(5, 'Pagina Autenticazione', '', 'index.php?evt[index-auth_page]', '4', 0, 3, 'no', 0),
+(5, 'Pagina Autenticazione', '', 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
 (6, 'Default', '#^.*$#', '', '1', 0, 10, '', 0),
-(7, 'Pagine Private', '#evt\\[(?!index)#', '', '3', 0, 7, 'yes', 0),
-(8, 'Home Privata', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 0, 9, 'yes', 0),
+(7, 'Pagine Private', '#evt\\[(?!index)#', '', '3', 3, 7, 'yes', 0),
+(8, 'Home Privata', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 9, 'yes', 0),
 (9, 'Pagine Mobile', '#mobile=1(&.*)?$#', '', '8', 1, 2, '', 0),
 (10, 'Home Mobile', '#mobile=1(&.*)?$#', '', '7', 1, 1, 'yes', 0);
 

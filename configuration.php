@@ -12,6 +12,6 @@ define("DBSCHEMA", "");
 define('SESSION_NAME', 'GINO_SESSID');
 
 // Other
-define('MAX_FILE_SIZE', 2048000);	// for upload: 2Mb (2*1024*1024)
+define('MAX_FILE_SIZE', 2097152);	// for upload: 2Mb (2*1024*1024)
 
 ?>
