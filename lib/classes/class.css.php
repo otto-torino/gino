@@ -19,7 +19,7 @@ class css extends propertyObject {
 			$this->_label = $params['label'];
 			$classElements = call_user_func(array($this->_class, 'getClassElements'));
 			$this->_css_list = $classElements['css'];
-			$this->_mdlLink = $this->_home."?evt[$this->_name-manageDoc]&block=css";
+			$this->_mdlLink = HOME_FILE."?evt[$this->_name-manageDoc]&block=css";
 		}
 		elseif($type=='layout') {
 			$id = $params['id'];
