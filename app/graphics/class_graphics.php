@@ -231,7 +231,7 @@ class graphics extends AbstractEvtClass{
 		elseif($type==2) 
 			$buffer .= $html;
 
-		$buffer .= "</div>";
+		$buffer .= "</section>";
 
 		return $buffer;
 

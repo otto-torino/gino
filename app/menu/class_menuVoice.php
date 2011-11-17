@@ -228,7 +228,7 @@ class menuVoice extends propertyObject {
 	
 	public static function getSelectedVoice($instance) {
 	
-		$query_string = urldecode($_SERVER['QUERY_STRING']);
+		$query_string = urldecode($_SERVER['QUERY_STRING']);	// string(26) "evt[page-displayItem]&id=5" 
 		
 		if(!preg_match("/\[(.+)\]/is", $query_string, $matches)) return 'home';	//  home		
 		if($matches[0] == "[index-index_page]") return 'home';			// home
@@ -242,11 +242,42 @@ class menuVoice extends propertyObject {
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
 			foreach($a as $b) {
-				if(preg_match("#".self::regExpText(stristr($b['link'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($b['link']) ){$result = $b['id']; $result_link=$b['link'];}
+				if(preg_match("#".self::regExpText(stristr($b['link'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($b['link']) )
+				{
+					$result = $b['id'];
+					$result_link=$b['link'];
+				}
+			}
+		}
+		else
+		{
+			/*
+			L'indirizzo di base è nel formato di gino, ovvero ad esempio: 
+			urldecode($_SERVER['QUERY_STRING']) => string(26) "evt[page-displayItem]&id=5" 
+			in quanto l'eventuale permalink è già stato convertito (class Document).
+			Nella tabella del menu i link sono registrati nel formato permalink.
+			*/
+			$obj = new Link();
+			$plink = $obj->convertLink($query_string);	// => page/displayItem/5
+			
+			$query = "SELECT id, link FROM ".self::$tbl_voices." WHERE link LIKE '%".$plink."%' AND instance='$instance'";
+			$a = $db->selectquery($query);
+			if(sizeof($a)>0) {
+				foreach($a as $b) {
+					
+					$mlink = $b['link'];
+					$mlink = $obj->convertLink($mlink, array('pToLink'=>true));	// => evt[page-displayItem]&id=5
+					
+					if(preg_match("#".self::regExpText(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
+					&& strlen($result_link)<strlen($mlink))
+					{
+						$result = $b['id'];
+						$result_link = $mlink;
+					}
+				}
 			}
 		}
 		return $result;
-	
 	}
 
 	private static function regExpText($string) {

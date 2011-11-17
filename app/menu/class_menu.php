@@ -258,11 +258,11 @@ class menu extends AbstractEvtClass {
 		$s = menuVoice::getSelectedVoice($this->_instance);
 		if($s=='home') return "<a href=\"$this->_home\">$this->_opt_home</a>";
 		$sVoice = new menuVoice($s);
-		$buffer = ($sVoice->link)?"<a href=\"".$this->_plink->linkFromDB($voice->link)."\">".htmlChars($sVoice->label)."</a>":htmlChars($sVoice->label);	// PERMALINKS
+		$buffer = ($sVoice->link)?"<a href=\"".$this->_plink->linkFromDB($voice->link)."\">".htmlChars($sVoice->label)."</a>":htmlChars($sVoice->label);
 		$parent = $sVoice->parent;
 		while($parent!=0) {
 			$pVoice = new menuVoice($parent);
-			$buffer = (($pVoice->link)?"<a href=\"".$this->_plink->linkFromDB($voice->link)."\">".htmlChars($pVoice->label)."</a>":htmlChars($pVoice->label))." ".$this->_ico_more." ".$buffer;	// PERMALINKS
+			$buffer = (($pVoice->link)?"<a href=\"".$this->_plink->linkFromDB($voice->link)."\">".htmlChars($pVoice->label)."</a>":htmlChars($pVoice->label))." ".$this->_ico_more." ".$buffer;	
 			$parent = $pVoice->parent;	
 		}
 		return $buffer;
