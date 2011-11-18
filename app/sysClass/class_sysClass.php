@@ -146,6 +146,9 @@ class sysClass extends abstractEvtClass {
 
 		$link_error = $this->_home."?evt[$this->_className-manageSysClass]&action=$this->_act_insert";
 
+		if(!class_exists('ZipArchive'))
+			exit(error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
+		
 		$archive_name = $_FILES['archive']['name'];
 		$archive_tmp = $_FILES['archive']['tmp_name'];
 
@@ -296,12 +299,13 @@ class sysClass extends abstractEvtClass {
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Installazione manuale")));
 
-		$GINO = "<p>"._("Per eseguire l'installazione manuale, dopo aver effettuato il submit del form seguire la procedura indicata").":</p>\n";
+		$GINO = "<p>"._("Per eseguire l'installazione manuale effettuare il submit del form prendendo come riferimento il file config.txt.");
+		$GINO .= "<br />"._("In seguito effettuare la procedura indicata").":</p>\n";
 		$GINO .= "<ul>";
 		$GINO .= "<li>creare la directory app/nomeclasse e copiare tutti i file della libreria</li>";
 		$GINO .= "<li>creare la directory contents/nomeclasse se è previsto l'upload di file</li>";
 		$GINO .= "<li>di default le classi vengono create rimovibili</li>";
-		$GINO .= "<li>eseguire manualmente le query di creazione delle tabelle</li>";
+		$GINO .= "<li>eseguire manualmente le query di creazione delle tabelle presenti nel file SQL</li>";
 		$GINO .= "</ul>";
 		
 		$required = 'label,name,rolegroup,tblname';
