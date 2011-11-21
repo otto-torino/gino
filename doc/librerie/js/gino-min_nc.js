@@ -126,18 +126,12 @@ function validateForm(formObj) {
 			: $$('#'+formObj.getProperty('id')+' [name='+felement_name+']');
 		var felement = felements[0];
 
-		if(typeof window.dojo_textareas != 'undefined') {
-			console.log(window.dojo_textareas);
-		    if(typeof window.dojo_textareas[formid+'_'+felement_name] != 'undefined') {
-			felement.value = dojo_textareas[formid+'_'+felement_name].get('value');
-			felement.type = 'text';
-			if(/^<br( \/)?>\n$/.test(felement.value)) felement.value = '';
-		    }
-		}
-
 		if(label.hasClass('req') && (!$chk(felement.getParents('td[class=formCell]')[0]) || (felement.getParents('td[class=formCell]')[0].style.display!='none'))) {
 
-			if(felement.type=='text' || felement.type=='password' || felement.match('textarea') || felement.match('select') || felement.type=='hidden') {
+			if(typeof CKEDITOR.instances[felement_name] != 'undefined') {
+				if(!$chk(CKEDITOR.instances[felement_name].getData())) err_detected = true;
+			}		
+			else if(felement.type=='text' || felement.type=='password' || felement.match('textarea') || felement.match('select') || felement.type=='hidden') {
 				if(!$chk(felement.value)) err_detected = true;
 			}
 			else if(felement.type=='radio' || felement.type=='checkbox') {
