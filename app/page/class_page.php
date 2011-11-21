@@ -374,8 +374,6 @@ class page extends AbstractEvtClass{
 						$filename = htmlChars($b['filename']);
 					
 						$content_text = htmlChars($this->_trd->selectTXT($this->_tbl_content, 'text', $content_id, 'content_id'), $content_id);
-						$content_text = textFromEditor($content_text);
-					
 						$directory1 = $this->pathBlockDir($content_id, 'rel');
 						$directory2 = $this->pathBlockDir($content_id, 'abs');
 					
@@ -427,6 +425,7 @@ class page extends AbstractEvtClass{
 							}
 						
 							if(!empty($content_text)) $content .= "<div class=\"layou_page_text\">".$content_text."</div>";
+							$content .= "<div class=\"null\"></div>";
 						}
 						elseif($layout == $this->_layout_text_img)
 						{
@@ -438,6 +437,7 @@ class page extends AbstractEvtClass{
 							}
 							
 							if(!empty($content_text)) $content .= "<div class=\"layout_page_text\" style=\"text-align:justify\">".$content_text."</div>";
+							$content .= "<div class=\"null\"></div>";
 						}
 						elseif($layout == $this->_layout_link_file)
 						{
@@ -1083,7 +1083,6 @@ class page extends AbstractEvtClass{
 				$order_list = htmlInput($b['order_list']);
 				
 				$text = htmlChars($this->_trd->selectTXT($this->_tbl_content, 'text', $content_id, 'content_id'));
-				$text = textFromEditor($text);
 				
 				$s_title = ($layout != $this->_layout_single_code AND $layout != $this->_layout_single_include)
 					? $this->orderContent($id, $content_id, $order_list, sizeof($a), $reference)
