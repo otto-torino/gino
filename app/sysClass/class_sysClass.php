@@ -146,7 +146,7 @@ class sysClass extends abstractEvtClass {
 
 		$link_error = $this->_home."?evt[$this->_className-manageSysClass]&action=$this->_act_insert";
 
-		if(!class_exists('ZipArchive'))
+		if(!pub::enabledZip())
 			exit(error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
 		
 		$archive_name = $_FILES['archive']['name'];
