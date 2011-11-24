@@ -1107,27 +1107,24 @@ class Form {
 	 * @param string $field				nome del campo del file
 	 * @param string $idName			nome del campo ID
 	 * @param string $id				valore del campo ID
-	 * @param array $options
+	 * @param array $options			opzioni
+	 * 		integer check_type			1=controlla il tipo di file, 0=non controllare	-> attiva 'types_allowed'
+	 * 		array types_allowed			array per alcuni tipi di file (mime types)
+	 * 		integer max_file_size		dimensione massima di un upload (bytes)
+	 * 		boolean thumb				attiva i thumbnail
+	 * 		string prefix				per fornire un prefisso a prescindere dal ridimensionamento
+	 * 		string prefix_file			nel caso resize=true
+	 * 		string prefix_thumb			nel caso resize=true
+	 * 		integer width
+	 * 		integer height
+	 * 		integer thumb_width
+	 * 		integer thumb_height
 	 * @return boolean
-	 * 
-	 * Opzioni:
-	 * --------------
-	 * check_type		integer		1=controlla il tipo di file, 0=non controllare	-> attiva 'types_allowed'
-	 * types_allowed	array		array per alcuni tipi di file (mime types)
-	 * prefix			string		per fornire un prefisso a prescindere dal ridimensionamento
-	 * prefix_file		string		nel caso: $resize = true
-	 * prefix_thumb		string		nel caso: $resize = true
-	 * max_file_size	integer		dimensione massima di un upload (bytes)
-	 * width
-	 * thumb_width
-	 * height
-	 * thumb_height
 	 */
 	public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
 
 		$this->setOptions($options);
 		$directory = $this->dirUpload($directory);
-		
 		if(!is_dir($directory)) mkdir($directory, 0755, true);
 
 		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : 1;
@@ -1149,6 +1146,7 @@ class Form {
 		);
 		
 		$prefix = !is_null($this->option('prefix')) ? $this->option('prefix') : '';
+		$thumb = !is_null($this->option('thumb')) ? $this->option('thumb') : true;
 		$prefix_file = !is_null($this->option('prefix_file')) ? $this->option('prefix_file') : '';
 		$prefix_thumb = $this->option('prefix_thumb') ? $this->option('prefix_thumb') : $this->_prefix_thumb;
 		$max_file_size = $this->option('max_file_size') ? $this->option('max_file_size') : $this->_max_file_size;
@@ -1204,7 +1202,7 @@ class Form {
 					exit(error::errorMessage(array('error'=>17), $link_error));
 			}
 			
-			if(!empty($prefix_thumb)) {
+			if($thumb && !empty($prefix_thumb)) {
 				if(is_file($directory.$prefix_thumb.$old_file))
 					if(!@unlink($directory.$prefix_thumb.$old_file)) {
 						if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
@@ -1231,10 +1229,12 @@ class Form {
 		else $result = false;
 		
 		if($result AND $resize) {
-			$new_width = $this->option('width')? $this->option('width'):800;
-			$thumb_width = $this->option('thumb_width')? $this->option('thumb_width'):200;
-			$new_height = $this->option('height')? $this->option('height'):'';
-			$thumb_height = $this->option('thumb_height')? $this->option('thumb_height'):'';
+			$new_width = $this->option('width') ? $this->option('width') : 800;
+			$new_height = $this->option('height') ? $this->option('height') : '';
+			$thumb_width = $this->option('thumb_width') ? $this->option('thumb_width') : 200;
+			$thumb_height = $this->option('thumb_height') ? $this->option('thumb_height') : '';
+			
+			if(!$thumb) { $thumb_width = $thumb_height = null; }
 
 			if(!$this->saveImage($new_file, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height)) {
 				if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
@@ -1286,8 +1286,23 @@ class Form {
 		return array($width, $height);
 	}
 	
+	/**
+	 * Salva le immagini eventualmente ridimensionandole
+	 * Se thumb_width e thumb_height sono nulli, il thumbnail non viene generato
+	 * 
+	 * @param string $filename
+	 * @param string $directory
+	 * @param string $prefix_file
+	 * @param string $prefix_thumb
+	 * @param integer $new_width
+	 * @param integer $new_height
+	 * @param integer $thumb_width
+	 * @param integer $thumb_height
+	 * @return boolean
+	 */
 	public function saveImage($filename, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
 
+		$thumb = (is_null($thumb_width) && is_null($thumb_height)) ? false : true;
 		$file = $directory.$filename;
 		list($im_width, $im_height, $type) = getimagesize($file);
 		
@@ -1299,10 +1314,13 @@ class Form {
 		}
 		
 		$img_file = $directory.$prefix_file.$filename;
-		$thumb_file = $directory.$prefix_thumb.$filename;
-
 		$img_size = $this->resizeImage($new_width, $new_height, $im_width, $im_height);
-		$thumb_size = $this->resizeImage($thumb_width, $thumb_height, $im_width, $im_height);
+		
+		if($thumb)
+		{
+			$thumb_file = $directory.$prefix_thumb.$filename;
+			$thumb_size = $this->resizeImage($thumb_width, $thumb_height, $im_width, $im_height);
+		}
 		
 		if($type == self::_IMAGE_JPG_)
 		{
@@ -1318,7 +1336,7 @@ class Form {
 				copy($file, $img_file);
 			}
 			
-			if($thumb_size[0] != $im_width AND $thumb_size[1] != $im_height)
+			if($thumb && $thumb_size[0] != $im_width && $thumb_size[1] != $im_height)
 			{
 				$sourcefile_id = @imagecreatefromjpeg($file);
 				$destfile_id = imagecreatetruecolor($thumb_size[0], $thumb_size[1]);
@@ -1347,7 +1365,7 @@ class Form {
 				copy($file, $img_file);
 			}
 			
-			if($thumb_size[0] != $im_width AND $thumb_size[1] != $im_height)
+			if($thumb && $thumb_size[0] != $im_width && $thumb_size[1] != $im_height)
 			{
 				$sourcefile_id = @imagecreatefrompng($file);
 				$destfile_id = imagecreatetruecolor($thumb_size[0], $thumb_size[1]);
@@ -1368,7 +1386,6 @@ class Form {
 			return false;
 		}
 	}
-	
 	// End File
 	
 	private function dimensionFile($dimension, $im_width, $im_height){
@@ -1393,7 +1410,8 @@ class Form {
 	}
 	
 	/**
-	 * 
+	 * OLD - Verificare se si può eliminare
+	 *
 	 * @param $filename
 	 * @param $directory
 	 * 

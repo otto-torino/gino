@@ -405,15 +405,20 @@ class mFile {
 	 * method		string		nome del metodo da richiamare per eliminare il file
 	 * result		string		div elenco file
 	 * jsfunc		string		nome della funzione javascript che gestisce l'eliminazione dei file (ajaxRequest)
+	 * label		string		label dell'elenco file
 	 * view_desc	boolean		visualizza le descrizioni dei file
+	 * max_chars	integer		numero di caratteri da mostrare nelle descrizione
 	 * td_style		string		stile del tag TD
+	 * label		string		label dell'elenco file
 	 */
 	public function mfileDelList($id, $table, $instance, $options=null){
 		
 		$method = (isset($options['method']) && $options['method'] != '') ? $options['method'] : $this->_base_method;
 		$result = (isset($options['result']) && $options['result'] != '') ? $options['result'] : $this->_base_result;
 		$jsfunc = (isset($options['jsfunc']) && $options['jsfunc'] != '') ? $options['jsfunc'] : 'deleteFile';
+		$label = (isset($options['label']) && $options['label'] != '') ? $options['label'] : _("File associati");
 		$view_desc = isset($options['view_desc']) ? $options['view_desc'] : false;
+		$max_chars = (isset($options['max_chars']) && is_integer($options['max_chars'])) ? $options['max_chars'] : 0;
 		$td_style = isset($options['td_style']) ? $options['td_style'] : '';
 		
 		if(empty($instance)) return null;
@@ -423,7 +428,8 @@ class mFile {
 		$GINO = '';
 		
 		$GINO .= $this->jsDeleteLib($jsfunc, $instance, $method, $result, $table, $this->_dir);
-		$GINO .= $this->fileDelList($id, $table, $result, array('jsfunc'=>$jsfunc, 'view_desc'=>$view_desc, 'td_style'=>$td_style));
+		$GINO .= $this->fileDelList($id, $table, $result, 
+		array('jsfunc'=>$jsfunc, 'view_desc'=>$view_desc, 'td_style'=>$td_style, 'label'=>$label, 'max_chars'=>$max_chars));
 		
 		return $GINO;
 	}
@@ -431,7 +437,9 @@ class mFile {
 	private function fileDelList($id, $table, $result, $options=array()){
 		
 		$jsfunc = array_key_exists('jsfunc', $options) ? $options['jsfunc'] : '';
+		$label = (array_key_exists('label', $options) && $options['label'] != '') ? $options['label'] : '';
 		$view_desc = array_key_exists('view_desc', $options) ? $options['view_desc'] : false;
+		$max_chars = (array_key_exists('max_chars', $options) && is_integer($options['max_chars'])) ? $options['max_chars'] : 0;
 		$td_style = (array_key_exists('td_style', $options) && $options['td_style'] != '') ? $options['td_style'] : "border-width:0px;";
 		
 		$gform = new Form($this->_form_name, '', false);
@@ -445,8 +453,7 @@ class mFile {
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
 			{
-				$text1 = _("File associati");
-				$text2 = "<table>";
+				$table = "<table>";
 				
 				foreach($a AS $b)
 				{
@@ -456,16 +463,20 @@ class mFile {
 					
 					$link_delete = "<span onclick=\"$jsfunc($fid)\" style=\"cursor:pointer; text-decoration:underline; text-align:right\">".pub::icon('delete')."</span>";
 					
-					$text2 .= "<tr>";
-					$text2 .= "<td style=\"$td_style\">$filename</td>";
+					$table .= "<tr>";
+					$table .= "<td style=\"$td_style\">$filename</td>";
 					if($view_desc)
-						$text2 .= "<td style=\"$td_style\">$description</td>";
-					$text2 .= "<td style=\"$td_style\">$link_delete</td>";
-					$text2 .= "</tr>";
+					{
+						if($max_chars > 0)
+							$description = cutHtmlText($description, $max_chars, '...', true, false, true);
+						$table .= "<td style=\"$td_style\">$description</td>";
+					}
+					$table .= "<td style=\"$td_style\">$link_delete</td>";
+					$table .= "</tr>";
 				}
-				$text2 .= "</table>";
+				$table .= "</table>";
 				
-				$GINO .= $gform->noinput($text1, $text2);
+				$GINO .= $gform->noinput($label, $table);
 			}
 		}
 		$GINO .= $gform->endTable();
@@ -589,20 +600,25 @@ class mFile {
 	 * @param string $name			input name
 	 * @param string $dir_upload	directory di upload (/path/to/directory/)
 	 * @param string $link_error	reindirizzamento causa errore
-	 * 
+	 * @param array $options		opzioni
+	 * 		integer overwrite		1=sovrascrivi i file, 0=non sovrascrivere
+	 * 		integer max_size		dimensione massima upload in KB
+	 * 		integer check_type		1=controlla il tipo di file, 0=non controllare; -> attiva 'types_allowed'
+	 * 		array types_allowed		array per alcuni tipi di file (mime types)
+	 * 		integer check_denied	1=controlla l'estensione del file, 0=non controllare; -> verifica '$this->_extension_denied'
+	 * 		integer debug			1=stampa informazioni di debug, 0=non stampare
+	 * 		integer chmod_dir		permessi della directory (0700)
+	 * 		array valid_ext			estensioni valide
+	 * 		boolean check_name		verifica i caratteri del nome del file
+	 * 		boolean resize			attiva il ridimensionamento di una immagine
+	 * 		string prefix_file		nel caso resize=true
+	 * 		string prefix_thumb		nel caso resize=true
+	 * 		integer width			larghezza in pixel (alternativo al successivo)
+	 * 		integer height			altezza in pixel (alternativo al precedente)
+	 * 		boolean thumb			attiva la generazione del thumbnail
+	 * 		integer t_width			larghezza in pixel del thumbnail (alternativo al successivo)
+	 * 		integer t_height		altezza in pixel del thumbnail (alternativo al precedente)
 	 * @return array ('filename'=>'description')
-	 * 
-	 * Options: 
-	 * 
-	 * @param integer overwrite		1=sovrascrivi i files, 0=non sovrascrivere
-	 * @param integer max_size		dimensione massima upload in KB
-	 * @param integer check_type	1=controlla il tipo di file, 0=non controllare			-> attiva 'types_allowed'
-	 * @param array types_allowed	array per alcuni tipi di file (mime types)
-	 * @param integer check_denied	1=controlla l'estensione del file, 0=non controllare	-> verifica '$this->_extension_denied'
-	 * @param integer debug			1=stampa informazioni di debug, 0=non stampare
-	 * @param integer chmod_dir		permessi della directory (0700)
-	 * @param array valid_ext		estensioni valide
-	 * @param boolean check_name	verifica i caratteri del nome del file
 	 */
 	public function mAction($name, $dir_upload, $link_error, $options=null){
 		
@@ -635,6 +651,15 @@ class mFile {
 		$valid_ext = $this->option('valid_ext') ? $this->option('valid_ext') : array();
 		$check_name = !is_null($this->option('check_name')) ? $this->option('check_name') : true;
 		
+		$resize = !is_null($this->option('resize')) ? $this->option('resize') : false;
+		$prefix_file = !is_null($this->option('prefix_file')) ? $this->option('prefix_file') : '';
+		$prefix_thumb = $this->option('prefix_thumb') ? $this->option('prefix_thumb') : null;
+		$width = $this->option('width') ? $this->option('width') : null;
+		$height = $this->option('height') ? $this->option('height') : null;
+		$thumb = !is_null($this->option('thumb')) ? $this->option('thumb') : false;
+		$thumb_width = $this->option('t_width') ? $this->option('t_width') : null;
+		$thumb_height = $this->option('t_height') ? $this->option('t_height') : null;
+
 		$log = '';
 		
 		if($text)
@@ -715,6 +740,23 @@ class mFile {
 							{
 								if(@move_uploaded_file($_FILES[$name]['tmp_name'][$key], $dir_upload.$filename))
 								{
+									if($resize && ($width || $height))
+									{
+										if($thumb && ($thumb_width || $thumb_height))
+										{
+											$t_width = $thumb_width;
+											$t_height = $thumb_height;
+										}
+										else
+										{
+											$t_width = null;
+											$t_height = null;
+										}
+										
+										$form = new Form(null, null, null);
+										$form->saveImage($filename, $dir_upload, $prefix_file, $prefix_thumb, $width, $height, $t_width, $t_height);
+									}
+									
 									$log .= "File <strong>{$filename}</strong> trasferito!";
 									$data[] = $filename;
 									if($text) $data_txt[] = $description[$key]; else $data_txt[] = $filename;
@@ -766,7 +808,7 @@ class mFile {
 		{
 			foreach($upload AS $key=>$value)
 			{
-				if($this->_description) $desc = $value; else $desc = '';
+				$desc = $this->_description ? $value : '';
 				$query = "INSERT INTO $table (reference, filename, description) VALUES ($reference, '$key', '$desc')";
 				$result = $this->_db->actionquery($query);
 			}
