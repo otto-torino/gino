@@ -1410,40 +1410,33 @@ class Form {
 	}
 	
 	/**
-	 * OLD - Verificare se si può eliminare
-	 *
-	 * @param $filename
-	 * @param $directory
+	 * Ridimensiona e crea il thumbnail di una immagine già caricata
 	 * 
-	 * Opzioni:
-	 * --------------
-	 * prefix_file		prefisso del file
-	 * prefix_thumb		prefisso del thumb
-	 * file_dim			dimensione massima del file (larghezza/altezza) => ridimensionamento
-	 * thumb_dim		dimensione massima del thumbnail => ridimensionamento
+	 * @param string $filename
+	 * @param string $directory
+	 * @param array $options
+	 * 		string prefix_file		prefisso del file
+	 *		string prefix_thumb		prefisso del thumbnail
+	 * 		integer width			dimensione in pixel alla quale ridimensionare il file (larghezza)
+	 * 		integer thumb_width		dimensione in pixel alla quale creare il thumbnail (larghezza)
+	 * @return boolean
 	 * 
-	 * 
-	 * Utilizzo
-	 * --------------
-	 * Caricamento di file da procedura multifile
-	 * 
-$mfile = new mFile();
-$upload = $mfile->mAction('mfile', $directory, $link_error, array('chmod_dir'=>0755, 'overwrite'=>0, 'valid_ext'=>$this->_valid_image));
-if(sizeof($upload) > 0)
-{
-	foreach($upload AS $key=>$value)
-	{
-		...
-		$form = new Form('', '', '');
-		$resize = $form->createImage($key, $directory, array('prefix_file'=>$this->_prefix_img, 'prefix_thumb'=>$this->_prefix_thumb, 'file_dim'=>$this->_img_width, 'thumb_dim'=>$this->_thumb_width));
+	 * @example 
+	 * col multifile
+	 * $mfile = new mFile();
+	 * $upload = $mfile->mAction('mfile', $directory, $link_error, array(...));
+	 * if(sizeof($upload) > 0) {
+	 * 	foreach($upload AS $key=>$value) {
+	 * 		$form = new Form(null, null, null);
+	 * 		$resize = $form->createImage($key, $directory, array(...));
 	 * 
 	 */
 	public function createImage($filename, $directory, $options=array()){
 
 		$prefix_file = array_key_exists('prefix_file', $options) ? $options['prefix_file'] : '';
 		$prefix_thumb = array_key_exists('prefix_thumb', $options) ? $options['prefix_thumb'] : '';
-		$file_dim = array_key_exists('file_dim', $options) ? $options['file_dim'] : 0;
-		$thumb_dim = array_key_exists('thumb_dim', $options) ? $options['thumb_dim'] : 0;
+		$width = array_key_exists('width', $options) ? $options['width'] : 0;
+		$thumb_width = array_key_exists('thumb_width', $options) ? $options['thumb_width'] : 0;
 		
 		$file = $directory.$filename;
 		list($im_width, $im_height, $type) = getimagesize($file);
@@ -1458,8 +1451,8 @@ if(sizeof($upload) > 0)
 		$img_file = $directory.$prefix_file.$filename;
 		$thumb_file = $directory.$prefix_thumb.$filename;
 
-		$img_size = $this->dimensionFile($file_dim, $im_width, $im_height);
-		$thumb_size = $this->dimensionFile($thumb_dim, $im_width, $im_height);
+		$img_size = $this->dimensionFile($width, $im_width, $im_height);
+		$thumb_size = $this->dimensionFile($thumb_width, $im_width, $im_height);
 		
 		if($type == self::_IMAGE_JPG_)
 		{
@@ -1470,10 +1463,7 @@ if(sizeof($upload) > 0)
 				imagecopyresampled($destfile_id, $sourcefile_id, 0, 0, 0, 0, $img_size[0], $img_size[1], $im_width, $im_height);
 				imagejpeg($destfile_id, $img_file);
 			}
-			else
-			{
-				copy($file, $img_file);
-			}
+			else copy($file, $img_file);
 			
 			if($thumb_size[0] != $im_width AND $thumb_size[1] != $im_height)
 			{
@@ -1482,10 +1472,7 @@ if(sizeof($upload) > 0)
 				imagecopyresampled($destfile_id, $sourcefile_id, 0, 0, 0, 0, $thumb_size[0], $thumb_size[1], $im_width, $im_height);
 				imagejpeg($destfile_id, $thumb_file);
 			}
-			else
-			{
-				copy($file, $thumb_file);
-			}
+			else copy($file, $thumb_file);
 			
 			@unlink($file);
 			return true;
@@ -1499,10 +1486,7 @@ if(sizeof($upload) > 0)
 				imagecopyresampled($destfile_id, $sourcefile_id, 0, 0, 0, 0, $img_size[0], $img_size[1], $im_width, $im_height);
 				imagepng($destfile_id, $img_file);
 			}
-			else
-			{
-				copy($file, $img_file);
-			}
+			else copy($file, $img_file);
 			
 			if($thumb_size[0] != $im_width AND $thumb_size[1] != $im_height)
 			{
@@ -1511,10 +1495,7 @@ if(sizeof($upload) > 0)
 				imagecopyresampled($destfile_id, $sourcefile_id, 0, 0, 0, 0, $thumb_size[0], $thumb_size[1], $im_width, $im_height);
 				imagepng($destfile_id, $thumb_file);
 			}
-			else
-			{
-				copy($file, $thumb_file);
-			}
+			else copy($file, $thumb_file);
 			
 			@unlink($file);
 			return true;
@@ -1571,7 +1552,5 @@ if(sizeof($upload) > 0)
 		$GFORM .= "</script>";
 		return $GFORM;
 	}
-	
 }
-
 ?>

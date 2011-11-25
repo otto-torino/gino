@@ -820,11 +820,11 @@ class mFile {
 	 * -> utile quando un file proveniente da un form deve essere associato a più record e inserito
 	 * in directory distinte attinenti questi record 
 	 * 
-	 * @param array $upload			output del metodo 'multipleUploadAction()'
+	 * @param array $upload			output del metodo 'mAction()'
 	 * @param string $dir_source	directory sorgente (file da copiare)
 	 * @param string $dir_dest		directory di destinazione
-	 * @param string redirect
-	 * @param string $link_error
+	 * @param string redirect		nomeclasse-nomemetodo
+	 * @param string $link_error	parametri
 	 */
 	public function copyUploadedFile($upload, $dir_source, $dir_dest, $redirect, $link_error){
 		
@@ -848,6 +848,30 @@ class mFile {
 				}
 			}
 		}
+		return null;
+	}
+	
+	/**
+	 * Rimuove i file caricati
+	 * 
+	 * @param string $directory		directory dell'upload
+	 * @param string $filename		nome del file come viene salvato nel record
+	 * @param array $options
+	 * @return null
+	 */
+	public function removeFile($directory, $filename, $options=null){
+		
+		$prefix_file = (isset($options['prefix_file']) && !is_null($options['prefix_file'])) ? $options['prefix_file'] : '';
+		$prefix_thumb = (isset($options['prefix_thumb']) && !is_null($options['prefix_thumb'])) ? $options['prefix_thumb'] : '';
+		
+		$directory = $this->dirUpload($directory);
+		
+		if(file_exists($directory.$prefix_file.$filename))
+			unlink($directory.$prefix_file.$filename);
+		
+		if(file_exists($directory.$prefix_thumb.$filename))
+			unlink($directory.$prefix_thumb.$filename);
+		
 		return null;
 	}
 	
