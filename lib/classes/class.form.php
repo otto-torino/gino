@@ -377,7 +377,18 @@ class Form {
 
 	}
 
-	// Tabella senza Input Form
+	/**
+	 * Tabella senza Input Form
+	 * 
+	 * @param string $label
+	 * @param string $value
+	 * @param array $options
+	 * 		string id			ID del tag TD della label
+	 * 		string style		stile del tag TR
+	 * 		string other		altro nel tag TD della label
+	 * 		string class_label	classe del tag TD della label
+	 * 		string class		classe dello span della label
+	 */
 	public function noinput($label, $value, $options=null) {
 		
 		$this->setOptions($options);
@@ -385,6 +396,7 @@ class Form {
 		$id = $this->option('id') ? "id=\"".$this->option('id')."\"" : '';
 		$style = $this->option('style') ? "style=\"".$this->option('style')."\"" : '';
 		$other = $this->option('other') ? $this->option('other') : '';
+		$class_label = $this->option('class_label') ? $this->option('class_label') : 'form_label';
 		$class = $this->option('class') ? $this->option('class') : 'form_text_label';
 		
 		$GFORM = '';
@@ -392,7 +404,7 @@ class Form {
 		if(!empty($label) OR !empty($value))
 		{
 			$GFORM .= "<tr $style>\n";
-			$GFORM .= "<td $id class=\"form_label\" $other>";
+			$GFORM .= "<td $id class=\"$class_label\" $other>";
 			$GFORM .= "<span class=\"$class\">$label</span>";
 			$GFORM .= "</td>\n";
 			$GFORM .= "<td>$value</td>\n";

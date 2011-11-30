@@ -330,25 +330,21 @@ class mFile {
 	 *
 	 * @param string $name_file			input name
 	 * @param integer $id				id di riferimento
-	 * @param array $options
-	 * @param array $options_file
-	 * @param array $options_text
+	 * @param array $options			opzioni generali
+	 * 		string label_file			label del blocco principale (file)
+	 * 		string label_text			label del blocco principale (descrizione)
+	 * 		string label_cell			label delle righe che vengono create
+	 * @param array $options_file		opzioni del metodo cfile della classe Form
+	 * @param array $options_text		opzioni del metodo cinput della classe Form
+	 * @param array $options_cell		opzioni del metodo noinput della classe Form
 	 * @return string
-	 * 
-	 * Opzioni
-	 * --------------
-	 * 1. options
-	 * @param string label_file		label del blocco principale (file)
-	 * @param string label_text		label del blocco principale (descrizione)
-	 * 
-	 * 2. options_file -> opzioni di cfile()
-	 * 3. options_text -> opzioni di cinput()
 	 */
-	public function mForm($name_file, $id=0, $options=null, $options_file=null, $options_text=null){
+	public function mForm($name_file, $id=0, $options=null, $options_file=null, $options_text=null, $options_cell=null){
 		
 		$this->setOptions($options);
 		$label_file = $this->option('label_file') ? $this->option('label_file') : _("Aggiungi file");
 		$label_text = $this->option('label_text') ? $this->option('label_text') : _("Descrizione");
+		$label_cell = $this->option('label_cell') ? $this->option('label_cell') : '';
 		
 		$name_text = $name_file.'_txt';
 		$name_file_array = $name_file.'[]';
@@ -366,7 +362,7 @@ class mFile {
 		
 		$GINO .= "<div id=\"".$this->_id_hidden_block."\" style=\"display:none\">";
 		$GINO .= $gform->startTable();
-		$GINO .= $gform->noinput('', $file_add);
+		$GINO .= $gform->noinput($label_cell, $file_add, $options_cell);
 		$GINO .= $gform->endTable();
 		$GINO .= "</div>";
 		// End

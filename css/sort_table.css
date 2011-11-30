@@ -15,48 +15,49 @@
 }
 
 .downArrow{
-    background:url('../img/sort_downcolumnarrow.png') no-repeat;
+    background:url('../img/sort_down_arrow.jpg') no-repeat;
     text-indent:15px;
     background-position: 5px 5px;
 }
 .upArrow{
-    background:url('../img/sort_upcolumnarrow.png') no-repeat;
+    background:url('../img/sort_up_arrow.jpg') no-repeat;
     text-indent:15px;
     background-position: 5px 5px;
 
 }
 .SortTableHeader{
 	background:url('../img/sort_bg-panel-header.gif');
-	border-top: 1px solid #E1E9F8;
+	border-top: 1px solid #999;
 }
 .sortTable tr:hover{
-    background:#FFF9C3;
+    background:#F2EDED;
 }
 .sortTable tr.SortTableHeader:hover{
     background:url('../img/sort_bg-panel-header.gif');
 }
 .sortTable th{
-    font-size:110%;
+    font-size:115%;
     text-align:left;
-    border-bottom: 1px solid #E1E9F8;
-    border-left: 1px solid #E1E9F8;
+    vertical-align: middle;
+    border-bottom: 1px solid #999;
+    border-left: 1px solid #999;
     height:25px;
     margin: 10px 0 10px 0;
-    padding:0 5px 0 5px;
+    padding:0 5px 0 7px;
     cursor:pointer;
 }
 .sortTable th:first-child{
-    border-left: 1px solid #E1E9F8;
+    border-left: 1px solid #999;
     border-left: 0;
 }
 
 .sortTable tr:hover td.focusedColumn{
-    background:#FEF6AF;
+    background:#F2EDED;
 }
 .sortTable td{
     padding:0 10px 0 5px;
     height:30px;
-    border-bottom: 1px solid #E1E9F8;
+    border-bottom: 1px solid #999;
 }
 .sortTable .Right{
     text-align:right;
