@@ -32,7 +32,7 @@ class pub extends EvtHandler{
 	protected $_doc_insert, $_doc_modify, $_doc_delete, $_doc_list, $_doc_return, $_doc_language, $_doc_link, $_doc_content, $_doc_view, $_doc_email, $_doc_check, $_doc_user, $_doc_permission, $_doc_password, $_doc_search, $_doc_sort, $_doc_new, $_doc_help, $_doc_config, $_doc_back, $_doc_export, $_doc_pdf, $_doc_cart, $_doc_minimize;
 	protected $_doc_home, $_doc_admin;
 	
-	protected $_act_insert, $_act_modify, $_act_delete, $_act_insert_first, $_act_insert_before, $_act_insert_after, $_act_insert_single, $_act_modify_single, $_act_active, $_act_view, $_act_search;
+	protected $_act_insert, $_act_modify, $_act_copy, $_act_delete, $_act_insert_first, $_act_insert_before, $_act_insert_after, $_act_insert_single, $_act_modify_single, $_act_active, $_act_view, $_act_search;
 	
 	protected $_link_home, $_link_admin, $_link_return;
 	
@@ -263,6 +263,7 @@ class pub extends EvtHandler{
 		
 		$this->_act_insert = 'insert';
 		$this->_act_modify = 'modify';
+		$this->_act_copy = 'copy';
 		$this->_act_delete = 'delete';
 		$this->_act_insert_first = 'insert_first';
 		$this->_act_insert_before = 'insert_before';
@@ -600,6 +601,10 @@ class pub extends EvtHandler{
 			case 'content':
 				$icon = 'ico_content.gif';
 				$title = _("contenuti");
+				break;
+			case 'duplicate':
+				$icon = 'ico_duplicate.gif';
+				$title = _("duplica");
 				break;
 			case 'css':
 				$icon = 'ico_CSS.gif';

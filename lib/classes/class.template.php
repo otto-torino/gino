@@ -68,7 +68,6 @@ class template extends propertyObject {
 		$this->_p['filename'] = $value;
 
 		return true;
-
 	}
 
 	public static function getAll($order='label') {
@@ -118,7 +117,6 @@ class template extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-	
 	}
 
 	public function formTemplate() {
@@ -126,7 +124,7 @@ class template extends propertyObject {
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
 		$gform->load('dataform');
 
-		$title = ($this->id)?_("Modifica template ").htmlChars($this->label):_("Nuovo template");
+		$title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
 
 		$required = 'label';
@@ -153,7 +151,29 @@ class template extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
+	}
+	
+	public function formCopyTemplate() {
 
+		$gform = new Form('gform', 'post', true);
+		$gform->load('dataform');
+
+		$title = _("Duplica template")." '".htmlChars($this->label)."'";
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
+
+		$required = 'label,filename';
+		$buffer = $gform->form($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', $required);
+		$buffer .= $gform->hidden('ref', $this->id);
+		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
+		$buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("il nome del file può contenere solamente caratteri alfanumerici o i caratteri '_' e '-'")));
+		$buffer .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
+		$buffer .= $gform->cinput('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
+
+		$buffer .= $gform->cform();
+
+		$htmlsection->content = $buffer;
+
+		return $htmlsection->render();
 	}
 
 	private function formBlock($gform) {
@@ -221,7 +241,7 @@ class template extends propertyObject {
 
 		$id = cleanVar($_GET, 'id', 'int', '');
 
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Elimina template")));
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Elimina template")." '".htmlChars($this->label)."'"));
 
 		$required = '';
 		$buffer = $gform->form($this->_home."?evt[layout-actionDelTemplate]", '', $required);
@@ -232,7 +252,6 @@ class template extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
 	public function actionDelTemplate() {
@@ -245,7 +264,6 @@ class template extends propertyObject {
 		$this->deleteDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-
 	}
 
 	public function manageTemplate($css, $tpl_id=0) {
@@ -344,7 +362,6 @@ class template extends propertyObject {
 		$buffer .= "</html>\n";
 
 		return $buffer;
-
 	}
 
 	private function createEmptyTemplate($blocks_number) {
@@ -382,7 +399,6 @@ class template extends propertyObject {
 		}
 			
 		return $buffer;
-
 	}
 
 	private function renderNave($matches) {
@@ -483,7 +499,6 @@ class template extends propertyObject {
 		$buffer .= $matches[5];
 	
 		return $buffer;
-
 	}
 
 	private function cellCtrl($id) {
@@ -502,7 +517,6 @@ class template extends propertyObject {
 		$buffer .= "</div>";	
 
 		return $buffer;
-
 	}
 
 	public function actionTemplate() {
@@ -545,14 +559,12 @@ class template extends propertyObject {
 		}
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-	
 	}
 
 	private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
 	
 		$query = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
 		return $this->_db->actionquery($query);
-
 	}
 
 	private function deleteBlocks() {
@@ -560,6 +572,60 @@ class template extends propertyObject {
 		$query = "DELETE FROM ".self::$_tbl_tpl_block." WHERE tpl='$this->id'"; 	
 		return $this->_db->actionquery($query);
 	}
+	
+	public function actionCopyTemplate() {
+	
+		$gform = new Form('gform', 'post', false);
+		$gform->save('dataform');
+		$req_error = $gform->arequired();
 
+		$ref = cleanVar($_POST, 'ref', 'int', '');
+		$label = cleanVar($_POST, 'label', 'string', '');
+		$filename = cleanVar($_POST, 'filename', 'string', '');
+		$description = cleanVar($_POST, 'description', 'string', '');
+		
+		if($filename) $filename = $filename.'.tpl';
+		
+		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&id=$ref&action=copy";
+		
+		if($req_error > 0) 
+			exit(error::errorMessage(array('error'=>1), $link_error));
+		
+		// Valori del template da duplicare
+		$obj = new template($ref);
+		
+		if(is_file(TPL_DIR.OS.$filename)) 
+			exit(error::errorMessage(array('error'=>_("Nome file già presente")), $link_error));
+		else
+		{
+			if(!copy(TPL_DIR.OS.$obj->filename, TPL_DIR.OS.$filename))
+				exit(error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+		}
+		
+		$db = new Db;
+		
+		$query = "INSERT INTO ".self::$_tbl_tpl." (filename, label, description) VALUES ('$filename', '$label', '$description')";
+		$db->actionquery($query);
+		$id = $db->getlastid(self::$_tbl_tpl);
+		
+		$query = "SELECT * FROM ".self::$_tbl_tpl_block." WHERE tpl='$ref'";
+		$a = $db->selectquery($query);
+		if(sizeof($a)>0)
+		{
+			foreach($a AS $b)
+			{
+				$position = $b['position'];
+				$width = $b['width'];
+				$um = $b['um'];
+				$align = $b['align'];
+				$rows = $b['rows'];
+				$cols = $b['cols'];
+				$query = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
+				$db->actionquery($query);
+			}
+		}
+
+		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
+	}
 }
 ?>

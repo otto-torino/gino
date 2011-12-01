@@ -463,7 +463,7 @@ class menu extends AbstractEvtClass {
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$parent = cleanVar($_POST, 'parent', 'int', '');
-		$link = cleanVar($_POST, 'link', 'string', '');	// PERMALINKS
+		$link = cleanVar($_POST, 'link', 'string', '');
 		$voice = ($parent)?null:$id;
 
 		$link_error_p = "action=$this->_action";
@@ -480,7 +480,7 @@ class menu extends AbstractEvtClass {
 			$voice->{$k} = $k;
 		}
 		$voice->instance = $this->_instance;
-		$voice->link = $this->_plink->convertLink($link);	// PERMALINKS
+		$voice->link = $this->_plink->convertLink($link);
 		if(!$id) $voice->initOrderList();
 
 		$voice->updateDbData();

@@ -25,14 +25,12 @@ class Link {
 	 * 									string: il separatore è '&' (es. order=desc&start=20)
 	 * 									array: key=>value (array('order'=>'desc', 'start'=>20))
 	 * @param array			$options
+	 * 		boolean all 		link completo (http://...)
+	 * 		string code 		tipo di evento (di default 'evt')
+	 * 		boolean basename 	mostra il nome del file php (index.php)
+	 * @return string
 	 * 
-	 * all [boolean]		link completo (http://...)
-	 * code [string]		tipo di evento (di default 'evt')
-	 * basename [boolean]	mostra il nome del file php (index.php)
-	 * 
-	 * 
-	 * @examples
-	 * 
+	 * @example
 	 * Richiamare il metodo listReferenceGINO della classe pagelist:
 	 * $this->_list->($this->_plink->aLink($this->_instanceName, 'viewList', $ctg_par, $order_par, array('basename'=>false)));
 	 */
@@ -112,6 +110,7 @@ class Link {
 	 * @param string	$link
 	 * @param string	$params		(es. start=2)
 	 * @param boolean	$secondary
+	 * @return string
 	 */
 	public function addParams($link, $params, $secondary=true){
 		
@@ -191,9 +190,12 @@ class Link {
 	/**
 	 * Converte un indirizzo a/da un permalink
 	 * 
-	 * vserver [string]	variabile del server web
-	 * 
-	 * utilizzando QUERY_STRING viene scartato il valore codificato base64
+	 * @param string $params	valori da URL (es. $_SERVER['REQUEST_URI'])
+	 * @param array $options
+	 * 		string vserver		variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
+	 * 		boolean pToLink
+	 * 		boolean basename	opzione per il metodo permalinkToLink; se vero antepone il basename al link (vedi class.skin.php)
+	 * @return string
 	 * 
 	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
 	 */
@@ -201,6 +203,7 @@ class Link {
 		
 		$pToLink = array_key_exists('pToLink', $options) ? $options['pToLink']: false;
 		$vserver = array_key_exists('vserver', $options) ? $options['vserver']: '';
+		$basename = array_key_exists('basename', $options) ? $options['basename'] : false;
 		
 		if($vserver != '')
 		{
@@ -221,7 +224,7 @@ class Link {
 		
 		if($pToLink || !$this->_permalinks)
 		{
-			$link = $this->permalinkToLink($query_string);
+			$link = $this->permalinkToLink($query_string, $basename);
 			
 			$this->setServerVar($link);
 		}
@@ -246,20 +249,22 @@ class Link {
 		return $link;
 	}
 	
-	private function permalinkToLink($query_string){
+	private function permalinkToLink($query_string, $basename){
+		
+		$basename = $basename ? 'index.php?' : '';
 		
 		$link = $query_string;
 		$array = explode('/', $query_string);
 		
 		if(sizeof($array) == 2)
 		{
-			$link = EVT_NAME."[$array[0]-$array[1]]";
+			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
 			$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
 			$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
 		}
 		elseif(sizeof($array) > 2)
 		{
-			$link = EVT_NAME."[$array[0]-$array[1]]";
+			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
 			$key = true;
 			$string_get = '';
 			for($i=2, $end=sizeof($array); $i<$end; $i++)
@@ -292,7 +297,7 @@ class Link {
 				}
 			}
 			
-			// GET / REQUEST
+			// Ridefinizione delle variabili GET / REQUEST
 			$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
 			$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
 			
@@ -317,7 +322,6 @@ class Link {
 		
 		return $link;
 	}
-	
 	
 	private function setServerVar($query_string){
 		

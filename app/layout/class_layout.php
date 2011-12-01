@@ -54,6 +54,10 @@ class layout extends AbstractEvtClass {
 				$tplObj = new template($id);
 				return $tplObj->tplBlockForm(); 
 			}
+			elseif($this->_block=='template' && $this->_action=='copytpl') {
+				$tplObj = new template(null);
+				return $tplObj->actionCopyTemplate();
+			}
 
 			$buffer = "<div class=\"vertical_1\">";
 			$buffer .= $this->layoutList();
@@ -61,6 +65,7 @@ class layout extends AbstractEvtClass {
 
 			$buffer .= "<div class=\"vertical_2\">\n";
 			if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) $buffer .= $this->formBlock();
+			elseif($this->_action == $this->_act_copy) $buffer .= $this->formCopyBlock();
 			elseif($this->_action == $this->_act_delete) $buffer .= $this->formDelBlock();
 			else $buffer .= $this->info();
 			$buffer .= "</div>\n";
@@ -145,8 +150,9 @@ class layout extends AbstractEvtClass {
 			foreach($tpl_list as $tpl) {
 				$selected = ($tpl->id == $sel_id)?true:false;
 				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
+				$link_copy = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_copy\">".pub::icon('duplicate', _("crea una copia"))."</a>";
 				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_modify), $selected, true);
+				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_copy, $link_modify), $selected, true, '('.$tpl->filename.')');
 			}
 			$buffer .= $htmlList->end();
 		}
@@ -155,7 +161,6 @@ class layout extends AbstractEvtClass {
 		}
 
 		return $buffer;
-
 	}
 
 	private function cssList() {
@@ -176,9 +181,8 @@ class layout extends AbstractEvtClass {
 		else {
 			$buffer = "<p>"._("Non risultano css registrati")."</p>\n";
 		}
-
+		
 		return $buffer;
-
 	}
 
 	private function formBlock() {
@@ -199,6 +203,22 @@ class layout extends AbstractEvtClass {
 		}
 	}
 	
+	private function formCopyBlock() {
+	
+		$id = cleanVar($_GET, 'id', 'int', '');
+		
+		if($this->_block=='skin') {
+			return null;
+		}
+		elseif($this->_block=='template') {
+			$tplObj = new template($id);
+			return $tplObj->formCopyTemplate();
+		}
+		elseif($this->_block=='css') {
+			return null;
+		}
+	}
+	
 	private function formDelBlock() {
 	
 		$id = cleanVar($_GET, 'id', 'int', '');
@@ -215,7 +235,6 @@ class layout extends AbstractEvtClass {
 			$tplObj = new skin($id);
 			return $tplObj->formDelSkin();
 		}
-	
 	}
 
 	private function info() {
@@ -223,7 +242,6 @@ class layout extends AbstractEvtClass {
 		if($this->_block == 'skin') return skin::layoutInfo();
 		elseif($this->_block == 'template') return template::layoutInfo();
 		elseif($this->_block == 'css') return css::layoutInfo();
-
 	}
 	
 	public function actionSkin() {
@@ -235,7 +253,6 @@ class layout extends AbstractEvtClass {
 		$skinObj->actionSkin();
 
 		exit();
-
 	}
 	
 	public function actionDelSkin() {
@@ -247,7 +264,6 @@ class layout extends AbstractEvtClass {
 		$skin->actionDelSkin();
 
 		exit();
-
 	}
 	
 	public function actionUpdateSkinOrder() {
@@ -286,7 +302,6 @@ class layout extends AbstractEvtClass {
 		$css->actionDelCssLayout();
 
 		exit();
-
 	}
 	
 	public function actionTemplate() {
@@ -298,7 +313,6 @@ class layout extends AbstractEvtClass {
 		$tplObj->actionTemplate();
 
 		exit();
-
 	}
 
 	public function actionDelTemplate() {
@@ -310,7 +324,6 @@ class layout extends AbstractEvtClass {
 		$tpl->actionDelTemplate();
 
 		exit();
-
 	}
 
 	public function modulesList() {
@@ -420,8 +433,5 @@ class layout extends AbstractEvtClass {
 
 		return $buffer;
 	}
-
-	
 }
-
 ?>

@@ -83,6 +83,7 @@ class skin extends propertyObject {
 	public static function getSkin($relativeUrl) {
 
 		$db = new db;
+		$plink = new Link();
 		
 		$query = "SELECT id, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
 		$a = $db->selectquery($query);
@@ -91,17 +92,28 @@ class skin extends propertyObject {
 				$urls = explode(",", $b['urls']);
 
 				foreach($urls as $url) 
+				{	
+					if(!preg_match('#\?(evt|pt)\[#', $url))
+						$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
+					
 					if($url == $relativeUrl) { 
 						if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
 							return new skin($b['id']);
 					}
+				}
 			}
 			foreach($a as $b) {
 
-				if(!empty($b['rexp'])) 
-					if(preg_match($b['rexp'], $relativeUrl)) 
+				if(!empty($b['rexp']))
+				{
+					$p_relativeUrl = $plink->convertLink($relativeUrl, array('pToLink'=>false));
+					
+					if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
+					{
 						if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
 							return new skin($b['id']);
+					}
+				}
 
 			}
 			return false;
@@ -153,8 +165,8 @@ class skin extends propertyObject {
 		$buffer .= $gform->hidden('id', $this->id);
 
 		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "field"=>"label", "trnsl_id"=>$this->id));
-		$buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), _("Espressione regolare"), array("size"=>40, "maxlength"=>200));
-		$buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole")), array("size"=>40, "maxlength"=>200));
+		$buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
+		$buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
 		$css_list = array();
 		foreach(css::getAll() as $css) {
 			$css_list[$css->id] = htmlInput($css->label);
@@ -201,7 +213,6 @@ class skin extends propertyObject {
 		$this->updateDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-
 	}
 	
 	public function formDelSkin() {
@@ -222,7 +233,6 @@ class skin extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
 	public function actionDelSkin() {
@@ -231,7 +241,6 @@ class skin extends propertyObject {
 		$this->deleteDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-
 	}
 
 	public static function layoutInfo() {
@@ -246,11 +255,12 @@ class skin extends propertyObject {
 		</ul>";
 		$buffer .= "</p>\n";
 		$buffer .= "<p><b>"._("Funzionamento")."</b></p>\n";
-		$buffer .= "<p>"._("Css e template possono essere associati nei tre modi descritti sopra. Nel campo urls che compare nel form di modifica o inserimento si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
-		<br />Le classi di url, definite mediante il campo 'Espressione regolare', nel formato PCRE permettono di fare il matching con tutti gli url che soddisfano l'espressione regolare inserita.")."</p>\n";
+		$buffer .= "<p>"._("Css e template possono essere associati nei tre modi descritti sopra. Nel campo <b>Urls</b> che compare nel form di modifica o inserimento si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
+		<br />Le classi di url, definite mediante il campo <b>Espressione regolare</b>, nel formato PCRE permettono di fare il matching con tutti gli url che soddisfano l'espressione regolare inserita.")."</p>\n";
 		$buffer .= "<p>"._("Ciascuna skin ha una priorità, definita dall'ordine in cui compaiono le skin nell'elenco a sinistra e modificabile per trascinamento.")."</p>\n";
 		$buffer .= "<p>"._("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching tra la pagina richiesta e gli indirizzi (url) associati alle skin partendo dalla skin con priorità più alta.
 		<br />Se viene trovato un matching la skin viene utilizzata, altrimenti la ricerca riprende utilizzando le espressioni regolari, sempre per ordine di priorità.")."</p>\n";
+		$buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quelle nativo di gino.")."</p>";
 
 		$htmlsection->content = $buffer;
 
