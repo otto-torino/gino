@@ -754,7 +754,7 @@ class menu extends AbstractEvtClass {
 							$class_style = ($odd)?"odd":"even";
 							$class_role = $b[$field_role];
 							$role_name = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $class_role);
-							$text = "$class_label - $description";
+							$text = jsVar("$class_label - $description");
 							
 							$GINO .= "<div class=\"$class_style\" style=\"padding:5px;\">";
 							$GINO .= "<div class=\"left\"><b>$class_label - $description</b><br/>";
