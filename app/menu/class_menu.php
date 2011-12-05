@@ -63,7 +63,7 @@ class menu extends AbstractEvtClass {
 			"horizontal"=>_("Menu orizzontale"),
 			"initShowIcon"=>array(_("Stile livelli con sottomenu"), _("'si': sempre visibile<br/>'no': visibile su over")),
 			"click_event"=>array(_("Evento apertura livelli"), _("'si': su click<br/>'no': su over")),
-			"path_to_sel"=>array(_("Briciole di pane"), _("'si': percorso scritto<br/>'no': percorso rappresentato graficamenteo")),
+			"path_to_sel"=>array(_("Briciole di pane"), _("'si': percorso scritto<br/>'no': percorso rappresentato graficamente")),
 			"cache"=>array("label"=>array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")), "required"=>false)
 		);
 		$this->_action = (isset($_POST['action']) || isset($_GET['action'])) ? $_REQUEST['action']:null;
@@ -79,7 +79,6 @@ class menu extends AbstractEvtClass {
 		return array("tables"=>array('sys_menu_voices', 'sys_menu_opt', 'sys_menu_grp', 'sys_menu_usr'),
 			     "css"=>array('menu.css', 'menuH.css', 'menuV.css')
 		      );
-
 	}
 	
 	public function deleteInstance() {
@@ -185,7 +184,6 @@ class menu extends AbstractEvtClass {
 		}
 
 		return $buffer;
-	
 	}
 
 	public function breadCrumbs() {
@@ -209,7 +207,6 @@ class menu extends AbstractEvtClass {
 		}
 
 		return $GINO;
-
 	}
 
 	private function renderMenu($parent=0, $s=0) {
@@ -323,7 +320,6 @@ class menu extends AbstractEvtClass {
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $GINO;
 		return $htmltab->render();
-
 	}
 
 	private function listMenu($id) {
@@ -334,7 +330,6 @@ class menu extends AbstractEvtClass {
 		$htmlsection->content = $this->renderMenuAdmin(0, $id);
 
 		return $htmlsection->render();
-
 	}
 	
 	private function renderMenuAdmin($parent=0, $s=0) {
@@ -450,7 +445,6 @@ class menu extends AbstractEvtClass {
 		$buffer .=  $this->searchModules();
 
 		return $buffer;
-
 	}
 
 	public function actionMenuVoice() {
@@ -493,8 +487,6 @@ class menu extends AbstractEvtClass {
 		$buffer =  $voice->formDelVoice($this->_home."?evt[$this->_instanceName-actionDelMenuVoice]");
 
 		return $buffer;
-
-
 	}
 
 	public function actionDelMenuVoice() {
@@ -781,9 +773,5 @@ class menu extends AbstractEvtClass {
 		
 		return $GINO;
 	}
-
-
 }
-
-
 ?>

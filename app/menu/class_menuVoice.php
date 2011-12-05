@@ -228,7 +228,7 @@ class menuVoice extends propertyObject {
 	
 	public static function getSelectedVoice($instance) {
 	
-		$query_string = urldecode($_SERVER['QUERY_STRING']);	// string(26) "evt[page-displayItem]&id=5" 
+		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5" 
 		
 		if(!preg_match("/\[(.+)\]/is", $query_string, $matches)) return 'home';	//  home		
 		if($matches[0] == "[index-index_page]") return 'home';			// home
@@ -259,8 +259,9 @@ class menuVoice extends propertyObject {
 			*/
 			$obj = new Link();
 			$plink = $obj->convertLink($query_string);	// => page/displayItem/5
+			$search_link = $obj->alternativeLink($plink);
 			
-			$query = "SELECT id, link FROM ".self::$tbl_voices." WHERE link LIKE '%".$plink."%' AND instance='$instance'";
+			$query = "SELECT id, link FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
 			$a = $db->selectquery($query);
 			if(sizeof($a)>0) {
 				foreach($a as $b) {
@@ -288,5 +289,4 @@ class menuVoice extends propertyObject {
 		return $string;
 	}
 }
-
 ?>

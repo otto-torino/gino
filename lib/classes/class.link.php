@@ -178,9 +178,12 @@ class Link {
 		return $link;
 	}
 	
-	// Presenta un collegamento prendendo l'indirizzo da un campo del DB (classe menu)
-	// es. page/displayItem/8, page/displayItem/id/8
-	// es. index.php?evt[page-displayItem]&id=6
+	/**
+	 * Presenta un collegamento prendendo l'indirizzo da un campo del DB (classe menu)
+	 * 
+	 * @param string $link		esempi: page/displayItem/8, page/displayItem/id/8, index.php?evt[page-displayItem]&id=6
+	 * @return string
+	 */
 	public static function linkFromDB($link){
 		
 		$url = SITE_WWW.'/'.$link;
@@ -188,13 +191,46 @@ class Link {
 	}
 	
 	/**
+	 * Imposta le condizioni di ricerca di un indirizzo nelle voci di menu
+	 * 
+	 * @param string $link
+	 * @return string
+	 */
+	public function alternativeLink($link){
+		
+		$where = "link LIKE '%$0%'";
+		$string = '';
+		
+		$array = array();
+		$array[] = preg_replace("#^.+$#", $where, $link);
+		$items = explode('/', $link);
+		
+		if(sizeof($items) == 3 && $this->_compressed_form)
+		{
+			$item = preg_replace("#^.+$#", $where, $items[0].'/'.$items[1].'/'.$this->_field_id.'/'.$items[2]);
+			$array[] = $item;
+		}
+		if(sizeof($array) > 1)
+		{
+			$string .= '(';
+			$string .= implode(' OR ', $array);
+			$string .= ')';
+		}
+		elseif(sizeof($array) == 1)
+			$string .= $array[0];
+		
+		return $string;
+	}
+	
+	/**
 	 * Converte un indirizzo a/da un permalink
 	 * 
 	 * @param string $params	valori da URL (es. $_SERVER['REQUEST_URI'])
 	 * @param array $options
-	 * 		string vserver		variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
-	 * 		boolean pToLink
-	 * 		boolean basename	opzione per il metodo permalinkToLink; se vero antepone il basename al link (vedi class.skin.php)
+	 * 		string vserver			variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
+	 * 		boolean pToLink			conversione dal formato permalink a quello di gino (di default è il contrario)
+	 * 		boolean basename		opzione per il metodo permalinkToLink; se vero antepone il basename al link (vedi class.skin.php)
+	 * 		boolean setServerVar	reimposta le variabili del server indicate nel metodo setServerVar(). Operazione effettuata dalla classe document
 	 * @return string
 	 * 
 	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
@@ -204,6 +240,7 @@ class Link {
 		$pToLink = array_key_exists('pToLink', $options) ? $options['pToLink']: false;
 		$vserver = array_key_exists('vserver', $options) ? $options['vserver']: '';
 		$basename = array_key_exists('basename', $options) ? $options['basename'] : false;
+		$setServerVar = array_key_exists('setServerVar', $options) ? $options['setServerVar'] : false;
 		
 		if($vserver != '')
 		{
@@ -226,7 +263,8 @@ class Link {
 		{
 			$link = $this->permalinkToLink($query_string, $basename);
 			
-			$this->setServerVar($link);
+			if($setServerVar)
+				$this->setServerVar($link);
 		}
 		elseif($this->_permalinks)
 		{
@@ -326,8 +364,6 @@ class Link {
 	private function setServerVar($query_string){
 		
 		$_SERVER['QUERY_STRING'] = $query_string;
-		//$_SERVER['REQUEST_METHOD'] = 'GET';
-		//$_SERVER['REQUEST_URI']
 	}
 	
 	private function opLinkToPerm($params, $secondary=false){

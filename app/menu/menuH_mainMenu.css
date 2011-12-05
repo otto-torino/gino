@@ -22,6 +22,11 @@ nav#menu_mainMenu ul.mainmenu li {
   height: 33px;
   text-align:center;
 }
+nav#menu_mainMenu ul.mainmenu li.selectedVoice a {
+	background-color: #850c2e;
+	color: #fff;
+	text-decoration: none;
+}
 nav#menu_mainMenu ul.mainmenu li.withChildren {
   background-color: #fff;
 }

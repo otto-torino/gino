@@ -34,7 +34,7 @@ class Document {
 
 		if(pub::variable('permalinks') == 'yes')
 		{
-			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('pToLink'=>true, 'vserver'=>'REQUEST_URI'));	// index.php?evt[index-admin_page]
+			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));	// index.php?evt[index-admin_page]
 			
 			$script = substr(preg_replace("#^".SITE_WWW."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
 			$query_string = preg_replace("#^".preg_quote($script)."\??#", "", $query_string);	// evt[index-admin_page]
