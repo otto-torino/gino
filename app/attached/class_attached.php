@@ -23,7 +23,7 @@ class attached extends AbstractEvtClass{
 	protected $_instance, $_instanceName;
 
 	private $_options;
-	private $_title;
+	private $_title, $_items_for_page;
 	
 	private $_group_1;
 	
@@ -51,12 +51,28 @@ class attached extends AbstractEvtClass{
 		$this->setAccess();
 		$this->setGroups();
 		
-		$this->_title = htmlChars($this->setOption('title', true));
+		// Options
+		
+		// Default values
+		$this->_optionsValue = array(
+			'title'=>_("Allegati"),
+			'opt_ctg'=>true,
+			'items_for_page'=>30
+		);
+		
+		$this->_title = $this->setOption('title', array('translation'=>true, 'value'=>$this->_optionsValue['title']));
 		$this->_category = $this->setOption('opt_ctg');
-
+		$this->_items_for_page = $this->setOption('items_for_page', array('value'=>$this->_optionsValue['items_for_page']));
+		
 		$this->_options = new options($this->_className, $this->_instance);
-		$this->_optionsLabels = array("title"=>_("Titolo"), "opt_ctg"=>_("Divisione in categorie"));
-
+		$this->_optionsLabels = array(
+			"title"=>array('label'=>_("Titolo"), 'value'=>$this->_optionsValue['title'], 'required'=>true), 
+			"opt_ctg"=>_("Divisione in categorie"),
+			"items_for_page"=>array('label'=>_("Numero di elementi per pagina"), 'value'=>$this->_optionsValue['items_for_page'])
+		);
+		
+		if($this->_items_for_page == 0) $this->_items_for_page = 30;
+		
 		$this->_tbl_attached = 'attached';
 		$this->_tbl_category = 'attached_ctg';
 		
@@ -312,7 +328,13 @@ class attached extends AbstractEvtClass{
 	private function tree($category, $select){
 	
 		$GINO = '';
-		$query = "SELECT id, name FROM ".$this->_tbl_attached." WHERE category='$category' ORDER BY name ASC";
+		
+		$numberTotRecord = "SELECT id FROM ".$this->_tbl_attached." WHERE category='$category'";
+		$this->_list = new PageList($this->_items_for_page, $numberTotRecord, 'query');
+		
+		$start = $this->_list->start();
+		$limit = $this->_db->limit($this->_list->rangeNumber, $start);
+		$query = "SELECT id, name FROM ".$this->_tbl_attached." WHERE category='$category' ORDER BY name ASC $limit";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
@@ -336,7 +358,10 @@ class attached extends AbstractEvtClass{
 				$GINO .= $htmlList->item("$sign $name", $links, $selected, true);
 
 			}
-			$GINO .= $htmlList->end();		
+			$GINO .= $htmlList->end();
+			
+			$link = $this->_plink->aLink($this->_instanceName, 'manageAttached', "ref=$category", '', array('basename'=>false));
+			$GINO .= "<p>".$this->_list->listReferenceGINO($link)."</p>";
 		}
 		
 		return $GINO;

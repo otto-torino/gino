@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `attached_opt` (
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `opt_ctg` tinyint(1) NOT NULL,
+  `items_for_page` int(3) NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
@@ -103,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `attached_opt` (
 --
 
 INSERT INTO `attached_opt` (`id`, `instance`, `title`, `opt_ctg`) VALUES
-(1, 0, 'Allegati', 1);
+(1, 0, 'Allegati', 1, 30);
 
 -- --------------------------------------------------------
 
