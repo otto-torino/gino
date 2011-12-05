@@ -32,7 +32,7 @@ class Link {
 	 * 
 	 * @example
 	 * Richiamare il metodo listReferenceGINO della classe pagelist:
-	 * $this->_list->($this->_plink->aLink($this->_instanceName, 'viewList', $ctg_par, $order_par, array('basename'=>false)));
+	 * $this->_list->listReferenceGINO($this->_plink->aLink($this->_instanceName, 'viewList', $ctg_par, $order_par, array('basename'=>false)));
 	 */
 	public function aLink($class, $method, $params1=null, $params2=null, $options=array()){
 		
