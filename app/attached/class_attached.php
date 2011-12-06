@@ -96,6 +96,21 @@ class attached extends AbstractEvtClass{
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 	
+	private function pathDirectory($ctg_id, $type){
+		
+		$ctg_dir = $this->nameDirectory($ctg_id);
+		
+		if($type == 'abs')
+			$directory = $this->_data_dir.$this->_os.$ctg_dir.$this->_os;
+		elseif($type == 'rel')
+			$directory = $this->_data_www.'/'.$ctg_dir.'/';
+		elseif($type == 'view')
+			$directory = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->_data_www.'/'.$ctg_dir);
+		else $directory = '';
+		
+		return $directory;
+	}
+	
 	public function downloader(){
 		
 		$doc_id = cleanVar($_GET, 'id', 'int', '');
@@ -108,11 +123,9 @@ class attached extends AbstractEvtClass{
 			{
 				foreach($a AS $b)
 				{
-					$reference = $b['category'];
+					$category = $b['category'];
 					$filename = htmlChars($b['name']);
-					
-					$directory = $this->nameDirectory($reference);
-					$full_path = $this->_data_dir.$this->_os.$directory.$this->_os.$filename;
+					$full_path = $this->pathDirectory($category, 'abs').$filename;
 					
 					download($full_path);
 					exit();
@@ -138,8 +151,7 @@ class attached extends AbstractEvtClass{
 				$reference = $b['category'];
 				$filename = htmlChars($b['name']);
 				
-				$directory = $this->nameDirectory($reference);
-				$path = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->_data_www."/$directory/$filename");
+				$path = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->pathDirectory($reference, 'rel').$filename);
 				$path_html = "&#60;a href=\"".$path."\"&#62;<b>"._("testo da sostituire")."</b>&#60;/a&#62;";
 			}
 		}
@@ -152,7 +164,6 @@ class attached extends AbstractEvtClass{
 		$GINO .= $path_html;
 
 		return $GINO;
-		
 	}
 	
 	private function nameDirectory($category){
@@ -186,7 +197,6 @@ class attached extends AbstractEvtClass{
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
 	public function manageAttached(){
@@ -294,13 +304,11 @@ class attached extends AbstractEvtClass{
 					$lnk_file = "<a href=\"".$this->_home."?evt[".$this->_className."-manageAttached]&amp;ref=$ctg_id\">$name</a>";
 				else $lnk_file = $name;
 				
-				$directory = $this->nameDirectory($ctg_id);
-				$lnk_file .= "<br /><span class=\"little\">"._("cartella").": contents/attached/$directory</span>";
+				$directory = $this->pathDirectory($ctg_id, 'view');
+				$lnk_file .= "<br /><span class=\"little\">"._("cartella").": $directory</span>";
 				
 				$lnk_modify = " <a href=\"".$this->_home."?evt[".$this->_className."-manageAttached]&amp;id=$ctg_id&amp;block=".$this->_block_ctg."&amp;action=".$this->_act_modify."\">".$this->icon('modify', _("modifica categoria"))."</a>";
-				
 				$lnk_insert = " <a href=\"".$this->_home."?evt[".$this->_className."-manageAttached]&amp;ref=$ctg_id&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuovo allegato"))."</a>";
-				
 				$lnk_delete = " <a href=\"".$this->_home."?evt[".$this->_className."-manageAttached]&amp;id=$ctg_id&amp;block=".$this->_block_ctg."&amp;action=".$this->_act_delete."\">".$this->icon('delete', _("elimina categoria"))."</a>";
 				
 				if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', ''))
@@ -356,7 +364,6 @@ class attached extends AbstractEvtClass{
 				$links = ($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1))? array($lnk_link, $lnk_modify, $lnk_delete):array();
 
 				$GINO .= $htmlList->item("$sign $name", $links, $selected, true);
-
 			}
 			$GINO .= $htmlList->end();
 			
@@ -408,11 +415,9 @@ class attached extends AbstractEvtClass{
 				foreach($a AS $b)
 				{
 					$filename = $b['name'];
+					$directory = $this->pathDirectory($reference, 'abs');
 					
-					$directory = $this->nameDirectory($reference);
-					$path_directory = $this->_data_dir.$this->_os.$directory.$this->_os;
-					
-					$result = $this->deleteFile($path_directory.$filename, $this->_home, $redirect, $link_error);
+					$result = $this->deleteFile($directory.$filename, $this->_home, $redirect, $link_error);
 				}
 			}
 			
@@ -457,6 +462,8 @@ class attached extends AbstractEvtClass{
 			$submit = _("inserisci");
 		}
 		
+		$preview = ($filename && extension($filename, $this->_img_extension)) ? true : false;
+		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title, 'headerLinks'=>$this->_link_return));
 		
 		$GINO = "<a name=\"a1\"></a>";
@@ -467,7 +474,7 @@ class attached extends AbstractEvtClass{
 		$GINO .= $gform->hidden('action', $action);
 		$GINO .= $gform->hidden('ref', $reference);
 		$GINO .= $gform->hidden('old_file', $filename);
-		$GINO .= $gform->cfile('file', $filename, _("File"), array("required"=>true));
+		$GINO .= $gform->cfile('file', $filename, _("File"), array("required"=>true, 'preview'=>$preview, 'previewSrc'=>$this->pathDirectory($reference, 'rel').$filename));
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$GINO .= $gform->cform();
 
@@ -492,8 +499,7 @@ class attached extends AbstractEvtClass{
 		
 		$link = "ref=$reference&action=$action";
 		
-		$directory = $this->nameDirectory($reference);
-		$path_dir = $this->_data_dir.$this->_os.$directory.$this->_os;
+		$path_dir = $this->pathDirectory($reference, 'abs');
 		$redirect = $this->_className.'-manageAttached';
 		$link_error = $this->_home."?evt[$redirect]&ref=$reference&action=$action";
 		
@@ -564,7 +570,6 @@ class attached extends AbstractEvtClass{
 			$title = _("Nuova categoria");
 			$submit = _("inserisci");
 		}
-		
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
 
@@ -668,34 +673,24 @@ class attached extends AbstractEvtClass{
 		if(empty($id) OR $action != $this->_act_delete)
 			exit(error::errorMessage(array('error'=>1), $link_error));
 		
-		$query = "SELECT directory FROM ".$this->_tbl_category." WHERE id='$id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$directory = $this->pathDirectory($id, 'abs');
+		if($directory)
 		{
-			foreach ($a AS $b)
+			// Eleminazione allegati
+			$query_del_att = "DELETE FROM ".$this->_tbl_attached." WHERE category='$id'";
+			$result_att = $this->_db->actionquery($query_del_att);
+			
+			// Eliminazione categoria
+			if($result_att)
 			{
-				$directory = $b['directory'];
-				$path_directory = $this->_data_dir.$this->_os.$directory.$this->_os;
-				
-				// Eleminazione allegati
-				$query_del_att = "DELETE FROM ".$this->_tbl_attached." WHERE category='$id'";
-				$result_att = $this->_db->actionquery($query_del_att);
-				
-				// Eliminazione categoria
-				if($result_att)
-				{
-					$query_del_ctg = "DELETE FROM ".$this->_tbl_category." WHERE id='$id'";
-					$result_ctg = $this->_db->actionquery($query_del_ctg);
-					
-					//language::deleteTranslations($this->_tbl_category, $id);
-				}
-				
-				// Eliminazione file e directory
-				if($result_ctg)
-				{
-					$this->deleteFileDir($path_directory, true);
-				}
+				$query_del_ctg = "DELETE FROM ".$this->_tbl_category." WHERE id='$id'";
+				$result_ctg = $this->_db->actionquery($query_del_ctg);
+				//language::deleteTranslations($this->_tbl_category, $id);
 			}
+			
+			// Eliminazione file e directory
+			if($result_ctg)
+				$this->deleteFileDir($directory, true);
 		}
 		else
 		{
@@ -717,7 +712,7 @@ class attached extends AbstractEvtClass{
 			echo ''; exit();
 		}
 		
-		$directory = $this->_db->getFieldFromId($this->_tbl_category, 'directory', 'id', $ctg);
+		$directory = $this->pathDirectory($ctg, 'view');
 		
 		$GINO = '';
 		
@@ -728,7 +723,7 @@ class attached extends AbstractEvtClass{
 			foreach($a AS $b)
 			{
 				$name = htmlChars($b['name']);
-				$path = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->_data_www."/".$directory."/".$name);
+				$path = $directory.'/'.$name;
 				
 				if(extension($name, $this->_img_extension))
 					$path_to_mark = $path;
@@ -821,10 +816,7 @@ class attached extends AbstractEvtClass{
 							this.start('opacity', '1');
 						});
 					}
-					
-					
 				}\n";
-				
 		$GINO .= "</script>\n";
 		
 		return $GINO;
