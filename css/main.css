@@ -174,7 +174,7 @@ ul.admin li {
 	background-color: transparent;
 }
 
-ul.admin li.evidence {
+ul.admin li.active {
 	margin: 4px 0px;
 	padding:1px;
 	color: #FFF;
