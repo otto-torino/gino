@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `attached_opt` (
 -- Dump dei dati per la tabella `attached_opt`
 --
 
-INSERT INTO `attached_opt` (`id`, `instance`, `title`, `opt_ctg`) VALUES
+INSERT INTO `attached_opt` (`id`, `instance`, `title`, `opt_ctg`, `items_for_page`) VALUES
 (1, 0, 'Allegati', 1, 30);
 
 -- --------------------------------------------------------
