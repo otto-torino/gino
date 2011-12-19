@@ -250,7 +250,7 @@ class Link {
 			}
 			elseif($vserver == 'REQUEST_URI')
 			{
-				$search = preg_quote(SITE_WWW.OS);
+				$search = preg_quote(SITE_WWW.'/');
 				$query_string =  preg_replace("#^$search#", "", $params);
 			}
 		}

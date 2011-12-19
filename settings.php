@@ -1,8 +1,7 @@
 <?php
 
 include('configuration.php');
-
-define('OS', '/');
+define('OS', DIRECTORY_SEPARATOR);
 
 /*
 	Absolute Paths

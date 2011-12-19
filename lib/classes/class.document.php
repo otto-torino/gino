@@ -34,16 +34,16 @@ class Document {
 
 		if(pub::variable('permalinks') == 'yes')
 		{
-			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));	// index.php?evt[index-admin_page]
+			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
 			
-			$script = substr(preg_replace("#^".SITE_WWW."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
+			$script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
 			$query_string = preg_replace("#^".preg_quote($script)."\??#", "", $query_string);	// evt[index-admin_page]
 		}
 		else
 		{
 			$query_string = $_SERVER['QUERY_STRING'];
 		}
-		$relativeUrl = preg_replace("#".SITE_WWW.OS."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");	//index.php?evt[index-admin_page]
+		$relativeUrl = preg_replace("#".preg_quote(SITE_WWW.'/')."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");	//index.php?evt[index-admin_page]
 		
 		$this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
 

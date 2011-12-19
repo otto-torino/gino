@@ -1,5 +1,4 @@
 <?php
-
 /*================================================================================
     Gino - a generic CMS framework
     Copyright (C) 2005  Otto Srl - written by Marco Guidotti
@@ -21,10 +20,14 @@
 ================================================================================*/
 
 define('SITE_ROOT', realpath(dirname(__FILE__)));
-define('SITE_WWW', preg_replace("#".preg_quote($_SERVER['DOCUMENT_ROOT'])."?#", "", SITE_ROOT));
+
+$siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT) ? preg_replace("#\\\#", "/", SITE_ROOT) : SITE_ROOT;
+// Rispetto a Linux, in Windows $_SERVER['DOCUMENT_ROOT'] termina con '/'
+$docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SERVER['DOCUMENT_ROOT'], '', -1) : $_SERVER['DOCUMENT_ROOT'];
+
+define('SITE_WWW', preg_replace("#".preg_quote($docroot)."?#", "", $siteroot));
 
 include('settings.php');
 include(LIB_DIR.OS."session.php");
 include(CORE);
-
 ?>
