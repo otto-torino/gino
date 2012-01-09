@@ -128,7 +128,7 @@ function validateForm(formObj) {
 
 		if(label.hasClass('req') && (!$chk(felement.getParents('td[class=formCell]')[0]) || (felement.getParents('td[class=formCell]')[0].style.display!='none'))) {
 
-			if(typeof CKEDITOR.instances[felement_name] != 'undefined') {
+			if(typeof CKEDITOR != 'undefined' && typeof CKEDITOR.instances[felement_name] != 'undefined') {
 				if(!$chk(CKEDITOR.instances[felement_name].getData())) err_detected = true;
 			}		
 			else if(felement.type=='text' || felement.type=='password' || felement.match('textarea') || felement.match('select') || felement.type=='hidden') {
