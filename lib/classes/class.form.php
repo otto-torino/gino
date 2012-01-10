@@ -1151,7 +1151,10 @@ class Form {
 			"video/mpeg",
 			"audio/midi",
 			"application/pdf",
+			"application/x-compressed",
 			"application/x-zip-compressed",
+			"application/zip",
+			"multipart/x-zip",
 			"application/vnd.ms-excel",
 			"application/x-msdos-program",
 			"application/octet-stream"
