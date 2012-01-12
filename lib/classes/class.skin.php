@@ -23,7 +23,7 @@ class skin extends propertyObject {
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'label'=>null, 'rexp'=>null, 'urls'=>null, 'template'=>null, 'css'=>null, 'priority'=>null, 
+		else return array('id'=>null, 'label'=>null, 'session'=>null, 'rexp'=>null, 'urls'=>null, 'template'=>null, 'css'=>null, 'priority'=>null, 
 			'shadow'=>null, 'shadowSize'=>null, 'shadowRadius'=>null, 'shadowColor'=>null, 'shadowOpacity'=>null, 'auth'=>null, 'cache'=>null);
 	}
 	
@@ -84,27 +84,67 @@ class skin extends propertyObject {
 
 		$db = new db;
 		$plink = new Link();
-		
-		$query = "SELECT id, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
+
+		$query = "SELECT id, session, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				$urls = explode(",", $b['urls']);
 
-				foreach($urls as $url) 
-				{	
-					if(!preg_match('#\?(evt|pt)\[#', $url))
-						$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
+			foreach($a as $b) {
+
+				$session_array = explode("=", trim($b['session']));
+
+				if(count($session_array)==2) {
+
+					if(isset($_SESSION[$session_array[0]]) && $_SESSION[$session_array[0]] == $session_array[1]) {
+						
+						$urls = explode(",", $b['urls']);
+
+						foreach($urls as $url) 
+						{	
+							if(!preg_match('#\?(evt|pt)\[#', $url))
+							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
 					
-					if($url == $relativeUrl) { 
-						if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
-							return new skin($b['id']);
+							if($url == $relativeUrl) { 
+								if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+									return new skin($b['id']);
+							}
+						}
+
+						if(!empty($b['rexp']))
+						{
+							$p_relativeUrl = $plink->convertLink($relativeUrl, array('pToLink'=>false));
+					
+							if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
+							{
+								if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+									return new skin($b['id']);
+							}
+						}
+
+					}
+				}
+			}
+
+			foreach($a as $b) {
+
+				if(!$b['session']) {
+					$urls = explode(",", $b['urls']);
+
+					foreach($urls as $url) 
+					{	
+						if(!preg_match('#\?(evt|pt)\[#', $url))
+							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
+					
+						if($url == $relativeUrl) { 
+							if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+								return new skin($b['id']);
+						}
 					}
 				}
 			}
 			foreach($a as $b) {
 
-				if(!empty($b['rexp']))
+				if(!$b['session'] && !empty($b['rexp']))
 				{
 					$p_relativeUrl = $plink->convertLink($relativeUrl, array('pToLink'=>false));
 					
@@ -165,6 +205,7 @@ class skin extends propertyObject {
 		$buffer .= $gform->hidden('id', $this->id);
 
 		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "field"=>"label", "trnsl_id"=>$this->id));
+		$buffer .= $gform->cinput('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), _("esempi").":<br />mobile=1"), array("size"=>40, "maxlength"=>200));
 		$buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
 		$buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
 		$css_list = array();
@@ -247,24 +288,30 @@ class skin extends propertyObject {
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni skin")));
 		$buffer = "<p><b>"._("Indicazioni")."</b></p>\n";
-		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono in sostanza un css ed un template e che possono essere associate alternativamente a");
+		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono in sostanza un css ed un template e che possono essere associate a")."</p>";
 		$buffer .= "<ul>
 		<li>"._("un url")."</li>
 		<li>"._("una serie di url")."</li>
 		<li>"._("una classe di url")."</li>
 		</ul>";
-		$buffer .= "</p>\n";
+		$buffer .= "<p>"._("Questi metodi possono essere abbinati o meno ad una variabile di sessione.")."</p>";
 		$buffer .= "<p><b>"._("Funzionamento")."</b></p>\n";
-		$buffer .= "<p>"._("Css e template possono essere associati nei tre modi descritti sopra. Nel campo <b>Urls</b> che compare nel form di modifica o inserimento si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
+		$buffer .= "<p>"._("La ricerca di una corrispondenza pagina richiesta/skin avviene in base a dei principi di priorità secondo i quali vengono controllati prima gli url/classi di url appartenenti a skin che hanno un valore di variabile di sessione; successivamente vengono controllati quelli appartenenti a skin che non hanno un valore di variabile di sessione.")."</p>";
+		$buffer .= "<p>"._("L'ordine di priorità delle skin è definito dall'ordine in cui compaiono nell'elenco a sinistra e modificabile per trascinamento.")."</p>";
+		$buffer .= "<p>"._("Nel campo <b>Variabile di sessione</b> che compare nel form di modifica o inserimento si può inserire il valore di una variabile di sessione nel formato \"nome_variabile=valore\", per il quale verranno applicate le regole di matching di url e classi.<br />Nel campo <b>Urls</b> si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
 		<br />Le classi di url, definite mediante il campo <b>Espressione regolare</b>, nel formato PCRE permettono di fare il matching con tutti gli url che soddisfano l'espressione regolare inserita.")."</p>\n";
-		$buffer .= "<p>"._("Ciascuna skin ha una priorità, definita dall'ordine in cui compaiono le skin nell'elenco a sinistra e modificabile per trascinamento.")."</p>\n";
-		$buffer .= "<p>"._("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching tra la pagina richiesta e gli indirizzi (url) associati alle skin partendo dalla skin con priorità più alta.
-		<br />Se viene trovato un matching la skin viene utilizzata, altrimenti la ricerca riprende utilizzando le espressioni regolari, sempre per ordine di priorità.")."</p>\n";
-		$buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quelle nativo di gino.")."</p>";
+
+		$buffer .= "<p><b>"._("Regole di matching url/classi")."</b></p>\n";
+		$buffer .= "<p>"._("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching tra la pagina richiesta e gli indirizzi associati alle skin.
+		<br />Se il matching non viene trovato, la ricerca continua utilizzando le espressioni regolari.")."</p>\n";
+
+		$buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quello nativo di gino.")."</p>";
 
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
 	}
+
 }
+
 ?>

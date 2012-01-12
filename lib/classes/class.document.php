@@ -37,7 +37,7 @@ class Document {
 			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
 			
 			$script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
-			$query_string = preg_replace("#^".preg_quote($script)."\??#", "", $query_string);	// evt[index-admin_page]
+			$query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
 		}
 		else
 		{
@@ -122,7 +122,12 @@ class Document {
 ================================================================================
 -->\n";
 
-		$headline = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
+		}
+		else {
+			$headline = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+		}
 		$headline .= $copyright;
 		$headline .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"".LANG."\" xml:lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
@@ -133,8 +138,9 @@ class Document {
 		if(isset($meta_title)) $headline .= "<meta name=\"title\" content=\"".$meta_title."\" />\n";
 		if(!empty($description)) $headline .= "<meta name=\"description\" content=\"".$description."\" />\n";
 		if(!empty($keywords)) $headline .= "<meta name=\"keywords\" content=\"".$keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['mobile'])) 
-			$headline .= "<meta name=\"viewport\" content=\"width=504\" />\n";
+		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
+		}
 		if($image_src) $headline .= "<link rel=\"image_src\" href=\"$image_src\" />\n";
 
 		$headline .= "<title>".$title."</title>\n";

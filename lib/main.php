@@ -42,27 +42,34 @@ class Main{
 
 		$this->setHeaders();
 
-		$this->detectMobile();
+		/* mobile detection */
+		$avoid_mobile = preg_match("#(&|\?)avoid_mobile=(\d)#", $_SERVER['REQUEST_URI'], $matches)
+			? (int) $matches[2]
+			: null;
+
+		if($avoid_mobile) {
+			unset($_SESSION['L_mobile']);
+			$_SESSION['L_avoid_mobile'] = 1;
+		}
+		elseif($avoid_mobile === 0) {
+			unset($_SESSION['L_avoid_mobile']);
+		}
+
+		if(!(isset($_SESSION['L_avoid_mobile']) && $_SESSION['L_avoid_mobile'])) {
+			$this->detectMobile();
+		}
+
 		$this->checkAuthenticationActions();
 	}
 
 	private function detectMobile() {
 		
-		$mobile = pub::variable('mobile');
-		$mobile_url = cleanVar($_GET, 'mobile', 'int', '');
-		
-		if($mobile == 'yes')
-		{
-			$detect = new Mobile_Detect();
+		$detect = new Mobile_Detect();
+
+		if($detect->isMobile()) {
 			
-			if(!$mobile_url && $detect->isMobile())
-			{
-				$redirect = $this->_url_root.$_SERVER['SCRIPT_NAME'];
-				$redirect .= $_SERVER['QUERY_STRING']? "?".$_SERVER['QUERY_STRING']."&mobile=1":"?mobile=1";
-				header('Location: '.$redirect);
-			}
-			elseif($mobile_url==1 && !isset($_SESSION['mobile'])) $_SESSION['mobile']=true;
-			elseif($mobile_url==9) unset($_SESSION['mobile']);
+			$_SESSION['L_mobile'] = 1;
+
 		}
 
 	}
