@@ -5,7 +5,7 @@ window.addEvent('domready', function() {
 	field.layer = new Element('div', {'style': 'font-size:0.9em;color:#666;'}).set('text', 'ricerca nel sito...');
 	position(field);
 
-	field.layer.inject(document.body, 'bottom');
+	field.layer.inject(field.getParent(), 'bottom');
 
 	field.addEvents({
 		'focus': onFocus,
@@ -27,8 +27,8 @@ window.addEvent('domready', function() {
 function position(el) {
 	el.layer.setStyles({
 		'position': 'absolute',
-		'top': (el.getCoordinates('body').top+4)+'px',  	
-		'left': (el.getCoordinates('body').left+4)+'px'  	
+		'top': (el.getCoordinates(el.getParent()).top+8)+'px',  	
+		'left': (el.getCoordinates(el.getParent()).left+8)+'px'  	
 	});
 }
 
