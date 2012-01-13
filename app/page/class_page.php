@@ -694,7 +694,7 @@ class page extends AbstractEvtClass{
 						$directory = $a[0]['directory'];
 					}
 					
-					$itemLabel .= "<br /><span class=\"little\">"._("permessi").": $role1 <br/>"._("cartella").": contents/page/$directory</span>";
+					$itemLabel .= "<br /><span class=\"little\">ID: $key - "._("permessi").": $role1 <br/>"._("cartella").": contents/page/$directory</span>";
 				}
 				// End
 				
