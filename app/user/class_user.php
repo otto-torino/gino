@@ -642,7 +642,8 @@ class user extends AbstractEvtClass{
 			}
 			$GINO .= "</table>\n";
 
-			$GINO .= $this->_list->listReferenceGINO("evt[".$this->_className."-manageUser]&char=$char");
+			$url = $this->_plink->aLink($this->_className, 'manageUser', '', array('char'=>$char), array('basename'=>false));
+			$GINO .= $this->_list->listReferenceGINO($url);
 		}
 		else
 		{
