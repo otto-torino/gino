@@ -6,8 +6,10 @@ class Link {
 	
 	function __construct(){
 		
-		$permalinks = pub::variable('permalinks');
-		$this->_permalinks = $permalinks == 'yes' ? true : false;
+		$db = new db();
+		$query = "SELECT permalinks FROM ".TBL_SYS_CONF." WHERE id=1";
+		$a = $db->selectquery($query);
+		$this->_permalinks = $a[0]['permalinks'] == 'yes' ? true : false;
 		
 		$this->_compressed_form = true;	// non mostra il nome del campo ID ma direttamente il valore: page/displayItem/3
 		$this->_field_id = 'id';		// nome della chiave del campo ID
