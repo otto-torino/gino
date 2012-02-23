@@ -22,7 +22,7 @@ class template extends propertyObject {
 
 		$this->initBlocksProperties();
 
-		$this->_align_dict = array("1"=>"destra", "2"=>"centro", "3"=>"destra");
+		$this->_align_dict = array("1"=>"sinistra", "2"=>"centro", "3"=>"destra");
 		$this->_um_dict = array("1"=>"px", "2"=>"%");
 
 	}
