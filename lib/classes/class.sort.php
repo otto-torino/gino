@@ -1,17 +1,19 @@
 <?php
-/*
-Form:
-
+/**
+ * Classe per gestire l'ordinamento di elementi
+ * 
+ * Esempio (Form)
+ * 
 $sort = new sort(array('table'=>$table, 'instance'=>$this->_instance));
 $htmlList = new htmlList(array("numItems"=>count($items), "separator"=>false, "id"=>'priorityList'));
 ...[ciclo]...
 $link_sort = $sort->link();
 $GINO .= $htmlList->item($name, array($link_sort), '', true, $content, "id$item->id", "sortable");
 ...[/ciclo]...
-$GINO .= $sort->jsLib($this->_home."?pt[{$this->_className}-actionUpdateOrder]");
-
-Action:
-
+$GINO .= $sort->jsLib($this->_home."?pt[{$this->_instanceName}-actionUpdateOrder]");
+ *
+ * Esempio (Action)
+ *
 	public function actionUpdateOrder() {
 	
 		$this->accessGroup('');
@@ -20,17 +22,15 @@ Action:
 		$items = explode(",", $order);
 		$i=1;
 		foreach($items as $item) {
-			$sort = new sort(array('id'=>$item, 'instance'=>$this->_instance, 'table'=>$table, 'field_id'=>'reference'));
+			$sort = new sort(array('id'=>$item, 'instance'=>$this->_instance, 'table'=>'tbl_data', 'field_id'=>'reference'));
 			$sort->priority = $i;
 			$sort->updateDbData();
 			$i++;
 		}
 	}
-
-Se la classe principale prevede inoltre le selezioni occorre gestire i due fattori in modo unitario:
-
-		...
-		
+ *
+ * Se la classe principale prevede inoltre le selezioni occorre gestire i due fattori in modo unitario:
+ *
 		$sels = new calendarSelection(0);
 		$sels->instance = $this->_instance;
 		if($this->_block == 'list')
