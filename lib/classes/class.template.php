@@ -179,6 +179,7 @@ class template extends propertyObject {
 	private function formBlock($gform) {
 	
 		if($this->id) {
+			
 			$buffer = $gform->noinput(_("Numero blocchi"), $this->_blocks_number);
 			$buffer .= $gform->hidden('blocks_number', $this->_blocks_number);
 			$buffer .= $gform->cell($this->tplBlockForm(), array("id"=>"blocks_form"));
@@ -201,24 +202,27 @@ class template extends propertyObject {
 		$blocks_number = $this->id ? $this->_blocks_number : cleanVar($_POST, 'blocks_number', 'int', '');
 
 		$buffer = $gform->startTable();
+		if($this->id)
+		{
+			$note = "<p>"._("La modifica dei valori dei singoli blocchi viene operata selezionando il pulsante <b>ricostruisci template</b> presente nella schermata successiva.")."<br />";
+			$note .= _("La ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."</p>";
+			$buffer .= $gform->cell($note);
+		}
 		for($i=1; $i<$blocks_number+1; $i++) {
 
 			$buffer .= $gform->cell("<p><b>"._("Blocco ").$i."</b></p>");
 
 			if($this->id) {
-				$um = $this->_blocks_properties[$i]['um'] ? $this->_um_dict[$this->_blocks_properties[$i]['um']] : ''; 
 				$width = $this->_blocks_properties[$i]['width'] ? $this->_blocks_properties[$i]['width'] : '';
-				$align = $this->_blocks_properties[$i]['align'] ? $this->_align_dict[$this->_blocks_properties[$i]['align']] : ''; 
-				$buffer .= $gform->noinput(_("Larghezza"), $width.$um);
-				$buffer .= $gform->noinput(_("Allineamento"), $align);
-				$buffer .= $gform->noinput(_("Numero righe"), $this->_blocks_properties[$i]['rows']);
-				$buffer .= $gform->noinput(_("Numero colonne"), $this->_blocks_properties[$i]['cols']);
-
-				$buffer .= $gform->hidden('width_'.$i, $width);
-				$buffer .= $gform->hidden('um_'.$i, $this->_blocks_properties[$i]['um']);
-				$buffer .= $gform->hidden('align_'.$i, $this->_blocks_properties[$i]['align']);
-				$buffer .= $gform->hidden('rows_'.$i, $this->_blocks_properties[$i]['rows']);
-				$buffer .= $gform->hidden('cols_'.$i, $this->_blocks_properties[$i]['cols']);
+				
+				$um = " ".$gform->select('um_'.$i, $this->_blocks_properties[$i]['um'], $this->_um_dict, array());
+				$buffer .= $gform->cinput('width_'.$i, 'text', $width, array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
+				
+				$buffer .= $gform->cselect('align_'.$i, $this->_blocks_properties[$i]['align'], $this->_align_dict, _("Allineamento"), array());
+				
+				$buffer .= $gform->cinput('rows_'.$i, 'text', $this->_blocks_properties[$i]['rows'], _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+				
+				$buffer .= $gform->cinput('cols_'.$i, 'text', $this->_blocks_properties[$i]['cols'], _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
 			}
 			else {
 				$um = " ".$gform->select('um_'.$i, '', $this->_um_dict, array());
@@ -328,7 +332,7 @@ class template extends propertyObject {
 			$buffer .= $gform1->hidden('rows_'.$i, cleanVar($_POST, 'rows_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('cols_'.$i, cleanVar($_POST, 'cols_'.$i, 'int', ''));
 		}
-		$buffer .= $gform1->input('dft', 'submit', _("template originale"), array("classField"=>"generic"));
+		$buffer .= $gform1->input('dft', 'submit', _("ricostruisci template"), array("classField"=>"submit"));
 		$buffer .= $gform1->cform();
 		
 		$buffer .= "</td>";
@@ -521,7 +525,7 @@ class template extends propertyObject {
 
 	public function actionTemplate() {
 	
-		$edit = $this->id ? true : false;
+		$edit = true;	// $this->id ? true : false
 
 		$tplContent = $_POST['tplform_text'];
 		if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);	// magic_quotes_gpc = On
@@ -553,9 +557,10 @@ class template extends propertyObject {
 			$align = cleanVar($_POST, 'align_'.$i, 'int', '');
 			$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
 			$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
+			
+			if($width == 0) $um = 0;
 
 			if(!$edit) $this->saveBlock(null, $i, $width, $um, $align, $rows, $cols);
-
 		}
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
