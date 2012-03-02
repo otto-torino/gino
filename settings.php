@@ -11,6 +11,7 @@ define('LIB_DIR', SITE_ROOT.OS.'lib');
 define('CLASSES_DIR', LIB_DIR.OS.'classes');
 define('APP_DIR', SITE_ROOT.OS.'app');
 define('INCLUDE_DIR', LIB_DIR.OS.'include');
+define('PLUGIN_DIR', LIB_DIR.OS.'plugin');
 define('CSS_DIR', SITE_ROOT.OS.'css');
 define('TPL_DIR', SITE_ROOT.OS.'templates');
 define('EXTRA_DIR', SITE_ROOT.OS.'extra');
