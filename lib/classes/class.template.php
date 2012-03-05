@@ -525,8 +525,6 @@ class template extends propertyObject {
 
 	public function actionTemplate() {
 	
-		$edit = true;	// $this->id ? true : false
-
 		$tplContent = $_POST['tplform_text'];
 		if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);	// magic_quotes_gpc = On
 
@@ -560,7 +558,7 @@ class template extends propertyObject {
 			
 			if($width == 0) $um = 0;
 
-			if(!$edit) $this->saveBlock(null, $i, $width, $um, $align, $rows, $cols);
+			$this->saveBlock(null, $i, $width, $um, $align, $rows, $cols);
 		}
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
