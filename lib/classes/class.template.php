@@ -47,11 +47,12 @@ class template extends propertyObject {
 			else $this->_blocks_number = 0;
 		}
 
-		$query = "SELECT position, width, um, align, rows, cols FROM ".self::$_tbl_tpl_block." WHERE tpl='$this->id' ORDER BY position ASC";
+		$query = "SELECT id, position, width, um, align, rows, cols FROM ".self::$_tbl_tpl_block." WHERE tpl='$this->id' ORDER BY position ASC";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			foreach($a as $b) {
 				$this->_blocks_properties[$b['position']] = array(
+						"id"=>$b['id'],
 						"width"=>$b['width'],
 						"um"=>$b['um'],
 						"align"=>$b['align'],
@@ -213,6 +214,8 @@ class template extends propertyObject {
 			$buffer .= $gform->cell("<p><b>"._("Blocco ").$i."</b></p>");
 
 			if($this->id) {
+				$buffer .= $gform->hidden('id_'.$i, $this->_blocks_properties[$i]['id']);
+				
 				$width = $this->_blocks_properties[$i]['width'] ? $this->_blocks_properties[$i]['width'] : '';
 				
 				$um = " ".$gform->select('um_'.$i, $this->_blocks_properties[$i]['um'], $this->_um_dict, array());
@@ -326,6 +329,7 @@ class template extends propertyObject {
 		$buffer .= $gform1->hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
 		$buffer .= $gform1->hidden('blocks_number', htmlInput($blocks_number));
 		for($i=1; $i<$blocks_number + 1; $i++) {
+			$buffer .= $gform1->hidden('id_'.$i, cleanVar($_POST, 'id_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('width_'.$i, cleanVar($_POST, 'width_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('um_'.$i, cleanVar($_POST, 'um_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('align_'.$i, cleanVar($_POST, 'align_'.$i, 'int', ''));
@@ -347,6 +351,7 @@ class template extends propertyObject {
 		$buffer .= $gform->hidden('tplform_text', '', array("id"=>"tplform_text"));
 		$buffer .= $gform1->hidden('blocks_number', htmlInput($blocks_number));
 		for($i=1; $i<$blocks_number + 1; $i++) {
+			$buffer .= $gform1->hidden('id_'.$i, cleanVar($_POST, 'id_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('width_'.$i, cleanVar($_POST, 'width_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('um_'.$i, cleanVar($_POST, 'um_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('align_'.$i, cleanVar($_POST, 'align_'.$i, 'int', ''));
@@ -550,6 +555,7 @@ class template extends propertyObject {
 
 		$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
 		for($i=1; $i<$blocks_number+1; $i++) {
+			$bid = cleanVar($_POST, 'id_'.$i, 'int', '');
 			$width = cleanVar($_POST, 'width_'.$i, 'int', '');
 			$um = cleanVar($_POST, 'um_'.$i, 'int', '');
 			$align = cleanVar($_POST, 'align_'.$i, 'int', '');
@@ -558,7 +564,7 @@ class template extends propertyObject {
 			
 			if($width == 0) $um = 0;
 
-			$this->saveBlock(null, $i, $width, $um, $align, $rows, $cols);
+			$this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
 		}
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
@@ -566,7 +572,14 @@ class template extends propertyObject {
 
 	private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
 	
-		$query = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
+		if($id)
+		{
+			$query = "UPDATE ".self::$_tbl_tpl_block." SET width='$width', um='$um', align='$align', rows='$rows', cols='$cols' WHERE id='$id'";
+		}
+		else
+		{
+			$query = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
+		}
 		return $this->_db->actionquery($query);
 	}
 
