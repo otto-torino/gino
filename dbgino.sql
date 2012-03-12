@@ -434,7 +434,7 @@ CREATE TABLE IF NOT EXISTS `page` (
 --
 
 INSERT INTO `page` (`item_id`, `module`, `parent`, `date`, `title`, `subtitle`, `view_title`, `social`, `cache`) VALUES
-(4, 10, 0, '2011-09-16 10:06:30', 'Gino CMS', '', 'yes', 'no', 0),
+(4, 10, 0, '2011-09-16 10:06:30', 'gino CMS', '', 'yes', 'no', 0),
 (5, 11, 0, '2011-09-16 11:33:18', 'Tecnologia', '', 'yes', 'no', 0),
 (7, 13, 0, '2011-09-16 15:43:40', 'Licenza', '', 'yes', 'no', 0),
 (8, 14, 0, '2011-09-16 16:12:21', 'Documentazione', '', 'yes', 'no', 0),
@@ -463,11 +463,11 @@ CREATE TABLE IF NOT EXISTS `page_block` (
 --
 
 INSERT INTO `page_block` (`content_id`, `item`, `layout`, `text`, `img`, `link`, `filename`, `order_list`) VALUES
-(3, 4, 1, '<p>\r\n	Gino CMS è uno dei <b>framework open source</b> sviluppati internamente da Otto, che utilizziamo per offrire servizi ai nostri clienti.</p>\r\n<p>\r\n	È un <b>CMS</b>, acronimo di <b>Content Management System</b>, cioè un sistema di gestione dei contenuti web creato appositamente per <b>facilitarne la gestione</b>.</p>', '', '', '', 1),
-(4, 5, 1, '<p>\r\n	<b>Gino</b> nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p>\r\n<p>\r\n	<img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" style="width: 300px; height: 259px; " /></p>', '', '', '', 1),
-(6, 7, 1, '<p>\r\n	<img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 100px; height: 137px; " />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>. In particolare, Gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
-(7, 8, 1, '<p>\r\n	Per iniziare ad esplorare le viscere del codice di Gino non c''è niente di meglio che tuffarsi nel <a href="#">wiki</a> che manuteniamo su <b>github</b>.</p>\r\n<p class="null">\r\n	<img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 120px; height: 161px; " />Esiste anche un <a href="#">manuale utente</a>, che copre invece le problematiche di uso pratico dal backoffice.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
-(8, 9, 1, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 128px; height: 128px; " />Le funzionalità di Gino possono essere notevolmente espanse utilizzando i numerosi <b>moduli aggiuntivi</b> disponibili. Gino incorpora un meccanismo per il <b>caricamento</b> semplificato e l''<b>aggiornamento</b> dei moduli aggiuntivi.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1);
+(3, 4, 1, '<p>\r\n	gino CMS è uno dei <b>framework open source</b> sviluppati internamente da Otto, che utilizziamo per offrire servizi ai nostri clienti.</p>\r\n<p>\r\n	È un <b>CMS</b>, acronimo di <b>Content Management System</b>, cioè un sistema di gestione dei contenuti web creato appositamente per <b>facilitarne la gestione</b>.</p>', '', '', '', 1),
+(4, 5, 1, '<p>\r\n	<b>gino</b> nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p>\r\n<p>\r\n	<img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" style="width: 300px; height: 259px; " /></p>', '', '', '', 1),
+(6, 7, 1, '<p>\r\n	<img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 100px; height: 137px; " />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>. In particolare, Gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
+(7, 8, 1, '<p>\r\n	La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p>\r\n<p class="null">\r\n	<img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 120px; height: 161px; " />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
+(8, 9, 1, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 128px; height: 128px; " />Le funzionalità di gino possono essere ampliate utilizzando i <b>moduli aggiuntivi</b> disponibili. gino incorpora un meccanismo per il <b>caricamento</b> semplificato e l''<b>aggiornamento</b> di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1);
 
 -- --------------------------------------------------------
 
@@ -739,7 +739,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
 --
 
 INSERT INTO `sys_conf` (`id`, `user_role`, `admin_role`, `multi_language`, `dft_language`, `precharge_mdl_url`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_name`, `email_from_app`, `mobile`, `password_crypt`, `email_admin`, `enable_cache`, `permalinks`) VALUES
-(1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'Gino 1.0b', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
+(1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'gino CMS', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
 
 -- --------------------------------------------------------
 
