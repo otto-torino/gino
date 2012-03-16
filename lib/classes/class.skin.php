@@ -19,7 +19,7 @@ class skin extends propertyObject {
 	
 	private function initP($id) {
 	
-		$db = new Db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -67,7 +67,7 @@ class skin extends propertyObject {
 
 	public static function getAll($order='priority') {
 
-		$db = new Db;
+		$db = db::instance();
 		$res = array();
 		$query = "SELECT id, label, rexp, urls, template, css, priority, auth FROM ".self::$_tbl_skin." ORDER BY $order";
 		$a = $db->selectquery($query);
@@ -82,7 +82,7 @@ class skin extends propertyObject {
 
 	public static function getSkin($relativeUrl) {
 
-		$db = new db;
+		$db = db::instance();
 		$plink = new Link();
 
 		$query = "SELECT id, session, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
@@ -163,7 +163,7 @@ class skin extends propertyObject {
 
 	public static function removeCss($id) {
 
-		$db = new db;
+		$db = db::instance();
 		$query = "UPDATE ".self::$_tbl_skin." SET css=0 WHERE css='$id'";	
 		$result = $db->actionquery($query);
 
@@ -172,7 +172,7 @@ class skin extends propertyObject {
 	
 	public static function removeTemplate($id) {
 		
-		$db = new db;
+		$db = db::instance();
 		$query = "UPDATE ".self::$_tbl_skin." SET template=0 WHERE template='$id'";	
 		$result = $db->actionquery($query);
 
@@ -182,7 +182,7 @@ class skin extends propertyObject {
 
 	public static function newSkinPriority() {
 
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT MAX(priority) as m FROM ".self::$_tbl_skin;
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
@@ -311,7 +311,6 @@ class skin extends propertyObject {
 
 		return $htmlsection->render();
 	}
-
 }
 
 ?>

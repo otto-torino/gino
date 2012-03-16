@@ -73,7 +73,7 @@ class selection extends propertyObject {
 	
 	private function initP($id) {
 	
-		$db = new db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0];
@@ -131,7 +131,7 @@ class selection extends propertyObject {
 			else
 				$where = '';
 			
-			$db = new db;
+			$db = db::instance();
 			$query = "SELECT reference FROM ".$this->_tbl_data." WHERE reference='{$this->_ref_id}' AND instance='{$this->_instance}' $where";
 			$a = $db->selectquery($query);
 			if(sizeof($a)) $checked = true; else $checked = false;
@@ -273,7 +273,7 @@ class selection extends propertyObject {
 		if($sort) $order = "ORDER BY priority ASC"; else $order = '';
 		
 		$items = array();
-		$db = new db;
+		$db = db::instance();
 		$query = "SELECT reference FROM ".$this->_tbl_data." WHERE instance='{$this->_instance}' $where $order";
 		$a = $db->selectquery($query);
 		if(sizeof($a))

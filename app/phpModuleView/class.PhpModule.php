@@ -16,12 +16,11 @@ class PhpModule extends propertyObject {
 
 		$this->_home = 'index.php';
 		$this->_interface = $interface;
-		
 	}
 	
 	private function initP($instance) {
 	
-		$db = new Db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$instance'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -34,7 +33,6 @@ class PhpModule extends propertyObject {
 		$this->_p['instance'] = $value;
 
 		return true;
-
 	}
 
 	public function setContent($value) {
@@ -43,7 +41,6 @@ class PhpModule extends propertyObject {
 		$this->_p['content'] = $value;
 
 		return true;
-
 	}
 	
 	public function formPhpModule() {
@@ -64,7 +61,6 @@ class PhpModule extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	public function actionPhpModule() {
@@ -84,11 +80,6 @@ class PhpModule extends propertyObject {
 		$this->updateDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageDoc]");
-
 	}
-
-
 }
-
-
 ?>

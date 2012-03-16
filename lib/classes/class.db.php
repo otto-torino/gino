@@ -1,159 +1,82 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+class DB extends singleton {
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-class DB {
-
-	private $_dbhost;
-	private $_db;
-	private $_dbuser;
-	private $_dbpassword;
-	private $_dbschema;
-	private $_sql;	// query string
+	private $_dbhost, $_db, $_dbuser, $_dbpassword, $_dbschema, $_db_charset, $_dbconn;
+	private $_sql;
 	private $_qry;	// results of query
 	private $_numberrows;
-	private $_dbconnection;
+	private $_connection;
 	private $_rows;
 	private $_affected;
 	private $_lastid;
 	private $_dbresults = array();
 	
-	function __construct($db='') {
-				
-		$this->sethost(SERVER_NAME); 
-		$this->setdb(DBNAME); 
-		$this->setdbuser(DBUSER); 
-		$this->setdbpassword(DBPWD);
-		$this->setdbschema(DBSCHEMA);
+	function __construct() {
+		
+		$this->_dbhost = SERVER_NAME;
+		$this->_db = DBNAME;
+		$this->_dbuser = DBUSER;
+		$this->_dbpassword = DBPWD;
+		$this->_dbschema = DBSCHEMA;
+		$this->_db_charset = 'utf8';
 		
 		$this->setnumberrows(0);
-		$this->setdbconnection(false);
+		$this->setconnection(false);
 		
-		$this->opendbconnection();	// to activate endured the the logon at db
+		$this->openConnection();
 	}
 	
-	// Property Get & Set
-
-	private function gethost() {
-		return $this->_dbhost;
-	}
-	private function sethost($req_host) {
-		$this->_dbhost = $req_host;
+	// query string
+	private function setsql($sql_query) {
+		$this->_sql = $sql_query;
 	}
 
-	private function getdb() {
-		return $this->_db;
-	}
-	private function setdb($req_db) {
-		$this->_db = $req_db;
-	}
-
-	private function getdbuser() {
-		return $this->_dbuser;
-	}
-	private function setdbuser($req_user) {
-		$this->_dbuser = $req_user;
-	}
-
-	private function getdbpassword() {
-		return $this->_dbpassword;
-	}
-	private function setdbpassword($req_password) {
-		$this->_dbpassword = $req_password;
+	private function setnumberrows($numberresults) {
+		$this->_numberrows = $numberresults;
 	}
 	
-	private function getdbschema() {
-		return $this->_dbschema;
+	private function setconnection($connection) {
+		$this->_connection = $connection;
 	}
-	private function setdbschema($req_schema) {
-		$this->_dbschema = $req_schema;
-	}
+	
+	private function openConnection() {
 
-	private function getsql() {
-		return $this->_sql;
-	}
-	private function setsql($req_sql) {
-		$this->_sql = $req_sql;
-	}
-
-	private function getnumberrows() {
-		return $this->_numberrows;
-	}
-	private function setnumberrows($req_numberresults) {
-		$this->_numberrows = $req_numberresults;
-	}
-	
-	private function getdbconnection() {
-		return $this->_dbconnection;
-	}
-	private function setdbconnection($req_dbconnection) {
-		$this->_dbconnection = $req_dbconnection;
-	}
-	
-	// controls for the transational query
-	public function getInsertSwitch() {
-		return $this->InsertSwitch;
-	}
-	public function setInsertSwitch($switch) {
-		$this->InsertSwitch = $switch;
-	}
-	
-	// end Get & Set
-	
-	private function opendbconnection() {
-
-		if($this->_dbconnection = mysql_connect($this->_dbhost, $this->_dbuser, $this->_dbpassword)) {
+		if($this->_dbconn = mysql_connect($this->_dbhost, $this->_dbuser, $this->_dbpassword)) {
 			
-			$this->setUtf8();
-			@mysql_select_db($this->_db, $this->_dbconnection) OR die("ERROR MYSQL: ".mysql_error());
-			$this->setdbconnection(true);
+			@mysql_select_db($this->_db, $this->_dbconn) OR die("ERROR MYSQL: ".mysql_error());
+			if($this->_db_charset=='utf8') $this->setUtf8();
+			$this->setconnection(true);
 			return true;
-		
 		} else {
-			die("ERROR DB: verify the parameters of connection");
-			//die("ERROR MYSQL: ".mysql_error());	// debug
-			//$this->setdbconnection(false);
-			//return false;
+			die("ERROR DB: verify the parameters of connection");	// debug -> die("ERROR MYSQL: ".mysql_error());
 		}
 	}
 
 	private function setUtf8() {
-		$db_charset = mysql_query( "SHOW VARIABLES LIKE 'character_set_database'" );
-		$charset_row = mysql_fetch_assoc( $db_charset );
-		mysql_query( "SET NAMES '" . $charset_row['Value'] . "'" );
-		unset( $db_charset, $charset_row );
+		$db_charset = mysql_query("SHOW VARIABLES LIKE 'character_set_database'");
+		$charset_row = mysql_fetch_assoc($db_charset);
+		mysql_query("SET NAMES '" . $charset_row['Value'] . "'");
+		unset($db_charset, $charset_row);
 	}
 
-	private function closedbconnection() {
+	/**
+	 * Chiude connessioni non persistenti
+	 */
+	public function closeConnection() {
 
-		if($this->_dbconnection){
-			mysql_close($this->_dbconnection);
+		if($this->_connection){
+			mysql_close($this->_dbconn);
 		}
 	}
 	
-	/*
-	// functions for innodb tables
-	*/
+	/**
+	 * Metodi per tabelle innodb
+	 */
+	
 	public function begin() {
-		if (!$this->_dbconnection){
-			$this->opendbconnection();
+		if (!$this->_connection){
+			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
 		$this->_qry = mysql_query($this->_sql);
@@ -165,8 +88,8 @@ class DB {
 	}
 	
 	public function rollback() {
-		if (!$this->_dbconnection) {
-			$this->opendbconnection();
+		if (!$this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
 		$this->_qry = mysql_query($this->_sql);
@@ -178,8 +101,8 @@ class DB {
 	}
 
 	public function commit() {
-		if (!$this->_dbconnection) {
-			$this->opendbconnection();
+		if (!$this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
 		$this->_qry = mysql_query($this->_sql);
@@ -198,11 +121,16 @@ class DB {
 		return $table;
 	}
 	
+	/**
+	 * Esecuzione della query (insert, update, delete)
+	 * 
+	 * @param string $qry	query
+	 * @return boolean
+	 */
 	public function actionquery($qry) {
-		// insert, update, delete
 		
-		if (!$this->_dbconnection) {
-			$this->opendbconnection();
+		if (!$this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql($qry);
 		$this->_qry = mysql_query($this->_sql);
@@ -217,13 +145,18 @@ class DB {
 		$this->_qry = mysqli_multi_query($conn, $this->_sql);
 
 		return $this->_qry ? true:false;
-
 	}
 
+	/**
+	 * Esecuzione della query (select)
+	 * 
+	 * @param string $qry	query
+	 * @return array
+	 */
 	public function selectquery($qry) {
 
-		if(!$this->_dbconnection) {
-			$this->opendbconnection();
+		if(!$this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql($qry);
 		$this->_qry = mysql_query($this->_sql);
@@ -245,17 +178,24 @@ class DB {
 		}
 	}
 		
-	// will free all memory associated with the result identifier result
+	/**
+	 * will free all memory associated with the result identifier result
+	 */
 	private function freeresult(){
 	
 		mysql_free_result($this->_qry);
 	}
 	
-	# number of records results of the select
+	/**
+	 * Numero di record risultanti da un select
+	 * 
+	 * @param string $qry	query
+	 * @result integer
+	 */
 	public function resultselect($qry)
 	{
-		if(!$this->_dbconnection) {
-			$this->opendbconnection();
+		if(!$this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql($qry);
 		$this->_qry = mysql_query($this->_sql);
@@ -267,7 +207,9 @@ class DB {
 		}
 	}
 	
-	# number of records changed for INSERT, UPDATE or DELETE
+	/**
+	 * number of records changed for INSERT, UPDATE or DELETE
+	 */
 	public function affected() 
 	{ 
 		$this->_affected = mysql_affected_rows();
@@ -275,7 +217,7 @@ class DB {
 	}
 	
 	/**
-	 * Last Id (INSERT | UPDATE)
+	 * Last Id (INSERT, UPDATE)
 	 * 
 	 * mysql_insert_id() ritorna il valore generato da una colonna AUTO_INCREMENT a seguito di una query di INSERT o UPDATE.
 	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query.
@@ -295,8 +237,10 @@ class DB {
 	
 	/**
 	 * Auto Increment Value
-	 * 
 	 * ottiene il valore del campo AUTO_INCREMENT
+	 * 
+	 * @param string $table		nome della tabella
+	 * @result integer
 	 */
 	public function autoIncValue($table){
 
@@ -343,8 +287,8 @@ class DB {
 	
 	public function fieldInformations($table) {
 	
-		if($this->_dbconnection) {
-			$this->opendbconnection();
+		if($this->_connection) {
+			$this->openConnection();
 		}
 		$this->setsql("SELECT * FROM ".$table." LIMIT 0,1");
 		$this->_qry = mysql_query($this->_sql);
@@ -365,34 +309,6 @@ class DB {
 		}
 	}
 	
-	/*
-	public function field_insert($name, $value, $comma=true){
-		
-		if(!empty($value) AND !is_int($value))
-		{
-			$value = "'$value'";
-			
-			if($comma){
-				$name .= ',';
-				$value .= ',';
-			}
-			return array($name, $value);
-		}
-		
-		if(empty($value))
-		{
-			$f_name = '';
-			$f_value = '';
-		}
-		else
-		{
-			$f_name .= ',';
-			$f_value .= ',';
-		}
-		return array($f_name, $f_value);
-	}
-	*/
-	
 	/**
 	 * Limit Command
 	 *
@@ -401,12 +317,13 @@ class DB {
 	 * @return string
 	 * 
 	 * @example $this->_db->limit(1, 0);
+	 * 
+	 * -> PostgreSQL:
+	 * $string = "LIMIT $range OFFSET $offset";
 	 */
 	public function limit($range, $offset){
 		
 		$limit = "LIMIT $offset, $range";
-		//$string = "LIMIT $range OFFSET $offset";	// PostgreSQL
-		
 		return $limit;
 	}
 	
@@ -419,6 +336,12 @@ class DB {
 	 * @example
 	 * concat(array("lastname", "' '", "firstname"))
 	 * $this->_db->concat(array("label", "' ('", "server", "')'"));
+	 * 
+	 * -> PostgreSQL
+	 * $string = implode(' || ', $sequence);
+	 * -> SQL Server
+	 * $string = implode(' + ', $sequence);
+	 * $concat = $string;
 	 */
 	public function concat($sequence){
 		
@@ -426,13 +349,8 @@ class DB {
 		{
 			if(sizeof($sequence) > 1)
 			{
-				
 				$string = implode(',', $sequence);
 				$concat = "CONCAT($string)";
-				
-				//$string = implode(' || ', $sequence);	// PostgreSQL
-				//$string = implode(' + ', $sequence);	// SQL Server
-				//$concat = $string;
 			}
 			else $concat = $sequence[0];
 		}
@@ -473,7 +391,6 @@ class DB {
 		fclose($fo);
 
 		return true;
-
 	}
 }
 ?>

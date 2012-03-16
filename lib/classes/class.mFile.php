@@ -176,7 +176,7 @@ class mFile {
 	 */
 	function __construct($options=null){
 		
-		$this->_db = new Db();
+		$this->_db = db::instance();
 		$this->_className = get_class($this);
 		
 		$this->_form_name = (isset($options['formname']) && $options['formname'] != '') ? $options['formname'] : '';

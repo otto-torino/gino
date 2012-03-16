@@ -1,23 +1,4 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
 /*
  * Notes.
  *
@@ -77,11 +58,6 @@ class language extends AbstractEvtClass{
 		$access_3 = '';
 		return array($access_2, $access_3);
 	}
-
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
-	 */
 
 	public static function outputFunctions() {
 
@@ -886,9 +862,9 @@ class language extends AbstractEvtClass{
 	 	exit();
 	 }
 	 
-	  public function deleteTranslations($tbl, $tbl_id) {
+	  public static function deleteTranslations($tbl, $tbl_id) {
 	 	
-		$db = new db;
+		$db = db::instance();
 		$query = $tbl_id == 'all'
 			? "DELETE FROM ".self::$tbl_translation." WHERE tbl='$tbl'"
 			: "DELETE FROM ".self::$tbl_translation." WHERE tbl='$tbl' AND tbl_id_value='$tbl_id'";

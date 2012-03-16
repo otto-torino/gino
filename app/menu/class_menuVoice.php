@@ -15,7 +15,7 @@ class menuVoice extends propertyObject {
 	
 	public static function deleteInstanceVoices($instance) {
 
-		$db = new db;
+		$db = db::instance();
 		$query = "SELECT id FROM ".self::$tbl_voices." WHERE instance='$instance' AND parent='0'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
@@ -31,7 +31,7 @@ class menuVoice extends propertyObject {
 
 	private function initP($id) {
 	
-		$db = new db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".self::$tbl_voices." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -234,7 +234,7 @@ class menuVoice extends propertyObject {
 		if($matches[0] == "[index-index_page]") return 'home';			// home
 		if($matches[0] == "[index-admin_page]") return 'admin';			// admin home
 
-		$db = new db;
+		$db = db::instance();
 		
 		$result = '';
 		$result_link = '';

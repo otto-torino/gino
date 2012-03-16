@@ -1,6 +1,11 @@
 <?php
 
+include_once(LIB_DIR.OS."singleton.php");
+include_once(CLASSES_DIR.OS."class.registry.php");
+
 include(LIB_DIR.OS."main.php");
+
+$core = new core();
 
 /*
  * headers, get text, languages and static classes include
@@ -15,9 +20,32 @@ include(METHOD_POINTER);
 /*
  * print document
  */
-ob_start();
-$document = new document();
-$document->render();
-ob_end_flush();
+$core->renderApp();
 
+class core {
+	
+	private $_registry, $_base_path;
+	
+	function __construct() {
+		
+		// initializing registry variable
+		$this->_registry = registry::instance();
+		$this->_registry->css = array();
+		$this->_registry->js = array();
+		$this->_registry->meta = array();
+		$this->_registry->head_links = array();
+		// sviluppi
+		//$this->_registry->url = $_SERVER['REQUEST_URI'];
+		//$this->_registry->site_settings = new siteSettings();
+		//$this->_registry->router = new router(BASE_PATH);
+	}
+
+	public function renderApp() {
+		
+		ob_start();
+		$doc = new document();
+		$buffer = $doc->render();
+		ob_end_flush();
+	}
+}
 ?>

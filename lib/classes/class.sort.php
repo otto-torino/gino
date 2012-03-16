@@ -137,7 +137,7 @@ class sort {
 	
 	public function newPriority() {
 
-		$db = new db();
+		$db = db::instance();
 		
 		$where = $this->_p['instance'] ? " WHERE instance='{$this->_p['instance']}'" : '';
 		if($where AND $this->_p['aggregator'])
@@ -163,7 +163,7 @@ class sort {
 			$query = "INSERT INTO {$this->_p['table']} ('{$this->_p['field_id']}', '{$this->_p['field_sort']}') VALUES ({$this->_p['id']}, $instance, {$this->_priority})";
 		}
 		
-		$db = new db();
+		$db = db::instance();
 		$result = $db->actionquery($query);
 
 		return $result;

@@ -1,23 +1,5 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
 class Access extends pub {
 	
 	public $default_role;
@@ -32,7 +14,7 @@ class Access extends pub {
 
 	function __construct(){
 
-		$this->_db = new DB;
+		$this->_db = db::instance();
 
 		$this->_home = HOME_FILE;
 		$this->_crypt = pub::variable('password_crypt');
@@ -146,7 +128,6 @@ class Access extends pub {
 		$self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
 
 		exit(error::errorMessage(array('error'=>$message), $self));
-
 	}
 
 	private function loginSuccess() {
@@ -318,11 +299,8 @@ class Access extends pub {
 			$query = "SELECT id FROM sys_module_app WHERE name='$class_name' AND type='class'";
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
-			{
 				$table = 'sys_module_app';
-			}
 		}
-		
 		return $table;
 		 */
 	}
@@ -337,7 +315,6 @@ class Access extends pub {
 		}
 
 		exit(error::errorMessage(array('error'=>$message), $redirect));
-	
 	}
 	/**
 	 * ID Gruppo amministratore della classe
@@ -637,7 +614,5 @@ class Access extends pub {
 		
 		return $value;
 	}
-
 }
-
 ?>

@@ -252,7 +252,7 @@ class Form {
 	 * Label
 	 *
 	 * @param string	 	$name
-	 * @param string|array 	$text		se array: array('label'=>_("..."), 'description'=>_("..."))
+	 * @param string|array 	$text		(array-> array('label'=>_("..."), 'description'=>_("...")))
 	 * @param boolean		$required
 	 * @param string		$class		classe dello span (class=\"\")
 	 * @return string
@@ -324,7 +324,6 @@ class Form {
 		$GFORM .= "</tr>\n";
 		
 		return $GFORM;
-
 	}
 
 	private function defaultCaptcha($options) {
@@ -353,7 +352,6 @@ class Form {
 
 		if($public_key && $private_key) return $this->checkReCaptcha($public_key, $private_key);
 		else return $this->checkDefaultCaptcha();
-		
 	}
 
 	private function checkReCaptcha($public_key, $private_key) {
@@ -364,7 +362,6 @@ class Form {
 
 		$captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
 		return $resp->is_valid ? true:false;
-
 	}
 
 	private function checkDefaultCaptcha() {
@@ -374,7 +371,6 @@ class Form {
 		unset($_SESSION['pass']);
 
 		return $result;
-
 	}
 
 	/**
@@ -424,6 +420,7 @@ class Form {
 
 		return $GFORM;
 	}
+	
 // name, type, value, options('required', 'pattern', 'size', 'maxlength', 'id', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'tbl_trnsl', 'field_trnsl', 'id_trnsl', 'other', 'text_add')
 	public function input($name, $type, $value, $options=null){
 
@@ -445,7 +442,6 @@ class Form {
 		return $GFORM;
 	}
 	
-
 // name, type, value, options('required', 'pattern', 'size', 'maxlength', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'trnsl_table', 'field', 'trnsl_id', 'other', 'text_add')	
 	
 	public function cinput($name, $type, $value, $label, $options){
@@ -512,25 +508,23 @@ class Form {
 	 * @param string $value
 	 * @param string $label
 	 * @param array $options
+	 * 		id			string		attivazione proprietà 'id'
+	 * 		required	boolean		campo obbligatorio
+	 * 		classLabel	string
+	 * 		classField	string
+	 * 		rows		integer		numero di righe
+	 * 		cols		integer		numero di colonne
+	 * 		readonly
+	 * 		js
+	 * 		other
+	 * 		text_add	string		testo aggiuntivo stampato sotto il box
+	 * 		maxlength	integer		numero massimo di caratteri consentiti
+	 * 
+	 * 		trnsl		boolean		attivazione della traduzione
+	 * 		trsnl_id	integer		nome del campo identificativo
+	 * 		trsnl_table	string		nome della tabella
+	 * 		field		string		nome del campo da tradurre
 	 * @return string
-	 * 
-	 * Opzioni:
-	 * id			string		attivazione proprietà 'id'
-	 * required		boolean		campo obbligatorio
-	 * classLabel	string
-	 * classField	string
-	 * rows			integer		numero di righe
-	 * cols			integer		numero di colonne
-	 * readonly
-	 * js
-	 * other
-	 * text_add		string		testo aggiuntivo stampato sotto il box
-	 * maxlength	integer		numero massimo di caratteri consentiti
-	 * 
-	 * trnsl		boolean		attivazione della traduzione
-	 * trsnl_id		integer		nome del campo identificativo
-	 * trsnl_table	string		nome della tabella
-	 * field		string		nome del campo da tradurre
 	 */
 	public function ctextarea($name, $value, $label, $options=null){
 
@@ -589,23 +583,20 @@ class Form {
 	 * @param string $value			valore attivo
 	 * @param string $label			testo <label>
 	 * @param array $options		opzioni
+	 * 		required	string		campo obbligatorio ('req')
+	 * 		style1		string		stile <label>
+	 * 		style2		string		stile <p>
+	 * 		note		string|bool	note (true->note di default, false->nessuna nota, [string]->note ad hoc)
+	 * 		fck_toolbar	string		toolbarset (Basic, Full)
+	 * 		fck_width	string		larghezza(%)
+	 * 		fck_height	integer		altezza (pixel)
+	 * 		img_prew	bool		mostrare o meno il browser di immagini di sistema
+	 * 		trnsl		bool		traduzione 
+	 * 		tbl			string		tabella in cui è presente il campo da tradurre
+	 * 		field		string		campo da tradurre
+	 * 		id_name   	string		nome del campo id nella tabella
+	 * 		id_value	int			valore del campo id
 	 * @return string
-	 * 
-	 * Opzioni:
-	 * --------------
-	 * string $required			campo obbligatorio ('req')
-	 * string $style1			stile <label>
-	 * string $style2			stile <p>
-	 * string|boolean $note		note (true->note di default, false->nessuna nota, [string]->note ad hoc)
-	 * string $fck_toolbar		toolbarset (Basic, Full)
-	 * string $fck_width		larghezza(%)
-	 * integer $fck_height		altezza (pixel)
-	 * bool $img_prew			mostrare o meno il browser di immagini di sistema
-	 * bool $trnsl				traduzione 
-	 * string $tbl				tabella in cui è presente il campo da tradurre
-	 * string $field			campo da tradurre
-	 * string $id_name   		nome del campo id nella tabella
-	 * int $id_value      		valore del campo id
 	 * 
 	 * @example $this->_gform->fcktextarea('ctext', $value, _("testo"), array("required"=>true, "notes"=>true, "img_preview"=>true, "trnsl"=>true, "field"=>"ctext", "fck_toolbar"=>$_fck_toolbar)
 	 */
@@ -647,7 +638,7 @@ class Form {
 		
 		$GFORM = '';
 		
-		$db = new db;
+		$db = db::instance();
 
 		$query = "SELECT id, name FROM ".$this->_tbl_attached_ctg." ORDER BY name";
 		$a = $db->selectquery($query);
@@ -839,19 +830,16 @@ class Form {
 	
 		
 	/**
-	 * Select (ALL)
+	 * Select con Label
 	 *
-	 * @param string $name		nome input
-	 * @param string $value		valore da 'modifica'
-	 * @param string $label		testo <label>
-	 * @param string $required	campo obbligatorio ('req')
-	 * @param string $style1	stile <label>
-	 * @param string $style2	stile <p>
-	 * @param string $style3	stile <select>
-	 * @param string $data		query: recupera due campi
-	 * 							array: key=>value
-	 * @param string $aspect	<select> a capo (v) o in linea (h) rispetto all'etichetta
-	 * @param string $js		onchange
+	 * @param string		$name	nome input
+	 * @param string		$value	elemento selezionato (ad es. valore da 'modifica')
+	 * @param string|array	$data	elementi del select
+	 * @param string|array	$label	testo del tag label
+	 * @param array			$options
+	 * 		required	string	campo obbligatorio ('req')
+	 * 		text_add	string	testo che viene stampato dopo il select
+	 * 		classLabel	string	classe dello span (class=\"\")
 	 * @return string
 	 */
 	public function cselect($name, $value, $data, $label, $options=null) {
@@ -868,6 +856,26 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Select
+	 * 
+	 * @param string 			$name		nome input
+	 * @param string|int|bool	$selected	elemento selezionato
+	 * @param string|array		$data		elementi del select (query-> recupera due campi, array-> key=>value)
+	 * @param array				$options
+	 * 		id			string		ID del tag select
+	 * 		classField	string		nome della classe del tag select
+	 * 		size
+	 * 		multiple	boolean		scelta multipla di elementi
+	 * 		js			string		utilizzare per eventi javascript (ad es. onchange=\"jump\")
+	 * 		other		string		altro da inserire nel tag select
+	 * 		noFirst		boolean		false-> mostra la prima voce vuota
+	 * 		firstVoice	string		testo del primo elemento
+	 * 		firstValue	string|int	valore del primo elemento
+	 * 		maxChars	int			numero massimo di caratteri del testo
+	 * 		cutWords	boolean		taglia l'ultima parola se la stringa supera il numero massimo di caratteri
+	 * @return string
+	 */
 	public function select($name, $selected, $data, $options) {
 		
 		$this->setOptions($options);
@@ -1261,7 +1269,7 @@ class Form {
 		elseif($delete) $filename_sql = '';
 		else $filename_sql = $old_file;
 
-		$db = new db;
+		$db = db::instance();
 		$query = "UPDATE $table SET $field='$filename_sql' WHERE $idName='$id'";
 		$result = $db->actionquery($query);
 

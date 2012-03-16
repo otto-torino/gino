@@ -15,7 +15,7 @@ class Category extends propertyObject {
 	
 	private function initP($id) {
 	
-		$db = new Db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -28,7 +28,7 @@ class Category extends propertyObject {
 	 */
 	public function printTree($parent, $link, $options=null) {
 
-		$db = new db;
+		$db = db::instance();
 		
 		$css_list = isset($options['css_list']) ? $options['css_list'] : "admin";
 		$id_name = isset($options['id_name']) ? $options['id_name'] : "ctg_id";
@@ -95,7 +95,7 @@ class Category extends propertyObject {
 	 */
 	public function inputTreeArray($query) {
 	
-		$db = new db;
+		$db = db::instance();
 		$ctg_ordered = array();
 		
 		$a = $db->selectquery($query);
@@ -120,7 +120,7 @@ class Category extends propertyObject {
 	
 	private function ctgParentTree() {
 
-		$db = new db;
+		$db = db::instance();
 		$ctg_parent_tree = array();
 		$parent = $this->parent;
 
@@ -141,7 +141,7 @@ class Category extends propertyObject {
 	
 		$results = array();
 
-		$db = new db;
+		$db = db::instance();
 		$query = "SELECT id FROM ".$this->_tbl_data." WHERE id NOT IN (SELECT parent FROM ".$this->_tbl_data." WHERE instance='".$this->_class_instance."') AND instance='".$this->_class_instance."'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
@@ -151,7 +151,6 @@ class Category extends propertyObject {
 		}
 
 		return $results;
-
 	}
 	
 	public function formCtg($formaction, $options=null) {
@@ -184,7 +183,6 @@ class Category extends propertyObject {
 		$htmlsection->content = $buffer;
 		
 		return $htmlsection->render();
-	
 	}
 	
 	public function actionCtg($link_error) {
@@ -199,7 +197,6 @@ class Category extends propertyObject {
 		$this->updateDbData(); 
 
 		return true;
-	
 	}
 
 	public function formDelCtg($formaction, $options=null) {
@@ -224,7 +221,6 @@ class Category extends propertyObject {
 		$htmlsection->content = $buffer;
 		
 		return $htmlsection->render();
-	
 	}
 	
 	public function actionDelCtg($link_error) {
@@ -239,7 +235,6 @@ class Category extends propertyObject {
 		$this->deleteDbData(); 
 
 		return true;
-	
 	}
 
 	public function selectParentArray() {
@@ -272,9 +267,7 @@ class Category extends propertyObject {
 		}
 
 		return $value.$value_init;
-
 	}
-
 }
 
 ?>

@@ -42,8 +42,8 @@ class pub extends EvtHandler{
 		
 		$this->_className = get_class($this);	// name of current class
 		
+		$this->_db = db::instance();
 		$this->_access = new Access;
-		$this->_db = new DB;
 		$this->_plink = new Link;
 
 		if(isset($_SESSION['userId'])) $this->_session_user = $_SESSION['userId']; else $this->_session_user = 0;
@@ -361,25 +361,24 @@ class pub extends EvtHandler{
 	}
 
 	public static function getMultiLanguage() {
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT multi_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['multi_language'];
 	}
 
 	public static function getDftLanguage() {
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT dft_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['dft_language'];
 	}
 
 	public static function variable($field){
-		$db = new db();
+		$db = db::instance();
 		$trd = new translation($_SESSION['lng'], $_SESSION['lngDft']);
 
 		return $trd->selectTXT("sys_conf", "$field", 1);
-
 	}
 	
 	/**

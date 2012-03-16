@@ -2,7 +2,7 @@
 
 if(isset($_REQUEST['pt'])) {
 	
-	$db = new db;
+	$db = db::instance();
 
 	$mypointer_array= $_REQUEST['pt'];
 	$mypointer = key($mypointer_array);

@@ -63,7 +63,7 @@
 
 	function __construct($data) {
 
-		$this->_db = new db;	
+		$this->_db = db::instance();
 		$this->_p = $data;
 	
 		$this->_lng_dft = $_SESSION['lngDft'];
