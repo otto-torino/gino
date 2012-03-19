@@ -153,12 +153,12 @@ class Document {
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
-			$headline = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+			$headline = "<!DOCTYPE html>\n";
 		}
 		$headline .= $copyright;
-		$headline .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"".LANG."\" xml:lang=\"".LANG."\">\n";
+		$headline .= "<html lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
-		$headline .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
+		$headline .= "<meta charset=\"utf-8\" />\n";
 		$pub = new pub();
 		$headline .= "<base href=\"".$pub->getUrl('root').SITE_WWW."/\" />\n";
 		

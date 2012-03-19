@@ -865,11 +865,14 @@ class pub extends EvtHandler{
 		
 		$media = '';
 		
+		$ext_image = array('gif','jpg','png');
+		$ext_video = array('mp4','webm','ogv','mov','avi');
+		
 		if(!empty($file))
 		{
 			$ext = $this->extensionFile($file);
 			
-			if($ext == 'gif' OR $ext == 'jpg' OR $ext == 'png')
+			if(in_array($ext, $ext_image))
 			{
 				$media = $this->_type_media[0];
 			}
@@ -877,7 +880,7 @@ class pub extends EvtHandler{
 			{
 				$media = $this->_type_media[1];
 			}
-			elseif($ext == 'mov' OR $ext == 'avi')
+			elseif(in_array($ext, $ext_video))
 			{
 				$media = $this->_type_media[2];
 			}

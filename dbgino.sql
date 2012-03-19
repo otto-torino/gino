@@ -481,6 +481,9 @@ CREATE TABLE IF NOT EXISTS `page_block_add` (
   `media_width` int(4) NOT NULL,
   `media_height` int(4) NOT NULL,
   `media_alt_text` varchar(100) NOT NULL,
+  `filename1` varchar(100) default NULL,
+  `filename2` varchar(100) default NULL,
+  `filename3` varchar(100) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=9 ;
 
@@ -489,11 +492,11 @@ CREATE TABLE IF NOT EXISTS `page_block_add` (
 --
 
 INSERT INTO `page_block_add` (`id`, `content_id`, `media_width`, `media_height`, `media_alt_text`) VALUES
-(3, 3, 0, 0, ''),
-(4, 4, 0, 0, ''),
-(6, 6, 0, 0, ''),
-(7, 7, 0, 0, ''),
-(8, 8, 0, 0, '');
+(3, 3, 0, 0, '', '', '', ''),
+(4, 4, 0, 0, '', '', '', ''),
+(6, 6, 0, 0, '', '', '', ''),
+(7, 7, 0, 0, '', '', '', ''),
+(8, 8, 0, 0, '', '', '', '');
 
 -- --------------------------------------------------------
 
