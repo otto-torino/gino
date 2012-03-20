@@ -251,10 +251,10 @@ class Form {
 	/**
 	 * Label
 	 *
-	 * @param string	 	$name
-	 * @param string|array 	$text		(array-> array('label'=>_("..."), 'description'=>_("...")))
-	 * @param boolean		$required
-	 * @param string		$class		classe dello span (class=\"\")
+	 * @param string	$name
+	 * @param mixed		$text		(array-> array('label'=>_("..."), 'description'=>_("...")))
+	 * @param boolean	$required
+	 * @param string	$class		classe dello span (class=\"\")
 	 * @return string
 	 */
 	public function label($name, $text, $required, $class=null){
@@ -421,7 +421,23 @@ class Form {
 		return $GFORM;
 	}
 	
-// name, type, value, options('required', 'pattern', 'size', 'maxlength', 'id', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'tbl_trnsl', 'field_trnsl', 'id_trnsl', 'other', 'text_add')
+	/**
+	 * 
+	 * @param string $name
+	 * @param string $type
+	 * @param string $value
+	 * @param array $options
+	 * 		id			string	valore dell'id
+	 * 		pattern		string
+	 * 		hint		string	placeholder
+	 * 		size		integer
+	 * 		maxlength	integer
+	 * 		classField	string	nome della classe
+	 * 		js			string
+	 * 		readonly	boolean
+	 * 		other		string
+	 * @return string
+	 */
 	public function input($name, $type, $value, $options=null){
 
 		$this->setOptions($options);
@@ -442,8 +458,23 @@ class Form {
 		return $GFORM;
 	}
 	
-// name, type, value, options('required', 'pattern', 'size', 'maxlength', 'classLabel', 'classField', 'js', 'readonly', 'trnsl', 'trnsl_table', 'field', 'trnsl_id', 'other', 'text_add')	
-	
+	/**
+	 * 
+	 * @param string $name
+	 * @param string $type
+	 * @param string $value
+	 * @param mixed $label
+	 * @param array $options
+	 * 		[method input] +
+	 * 		required	boolean
+	 * 		classLabel	string
+	 * 		trnsl		boolean		attiva la traduzione
+	 * 		trnsl_table	string		nome della tabella con il campo da tradurre
+	 * 		trnsl_id	integer		valore dell'ID del record di riferimento per la traduzione
+	 * 		field		string		nome del campo con il testo da tradurre
+	 * 		text_add	string		testo dopo il tag input
+	 * @return string
+	 */
 	public function cinput($name, $type, $value, $label, $options){
 
 		$this->setOptions($options);
@@ -508,21 +539,12 @@ class Form {
 	 * @param string $value
 	 * @param string $label
 	 * @param array $options
-	 * 		id			string		attivazione proprietà 'id'
-	 * 		required	boolean		campo obbligatorio
+	 * 		[method textarea] +
 	 * 		classLabel	string
-	 * 		classField	string
-	 * 		rows		integer		numero di righe
-	 * 		cols		integer		numero di colonne
-	 * 		readonly
-	 * 		js
-	 * 		other
 	 * 		text_add	string		testo aggiuntivo stampato sotto il box
-	 * 		maxlength	integer		numero massimo di caratteri consentiti
-	 * 
-	 * 		trnsl		boolean		attivazione della traduzione
-	 * 		trsnl_id	integer		nome del campo identificativo
-	 * 		trsnl_table	string		nome della tabella
+	 * 		trnsl		boolean		attiva la traduzione
+	 * 		trsnl_id	integer		valore dell'ID del record di riferimento per la traduzione
+	 * 		trsnl_table	string		nome della tabella con il campo da tradurre
 	 * 		field		string		nome del campo da tradurre
 	 * @return string
 	 */
@@ -550,6 +572,23 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Textarea
+	 *
+	 * @param string $name
+	 * @param string $value
+	 * @param array $options
+	 * 		id			string		attivazione proprietà 'id'
+	 * 		required	boolean		campo obbligatorio
+	 * 		classField	string
+	 * 		rows		integer		numero di righe
+	 * 		cols		integer		numero di colonne
+	 * 		readonly	boolean
+	 * 		js
+	 * 		other
+	 * 		maxlength	integer		numero massimo di caratteri consentiti
+	 * @return string
+	 */
 	public function textarea($name, $value, $options){
 		
 		$this->setOptions($options);
@@ -583,22 +622,20 @@ class Form {
 	 * @param string $value			valore attivo
 	 * @param string $label			testo <label>
 	 * @param array $options		opzioni
-	 * 		required	string		campo obbligatorio ('req')
+	 * 		required	boolean		campo obbligatorio
 	 * 		style1		string		stile <label>
 	 * 		style2		string		stile <p>
-	 * 		note		string|bool	note (true->note di default, false->nessuna nota, [string]->note ad hoc)
+	 * 		notes		boolean		mostra le note
 	 * 		fck_toolbar	string		toolbarset (Basic, Full)
 	 * 		fck_width	string		larghezza(%)
 	 * 		fck_height	integer		altezza (pixel)
-	 * 		img_prew	bool		mostrare o meno il browser di immagini di sistema
-	 * 		trnsl		bool		traduzione 
-	 * 		tbl			string		tabella in cui è presente il campo da tradurre
-	 * 		field		string		campo da tradurre
-	 * 		id_name   	string		nome del campo id nella tabella
-	 * 		id_value	int			valore del campo id
+	 * 		img_preview	boolean		mostrare o meno il browser di immagini di sistema
+	 * 		mode		string		valori: table, div
+	 * 		trnsl		boolean		attiva la traduzione
+	 * 		trnsl_table	string		nome della tabella con il campo da tradurre
+	 * 		trnsl_id	integer		valore dell'ID del record di riferimento per la traduzione
+	 * 		field		string		nome del campo con il testo da tradurre
 	 * @return string
-	 * 
-	 * @example $this->_gform->fcktextarea('ctext', $value, _("testo"), array("required"=>true, "notes"=>true, "img_preview"=>true, "trnsl"=>true, "field"=>"ctext", "fck_toolbar"=>$_fck_toolbar)
 	 */
 	public function fcktextarea($name, $value, $label, $options){
 
@@ -837,8 +874,9 @@ class Form {
 	 * @param string|array	$data	elementi del select
 	 * @param string|array	$label	testo del tag label
 	 * @param array			$options
-	 * 		required	string	campo obbligatorio ('req')
-	 * 		text_add	string	testo che viene stampato dopo il select
+	 * 		[metodo select] +
+	 * 		required	boolean	campo obbligatorio
+	 * 		text_add	string	testo dopo il select
 	 * 		classLabel	string	classe dello span (class=\"\")
 	 * @return string
 	 */
@@ -860,8 +898,8 @@ class Form {
 	 * Select
 	 * 
 	 * @param string 			$name		nome input
-	 * @param string|int|bool	$selected	elemento selezionato
-	 * @param string|array		$data		elementi del select (query-> recupera due campi, array-> key=>value)
+	 * @param mixed				$selected	elemento selezionato
+	 * @param mixed				$data		elementi del select (query-> recupera due campi, array-> key=>value)
 	 * @param array				$options
 	 * 		id			string		ID del tag select
 	 * 		classField	string		nome della classe del tag select
