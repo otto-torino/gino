@@ -92,6 +92,7 @@ class Document {
 		$this->_registry->title = htmlChars(pub::variable('head_title'));
 		$this->_registry->description = htmlChars(pub::variable('head_description'));
 		$this->_registry->keywords = htmlChars(pub::variable('head_keywords'));
+		$this->_registry->favicon = SITE_WWW."/favicon.ico";
 		
 		$this->_registry->addCss(CSS_WWW."/main.css");
 		$this->_registry->addCss(CSS_WWW."/datepicker_jqui.css");
@@ -111,22 +112,9 @@ class Document {
 
 	private function headLine($skinObj) {
 		
-		
 		$evt = $this->getEvent();
 		$instance = is_null($evt) ? null : $evt[1];
 
-		if(!is_null($instance) && method_exists($instance, 'getHeadlines')) {
-			$params = $instance->getHeadlines($evt[2]);
-			
-			if(isset($params['title'])) $this->_registry->title = $params['title'];
-			if(isset($params['description'])) $this->_registry->description = $params['description'];
-			
-			$meta_title = isset($params['meta_title']) ? $params['meta_title'] : null;
-			$image_src = isset($params['image_src']) ? $params['image_src'] : null;
-		}
-		
-		$image_src = (isset($image_src) && $image_src) ? $image_src : null;
-	
 		$copyright = "<!--
 ================================================================================
     Gino - a generic CMS framework
@@ -162,30 +150,21 @@ class Document {
 		$pub = new pub();
 		$headline .= "<base href=\"".$pub->getUrl('root').SITE_WWW."/\" />\n";
 		
-		if(isset($meta_title)) $headline .= "<meta name=\"title\" content=\"".$meta_title."\" />\n";
+		$headline .= $this->_registry->variables('meta');
+		
 		if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
 		if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) {
 			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
 		}
-		if($image_src) $headline .= "<link rel=\"image_src\" href=\"$image_src\" />\n";
-
+		$headline .= $this->_registry->variables('head_links');
 		$headline .= "<title>".$this->_registry->title."</title>\n";
-
-		if(sizeof($this->_registry->css) > 0)
-		{
-			foreach(array_unique($this->_registry->css) as $css)
-				$headline .= "<link rel=\"stylesheet\" href=\"$css\" type=\"text/css\" />\n";
-		}
 		
-		if(sizeof($this->_registry->js) > 0)
-		{
-			foreach(array_unique($this->_registry->js) as $js)
-				$headline .= "<script type=\"text/javascript\" src=\"$js\"></script>\n";
-		}
+		$headline .= $this->_registry->variables('css');
+		$headline .= $this->_registry->variables('js');
 		$headline .= javascript::onLoadFunction($skinObj);
 		
-		$headline .= "<link rel=\"shortcut icon\" href=\"".SITE_WWW."/favicon.ico\" />";
+		$headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
 		
 		if(pub::variable('google_analytics')) $headline .= $this->google_analytics();
 		$headline .= "</head>\n";

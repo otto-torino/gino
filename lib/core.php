@@ -34,10 +34,6 @@ class core {
 		$this->_registry->js = array();
 		$this->_registry->meta = array();
 		$this->_registry->head_links = array();
-		// sviluppi
-		//$this->_registry->url = $_SERVER['REQUEST_URI'];
-		//$this->_registry->site_settings = new siteSettings();
-		//$this->_registry->router = new router(BASE_PATH);
 	}
 
 	public function renderApp() {
