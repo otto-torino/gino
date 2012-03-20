@@ -1496,7 +1496,7 @@ class page extends AbstractEvtClass{
 		// Text
 		if($layout == $this->_layout_text OR $layout == $this->_layout_img_text OR $layout == $this->_layout_text_img OR $layout == $this->_layout_link_file)
 		{
-			$GINO .= $gform->fcktextarea('ctext', $text, _("Testo"), array("notes"=>true, "img_preview"=>true, "fck_toolbar"=>$this->_fck_toolbar,"trnsl"=>true, "field"=>"ctext"));
+			$GINO .= $gform->fcktextarea('ctext', $text, _("Testo"), array("notes"=>true, "img_preview"=>true, "fck_toolbar"=>$this->_fck_toolbar,"trnsl"=>true, "field"=>"text"));
 		}
 
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));

@@ -32,7 +32,7 @@ DELIMITER ;
 
 3) Impostare i parametri base del sito nel file 'configuration.php'
 
-- parametri database: SERVER_NAME, SERVER_PORT, DBNAME, DBUSER, DBPWD
+- parametri database: DB_HOST, DB_PORT, DB_DBNAME, DB_USER, DB_PASSWORD
 - altri parametri: SESSION_NAME, MAX_FILE_SIZE
 
 5) Verificare che le directory all'interno delle quali l'applicazione crea automaticamente altre directory oppure crea o modifica file attraverso l’interfaccia web, possiedano i permessi adeguati.

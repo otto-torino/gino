@@ -288,7 +288,7 @@ class skin extends propertyObject {
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni skin")));
 		$buffer = "<p><b>"._("Indicazioni")."</b></p>\n";
-		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono in sostanza un css ed un template e che possono essere associate a")."</p>";
+		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono un file css ed un template e che possono essere associate a")."</p>";
 		$buffer .= "<ul>
 		<li>"._("un url")."</li>
 		<li>"._("una serie di url")."</li>
