@@ -1,23 +1,5 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
 class sysfunc extends AbstractEvtClass{
 
 	function __construct(){
@@ -26,10 +8,6 @@ class sysfunc extends AbstractEvtClass{
 
 	}
 	
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
-	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -99,8 +77,6 @@ class sysfunc extends AbstractEvtClass{
 		$credits .= "<div class=\"null\"></div>";
 
 		return $credits;
-
-
 	}
 
 	/*
@@ -109,7 +85,7 @@ class sysfunc extends AbstractEvtClass{
 
 	public static function manageCss($mdl, $class) {
 
-		$db = new db;
+		$db = db::instance();
 
 		if($mdl) {
 			$query = "SELECT name, label FROM ".TBL_MODULE." WHERE id='$mdl'";
@@ -129,7 +105,6 @@ class sysfunc extends AbstractEvtClass{
 		$GINO = $css->manageModuleCss();
 
 		return $GINO;
-
 	}
 
 	public static function manageOptions($mdl, $class) {
@@ -137,7 +112,6 @@ class sysfunc extends AbstractEvtClass{
 		$options = new options($class, $mdl);
 
 		return $options->manageDoc();
-	
 	}
 	
 	public static function manageEmail($mdl, $class) {
@@ -145,7 +119,6 @@ class sysfunc extends AbstractEvtClass{
 		$email = new email($class, $mdl);
 
 		return $email->manageDoc();
-	
 	}
 	
 	public static function managePermissions($mdl, $class) {
@@ -153,9 +126,6 @@ class sysfunc extends AbstractEvtClass{
 		$admin = new admin($class, $mdl);
 
 		return $admin->manageDoc();
-	
 	}
-
-
 }
 ?>

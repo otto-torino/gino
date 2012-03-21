@@ -41,7 +41,7 @@ class page extends AbstractEvtClass{
 	
 	private $_tbl_item, $_tbl_content, $_tbl_content_add, $_tbl_content_file, $_tbl_content_layout;
 	
-	private $_extension_content, $_extension_attach_content, $_extension_include;
+	private $_extension_content1, $_extension_content2, $_extension_content3, $_extension_attach, $_extension_include;
 	private $_text_multifile;
 	private $_max_item_list;
 	private $_image_width;
@@ -88,8 +88,10 @@ class page extends AbstractEvtClass{
 		$this->_tbl_content_file = 'page_block_file';
 		$this->_tbl_content_layout = 'page_layout';
 		
-		$this->_extension_content = array('gif','jpg','png','swf','mov','avi');	// for media content
-		$this->_extension_attach_content = array('rtf','txt','pdf','doc');	// for attach file content
+		$this->_extension_content1 = array('gif','jpg','png');	// for media content
+		$this->_extension_content2 = array('swf');
+		$this->_extension_content3 = array('mp4','webm','ogv','mov');
+		$this->_extension_attach = array('rtf','txt','pdf','doc');	// for attach file content
 		$this->_extension_include = array('html','htm','txt');	// for single page (include file)
 		$this->_text_multifile = false;
 		
@@ -110,7 +112,6 @@ class page extends AbstractEvtClass{
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
-
 	}
 	
 	private function setGroups(){
@@ -143,7 +144,6 @@ class page extends AbstractEvtClass{
 		$role = (sizeof($a) > 0)? $a[0]['role1']:0;
 		
 		return ($this->_session_role <= $role)? true:false;
-
 	}
 
 	private function notExistPageData(){
@@ -200,10 +200,7 @@ class page extends AbstractEvtClass{
 				$layout = htmlChars($b['layout']);
 			}
 		}
-		else
-		{
-			$layout = '';
-		}
+		else $layout = '';
 		
 		return $layout;
 	}
@@ -412,7 +409,7 @@ class page extends AbstractEvtClass{
 						{
 							if(!empty($img))
 							{
-								$content .= $this->selectMedia($content_id, $img, $directory1, '', $link);
+								$content .= $this->selectMedia($content_id, $img, $directory1, $link);
 							}
 						}
 						elseif($layout == $this->_layout_img_text)
@@ -420,7 +417,7 @@ class page extends AbstractEvtClass{
 							if(!empty($img))
 							{
 								$content .= "<div class=\"layout_page1\">";
-								$content .= $this->selectMedia($content_id, $img, $directory1, '', $link);
+								$content .= $this->selectMedia($content_id, $img, $directory1, $link);
 								$content .= "</div>\n";
 							}
 						
@@ -432,7 +429,7 @@ class page extends AbstractEvtClass{
 							if(!empty($img))
 							{
 								$content .= "<div class=\"layout_page2\">";
-								$content .= $this->selectMedia($content_id, $img, $directory1, '', $link);
+								$content .= $this->selectMedia($content_id, $img, $directory1, $link);
 								$content .= "</div>\n";
 							}
 							
@@ -470,7 +467,6 @@ class page extends AbstractEvtClass{
 				{
 					$GINO .= "<p>"._("elementi ancora da inserire.")."</p>\n";
 				}
-			
 			}
 		
 			$htmlsection->content = $GINO;
@@ -1100,7 +1096,7 @@ class page extends AbstractEvtClass{
 					else $css = '';
 					
 					$buffer .= "<div class=\"$css\">\n";
-					$buffer .= $this->selectMedia($content_id, $img, $directory, "width=\"".$this->_image_width."\" alt=\"\"", '');
+					$buffer .= $this->selectMedia($content_id, $img, $directory, '', array('preview'=>true, 'width'=>$this->_image_width));
 					
 					if(!empty($link)) $buffer .= "<br />link: <a href=\"$link\">$link</a>";
 					
@@ -1488,24 +1484,19 @@ class page extends AbstractEvtClass{
 			$array = array_combine($this->_type_media, $this->_type_media_value);
 			$GINO .= $gform->cselect('media', $type_media, $array, _("Tipologia di media"), array('js'=>$js));
 			
-			$page_dir = $this->namePageDir($item_id);
-			$img_view = $this->_data_www."/".$page_dir."/".$content_id."/".$filename;
-			$GINO .= $gform->cfile('file1', $filename, _("Media"), array("preview"=>true, "previewSrc"=>$img_view, "extensions"=>$this->_extension_content, "del_check"=>true));
-			
 			if($content_id) $GINO .= $gform->cell($this->optionMedia($content_id, $type_media, $action), array("id"=>"option_media"));
-			//$GINO .= "<div id=\"option_media\">".$this->optionMedia($content_id, $type_media, $action)."</div>\n";
 		}
 		
 		// File attach
 		if($layout == $this->_layout_link_file)
 		{
-			$GINO .= $gform->cfile('file2', $filename2, _("File allegato"), array("extensions"=>$this->_extension_attach_content, "del_check"=>true));
+			$GINO .= $gform->cfile('file2', $filename2, _("File allegato"), array("extensions"=>$this->_extension_attach, "del_check"=>true));
 		}
 		
 		// Text
 		if($layout == $this->_layout_text OR $layout == $this->_layout_img_text OR $layout == $this->_layout_text_img OR $layout == $this->_layout_link_file)
 		{
-			$GINO .= $gform->fcktextarea('ctext', $text, _("Testo"), array("notes"=>true, "img_preview"=>true, "fck_toolbar"=>$this->_fck_toolbar,"trnsl"=>true, "field"=>"ctext"));
+			$GINO .= $gform->fcktextarea('ctext', $text, _("Testo"), array("notes"=>true, "img_preview"=>true, "fck_toolbar"=>$this->_fck_toolbar,"trnsl"=>true, "field"=>"text"));
 		}
 
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
@@ -1538,17 +1529,18 @@ class page extends AbstractEvtClass{
 		
 		if(!empty($id))
 		{
-			$query = "SELECT link FROM ".$this->_tbl_content." WHERE content_id='$id'";
+			$query = "SELECT link, img FROM ".$this->_tbl_content." WHERE content_id='$id'";
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
 			{
 				foreach($a AS $b)
 				{
 					$link = htmlInput($b['link']);
+					$filename = htmlInput($b['img']);
 				}
 			}
 			
-			$query = "SELECT media_width, media_height, media_alt_text FROM ".$this->_tbl_content_add."
+			$query = "SELECT media_width, media_height, media_alt_text, filename1, filename2, filename3 FROM ".$this->_tbl_content_add."
 			WHERE content_id='$id'";
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
@@ -1558,6 +1550,9 @@ class page extends AbstractEvtClass{
 					$width = htmlInput($b['media_width']);
 					$height = htmlInput($b['media_height']);
 					$alt_text = htmlInput($b['media_alt_text']);
+					$file1 = htmlInput($b['filename1']);
+					$file2 = htmlInput($b['filename2']);
+					$file3 = htmlInput($b['filename3']);
 				}
 			}
 			else
@@ -1565,33 +1560,54 @@ class page extends AbstractEvtClass{
 				$width = '';
 				$height = '';
 				$alt_text = '';
+				$file1 = $file2 = $file3 = '';
 			}
 		}
 		else
 		{
 			$link = '';
+			$filename = '';
 			$width = '';
 			$height = '';
 			$alt_text = '';
+			$file1 = $file2 = $file3 = '';
 		}
 		
 		if($type_media == $this->_type_media[0])
 		{
-			// Media Link
+			$page_id = $this->_db->getFieldFromId($this->_tbl_content, 'item', 'content_id', $id);
+			$page_dir = $this->namePageDir($page_id);
+			$img_view = $this->_data_www."/".$page_dir."/".$content_id."/".$filename;
+			$GINO .= $gform->cfile('file1', $filename, _("Media"), array("preview"=>true, "previewSrc"=>$img_view, "extensions"=>$this->_extension_content1, "del_check"=>true));
 			$GINO .= $gform->cinput('link', 'text', $link, _("Link associato"), array("size"=>40, "maxlength"=>100));
-			
-			// Alt Text
 			$GINO .= $gform->cinput('alt', 'text', $alt_text, _("Testo alternativo"), array("size"=>40, "maxlength"=>100));
 		}
-		elseif($type_media == $this->_type_media[1])
+		elseif($type_media == $this->_type_media[1] || $type_media == $this->_type_media[2])
 		{
+			if($type_media == $this->_type_media[1])
+			{
+				$label = _("Media");
+				$ext = $this->_extension_content2;
+			}
+			else
+			{
+				$label = _("Media video");
+				$ext = $this->_extension_content3;
+				$GINO .= $gform->noinput('', _("Il video con estensione mov viene considerato il video di fallback"));
+				$GINO .= $gform->hidden('old_fileadd1', $file1);
+				$GINO .= $gform->hidden('old_fileadd2', $file2);
+				$GINO .= $gform->hidden('old_fileadd3', $file3);
+			}
+			$GINO .= $gform->cfile('file1', $filename, $label, array("preview"=>false, "extensions"=>$ext, "del_check"=>true));
+			
+			if($type_media == $this->_type_media[2])
+			{
+				$GINO .= $gform->cfile('fileadd1', $file1, $label, array("preview"=>false, "extensions"=>$ext, "del_check"=>true));
+				$GINO .= $gform->cfile('fileadd2', $file2, $label, array("preview"=>false, "extensions"=>$ext, "del_check"=>true));
+				$GINO .= $gform->cfile('fileadd3', $file3, $label, array("preview"=>false, "extensions"=>$ext, "del_check"=>true));
+			}
 			$GINO .= $gform->cinput('width', 'text', $width, _("Larghezza"), array("size"=>4, "maxlength"=>4, "pattern"=>"^\d{0,4}$", "hint"=>"inserire un numero intero con non più di 4 cifre", "text_add"=>" px"));
 			$GINO .= $gform->cinput('height', 'text', $height, _("Altezza"), array("size"=>4, "maxlength"=>4, "pattern"=>"^\d{0,4}$", "hint"=>"inserire un numero intero con non più di 4 cifre", "text_add"=>" px"));
-		}
-		elseif($type_media == $this->_type_media[2])
-		{
-			// Alt Text
-			$GINO .= $gform->cinput('alt', 'text', $alt_text, _("Testo alternativo"), array("size"=>40, "maxlength"=>100));
 		}
 		$GINO .= $gform->endTable();
 		
@@ -1645,17 +1661,11 @@ class page extends AbstractEvtClass{
 	
 	public function actionContent(){
 	
-		$this->accessGroup($this->_group_2);
+	$this->accessGroup($this->_group_2);
 		
 		$gform = new Form('jump', 'post', false);
 		$gform->save('cdataform');
 		
-		$filename_name = isset($_FILES['file1'])?$_FILES['file1']['name']:null;
-		$filename_tmp = isset($_FILES['file1'])?$_FILES['file1']['tmp_name']:null;
-		
-		$filename2_name = isset($_FILES['file2'])?$_FILES['file2']['name']:null;
-		$filename2_tmp = isset($_FILES['file2'])?$_FILES['file2']['tmp_name']:null;
-
 		$item_id = cleanVar($_POST, 'item_id', 'int', '');
 		$content_id = cleanVar($_POST, 'content_id', 'int', '');
 		$layout = cleanVar($_POST, 'var1', 'int', '');
@@ -1667,15 +1677,15 @@ class page extends AbstractEvtClass{
 		$old_file1 = cleanVar($_POST, 'old_file1', 'string', '');
 		$old_file2 = cleanVar($_POST, 'old_file2', 'string', '');
 		
-		$check_file1 = cleanVar($_POST, 'check_file1', 'string', '');
-		$check_file2 = cleanVar($_POST, 'check_file2', 'string', '');
-		
 		// Added Input
 		$media = cleanVar($_POST, 'media', 'string', '');
 		$alt = cleanVar($_POST, 'alt', 'string', '');
 		$width = cleanVar($_POST, 'width', 'int', '');
 		$height = cleanVar($_POST, 'height', 'int', '');
 		// End
+		
+		$filename_name = isset($_FILES['file1'])?$_FILES['file1']['name']:null;
+		$filename2_name = isset($_FILES['file2'])?$_FILES['file2']['name']:null;
 		
 		$ref_page = "id=$item_id&ref=$reference&action=".$this->_act_modify;
 		$ref_page_error = "id=$item_id&ref=$reference&action=$action&block=".$this->_block_content."&cnt=$content_id&var1=$layout";
@@ -1692,9 +1702,8 @@ class page extends AbstractEvtClass{
 		// Directory
 		$page_dir = $this->namePageDir($item_id);
 		$path_dir = $this->_data_dir.$this->_os.$page_dir.$this->_os.$cid.$this->_os;
-		
-		//$array_file1 = $this->_gform->verifyFile('file1', $old_file1, $check_file1, false, '', '', $path_dir, $this->_extension_content, $redirect, $ref_page_error);
-		//$array_file2 = $this->_gform->verifyFile('file2', $old_file2, $check_file2, false, '', '', $path_dir, $this->_extension_attach_content, $redirect, $ref_page_error);
+		if(!is_dir($path_dir))
+			if(!@mkdir($path_dir)) exit(error::errorMessage(array('error'=>32), $link_error));
 		
 		// Action
 		if($action == $this->_act_insert_first)
@@ -1721,15 +1730,11 @@ class page extends AbstractEvtClass{
 				{
 					$set = "media_alt_text='$alt'";
 				}
-				elseif($media == $this->_type_media[1])
+				elseif($media == $this->_type_media[1] || $media == $this->_type_media[2])
 				{
 					$set = "media_width=$width, media_height=$height";
 				}
-				elseif($media == $this->_type_media[2])
-				{
-					$set = "media_alt_text='$alt'";
-				}
-				else $set = '';
+				else exit(error::errorMessage(array('error'=>9), $link_error));
 				
 				$query_action = "UPDATE ".$this->_tbl_content_add." SET $set WHERE content_id='$cid'";
 			}
@@ -1740,19 +1745,45 @@ class page extends AbstractEvtClass{
 			}
 			$this->_db->actionquery($query_action);
 			
-			if(!is_dir($path_dir))
-				if(!@mkdir($path_dir)) exit(error::errorMessage(array('error'=>32), $link_error));
+			if($media == $this->_type_media[0])
+			{
+				$ext = $this->_extension_content1;
+				$mimetype = array("image/jpeg","image/gif","image/png");
+			}
+			elseif($media == $this->_type_media[1])
+			{
+				$ext = $this->_extension_content2;
+				$mimetype = array("application/x-shockwave-flash");
+			}
+			elseif($media == $this->_type_media[2])
+			{
+				$ext = $this->_extension_content3;
+				$mimetype = array("video/quicktime", "video/ogg", "video/mp4", "video/webm");
+			}
 			
-			$gform->manageFile('file1', $old_file1, false, $this->_extension_content, $path_dir, $link_error, $this->_tbl_content, 'img', 'content_id', $cid,
-				array('check_type'=>false));
-
-			$gform->manageFile('file2', $old_file2, false, $this->_extension_attach_content, $path_dir, $link_error, $this->_tbl_content, 'filename', 'content_id', $cid,
-				array('check_type'=>false));
-
+			$options = array('types_allowed'=>$mimetype);
+			$gform->manageFile('file1', $old_file1, false, $ext, $path_dir, $link_error, $this->_tbl_content, 'img', 'content_id', $cid, $options);
+			$gform->manageFile('file2', $old_file2, false, $this->_extension_attach, $path_dir, $link_error, $this->_tbl_content, 'filename', 'content_id', $cid, array('check_type'=>false));
+			
+			if($media == $this->_type_media[2])
+			{
+				$old_fileadd1 = cleanVar($_POST, 'old_fileadd1', 'string', '');
+				$old_fileadd2 = cleanVar($_POST, 'old_fileadd2', 'string', '');
+				$old_fileadd3 = cleanVar($_POST, 'old_fileadd3', 'string', '');
+				
+				$gform->manageFile('fileadd1', $old_fileadd1, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename1', 'content_id', $cid, $options);
+				$gform->manageFile('fileadd2', $old_fileadd2, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename2', 'content_id', $cid, $options);
+				$gform->manageFile('fileadd3', $old_fileadd3, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename3', 'content_id', $cid, $options);
+			}
+			
 			EvtHandler::HttpCall($this->_home, $redirect, $ref_page);
 		}
 		else
+		{
+			if($action != $this->_act_modify)
+				rmdir($path_dir);
 			exit(error::errorMessage(array('error'=>9), $link_error));
+		}
 	}
 	
 	private function resultSearchFileName($file_new, $file_old, $directory){
@@ -1898,8 +1929,7 @@ class page extends AbstractEvtClass{
 			
 			if($layout == $this->_layout_single_include)
 			{
-				$gform->manageFile('file1', $old_file, false, $this->_extension_include, $path_dir, $link_error, $this->_tbl_content, 'text', 'content_id', $cid,
-					array());
+				$gform->manageFile('file1', $old_file, false, $this->_extension_include, $path_dir, $link_error, $this->_tbl_content, 'text', 'content_id', $cid, array());
 			}
 			elseif($layout == $this->_layout_single_code)
 			{
@@ -2068,12 +2098,15 @@ class page extends AbstractEvtClass{
 		EvtHandler::HttpCall($this->_home, $this->_className.'-managePage', $ref_page);
 	}
 	
-	private function selectMedia($content_id, $filename, $dirname, $params, $link){
+	private function selectMedia($content_id, $filename, $dirname, $link, $options=array()){
+		
+		$preview = array_key_exists('preview', $options) ? $options['preview'] : false;
+		$preview_width = array_key_exists('width', $options) ? $options['width'] : $this->_image_width;
 		
 		$path = $dirname.$filename;
 		$type_media = $this->typeMedia($filename);
 		
-		$query = "SELECT media_width, media_height, media_alt_text FROM ".$this->_tbl_content_add." WHERE content_id='$content_id'";
+		$query = "SELECT media_width, media_height, media_alt_text, filename1, filename2, filename3 FROM ".$this->_tbl_content_add." WHERE content_id='$content_id'";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
@@ -2082,6 +2115,9 @@ class page extends AbstractEvtClass{
 				$width = htmlChars($b['media_width']);
 				$height = htmlChars($b['media_height']);
 				$alt = htmlChars($b['media_alt_text']);
+				$fileadd1 = $b['filename1'];
+				$fileadd2 = $b['filename2'];
+				$fileadd3 = $b['filename3'];
 			}
 		}
 		else
@@ -2089,6 +2125,7 @@ class page extends AbstractEvtClass{
 			$width = '';
 			$height = '';
 			$alt = '';
+			$fileadd1 = $fileadd2 = $fileadd3 = '';
 		}
 		
 		$media = '';
@@ -2096,31 +2133,14 @@ class page extends AbstractEvtClass{
 		if($type_media == $this->_type_media[0])
 		{
 			if(!empty($alt)) $alt_text = $alt; else $alt_text = _("media pagina");
+			$params = $preview ? "width=\"$preview_width\"" : '';
+			
 			$media .= "<img src=\"$path\" alt=\"$alt_text\" $params />";
 		}
 		elseif($type_media == $this->_type_media[1])
 		{
 			$pos = strrpos($filename, '.');
 			$object_id = substr($filename, 0, $pos);
-			
-			/*
-			if(is_file($path_dir.'/'.$this->_file_swf_js))	// AC_RunActiveContent.js
-			{
-				$view_media .= "<script language=\"javascript\">AC_FL_RunContent = 0;</script>\n";
-				$view_media .= "<script type=\"text/javascript\" src=\"".$dirname.$this->_file_swf_js."\"></script>\n";
-				
-				$view_media .= $this->jsFlash($object_id, $width, $height);
-				$noscript1 = "<noscript>\n";
-				$noscript2 = "</noscript>\n";
-			}
-			else
-			{
-				$noscript1 = '';
-				$noscript2 = '';
-			}
-			
-			// $media .= $noscript1;
-			*/
 			
 			$media .= "<object classid=\"clsid:d27cdb6e-ae6d-11cf-96b8-444553540000\" codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0\" width=\"$width\" height=\"$height\" id=\"$object_id\" align=\"middle\">\n";
 			$media .= "<param name=\"allowScriptAccess\" value=\"sameDomain\" />\n";
@@ -2130,31 +2150,64 @@ class page extends AbstractEvtClass{
 			$media .= "<param name=\"bgcolor\" value=\"#ffffff\" />\n";
 			$media .= "<embed src=\"$path\" quality=\"high\" bgcolor=\"#ffffff\" width=\"$width\" height=\"$height\" name=\"$object_id\" align=\"middle\" wmode=\"transparent\" allowScriptAccess=\"sameDomain\" allowFullScreen=\"false\" type=\"application/x-shockwave-flash\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\" />\n";
 			$media .= "</object>\n";
-			// $media .= $noscript2;
 		}
 		elseif($type_media == $this->_type_media[2])
 		{
-			$ext = $this->extensionFile($filename);
-			if(!empty($width)) $width2 = $width; else $width2 = '100';
-			if(!empty($height)) $height2 = $height; else $height2 = '100';
-			
-			if($ext == 'mov')
+			if($preview)
 			{
-				$media = "<object classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\" codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\" height=\"100\" width=\"100\">\n";
-				$media .= "<param name=\"src\" value=\"$path\" />\n";
-				$media .= "<param name=\"autoplay\" value=\"true\" />\n";
-				$media .= "<param name=\"controller\" value=\"false\" />\n";
-				$media .= "<embed pluginspage=\"http://www.apple.com/quicktime/download/\" src=\"$path\" type=\"video/quicktime\" controller=\"true\" autoplay=\"true\" height=\"$height2\" width=\"$width2\" />\n";
-				$media .= "</object>\n";
+				$media .= $filename;
+				if($fileadd1) $media .= "<br />".$fileadd1;
+				if($fileadd2) $media .= "<br />".$fileadd2;
+				if($fileadd3) $media .= "<br />".$fileadd3;
 			}
-			elseif($ext == 'avi')
+			else
 			{
-				$media = " <object data=\"$path\" type=\"video/x-msvideo\" height=\"100\" width=\"100\">\n";
-				$media .= "<param name=\"src\" value=\"$path\" />\n";
-				$media .= "<param name=\"autoplay\" value=\"true\" />\n";
-				$media .= "<param name=\"controller\" value=\"false\" />\n";
-				$media .= "<embed src=\"$path\" type=\"video/x-msvideo\" controller=\"true\" autoplay=\"true\" height=\"$height2\" width=\"$width2\" >\n";
-				$media .= "</object>\n";
+				$a_video = array();
+				if($filename)
+				{
+					$ext = $this->extensionFile($filename);
+					$a_video[$ext] = $filename;
+				}
+				if($fileadd1)
+				{
+					$ext = $this->extensionFile($fileadd1);
+					$a_video[$ext] = $fileadd1;
+				}
+				if($fileadd2)
+				{
+					$ext = $this->extensionFile($fileadd2);
+					$a_video[$ext] = $fileadd2;
+				}
+				if($fileadd3)
+				{
+					$ext = $this->extensionFile($fileadd3);
+					$a_video[$ext] = $fileadd3;
+				}
+				
+				$width = $width ? "width=\"$width\"" : '';
+				$height = $height ? "height=\"$height\"" : '';
+				
+				$media .= "<video $width $height preload controls>";
+				
+				if(array_key_exists('mp4', $a_video))
+					$media .= "<source src=\"".$dirname.$a_video['mp4']."\" type='video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"' />";
+				
+				if(array_key_exists('webm', $a_video))
+					$media .= "<source src=\"".$dirname.$a_video['webm']."\" type='video/webm; codecs=\"vp8, vorbis\"' />";
+				
+				if(array_key_exists('ogv', $a_video))
+					$media .= "<source src=\"".$dirname.$a_video['ogv']."\" type='video/ogg; codecs=\"theora, vorbis\"' />";
+				
+				if(array_key_exists('mov', $a_video))
+				{
+					$media = "<object classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\" codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\" $height $width>\n";
+					$media .= "<param name=\"src\" value=\"".$dirname.$a_video['mov']."\" />\n";
+					$media .= "<param name=\"autoplay\" value=\"true\" />\n";
+					$media .= "<param name=\"controller\" value=\"false\" />\n";
+					$media .= "<embed pluginspage=\"http://www.apple.com/quicktime/download/\" src=\"".$dirname.$a_video['mov']."\" type=\"video/quicktime\" controller=\"true\" autoplay=\"true\" $height $width />\n";
+					$media .= "</object>\n";
+				}
+				$media .= "</video>";
 			}
 		}
 		
@@ -2162,45 +2215,6 @@ class page extends AbstractEvtClass{
 		
 		return $GINO;
 	}
-	
-	// Da vedere con selectMedia() -> $this->_type_media[1]
-	private function jsFlash($name, $width, $height){
-	
-		$GINO = "
-	<script language=\"javascript\">
-	if (AC_FL_RunContent == 0) {
-		alert(\"This page requires AC_RunActiveContent.js.\");
-	} else {
-		AC_FL_RunContent(
-			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-			'width', '$width',
-			'height', '$height',
-			'src', '$name',
-			'quality', 'high',
-			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
-			'align', 'middle',
-			'play', 'true',
-			'loop', 'true',
-			'scale', 'showall',
-			'wmode', 'window',
-			'devicefont', 'false',
-			'id', '$name',
-			'bgcolor', '#ffffff',
-			'name', '$name',
-			'menu', 'true',
-			'allowFullScreen', 'false',
-			'allowScriptAccess','sameDomain',
-			'movie', '$name',
-			'salign', ''
-			); //end AC code
-	}
-	</script>
-		";
-		
-		return $GINO;
-	}
-	
-	// END
 	
 	/*
 		MASTER PAGES (MODULE)

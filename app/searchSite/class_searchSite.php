@@ -43,11 +43,6 @@ class searchSite extends AbstractEvtClass {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
-	 */
-
 	public static function outputFunctions() {
 
 		$list = array(
@@ -111,7 +106,6 @@ class searchSite extends AbstractEvtClass {
 		$buffer .= $gform->cform();
 
 		return $buffer;
-
 	}
 
 	private function checkOptions() {
@@ -141,7 +135,6 @@ class searchSite extends AbstractEvtClass {
 		$buffer .= "</div>";
 
 		return $buffer;
-
 	}
 
 	public function results() {
@@ -163,7 +156,7 @@ class searchSite extends AbstractEvtClass {
 					$data = $obj->searchSite();
 					$searchObj = new search($data['table']);
 					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-					$results[$classname] = $searchObj->getSearchResults(new db, $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+					$results[$classname] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
 				}
 			}
 		}
@@ -176,7 +169,7 @@ class searchSite extends AbstractEvtClass {
 					$data = $obj->searchSite();
 					$searchObj = new search($data['table']);
 					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-					$results[$classname."||".$mdlid] = $searchObj->getSearchResults(new db, $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+					$results[$classname."||".$mdlid] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
 				}
 			}
 		}
@@ -221,7 +214,6 @@ class searchSite extends AbstractEvtClass {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	public function info() {
@@ -234,9 +226,7 @@ class searchSite extends AbstractEvtClass {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
-
 }
 
 ?>

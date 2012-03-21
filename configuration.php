@@ -1,12 +1,14 @@
 <?php
 
 // DB
-define("SERVER_NAME", "localhost");
-define("SERVER_PORT", "3306");
-define("DBNAME", "dbgino");
-define("DBUSER", "root");
-define("DBPWD", "");
-define("DBSCHEMA", "");
+define("DBMS", 'mysql');
+define("DB_HOST", "localhost");
+define("DB_PORT", "3306");
+define("DB_DBNAME", "dbgino");
+define("DB_USER", "root");
+define("DB_PASSWORD", "");
+define("DB_SCHEMA", "");
+define("DB_CHARSET", 'utf-8');
 
 // Structure
 define('SESSION_NAME', 'GINO_SESSID');

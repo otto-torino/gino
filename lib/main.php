@@ -1,23 +1,4 @@
 <?php
-/*================================================================================
-Gino 1.0 - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
 
 include_once(CLASSES_DIR.OS."class.db.php");
 include_once(CLASSES_DIR.OS."class.link.php");
@@ -32,7 +13,7 @@ class Main{
 
 	function __construct(){
 
-		$this->_db = new DB();
+		$this->_db = db::instance();
 		include_once(LIB_DIR.OS."include.php");
 
 		$this->_multi_language = pub::getMultiLanguage();
@@ -69,9 +50,7 @@ class Main{
 		if($detect->isMobile()) {
 			
 			$_SESSION['L_mobile'] = 1;
-
 		}
-
 	}
 	
 	private function setHeaders() {
@@ -88,7 +67,6 @@ class Main{
 		// check for authentication or logout
 		$access = new access();
 		$access->authentication();
-
 	}
 
 	private function setGettext(){
@@ -450,7 +428,6 @@ class Main{
 		'yi' => 'Yiddish',
 		'zu' => 'Zulu' );
 	}
-
 }
 
 class EvtHandler extends Main{
@@ -510,8 +487,7 @@ class AbstractEvtClass extends pub{
 	
 	public static function permission(){
 
-		$access_2 = '';
-		$access_3 = '';
+		$access_2 = $access_3 = '';
 		return array($access_2, $access_3);
 	}
 }

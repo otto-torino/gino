@@ -11,7 +11,7 @@ class css extends propertyObject {
 
 	function __construct($type, $params) {
 		
-		$db = new db;
+		$db = db::instance();
 		if($type=='module') {
 			$this->_class = $params['class'];
 			$this->_module = $params['module'];
@@ -32,58 +32,6 @@ class css extends propertyObject {
 	}
 	
 	/*
-	 * GENERAL CSS FILES
-	 */
-	public static function mainCss() {
-
-		$buffer = "<style type=\"text/css\">\n";
-		$buffer .= "@import url('".CSS_WWW."/main.css');\n";
-		$buffer .= "</style>\n";
-
-		return $buffer;
-
-	}
-	
-	public static function datePickerCss() {
-
-		$buffer = "<style type=\"text/css\">\n";
-		$buffer .= "@import url('".CSS_WWW."/datepicker_jqui.css');\n";
-		$buffer .= "</style>\n";
-
-		return $buffer;
-
-	}
-
-	public static function adminCss() {
-
-		$buffer = "<style type=\"text/css\">\n";
-		$buffer .= "@import url('".CSS_WWW."/admin.css');\n";
-		$buffer .= "</style>\n";
-
-		return $buffer;
-	}
-	
-	public static function slimboxCss() {
-
-		$buffer = "<style type=\"text/css\">\n";
-		$buffer .= "@import url('".CSS_WWW."/slimbox.css');\n";
-		$buffer .= "</style>\n";
-
-		return $buffer;
-
-	}
-
-	public static function customCss($filename) {
-		
-		$buffer = "<style type=\"text/css\">\n";
-		$buffer .= "@import url('".CSS_WWW."/$filename');\n";
-		$buffer .= "</style>\n";
-
-		return $buffer;
-
-	}
-
-	/*
 	 * MANAGE MODULES' CSS
 	 */
 	public function manageModuleCss() {
@@ -103,7 +51,6 @@ class css extends propertyObject {
 		$buffer .= "<div class=\"null\"></div>\n";
 
 		return $buffer;
-
 	}
 
 	private function moduleCssList() {
@@ -129,7 +76,6 @@ class css extends propertyObject {
 
 		$htmlsection->content = $buffer;
 		return $htmlsection->render();
-	
 	}
 
 	private function formModuleCssFile() {
@@ -157,7 +103,6 @@ class css extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	private function actionModuleCssFile() {
@@ -181,7 +126,6 @@ class css extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
 	/*
@@ -190,7 +134,7 @@ class css extends propertyObject {
 
 	private function initP($id) {
 	
-		$db = new Db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -202,12 +146,11 @@ class css extends propertyObject {
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
 		$this->_p['filename'] = $value;
 		return true;
-	
 	}
 
 	public static function getAll($order='label') {
 
-		$db = new db;
+		$db = db::instance();
 		$res = array();
 		$query = "SELECT id, label, filename, description FROM ".self::$_tbl_css." ORDER BY $order";
 		$a = $db->selectquery($query);
@@ -244,7 +187,6 @@ class css extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	public function actionCssLayout() {
@@ -275,7 +217,6 @@ class css extends propertyObject {
 		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css")));
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-
 	}
 	
 	public function formDelCssLayout() {
@@ -296,7 +237,6 @@ class css extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
 	public function actionDelCssLayout() {
@@ -309,7 +249,6 @@ class css extends propertyObject {
 		$this->deleteDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-
 	}
 
 	public static function layoutInfo() {
@@ -321,9 +260,6 @@ class css extends propertyObject {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
-
 }
-
 ?>

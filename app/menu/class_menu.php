@@ -5,8 +5,8 @@ class menu extends AbstractEvtClass {
 
 	private static $_menu_functions_list = 'menuFunctionsList';
 	private $_group_1;
-	protected $_instance;
-	protected $_instanceName;
+	private $_registry;
+	protected $_instance, $_instanceName;
 
 	private $_tbl_opt;
 	
@@ -22,6 +22,8 @@ class menu extends AbstractEvtClass {
 
 		parent::__construct();
 
+		$this->_registry = registry::instance();
+		
 		$this->_instance = $instance;
 		$this->_instanceName = $this->_db->getFieldFromId($this->_tbl_module, 'name', 'id', $this->_instance);
 		
@@ -115,10 +117,6 @@ class menu extends AbstractEvtClass {
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 	
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
-	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -147,15 +145,15 @@ class menu extends AbstractEvtClass {
 			$options .= "selectVoiceSnake: ".(($this->_path_to_sel)?"false":"true");
 			$options .= "}";
 			
-			$GINO = $this->scriptAsset("menu_".$this->_instanceName.".css", "menuCSS".$this->_instance, 'css');
-
-			$GINO .= "<nav id=\"menu_$this->_instanceName\">";
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			
+			$GINO = "<nav id=\"menu_$this->_instanceName\">";
 			if($this->_title_visible) $GINO .= "<div class=\"section_title\">$this->_title</div>";
 
-			if($this->_opt_horizontal) 
-				$GINO .= $this->scriptAsset("menuH_".$this->_instanceName.".css", "menuHCSS".$this->_instance, 'css');
-			else 
-				$GINO .= $this->scriptAsset("menuV_".$this->_instanceName.".css", "menuVCSS".$this->_instance, 'css');
+			if($this->_opt_horizontal)
+				$this->_registry->addCss($this->_class_www."/menuH_".$this->_instanceName.".css");
+			else
+				$this->_registry->addCss($this->_class_www."/menuV_".$this->_instanceName.".css");
 
 			if($this->_path_to_sel) {
 				if($this->_opt_horizontal) $GINO .= "<div class=\"pathToSelVoice\">".$this->pathToSelectedVoice()."</div>";
@@ -173,12 +171,12 @@ class menu extends AbstractEvtClass {
 			$GINO .= "</nav>";
 			
 			$GINO .= "<script type=\"text/javascript\">\n";
-			$GINO .= "chargeMenu = function() {
+			$GINO .= "(function() {
 					var myMenu".$this->_instance." = new AbidiMenu(\"menu_$this->_instance\", $options);
-				  }";
+				  })();";
 			$GINO .= "</script>\n"; 
 			
-			$GINO .= $this->scriptAsset("abidiMenu.js", "AbidiMenuJS", 'js', null, array("onload"=>"chargeMenu"));
+			$this->_registry->addJs($this->_class_www."/abidiMenu.js");
 
 			$cache->stop($GINO);
 		}
@@ -196,8 +194,10 @@ class menu extends AbstractEvtClass {
 		$cache = new outputCache($GINO, $this->_cache ? true : false);
 		if($cache->start($this->_instanceName, "breadcrumbs".$sel_voice.$this->_lng_nav, $this->_cache)) {
 			$htmlsection = new htmlSection(array('id'=>"pathmenu_".$this->_instanceName,'class'=>'public'));
-			$buffer = $this->scriptAsset("menu_".$this->_instanceName.".css", "menuCSS".$this->_instance, 'css');
-			$buffer .= $this->pathToSelectedVoice();
+			
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			
+			$buffer = $this->pathToSelectedVoice();
 
 			$htmlsection->content = $buffer;
 
@@ -300,7 +300,9 @@ class menu extends AbstractEvtClass {
 			elseif($voice) $form = $this->formMenuVoice($menuVoice, $menuVoice->parent);
 			else $form = $this->info();
 
-			$GINO = $this->scriptAsset("menu_".$this->_instanceName.".css", "menuCSS".$this->_instance, 'css');
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			
+			$GINO = '';
 
 			$GINO .= "<div class=\"vertical_1\">\n";
 			$GINO .= $this->listMenu($id);
@@ -313,8 +315,10 @@ class menu extends AbstractEvtClass {
 			$GINO .= "<div class=\"null\"></div>";
 		}
 		
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) $links_array = array($link_admin, $link_css, $link_options, $link_dft);
-		else $links_array = array($link_css, $link_options, $link_dft);
+		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', ''))
+			$links_array = array($link_admin, $link_css, $link_options, $link_dft);
+		else
+			$links_array = array($link_css, $link_options, $link_dft);
 
 		$htmltab->navigationLinks = $links_array;
 		$htmltab->selectedLink = $sel_link;

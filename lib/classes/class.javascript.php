@@ -2,44 +2,16 @@
 
 class javascript {
 
-	public static function mootoolsLib() {
-		
-		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/mootools-1.4.0-yc.js\"></script>\n";
-
-		return $buffer;
-
-	}
-	
 	public static function abiMapLib() {
 		
 		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/abiMap.js\"></script>\n";
-
 		return $buffer;
-
 	}
 
 	public static function slimboxLib() {
 		
 		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/slimbox.js\"></script>\n";
-
 		return $buffer;
-
-	}
-	
-	public static function fullGinoMinLib() {
-
-		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/gino-min.js\"></script>\n";
-
-		return $buffer;
-	
-	}
-
-	public static function captchaLib() {
-
-		$buffer = "<script type=\"text/javascript\" src=\"http://api.recaptcha.net/js/recaptcha_ajax.js\"></script>\n";
-
-		return $buffer;
-	
 	}
 
 	public static function onLoadFunction($skinObj) {

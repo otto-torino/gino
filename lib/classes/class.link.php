@@ -6,7 +6,7 @@ class Link {
 	
 	function __construct(){
 		
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT permalinks FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		$this->_permalinks = $a[0]['permalinks'] == 'yes' ? true : false;

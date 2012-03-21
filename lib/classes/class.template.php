@@ -29,7 +29,7 @@ class template extends propertyObject {
 	
 	private function initP($id) {
 	
-		$db = new Db;
+		$db = db::instance();
 		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) return $a[0]; 
@@ -73,7 +73,7 @@ class template extends propertyObject {
 
 	public static function getAll($order='label') {
 
-		$db = new db;
+		$db = db::instance();
 		$res = array();
 		$query = "SELECT id, label, filename, description FROM ".self::$_tbl_tpl." ORDER BY $order";
 		$a = $db->selectquery($query);
@@ -295,13 +295,14 @@ class template extends propertyObject {
 		$buffer .= "<head>\n";
 		$buffer .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
 		$buffer .= "<title>Template</title>\n";
-		$buffer .= css::mainCss();
-		$buffer .= "<style type=\"text/css\">\n";
-		$buffer .= "@import url(\"".SITE_APP.OS."layout".OS."layout.css\");\n";
-		if($css->id) $buffer .= "@import url(\"".CSS_WWW."/$css->filename\");\n";
-		$buffer .= "</style>\n";
-		$buffer .= javascript::mootoolsLib();
-		$buffer .= javascript::fullGinoMinLib();
+		
+		$buffer .= "<link rel=\"stylesheet\" href=\"".CSS_WWW."/main.css\" type=\"text/css\" />\n";
+		$buffer .= "<link rel=\"stylesheet\" href=\"".SITE_APP.OS."layout".OS."layout.css\" type=\"text/css\" />\n";
+		if($css->id)
+			$buffer .= "<link rel=\"stylesheet\" href=\"".CSS_WWW."/$css->filename\" type=\"text/css\" />\n";
+		
+		$buffer .= "<script type=\"text/javascript\" src=\"".SITE_JS."/mootools-1.4.0-yc.js\"></script>\n";
+		$buffer .= "<script type=\"text/javascript\" src=\"".SITE_JS."/gino-min.js\"></script>\n";
 		$buffer .= "<script type=\"text/javascript\" src=\"".SITE_APP."/layout/layout.js\"></script>\n";
 		$buffer .= "</head>\n";
 
@@ -404,7 +405,6 @@ class template extends propertyObject {
 
 			$buffer .= "</div>";
 			$buffer .= "<div class=\"null\"></div>";
-
 		}
 			
 		return $buffer;
@@ -618,7 +618,7 @@ class template extends propertyObject {
 				exit(error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
 		}
 		
-		$db = new Db;
+		$db = db::instance();
 		
 		$query = "INSERT INTO ".self::$_tbl_tpl." (filename, label, description) VALUES ('$filename', '$label', '$description')";
 		$db->actionquery($query);

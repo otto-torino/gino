@@ -1,1 +1,11 @@
+# Can ignore specific files
+.DS_Store
+.buildpath
+.project
+
+# Use wildcars as well
+*~
 *.swp
+
+# Can also ignore all directories and files in a directory
+.settings

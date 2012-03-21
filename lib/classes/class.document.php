@@ -2,7 +2,7 @@
 
 class Document {
 
-	private $_db, $_plink;
+	private $_registry, $_db, $_plink;
 	private $_tbl_module_app, $_tbl_module;
 	private $_instances;
 
@@ -12,7 +12,9 @@ class Document {
 
 	function __construct() {
 	
-		$this->_db = new db();
+		$this->_registry = registry::instance();
+		$this->_db = db::instance();
+		
 		$this->_plink = new link();
 		$this->_tbl_module_app = 'sys_module_app';
 		$this->_tbl_module = 'sys_module';
@@ -24,11 +26,13 @@ class Document {
 		$this->_auth = (isset($_SESSION['userId']))? true:false;
 	}
 
-	/*
-	 * Esempi:
-	 * ["QUERY_STRING"]=> string(18) "articoli/viewList/"
-	 * ["REQUEST_URI"]=> string(41) "/gino/articoli/viewList/?b3JkZXI9dGl0bGU="
-	 * ["SCRIPT_NAME"]=> string(15) "/gino/index.php"
+	/**
+	 * Crea il documento
+	 * 
+	 * Esempi di contenuti delle varialibi $_SERVER:
+	 * $_SERVER["QUERY_STRING"]=> string(18) "articoli/viewList/"
+	 * $_SERVER["REQUEST_URI"]=> string(41) "/gino/articoli/viewList/?b3JkZXI9dGl0bGU="
+	 * $_SERVER["SCRIPT_NAME"]=> string(15) "/gino/index.php"
 	 */
 	public function render() {
 
@@ -54,18 +58,20 @@ class Document {
 
 		$cache = new outputCache($buffer, $skinObj->cache ? true : false);
 		if($cache->start('skin', $query_string.$_SESSION['lng'].$skinObj->id, $skinObj->cache)) {
-			$content = $this->headLine($skinObj);
 
+			$this->initHeadVariables($skinObj);
+			
 			$tplObj = new template($skinObj->template);
 			$template = TPL_DIR.OS.$tplObj->filename;
 
 			$tplContent = file_get_contents($template);
 			$regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
-			$content .= preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
+			$content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
 
-			$content .= $this->footLine();
+			$headline = $this->headLine($skinObj);
+			$footline = $this->footLine();
 
-			$cache->stop($content);
+			$cache->stop($headline.$content.$footline);
 		}
 
 		echo $buffer;
@@ -79,7 +85,29 @@ class Document {
 			$buffer .= "<script>alert('".$errorMsg."');</script>";
 		}
 		return $buffer;
+	}
 
+	private function initHeadVariables($skinObj) {
+
+		$this->_registry->title = htmlChars(pub::variable('head_title'));
+		$this->_registry->description = htmlChars(pub::variable('head_description'));
+		$this->_registry->keywords = htmlChars(pub::variable('head_keywords'));
+		$this->_registry->favicon = SITE_WWW."/favicon.ico";
+		
+		$this->_registry->addCss(CSS_WWW."/main.css");
+		$this->_registry->addCss(CSS_WWW."/datepicker_jqui.css");
+		$this->_registry->addCss(CSS_WWW."/slimbox.css");
+		
+		if($skinObj->css) {
+			$cssObj = new css('layout', $skinObj->css);
+			$this->_registry->addCss(CSS_WWW."/".$cssObj->filename);
+		}
+		
+		$this->_registry->addJs(SITE_JS."/mootools-1.4.0-yc.js");
+		$this->_registry->addJs(SITE_JS."/gino-min.js");
+		
+		if(pub::variable("captcha_public") && pub::variable("captcha_private"))
+			$this->_registry->addJs("http://api.recaptcha.net/js/recaptcha_ajax.js");
 	}
 
 	private function headLine($skinObj) {
@@ -87,19 +115,6 @@ class Document {
 		$evt = $this->getEvent();
 		$instance = is_null($evt) ? null : $evt[1];
 
-		if(!is_null($instance) && method_exists($instance, 'getHeadlines')) {
-			$params = $instance->getHeadlines($evt[2]);
-			$title = isset($params['title']) ? $params['title'] : null;
-			$description = isset($params['description']) ? $params['description'] : null;
-			$meta_title = isset($params['meta_title']) ? $params['meta_title'] : null;
-			$image_src = isset($params['image_src']) ? $params['image_src'] : null;
-		}
-
-		$description = (isset($description) && $description) ? $description : htmlChars(pub::variable('head_description'));
-		$keywords = htmlChars(pub::variable('head_keywords'));
-		$title = (isset($title) && $title) ? $title : htmlChars(pub::variable('head_title'));
-		$image_src = (isset($image_src) && $image_src) ? $image_src : null;
-	
 		$copyright = "<!--
 ================================================================================
     Gino - a generic CMS framework
@@ -126,67 +141,42 @@ class Document {
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
-			$headline = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+			$headline = "<!DOCTYPE html>\n";
 		}
 		$headline .= $copyright;
-		$headline .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"".LANG."\" xml:lang=\"".LANG."\">\n";
+		$headline .= "<html lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
-		$headline .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
+		$headline .= "<meta charset=\"utf-8\" />\n";
 		$pub = new pub();
 		$headline .= "<base href=\"".$pub->getUrl('root').SITE_WWW."/\" />\n";
 		
-		if(isset($meta_title)) $headline .= "<meta name=\"title\" content=\"".$meta_title."\" />\n";
-		if(!empty($description)) $headline .= "<meta name=\"description\" content=\"".$description."\" />\n";
-		if(!empty($keywords)) $headline .= "<meta name=\"keywords\" content=\"".$keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+		$headline .= $this->_registry->variables('meta');
+		
+		if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
+		if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
+		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) {
 			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
 		}
-		if($image_src) $headline .= "<link rel=\"image_src\" href=\"$image_src\" />\n";
-
-		$headline .= "<title>".$title."</title>\n";
-
-		$headline .= $this->css($skinObj);
+		$headline .= $this->_registry->variables('head_links');
+		$headline .= "<title>".$this->_registry->title."</title>\n";
 		
-		$headline .= "<link rel=\"shortcut icon\" href=\"".SITE_WWW."/favicon.ico\" />";
+		$headline .= $this->_registry->variables('css');
+		$headline .= $this->_registry->variables('js');
+		$headline .= javascript::onLoadFunction($skinObj);
 		
-		$headline .= $this->javascript($skinObj);
+		$headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
 		
 		if(pub::variable('google_analytics')) $headline .= $this->google_analytics();
 		$headline .= "</head>\n";
 		$headline .= "<body>\n";
 		
 		return $headline;
-
-	}
-
-	private function css($skinObj) {
-	
-		// a seconda dell'autenticazione etc... 
-		$css = css::mainCss();
-		$css .= css::datePickerCss();
-		$css .= css::slimboxCss();
-		if($skinObj->css) {
-			$cssObj = new css('layout', $skinObj->css);
-			$css .= css::customCss($cssObj->filename);
-		}
-
-		return $css;
-	}
-
-	private function javascript($skinObj) {
-
-		$javascript = javascript::mootoolsLib();
-		$javascript .= javascript::fullGinoMinLib();
-		if(pub::variable("captcha_public") && pub::variable("captcha_private"))
-			$javascript .= javascript::captchaLib();
-		$javascript .= javascript::onLoadFunction($skinObj);
-
-		return $javascript;
 	}
 
 	private function footLine() {
 
 		$footline = $this->errorMessages();
+		$this->_db->closeConnection();
 		$footline .= "</body>";
 		$footline .= "</html>";
 
@@ -215,7 +205,6 @@ class Document {
 		$navContent .= $matches[5];
 
 		return $navContent;
-
 	}
 
 	private function renderModule($mdlMarker) {
@@ -237,7 +226,6 @@ class Document {
 		else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
 
 		return $mdlContent;
-
 	}
 	
 	private function modPage($mdlId, $mdlFunc){
@@ -250,7 +238,6 @@ class Document {
 		return ($page->checkReadPermission($mdlId))
 			? ($mdlFunc=='block'?$page->blockItem($mdlId):$page->displayItem($mdlId))
 			:"";
-		
 	}
 
 	private function modClass($mdlId, $mdlFunc, $mdlType){
@@ -342,7 +329,6 @@ class Document {
 
 		if(isset($publicMethod)) return $instance->$function();
 		else header("Location: ".HOME_FILE);
-
 	}
 
 	private function getEvent() {
@@ -375,7 +361,6 @@ class Document {
 		else { $class=null; $instance=null; }
 
 		return array($class, $instance, $function);
-
 	}
 
 	private function proxy() {
@@ -405,7 +390,5 @@ class Document {
 
 		return $buffer;
 	}
-
 }
-
 ?>

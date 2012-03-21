@@ -7,12 +7,12 @@ La procedura di installazione prevede i seguenti passaggi:
 
 1) Scompattare il sito nell’area web
 
-2) Importare il database (gino.sql)
+2) Importare il database (dbgino.sql)
 
 - utilizzare un programma apposito (ad esempio phpMyAdmin)
 - da shell:
 # mysqladmin -h localhost -u root -p create dbname
-# mysql -u root -p dbname < gino.sql
+# mysql -u root -p dbname < dbgino.sql
 
 Nel database inserire la funzione 'replace_ci' utilizzata dal file lib/class.search.php:
 
@@ -32,7 +32,7 @@ DELIMITER ;
 
 3) Impostare i parametri base del sito nel file 'configuration.php'
 
-- parametri database: SERVER_NAME, SERVER_PORT, DBNAME, DBUSER, DBPWD
+- parametri database: DB_HOST, DB_PORT, DB_DBNAME, DB_USER, DB_PASSWORD
 - altri parametri: SESSION_NAME, MAX_FILE_SIZE
 
 5) Verificare che le directory all'interno delle quali l'applicazione crea automaticamente altre directory oppure crea o modifica file attraverso l’interfaccia web, possiedano i permessi adeguati.

@@ -42,8 +42,8 @@ class pub extends EvtHandler{
 		
 		$this->_className = get_class($this);	// name of current class
 		
+		$this->_db = db::instance();
 		$this->_access = new Access;
-		$this->_db = new DB;
 		$this->_plink = new Link;
 
 		if(isset($_SESSION['userId'])) $this->_session_user = $_SESSION['userId']; else $this->_session_user = 0;
@@ -361,25 +361,24 @@ class pub extends EvtHandler{
 	}
 
 	public static function getMultiLanguage() {
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT multi_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['multi_language'];
 	}
 
 	public static function getDftLanguage() {
-		$db = new db();
+		$db = db::instance();
 		$query = "SELECT dft_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['dft_language'];
 	}
 
 	public static function variable($field){
-		$db = new db();
+		$db = db::instance();
 		$trd = new translation($_SESSION['lng'], $_SESSION['lngDft']);
 
 		return $trd->selectTXT("sys_conf", "$field", 1);
-
 	}
 	
 	/**
@@ -866,11 +865,14 @@ class pub extends EvtHandler{
 		
 		$media = '';
 		
+		$ext_image = array('gif','jpg','png');
+		$ext_video = array('mp4','webm','ogv','mov','avi');
+		
 		if(!empty($file))
 		{
 			$ext = $this->extensionFile($file);
 			
-			if($ext == 'gif' OR $ext == 'jpg' OR $ext == 'png')
+			if(in_array($ext, $ext_image))
 			{
 				$media = $this->_type_media[0];
 			}
@@ -878,7 +880,7 @@ class pub extends EvtHandler{
 			{
 				$media = $this->_type_media[1];
 			}
-			elseif($ext == 'mov' OR $ext == 'avi')
+			elseif(in_array($ext, $ext_video))
 			{
 				$media = $this->_type_media[2];
 			}
