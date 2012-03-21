@@ -491,7 +491,7 @@ CREATE TABLE IF NOT EXISTS `page_block_add` (
 -- Dump dei dati per la tabella `page_block_add`
 --
 
-INSERT INTO `page_block_add` (`id`, `content_id`, `media_width`, `media_height`, `media_alt_text`) VALUES
+INSERT INTO `page_block_add` (`id`, `content_id`, `media_width`, `media_height`, `media_alt_text`, `filename1`, `filename2`, `filename3`) VALUES
 (3, 3, 0, 0, '', '', '', ''),
 (4, 4, 0, 0, '', '', '', ''),
 (6, 6, 0, 0, '', '', '', ''),
