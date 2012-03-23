@@ -1722,58 +1722,59 @@ class page extends AbstractEvtClass{
 		if($result)
 		{
 			// Added Input
-			$query = "SELECT content_id FROM ".$this->_tbl_content_add." WHERE content_id='$cid'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			if($media == $this->_type_media[0] || $media == $this->_type_media[1] || $media == $this->_type_media[2])
 			{
+				$query = "SELECT content_id FROM ".$this->_tbl_content_add." WHERE content_id='$cid'";
+				$a = $this->_db->selectquery($query);
+				if(sizeof($a) > 0)
+				{
+					if($media == $this->_type_media[0])
+					{
+						$set = "media_alt_text='$alt'";
+					}
+					elseif($media == $this->_type_media[1] || $media == $this->_type_media[2])
+					{
+						$set = "media_width=$width, media_height=$height";
+					}
+					$query_action = "UPDATE ".$this->_tbl_content_add." SET $set WHERE content_id='$cid'";
+				}
+				else
+				{
+					$query_action = "INSERT INTO ".$this->_tbl_content_add." (content_id, media_width, media_height, media_alt_text)
+					VALUES ($cid, $width, $height, '$alt')";
+				}
+				$this->_db->actionquery($query_action);
+				
 				if($media == $this->_type_media[0])
 				{
-					$set = "media_alt_text='$alt'";
+					$ext = $this->_extension_content1;
+					$mimetype = array("image/jpeg","image/gif","image/png");
 				}
-				elseif($media == $this->_type_media[1] || $media == $this->_type_media[2])
+				elseif($media == $this->_type_media[1])
 				{
-					$set = "media_width=$width, media_height=$height";
+					$ext = $this->_extension_content2;
+					$mimetype = array("application/x-shockwave-flash");
 				}
-				else exit(error::errorMessage(array('error'=>9), $link_error));
+				elseif($media == $this->_type_media[2])
+				{
+					$ext = $this->_extension_content3;
+					$mimetype = array("video/quicktime", "video/ogg", "video/mp4", "video/webm");
+				}
 				
-				$query_action = "UPDATE ".$this->_tbl_content_add." SET $set WHERE content_id='$cid'";
-			}
-			else
-			{
-				$query_action = "INSERT INTO ".$this->_tbl_content_add." (content_id, media_width, media_height, media_alt_text)
-				VALUES ($cid, $width, $height, '$alt')";
-			}
-			$this->_db->actionquery($query_action);
-			
-			if($media == $this->_type_media[0])
-			{
-				$ext = $this->_extension_content1;
-				$mimetype = array("image/jpeg","image/gif","image/png");
-			}
-			elseif($media == $this->_type_media[1])
-			{
-				$ext = $this->_extension_content2;
-				$mimetype = array("application/x-shockwave-flash");
-			}
-			elseif($media == $this->_type_media[2])
-			{
-				$ext = $this->_extension_content3;
-				$mimetype = array("video/quicktime", "video/ogg", "video/mp4", "video/webm");
-			}
-			
-			$options = array('types_allowed'=>$mimetype);
-			$gform->manageFile('file1', $old_file1, false, $ext, $path_dir, $link_error, $this->_tbl_content, 'img', 'content_id', $cid, $options);
-			$gform->manageFile('file2', $old_file2, false, $this->_extension_attach, $path_dir, $link_error, $this->_tbl_content, 'filename', 'content_id', $cid, array('check_type'=>false));
-			
-			if($media == $this->_type_media[2])
-			{
-				$old_fileadd1 = cleanVar($_POST, 'old_fileadd1', 'string', '');
-				$old_fileadd2 = cleanVar($_POST, 'old_fileadd2', 'string', '');
-				$old_fileadd3 = cleanVar($_POST, 'old_fileadd3', 'string', '');
+				$options = array('types_allowed'=>$mimetype);
+				$gform->manageFile('file1', $old_file1, false, $ext, $path_dir, $link_error, $this->_tbl_content, 'img', 'content_id', $cid, $options);
+				$gform->manageFile('file2', $old_file2, false, $this->_extension_attach, $path_dir, $link_error, $this->_tbl_content, 'filename', 'content_id', $cid, array('check_type'=>false));
 				
-				$gform->manageFile('fileadd1', $old_fileadd1, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename1', 'content_id', $cid, $options);
-				$gform->manageFile('fileadd2', $old_fileadd2, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename2', 'content_id', $cid, $options);
-				$gform->manageFile('fileadd3', $old_fileadd3, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename3', 'content_id', $cid, $options);
+				if($media == $this->_type_media[2])
+				{
+					$old_fileadd1 = cleanVar($_POST, 'old_fileadd1', 'string', '');
+					$old_fileadd2 = cleanVar($_POST, 'old_fileadd2', 'string', '');
+					$old_fileadd3 = cleanVar($_POST, 'old_fileadd3', 'string', '');
+					
+					$gform->manageFile('fileadd1', $old_fileadd1, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename1', 'content_id', $cid, $options);
+					$gform->manageFile('fileadd2', $old_fileadd2, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename2', 'content_id', $cid, $options);
+					$gform->manageFile('fileadd3', $old_fileadd3, false, $ext, $path_dir, $link_error, $this->_tbl_content_add, 'filename3', 'content_id', $cid, $options);
+				}
 			}
 			
 			EvtHandler::HttpCall($this->_home, $redirect, $ref_page);

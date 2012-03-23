@@ -224,7 +224,7 @@ class mysql implements DbManager {
 	 * mysql_insert_id() ritorna il valore generato da una colonna AUTO_INCREMENT a seguito di una query di INSERT o UPDATE.
 	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query.
 	 */
-	public function getlastid($table='')
+	public function getlastid($table)
 	{ 
 		if($this->affected() > 0)
 		{
