@@ -220,7 +220,13 @@ class menu extends AbstractEvtClass {
 			$GINO .= ($parent==0 && $this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
 			foreach($a as $b) {
 				$voice = new menuVoice($b['id']);
-				$link = ($voice->link)?"href=\"".$this->_plink->linkFromDB($voice->link)."\"":"";
+				if($voice->link && $voice->type=='ext')
+					$link = "href=\"".$voice->link."\"";
+				elseif($voice->link)
+					$link = "href=\"".$this->_plink->linkFromDB($voice->link)."\"";
+				else
+					$link = '';
+				
 				$rel = ($voice->type=='ext')?"target=\"_blank\" rel=\"external\"":"";
 				$class = ($s==$voice->id)?"selectedVoice":"";
 				$GINO .= "<li id=\"id".$voice->id."\" class=\"$class\"><a $rel $link>".htmlChars($voice->ml('label'))."</a>";

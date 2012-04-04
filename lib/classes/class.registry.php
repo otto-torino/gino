@@ -45,6 +45,12 @@ class registry extends singleton {
 		$this->vars['head_links'][] = $link;
 	}
 	
+	/**
+	 * Stampa le variabili di registro
+	 * 
+	 * @param mixed $var
+	 * @return string
+	 */
 	public function variables($var) {
 		
 		if($var == 'title' || $var == 'description' || $var == 'keywords' || $var == 'favicon') {
