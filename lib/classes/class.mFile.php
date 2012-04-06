@@ -710,9 +710,12 @@ class mFile {
 				{
 					if($_FILES[$name]['size'][$key] <= $max_size)
 					{
+						$finfo = finfo_open(FILEINFO_MIME_TYPE);
+						$mime = finfo_file($finfo, $_FILES[$name]['type'][$key]);
+						finfo_close($finfo);
 						if(
 							($check_type == 0 || 
-							($check_type == 1 && in_array( $_FILES[$name]['type'][$key], $types_allowed)))
+							($check_type == 1 && in_array($mime, $types_allowed)))
 							&&
 							($check_denied == 0 || 
 							($check_denied == 1 && !extension($filename, $this->_extension_denied)))
@@ -767,9 +770,9 @@ class mFile {
 							} else
 								$log .= "Il file <strong>$filename</strong> è esistente!";
 						} else 
-							$log .= "Il tipo di file <strong>".$_FILES[$name]['type'][$key]."</strong> non è consentito!";
+							$log .= "Il tipo di file <strong>".$mime."</strong> non è consentito!";
 					} else
-						$log .= "La dimensione del file <strong>".$_FILES[$name]['type'][$key]."</strong> non è consentita!";
+						$log .= "La dimensione del file <strong>".$_FILES[$name]['name'][$key]."</strong> supera il limite massimo consentito!";
 				}
 				else
 				{
