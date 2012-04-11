@@ -711,7 +711,7 @@ class mFile {
 					if($_FILES[$name]['size'][$key] <= $max_size)
 					{
 						$finfo = finfo_open(FILEINFO_MIME_TYPE);
-						$mime = finfo_file($finfo, $_FILES[$name]['type'][$key]);
+						$mime = finfo_file($finfo, $_FILES[$name]['tmp_name'][$key]);
 						finfo_close($finfo);
 						if(
 							($check_type == 0 || 
