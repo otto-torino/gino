@@ -24,7 +24,6 @@ class template extends propertyObject {
 
 		$this->_align_dict = array("1"=>"sinistra", "2"=>"centro", "3"=>"destra");
 		$this->_um_dict = array("1"=>"px", "2"=>"%");
-
 	}
 	
 	private function initP($id) {
@@ -62,7 +61,7 @@ class template extends propertyObject {
 			}
 		}
 	}
-
+	
 	public function setFilename($value) {
 		
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
@@ -166,7 +165,7 @@ class template extends propertyObject {
 		$buffer = $gform->form($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', $required);
 		$buffer .= $gform->hidden('ref', $this->id);
 		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
-		$buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("il nome del file può contenere solamente caratteri alfanumerici o i caratteri '_' e '-'")));
+		$buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici o '_' e '-'")));
 		$buffer .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
 		$buffer .= $gform->cinput('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
 
@@ -201,16 +200,34 @@ class template extends propertyObject {
 		$gform = new Form('gform', 'post', false);
 
 		$blocks_number = $this->id ? $this->_blocks_number : cleanVar($_POST, 'blocks_number', 'int', '');
-
-		$buffer = $gform->startTable();
+		
+		$buffer = '';
 		if($this->id)
 		{
-			$note = "<p>"._("La modifica dei valori dei singoli blocchi viene operata selezionando il pulsante <b>ricostruisci template</b> presente nella schermata successiva.")."<br />";
-			$note .= _("La ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."</p>";
+			$note = "<p>"._("Per poter rendere operative le modifiche dei valori dei singoli blocchi oppure l'aggiunta di blocchi 
+			occorre selezionare il pulsante <b>ricostruisci template</b> presente nella schermata successiva, eventualmente 
+			popolare il template, ed infine selezionare il pulsante <b>salva template</b>.")."</p>";
+			$note .= "<p>"._("ATTENZIONE: la ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."<br />";
+			$note .= _("Inoltre l'aggiunta anche soltanto di un blocco può comportare la necessità di rimettere mano alle classi del <b>CSS</b>, cambiando 
+			la sequenza dei blocchi e quindi il nome di riferimento alla classe del CSS.")."</p>";
+			$buffer .= $gform->startTable();
 			$buffer .= $gform->cell($note);
+			$buffer .= $gform->endTable();
 		}
 		for($i=1; $i<$blocks_number+1; $i++) {
 
+			if($this->id)
+			{
+				$name_select = 'addblocks_'.$i;
+				$div_id = 'addblocks_form'.$i;
+				$test_add = "<p>"._("Aggiungi");
+				$onchange = "onchange=\"ajaxRequest('post', '$this->_home?pt[layout-manageLayout]&block=template&action=addblocks', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
+				$test_add .= "&nbsp;".$gform->select($name_select, '', array(1=>1, 2=>2), array("js"=>$onchange))."&nbsp;";
+				$test_add .= _("blocchi")."</p>";
+				$buffer .= $gform->cell($test_add);
+				$buffer .= "<div id=\"$div_id\">".$gform->cell($this->addBlockForm($i))."</div>";
+			}
+			$buffer .= $gform->startTable();
 			$buffer .= $gform->cell("<p><b>"._("Blocco ").$i."</b></p>");
 
 			if($this->id) {
@@ -234,10 +251,36 @@ class template extends propertyObject {
 				$buffer .= $gform->cinput('rows_'.$i, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
 				$buffer .= $gform->cinput('cols_'.$i, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
 			}
+			$buffer .= $gform->endTable();
 		}
-			
-		$buffer .= $gform->endTable();
 
+		return $buffer;
+	}
+	
+	public function addBlockForm($ref=null) {
+		
+		if(is_null($ref)) $ref = cleanVar($_POST, 'ref', 'int', '');
+		if(!$ref) return null;
+		
+		$gform = new Form('gform', 'post', false);
+		
+		$buffer = '';
+		
+		$add_num = cleanVar($_POST, 'addblocks_'.$ref, 'int', '');
+		$buffer .= $gform->hidden('addblocks_'.$ref, $add_num);
+		
+		for($i=1; $i<$add_num+1; $i++) {
+			
+			$ref_name = $ref.'_'.$i;
+			$buffer .= $gform->startTable();
+			$um = " ".$gform->select('um_add'.$ref_name, '', $this->_um_dict, array());
+			$buffer .= $gform->cinput('width_add'.$ref_name, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
+			$buffer .= $gform->cselect('align_add'.$ref_name, '', $this->_align_dict, _("Allineamento"), array());
+			$buffer .= $gform->cinput('rows_add'.$ref_name, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+			$buffer .= $gform->cinput('cols_add'.$ref_name, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
+			$buffer .= $gform->endTable();
+		}
+		
 		return $buffer;
 	}
 	
@@ -273,6 +316,15 @@ class template extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
 	}
 
+	/**
+	 * Pagina di gestione del template
+	 * 
+	 * @param object $css
+	 * @param integer $tpl_id
+	 * 
+	 * con "ricostruisci template" viene costruito un template nuovo che tiene conto delle modifiche apportate ai blocchi
+	 * (metodo createEmptyTemplate()), altrimenti viene letto il file di template
+	 */
 	public function manageTemplate($css, $tpl_id=0) {
 
 		$gform = new Form('tplform', 'post', false, array("tblLayout"=>false));
@@ -307,6 +359,7 @@ class template extends propertyObject {
 		$buffer .= "</head>\n";
 
 		$buffer .= "<body>\n";
+		$buffer .= "<p style=\"padding-top: 5px;\">"._("Per poter rendere operative le modifiche dei valori dei singoli blocchi oppure l'aggiunta di blocchi occorre selezionare il pulsante <b>ricostruisci template</b> e successivamente il pulsante <b>salva template</b>.")."</p>";
 		$buffer .= "<p class=\"title\">$label</p>";
 
 		$regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
@@ -316,6 +369,10 @@ class template extends propertyObject {
 		$buffer .= "<table style=\"width:100%;background-color:#eee;margin-top:20px;\">";
 		$buffer .= "<tr>";
 		$buffer .= "<td style=\"width:50%;text-align:right;padding-top:5px;padding-bottom:8px;\">";
+		
+		/*
+		 * Form di ricostruzione del template
+		 */
 		$gform1 = new Form('gform', 'post', false, array("tblLayout"=>false));
 		$gform1->load('dataform');
 
@@ -329,7 +386,20 @@ class template extends propertyObject {
 		$buffer .= $gform1->hidden('css', $css->id);
 		$buffer .= $gform1->hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
 		$buffer .= $gform1->hidden('blocks_number', htmlInput($blocks_number));
-		for($i=1; $i<$blocks_number + 1; $i++) {
+		for($i=1; $i<=$blocks_number; $i++) {
+			
+			$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+			$buffer .= $gform1->hidden('addblocks_'.$i, $add_form);
+			for($y=1; $y<=$add_form; $y++) {
+				
+				$ref_name = $i.'_'.$y;
+				$buffer .= $gform1->hidden('width_add'.$ref_name, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
+				$buffer .= $gform1->hidden('um_add'.$ref_name, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
+				$buffer .= $gform1->hidden('align_add'.$ref_name, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
+				$buffer .= $gform1->hidden('rows_add'.$ref_name, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
+				$buffer .= $gform1->hidden('cols_add'.$ref_name, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
+			}
+			
 			$buffer .= $gform1->hidden('id_'.$i, cleanVar($_POST, 'id_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('width_'.$i, cleanVar($_POST, 'width_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('um_'.$i, cleanVar($_POST, 'um_'.$i, 'int', ''));
@@ -337,12 +407,17 @@ class template extends propertyObject {
 			$buffer .= $gform1->hidden('rows_'.$i, cleanVar($_POST, 'rows_'.$i, 'int', ''));
 			$buffer .= $gform1->hidden('cols_'.$i, cleanVar($_POST, 'cols_'.$i, 'int', ''));
 		}
+		
 		$buffer .= $gform1->input('dft', 'submit', _("ricostruisci template"), array("classField"=>"submit"));
 		$buffer .= $gform1->cform();
+		// End
 		
 		$buffer .= "</td>";
 		$buffer .= "<td style=\"text-align:left;background-color:#d4d4d4;padding-top:5px;padding-bottom:8px;\">";
 
+		/*
+		 * Form per le modifiche sul template
+		 */
 		$required = '';
 		$buffer .= $gform->form($this->_home."?evt[".$this->_interface."-actionTemplate]", '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
@@ -350,15 +425,34 @@ class template extends propertyObject {
 		$buffer .= $gform->hidden('description', htmlInput($description));
 		$buffer .= $gform->hidden('filename', $filename);
 		$buffer .= $gform->hidden('tplform_text', '', array("id"=>"tplform_text"));
-		$buffer .= $gform1->hidden('blocks_number', htmlInput($blocks_number));
-		for($i=1; $i<$blocks_number + 1; $i++) {
-			$buffer .= $gform1->hidden('id_'.$i, cleanVar($_POST, 'id_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('width_'.$i, cleanVar($_POST, 'width_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('um_'.$i, cleanVar($_POST, 'um_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('align_'.$i, cleanVar($_POST, 'align_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('rows_'.$i, cleanVar($_POST, 'rows_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('cols_'.$i, cleanVar($_POST, 'cols_'.$i, 'int', ''));
+		
+		$num = 1;
+		for($i=1; $i<=$blocks_number; $i++) {
+			
+			$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+			for($y=1; $y<=$add_form; $y++) {
+				
+				$ref_name = $i.'_'.$y;
+				
+				$buffer .= $gform->hidden('id_'.$num, 0);
+				$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
+				$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
+				$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
+				$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
+				$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
+				$num++;
+			}
+			
+			$buffer .= $gform->hidden('id_'.$num, cleanVar($_POST, 'id_'.$i, 'int', ''));
+			$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_'.$i, 'int', ''));
+			$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_'.$i, 'int', ''));
+			$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_'.$i, 'int', ''));
+			$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_'.$i, 'int', ''));
+			$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_'.$i, 'int', ''));
+			$num++;
 		}
+		$buffer .= $gform->hidden('blocks_number', $num-1);
+		
 		$buffer .= $gform->input('back', 'button', _("indietro"), array("classField"=>"generic", "js"=>"onclick=\"history.go(-1)\""));
 		$buffer .= " ".$gform->input('save', 'button', _("salva template"), array("classField"=>"submit", "js"=>"onclick=\"saveTemplate();\""));
 		$buffer .= $gform->cform();
@@ -377,36 +471,68 @@ class template extends propertyObject {
 	private function createEmptyTemplate($blocks_number) {
 	
 		$buffer = '';
-		for($i=1; $i<$blocks_number+1; $i++) {
+		$num = 1;
+		for($i=1; $i<=$blocks_number; $i++) {
 			
-			if(cleanVar($_POST, 'align_'.$i, 'int', '')==2) $margin = "margin: auto;"; 
-			elseif(cleanVar($_POST, 'align_'.$i, 'int', '')==3) $margin = "float: right;";
-		        else $margin = '';
-
+			$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+			for($y=1; $y<=$add_form; $y++) {
+				
+				$ref_name = $i.'_'.$y;
+				
+				$width_add = cleanVar($_POST, 'width_add'.$ref_name, 'int', '');
+				$um_add = cleanVar($_POST, 'um_add'.$ref_name, 'int', '');
+				$align_add = cleanVar($_POST, 'align_add'.$ref_name, 'int', '');
+				$rows_add = cleanVar($_POST, 'rows_add'.$ref_name, 'int', '');
+				$cols_add = cleanVar($_POST, 'cols_add'.$ref_name, 'int', '');
+				
+				if($rows_add > 0 && $cols_add > 0)
+				{
+					$buffer .= $this->printBlock($num, $align_add, $rows_add, $cols_add, $um_add, $width_add);
+					$num++;
+				}
+			}
+			
+			$align = cleanVar($_POST, 'align_'.$i, 'int', ''); 
 			$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
 			$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
-			$um = cleanVar($_POST, 'um_'.$i, 'int', '') == 1 ? 'px' : '%';
+			$um = cleanVar($_POST, 'um_'.$i, 'int', '');
 			$width = cleanVar($_POST, 'width_'.$i, 'int', '');
-
-			$block_style_width = $width ? "width:".$width.$um.";" : '';
-
-			if($um == 'px' && $width) $nav_style = "width:".floor($width/$cols)."px".($cols>1 ? ";float:left;" : "");
-			else $nav_style = "width:".floor(100/$cols)."%".($cols>1 ? ";float:left;" : "");
-
-			$buffer .= "<div id=\"block_$i\" style=\"$block_style_width$margin\">\n";
-
-			for($ii=1; $ii<$rows+1; $ii++) {
-				for($iii=1; $iii<$cols+1; $iii++) {
-					$buffer .= "<div id=\"nav_".$i."_".$ii."_".$iii."\" style=\"".$nav_style."\">";
-					$buffer .= "</div>";
-				}
-				$buffer .= "<div class=\"null\"></div>";
+			
+			if($rows > 0 && $cols > 0)
+			{
+				$buffer .= $this->printBlock($num, $align, $rows, $cols, $um, $width);
+				$num++;
 			}
-
-			$buffer .= "</div>";
-			$buffer .= "<div class=\"null\"></div>";
 		}
 			
+		return $buffer;
+	}
+	
+	private function printBlock($num, $align, $rows, $cols, $um, $width) {
+		
+		if($align==2) $margin = "margin: auto;";
+		elseif($align==3) $margin = "float: right;";
+		else $margin = '';
+
+		$um = $um == 1 ? 'px' : '%';
+		$block_style_width = $width ? "width:".$width.$um.";" : '';
+
+		if($um == 'px' && $width) $nav_style = "width:".floor($width/$cols)."px".($cols>1 ? ";float:left;" : "");
+		else $nav_style = "width:".floor(100/$cols)."%".($cols>1 ? ";float:left;" : "");
+
+		$buffer = "<div id=\"block_$num\" style=\"$block_style_width$margin\">\n";
+
+		for($ii=1; $ii<$rows+1; $ii++) {
+			for($iii=1; $iii<$cols+1; $iii++) {
+				$buffer .= "<div id=\"nav_".$num."_".$ii."_".$iii."\" style=\"".$nav_style."\">";
+				$buffer .= "</div>";
+			}
+			$buffer .= "<div class=\"null\"></div>";
+		}
+
+		$buffer .= "</div>";
+		$buffer .= "<div class=\"null\"></div>";
+		
 		return $buffer;
 	}
 
@@ -554,7 +680,9 @@ class template extends propertyObject {
 		$this->updateDbData();
 
 		$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
-		for($i=1; $i<$blocks_number+1; $i++) {
+		
+		for($i=1; $i<=$blocks_number; $i++) {
+			
 			$bid = cleanVar($_POST, 'id_'.$i, 'int', '');
 			$width = cleanVar($_POST, 'width_'.$i, 'int', '');
 			$um = cleanVar($_POST, 'um_'.$i, 'int', '');
@@ -563,10 +691,10 @@ class template extends propertyObject {
 			$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
 			
 			if($width == 0) $um = 0;
-
-			$this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
+			if($rows > 0 && $cols > 0)
+				$this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
 		}
-
+		
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
 	}
 
@@ -574,13 +702,26 @@ class template extends propertyObject {
 	
 		if($id)
 		{
-			$query = "UPDATE ".self::$_tbl_tpl_block." SET width='$width', um='$um', align='$align', rows='$rows', cols='$cols' WHERE id='$id'";
+			$query = "SELECT id FROM ".self::$_tbl_tpl_block." WHERE id='$id' AND position='$position'";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a) > 0)
+			{
+				$query_block = "UPDATE ".self::$_tbl_tpl_block." SET width='$width', um='$um', align='$align', rows='$rows', cols='$cols' WHERE id='$id'";
+			}
+			else
+			{
+				$query = "DELETE FROM ".self::$_tbl_tpl_block." WHERE id='$id'";
+				$this->_db->actionquery($query);
+				
+				$query_block = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
+			}
 		}
 		else
 		{
-			$query = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
+			$query_block = "INSERT INTO ".self::$_tbl_tpl_block." (tpl, position, width, um, align, rows, cols) VALUES ('$this->id', '$position', '$width', '$um', '$align', '$rows', '$cols')";
 		}
-		return $this->_db->actionquery($query);
+		
+		return $this->_db->actionquery($query_block);
 	}
 
 	private function deleteBlocks() {

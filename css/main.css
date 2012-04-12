@@ -354,6 +354,9 @@ table.formTbl td {
 td.form_label {
 	background-color: #e1e0e0;
 }
+div[id^=addblocks_form] td.form_label {
+	background-color: #FFCC00;
+}
 .form_text_label {
 	color: #000000;
 	font-weight: bold;

@@ -54,6 +54,11 @@ class layout extends AbstractEvtClass {
 				$tplObj = new template($id);
 				return $tplObj->tplBlockForm(); 
 			}
+			elseif($this->_block=='template' && $this->_action=='addblocks') {
+				$id = cleanVar($_POST, 'id', 'int', '');
+				$tplObj = new template($id);
+				return $tplObj->addBlockForm(); 
+			}
 			elseif($this->_block=='template' && $this->_action=='copytpl') {
 				$tplObj = new template(null);
 				return $tplObj->actionCopyTemplate();
