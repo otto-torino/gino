@@ -657,6 +657,10 @@ class pub extends EvtHandler{
 				$icon = 'ico_language.gif';
 				$title = _("traduzione");
 				break;
+			case 'layout':
+				$icon = 'ico_layout.gif';
+				$title = _("layout");
+				break;
 			case 'link':
 				$icon = 'ico_link.gif';
 				$title = _("link");

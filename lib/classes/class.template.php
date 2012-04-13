@@ -118,6 +118,26 @@ class template extends propertyObject {
 
 		return $htmlsection->render();
 	}
+	
+	private function formData($gform) {
+		
+		$required = 'label';
+		$buffer = $gform->form($this->_home."?pt[".$this->_interface."-manageLayout]&block=template&action=mngtpl", '', $required);
+		$buffer .= $gform->hidden('id', $this->id);
+		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
+		$buffer .= ($this->id)
+			? $gform->noinput("&#160;&#160;"._("Nome file"), $this->filename)
+			: $gform->cinput('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
+		$buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
+
+		$css_list = array();
+		foreach(css::getAll() as $css) {
+			$css_list[$css->id] = htmlInput($css->label);
+		}
+		$buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
+
+		return $buffer;
+	}
 
 	public function formTemplate() {
 
@@ -127,25 +147,33 @@ class template extends propertyObject {
 		$title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
 
-		$required = 'label';
-		$buffer = $gform->form($this->_home."?pt[".$this->_interface."-manageLayout]&block=template&action=mngtpl", '', $required);
-		$buffer .= $gform->hidden('id', $this->id);
-		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
-		$buffer .= ($this->id)
-			? $gform->noinput("&#160;&#160;"._("Nome file"), $this->filename)
-			: $gform->cinput('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("il nome del file può contenere solamente caratteri alfanumerici o i caratteri '_' e '-'")));
-		$buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
-
-		$css_list = array();
-		foreach(css::getAll() as $css) {
-			$css_list[$css->id] = htmlInput($css->label);
-		}
-		$buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin")), null);
-
+		$buffer = $this->formData($gform);
+		if($this->id)
+			$buffer .= $gform->hidden('modTpl', 1);
 		$buffer .= $this->formBlock($gform);
+		$buffer .= $gform->startTable();
+		$buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
+		$buffer .= $gform->endTable();
+		$buffer .= $gform->cform();
 
-		$buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("prosegui"):_("crea template")), '', array("classField"=>"submit"));
+		$htmlsection->content = $buffer;
 
+		return $htmlsection->render();
+	}
+	
+	public function formOutline() {
+
+		if(!$this->id) return null;
+		
+		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
+		$gform->load('dataform');
+
+		$title = _("Modifica lo schema");
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
+
+		$buffer = $this->formData($gform);
+		$buffer .= $gform->noinput(_("Numero blocchi"), $this->_blocks_number);
+		$buffer .= $gform->cinput('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
 		$buffer .= $gform->cform();
 
 		$htmlsection->content = $buffer;
@@ -165,7 +193,7 @@ class template extends propertyObject {
 		$buffer = $gform->form($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', $required);
 		$buffer .= $gform->hidden('ref', $this->id);
 		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
-		$buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici o '_' e '-'")));
+		$buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
 		$buffer .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
 		$buffer .= $gform->cinput('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
 
@@ -204,10 +232,7 @@ class template extends propertyObject {
 		$buffer = '';
 		if($this->id)
 		{
-			$note = "<p>"._("Per poter rendere operative le modifiche dei valori dei singoli blocchi oppure l'aggiunta di blocchi 
-			occorre selezionare il pulsante <b>ricostruisci template</b> presente nella schermata successiva, eventualmente 
-			popolare il template, ed infine selezionare il pulsante <b>salva template</b>.")."</p>";
-			$note .= "<p>"._("ATTENZIONE: la ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."<br />";
+			$note = "<p>"._("ATTENZIONE: la ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."<br />";
 			$note .= _("Inoltre l'aggiunta anche soltanto di un blocco può comportare la necessità di rimettere mano alle classi del <b>CSS</b>, cambiando 
 			la sequenza dei blocchi e quindi il nome di riferimento alla classe del CSS.")."</p>";
 			$buffer .= $gform->startTable();
@@ -322,26 +347,29 @@ class template extends propertyObject {
 	 * @param object $css
 	 * @param integer $tpl_id
 	 * 
-	 * con "ricostruisci template" viene costruito un template nuovo che tiene conto delle modifiche apportate ai blocchi
-	 * (metodo createEmptyTemplate()), altrimenti viene letto il file di template
+	 * La creazione e la ricostruzione del template sono i due casi in cui si creano o modificano i blocchi.
+	 * Il metodo che lavora sui blocchi è createTemplate(); nel caso della modifica del template viene letto direttamente il file.
 	 */
 	public function manageTemplate($css, $tpl_id=0) {
 
 		$gform = new Form('tplform', 'post', false, array("tblLayout"=>false));
 		$gform->load('dataform');
 
-		$dftTpl = cleanVar($_POST, 'dftTpl', 'int', '');
+		$modTpl = cleanVar($_POST, 'modTpl', 'int', '');	// parametro di ricostruzione del template
 		$label = cleanVar($_POST, 'label', 'string', '');
 		$filename = cleanVar($_POST, 'filename', 'string', '');
 		$description = cleanVar($_POST, 'description', 'string', '');
 		$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
 
-		if($this->id && !$dftTpl) {
+		if($this->id) {
 			$template = $this->filename;
 			$template = file_get_contents(TPL_DIR.OS.$template);
+			
+			if($modTpl)
+				$template = $this->createTemplate($blocks_number, $template);
 		}
-		else $template = $this->createEmptyTemplate($blocks_number);
-
+		else $template = $this->createTemplate($blocks_number);	// ricostruzione del template
+		
 		$buffer = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 		$buffer .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n";
 		$buffer .= "<head>\n";
@@ -359,7 +387,6 @@ class template extends propertyObject {
 		$buffer .= "</head>\n";
 
 		$buffer .= "<body>\n";
-		$buffer .= "<p style=\"padding-top: 5px;\">"._("Per poter rendere operative le modifiche dei valori dei singoli blocchi oppure l'aggiunta di blocchi occorre selezionare il pulsante <b>ricostruisci template</b> e successivamente il pulsante <b>salva template</b>.")."</p>";
 		$buffer .= "<p class=\"title\">$label</p>";
 
 		$regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
@@ -368,91 +395,50 @@ class template extends propertyObject {
 		
 		$buffer .= "<table style=\"width:100%;background-color:#eee;margin-top:20px;\">";
 		$buffer .= "<tr>";
-		$buffer .= "<td style=\"width:50%;text-align:right;padding-top:5px;padding-bottom:8px;\">";
-		
-		/*
-		 * Form di ricostruzione del template
-		 */
-		$gform1 = new Form('gform', 'post', false, array("tblLayout"=>false));
-		$gform1->load('dataform');
+		$buffer .= "<td style=\"text-align:center;background-color:#d4d4d4;padding-top:5px;\">";
 
-		$required = '';
-		$buffer .= $gform1->form('', '', $required);
-		$buffer .= $gform1->hidden('id', $this->id);
-		$buffer .= $gform1->hidden('dftTpl', 1);
-		$buffer .= $gform1->hidden('label', htmlInput($label));
-		$buffer .= $gform1->hidden('description', htmlInput($description));
-		$buffer .= $gform1->hidden('filename', $filename);
-		$buffer .= $gform1->hidden('css', $css->id);
-		$buffer .= $gform1->hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
-		$buffer .= $gform1->hidden('blocks_number', htmlInput($blocks_number));
-		for($i=1; $i<=$blocks_number; $i++) {
-			
-			$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
-			$buffer .= $gform1->hidden('addblocks_'.$i, $add_form);
-			for($y=1; $y<=$add_form; $y++) {
-				
-				$ref_name = $i.'_'.$y;
-				$buffer .= $gform1->hidden('width_add'.$ref_name, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
-				$buffer .= $gform1->hidden('um_add'.$ref_name, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
-				$buffer .= $gform1->hidden('align_add'.$ref_name, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
-				$buffer .= $gform1->hidden('rows_add'.$ref_name, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
-				$buffer .= $gform1->hidden('cols_add'.$ref_name, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
-			}
-			
-			$buffer .= $gform1->hidden('id_'.$i, cleanVar($_POST, 'id_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('width_'.$i, cleanVar($_POST, 'width_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('um_'.$i, cleanVar($_POST, 'um_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('align_'.$i, cleanVar($_POST, 'align_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('rows_'.$i, cleanVar($_POST, 'rows_'.$i, 'int', ''));
-			$buffer .= $gform1->hidden('cols_'.$i, cleanVar($_POST, 'cols_'.$i, 'int', ''));
-		}
-		
-		$buffer .= $gform1->input('dft', 'submit', _("ricostruisci template"), array("classField"=>"submit"));
-		$buffer .= $gform1->cform();
-		// End
-		
-		$buffer .= "</td>";
-		$buffer .= "<td style=\"text-align:left;background-color:#d4d4d4;padding-top:5px;padding-bottom:8px;\">";
-
-		/*
-		 * Form per le modifiche sul template
-		 */
+		// Form
 		$required = '';
 		$buffer .= $gform->form($this->_home."?evt[".$this->_interface."-actionTemplate]", '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
 		$buffer .= $gform->hidden('label', htmlInput($label));
 		$buffer .= $gform->hidden('description', htmlInput($description));
 		$buffer .= $gform->hidden('filename', $filename);
+		$buffer .= $gform->hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
 		$buffer .= $gform->hidden('tplform_text', '', array("id"=>"tplform_text"));
 		
-		$num = 1;
-		for($i=1; $i<=$blocks_number; $i++) {
+		if(!$this->id || ($this->id && $modTpl))
+		{
+			if($modTpl)
+				$buffer .= $gform->hidden('modTpl', $modTpl);
 			
-			$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
-			for($y=1; $y<=$add_form; $y++) {
+			$num = 1;
+			for($i=1; $i<=$blocks_number; $i++) {
 				
-				$ref_name = $i.'_'.$y;
+				$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+				for($y=1; $y<=$add_form; $y++) {
+					
+					$ref_name = $i.'_'.$y;
+					
+					$buffer .= $gform->hidden('id_'.$num, 0);
+					$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
+					$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
+					$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
+					$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
+					$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
+					$num++;
+				}
 				
-				$buffer .= $gform->hidden('id_'.$num, 0);
-				$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
-				$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
-				$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
-				$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
-				$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
+				$buffer .= $gform->hidden('id_'.$num, cleanVar($_POST, 'id_'.$i, 'int', ''));
+				$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_'.$i, 'int', ''));
+				$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_'.$i, 'int', ''));
+				$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_'.$i, 'int', ''));
+				$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_'.$i, 'int', ''));
+				$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_'.$i, 'int', ''));
 				$num++;
 			}
-			
-			$buffer .= $gform->hidden('id_'.$num, cleanVar($_POST, 'id_'.$i, 'int', ''));
-			$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_'.$i, 'int', ''));
-			$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_'.$i, 'int', ''));
-			$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_'.$i, 'int', ''));
-			$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_'.$i, 'int', ''));
-			$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_'.$i, 'int', ''));
-			$num++;
+			$buffer .= $gform->hidden('blocks_number', $num-1);
 		}
-		$buffer .= $gform->hidden('blocks_number', $num-1);
-		
 		$buffer .= $gform->input('back', 'button', _("indietro"), array("classField"=>"generic", "js"=>"onclick=\"history.go(-1)\""));
 		$buffer .= " ".$gform->input('save', 'button', _("salva template"), array("classField"=>"submit", "js"=>"onclick=\"saveTemplate();\""));
 		$buffer .= $gform->cform();
@@ -467,8 +453,8 @@ class template extends propertyObject {
 
 		return $buffer;
 	}
-
-	private function createEmptyTemplate($blocks_number) {
+	
+	private function createTemplate($blocks_number, $template='') {
 	
 		$buffer = '';
 		$num = 1;
@@ -500,15 +486,16 @@ class template extends propertyObject {
 			
 			if($rows > 0 && $cols > 0)
 			{
-				$buffer .= $this->printBlock($num, $align, $rows, $cols, $um, $width);
+				$pos = $template ? $i : 0;
+				$buffer .= $this->printBlock($num, $align, $rows, $cols, $um, $width, $pos, $template);
 				$num++;
 			}
 		}
-			
+		
 		return $buffer;
 	}
 	
-	private function printBlock($num, $align, $rows, $cols, $um, $width) {
+	private function printBlock($num, $align, $rows, $cols, $um, $width, $pos=0, $template='') {
 		
 		if($align==2) $margin = "margin: auto;";
 		elseif($align==3) $margin = "float: right;";
@@ -520,11 +507,34 @@ class template extends propertyObject {
 		if($um == 'px' && $width) $nav_style = "width:".floor($width/$cols)."px".($cols>1 ? ";float:left;" : "");
 		else $nav_style = "width:".floor(100/$cols)."%".($cols>1 ? ";float:left;" : "");
 
+		$old = false;
+		if($pos && $template)
+		{
+			$db = db::instance();
+			$query = "SELECT rows, cols FROM ".self::$_tbl_tpl_block." WHERE tpl='$this->id' AND position='$pos'";
+			$a = $db->selectquery($query);
+			if(sizeof($a)>0)
+				$old = true;
+		}
+		
 		$buffer = "<div id=\"block_$num\" style=\"$block_style_width$margin\">\n";
 
 		for($ii=1; $ii<$rows+1; $ii++) {
 			for($iii=1; $iii<$cols+1; $iii++) {
+				
+				$module = '';
+				if($old)
+				{
+					$ref_nav = "nav_".$pos."_".$ii."_".$iii;
+					$pattern = '#<div id="'.$ref_nav.'" [a-zA-Z0-9 ":;%=]+>[\r\n ]*(\{[a-zA-Z0-9= \{\}\r\n]+\})[\r\n ]*<\/div>#';
+					if(preg_match($pattern, $template, $matches))
+					{
+						if($matches[0]) $module = $matches[1];
+					}
+				}
+				
 				$buffer .= "<div id=\"nav_".$num."_".$ii."_".$iii."\" style=\"".$nav_style."\">";
+				$buffer .= $module;
 				$buffer .= "</div>";
 			}
 			$buffer .= "<div class=\"null\"></div>";
@@ -535,7 +545,7 @@ class template extends propertyObject {
 		
 		return $buffer;
 	}
-
+	
 	private function renderNave($matches) {
 		/*
 		 * $matches[0] complete matching 
@@ -663,6 +673,7 @@ class template extends propertyObject {
 		$this->description = 'description';
 		$tplFilename = cleanVar($_POST, 'filename', 'string', '');
 		if($tplFilename) $this->filename = $tplFilename.".tpl";
+		$modTpl = cleanVar($_POST, 'modTpl', 'int', '');
 
 		$action = ($this->id)? "modify":"insert";
 
@@ -679,20 +690,23 @@ class template extends propertyObject {
 			exit(error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
 		$this->updateDbData();
 
-		$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
-		
-		for($i=1; $i<=$blocks_number; $i++) {
+		if(($this->id && $modTpl == 1) || !$this->id)
+		{
+			$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
 			
-			$bid = cleanVar($_POST, 'id_'.$i, 'int', '');
-			$width = cleanVar($_POST, 'width_'.$i, 'int', '');
-			$um = cleanVar($_POST, 'um_'.$i, 'int', '');
-			$align = cleanVar($_POST, 'align_'.$i, 'int', '');
-			$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
-			$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
-			
-			if($width == 0) $um = 0;
-			if($rows > 0 && $cols > 0)
-				$this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
+			for($i=1; $i<=$blocks_number; $i++) {
+				
+				$bid = cleanVar($_POST, 'id_'.$i, 'int', '');
+				$width = cleanVar($_POST, 'width_'.$i, 'int', '');
+				$um = cleanVar($_POST, 'um_'.$i, 'int', '');
+				$align = cleanVar($_POST, 'align_'.$i, 'int', '');
+				$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
+				$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
+				
+				if($width == 0) $um = 0;
+				if($rows > 0 && $cols > 0)
+					$this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
+			}
 		}
 		
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
