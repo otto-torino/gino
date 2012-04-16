@@ -222,7 +222,7 @@ class template extends propertyObject {
 
 		return $buffer;
 	}
-
+	
 	public function tplBlockForm() {
 	
 		$gform = new Form('gform', 'post', false);
@@ -230,6 +230,7 @@ class template extends propertyObject {
 		$blocks_number = $this->id ? $this->_blocks_number : cleanVar($_POST, 'blocks_number', 'int', '');
 		
 		$buffer = '';
+		
 		if($this->id)
 		{
 			$note = "<p>"._("ATTENZIONE: la ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."<br />";
@@ -243,6 +244,7 @@ class template extends propertyObject {
 
 			if($this->id)
 			{
+				$buffer .= $gform->startTable();
 				$name_select = 'addblocks_'.$i;
 				$div_id = 'addblocks_form'.$i;
 				$test_add = "<p>"._("Aggiungi");
@@ -250,12 +252,38 @@ class template extends propertyObject {
 				$test_add .= "&nbsp;".$gform->select($name_select, '', array(1=>1, 2=>2), array("js"=>$onchange))."&nbsp;";
 				$test_add .= _("blocchi")."</p>";
 				$buffer .= $gform->cell($test_add);
-				$buffer .= "<div id=\"$div_id\">".$gform->cell($this->addBlockForm($i))."</div>";
+				$buffer .= $gform->endTable();
+				
+				$buffer .= "<div id=\"$div_id\">";
+				$buffer .= $gform->startTable();
+				$buffer .= $gform->cell($this->addBlockForm($i));
+				$buffer .= $gform->endTable();
+				$buffer .= "</div>";
 			}
+			
+			$buffer .= "<div id=\"block$i\">";
 			$buffer .= $gform->startTable();
-			$buffer .= $gform->cell("<p><b>"._("Blocco ").$i."</b></p>");
-
+			$text_block = "<b>"._("Blocco")." $i</b>";
+			
 			if($this->id) {
+				
+				$moo = "
+				var getStatus = $('block$i').getStyle('background-color');
+				if(getStatus == 'red') {
+					$('block$i').setStyle('background-color', '#FFF');
+					$('block$i').setStyle('color', '#333');
+					$('del$i').value = 0;
+				}
+				else {
+					$('block$i').setStyle('background-color', 'red');
+					$('block$i').setStyle('color', '#FFF');
+					$('del$i').value = 1;
+				};";
+				
+				$text_block .= " <span onclick=\"$moo\" style=\"cursor:pointer; text-decoration:underline; text-align:right;\">".pub::icon('delete')."</span>";
+				$text_block .= $gform->hidden('del'.$i, 0, array('id'=>'del'.$i));
+				$buffer .= $gform->cell($text_block);
+				
 				$buffer .= $gform->hidden('id_'.$i, $this->_blocks_properties[$i]['id']);
 				
 				$width = $this->_blocks_properties[$i]['width'] ? $this->_blocks_properties[$i]['width'] : '';
@@ -270,6 +298,9 @@ class template extends propertyObject {
 				$buffer .= $gform->cinput('cols_'.$i, 'text', $this->_blocks_properties[$i]['cols'], _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
 			}
 			else {
+				
+				$buffer .= $gform->cell($text_block);
+				
 				$um = " ".$gform->select('um_'.$i, '', $this->_um_dict, array());
 				$buffer .= $gform->cinput('width_'.$i, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
 				$buffer .= $gform->cselect('align_'.$i, '', $this->_align_dict, _("Allineamento"), array());
@@ -277,6 +308,7 @@ class template extends propertyObject {
 				$buffer .= $gform->cinput('cols_'.$i, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
 			}
 			$buffer .= $gform->endTable();
+			$buffer .= "</div>";
 		}
 
 		return $buffer;
@@ -347,7 +379,7 @@ class template extends propertyObject {
 	 * @param object $css
 	 * @param integer $tpl_id
 	 * 
-	 * La creazione e la ricostruzione del template sono i due casi in cui si creano o modificano i blocchi.
+	 * La creazione e la ricostruzione del template sono i due casi in cui si creano e si modificano i blocchi.
 	 * Il metodo che lavora sui blocchi è createTemplate(); nel caso della modifica del template viene letto direttamente il file.
 	 */
 	public function manageTemplate($css, $tpl_id=0) {
@@ -412,9 +444,10 @@ class template extends propertyObject {
 			if($modTpl)
 				$buffer .= $gform->hidden('modTpl', $modTpl);
 			
+			$blocks_del = array();
 			$num = 1;
-			for($i=1; $i<=$blocks_number; $i++) {
-				
+			for($i=1; $i<=$blocks_number; $i++)
+			{
 				$add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
 				for($y=1; $y<=$add_form; $y++) {
 					
@@ -429,15 +462,23 @@ class template extends propertyObject {
 					$num++;
 				}
 				
-				$buffer .= $gform->hidden('id_'.$num, cleanVar($_POST, 'id_'.$i, 'int', ''));
+				$id_block = cleanVar($_POST, 'id_'.$i, 'int', '');
+				$del_block = cleanVar($_POST, 'del'.$i, 'int', '');
+				
+				$buffer .= $gform->hidden('id_'.$num, $id_block);
 				$buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_'.$i, 'int', ''));
 				$buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_'.$i, 'int', ''));
 				$buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_'.$i, 'int', ''));
 				$buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_'.$i, 'int', ''));
 				$buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_'.$i, 'int', ''));
-				$num++;
+				
+				if($del_block == 1)
+					$blocks_del[$id_block] = $i;
+				else
+					$num++;
 			}
 			$buffer .= $gform->hidden('blocks_number', $num-1);
+			$buffer .= $gform->hidden('blocks_del', base64_encode(json_encode($blocks_del)));
 		}
 		$buffer .= $gform->input('back', 'button', _("indietro"), array("classField"=>"generic", "js"=>"onclick=\"history.go(-1)\""));
 		$buffer .= " ".$gform->input('save', 'button', _("salva template"), array("classField"=>"submit", "js"=>"onclick=\"saveTemplate();\""));
@@ -478,13 +519,14 @@ class template extends propertyObject {
 				}
 			}
 			
+			$delete = cleanVar($_POST, 'del'.$i, 'int', '');
 			$align = cleanVar($_POST, 'align_'.$i, 'int', ''); 
 			$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
 			$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
 			$um = cleanVar($_POST, 'um_'.$i, 'int', '');
 			$width = cleanVar($_POST, 'width_'.$i, 'int', '');
 			
-			if($rows > 0 && $cols > 0)
+			if($rows > 0 && $cols > 0 && $delete != 1)
 			{
 				$pos = $template ? $i : 0;
 				$buffer .= $this->printBlock($num, $align, $rows, $cols, $um, $width, $pos, $template);
@@ -693,6 +735,17 @@ class template extends propertyObject {
 		if(($this->id && $modTpl == 1) || !$this->id)
 		{
 			$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
+			$blocks_del = cleanVar($_POST, 'blocks_del', 'string', '');
+			$blocks_del = json_decode(base64_decode($blocks_del));
+			
+			if(sizeof($blocks_del) > 0)
+			{
+				foreach($blocks_del AS $key=>$value)
+				{
+					$query = "DELETE FROM ".self::$_tbl_tpl_block." WHERE id='$key'";
+					$this->_db->actionquery($query);
+				}
+			}
 			
 			for($i=1; $i<=$blocks_number; $i++) {
 				
