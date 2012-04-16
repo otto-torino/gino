@@ -234,7 +234,7 @@ class template extends propertyObject {
 		if($this->id)
 		{
 			$note = "<p>"._("ATTENZIONE: la ricostruzione del template comporta la perdita delle associazioni dei moduli nello schema del template.")."<br />";
-			$note .= _("Inoltre l'aggiunta anche soltanto di un blocco può comportare la necessità di rimettere mano alle classi del <b>CSS</b>, cambiando 
+			$note .= _("Inoltre l'aggiunta o l'eliminazione anche soltanto di un blocco può comportare la necessità di rimettere mano alle classi del <b>CSS</b>, cambiando 
 			la sequenza dei blocchi e quindi il nome di riferimento alla classe del CSS.")."</p>";
 			$buffer .= $gform->startTable();
 			$buffer .= $gform->cell($note);
