@@ -597,11 +597,11 @@ class mFile {
 	 * @param string $dir_upload	directory di upload (/path/to/directory/)
 	 * @param string $link_error	reindirizzamento causa errore
 	 * @param array $options		opzioni
-	 * 		integer overwrite		1=sovrascrivi i file, 0=non sovrascrivere
+	 * 		boolean overwrite		true (o 1 per compatibilità)=sovrascrivi i file, false=non sovrascrivere
 	 * 		integer max_size		dimensione massima upload in KB
-	 * 		integer check_type		1=controlla il tipo di file, 0=non controllare; -> attiva 'types_allowed'
+	 * 		boolean check_type		attiva 'types_allowed': true (o 1 per compatibilità)=controlla il tipo di file, false=non controllare
 	 * 		array types_allowed		array per alcuni tipi di file (mime types)
-	 * 		integer check_denied	1=controlla l'estensione del file, 0=non controllare; -> verifica '$this->_extension_denied'
+	 * 		boolean check_denied	verifica '$this->_extension_denied': true (o 1 per compatibilità)=controlla l'estensione del file, false=non controllare
 	 * 		integer debug			1=stampa informazioni di debug, 0=non stampare
 	 * 		integer chmod_dir		permessi della directory (0700)
 	 * 		array valid_ext			estensioni valide
@@ -622,9 +622,9 @@ class mFile {
 		
 		$text = $this->_description;
 		
-		$overwrite = !is_null($this->option('overwrite')) ? $this->option('overwrite') : 1;
+		$overwrite = !is_null($this->option('overwrite')) ? $this->option('overwrite') : true;
 		$max_size = $this->option('max_size') ? $this->option('max_size') : $this->_max_file_size;
-		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : 1;
+		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : true;
 		$types_allowed = $this->option('types_allowed') ? $this->option('types_allowed') : 
 		array(
 			"text/plain",
@@ -641,7 +641,7 @@ class mFile {
 			"application/x-msdos-program",
 			"application/octet-stream"
 		);
-		$check_denied = !is_null($this->option('check_denied')) ? $this->option('check_denied') : 1;
+		$check_denied = !is_null($this->option('check_denied')) ? $this->option('check_denied') : true;
 		$debug = !is_null($this->option('debug')) ? $this->option('debug') : 0;
 		$chmod_dir = $this->option('chmod_dir') ? $this->option('chmod_dir') : 0700;
 		$valid_ext = $this->option('valid_ext') ? $this->option('valid_ext') : array();
@@ -714,11 +714,11 @@ class mFile {
 						$mime = finfo_file($finfo, $_FILES[$name]['tmp_name'][$key]);
 						finfo_close($finfo);
 						if(
-							($check_type == 0 || 
-							($check_type == 1 && in_array($mime, $types_allowed)))
+							((!$check_type || $check_type == 0) || 
+							(($check_type || $check_type == 1) && in_array($mime, $types_allowed)))
 							&&
-							($check_denied == 0 || 
-							($check_denied == 1 && !extension($filename, $this->_extension_denied)))
+							((!$check_denied || $check_denied == 0) || 
+							(($check_denied || $check_denied == 1) && !extension($filename, $this->_extension_denied)))
 							&&
 							(sizeof($valid_ext) == 0 ||
 							(sizeof($valid_ext) > 0 && extension($filename, $valid_ext)))
@@ -735,7 +735,7 @@ class mFile {
 										exit(error::errorMessage(array('error'=>27), $link_error));
 								}
 							}
-							if(!file_exists($dir_upload.$filename) || $overwrite == 1)
+							if(!file_exists($dir_upload.$filename) || $overwrite || $overwrite == 1)
 							{
 								if(@move_uploaded_file($_FILES[$name]['tmp_name'][$key], $dir_upload.$filename))
 								{
