@@ -691,6 +691,20 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Radio con label
+	 * 
+	 * @param string $name		nome input
+	 * @param string $value		valore attivo
+	 * @param array $data		elementi dei pulsanti radio (array(value=>text[,]))
+	 * @param mixed $default	valore di default
+	 * @param mixed $label		testo <label>
+	 * @param array $options	opzioni
+	 * 		[method radio] +
+	 * 		required	boolean		campo obbligatorio
+	 * 		classLabel	string		valore CLASS del tag SPAN in <label>
+	 * 		text_add	boolean		testo aggiuntivo stampato sotto il box
+	 */
 	public function cradio($name, $value, $data, $default, $label, $options=null){
 		
 		$this->setOptions($options);
@@ -704,6 +718,20 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Radio
+	 * 
+	 * @param string $name		nome input
+	 * @param string $value		valore attivo
+	 * @param array $data		elementi dei pulsanti radio (array(value=>text[,]))
+	 * @param mixed $default	valore di default
+	 * @param array $options	opzioni
+	 * 		aspect		string		col valore 'v' gli elementi vengono messi uno sotto l'altro
+	 * 		id			string		valore ID del tag <input>
+	 * 		classField	string		valore CLASS del tag <input>
+	 * 		js			string
+	 * 		other		string
+	 */
 	public function radio($name, $value, $data, $default, $options){
 		
 		$this->setOptions($options);
@@ -729,7 +757,7 @@ class Form {
 	}
 	
 	/**
-	 * Checkbox completo
+	 * Checkbox con label
 	 *
 	 * @param string	$name
 	 * @param boolean 	$checked	true: di default la casella ha il check
@@ -865,7 +893,6 @@ class Form {
 		return $GFORM;
 	}
 	
-		
 	/**
 	 * Select con Label
 	 *
@@ -874,10 +901,10 @@ class Form {
 	 * @param string|array	$data	elementi del select
 	 * @param string|array	$label	testo del tag label
 	 * @param array			$options
-	 * 		[metodo select] +
+	 * 		[method select] +
 	 * 		required	boolean	campo obbligatorio
 	 * 		text_add	string	testo dopo il select
-	 * 		classLabel	string	classe dello span (class=\"\")
+	 * 		classLabel	string	valore CLASS del tag SPAN in <label>
 	 * @return string
 	 */
 	public function cselect($name, $value, $data, $label, $options=null) {
@@ -959,29 +986,18 @@ class Form {
 	 * Gestione completa del file. Integra il checkbox di eliminazione del file.
 	 * Non è gestita l'obbligatorietà del campo.
 	 *
-	 * @param string $name			nome dell'input file
-	 * @param string $value			nome file
-	 * @param string $label			testo <label>
+	 * @param string $name		nome dell'input file
+	 * @param string $value		nome file
+	 * @param string $label		testo <label>
+	 * @param array $options	opzioni
+	 * 		[method input] +
+	 * 		extensions	array		estensioni valide
+	 * 		classLabel	string
+	 * 		preview		boolean		mostra l'anteprima di una immagine
+	 * 		previewSrc	string		percorso relativo dell'immagine
+	 * 		del_check	boolean		mostra il check di eliminazione del file
+	 * 		text_add	string		testo aggiuntivo
 	 * @return string
-	 * 
-	 * Opzioni:
-	 * --------------
-	 * extensions		array	estensioni valide
-	 * classLabel
-	 * preview			boolean	mostra l'anteprima di una immagine
-	 * previewSrc		string	percorso relativo dell'immagine
-	 * del_check		boolean	mostra il check di eliminazione del file
-	 * text_add			string	testo aggiuntivo
-	 * 
-	 * in input()
-	 * ...
-	 * @param string $style1		stile <label>
-	 * @param string $style2		stile <p>
-	 * @param integer $size			size
-	 * @param integer $max			maxlength
-	 * @param string $other			altro nel tag input, ad esempio javascript
-	 * @param string $action		insert | modify
-	 * @param string $link_action	link ajax
 	 * 
 	 * @example
 	 * $this->_gform->cfile('file1', $filename, _("testo label"), array("extensions"=>$extension, "del_check"=>true, "preview"=>true, "previewSrc"=>/www/address/file1))
@@ -1166,7 +1182,7 @@ class Form {
 	 * @param string $idName			nome del campo ID
 	 * @param string $id				valore del campo ID
 	 * @param array $options			opzioni
-	 * 		integer check_type			1=controlla il tipo di file, 0=non controllare	-> attiva 'types_allowed'
+	 * 		boolean check_type			attiva 'types_allowed': true (o 1 per compatibilità)=controlla il tipo di file, false=non controllare
 	 * 		array types_allowed			array per alcuni tipi di file (mime types)
 	 * 		integer max_file_size		dimensione massima di un upload (bytes)
 	 * 		boolean thumb				attiva i thumbnail
@@ -1177,6 +1193,9 @@ class Form {
 	 * 		integer height
 	 * 		integer thumb_width
 	 * 		integer thumb_height
+	 * 		boolean ftp					permette di inserire il nome del file qualora questo risulti di dimensione superiore
+	 * 									al consentito. Il file fisico deve essere poi inserito via FTP
+	 * 		string errorQuery			query di elimnazione del record qualora non vada a buon fine l'upload del file (INSERT)
 	 * @return boolean
 	 */
 	public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
@@ -1185,7 +1204,7 @@ class Form {
 		$directory = $this->dirUpload($directory);
 		if(!is_dir($directory)) mkdir($directory, 0755, true);
 
-		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : 1;
+		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : true;
 		$types_allowed = $this->option('types_allowed') ? $this->option('types_allowed') : 
 		array(
 			"text/plain",
@@ -1233,10 +1252,13 @@ class Form {
 				exit(error::errorMessage(array('error'=>33), $link_error));
 			}
 			
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = finfo_file($finfo, $tmp_file);
+			finfo_close($finfo);
 			if(
 				!extension($new_file, $valid_extension) ||
 				preg_match('#%00#', $new_file) ||
-				($check_type == 1 && !in_array( $_FILES[$name]['type'], $types_allowed))
+				(($check_type || $check_type == 1) && !in_array($mime, $types_allowed))
 			) {
 				if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
 				exit(error::errorMessage(array('error'=>03), $link_error));

@@ -214,7 +214,7 @@ class css extends propertyObject {
 		}
 		$this->updateDbData();
 
-		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css")));
+		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css", "text/x-c", "text/plain")));
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
 	}

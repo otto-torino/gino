@@ -54,6 +54,11 @@ class layout extends AbstractEvtClass {
 				$tplObj = new template($id);
 				return $tplObj->tplBlockForm(); 
 			}
+			elseif($this->_block=='template' && $this->_action=='addblocks') {
+				$id = cleanVar($_POST, 'id', 'int', '');
+				$tplObj = new template($id);
+				return $tplObj->addBlockForm(); 
+			}
 			elseif($this->_block=='template' && $this->_action=='copytpl') {
 				$tplObj = new template(null);
 				return $tplObj->actionCopyTemplate();
@@ -65,6 +70,7 @@ class layout extends AbstractEvtClass {
 
 			$buffer .= "<div class=\"vertical_2\">\n";
 			if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) $buffer .= $this->formBlock();
+			elseif($this->_action == 'outline') $buffer .= $this->formOutline();
 			elseif($this->_action == $this->_act_copy) $buffer .= $this->formCopyBlock();
 			elseif($this->_action == $this->_act_delete) $buffer .= $this->formDelBlock();
 			else $buffer .= $this->info();
@@ -149,10 +155,11 @@ class layout extends AbstractEvtClass {
 			$buffer = $htmlList->start();
 			foreach($tpl_list as $tpl) {
 				$selected = ($tpl->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
+				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_modify\">".pub::icon('modify', _("modifica il template"))."</a>";
+				$link_outline = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=outline\">".pub::icon('layout', _("modifica lo schema"))."</a>";
 				$link_copy = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_copy\">".pub::icon('duplicate', _("crea una copia"))."</a>";
 				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_copy, $link_modify), $selected, true, '('.$tpl->filename.')');
+				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_copy, $link_modify, $link_outline), $selected, true, '('.$tpl->filename.')');
 			}
 			$buffer .= $htmlList->end();
 		}
@@ -200,6 +207,22 @@ class layout extends AbstractEvtClass {
 		elseif($this->_block=='css') {
 			$cssObj = new css('layout', array('id'=>$id));
 			return $cssObj->formCssLayout();
+		}
+	}
+	
+	private function formOutline() {
+	
+		$id = cleanVar($_GET, 'id', 'int', '');
+
+		if($this->_block=='skin') {
+			return null;
+		}
+		elseif($this->_block=='template') {
+			$tplObj = new template($id);
+			return $tplObj->formOutline();
+		}
+		elseif($this->_block=='css') {
+			return null;
 		}
 	}
 	
