@@ -1484,7 +1484,7 @@ class page extends AbstractEvtClass{
 			$array = array_combine($this->_type_media, $this->_type_media_value);
 			$GINO .= $gform->cselect('media', $type_media, $array, _("Tipologia di media"), array('js'=>$js));
 			
-			if($content_id) $GINO .= $gform->cell($this->optionMedia($content_id, $type_media, $action), array("id"=>"option_media"));
+			$GINO .= $gform->cell($this->optionMedia($content_id, $type_media, $action), array("id"=>"option_media"));
 		}
 		
 		// File attach
