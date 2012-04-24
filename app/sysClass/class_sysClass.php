@@ -744,7 +744,7 @@ class sysClass extends abstractEvtClass {
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Disinstallazione modulo di sitema")));
 
-		$GINO = "<p>"._("Attenzione! La disinstallazione di un modulo di sistema potrebbe provicare dei malfunzionamenti.")."</p>\n";
+		$GINO = "<p>"._("Attenzione! La disinstallazione di un modulo di sistema potrebbe provocare dei malfunzionamenti.")."</p>\n";
 		if($instance=='yes') {
 			$GINO .= "<p>"._("Il modulo ").$label._(" prevede la creazione di istanze, per tanto la sua eliminazione determina l'eliminazione di ogni istanza e dei dati associati.")."</p>\n";
 			$mdlInstances = array();
