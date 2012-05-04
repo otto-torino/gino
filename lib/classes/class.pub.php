@@ -3,7 +3,7 @@ class pub extends EvtHandler{
 	
 	public static $delimiter = ';;';
 	protected $_className;
-	protected $_access, $_db, $_trd, $_list, $_plink;
+	protected $_access, $_db, $session, $_trd, $_list, $_plink;
 	protected $_session_user, $_session_user_name, $_session_role, $_access_admin, $_access_user;
 	protected $_module_type, $_module_text;
 	protected $_crypt;
@@ -43,11 +43,12 @@ class pub extends EvtHandler{
 		$this->_className = get_class($this);	// name of current class
 		
 		$this->_db = db::instance();
+		$this->session = session::instance();
 		$this->_access = new Access;
 		$this->_plink = new Link;
 
-		if(isset($_SESSION['userId'])) $this->_session_user = $_SESSION['userId']; else $this->_session_user = 0;
-		if(isset($_SESSION['userName'])) $this->_session_user_name = $_SESSION['userName']; else $this->_session_user_name = '';
+		if(isset($this->session->userId)) $this->_session_user = $this->session->userId; else $this->_session_user = 0;
+		if(isset($this->session->userName)) $this->_session_user_name = $this->session->userName; else $this->_session_user_name = '';
 		
 		$this->_session_role = $this->_access->userRole();
 		$this->_access_admin = $this->variable('admin_role');
@@ -135,8 +136,8 @@ class pub extends EvtHandler{
 	private function setLanguage(){
 		
 		$this->_tbl_language = 'language';
-		$this->_lng_dft = $_SESSION['lngDft'];
-		$this->_lng_nav = $_SESSION['lng'];
+		$this->_lng_dft = $this->session->lngDft;
+		$this->_lng_nav = $this->session->lng;
 		$this->setLngDftName();
 		$this->setLngNavName();
 		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
@@ -375,8 +376,9 @@ class pub extends EvtHandler{
 	}
 
 	public static function variable($field){
-		$db = db::instance();
-		$trd = new translation($_SESSION['lng'], $_SESSION['lngDft']);
+		
+		$session = session::instance();
+		$trd = new translation($session->lng, $session->lngDft);
 
 		return $trd->selectTXT("sys_conf", "$field", 1);
 	}
@@ -460,9 +462,9 @@ class pub extends EvtHandler{
 	protected function urlRedirect($params=''){
 		
 		// Return True
-		if(isset($_SESSION['url_access']) AND !empty($_SESSION['url_access']))
+		if(!empty($this->session->url_access))
 		{
-			$url = '?'.$_SESSION['url_access'];
+			$url = '?'.$this->session->url_access;
 		}
 		else $url = '';
 		
@@ -476,9 +478,9 @@ class pub extends EvtHandler{
 		}
 		
 		// Return False
-		if(isset($_SESSION['url_error']) AND !empty($_SESSION['url_error']))
+		if(!empty($this->session->url_error))
 		{
-			$url_error = $_SESSION['url_error'];
+			$url_error = $this->session->url_error;
 			
 			if($url_error == 'auth') $url_error = $this->_url_path_login.'&';
 			else $url_error = $this->_url_path.'?'.$url_error.'&';

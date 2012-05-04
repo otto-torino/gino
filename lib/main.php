@@ -6,7 +6,7 @@ include_once(CLASSES_DIR.OS."class.pub.php");
 
 class Main{
 
-	private $_db;
+	private $_db, $session;
 	private $_auth;
 	private $_multi_language;
 	private $_tbl_language;
@@ -14,13 +14,14 @@ class Main{
 	function __construct(){
 
 		$this->_db = db::instance();
+		$this->session = session::instance();
+		
 		include_once(LIB_DIR.OS."include.php");
 
 		$this->_multi_language = pub::getMultiLanguage();
 		$this->_tbl_language = 'language';
 		$this->setLanguage();
 		$this->setGettext();
-
 		$this->setHeaders();
 
 		/* mobile detection */
@@ -29,14 +30,14 @@ class Main{
 			: null;
 
 		if($avoid_mobile) {
-			unset($_SESSION['L_mobile']);
-			$_SESSION['L_avoid_mobile'] = 1;
+			unset($this->session->L_mobile);
+			$this->session->L_avoid_mobile = 1;
 		}
 		elseif($avoid_mobile === 0) {
-			unset($_SESSION['L_avoid_mobile']);
+			unset($this->session->L_avoid_mobile);
 		}
 
-		if(!(isset($_SESSION['L_avoid_mobile']) && $_SESSION['L_avoid_mobile'])) {
+		if(!(isset($this->session->L_avoid_mobile) && $this->session->L_avoid_mobile)) {
 			$this->detectMobile();
 		}
 
@@ -49,7 +50,7 @@ class Main{
 
 		if($detect->isMobile()) {
 			
-			$_SESSION['L_mobile'] = 1;
+			$this->session->L_mobile = 1;
 		}
 	}
 	
@@ -71,14 +72,20 @@ class Main{
 
 	private function setGettext(){
 
-		$language = explode('_', $_SESSION["lng"]);
-		define('LANG', $language[0]);
+		if(isset($this->session->lng))
+		{
+			$language = explode('_', $this->session->lng);
+			$lang = $language[0];
+			
+			if(!ini_get('safe_mode'))
+				putenv("LC_ALL=".$this->session->lng);
+			
+			setlocale(LC_ALL, $this->session->lng.'.utf8');
+		}
+		else $lang = '';
 		
-		if(!ini_get('safe_mode'))
-			putenv("LC_ALL=$_SESSION[lng]");
+		define('LANG', $lang);	// class document
 		
-		setlocale(LC_ALL, $_SESSION["lng"].'.utf8');
-
 		if(!extension_loaded('gettext'))
 		{
 			function _($str){
@@ -99,39 +106,39 @@ class Main{
 		/* default */
 		if($this->_multi_language == 'yes')
 		{
-			if(!isset($_SESSION["lngDft"]))
+			if(!$this->session->lngDft)
 			{
 				$query = "SELECT code FROM ".$this->_tbl_language." WHERE main='yes'";
 				$result = mysql_query($query);
 				if(mysql_num_rows($result) > 0)
 				{
 					while ($row = mysql_fetch_assoc($result)) {
-						$_SESSION["lngDft"] = $row['code'];
+						$this->session->lngDft = $row['code'];
 					}
 				}
 			}
 
 			// language
-			if(!isset($_SESSION["lng"]))
+			if(!$this->session->lng)
 			{
 				// Language User Agent
 				$user_language = $this->userLanguage();
-				if($user_language) $_SESSION["lng"] = $user_language;
+				$this->session->lng = $user_language ? $user_language : '';
 			}
 
 			if(isset($_GET["lng"]))
 			{
-				$_SESSION["lng"] = $_GET["lng"];
+				$this->session->lng = $_GET["lng"];
 			}
-			elseif(empty($_SESSION["lng"]))
+			elseif($this->session->lng == '')
 			{
-				$_SESSION["lng"] = $_SESSION["lngDft"];
+				$this->session->lng = $this->session->lngDft;
 			}
 		}
 		else
 		{
-			$_SESSION["lng"] = pub::getDftLanguage();
-			$_SESSION["lngDft"] = pub::getDftLanguage();
+			$this->session->lng = pub::getDftLanguage();
+			$this->session->lngDft = pub::getDftLanguage();
 		}
 	}
 

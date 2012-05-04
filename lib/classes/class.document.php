@@ -2,7 +2,7 @@
 
 class Document {
 
-	private $_registry, $_db, $_plink;
+	private $_registry, $_db, $session, $_plink;
 	private $_tbl_module_app, $_tbl_module;
 	private $_instances;
 
@@ -14,6 +14,7 @@ class Document {
 	
 		$this->_registry = registry::instance();
 		$this->_db = db::instance();
+		$this->session = session::instance();
 		
 		$this->_plink = new link();
 		$this->_tbl_module_app = 'sys_module_app';
@@ -23,7 +24,7 @@ class Document {
 
 		$access = new access();
 		$this->_session_role = $access->userRole();
-		$this->_auth = (isset($_SESSION['userId']))? true:false;
+		$this->_auth = isset($this->session->userId) ? true : false;
 	}
 
 	/**
@@ -57,7 +58,7 @@ class Document {
 		$buffer = '';
 
 		$cache = new outputCache($buffer, $skinObj->cache ? true : false);
-		if($cache->start('skin', $query_string.$_SESSION['lng'].$skinObj->id, $skinObj->cache)) {
+		if($cache->start('skin', $query_string.$this->session->lng.$skinObj->id, $skinObj->cache)) {
 
 			$this->initHeadVariables($skinObj);
 			
@@ -137,7 +138,7 @@ class Document {
 ================================================================================
 -->\n";
 
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) { 
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
@@ -154,7 +155,7 @@ class Document {
 		
 		if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
 		if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) {
+		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) {
 			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
 		}
 		$headline .= $this->_registry->variables('head_links');
@@ -365,7 +366,7 @@ class Document {
 
 	private function proxy() {
 	
-		if($_SESSION['userId']==1) {
+		if($this->session->userId == 1) {
 			$_SERVER['REQUEST_URI'] = '/index.php?evt[realtime-map]';
 			$_SERVER['QUERY_STRING'] = 'evt[realtime-map]';
 			$_SERVER['SCRIPT_FILENAME'] = dirname(__FILE__).'index.php';
