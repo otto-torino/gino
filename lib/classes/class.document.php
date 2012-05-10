@@ -39,7 +39,7 @@ class Document {
 
 		if(pub::variable('permalinks') == 'yes')
 		{
-			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
+			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
 			
 			$script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
 			$query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
@@ -68,6 +68,7 @@ class Document {
 			$tplContent = file_get_contents($template);
 			$regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
 			$content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
+			if($content === null) exit("PCRE Error! Subject too large or complex.");
 
 			$headline = $this->headLine($skinObj);
 			$footline = $this->footLine();
@@ -116,35 +117,12 @@ class Document {
 		$evt = $this->getEvent();
 		$instance = is_null($evt) ? null : $evt[1];
 
-		$copyright = "<!--
-================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti and abidibo
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================
--->\n";
-
 		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) { 
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
 			$headline = "<!DOCTYPE html>\n";
 		}
-		$headline .= $copyright;
 		$headline .= "<html lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
 		$headline .= "<meta charset=\"utf-8\" />\n";
@@ -223,7 +201,7 @@ class Document {
 			$mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
 		}
 		elseif($mdlType=='func') $mdlContent = $this->modFunc($mdlId);
-		elseif($mdlType=='' && $mdlId==0) $mdlContent = ($this->_precharge_mdl_url!='no')? $this->_mdl_url_content:$this->modUrl();
+		elseif($mdlType==null && $mdlId==null) $mdlContent = ($this->_precharge_mdl_url!='no')? $this->_mdl_url_content:$this->modUrl();
 		else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
 
 		return $mdlContent;
