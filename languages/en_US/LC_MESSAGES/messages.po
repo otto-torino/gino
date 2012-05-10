@@ -2622,16 +2622,37 @@ msgstr "Search module"
 
 #: app/searchSite/class_searchSite.php:223
 msgid ""
-"Definire un template nelle opzioni, altrimenti verrà utilizzato il template "
-"di default."
-msgstr "If a tamplate is not defined in the options tab, the default one will be used."
+"Il modulo mette a disposizione una interfaccia di ricerca nel sito."
+msgstr ""
+"The module makes available an interface of search in the site"
 
 #: app/searchSite/class_searchSite.php:224
 msgid ""
-"Nelle opzioni bisogna inserire gli ID dei moduli di sistema e non che si "
-"vogliono includere tra i ricercabili."
+"Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello "
+"di default, e indicare i valori ID dei moduli (di sistema e non) "
+"che si vogliono includere nella ricerca."
 msgstr ""
-"Modules to be searched IDs should be included in the searchable options"
+"In the <b>Options</b> tab it is possible to define template substitutive "
+"of that one of default, and to indicate values ID of the modules "
+"(system and not) that they are wanted to be included in the search"
+
+#: app/searchSite/class_searchSite.php:225
+msgid "Per poter funzionare occorre"
+msgstr "For being able to work it is necessary"
+
+#: app/searchSite/class_searchSite.php:227
+msgid ""
+"caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)"
+msgstr ""
+"to load on database the function <b>replace_ci</b> (see INSTALL.TXT)"
+
+#: app/searchSite/class_searchSite.php:228
+msgid ""
+"nei moduli indicati nella ricerca occorre definire e argomentare i metodi "
+"<b>searchSite</b> e <b>searchSiteResult</b>"
+msgstr ""
+"in the modules indicated in the search it is necessary to define the methods "
+"<b>searchSite</b> and <b>searchSiteResult</b>"
 
 #: app/statistics/class_statistics.php:76
 #: app/statistics/class_statistics.php:152

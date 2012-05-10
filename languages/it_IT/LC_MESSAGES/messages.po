@@ -2554,14 +2554,30 @@ msgstr ""
 
 #: app/searchSite/class_searchSite.php:223
 msgid ""
-"Definire un template nelle opzioni, altrimenti verrà utilizzato il template "
-"di default."
+"Il modulo mette a disposizione una interfaccia di ricerca nel sito."
 msgstr ""
 
 #: app/searchSite/class_searchSite.php:224
 msgid ""
-"Nelle opzioni bisogna inserire gli ID dei moduli di sistema e non che si "
-"vogliono includere tra i ricercabili."
+"Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello "
+"di default, e indicare i valori ID dei moduli (di sistema e non) "
+"che si vogliono includere nella ricerca."
+msgstr ""
+
+#: app/searchSite/class_searchSite.php:225
+msgid "Per poter funzionare occorre"
+msgstr ""
+
+#: app/searchSite/class_searchSite.php:227
+msgid ""
+"caricare sul database la funzione <b>replace_ci</b> presente nel file "
+"INSTALL.TXT"
+msgstr ""
+
+#: app/searchSite/class_searchSite.php:228
+msgid ""
+"nei moduli indicati nella ricerca occorre definire e argomentare i metodi "
+"<b>searchSite</b> e <b>searchSiteResult</b>"
 msgstr ""
 
 #: app/statistics/class_statistics.php:76

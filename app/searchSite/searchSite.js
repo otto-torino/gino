@@ -57,8 +57,8 @@ function viewCheckOptions(height_or, width_or) {
 		var height_t = height_or;
 		var width_t = width_or;
 		var close = false;
-		var top = this.getCoordinates().top;
-		var left = this.getCoordinates().left;
+		var top = this.getCoordinates($('searchSite')).top;
+		var left = this.getCoordinates($('searchSite')).left;
 		optionLayer.setStyles({
 			'width': '0px',
 			'height': '0px',
