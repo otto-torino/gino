@@ -14,7 +14,6 @@ class skin extends propertyObject {
 
 		$this->_home = 'index.php';
 		$this->_interface = 'layout';
-
 	}
 	
 	private function initP($id) {
@@ -33,7 +32,6 @@ class skin extends propertyObject {
 		$this->_p['priority'] = $value;
 
 		return true;
-
 	}
 	
 	public function setRexp($value) {
@@ -42,7 +40,6 @@ class skin extends propertyObject {
 		$this->_p['rexp'] = $value;
 
 		return true;
-
 	}
 	
 	public function setAuth($pName) {
@@ -52,7 +49,6 @@ class skin extends propertyObject {
 		$this->_p['auth'] = $value;
 
 		return true;
-
 	}
 	
 	public function setCache($pName) {
@@ -62,7 +58,6 @@ class skin extends propertyObject {
 		$this->_p['cache'] = $value;
 
 		return true;
-
 	}
 
 	public static function getAll($order='priority') {
@@ -83,6 +78,7 @@ class skin extends propertyObject {
 	public static function getSkin($relativeUrl) {
 
 		$db = db::instance();
+		$session = session::instance();
 		$plink = new Link();
 
 		$query = "SELECT id, session, rexp, urls, auth FROM ".self::$_tbl_skin." ORDER BY priority ASC";	
@@ -95,7 +91,7 @@ class skin extends propertyObject {
 
 				if(count($session_array)==2) {
 
-					if(isset($_SESSION[$session_array[0]]) && $_SESSION[$session_array[0]] == $session_array[1]) {
+					if(isset($session->$session_array[0]) && $session->$session_array[0] == $session_array[1]) {
 						
 						$urls = explode(",", $b['urls']);
 
@@ -105,7 +101,7 @@ class skin extends propertyObject {
 							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
 					
 							if($url == $relativeUrl) { 
-								if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+								if($b['auth']=='' || (isset($session->userId) && $b['auth']=='yes') || (!isset($session->userId) && $b['auth']=='no'))
 									return new skin($b['id']);
 							}
 						}
@@ -116,11 +112,10 @@ class skin extends propertyObject {
 					
 							if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
 							{
-								if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+								if($b['auth']=='' || (isset($session->userId) && $b['auth']=='yes') || (!isset($session->userId) && $b['auth']=='no'))
 									return new skin($b['id']);
 							}
 						}
-
 					}
 				}
 			}
@@ -136,7 +131,7 @@ class skin extends propertyObject {
 							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
 					
 						if($url == $relativeUrl) { 
-							if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+							if($b['auth']=='' || (isset($session->userId) && $b['auth']=='yes') || (!isset($session->userId) && $b['auth']=='no'))
 								return new skin($b['id']);
 						}
 					}
@@ -150,11 +145,10 @@ class skin extends propertyObject {
 					
 					if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
 					{
-						if($b['auth']=='' || (isset($_SESSION['userId']) && $b['auth']=='yes') || (!isset($_SESSION['userId']) && $b['auth']=='no'))
+						if($b['auth']=='' || (isset($session->userId) && $b['auth']=='yes') || (!isset($session->userId) && $b['auth']=='no'))
 							return new skin($b['id']);
 					}
 				}
-
 			}
 			return false;
 		}
@@ -177,7 +171,6 @@ class skin extends propertyObject {
 		$result = $db->actionquery($query);
 
 		return $result;
-
 	}
 
 	public static function newSkinPriority() {
