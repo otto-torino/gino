@@ -47,10 +47,13 @@ class Link {
 			$link = "{$class}/{$method}";
 			
 			if($params1 != null)
-				$link .= $this->opLinkToPerm($params1);
+			{
+				$param_sec_exist = $params2 != null ? true : false;
+				$link .= $this->opLinkToPerm($params1, array('param_sec_exist'=>$param_sec_exist));
+			}
 			
 			if($params2 != null)
-				$link .= $this->opLinkToPerm($params2, true);
+				$link .= $this->opLinkToPerm($params2, array('param_sec'=>true));
 		}
 		else
 		{
@@ -376,7 +379,21 @@ class Link {
 		$_SERVER['QUERY_STRING'] = $query_string;
 	}
 	
-	private function opLinkToPerm($params, $secondary=false){
+	/**
+	 * Costruisce un collegamento in formato permalink
+	 * 
+	 * @param string|array	$params		parametri principali/secondari
+	 * 									string: il separatore è '&' (es. id=4&ctg=2)
+	 * 									array: key=>value (array('id'=>4, 'ctg'=>2))
+	 * @param array			$options
+	 * 		boolean param_sec 			indica se si tratta di parametri secondari
+	 * 		boolean param_sec_exist 	indica se nel link sono presenti parametri secondari
+	 * @return string
+	 */
+	private function opLinkToPerm($params, $options=array()){
+		
+		$secondary = array_key_exists('param_sec', $options) ? $options['param_sec']: false;
+		$secondary_exist = array_key_exists('param_sec_exist', $options) ? $options['param_sec_exist']: false;
 		
 		$link = '';
 		
@@ -415,7 +432,7 @@ class Link {
 				{
 					$a_item = explode('=', $item);
 					
-					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form)
+					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 						$link .= '/'.$a_item[1];
 					else
 						$link .= '/'.$a_item[0].'/'.$a_item[1];
@@ -426,7 +443,7 @@ class Link {
 		{
 			foreach($params AS $key=>$value)
 			{
-				if(sizeof($params) == 1 && $key == $this->_field_id && $this->_compressed_form)
+				if(sizeof($params) == 1 && $key == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 					$link .= '/'.$value;
 				else
 					$link .= '/'.$key.'/'.$value;
