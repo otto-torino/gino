@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-23 16:20+0200\n"
+"POT-Creation-Date: 2012-05-15 14:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,8 +69,9 @@ msgstr "register"
 msgid ""
 "Compilare il seguente form di registrazione, in seguito verrà inviata una "
 "mail di conferma in cui si chiederà di confermare la registrazione."
-msgstr "Fill the registration form, then you'll get an email"
-"asking you to confirm the registration."
+msgstr ""
+"Fill the registration form, then you'll get an emailasking you to confirm "
+"the registration."
 
 #: lib/classes/class.account.php:215
 msgid "registrato il '"
@@ -98,7 +99,8 @@ msgstr "Settings"
 #: app/sysClass/class_sysClass.php:492 app/sysconf/class_sysconf.php:46
 #: app/sysconf/class_sysconf.php:118 app/user/class_user.php:635
 #: app/user/class_user.php:687 app/user/class_user.php:1162
-#: app/user/class_user.php:1243
+#: app/user/class_user.php:1243 app/instruments/class_instruments.php:110
+#: app/instruments/class_instruments.php:170
 msgid "modifica"
 msgstr "modify"
 
@@ -141,6 +143,7 @@ msgstr "Company"
 #: app/layout/class_layout.php:411 app/layout/class_layout.php:432
 #: app/layout/class_layout.php:449 app/module/class_module.php:277
 #: app/page/class_page.php:2268 app/user/class_user.php:780
+#: app/instruments/class_instruments.php:185
 msgid "Nome"
 msgstr "Name"
 
@@ -217,8 +220,9 @@ msgstr "Dear Client,"
 msgid ""
 "Per completare la Sua registrazione con successo deve confermare la Sua "
 "richiesta selezionando il link"
-msgstr "To succesfully complete your registration you need to confirm"
-"your request by clicking on the link"
+msgstr ""
+"To succesfully complete your registration you need to confirmyour request by "
+"clicking on the link"
 
 #: lib/classes/class.account.php:529
 msgid "Effetua il login all'indirizzo seguente "
@@ -267,6 +271,7 @@ msgstr "Thank you for registering to the service"
 #: app/menu/class_menu.php:279 app/page/class_page.php:538
 #: app/phpModuleView/class_phpModuleView.php:150
 #: app/searchSite/class_searchSite.php:60 app/user/class_user.php:389
+#: app/instruments/class_instruments.php:50
 msgid "Permessi"
 msgstr "Permits"
 
@@ -280,6 +285,7 @@ msgstr "Permits"
 #: app/phpModuleView/class_phpModuleView.php:200
 #: app/statistics/class_statistics.php:145 app/sysClass/class_sysClass.php:833
 #: app/user/class_user.php:276 app/user/class_user.php:369
+#: app/instruments/class_instruments.php:241
 msgid "Informazioni"
 msgstr "Information"
 
@@ -287,13 +293,15 @@ msgstr "Information"
 msgid ""
 "Gli amministratori di sistema vengono inseriti automaticamente nel gruppo "
 "'responsabili'."
-msgstr "System administrators are automatically insered into the 'responsable' group"
+msgstr ""
+"System administrators are automatically insered into the 'responsable' group"
 
 #: lib/classes/class.admin.php:137
 msgid ""
 "Il gruppo 'responsabili' può svolgere tutte le mansioni previste per gli "
 "altri gruppi."
-msgstr "The 'responsable' group is able to operate on anything other groups can."
+msgstr ""
+"The 'responsable' group is able to operate on anything other groups can."
 
 #: lib/classes/class.admin.php:139
 msgid "Gli utenti di tutti i gruppi devono avere almeno un livello di accesso"
@@ -375,6 +383,7 @@ msgstr "Parent category"
 #: app/module/class_module.php:248 app/module/class_module.php:279
 #: app/module/class_module.php:418 app/sysClass/class_sysClass.php:322
 #: app/sysClass/class_sysClass.php:438
+#: app/instruments/class_instruments.php:186
 msgid "Descrizione"
 msgstr "Description"
 
@@ -408,11 +417,10 @@ msgstr "Watch out!!!"
 msgid ""
 "l'eliminazione è definitiva e comporta l'eliminazione di tutte le "
 "sottocategorie che seguono nell'albero. "
-msgstr "by deleting, you will delete all the sub-categories"
-"following in the tree"
+msgstr ""
+"by deleting, you will delete all the sub-categoriesfollowing in the tree"
 
-#: lib/classes/class.css.php:62
-#: app/imageGenerator/class_imageGenerator.php:74
+#: lib/classes/class.css.php:62 app/imageGenerator/class_imageGenerator.php:74
 #: app/statistics/class_statistics.php:74 app/sysClass/class_sysClass.php:92
 msgid "Elenco"
 msgstr "List"
@@ -485,8 +493,10 @@ msgid ""
 "Upload di fogli di stile da associare eventualmente ad una skin. Il css "
 "viene accodato ai file di default di Gino CMS, pertanto è possibile definire "
 "nuovi stili o sovrascrivere quelli già presenti."
-msgstr "Skin associable style sheets upload. Css will be included after the Gino CMS"
-"default files. So it is possible to define new styles or overwrite existing ones"
+msgstr ""
+"Skin associable style sheets upload. Css will be included after the Gino "
+"CMSdefault files. So it is possible to define new styles or overwrite "
+"existing ones"
 
 #: lib/classes/class.document.php:55
 msgid "skin inesistente"
@@ -500,8 +510,9 @@ msgstr "Email customization"
 msgid ""
 "E' possibile personalizzare l'oggetto e il testo del messaggio. Se l'oggetto "
 "non viene personalizzato verrà visualizzato quello predefinito."
-msgstr "It is possible to customize the subject and the text of the message. "
-"If the subject is not customized, the default one will be used"
+msgstr ""
+"It is possible to customize the subject and the text of the message. If the "
+"subject is not customized, the default one will be used"
 
 #: lib/classes/class.email.php:110
 msgid "Nella preview i testi personalizzati sono sottolineati in arancione."
@@ -839,6 +850,7 @@ msgstr "File deleting query failed"
 #: app/page/class_page.php:2243 app/phpModuleView/class_phpModuleView.php:152
 #: app/searchSite/class_searchSite.php:61
 #: app/statistics/class_statistics.php:47 app/user/class_user.php:390
+#: app/instruments/class_instruments.php:51
 msgid "Opzioni"
 msgstr "Options"
 
@@ -1097,7 +1109,7 @@ msgstr "For any enquire, please write to "
 #: lib/classes/class.skin.php:199 app/attached/class_attached.php:561
 #: app/graphics/class_graphics.php:366 app/language/class_language.php:655
 #: app/page/class_page.php:825 app/sysClass/class_sysClass.php:431
-#: app/user/class_user.php:874
+#: app/user/class_user.php:874 app/instruments/class_instruments.php:171
 msgid "Modifica"
 msgstr "Modify"
 
@@ -1146,8 +1158,9 @@ msgstr "Contents caching time (s)"
 msgid ""
 "Se non si vogliono tenere in cache o non se ne conosce il significato "
 "lasciare vuoto o settare a 0"
-msgstr "If you want to keep in cache or you don't know what the hell it means"
-"leave empty or set to 0"
+msgstr ""
+"If you want to keep in cache or you don't know what the hell it meansleave "
+"empty or set to 0"
 
 #: lib/classes/class.skin.php:222
 msgid "Il campo deve contenere un numero intero"
@@ -1168,10 +1181,11 @@ msgstr "Skin information"
 
 #: lib/classes/class.skin.php:291
 msgid ""
-"In questa sezione si definiscono le skin che comprendono file un css "
-"ed un template e che possono essere associate a"
-msgstr "Here you can define skins linked to a css file"
-"and a template that can be associated to"
+"In questa sezione si definiscono le skin che comprendono un file css ed un "
+"template e che possono essere associate a"
+msgstr ""
+"Here you can define skins linked to a css fileand a template that can be "
+"associated to"
 
 #: lib/classes/class.skin.php:293
 msgid "un url"
@@ -1201,15 +1215,17 @@ msgid ""
 "classi di url appartenenti a skin che hanno un valore di variabile di "
 "sessione; successivamente vengono controllati quelli appartenenti a skin che "
 "non hanno un valore di variabile di sessione."
-msgstr "The search of the link between a skin and a page is performed first"
-"by looking for skins with a session variable with a define value"
+msgstr ""
+"The search of the link between a skin and a page is performed firstby "
+"looking for skins with a session variable with a define value"
 
 #: lib/classes/class.skin.php:300
 msgid ""
 "L'ordine di priorità delle skin è definito dall'ordine in cui compaiono "
 "nell'elenco a sinistra e modificabile per trascinamento."
-msgstr "Priority of skins is define by the sort of the list beside. "
-"It is possible to change by dragging and dropping"
+msgstr ""
+"Priority of skins is define by the sort of the list beside. It is possible "
+"to change by dragging and dropping"
 
 #: lib/classes/class.skin.php:301
 msgid ""
@@ -1257,8 +1273,9 @@ msgid ""
 "In questa sezione è possibile creare dei template da associare ad una skin. "
 "L'associazione del template con un indirizzo (url) dovrà essere effettuato "
 "nella sezione 'skin'."
-msgstr "Here you can create templates that can be used in skins. "
-"The link between templates and URLs should be done in the skin section."
+msgstr ""
+"Here you can create templates that can be used in skins. The link between "
+"templates and URLs should be done in the skin section."
 
 #: lib/classes/class.template.php:93
 msgid "Procedura di utilizzo (ovvero come associare un template a una pagina)"
@@ -1311,11 +1328,12 @@ msgid ""
 "adatto se si ha in previsione di utilizzarlo all'interno di una skin con un "
 "css che modifichi le dimensioni degli elementi strutturali."
 msgstr ""
-"In the modify and insert form you can find the 'css' field in which can be specified "
-"the style sheet that is insered in the template creation form. By choosing a css file "
-"the style sheet is not automatically linked to the template. This should be done "
-"when the skin is created, but it is used to create an appropriate template if you "
-"think you will use it whitin a skin with a css that modifies structural elements sizes."
+"In the modify and insert form you can find the 'css' field in which can be "
+"specified the style sheet that is insered in the template creation form. By "
+"choosing a css file the style sheet is not automatically linked to the "
+"template. This should be done when the skin is created, but it is used to "
+"create an appropriate template if you think you will use it whitin a skin "
+"with a css that modifies structural elements sizes."
 
 #: lib/classes/class.template.php:115
 msgid ""
@@ -1325,10 +1343,10 @@ msgid ""
 "mentre le navate 'vuote' occuperanno lo spazio in larghezza esattamente come "
 "definito nel template."
 msgstr ""
-"Template structure is formed by blocks containing columns. "
-"Each column can contain as many modules as need. Empty modules will not "
-"occupy any space in the final layout, while empty columns will occupy "
-"the exact space as defined in the template."
+"Template structure is formed by blocks containing columns. Each column can "
+"contain as many modules as need. Empty modules will not occupy any space in "
+"the final layout, while empty columns will occupy the exact space as defined "
+"in the template."
 
 #: lib/classes/class.template.php:129 lib/classes/class.template.php:130
 #: lib/classes/class.template.php:196
@@ -1393,8 +1411,8 @@ msgstr "Select the number of blocks that should compose the layout"
 msgid ""
 "ATTENZIONE: l'aggiunta o l'eliminazione anche soltanto di un blocco può "
 "comportare la necessità di rimettere mano alle classi del <b>CSS</b>, in "
-"quanto cambia la sequenza dei blocchi e quindi il nome di riferimento alla classe "
-"del CSS."
+"quanto cambia la sequenza dei blocchi e quindi il nome di riferimento alla "
+"classe del CSS."
 msgstr ""
 "ATTENTION: by adding or removing a block you may need to modify <b>CSS</b> "
 "classes, because block sequences will change and also the references to the "
@@ -1446,8 +1464,7 @@ msgstr "Delete template"
 msgid ""
 "l'eliminazione determina l'eliminazione del template dalle skin che lo "
 "contengono!"
-msgstr ""
-"By deleting the template you'll loose all the skins including"
+msgstr "By deleting the template you'll loose all the skins including"
 
 #: lib/classes/class.template.php:438
 msgid "Selezione modulo"
@@ -1509,7 +1526,7 @@ msgstr "Attachments"
 #: app/layout/class_layout.php:372 app/menu/class_menu.php:60
 #: app/menu/class_menu.php:410 app/page/class_page.php:78
 #: app/page/class_page.php:863 app/statistics/class_statistics.php:30
-#: app/user/class_user.php:92
+#: app/user/class_user.php:92 app/instruments/class_instruments.php:31
 msgid "Titolo"
 msgstr "Title"
 
@@ -1546,9 +1563,9 @@ msgstr "Before uploading attachment at least a category should be create"
 #: app/language/class_language.php:581 app/layout/class_layout.php:37
 #: app/menu/class_menu.php:282 app/module/class_module.php:86
 #: app/page/class_page.php:540 app/searchSite/class_searchSite.php:62
-#: app/statistics/class_statistics.php:48
-#: app/sysClass/class_sysClass.php:59 app/sysconf/class_sysconf.php:40
-#: app/user/class_user.php:392
+#: app/statistics/class_statistics.php:48 app/sysClass/class_sysClass.php:59
+#: app/sysconf/class_sysconf.php:40 app/user/class_user.php:392
+#: app/instruments/class_instruments.php:52
 msgid "Gestione"
 msgstr "Managing"
 
@@ -1603,8 +1620,7 @@ msgstr "Delete category"
 #: app/attached/class_attached.php:654
 msgid ""
 "l'eliminazione è definitiva e comporta l'eliminazione dei file associati"
-msgstr ""
-"By deleting you will delete also linked files, and cannot undo"
+msgstr "By deleting you will delete also linked files, and cannot undo"
 
 #: app/attached/class_attached.php:746
 msgid "la categoria non contiene allegati"
@@ -1769,16 +1785,15 @@ msgstr "Welcome at GINO, the open source CMS developed by "
 msgid ""
 "Per informazioni riguardo all'utilizzo di GINO CMS ti consigliamo di "
 "consultare la guida all'indirizzo seguente:"
-msgstr ""
-"Info and tutorial about GINO CMS can be found here:"
+msgstr "Info and tutorial about GINO CMS can be found here:"
 
 #: app/index/class_index.php:54
 msgid ""
 "Per incrementare le funzionalità della tua installazione ti invitiamo a "
 "visitare il repository ufficiale di moduli per GINO CMS:"
 msgstr ""
-"To increment the features of you istance, we invite you to visit the "
-"GINO CMS modules offical repository:"
+"To increment the features of you istance, we invite you to visit the GINO "
+"CMS modules offical repository:"
 
 #: app/index/class_index.php:93
 msgid "Amministrazione sistema"
@@ -1820,8 +1835,7 @@ msgstr "Contents are stored in the main language."
 msgid ""
 "In assenza di traduzioni vengono visualizzati sempre i contenuti nella "
 "lingua principale."
-msgstr ""
-"Without translation, contents are shown in the main language."
+msgstr "Without translation, contents are shown in the main language."
 
 #: app/language/class_language.php:667
 msgid "Nuova lingua"
@@ -1873,7 +1887,7 @@ msgid "Non risultano css registrati"
 msgstr "No css insered"
 
 #: app/layout/class_layout.php:371 app/menu/class_menu.php:683
-#: app/page/class_page.php:537
+#: app/page/class_page.php:537 app/instruments/class_instruments.php:259
 msgid "Pagine"
 msgstr "Pages"
 
@@ -1978,8 +1992,8 @@ msgid ""
 "Se non si vogliono tenere in cache o non si è sicuri del significato "
 "lasciare vuoto o settare a 0"
 msgstr ""
-"If you want to keep it in cache or you're not sure about the meaning "
-"leave empty or set to 0"
+"If you want to keep it in cache or you're not sure about the meaning leave "
+"empty or set to 0"
 
 #: app/menu/class_menu.php:123
 msgid "visualizzazione menu"
@@ -2009,15 +2023,13 @@ msgstr "you can link menu item with resources inside or outside the site"
 msgid ""
 "Il modulo di 'ricerca pagine e classi' permette di visualizzare i link "
 "interni."
-msgstr ""
-"'Pages and classes search' module allows you to show inside links"
+msgstr "'Pages and classes search' module allows you to show inside links"
 
 #: app/menu/class_menu.php:402
 msgid ""
 "Per ordinare le voci di menu trascinare l'elemento nella posizione "
 "desiderata."
-msgstr ""
-"To sort menu item, drag and drop the item in the desired position"
+msgstr "To sort menu item, drag and drop the item in the desired position"
 
 #: app/menu/class_menu.php:411
 msgid "<i>titolo mostrato sopra il menu.</i>"
@@ -2061,8 +2073,9 @@ msgid ""
 "click del mouse. Con il Browser Internet Explorer 6 e con la piattaforma "
 "iPod Touch/iPhone l'evento sarà di default sul click.</i>"
 msgstr ""
-"<i>it is possible to choose between rollover or click event to open the submenu item. "
-"With Internet Explorer 6 or with iOS platforms event will always be on click.</i>"
+"<i>it is possible to choose between rollover or click event to open the "
+"submenu item. With Internet Explorer 6 or with iOS platforms event will "
+"always be on click.</i>"
 
 #: app/menu/class_menu.php:439
 msgid ""
@@ -2078,8 +2091,8 @@ msgid ""
 "testuale scrive il percorso alla voce selezionata. Il metodo grafico "
 "evidenzia graficamente tutte le voci fino a quella selezionata.</i>"
 msgstr ""
-"<i>it's a method to trace the menu item selected. Text method writes "
-"the path up to the selected item. Graphic method shows all voices up to the "
+"<i>it's a method to trace the menu item selected. Text method writes the "
+"path up to the selected item. Graphic method shows all voices up to the "
 "selected one</i>"
 
 #: app/menu/class_menu.php:527
@@ -2098,11 +2111,11 @@ msgstr "show all"
 msgid "aggiungi dati"
 msgstr "add"
 
-#: app/menu/class_menu.php:725
+#: app/menu/class_menu.php:725 app/instruments/class_instruments.php:289
 msgid "Classi"
 msgstr "Classes"
 
-#: app/menu/class_menu.php:778
+#: app/menu/class_menu.php:778 app/instruments/class_instruments.php:333
 msgid "non ci sono classi visualizzabili"
 msgstr "no available classes"
 
@@ -2272,8 +2285,7 @@ msgstr "Active"
 #: app/module/class_module.php:469
 msgid ""
 "Assicurarsi di eliminare dai template i moduli che si vogliono disattivare"
-msgstr ""
-"Be sure to delete from templates the modules you want to deactivate"
+msgstr "Be sure to delete from templates the modules you want to deactivate"
 
 #: app/page/class_page.php:79
 msgid "Visualizza titolo in modalità blocco"
@@ -2328,7 +2340,8 @@ msgstr "To create a link to this page use the following code:"
 
 #: app/page/class_page.php:504
 msgid "Una volta creata la pagina è possibile inserirla a menu."
-msgstr "Once the page has been created, it is possible to link it to a menu item"
+msgstr ""
+"Once the page has been created, it is possible to link it to a menu item"
 
 #: app/page/class_page.php:524
 msgid "intestazione"
@@ -2376,7 +2389,7 @@ msgstr "Visible in the page"
 
 #: app/page/class_page.php:866
 msgid "Attiva condivisione social networks"
-msgstr "Social network condivision" 
+msgstr "Social network condivision"
 
 #: app/page/class_page.php:978 app/page/class_page.php:2393
 msgid ""
@@ -2448,8 +2461,7 @@ msgstr "new block"
 msgid ""
 "Layout semplificato. Per una gestione personalizzata delle immagini usare i "
 "relativi strumenti dell'editor di testo."
-msgstr ""
-"Quick layout. Text editor image tools allow better management"
+msgstr "Quick layout. Text editor image tools allow better management"
 
 #: app/page/class_page.php:1485
 msgid "Tipologia di media"
@@ -2463,7 +2475,7 @@ msgstr "Attached file"
 msgid "Media"
 msgstr ""
 
-#: app/page/class_page.php:1581
+#: app/page/class_page.php:1582
 msgid "Link associato"
 msgstr "Associated link"
 
@@ -2521,9 +2533,10 @@ msgid ""
 "disabilitate."
 msgstr ""
 "Php code must return the whole output stored into <b>$buffer</b> variable, "
-"which shout <b>not</b> be reinizialized. Be careful <b>not to print</b> viariable "
-"directly with <b>echo</b> or <b>print()</b>, because in this case contents will be printed "
-"out of the layout.<br/>Executing functions of programs are disabled."
+"which shout <b>not</b> be reinizialized. Be careful <b>not to print</b> "
+"viariable directly with <b>echo</b> or <b>print()</b>, because in this case "
+"contents will be printed out of the layout.<br/>Executing functions of "
+"programs are disabled."
 
 #: app/phpModuleView/class_phpModuleView.php:112
 msgid "Visualizzazione modulo"
@@ -2541,10 +2554,10 @@ msgid ""
 "vietate. Nel caso in cui venisse rilevata la presenza di una di queste "
 "funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo."
 msgstr ""
-"The module allows to execute customizable php code and to visualize the output. "
-"All php functions allowing to execute programs directly on the machine "
-"are forbidden. In case one of such functions will be deteced, the code will not "
-"be executed and output will result null."
+"The module allows to execute customizable php code and to visualize the "
+"output. All php functions allowing to execute programs directly on the "
+"machine are forbidden. In case one of such functions will be deteced, the "
+"code will not be executed and output will result null."
 
 #: app/phpModuleView/class_phpModuleView.php:202
 msgid ""
@@ -2554,9 +2567,9 @@ msgid ""
 "all'interno della variabile <b>$buffer</b>, che verrà stampata all'interno "
 "del layout."
 msgstr ""
-"For a correct integration of the output within the site's layout "
-"it is suggested <b>not</b> to use direct print functions <b>echo</b> eand <b>print</b> "
-"but store the whole output into the <b>$buffer</b> variable."
+"For a correct integration of the output within the site's layout it is "
+"suggested <b>not</b> to use direct print functions <b>echo</b> eand "
+"<b>print</b> but store the whole output into the <b>$buffer</b> variable."
 
 #: app/phpModuleView/class_phpModuleView.php:203
 msgid ""
@@ -2565,17 +2578,17 @@ msgid ""
 "completo sulle variabili, ed in caso di cattvo uso del modulo si potrebbe "
 "seriamente compromettere la visualizzazione del modulo o dell'intero sito."
 msgstr ""
-"Be extermely carefull, because even if the most dangerous php functions are forbidden "
-"you have a complete control on variable and a bad use of the module will compromise "
-"the module and/or web site layout."
+"Be extermely carefull, because even if the most dangerous php functions are "
+"forbidden you have a complete control on variable and a bad use of the "
+"module will compromise the module and/or web site layout."
 
 #: app/searchSite/class_searchSite.php:35
 msgid ""
 "{FIELD}: campo di ricerca<br />{BUTTON}: pulsante di ricerca<br />{CHECK}: "
 "selezione moduli da ricercare"
 msgstr ""
-"{FIELD}: search field<br />{BUTTON}: search button<br />{CHECK}: "
-"select modules"
+"{FIELD}: search field<br />{BUTTON}: search button<br />{CHECK}: select "
+"modules"
 
 #: app/searchSite/class_searchSite.php:36
 #: app/searchSite/class_searchSite.php:37
@@ -2621,20 +2634,18 @@ msgid "Modulo di ricerca nel sito"
 msgstr "Search module"
 
 #: app/searchSite/class_searchSite.php:223
-msgid ""
-"Il modulo mette a disposizione una interfaccia di ricerca nel sito."
-msgstr ""
-"The module makes available an interface of search in the site"
+msgid "Il modulo mette a disposizione una interfaccia di ricerca nel sito."
+msgstr "The module makes available an interface of search in the site"
 
 #: app/searchSite/class_searchSite.php:224
 msgid ""
 "Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello "
-"di default, e indicare i valori ID dei moduli (di sistema e non) "
-"che si vogliono includere nella ricerca."
+"di default, e indicare i valori ID dei moduli (di sistema e non) che si "
+"vogliono includere nella ricerca."
 msgstr ""
-"In the <b>Options</b> tab it is possible to define template substitutive "
-"of that one of default, and to indicate values ID of the modules "
-"(system and not) that they are wanted to be included in the search"
+"In the <b>Options</b> tab it is possible to define template substitutive of "
+"that one of default, and to indicate values ID of the modules (system and "
+"not) that they are wanted to be included in the search"
 
 #: app/searchSite/class_searchSite.php:225
 msgid "Per poter funzionare occorre"
@@ -2642,7 +2653,8 @@ msgstr "For being able to work it is necessary"
 
 #: app/searchSite/class_searchSite.php:227
 msgid ""
-"caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)"
+"caricare sul database la funzione <b>replace_ci</b> presente nel file "
+"INSTALL.TXT"
 msgstr ""
 "to load on database the function <b>replace_ci</b> (see INSTALL.TXT)"
 
@@ -2736,8 +2748,8 @@ msgid ""
 "fine modificare il modulo appena inserito per personalizzarne l'etichetta ed "
 "eventualmente altri parametri."
 msgstr ""
-"Upload module package. If the process will be ok, modify the module once insered "
-"to customize label and other parameters."
+"Upload module package. If the process will be ok, modify the module once "
+"insered to customize label and other parameters."
 
 #: app/sysClass/class_sysClass.php:134 app/sysClass/class_sysClass.php:517
 msgid "Archivio"
@@ -2811,7 +2823,8 @@ msgid ""
 "Per eseguire l'installazione manuale effettuare il submit del form prendendo "
 "come riferimento il file config.txt."
 msgstr ""
-"For manual installation, use submit form form, as shown in the config.txt file"
+"For manual installation, use submit form form, as shown in the config.txt "
+"file"
 
 #: app/sysClass/class_sysClass.php:303
 msgid "In seguito effettuare la procedura indicata"
@@ -2857,8 +2870,7 @@ msgstr "Role 3"
 msgid ""
 "Attenzione! La disattivazione di alcuni moduli potrebbe causare "
 "malfunzionamenti nel sistema"
-msgstr ""
-"Some modules if disactivated can causes system disfunctions"
+msgstr "Some modules if disactivated can causes system disfunctions"
 
 #: app/sysClass/class_sysClass.php:507
 msgid "Upgrade"
@@ -2872,16 +2884,15 @@ msgstr "The installed module version is: "
 msgid ""
 "Verificare se sono presenti aggiornamenti stabili compatibili con il sistema "
 "ed in caso affermativo procedere all'upgrade."
-msgstr ""
-"Check if there are compatible upgrades and, if so, proceed."
+msgstr "Check if there are compatible upgrades and, if so, proceed."
 
 #: app/sysClass/class_sysClass.php:511
 msgid ""
 "Nel caso si verificassero errori gravi viene comunque effettuato un dump "
 "dell'intero database all'interno della cartella <b>backup</b>."
 msgstr ""
-"In case of serious mistakes, a dump of the entire database "
-"can be found in the <b>backup</b> folder"
+"In case of serious mistakes, a dump of the entire database can be found in "
+"the <b>backup</b> folder"
 
 #: app/sysClass/class_sysClass.php:518
 msgid "Upgrade del modulo"
@@ -2926,8 +2937,8 @@ msgid ""
 "copiati correttamente. Contattare l'amministratore del sistema per risolvere "
 "il problema."
 msgstr ""
-"Upgrade failed. One or more files have not been sucessfully copied. "
-"Contact system admin to solve the problem."
+"Upgrade failed. One or more files have not been sucessfully copied. Contact "
+"system admin to solve the problem."
 
 #: app/sysClass/class_sysClass.php:745
 msgid "Disinstallazione modulo di sitema"
@@ -2948,7 +2959,8 @@ msgid ""
 " prevede la creazione di istanze, per tanto la sua eliminazione determina "
 "l'eliminazione di ogni istanza e dei dati associati."
 msgstr ""
-" need instances to be created. By deleting it you will delete all instances and data"
+" need instances to be created. By deleting it you will delete all instances "
+"and data"
 
 #: app/sysClass/class_sysClass.php:759
 msgid "Attualmente nel sitema sono presenti le seguenti istanze: "
@@ -2980,9 +2992,9 @@ msgid ""
 "sapendo che è possibile compromettere la stabilità del sistema in caso di "
 "operazioni errate."
 msgstr ""
-"Here system main classes are managed. It is possible to install new classes "
-" or remove those presents (no all of them) and upgraded them. Any change must be made "
-"knowing that system can be damaged by mistakes"
+"Here system main classes are managed. It is possible to install new classes  "
+"or remove those presents (no all of them) and upgraded them. Any change must "
+"be made knowing that system can be damaged by mistakes"
 
 #: app/sysClass/class_sysClass.php:836
 msgid "Per costruire un pacchetto di installazione sono necessari"
@@ -3004,15 +3016,16 @@ msgstr "config file (config.txt)"
 msgid ""
 "Nel file 'config.txt' il parametro 'name' deve corrispondere al nome della "
 "classe."
-msgstr "In the config.txt file the 'name' paramenter should value the class name"
+msgstr ""
+"In the config.txt file the 'name' paramenter should value the class name"
 
 #: app/sysClass/class_sysClass.php:844
 msgid ""
 "Il pacchetto deve avere il formato 'nome_classe'_'qualcosa'.zip (es. "
 "news_pkg.zip) e deve contenere tutti i file a partire dalla stessa directory."
 msgstr ""
-"Package sould have the format 'className'_'something'.zip (i.e. news_pkg.zip) "
-"and should include all files from the same directory"
+"Package sould have the format 'className'_'something'.zip (i.e. news_pkg."
+"zip) and should include all files from the same directory"
 
 #: app/sysClass/class_sysClass.php:846
 msgid "Altri file utili"
@@ -3024,8 +3037,8 @@ msgid ""
 "necessario eseguire le query a mano successivamente. Il nome del file deve "
 "corrispondere al nome della classe."
 msgstr ""
-"File containing table query (i.e. news.sql); if not present every single query "
-"should be performed manually. File and class should have the same name"
+"File containing table query (i.e. news.sql); if not present every single "
+"query should be performed manually. File and class should have the same name"
 
 #: app/sysClass/class_sysClass.php:849
 msgid "file css (es. news.css)"
@@ -3138,8 +3151,9 @@ msgid ""
 "tramite template e quindi di eseguire azioni anche in assenza del segnaposto "
 "nel template."
 msgstr ""
-"Important: leave 'yes' if not sure.<br/>The option allows to upload URL methods before "
-"compiling the layout using templates. It can execute actions even without a marker"
+"Important: leave 'yes' if not sure.<br/>The option allows to upload URL "
+"methods before compiling the layout using templates. It can execute actions "
+"even without a marker"
 
 #: app/sysconf/class_sysconf.php:139 app/sysconf/class_sysconf.php:141
 msgid "Per motori di ricerca"
@@ -3161,15 +3175,17 @@ msgstr "For a correct mobile version css and templates should be customized"
 msgid ""
 "Se si disattivano i permalink impostare 'RewriteEngine' a 'off' nel file ."
 "htaccess."
-msgstr "If you deactivate permalink, you need to reset 'RewriteEngine' to 'off' "
-"into file htacces."
+msgstr ""
+"If you deactivate permalink, you need to reset 'RewriteEngine' to 'off' into "
+"file htacces."
 
 #: app/sysconf/class_sysconf.php:162
 msgid ""
 "Livello base di autenticazione::Livello di utenza a partire dal quale è "
 "prevista la registrazione al sito."
-msgstr "The lower level for registration indicates from what level on "
-"registration is required"
+msgstr ""
+"The lower level for registration indicates from what level on registration "
+"is required"
 
 #: app/sysconf/class_sysconf.php:165
 msgid ""
@@ -3181,8 +3197,9 @@ msgstr "Admin level::from what level on admin tools are available"
 msgid ""
 "Gestione lingue::Gestione di un sito multi-lingua. Le lingue attive e quella "
 "principale sono da settarsi nel modulo Lingue del sistema."
-msgstr "Language management::Management of the multilanguage system. "
-"Languages must be set in the specific module"
+msgstr ""
+"Language management::Management of the multilanguage system. Languages must "
+"be set in the specific module"
 
 #: app/sysconf/class_sysconf.php:171
 msgid ""
@@ -3207,7 +3224,8 @@ msgid ""
 "Caricamento dei metodi richiamati da url::Caricamento ed esecuzione del "
 "metodo invocato tramite URL prima della composizione del layout tramite "
 "template."
-msgstr "URL method uploading::how the URL method is uploaded before layout definition"
+msgstr ""
+"URL method uploading::how the URL method is uploaded before layout definition"
 
 #: app/sysconf/class_sysconf.php:183
 msgid ""
@@ -3230,7 +3248,8 @@ msgstr "Site title::the title visible in the browser window"
 msgid ""
 "Abilita cache::Abilita le funzionalità di caching su file dei contenuti e "
 "dati dei singoli moduli e delle skin"
-msgstr "Cache abilitation::allows cache functions for files and data of every module "
+msgstr ""
+"Cache abilitation::allows cache functions for files and data of every module "
 "and skin."
 
 #: app/sysconf/class_sysconf.php:195
@@ -3241,8 +3260,9 @@ msgstr "empty"
 msgid ""
 "Codice google analytics::Codice da inserire per utilizzare il sistema di "
 "statistiche google analytics"
-msgstr "Google analytics code::the code you get from Google analytics "
-"when registering the site URL"
+msgstr ""
+"Google analytics code::the code you get from Google analytics when "
+"registering the site URL"
 
 #: app/sysconf/class_sysconf.php:203
 msgid ""
@@ -3268,22 +3288,26 @@ msgstr "System admin email::System admin email address"
 msgid ""
 "E-mail invio automatico comunicazioni::Indirizzo e-mail utilizzato per "
 "inviare comunicazioni automatiche da parte del sistema"
-msgstr "System messages email::Email used by the system to send automatic email"
+msgstr ""
+"System messages email::Email used by the system to send automatic email"
 
 #: app/sysconf/class_sysconf.php:214
 msgid ""
 "Ottimizzazione per dispositivi mobili::Attiva il riconoscimento di "
 "dispositivi mobili. E' necessario configurare correttamente i template e le "
 "skin per una corretta visualizzazione."
-msgstr "Optimization for mobile devices::A different layout will be used on mobile devices."
+msgstr ""
+"Optimization for mobile devices::A different layout will be used on mobile "
+"devices."
 
 #: app/sysconf/class_sysconf.php:217
 msgid ""
 "Contenuto del file robots.txt::Il file robots.txt viene utilizzato per "
 "fornire indicazioni riguardo all'indicizzazione dei contenuti del sito nei "
 "motori di ricerca"
-msgstr "Robot.txt file content::The robot.txt file is used by search engines "
-"to indicize web sites"
+msgstr ""
+"Robot.txt file content::The robot.txt file is used by search engines to "
+"indicize web sites"
 
 #: app/sysconf/class_sysconf.php:220
 msgid ""
@@ -3569,3 +3593,18 @@ msgstr "Username not available!"
 #: app/user/class_user.php:1531
 msgid "Username disponibile!"
 msgstr "Available username!"
+
+#: app/instruments/class_instruments.php:93
+msgid "Elenco strumenti"
+msgstr "Instruments list"
+
+#: app/instruments/class_instruments.php:129
+msgid "non risultano strumenti disponibili."
+msgstr "No instrument available"
+
+#: app/instruments/class_instruments.php:243
+msgid ""
+"In questa sezione sono raggruppati alcuni strumenti utili per la costruzione "
+"di un sito internet a partire da gino o per la modifica/sviluppo del CMS."
+msgstr ""
+"Some useful instruments for the construction of an Internet site are grouped " "in this section."

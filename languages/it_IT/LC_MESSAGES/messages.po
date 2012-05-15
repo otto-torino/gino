@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-23 16:20+0200\n"
+"POT-Creation-Date: 2012-05-15 14:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,7 +97,8 @@ msgstr ""
 #: app/sysClass/class_sysClass.php:492 app/sysconf/class_sysconf.php:46
 #: app/sysconf/class_sysconf.php:118 app/user/class_user.php:635
 #: app/user/class_user.php:687 app/user/class_user.php:1162
-#: app/user/class_user.php:1243
+#: app/user/class_user.php:1243 app/instruments/class_instruments.php:110
+#: app/instruments/class_instruments.php:170
 msgid "modifica"
 msgstr ""
 
@@ -140,6 +141,7 @@ msgstr ""
 #: app/layout/class_layout.php:411 app/layout/class_layout.php:432
 #: app/layout/class_layout.php:449 app/module/class_module.php:277
 #: app/page/class_page.php:2268 app/user/class_user.php:780
+#: app/instruments/class_instruments.php:185
 msgid "Nome"
 msgstr ""
 
@@ -265,6 +267,7 @@ msgstr ""
 #: app/menu/class_menu.php:279 app/page/class_page.php:538
 #: app/phpModuleView/class_phpModuleView.php:150
 #: app/searchSite/class_searchSite.php:60 app/user/class_user.php:389
+#: app/instruments/class_instruments.php:50
 msgid "Permessi"
 msgstr ""
 
@@ -278,6 +281,7 @@ msgstr ""
 #: app/phpModuleView/class_phpModuleView.php:200
 #: app/statistics/class_statistics.php:145 app/sysClass/class_sysClass.php:833
 #: app/user/class_user.php:276 app/user/class_user.php:369
+#: app/instruments/class_instruments.php:241
 msgid "Informazioni"
 msgstr ""
 
@@ -373,6 +377,7 @@ msgstr ""
 #: app/module/class_module.php:248 app/module/class_module.php:279
 #: app/module/class_module.php:418 app/sysClass/class_sysClass.php:322
 #: app/sysClass/class_sysClass.php:438
+#: app/instruments/class_instruments.php:186
 msgid "Descrizione"
 msgstr ""
 
@@ -833,6 +838,7 @@ msgstr ""
 #: app/page/class_page.php:2243 app/phpModuleView/class_phpModuleView.php:152
 #: app/searchSite/class_searchSite.php:61
 #: app/statistics/class_statistics.php:47 app/user/class_user.php:390
+#: app/instruments/class_instruments.php:51
 msgid "Opzioni"
 msgstr ""
 
@@ -1091,7 +1097,7 @@ msgstr ""
 #: lib/classes/class.skin.php:199 app/attached/class_attached.php:561
 #: app/graphics/class_graphics.php:366 app/language/class_language.php:655
 #: app/page/class_page.php:825 app/sysClass/class_sysClass.php:431
-#: app/user/class_user.php:874
+#: app/user/class_user.php:874 app/instruments/class_instruments.php:171
 msgid "Modifica"
 msgstr ""
 
@@ -1369,8 +1375,8 @@ msgstr ""
 msgid ""
 "ATTENZIONE: l'aggiunta o l'eliminazione anche soltanto di un blocco può "
 "comportare la necessità di rimettere mano alle classi del <b>CSS</b>, in "
-"quanto cambia la sequenza dei blocchi e quindi il nome di riferimento alla classe "
-"del CSS."
+"quanto cambia la sequenza dei blocchi e quindi il nome di riferimento alla "
+"classe del CSS."
 msgstr ""
 
 #: lib/classes/class.template.php:249
@@ -1481,7 +1487,7 @@ msgstr ""
 #: app/layout/class_layout.php:372 app/menu/class_menu.php:60
 #: app/menu/class_menu.php:410 app/page/class_page.php:78
 #: app/page/class_page.php:863 app/statistics/class_statistics.php:30
-#: app/user/class_user.php:92
+#: app/user/class_user.php:92 app/instruments/class_instruments.php:31
 msgid "Titolo"
 msgstr ""
 
@@ -1518,9 +1524,9 @@ msgstr ""
 #: app/language/class_language.php:581 app/layout/class_layout.php:37
 #: app/menu/class_menu.php:282 app/module/class_module.php:86
 #: app/page/class_page.php:540 app/searchSite/class_searchSite.php:62
-#: app/statistics/class_statistics.php:48
-#: app/sysClass/class_sysClass.php:59 app/sysconf/class_sysconf.php:40
-#: app/user/class_user.php:392
+#: app/statistics/class_statistics.php:48 app/sysClass/class_sysClass.php:59
+#: app/sysconf/class_sysconf.php:40 app/user/class_user.php:392
+#: app/instruments/class_instruments.php:52
 msgid "Gestione"
 msgstr ""
 
@@ -1838,7 +1844,7 @@ msgid "Non risultano css registrati"
 msgstr ""
 
 #: app/layout/class_layout.php:371 app/menu/class_menu.php:683
-#: app/page/class_page.php:537
+#: app/page/class_page.php:537 app/instruments/class_instruments.php:259
 msgid "Pagine"
 msgstr ""
 
@@ -2052,11 +2058,11 @@ msgstr ""
 msgid "aggiungi dati"
 msgstr ""
 
-#: app/menu/class_menu.php:725
+#: app/menu/class_menu.php:725 app/instruments/class_instruments.php:289
 msgid "Classi"
 msgstr ""
 
-#: app/menu/class_menu.php:778
+#: app/menu/class_menu.php:778 app/instruments/class_instruments.php:333
 msgid "non ci sono classi visualizzabili"
 msgstr ""
 
@@ -2374,7 +2380,7 @@ msgid "procedi"
 msgstr ""
 
 #: app/page/class_page.php:1166
-msgid "seleziona un\\' azione"
+msgid "seleziona un' azione"
 msgstr ""
 
 #: app/page/class_page.php:1305
@@ -2553,15 +2559,14 @@ msgid "Modulo di ricerca nel sito"
 msgstr ""
 
 #: app/searchSite/class_searchSite.php:223
-msgid ""
-"Il modulo mette a disposizione una interfaccia di ricerca nel sito."
+msgid "Il modulo mette a disposizione una interfaccia di ricerca nel sito."
 msgstr ""
 
 #: app/searchSite/class_searchSite.php:224
 msgid ""
 "Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello "
-"di default, e indicare i valori ID dei moduli (di sistema e non) "
-"che si vogliono includere nella ricerca."
+"di default, e indicare i valori ID dei moduli (di sistema e non) che si "
+"vogliono includere nella ricerca."
 msgstr ""
 
 #: app/searchSite/class_searchSite.php:225
@@ -3465,4 +3470,18 @@ msgstr ""
 
 #: app/user/class_user.php:1531
 msgid "Username disponibile!"
+msgstr ""
+
+#: app/instruments/class_instruments.php:93
+msgid "Elenco strumenti"
+msgstr ""
+
+#: app/instruments/class_instruments.php:129
+msgid "non risultano strumenti disponibili."
+msgstr ""
+
+#: app/instruments/class_instruments.php:243
+msgid ""
+"In questa sezione sono raggruppati alcuni strumenti utili per la costruzione "
+"di un sito internet a partire da gino o per la modifica/sviluppo del CMS."
 msgstr ""
