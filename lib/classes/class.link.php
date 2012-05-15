@@ -47,10 +47,13 @@ class Link {
 			$link = "{$class}/{$method}";
 			
 			if($params1 != null)
-				$link .= $this->opLinkToPerm($params1);
+			{
+				$param_sec_exist = $params2 != null ? true : false;
+				$link .= $this->opLinkToPerm($params1, array('param_sec_exist'=>$param_sec_exist));
+			}
 			
 			if($params2 != null)
-				$link .= $this->opLinkToPerm($params2, true);
+				$link .= $this->opLinkToPerm($params2, array('param_sec'=>true));
 		}
 		else
 		{
@@ -232,7 +235,8 @@ class Link {
 	 * 		string vserver			variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
 	 * 		boolean pToLink			conversione dal formato permalink a quello di gino (di default è il contrario)
 	 * 		boolean basename		opzione per il metodo permalinkToLink; se vero antepone il basename al link (vedi class.skin.php)
-	 * 		boolean setServerVar	reimposta le variabili del server indicate nel metodo setServerVar(). Operazione effettuata dalla classe document
+	 * 		boolean setServerVar	reimposta le variabili del server indicate nel metodo setServerVar(). Operazione richiesta dalla classe document
+	 * 		boolean SetDataVar		reimposta le variabili GET e REQUEST. Operazione richiesta dalla classe document
 	 * @return string
 	 * 
 	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
@@ -243,6 +247,7 @@ class Link {
 		$vserver = array_key_exists('vserver', $options) ? $options['vserver']: '';
 		$basename = array_key_exists('basename', $options) ? $options['basename'] : false;
 		$setServerVar = array_key_exists('setServerVar', $options) ? $options['setServerVar'] : false;
+		$setDataVar = array_key_exists('setDataVar', $options) ? $options['setDataVar'] : false;
 		
 		if($vserver != '')
 		{
@@ -263,7 +268,7 @@ class Link {
 		
 		if($pToLink || !$this->_permalinks)
 		{
-			$link = $this->permalinkToLink($query_string, $basename);
+			$link = $this->permalinkToLink($query_string, $basename, $setDataVar);
 			
 			if($setServerVar)
 				$this->setServerVar($link);
@@ -289,7 +294,7 @@ class Link {
 		return $link;
 	}
 	
-	private function permalinkToLink($query_string, $basename){
+	private function permalinkToLink($query_string, $basename, $setDataVar=false){
 		
 		$basename = $basename ? 'index.php?' : '';
 		
@@ -299,8 +304,11 @@ class Link {
 		if(sizeof($array) == 2)
 		{
 			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
-			$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
-			$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
+			if($setDataVar)
+			{
+				$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
+				$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
+			}
 		}
 		elseif(sizeof($array) > 2)
 		{
@@ -338,8 +346,11 @@ class Link {
 			}
 			
 			// Ridefinizione delle variabili GET / REQUEST
-			$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
-			$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
+			if($setDataVar)
+			{
+				$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
+				$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
+			}
 			
 			if($string_get != '')
 				$string_get = substr($string_get, 1);
@@ -350,7 +361,7 @@ class Link {
 			{
 				foreach($a_string_get AS $value)
 				{
-					if($value != '')
+					if($value != '' && $setDataVar)
 					{
 						$a_value = explode('=', $value);
 						$_GET[$a_value[0]] = $a_value[1];
@@ -368,7 +379,21 @@ class Link {
 		$_SERVER['QUERY_STRING'] = $query_string;
 	}
 	
-	private function opLinkToPerm($params, $secondary=false){
+	/**
+	 * Costruisce un collegamento in formato permalink
+	 * 
+	 * @param string|array	$params		parametri principali/secondari
+	 * 									string: il separatore è '&' (es. id=4&ctg=2)
+	 * 									array: key=>value (array('id'=>4, 'ctg'=>2))
+	 * @param array			$options
+	 * 		boolean param_sec 			indica se si tratta di parametri secondari
+	 * 		boolean param_sec_exist 	indica se nel link sono presenti parametri secondari
+	 * @return string
+	 */
+	private function opLinkToPerm($params, $options=array()){
+		
+		$secondary = array_key_exists('param_sec', $options) ? $options['param_sec']: false;
+		$secondary_exist = array_key_exists('param_sec_exist', $options) ? $options['param_sec_exist']: false;
 		
 		$link = '';
 		
@@ -407,7 +432,7 @@ class Link {
 				{
 					$a_item = explode('=', $item);
 					
-					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form)
+					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 						$link .= '/'.$a_item[1];
 					else
 						$link .= '/'.$a_item[0].'/'.$a_item[1];
@@ -418,7 +443,7 @@ class Link {
 		{
 			foreach($params AS $key=>$value)
 			{
-				if(sizeof($params) == 1 && $key == $this->_field_id && $this->_compressed_form)
+				if(sizeof($params) == 1 && $key == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 					$link .= '/'.$value;
 				else
 					$link .= '/'.$key.'/'.$value;

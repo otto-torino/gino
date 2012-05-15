@@ -81,7 +81,7 @@ class index extends AbstractEvtClass{
 	public function admin_page(){
 
 		if(!$this->_access->getAccessAdmin()) {
-			$_SESSION['auth_redirect'] = "$this->_home?evt[".$this->_className."-admin_page]";
+			$this->session->auth_redirect = "$this->_home?evt[".$this->_className."-admin_page]";
 			EvtHandler::HttpCall($this->_home, $this->_className.'-auth_page', '');
 		}
 
@@ -103,8 +103,6 @@ class index extends AbstractEvtClass{
 			$htmlsection->content = $GINO;
 		
 			$buffer = $htmlsection->render();
-
-
 		}	
 		if(count($mdls)) {
 		
@@ -122,8 +120,7 @@ class index extends AbstractEvtClass{
 
 			$buffer .= $htmlsection->render();
 
-		}	
-
+		}
 		return $buffer;
 	}
 
@@ -144,7 +141,6 @@ class index extends AbstractEvtClass{
 		}
 
 		return $list;
-	
 	}
 	
 	public function modulesManageArray() {
@@ -164,12 +160,6 @@ class index extends AbstractEvtClass{
 		}
 
 		return $list;
-	
 	}
-
-
-		
-	
-
 }
 ?>

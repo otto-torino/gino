@@ -33,7 +33,6 @@ function __autoload($class)
 }
 
 include_class();
-include_option();
 
 function include_class($dir='')
 {
@@ -56,33 +55,5 @@ function include_class($dir='')
 			}
 		}
    	}
-}
-
-function include_option($dir='')
-{
-	if(empty($dir)) $dir = APP_DIR;
-	
-	if(is_dir($dir))
-	{
-		if($dh = opendir($dir))
-		{
-			while(($file = readdir($dh)) !== false)
-			{
-				if($file == "." || $file == "..") continue;
-				
-				if(is_file($dir.'/'.$file))
-				{
-					//if(strtolower(str_replace('.','',strrchr($file, '.'))) == 'php')
-					
-					if(preg_match("/^(mod_)[a-zA-Z0-9]+(.php)$/", $file))
-					include_once($dir.'/'.$file);
-				}
-				elseif(is_dir($dir.'/'.$file))
-				{
-					include_option($dir.'/'.$file);
-				}
-			}
-		}
-	}
 }
 ?>

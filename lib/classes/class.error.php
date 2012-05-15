@@ -42,7 +42,6 @@ class error {
 			35=>_("il codice inserito è già presente, scegliere un altro codice"),
 			36=>_("il formato del codice non è valido")
 		);
-
 	}
 
 	public static function syserrorMessage($class, $function, $message, $line=null) {
@@ -72,7 +71,6 @@ class error {
 		$buffer .= "</html>";
 
 		echo $buffer;
-
 	}
 	
 	public static function errorMessage($message, $link) {
@@ -87,22 +85,24 @@ class error {
 			$buffer .= _("Suggerimenti:");
 			$buffer .= " ".jsVar($message['hint']);
 		}
-		$_SESSION['GINOERRORMSG'] = $buffer;
+		$session = session::instance();
+		$session->GINOERRORMSG = $buffer;
 
 		header("Location: $link");
-
 	}
 
 	public static function getErrorMessage() {
 
-		$errorMsg = (isset($_SESSION['GINOERRORMSG']))?$_SESSION['GINOERRORMSG']:"";
-		unset($_SESSION['GINOERRORMSG']);
-
+		$session = session::instance();
+		
+		if(isset($session->GINOERRORMSG))
+		{
+			$errorMsg = $session->GINOERRORMSG;
+			unset($session->GINOERRORMSG);
+		}
+		else $errorMsg = '';
+		
 		return $errorMsg;
-
 	}
-
-
 }
-
 ?>

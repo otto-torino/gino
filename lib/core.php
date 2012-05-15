@@ -1,8 +1,6 @@
 <?php
 
-include_once(LIB_DIR.OS."singleton.php");
 include_once(CLASSES_DIR.OS."class.registry.php");
-
 include(LIB_DIR.OS."main.php");
 
 $core = new core();

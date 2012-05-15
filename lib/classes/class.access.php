@@ -7,7 +7,7 @@ class Access extends pub {
 	protected $_home;
 	protected $_log_access, $_username_email;
 	protected $_crypt;
-	protected $_db;
+	protected $_db, $session;
 	protected $_session_user, $_session_role, $_access_admin;
 
 	private $_block_page;
@@ -15,6 +15,7 @@ class Access extends pub {
 	function __construct(){
 
 		$this->_db = db::instance();
+		$this->session = session::instance();
 
 		$this->_home = HOME_FILE;
 		$this->_crypt = pub::variable('password_crypt');
@@ -23,7 +24,7 @@ class Access extends pub {
 		
 		$this->defaultRole();
 
-		if(isset($_SESSION['userId'])) $this->_session_user = $_SESSION['userId']; else $this->_session_user = 0;
+		if(isset($this->session->userId)) $this->_session_user = $this->session->userId; else $this->_session_user = 0;
 		$this->_session_role = $this->userRole();
 		$this->_access_admin = pub::variable('admin_role');
 
@@ -60,9 +61,9 @@ class Access extends pub {
 				$user_id = $b["user_id"];
 				$role = $b["role"];
 				
-				$_SESSION["userId"] = $user_id;
-				$_SESSION["userName"] = htmlChars($b["firstname"].' '.$b["lastname"]);
-				$_SESSION["userRole"] = $role;
+				$this->session->userId = $user_id;
+				$this->session->userName = htmlChars($b["firstname"].' '.$b["lastname"]);
+				$this->session->userRole = $role;
 				
 				if($this->_log_access == 'yes') $this->logAccess($user_id);
 			}
@@ -117,8 +118,7 @@ class Access extends pub {
 		}
 		elseif((isset($_GET['action']) && $_GET['action']=='logout')) {
 			
-			$_SESSION = array();	// svuoto la sessione
-			session_destroy();		// destroy session
+			$this->session->destroy();
 			header("Location: ".$this->_home."?logout");
 		}
 	}
@@ -134,9 +134,9 @@ class Access extends pub {
 
 		$self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
 
-		$redirect = isset($_SESSION['auth_redirect'])
-				?$_SESSION['auth_redirect']
-				:(isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING']=='evt[index-auth_page]'
+		$redirect = isset($this->session->auth_redirect)
+				? $this->session->auth_redirect
+				: (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING']=='evt[index-auth_page]'
 					? $this->_home
 					: $self);
 
@@ -185,7 +185,6 @@ class Access extends pub {
 
 			$field = $role=='user' ? "role1":($role=='user2'?"role2":"role3");
 			$value = $this->queryClassRole($class_name, $field, $instance);
-			
 		}
 		
 		if(empty($value))
@@ -308,10 +307,9 @@ class Access extends pub {
 	private function blockUser($message, $redirect, $options) {
 	
 		if(isset($options['logout']) && $options['logout']===true) {
-			unset($_SESSION);
-			session_destroy();
-			session_name(SESSION_NAME);
-			session_start();
+			
+			$this->session->destroy();
+			$this->session->startSession(SESSION_NAME);
 		}
 
 		exit(error::errorMessage(array('error'=>$message), $redirect));

@@ -118,19 +118,8 @@ class account extends pub {
 	/**
 	 * Login Form
 	 *
+	 * @param string	$classname
 	 * @return string
-	 * 
-	 * @example 
-	 * if(!$this->_access->AccessVerifyIf())
-	 * {
-	 * 		$_SESSION['url_access'] = $this->_url_access;	// -> "evt[".$this->_className."-compileOrder]";
-	 * 		$_SESSION['url_error'] = $this->_url_error;		// -> "evt[".$this->_className."-compileOrder]";
-	 *		
-	 *		$GINO = EvtHandler::html_header();
-	 *		$GINO .= $this->_account->login($this->_className);
-	 *		echo $GINO;
-	 *		return false;
-	 * }
 	 */
 	public function login($classname=null) {
 	
@@ -552,7 +541,6 @@ class account extends pub {
 			array("prefix_file"=>user::$prefix_img, "prefix_thumb"=>user::$prefix_thumb, "width"=>user::$width_img, "thumb_width"=>user::$width_thumb));
 		
 		EvtHandler::HttpCall($this->_home, $redirect_true, $link);
-
 	}
 	
 	private function mailNewRegistration($to, $name, $surname, $user, $password, $link, $email_id){

@@ -28,6 +28,7 @@ $docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SER
 define('SITE_WWW', preg_replace("#".preg_quote($docroot)."?#", "", $siteroot));
 
 include('settings.php');
+include(LIB_DIR.OS."singleton.php");
 include(LIB_DIR.OS."session.php");
 include(CORE);
 ?>

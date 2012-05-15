@@ -220,8 +220,13 @@ class searchSite extends AbstractEvtClass {
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modulo di ricerca nel sito")));
 
-		$buffer = "<p>"._("Definire un template nelle opzioni, altrimenti verrà utilizzato il template di default.")."</p>";
-		$buffer .= "<p>"._("Nelle opzioni bisogna inserire gli ID dei moduli di sistema e non che si vogliono includere tra i ricercabili.")."</p>";
+		$buffer = "<p>"._("Il modulo mette a disposizione una interfaccia di ricerca nel sito.")."</p>";
+		$buffer .= "<p>"._("Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello di default, e indicare i valori ID dei moduli (di sistema e non) che si vogliono includere nella ricerca.")."</p>";
+		$buffer .= "<p>"._("Per poter funzionare occorre")."</p>";
+		$buffer .= "<ul>";
+		$buffer .= "<li>"._("caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)")."</li>";
+		$buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
+		$buffer .= "</ul>";
 
 		$htmlsection->content = $buffer;
 

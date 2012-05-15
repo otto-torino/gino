@@ -66,10 +66,11 @@
 		$this->_db = db::instance();
 		$this->_p = $data;
 	
-		$this->_lng_dft = $_SESSION['lngDft'];
-		$this->_lng_nav = $_SESSION['lng'];
+		$session = session::instance();
+	
+		$this->_lng_dft = $session->lngDft;
+		$this->_lng_nav = $session->lng;
 		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
-
 	}
 	
 	public function __get($pName) {

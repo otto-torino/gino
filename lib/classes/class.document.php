@@ -2,7 +2,7 @@
 
 class Document {
 
-	private $_registry, $_db, $_plink;
+	private $_registry, $_db, $session, $_plink;
 	private $_tbl_module_app, $_tbl_module;
 	private $_instances;
 
@@ -14,6 +14,7 @@ class Document {
 	
 		$this->_registry = registry::instance();
 		$this->_db = db::instance();
+		$this->session = session::instance();
 		
 		$this->_plink = new link();
 		$this->_tbl_module_app = 'sys_module_app';
@@ -23,7 +24,7 @@ class Document {
 
 		$access = new access();
 		$this->_session_role = $access->userRole();
-		$this->_auth = (isset($_SESSION['userId']))? true:false;
+		$this->_auth = isset($this->session->userId) ? true : false;
 	}
 
 	/**
@@ -38,7 +39,7 @@ class Document {
 
 		if(pub::variable('permalinks') == 'yes')
 		{
-			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
+			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
 			
 			$script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
 			$query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
@@ -57,7 +58,7 @@ class Document {
 		$buffer = '';
 
 		$cache = new outputCache($buffer, $skinObj->cache ? true : false);
-		if($cache->start('skin', $query_string.$_SESSION['lng'].$skinObj->id, $skinObj->cache)) {
+		if($cache->start('skin', $query_string.$this->session->lng.$skinObj->id, $skinObj->cache)) {
 
 			$this->initHeadVariables($skinObj);
 			
@@ -67,6 +68,7 @@ class Document {
 			$tplContent = file_get_contents($template);
 			$regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
 			$content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
+			if($content === null) exit("PCRE Error! Subject too large or complex.");
 
 			$headline = $this->headLine($skinObj);
 			$footline = $this->footLine();
@@ -115,35 +117,12 @@ class Document {
 		$evt = $this->getEvent();
 		$instance = is_null($evt) ? null : $evt[1];
 
-		$copyright = "<!--
-================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti and abidibo
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================
--->\n";
-
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) { 
+		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) { 
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
 			$headline = "<!DOCTYPE html>\n";
 		}
-		$headline .= $copyright;
 		$headline .= "<html lang=\"".LANG."\">\n";
 		$headline .= "<head>\n";
 		$headline .= "<meta charset=\"utf-8\" />\n";
@@ -154,7 +133,7 @@ class Document {
 		
 		if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
 		if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($_SESSION['L_mobile'])) {
+		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) {
 			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
 		}
 		$headline .= $this->_registry->variables('head_links');
@@ -222,7 +201,7 @@ class Document {
 			$mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
 		}
 		elseif($mdlType=='func') $mdlContent = $this->modFunc($mdlId);
-		elseif($mdlType=='' && $mdlId==0) $mdlContent = ($this->_precharge_mdl_url!='no')? $this->_mdl_url_content:$this->modUrl();
+		elseif($mdlType==null && $mdlId==null) $mdlContent = ($this->_precharge_mdl_url!='no')? $this->_mdl_url_content:$this->modUrl();
 		else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
 
 		return $mdlContent;
@@ -365,7 +344,7 @@ class Document {
 
 	private function proxy() {
 	
-		if($_SESSION['userId']==1) {
+		if($this->session->userId == 1) {
 			$_SERVER['REQUEST_URI'] = '/index.php?evt[realtime-map]';
 			$_SERVER['QUERY_STRING'] = 'evt[realtime-map]';
 			$_SERVER['SCRIPT_FILENAME'] = dirname(__FILE__).'index.php';

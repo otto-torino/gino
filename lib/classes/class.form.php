@@ -13,7 +13,7 @@ class Form {
 
 	private $_max_file_size;
 	
-	private $_trd;
+	private $session, $_trd;
 	private $_lng_trl, $_multi_language, $_show_trnsl;
 	private $_trnsl_table, $_trnsl_id;
 	private $_tblLayout;
@@ -34,6 +34,8 @@ class Form {
 	
 	function __construct($formId, $method, $validation, $options=null){
 		
+		$this->session = session::instance();
+		
 		$this->_formId = $formId;
 		$this->setMethod($method);
 		$this->setValidation($validation);	// js:validateForm();
@@ -50,9 +52,9 @@ class Form {
 		$this->_lng_trl = new language;
 		$this->_multi_language = pub::getMultiLanguage();
 		$this->_show_trnsl = SHOW_TRNSL;
-		$this->_trd = new translation($_SESSION['lng'], $_SESSION['lngDft']);
+		$this->_trd = new translation($this->session->lng, $this->session->lngDft);
 		
-		if(!isset($_SESSION)) session_start();
+		//if(!isset($_SESSION)) session_start();
 		
 		$this->_prefix_file = 'img_';
 		$this->_prefix_thumb = 'thumb_';
@@ -110,18 +112,18 @@ class Form {
 	
 	private function generateFormToken($formName) {
   		$token = md5(uniqid(microtime(), true));
-  		$_SESSION[$formName.'_token'] = $token;
+  		$this->session->{$formName.'_token'} = $token;
   		return $token;
 	}
 
 	private function verifyFormToken($formName) {
   		$index = $formName.'_token';
 		// There must be a token in the session
-  		if (!isset($_SESSION[$index])) return false;
+  		if(!isset($this->session->$index)) return false;
   		// There must be a token in the form
-  		if (!isset($_POST['token'])) return false;
+  		if(!isset($_POST['token'])) return false;
   		// The token must be identical
-  		if ($_SESSION[$index] !== $_POST['token']) return false;
+  		if($this->session->$index !== $_POST['token']) return false;
   		return true;
 	}
 
@@ -133,28 +135,29 @@ class Form {
 	 * @return global
 	 */
 	public function load($session_value, $clear=true){
-		if(isset($_SESSION[$session_value]))
+		
+		if(isset($this->session->$session_value))
 		{
-			if(isset($_SESSION['GINOERRORMSG']) AND !empty($_SESSION['GINOERRORMSG']))
+			if(isset($this->session->GINOERRORMSG) AND !empty($this->session->GINOERRORMSG))
 			{
-				for($a=0, $b=count($_SESSION[$session_value]); $a < $b; $a++)
+				for($a=0, $b=count($this->session->$session_value); $a < $b; $a++)
 				{
-					foreach($_SESSION[$session_value][$a] as $key => $value)
+					foreach($this->session->$session_value[$a] as $key => $value)
 					{
 						$GLOBALS[$this->_method][$key] = $value;
 					}
 				}
 			}
 			
-			if($clear) unset($_SESSION[$session_value]);
+			if($clear) unset($this->session->$session_value);
 		}
 	}
 	
 	public function save($session_value){
 		
-		$_SESSION[$session_value] = Array();
+		$this->session->$session_value = Array();
 		foreach($this->_requestVar as $key => $value)
-			array_push($_SESSION[$session_value], Array($key => $value));
+			array_push($this->session->$session_value, Array($key => $value));
 	}
 	
 	public function retvar($name, $default){
@@ -283,7 +286,6 @@ class Form {
 	public function arequired(){
 		
 		$required = isset($_REQUEST['required'])? cleanVar($_REQUEST, 'required', 'string', '') : '';
-		
 		$error = 0;
 		
 		if(!empty($required))
@@ -367,8 +369,9 @@ class Form {
 	private function checkDefaultCaptcha() {
 	
 		$captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
-		$result = $captcha == $_SESSION['pass']? true:false;
-		unset($_SESSION['pass']);
+		
+		$result = $captcha == $this->session->pass ? true : false;
+		unset($this->session->pass);
 
 		return $result;
 	}
@@ -384,6 +387,7 @@ class Form {
 	 * 		string other		altro nel tag TD della label
 	 * 		string class_label	classe del tag TD della label
 	 * 		string class		classe dello span della label
+	 * @return string
 	 */
 	public function noinput($label, $value, $options=null) {
 		
@@ -410,6 +414,15 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Tag Input (type hidden)
+	 * 
+	 * @param string $name
+	 * @param mixed $value
+	 * @param array $options
+	 * 		id		string	valore dell'id
+	 * @return string
+	 */
 	public function hidden($name, $value, $options=null) {
 
 		$GFORM = '';
@@ -422,10 +435,11 @@ class Form {
 	}
 	
 	/**
+	 * Tag Input
 	 * 
 	 * @param string $name
 	 * @param string $type
-	 * @param string $value
+	 * @param mixed $value
 	 * @param array $options
 	 * 		id			string	valore dell'id
 	 * 		pattern		string
@@ -459,6 +473,7 @@ class Form {
 	}
 	
 	/**
+	 * Tag Input con Label
 	 * 
 	 * @param string $name
 	 * @param string $type
@@ -533,7 +548,7 @@ class Form {
 	}
 	
 	/**
-	 * Textarea
+	 * Textarea con Label
 	 *
 	 * @param string $name
 	 * @param string $value
@@ -704,6 +719,7 @@ class Form {
 	 * 		required	boolean		campo obbligatorio
 	 * 		classLabel	string		valore CLASS del tag SPAN in <label>
 	 * 		text_add	boolean		testo aggiuntivo stampato sotto il box
+	 * @return string
 	 */
 	public function cradio($name, $value, $data, $default, $label, $options=null){
 		
@@ -731,6 +747,7 @@ class Form {
 	 * 		classField	string		valore CLASS del tag <input>
 	 * 		js			string
 	 * 		other		string
+	 * @return string
 	 */
 	public function radio($name, $value, $data, $default, $options){
 		
@@ -766,6 +783,7 @@ class Form {
 	 * @param array		$options
 	 * @return string
 	 * 
+	 * @example:
 	 * $checked = $value=='yes' ? true:false;
 	 * $buffer .= $gform->ccheckbox('cycle', $checked, 'yes', _("Ciclo"));
 	 */
