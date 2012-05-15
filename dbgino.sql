@@ -126,6 +126,85 @@ CREATE TABLE IF NOT EXISTS `attached_usr` (
 -- --------------------------------------------------------
 
 --
+-- Struttura della tabella `instruments`
+--
+
+CREATE TABLE IF NOT EXISTS `instruments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `description` text NOT NULL,
+  `order_list` smallint(2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- Dump dei dati per la tabella `instruments`
+--
+
+INSERT INTO `instruments` (`id`, `name`, `description`, `order_list`) VALUES
+(1, 'Collegamenti', 'Elenco interfacce e pagine disponibili', 1),
+(2, 'Mime-Type', 'Elenco dei mime type con le estensioni di riferimento', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `instruments_grp`
+--
+
+CREATE TABLE IF NOT EXISTS `instruments_grp` (
+  `id` int(2) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- Dump dei dati per la tabella `instruments_grp`
+--
+
+INSERT INTO `instruments_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
+(2, 'utilizzatori', 'Visualizzano gli strumenti', 'no');
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `instruments_opt`
+--
+
+CREATE TABLE IF NOT EXISTS `instruments_opt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `instance` int(200) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- Dump dei dati per la tabella `instruments_opt`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `instruments_usr`
+--
+
+CREATE TABLE IF NOT EXISTS `instruments_usr` (
+  `instance` int(11) NOT NULL,
+  `group_id` int(2) NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dump dei dati per la tabella `instruments_usr`
+--
+
+
+-- --------------------------------------------------------
+
+--
 -- Struttura della tabella `language`
 --
 
@@ -1234,21 +1313,23 @@ CREATE TABLE IF NOT EXISTS `sys_module_app` (
 --
 
 INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `role3`, `masquerade`, `role_group`, `tbl_name`, `order_list`, `instance`, `description`, `removable`, `class_version`) VALUES
-(1, 'Impostazioni', 'sysconf', 'class', 2, 2, 2, 'no', 0, 'sys_conf', 1, 'no', 'Principali impostazioni di sistema', 'no', '0.9b'),
-(2, 'Lingue', 'language', 'class', 5, 2, 2, 'no', 0, 'language', 2, 'no', 'Gestione delle lingue disponibili per le traduzioni', 'no', '0.9b'),
-(3, 'Moduli di sistema', 'sysClass', 'class', 2, 2, 2, 'no', 0, 'sys_class', 3, 'no', 'Modifica, installazione e rimozione dei moduli di sistema', 'no', '0.9b'),
-(4, 'Moduli', 'module', 'class', 2, 2, 2, 'no', 0, 'sys_module', 4, 'no', 'Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione', 'no', '0.9b'),
-(5, 'Utenti', 'user', 'class', 5, 5, 4, 'no', 1, 'user', 5, 'no', 'Gestione degli utenti di sistema', 'no', '0.9b'),
-(6, 'Statistiche', 'statistics', 'class', 2, 2, 2, 'no', 1, 'sys_stat', 6, 'no', 'Statistiche degli accessi all''area privata', 'no', '0.9b'),
-(7, 'Layout', 'layout', 'class', 2, 2, 2, 'no', 1, 'sys_layout', 7, 'no', 'Gestione di css, template, skin ed assegnazione a indirizzi o classi di indirizzi', 'no', '0.9b'),
-(8, 'Header e Footer', 'graphics', 'class', 5, 2, 2, 'no', 1, 'sys_graphics', 8, 'no', 'Gestione personalizzata degli header e footer del sistema', 'no', '0.9b'),
-(9, 'Allegati', 'attached', 'class', 4, 5, 4, 'no', 1, 'attached', 9, 'no', 'Archivi di file con struttura ad albero', 'no', '0.9b'),
-(10, 'Menu', 'menu', 'class', 5, 5, 4, 'no', 1, 'sys_menu', 10, 'yes', '', 'no', '0.9b'),
-(11, 'Pagine', 'page', 'class', 5, 5, 4, 'no', 1, 'page', 11, 'no', 'Pagine html con struttura ad albero', 'no', '0.9b'),
-(12, 'Index', 'index', 'class', 5, 4, 4, 'no', 1, 'news', 12, 'no', '', 'no', '0.9b'),
-(13, 'Generatore di immagini', 'imageGenerator', 'class', 2, 2, 2, 'no', 1, 'sys_image', 13, 'no', 'Generatore di immagini ', 'no', '0.9b'),
+(1, 'Impostazioni', 'sysconf', 'class', 2, 2, 2, 'no', 0, 'sys_conf', 1, 'no', 'Principali impostazioni di sistema', 'no', '1.0'),
+(2, 'Lingue', 'language', 'class', 5, 2, 2, 'no', 0, 'language', 2, 'no', 'Gestione delle lingue disponibili per le traduzioni', 'no', '1.0'),
+(3, 'Moduli di sistema', 'sysClass', 'class', 2, 2, 2, 'no', 0, 'sys_class', 3, 'no', 'Modifica, installazione e rimozione dei moduli di sistema', 'no', '1.0'),
+(4, 'Moduli', 'module', 'class', 2, 2, 2, 'no', 0, 'sys_module', 4, 'no', 'Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione', 'no', '1.0'),
+(5, 'Utenti', 'user', 'class', 5, 5, 4, 'no', 1, 'user', 5, 'no', 'Gestione degli utenti di sistema', 'no', '1.0'),
+(6, 'Statistiche', 'statistics', 'class', 2, 2, 2, 'no', 1, 'sys_stat', 6, 'no', 'Statistiche degli accessi all''area privata', 'no', '1.0'),
+(7, 'Layout', 'layout', 'class', 2, 2, 2, 'no', 1, 'sys_layout', 7, 'no', 'Gestione di css, template, skin ed assegnazione a indirizzi o classi di indirizzi', 'no', '1.0'),
+(8, 'Header e Footer', 'graphics', 'class', 5, 2, 2, 'no', 1, 'sys_graphics', 8, 'no', 'Gestione personalizzata degli header e footer del sistema', 'no', '1.0'),
+(9, 'Allegati', 'attached', 'class', 4, 5, 4, 'no', 1, 'attached', 9, 'no', 'Archivi di file con struttura ad albero', 'no', '1.0'),
+(10, 'Menu', 'menu', 'class', 5, 5, 4, 'no', 1, 'sys_menu', 10, 'yes', '', 'no', '1.0'),
+(11, 'Pagine', 'page', 'class', 5, 5, 4, 'no', 1, 'page', 11, 'no', 'Pagine html con struttura ad albero', 'no', '1.0'),
+(12, 'Index', 'index', 'class', 5, 4, 4, 'no', 1, '', 12, 'no', '', 'no', '1.0'),
+(13, 'Generatore di immagini', 'imageGenerator', 'class', 2, 2, 2, 'no', 1, 'sys_image', 13, 'no', 'Generatore di immagini ', 'no', '1.0'),
 (14, 'Ricerca nel sito', 'searchSite', 'class', 5, 5, 5, 'no', 1, 'search_site', 14, 'no', 'Form di ricerca nel sito', 'no', '1.0'),
-(15, 'phpModuleView', 'phpModuleView', 'class', 0, 0, 0, 'no', 1, 'php_module', 15, 'yes', 'Generatore di moduli contenenti codice php', 'yes', '0.9b');
+(15, 'phpModuleView', 'phpModuleView', 'class', 0, 0, 0, 'no', 1, 'php_module', 15, 'yes', 'Generatore di moduli contenenti codice php', 'yes', '1.0'),
+(16, 'Strumenti', 'instruments', 'class', 4, 4, 4, 'no', 1, 'instruments', 16, 'no', 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 'no', '1.0');
+
 
 -- --------------------------------------------------------
 
