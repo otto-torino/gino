@@ -227,15 +227,23 @@ class graphics extends AbstractEvtClass{
 		}
 
 		if($type==1 && $image) 
-			$buffer .= "<a href=\"".$this->_home."\"><img src=\"".$this->_graphics_www."/$image\" alt=\"".($this->isHeader($id) ? _("header") : _("footer"))."\" /></a>\n";
+		{
+			$src = $this->_graphics_www."/$image";
+			if($this->isHeader($id))
+			{
+				$buffer .= "<a href=\"".$this->_home."\"><img src=\"$src\" alt=\""._("header")."\" /></a>\n";
+			}
+			else
+			{
+				$buffer .= "<img src=\"$src\" alt=\""._("footer")."\" />\n";
+			}
+		}
 		elseif($type==2) 
 			$buffer .= $html;
 
 		$buffer .= "</section>";
 
 		return $buffer;
-
-
 	}
 	
 	public function manageGraphics(){
