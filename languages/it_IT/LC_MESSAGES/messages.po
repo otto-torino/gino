@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-15 14:40+0200\n"
+"POT-Creation-Date: 2012-05-21 15:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,9 +137,9 @@ msgstr ""
 #: lib/classes/class.account.php:311 lib/classes/class.category.php:174
 #: app/attached/class_attached.php:580
 #: app/imageGenerator/class_imageGenerator.php:147
-#: app/language/class_language.php:679 app/layout/class_layout.php:390
-#: app/layout/class_layout.php:411 app/layout/class_layout.php:432
-#: app/layout/class_layout.php:449 app/module/class_module.php:277
+#: app/language/class_language.php:679 app/layout/class_layout.php:394
+#: app/layout/class_layout.php:415 app/layout/class_layout.php:436
+#: app/layout/class_layout.php:453 app/module/class_module.php:277
 #: app/page/class_page.php:2268 app/user/class_user.php:780
 #: app/instruments/class_instruments.php:185
 msgid "Nome"
@@ -261,9 +261,9 @@ msgstr ""
 #: lib/classes/class.admin.php:38 app/attached/class_attached.php:207
 #: app/graphics/class_graphics.php:246
 #: app/imageGenerator/class_imageGenerator.php:33
-#: app/layout/class_layout.php:36 app/layout/class_layout.php:372
-#: app/layout/class_layout.php:390 app/layout/class_layout.php:411
-#: app/layout/class_layout.php:432 app/layout/class_layout.php:449
+#: app/layout/class_layout.php:35 app/layout/class_layout.php:376
+#: app/layout/class_layout.php:394 app/layout/class_layout.php:415
+#: app/layout/class_layout.php:436 app/layout/class_layout.php:453
 #: app/menu/class_menu.php:279 app/page/class_page.php:538
 #: app/phpModuleView/class_phpModuleView.php:150
 #: app/searchSite/class_searchSite.php:60 app/user/class_user.php:389
@@ -281,7 +281,7 @@ msgstr ""
 #: app/phpModuleView/class_phpModuleView.php:200
 #: app/statistics/class_statistics.php:145 app/sysClass/class_sysClass.php:833
 #: app/user/class_user.php:276 app/user/class_user.php:369
-#: app/instruments/class_instruments.php:241
+#: app/instruments/class_instruments.php:241 app/layout/class_layout.php:484
 msgid "Informazioni"
 msgstr ""
 
@@ -426,11 +426,11 @@ msgstr ""
 msgid "Modifica CSS"
 msgstr ""
 
-#: lib/classes/class.css.php:98
+#: lib/classes/class.css.php:98 app/layout/class_layout.php:555
 msgid "salva"
 msgstr ""
 
-#: lib/classes/class.css.php:99
+#: lib/classes/class.css.php:99 app/layout/class_layout.php:556
 msgid "annulla"
 msgstr ""
 
@@ -668,8 +668,8 @@ msgstr ""
 msgid "Classe"
 msgstr ""
 
-#: lib/classes/class.error.php:62 app/layout/class_layout.php:390
-#: app/layout/class_layout.php:411
+#: lib/classes/class.error.php:62 app/layout/class_layout.php:394
+#: app/layout/class_layout.php:415
 msgid "Funzione"
 msgstr ""
 
@@ -1239,7 +1239,7 @@ msgid ""
 "formato permalink o in quello nativo di gino."
 msgstr ""
 
-#: lib/classes/class.sort.php:121 app/layout/class_layout.php:126
+#: lib/classes/class.sort.php:121 app/layout/class_layout.php:130
 #: app/menu/class_menu.php:548
 msgid "Ordinamento effettuato con successo"
 msgstr ""
@@ -1387,7 +1387,7 @@ msgstr ""
 msgid "blocchi"
 msgstr ""
 
-#: lib/classes/class.template.php:265 app/layout/class_layout.php:378
+#: lib/classes/class.template.php:265 app/layout/class_layout.php:382
 #: app/page/class_page.php:2008
 msgid "Blocco"
 msgstr ""
@@ -1443,7 +1443,7 @@ msgstr ""
 msgid " - Completo"
 msgstr ""
 
-#: lib/classes/class.template.php:645 app/layout/class_layout.php:451
+#: lib/classes/class.template.php:645 app/layout/class_layout.php:455
 msgid "Modulo da url"
 msgstr ""
 
@@ -1484,7 +1484,7 @@ msgid "Allegati"
 msgstr ""
 
 #: app/attached/class_attached.php:69 app/language/class_language.php:45
-#: app/layout/class_layout.php:372 app/menu/class_menu.php:60
+#: app/layout/class_layout.php:376 app/menu/class_menu.php:60
 #: app/menu/class_menu.php:410 app/page/class_page.php:78
 #: app/page/class_page.php:863 app/statistics/class_statistics.php:30
 #: app/user/class_user.php:92 app/instruments/class_instruments.php:31
@@ -1814,71 +1814,71 @@ msgstr ""
 msgid "applica"
 msgstr ""
 
-#: app/layout/class_layout.php:35 app/page/class_page.php:1358
+#: app/layout/class_layout.php:34 app/page/class_page.php:1358
 #: app/page/class_page.php:1477
 msgid "Layout"
 msgstr ""
 
-#: app/layout/class_layout.php:142
+#: app/layout/class_layout.php:146
 msgid "Non risultano skin registrati"
 msgstr ""
 
-#: app/layout/class_layout.php:158
+#: app/layout/class_layout.php:162
 msgid "modifica il template"
 msgstr ""
 
-#: app/layout/class_layout.php:159
+#: app/layout/class_layout.php:163
 msgid "modifica lo schema"
 msgstr ""
 
-#: app/layout/class_layout.php:160
+#: app/layout/class_layout.php:164
 msgid "crea una copia"
 msgstr ""
 
-#: app/layout/class_layout.php:167
+#: app/layout/class_layout.php:171
 msgid "Non risultano template registrati"
 msgstr ""
 
-#: app/layout/class_layout.php:189
+#: app/layout/class_layout.php:193
 msgid "Non risultano css registrati"
 msgstr ""
 
-#: app/layout/class_layout.php:371 app/menu/class_menu.php:683
+#: app/layout/class_layout.php:375 app/menu/class_menu.php:683
 #: app/page/class_page.php:537 app/instruments/class_instruments.php:259
 msgid "Pagine"
 msgstr ""
 
-#: app/layout/class_layout.php:378
+#: app/layout/class_layout.php:382
 msgid "Blocco personalizzabile attraverso le opzioni di pagina"
 msgstr ""
 
-#: app/layout/class_layout.php:379
+#: app/layout/class_layout.php:383
 msgid "Completo"
 msgstr ""
 
-#: app/layout/class_layout.php:379
+#: app/layout/class_layout.php:383
 msgid "Pagina completa"
 msgstr ""
 
-#: app/layout/class_layout.php:389 app/module/class_module.php:85
+#: app/layout/class_layout.php:393 app/module/class_module.php:85
 #: app/module/class_module.php:130
 msgid "Moduli"
 msgstr ""
 
-#: app/layout/class_layout.php:410 app/searchSite/class_searchSite.php:36
+#: app/layout/class_layout.php:414 app/searchSite/class_searchSite.php:36
 #: app/sysClass/class_sysClass.php:58
 msgid "Moduli di sistema"
 msgstr ""
 
-#: app/layout/class_layout.php:431
+#: app/layout/class_layout.php:435
 msgid "Moduli funzione"
 msgstr ""
 
-#: app/layout/class_layout.php:448
+#: app/layout/class_layout.php:452
 msgid "Moduli segnaposto"
 msgstr ""
 
-#: app/layout/class_layout.php:451
+#: app/layout/class_layout.php:455
 msgid "Prende i permessi del modulo chiamato"
 msgstr ""
 
@@ -3484,4 +3484,32 @@ msgstr ""
 msgid ""
 "In questa sezione sono raggruppati alcuni strumenti utili per la costruzione "
 "di un sito internet a partire da gino o per la modifica/sviluppo del CMS."
+msgstr ""
+
+#: app/layout/class_layout.php:36
+msgid "Fogli di stile"
+msgstr ""
+
+#: app/layout/class_layout.php:486
+msgid ""
+"In questa sezione è possibile modificare i fogli di stile (CSS) presenti "
+"nella directory"
+msgstr ""
+
+#: app/layout/class_layout.php:487
+msgid ""
+"Attenzione, le modifiche possono compromettere la buona visualizzazione del "
+"sito."
+msgstr ""
+
+#: app/layout/class_layout.php:496
+msgid "File CSS"
+msgstr ""
+
+#: app/layout/class_layout.php:523
+msgid "modifica il file"
+msgstr ""
+
+#: app/layout/class_layout.php:536
+msgid "Modifica il file CSS"
 msgstr ""
