@@ -268,10 +268,10 @@ CREATE TABLE IF NOT EXISTS `language_translation` (
 --
 
 INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, `text`) VALUES
-(1, 'page_layout', 'name', 'en_US', 'text only'),
-(2, 'page_layout', 'name', 'en_US', 'media only'),
-(3, 'page_layout', 'name', 'en_US', 'media left - text right'),
-(4, 'page_layout', 'name', 'en_US', 'text left - media right'),
+(1, 'page_layout', 'name', 'en_US', 'visual editor'),
+(2, 'page_layout', 'name', 'en_US', 'media (image/video)'),
+(3, 'page_layout', 'name', 'en_US', 'media left - editor right'),
+(4, 'page_layout', 'name', 'en_US', 'editor left - media right'),
 (5, 'page_layout', 'name', 'en_US', 'link to file'),
 (8, 'page_layout', 'name', 'en_US', 'by file'),
 (9, 'page_layout', 'name', 'en_US', 'by html code');
@@ -638,10 +638,10 @@ CREATE TABLE IF NOT EXISTS `page_layout` (
 --
 
 INSERT INTO `page_layout` (`id`, `name`, `img`, `default_value`) VALUES
-(1, 'solo testo', '', 'yes'),
-(2, 'solo media (immagini e video)', '', 'no'),
-(3, 'media a sinistra - testo a destra', '', 'no'),
-(4, 'testo a sinistra - media a destra', '', 'no'),
+(1, 'editor visuale', '', 'yes'),
+(2, 'elemento multimediale (immagine/video)', '', 'no'),
+(3, 'media a sinistra - editor a destra', '', 'no'),
+(4, 'editor a sinistra - media a destra', '', 'no'),
 (5, 'link a un file', '', 'no'),
 (8, 'da file', '', 'no'),
 (9, 'da codice html', '', 'no');
