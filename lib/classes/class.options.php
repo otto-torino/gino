@@ -1,23 +1,16 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * 
+ * Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
+ * Le opzioni che possono essere associate a ciascun campo sono:
+ * 
+ * label			string		nome della label
+ * value			mixed		valore di default
+ * required			boolean		campo obbligatorio
+ * section			boolean		segnala l'inizio di un blocco di opzioni
+ * section_title	string		nome del blocco di opzioni
+ *
+ */
 
 class options extends pub {
 
@@ -55,7 +48,6 @@ class options extends pub {
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
-
 	}
 
 	private function field_class($field, $class_name){
@@ -163,6 +155,13 @@ class options extends pub {
 
 				$field_option = $class_instance->_optionsLabels[$f->name];
 				
+				if(is_array($field_option) && array_key_exists('section', $field_option) && $field_option['section'])
+				{
+					$section_title = array_key_exists('section_title', $field_option) ? $field_option['section_title'] : '';
+					$section_title = "<p class=\"subtitle\">$section_title</p>";
+					$GINO .= $gform->cell($section_title);
+				}
+				
 				if(is_array($field_option) AND array_key_exists('label', $field_option))
 				{
 					$field_label = $field_option['label'];
@@ -190,7 +189,6 @@ class options extends pub {
 					$GINO .= $gform->cinput_date($f->name, dbDateToDate(${$f->name}, '/'),  $field_label, array("required"=>$field_required));
 				}
 				else $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
-
 			}
 		}
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
