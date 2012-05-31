@@ -142,7 +142,7 @@ class Form {
 			{
 				for($a=0, $b=count($this->session->$session_value); $a < $b; $a++)
 				{
-					foreach($this->session->$session_value[$a] as $key => $value)
+					foreach($this->session->{$session_value}[$a] as $key => $value)
 					{
 						$GLOBALS[$this->_method][$key] = $value;
 					}
@@ -156,8 +156,11 @@ class Form {
 	public function save($session_value){
 		
 		$this->session->$session_value = Array();
+		$session_prop = $this->session->$session_value;
 		foreach($this->_requestVar as $key => $value)
-			array_push($this->session->$session_value, Array($key => $value));
+			array_push($session_prop, Array($key => $value));
+		
+		$this->session->$session_value = $session_prop;
 	}
 	
 	public function retvar($name, $default){

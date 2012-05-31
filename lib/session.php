@@ -12,10 +12,13 @@ class session extends singleton {
 
 	// The state of the session
 	private $sessionState = self::SESSION_NOT_STARTED;
+	
+	private $_vars;
 
 	protected function __construct() {
 		
 		$this->startSession();
+		$this->_vars = $_SESSION;
 	}
 	
 	/**
@@ -47,6 +50,7 @@ class session extends singleton {
 	**/
 	public function __set($name , $value)
 	{
+		$this->_vars[$name] = $value;
 		$_SESSION[$name] = $value;
 	}
 
@@ -59,11 +63,7 @@ class session extends singleton {
 	**/
 	public function __get($name)
 	{
-		if(isset($_SESSION[$name]))
-		{
-			return $_SESSION[$name];
-		}
-		else return null;
+		return isset($this->_vars[$name]) ? $this->_vars[$name] : null;
 	}
 
 	public function __isset($name)
@@ -74,6 +74,7 @@ class session extends singleton {
 	public function __unset($name)
 	{
 		unset($_SESSION[$name]);
+		unset($this->_vars[$name]);
 	}
 
 	/**
