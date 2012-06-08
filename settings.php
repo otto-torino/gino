@@ -1,11 +1,26 @@
 <?php
+/**
+ * @file settings.php
+ * @brief Definizione dei percorsi dell'applicazione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * Include il file di configurazione dell'applicazione
+ */
 include('configuration.php');
+
+/**
+ * Separatore di directory
+ * Definito dal sistema operativo
+ */
 define('OS', DIRECTORY_SEPARATOR);
 
-/*
-	Absolute Paths
-*/
+// Percorsi Assoluti
+
 define('CACHE_DIR', SITE_ROOT.OS.'cache');
 define('LIB_DIR', SITE_ROOT.OS.'lib');
 define('CLASSES_DIR', LIB_DIR.OS.'classes');
@@ -40,8 +55,6 @@ define('SITE_EXTRA', SITE_WWW.'/extra');
 define('SITE_LIB', SITE_WWW.'/lib');
 define('SITE_JS', SITE_LIB.'/js');
 define('SITE_CUSTOM_CKEDITOR', SITE_LIB.'/custom_ckeditor');
-//define('SITE_FCK', SITE_LIB.'/fck');
-//define('FCK_FILE', SITE_FCK.'/fckconfig.js');
 
 define('CONTENT_WWW', SITE_WWW.'/contents');
 define('DOC_WWW', CONTENT_WWW.'/documents');

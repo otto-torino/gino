@@ -1,7 +1,23 @@
 <?php
+/**
+ * @file class_imageGenerator.php
+ * @brief Contiene la classe imageGenerator
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+// Include il file class_abiPaint.php
 require_once(APP_DIR.OS."imageGenerator".OS."abiPaint".OS."class_abiPaint.php");
 
+/**
+ * @brief Libreria per la generazione di immagini in formato png
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class imageGenerator extends AbstractEvtClass {
 
 	protected $_instance, $_instanceName;
@@ -22,9 +38,13 @@ class imageGenerator extends AbstractEvtClass {
 
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', 'skin');
-
 	}
 
+	/**
+	 * Interfaccia amministrativa alla generazione di immagini
+	 * 
+	 * @return string
+	 */
 	public function manageImageGenerator() {
 		
 		$this->accessGroup('ALL');
@@ -34,10 +54,8 @@ class imageGenerator extends AbstractEvtClass {
 		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instanceName."-manageImageGenerator]\">"._("Gestione")."</a>";
 		$sel_link = $link_dft;
 
-		// Variables
 		$id = cleanVar($_GET, 'id', 'int', '');
-		// end
-
+		
 		if($this->_block == 'permissions') {
 			$GINO = sysfunc::managePermissions($this->_instance, $this->_className);		
 			$sel_link = $link_admin;
@@ -65,7 +83,6 @@ class imageGenerator extends AbstractEvtClass {
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $GINO;
 		return $htmltab->render();
-
 	}
 	
 	private function listImages($sel_id) {
@@ -94,7 +111,6 @@ class imageGenerator extends AbstractEvtClass {
 				$link_view = " <a onclick=\"window.myWin2 = new layerWindow({'title':'"._("Preview")."', 'html':'".jsVar($html2)."', 'bodyId':'link$id', 'width':580});myWin2.display();\">".$this->icon('view', '')."</a>";
 				
 				$GINO .= $htmlList->item($name, array($link_lnk, $link_view, $link_modify, $link_delete), $selected, true);
-
 			}
 			$GINO .= $htmlList->end();
 		}
@@ -105,7 +121,6 @@ class imageGenerator extends AbstractEvtClass {
 		$htmlsection->content = $GINO;
 		
 		return $htmlsection->render();
-
 	}
 
 	private function formImage($id) {
@@ -172,7 +187,6 @@ class imageGenerator extends AbstractEvtClass {
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 
 	private function info(){
@@ -185,13 +199,11 @@ class imageGenerator extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 
-	public function saveImage() {
-	
-		$this->accessGroup('');
-		$ap = new abiPaint();
-		$ap->saveImage();
-	}
-
+	/**
+	 * Inserisce o modifica un file immagine
+	 * 
+	 * @see abiPaint::saveImage()
+	 */
 	public function actionImage() {
 
 		$this->accessGroup('');
@@ -211,7 +223,6 @@ class imageGenerator extends AbstractEvtClass {
 		$result = $this->_db->actionquery($query);
 
 		EvtHandler::HttpCall($this->_home, $this->_instanceName.'-manageImageGenerator', '');
-
 	}
 
 	public function actionDelImage() {
@@ -230,10 +241,7 @@ class imageGenerator extends AbstractEvtClass {
 		}
 		else
 			exit(error::errorMessage(array('error'=>_("Impossibile eliminare il file")), $this->_home."?evt[$this->_className-manageImageGenerator]"));
-
 	}
-
-
 }
 
 ?>

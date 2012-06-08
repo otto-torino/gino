@@ -1,5 +1,24 @@
 <?php
+/**
+ * @file class_layout.php
+ * @brief Contiene la classe layout
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Gestisce il layout dell'applicazione raggruppando le funzionalità fornite dalle librerie dei css, template e skin
+ * 
+ * @see class.css.php
+ * @see class.template.php
+ * @see class.skin.php
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class layout extends AbstractEvtClass {
 
 	protected $_instance, $_instanceName;
@@ -27,6 +46,14 @@ class layout extends AbstractEvtClass {
 		if(empty($this->_block)) $this->_block = 'css';
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione del layout
+	 * 
+	 * @see manageStyleCss()
+	 * @see layoutList()
+	 * @see template::manageTemplate()
+	 * @return string
+	 */
 	public function manageLayout() {
 
 		$this->accessGroup('ALL');
@@ -46,6 +73,7 @@ class layout extends AbstractEvtClass {
 			$sel_link = $link_style;
 		}
 		else {
+			// Azioni sul template
 			if($this->_block=='template' && $this->_action=='mngtpl') {
 				$id = cleanVar($_POST, 'id', 'int', '');
 				$css = cleanVar($_POST, 'css', 'int', '');
@@ -67,6 +95,7 @@ class layout extends AbstractEvtClass {
 				$tplObj = new template(null);
 				return $tplObj->actionCopyTemplate();
 			}
+			// End
 
 			$buffer = "<div class=\"vertical_1\">";
 			$buffer .= $this->layoutList();
@@ -91,6 +120,14 @@ class layout extends AbstractEvtClass {
 		return $htmltab->render();
 	}
 
+	/**
+	 * Elenchi dei css, template, skin
+	 * 
+	 *  @see skinList()
+	 *  @see templateList()
+	 *  @see cssList()
+	 *  @return string
+	 */
 	private function layoutList() {
 
 		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=$this->_block&action=$this->_act_insert\">".pub::icon('insert')."</a>";
@@ -108,7 +145,6 @@ class layout extends AbstractEvtClass {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	private function skinList() {
@@ -147,7 +183,6 @@ class layout extends AbstractEvtClass {
 		}
 
 		return $buffer;
-
 	}
 	
 	private function templateList() {
@@ -317,7 +352,6 @@ class layout extends AbstractEvtClass {
 		$css->actionCssLayout();
 
 		exit();
-
 	}
 	
 	public function actionDelCss() {
@@ -461,6 +495,13 @@ class layout extends AbstractEvtClass {
 		return $buffer;
 	}
 	
+	/**
+	 * Interfaccia per la gestione dei fogli di stile di gino
+	 * 
+	 * E' possibile modificare i fogli di stile (CSS) presenti nella directory css
+	 * 
+	 * @return string
+	 */
 	private function manageStyleCss() {
 		
 		$fname = cleanVar($_GET, 'fname', 'string', '');
@@ -563,6 +604,9 @@ class layout extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Salva il foglio di stile
+	 */
 	public function actionStyleCss() {
 	
 		$action = cleanVar($_POST, 'action', 'string', '');

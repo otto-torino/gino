@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file class.template.php
+ * @brief Contiene la classe template
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per la gestione dei template
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class template extends propertyObject {
 	
 	protected $_tbl_data;
@@ -11,6 +26,12 @@ class template extends propertyObject {
 	private $_align_dict;
 	private $_um_dict;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $id valore ID del record
+	 * @return void
+	 */
 	function __construct($id) {
 
 		$this->_tbl_data = self::$_tbl_tpl;
@@ -62,6 +83,12 @@ class template extends propertyObject {
 		}
 	}
 	
+	/**
+	 * Imposta il valore per la query di inserimento e modifica del record
+	 * 
+	 * @param string $value nome del file dei template
+	 * @return boolean
+	 */
 	public function setFilename($value) {
 		
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
@@ -70,6 +97,12 @@ class template extends propertyObject {
 		return true;
 	}
 
+	/**
+	 * Elenco dei template in formato object
+	 * 
+	 * @param string $order per quale campo ordinare i risultati
+	 * @return array
+	 */
 	public static function getAll($order='label') {
 
 		$db = db::instance();
@@ -85,6 +118,11 @@ class template extends propertyObject {
 		return $res;
 	}
 	
+	/**
+	 * Descrizione della procedura
+	 * 
+	 * @return string
+	 */
 	public static function layoutInfo() {
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni template")));
@@ -139,6 +177,12 @@ class template extends propertyObject {
 		return $buffer;
 	}
 
+	/**
+	 * Form per la creazione e la modifica di un template
+	 * 
+	 * @see formBlock()
+	 * @return string
+	 */
 	public function formTemplate() {
 
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
@@ -161,6 +205,11 @@ class template extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Form che introduce alla modifica dello schema
+	 * 
+	 * @return string
+	 */
 	public function formOutline() {
 
 		if(!$this->id) return null;
@@ -181,6 +230,11 @@ class template extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Form di duplicazione di un template
+	 * 
+	 * @return string
+	 */
 	public function formCopyTemplate() {
 
 		$gform = new Form('gform', 'post', true);
@@ -204,6 +258,13 @@ class template extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Opera una scelta sul come e se mostrare i blocchi del template nel caso si tratti di un nuovo template o di modificarne uno
+	 * 
+	 * @see tplBlockForm()
+	 * @param object $gform oggetto della classe Form
+	 * @return string
+	 */
 	private function formBlock($gform) {
 	
 		if($this->id) {
@@ -223,6 +284,11 @@ class template extends propertyObject {
 		return $buffer;
 	}
 	
+	/**
+	 * Stampa i blocchi del template
+	 * 
+	 * @return string
+	 */
 	public function tplBlockForm() {
 	
 		$gform = new Form('gform', 'post', false);
@@ -313,6 +379,12 @@ class template extends propertyObject {
 		return $buffer;
 	}
 	
+	/**
+	 * Stampa i blocchi che vogliono essere aggiunti nel template
+	 * 
+	 * @param integer $ref numero del blocco nella sequenza corretta
+	 * @return string
+	 */
 	public function addBlockForm($ref=null) {
 		
 		if(is_null($ref)) $ref = cleanVar($_POST, 'ref', 'int', '');
@@ -340,6 +412,11 @@ class template extends propertyObject {
 		return $buffer;
 	}
 	
+	/**
+	 * Form di eliminazione di un template
+	 * 
+	 * @return string
+	 */
 	public function formDelTemplate() {
 	
 		$gform = new Form('gform', 'post', true);
@@ -360,6 +437,11 @@ class template extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di un template
+	 * 
+	 * @see skin::removeTemplate()
+	 */
 	public function actionDelTemplate() {
 		if($this->filename) @unlink(TPL_DIR.OS.$this->filename);		
 
@@ -373,13 +455,15 @@ class template extends propertyObject {
 	}
 
 	/**
-	 * Pagina di gestione del template
-	 * 
-	 * @param object $css
-	 * @param integer $tpl_id
+	 * Stampa lo schema del template
 	 * 
 	 * La creazione e la ricostruzione del template sono i due casi in cui si creano e si modificano i blocchi.
 	 * Il metodo che lavora sui blocchi è createTemplate(); nel caso della modifica del template viene letto direttamente il file.
+	 * 
+	 * @see renderNave()
+	 * @param object $css istanza della classe css
+	 * @param integer $tpl_id valore ID del template
+	 * @return string
 	 */
 	public function manageTemplate($css, $tpl_id=0) {
 
@@ -587,21 +671,21 @@ class template extends propertyObject {
 		return $buffer;
 	}
 	
+	/**
+	 * Blocco segnaposto nello schema del template
+	 * 
+	 * Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
+	 * 
+	 * @param array $matches
+	 *   - $matches[0] complete matching 
+	 *   - $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
+	 *   - $matches[3] match div id, es. nav_1_1
+	 *   - $matches[4] match div content, es. {module classid=20 func=blockList}
+	 *   - $matches[5] match close tag, es. </div>
+	 * @return string
+	 */
 	private function renderNave($matches) {
-		/*
-		 * $matches[0] complete matching 
-		 * $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
-		 * $matches[3] match div id, es. nav_1_1
-		 * $matches[4] match div content, es. {module classid=20 func=blockList}
-		 * $matches[5] match close tag, es. </div>
-		 */
-
-		/*
-		 *
-		 * contare i refillable_1 _2 _3 etc... metterne uno vuoto alla fine, attivare i pulsanti su quelli pieni
-		 *
-		 */
-
+		
 		$buffer = $matches[1];
 		$buffer .= $this->cellCtrl($matches[3]);
 		$buffer .= "<div id=\"sortables_".$matches[3]."\">";
@@ -705,6 +789,9 @@ class template extends propertyObject {
 		return $buffer;
 	}
 
+	/**
+	 * Crea e modifica un template
+	 */
 	public function actionTemplate() {
 	
 		$tplContent = $_POST['tplform_text'];
@@ -796,6 +883,9 @@ class template extends propertyObject {
 		return $this->_db->actionquery($query);
 	}
 	
+	/**
+	 * Duplica un template
+	 */
 	public function actionCopyTemplate() {
 	
 		$gform = new Form('gform', 'post', false);

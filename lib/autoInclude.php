@@ -1,24 +1,18 @@
 <?php
-/*================================================================================
-    Gino 1.0 - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file autoInclude.php
+ * @brief Include automaticamente (se richiesti) i file dei moduli presenti nella directory @a app
+ *
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-
+/**
+ * Include i file dei moduli presenti nella directory @a app
+ * @see settings.php
+ * @param string $class nome della classe
+ */
 function __autoload($class)
 {
    	if(is_dir(APP_DIR.OS.$class))
@@ -34,6 +28,11 @@ function __autoload($class)
 
 include_class();
 
+/**
+ * Include i file php presenti nella directory @a include
+ * @see settings.php
+ * @param string $dir percorso della directory
+ */
 function include_class($dir='')
 {
    	if(empty($dir)) $dir = INCLUDE_DIR.OS;

@@ -1,56 +1,37 @@
 <?php
-/*
- * This is a class that contains methods used by every other ckass which has DB properties.
- * - DB properties may be read through the __get function, but may also be protected by constructing 
- * a personalized get function in the class.
- * - DB properties are set through the __set method. But IMPORTANT:
- *   by default the __set method read the property from the POST array as a string!
- *   So if it's necessary to set the property giving a value and not ny a POST, or if
- *   the typecast is different from string it's necessary to implement the specific
- *   set method which is called before.
- *
- * Public Methods:
- * - construct($data)
- *   sons must construct this class passing an array containig the init properties. 
- *   Example:
- *   in the sons classes
- *   function __construct($id) {
- *     ...
- *     parent::__construct($this->initP($id)); 
- *     ...    
- *   }
- *
- *   function initP($id) {
- *     $query = "SELECT * FROM ".self::$_tbl_ctg." WHERE id='$id'";
- *     $a = $db->selectquery($query);
- *     if(sizeof($a)>0) return $a[0]; 
- *     else return array('id'=>null, 'name'=>null);
- *   }
- *
- * - __get($pName)
- *   method called every time someone tries to get an object property.
- *   If a specific getter method for this property exists then is returned, else
- *   the property is returned
- *
- * - __set($pName)    
- *   method called every time someone tries to set an object property.
- *   If a specific setter method for this poperty exists then is returned, else 
- *   the property is set reading the POST array and typecasting to string
- *
- * - ml($pName)
- *   method called to retrieve properties with translation
- *
- * - updateDbData()
- *   method called to save cjanges made to the object updating or insertinga new record in the DB
- *
- * - deleteDbData() 
- *   method called to delete DB properties of an object
- *
- * IMPORTANT
- *
- *  each class object stores his propetries in one table defined in $this->_tbl_data which is defined 
- *  here but setted in the sons classes
- *
+/**
+ * @file class.propertyObject.php
+ * @brief Contiene la classe propertyObject
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @brief Contiene i metodi utilizzati da ogni classe che abbia proprietà definite sul database
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe.
+ * Le proprietà su DB possono essere impostate attraverso il metodo __set, che di default legge le proprietà dall'array POST come valore stringa.
+ * Di conseguenza può essere necessario impostare puntualmente una proprietà assegnandole un valore oppure, se il tipo di valore è diverso da stringa, implementare uno specifico metodo __set che viene chiamato prima.
+ * 
+ * La classe figlia che costruisce la classe le passa (ad esempio) i valori del metodo initP:
+ * @code
+ * function initP($id) {   
+ *   $query = "SELECT * FROM ".self::$_tbl_ctg." WHERE id='$id'";   
+ *   $a = $db->selectquery($query);   
+ *   if(sizeof($a)>0) return $a[0];   
+ *   else return array('id'=>null, 'name'=>null);   
+ * }
+ * @endcode
+ * direttamente nel costruttore:
+ * @code
+ * parent::__construct($this->initP($id));
+ * @endcode
  */
  abstract class propertyObject {
 
@@ -61,6 +42,11 @@
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;
 
+	/**
+	 * Costruttore
+	 * @param array $data array contenente le proprietà dell'init
+	 * @return void
+	 */
 	function __construct($data) {
 
 		$this->_db = db::instance();
@@ -73,6 +59,13 @@
 		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
+	/**
+	 * Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto
+	 * 
+	 * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
+	 * 
+	 * @param string $pName
+	 */
 	public function __get($pName) {
 	
 		if(!array_key_exists($pName, $this->_p)) return null;
@@ -80,6 +73,14 @@
 		else return $this->_p[$pName];
 	}
 	
+	/**
+	 * Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto
+	 * 
+	 * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
+	 * 
+	 * @param string $pName
+	 * @param mixed $postLabel
+	 */
 	public function __set($pName, $postLabel) {
 
 		if(!array_key_exists($pName, $this->_p)) return null;
@@ -90,11 +91,20 @@
 		}
 	}
 
+	/**
+	 * Recupera le proprietà con la traduzione
+	 * @param string $pName
+	 * @return string
+	 */
 	public function ml($pName) {
 		
 		return ($this->_trd->selectTXT($this->_tbl_data, $pName, $this->_p['id']));
 	}
 
+	/**
+	 * Salva i cambiamenti fatti sull'oggetto modificando o inserendo un nuovo record su DB
+	 * @return boolean
+	 */
 	public function updateDbData() {
 	
 		if($this->_p['id']) { 
@@ -118,6 +128,10 @@
 		return $result;
 	}
 
+	/**
+	 * Elimina le proprietà su DB di un oggetto
+	 * @return boolean
+	 */
 	public function deleteDbData() {
 	
 		language::deleteTranslations($this->_tbl_data, $this->_p['id']);

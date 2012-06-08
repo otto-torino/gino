@@ -1,9 +1,39 @@
 <?php
+/**
+ * @file main.php
+ * @brief Imposta le caratteristiche principali dell'applicazione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * Include il file che gestisce la connessione al database
+ */
 include_once(CLASSES_DIR.OS."class.db.php");
+
+/**
+ * Include la classe Link
+ */
 include_once(CLASSES_DIR.OS."class.link.php");
+
+/**
+ * Include la classe pub
+ */
 include_once(CLASSES_DIR.OS."class.pub.php");
 
+/**
+ * @brief Imposta l'header, le lingue di riferimento, ed effettua il detection del mobile
+ * 
+ * Inoltre:
+ *   - effettua quelle operazioni che devono essere portate a termine prima di proseguire con la costruzione della pagina (vedi l'autenticazione)
+ *   - include il file lib/include.php
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class Main{
 
 	private $_db, $session;
@@ -11,6 +41,10 @@ class Main{
 	private $_multi_language;
 	private $_tbl_language;
 
+	/**
+	 * Richiama i metodi che impostano le caratteristiche principali dell'applicazione
+	 * @return void
+	 */
 	function __construct(){
 
 		$this->_db = db::instance();
@@ -63,9 +97,14 @@ class Main{
 		}
 	}
 
+	/**
+	 * Verifica il processo di autenticazione (o logout)
+	 * 
+	 * @see access::authentication()
+	 * @return void
+	 */
 	private function checkAuthenticationActions() {
 		
-		// check for authentication or logout
 		$access = new access();
 		$access->authentication();
 	}
@@ -142,6 +181,14 @@ class Main{
 		}
 	}
 
+	/**
+	 * Lingua dello User Agent
+	 * 
+	 * Ritorna FALSE se non trova la lingua
+	 * 
+	 * @see get_languages()
+	 * @return string
+	 */
 	private function userLanguage(){
 
 		$code = $this->get_languages('data');
@@ -184,21 +231,35 @@ class Main{
 	}
 
 	/**
-	Script is currently set to accept 2 parameters, triggered by $feature value.
-	for example, get_languages( 'data' ):
-	1. 'header' - sets header values, for redirects etc. No data is returned
-	2. 'data' - for language data handling, ie for stats, etc.
-		Returns an array of the following 4 item array for each language the os supports:
-		1. full language abbreviation, like en-ca
-		2. primary language, like en
-		3. full language string, like English (Canada)
-		4. primary language string, like English
-		
-	Example $_SERVER["HTTP_ACCEPT_LANGUAGE"]:
-	en-gb,en;q=0.5 [Firefox]
-	it-it,it;q=0.8,en-us;q=0.5,en;q=0.3 [Firefox]
-	it [IE7]
+	
 	*/
+	
+	/**
+	 * Lingua
+	 * 
+	 * @see detectCodes()
+	 * @param string $feature accetta i valori @a data e @a header
+	 * @return array
+	 * 
+	 * @todo sviluppare il codice relativo al valore @a header
+	 * 
+	 * 'header' - sets header values, for redirects etc. No data is returned
+	 * 'data' - for language data handling, ie for stats, etc.
+	 * 
+	 * Returns an array of the following 4 item array for each language the os supports:
+	 * 1. full language abbreviation, like en-ca
+	 * 2. primary language, like en
+	 * 3. full language string, like English (Canada)
+	 * 4. primary language string, like English
+	 * 
+	 * Esempio
+	 * @code
+	 * $_SERVER["HTTP_ACCEPT_LANGUAGE"]:
+	 * en-gb,en;q=0.5 [Firefox]
+	 * it-it,it;q=0.8,en-us;q=0.5,en;q=0.3 [Firefox]
+	 * it [IE7]
+	 * @endcode
+	 */
 	private function get_languages($feature)
 	{
 		$a_languages = $this->detectCodes();
@@ -280,6 +341,11 @@ class Main{
 		}
 	}
 
+	/**
+	 * Elenco dei codici lingua associati alle nazioni
+	 * 
+	 * @return array codice_stato=>nome_stato
+	 */
 	public function detectCodes(){
 
 		return array(
@@ -437,13 +503,30 @@ class Main{
 	}
 }
 
+/**
+ * @brief Rende disponibile il metodo HttpCall()
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class EvtHandler extends Main{
 
+	/**
+	 * Costruisce il costruttore della classe Main
+	 */
 	function __construct(){
 
 		Main::__construct();
 	}
 
+	/**
+	 * Costruisce l'indirizzo di un redirect e lo effettua
+	 * @param string $file indirizzo del redirect, corrispondente al nome del file base dell'applicazione (ad es. la proprietà @a _home)
+	 * @param string $EVT parte dell'indirizzo formata da nome istanza/classe e nome metodo (nel formato @a nomeistanza-nomemetodo)
+	 * @param string $params parametri aggiuntivi della request (ad es. var1=val1&var2=val2)
+	 * @return void
+	 */
 	protected function HttpCall($file, $EVT, $params){
 
 		if(!empty($params))
@@ -461,17 +544,70 @@ class EvtHandler extends Main{
 	}
 }
 
+/**
+ * @brief Rende disponibili i metodi per gestire l'accesso alle funzionalità di una classe
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class AbstractEvtClass extends pub{
 
-	protected $_access_base, $_access_2, $_access_3, $_user_group, $_list_group;
-	protected $_instance, $_instanceName;
+	/**
+	 * Ruolo di accesso base alle funzionalità
+	 */
+	protected $_access_base;
+	
+	/**
+	 * Ruolo di accesso
+	 */
+	protected $_access_2;
+	
+	/**
+	 * Ruolo di accesso
+	 */
+	protected $_access_3;
+	
+	/**
+	 * Elenco dei gruppi di un utente in riferimento a una data classe
+	 */
+	protected $_user_group;
+	
+	/**
+	 * Elenco dei gruppi della classe
+	 */
+	protected $_list_group;
+	
+	/**
+	 * Valore ID dell'istanza
+	 */
+	protected $_instance;
+	
+	/**
+	 * Nome dell'istanza
+	 */
+	protected $_instanceName;
 
+	/**
+	 * Costruttore
+	 */
 	function __construct(){
 
 		parent::__construct();
 
 	}
-		
+	
+	/**
+	 * Definisce le proprietà di accesso ai metodi pubblici di una classe/applicazione
+	 * 
+	 * Il metodo viene richiamato all'interno del costruttore della classe e rende disponibili alla classe le proprietà protette della classe AbstractEvtClass:
+	 * 
+	 *   - @b $_access_base (integer): ruolo di accesso base alle funzionalità
+	 *   - @b $_access_2 (integer): ruolo di accesso 
+	 *   - @b $_access_3 (integer): ruolo di accesso
+	 *   - @b $_user_group (array): elenco dei gruppi di un utente in riferimento a una data classe
+	 *   - @b $_list_group (array): elenco dei gruppi della classe
+	 */
 	protected function setAccess(){
 		
 		$this->_access_base = $this->_access->classRole($this->_className, $this->_instance, 'user');
@@ -482,16 +618,39 @@ class AbstractEvtClass extends pub{
 		$this->_list_group = $this->_access->listGroup($this->_className, $this->_instance);
 	}
 	
+	/**
+	 * Verifica se un utente possiede un ruolo tale da permettergli di accedere a una pagina
+	 * 
+	 * Questo metodo viene incluso in testa al metodo della classe che deve costruire la pagina, e viene utilizzato per la visualizzazione di contenuti. 
+	 * 
+	 * @param integer $role ruolo dell'utente autorizzato a visualizzare la pagina di contenuti definita dal metodo che lo include
+	 * @return void
+	 */
 	protected function accessType($role){
 	
 		$this->_access->AccessVerifyRoleID($role);
 	}
 	
+	/**
+	 * Verifica se un utente appartiene a un gruppo della classe per il quale è abilitato l'accesso a una determinata funzionalità amministrativa
+	 * 
+	 * Questo metodo viene incluso in testa al metodo della classe e viene utilizzato per la visualizzazione di pagine amministrative e per l'esecuzione di operazioni amministrative.
+	 * 
+	 * @param mixed $permission gruppi ai quali è concesso l'accesso a una determinata funzione
+	 * @return void
+	 */
 	protected function accessGroup($permission){
 	
 		$this->_access->AccessVerifyGroup($this->_className, $this->_instance, $this->_user_group, $permission);
 	}
 	
+	/**
+	 * Metodo ereditato dalle classi che estendono la classe AbstractEvtClass (le classi sulle quali si basano i moduli)
+	 * 
+	 * In questo modo queste classi non devono riscrivere il metodo se non devono definire dei permessi di visualizzazione aggiuntivi a quello base.
+	 * 
+	 * @return array
+	 */
 	public static function permission(){
 
 		$access_2 = $access_3 = '';

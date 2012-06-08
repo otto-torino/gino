@@ -1,10 +1,24 @@
 <?php
-
+/**
+ * @file session.php
+ * @brief Contiene la classe session
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 ini_set('session.use_cookies', 1);
 ini_set('session.use_only_cookies', 1);
 
 session_name(SESSION_NAME);
 
+/**
+ * @brief Gestione delle variabili di sessione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class session extends singleton {
 	
 	const SESSION_STARTED = TRUE;
@@ -15,6 +29,9 @@ class session extends singleton {
 	
 	private $_vars;
 
+	/**
+	 * Avvia la sessione
+	 */
 	protected function __construct() {
 		
 		$this->startSession();
@@ -22,11 +39,11 @@ class session extends singleton {
 	}
 	
 	/**
-	*	(Re)starts the session.
-	*
-	*	@param	session_name	Name of the session.
-	*	@return	bool	TRUE if the session has been initialized, else FALSE.
-	**/
+	 * (Ri)avvia la sessione
+	 *
+	 * @param string $session_name nome della sessione (se non indicato viene impostato all'esterno della classe)
+	 * @return boolean TRUE se le sessione è stata inizializzata, altrimenti FALSE
+	 */
 	public function startSession($session_name='')
 	{
 		if($this->sessionState == self::SESSION_NOT_STARTED)
@@ -41,13 +58,17 @@ class session extends singleton {
 	}
 	
 	/**
-	*	Stores datas in the session.
-	*	Example: $instance->foo = 'bar';
-	*
-	*	@param	name	Name of the datas.
-	*	@param	value	Your datas.
-	*	@return	void
-	**/
+	 * Imposta il valore di una variabile di sessione
+	 *
+	 * @param string $name nome della variabile di sessione
+	 * @param mixed $value valore della variabile di sessione
+	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->foo = 'bar';
+	 * @endcode
+	 */
 	public function __set($name , $value)
 	{
 		$this->_vars[$name] = $value;
@@ -55,22 +76,38 @@ class session extends singleton {
 	}
 
 	/**
-	*	Gets datas from the session.
-	*	Example: echo $instance->foo;
-	*
-	*	@param	name	Name of the datas to get.
-	*	@return	mixed	Datas stored in session.
-	**/
+	 * Ritorna il valore di una variabile di sessione
+	 *
+	 * @param string $name nome della variabile di sessione
+	 * @return mixed
+	 * 
+	 * Esempio
+	 * @code
+	 * echo $instance->foo;
+	 * @endcode
+	*/
 	public function __get($name)
 	{
 		return isset($this->_vars[$name]) ? $this->_vars[$name] : null;
 	}
 
+	/**
+	 * Verifica se una variabile di sessione esiste
+	 * 
+	 * @param string $name nome della variabile di sessione
+	 * @return boolean
+	 */
 	public function __isset($name)
 	{
 		return isset($_SESSION[$name]);
 	}
 
+	/**
+	 * Distrugge una variabile di sessione
+	 * 
+	 * @param string $name nome della variabile di sessione
+	 * @return void
+	 */
 	public function __unset($name)
 	{
 		unset($_SESSION[$name]);
@@ -78,10 +115,10 @@ class session extends singleton {
 	}
 
 	/**
-	*	Destroys the current session.
-	*
-	*	@return	bool	TRUE is session has been deleted, else FALSE.
-	**/
+	 * Distrugge la sessione corrente
+	 *
+	 * @return boolean
+	 */
 	public function destroy()
 	{
 		if($this->sessionState == self::SESSION_STARTED)

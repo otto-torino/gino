@@ -1,74 +1,44 @@
 <?php
-/*
- * Es. Multimedia: extractFileZip()
+/**
+ * @file class.phpzip.php
+ * @brief Contiene la classe phpzip
  * 
- * extractZip() -> upload + crea una directory in cui scompattare il file zip + open zip + extract zip
- * parseDirectory() -> elenco file presenti in una directory
- * moveExtractFile() -> copia del file nella directory di destinazione
- * 
- * 
- 	private function extractFileZip($id, $input_name, $options=array()){
-		
-		$name = array_key_exists('name', $options) ? $options['name'] : '';
-		$max_size = array_key_exists('max_size', $options) ? $options['max_size'] : $this->_max_file_size;
-		$link_error = array_key_exists('link_error', $options) ? $options['link_error'] : '';
-		
-		$valid_extensions = array_merge($this->_valid_image, $this->_valid_audio, $this->_valid_video);
-		
-		$upload_file = $_FILES[$input_name]['name'];
-		$upload_tmp = $_FILES[$input_name]['tmp_name'];
-		$upload_size = $_FILES[$input_name]['size'];
-		
-		if($upload_size > $max_size)
-			exit(error::errorMessage(array('error'=>33), $link_error));
-		
-		$zip = new phpzip();
-		$directory = $zip->extractZip($upload_file, $upload_tmp, array('return_dir'=>true, 'extract_dir'=>CONTENT_DIR.OS.'tmp', 'link_error'=>$link_error));
-		$list_file = $zip->parseDirectory($directory);
-		
-		$not_copied = array();
-		
-		if(sizeof($list_file) > 0)
-		{
-			$ctg_dir = $this->pathBaseDir('abs').$this->_db->getFieldFromId(multimediaCtg::$_tbl_ctg, 'directory', 'id', $id).$this->_os;
-			
-			foreach($list_file AS $path_to_file)
-			{
-				$source_file = basename($path_to_file);
-				$source_dir = dirname($path_to_file);
-				
-				$filecopy = $zip->moveExtractFile($path_to_file, $ctg_dir, $valid_extensions, array('resize'=>true, 'max_file_size'=>$this->_max_file_size, 
-				'prefix_file'=>$this->_prefix_img, 'prefix_thumb'=>$this->_prefix_thumb, 'new_width'=>$this->_img_width, 'thumb_width'=>$this->_thumb_width));
-				
-				if($filecopy)
-				{
-					$filename = basename($filecopy);
-					$field_name = empty($name) ? $filename : $name;
-					
-					$type = $this->identifyType($filename);
-					
-					$date = date("Y-m-d");
-					$query_media = "INSERT INTO ".multimediaItem::$_tbl_doc." (instance, type, ctg, name, date, image) VALUES ('".$this->_instance."', '$type', $id, '$field_name', '$date', '$filename')";
-					$result = $this->_db->actionquery($query_media);
-					
-					if(!$result)
-						@unlink($filecopy);
-				}
-				else
-				{
-					$not_copied[] = $source_file;
-				}
-			}
-		}
-		
-		// eliminazione directory temporanea
-		if(is_dir($directory))
-			$this->deleteFileDir($directory, true);
-		
-		return $not_copied;
-	}
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Libreria che fornisce le interfacce per l'utilizzo dei file in formato ZIP
+ * 
+ * Utilizza la libreria interna ZipArchive
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Esempio di estrazione di un file Zip
+ * @code
+ * ...
+ * $upload_file = $_FILES[$input_name]['name'];
+ * $upload_tmp = $_FILES[$input_name]['tmp_name'];
+ * 
+ * $zip = new phpzip();
+ * $directory = $zip->extractZip($upload_file, $upload_tmp, array('return_dir'=>true, 'extract_dir'=>CONTENT_DIR.OS.'tmp', 'link_error'=>$link_error));
+ * $list_file = $zip->parseDirectory($directory);
+ * 
+ * if(sizeof($list_file) > 0)
+ * {
+ *   foreach($list_file AS $path_to_file)
+ *   {
+ *     $source_file = basename($path_to_file);
+ *     $source_dir = dirname($path_to_file);
+ *     
+ *     $filecopy = $zip->moveExtractFile($path_to_file, $dest_dir, array('jpg', 'png'), array('resize'=>true, 'max_file_size'=>$this->_max_file_size, 
+ *     'prefix_file'=>$this->_prefix_img, 'prefix_thumb'=>$this->_prefix_thumb, 'new_width'=>$this->_img_width, 'thumb_width'=>$this->_thumb_width));
+ * ...
+ * @endcode
+ */
 class phpzip extends pub {
 
 	private $_default_dir;
@@ -84,12 +54,24 @@ class phpzip extends pub {
 		return $directory;
 	}
 	
+	/**
+	 * Rimuove tutti i caratteri ad eccezione di numeri, lettere, _.-, da una stringa, sostituendoli con un underscore
+	 * 
+	 * @param stringa $filename nome del file
+	 * @param string $prefix eventuale testo da aggiungere in testa al nome del file
+	 * @return string
+	 */
 	private function checkFilename($filename, $prefix) {
 	
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
 		return $prefix.$filename;
 	}
 	
+	/**
+	 * Genera un nome casuale per la directory temporanea di estrazione dei file
+	 * 
+	 * @return string
+	 */
 	private function randDir(){
 		
 		$rand = md5(microtime().rand(0,999999));
@@ -98,12 +80,22 @@ class phpzip extends pub {
 	}
 	
 	/**
-	 * Operazioni sul file Zip: upload, creazione directory dedicata, apertura, estrazione 
+	 * Operazioni sul file Zip nella procedura di upload
 	 * 
-	 * @param string $upload_file		$_FILES["file"]["name"]
-	 * @param string $upoad_tmp			$_FILES["file"]["tmp_name"]
+	 * Procedura:
+	 *   - upload
+	 *   - creazione di una directory dedicata
+	 *   - apertura del file
+	 *   - estrazione dei contenuti
+	 * 
+	 * @param string $upload_file nome del file (ad es. $_FILES["file"]["name"])
+	 * @param string $upoad_tmp nome del file temporaneo (ad es. $_FILES["file"]["tmp_name"])
 	 * @param array $options
-	 * 
+	 *   array associativo di opzioni
+	 *   - @b extract_dir (string): directory di estrazione dei file (default: @a _default_dir)
+	 *   - @b return_dir (boolean): se vero, il metodo ritorna la directory di estrazione dei file (default: @a false)
+	 *   - @b link_error (string): indirizzo da richiamare in caso di errore (default: @a _home)
+	 * @return void or string
 	 */
 	public function extractZip($upload_file, $upoad_tmp, $options=array()){
 
@@ -140,16 +132,17 @@ class phpzip extends pub {
 	}
 	
 	/**
-	 * Create file zip from list
+	 * Crea un file zip da una un elenco di file
 	 * 
-	 * @param array $list_file		file list (absolute path)
+	 * @param array $list_file elenco di file col loro percorso assoluto
 	 * @param array $options
-	 * 
-	 * zip_dir			dove vengono create le directory temporanee contenenti i file zip
-	 * suffix_dir		suffisso della directory temporanea
-	 * prefix_file		prefisso del file zip
-	 * name_file		nome file zip
-	 * strip_path		se bisogna salvare i file senza la directory radice
+	 *   array associativo di opzioni
+	 *   - @b zip_dir (string): dove vengono create le directory temporanee contenenti i file zip
+	 *   - @b suffix_dir (string): suffisso della directory temporanea
+	 *   - @b prefix_file (string): prefisso del file zip
+	 *   - @b name_file (string): nome file zip
+	 *   - @b strip_path (boolean): se bisogna salvare i file senza la directory radice
+	 * @return void
 	 */
 	public function createZip($list_file=array(), $options=array()){
 		
@@ -202,10 +195,11 @@ class phpzip extends pub {
 	}
 	
 	/**
-	 * Elenco file presenti in una directory
+	 * Elenco dei file presenti in una directory
 	 * 
-	 * @param string $rootPath
-	 * @param string $separator
+	 * @param string $rootPath percorso della directory principale
+	 * @param string $separator separatore delle directory
+	 * @return array
 	 */
 	public function parseDirectory($rootPath, $separator='/'){
 		
@@ -226,50 +220,25 @@ class phpzip extends pub {
 		return $fileArray;
 	}
 	
-	/*
-	//Function to Zip entire directory with all its files and subdirectories
-	public function zipDirectory($dirName, $outputDir) {
-		
-		if (!is_dir($dirName)){
-			trigger_error("CreateZipFile FATAL ERROR: Could not locate the specified directory $dirName", E_USER_ERROR);
-		}
-		
-		$tmp = $this->parseDirectory($dirName);
-		$count=count($tmp);
-		//$this->addDirectory($outputDir);
-		
-		for ($i=0;$i<$count;$i++)
-		{
-			$fileToZip = trim($tmp[$i]);
-			$newOutputDir = substr($fileToZip, 0, (strrpos($fileToZip,'/')+1));
-			$outputDir = $outputDir.$newOutputDir;
-			$fileContents = file_get_contents($fileToZip);
-			//$this->addFile($fileContents,$fileToZip);
-		}
-	}
-	*/
-	
 	/**
-	 * Copia dei file nella directory definitiva
+	 * Copia un file in una data directory
 	 * 
-	 * @param string $path_to_file		percorso assoluto del file da copiare
-	 * @param string $directory			dove copiare
-	 * @param array $valid_extension
+	 * @see Form::saveImage()
+	 * @param string $path_to_file percorso assoluto del file da copiare
+	 * @param string $directory directory nella quale copiare i file
+	 * @param array $valid_extension elenco delle estensioni valide
 	 * @param array $options
-	 * 
-	 * Opzioni:
-	 * --------------
-	 * max_file_size
-	 * verify_name		verifica se il nome del file è presente nella directory (non viene creato un nuovo record)
-	 * resize			ridimensionamento (se si tratta di una immagine jpg/png)
-	 * 
-	 * nel caso di resize:
-	 * prefix_file
-	 * prefix_thumb
-	 * new_width		se vuoto non ridimensiona
-	 * new_height		se vuoto non ridimensiona
-	 * thumb_width		se vuoto non ridimensiona
-	 * thumb_height		se vuoto non ridimensiona
+	 *   array associativo di opzioni
+	 *   - @b max_file_size (integer): dimensione massima del file da copiare (default: @a _max_file_size)
+	 *   - @b verify_name (boolean): verifica se il nome del file è presente nella directory (non viene creato un nuovo record) (default: true)
+	 *   - @b resize (boolean): ridimensionamento dell'immagine, nel caso di immagine jpg/png (default: false)
+	 *   - @b prefix_file (string): [resize true] eventuale testo che precede il nome del file
+	 *   - @b prefix_thumb (string): [resize true] eventuale testo che precede il nome del thumbnail
+	 *   - @b new_width (integer): [resize true] se vuoto non ridimensiona
+	 *   - @b new_height (integer): [resize true] se vuoto non ridimensiona
+	 *   - @b thumb_width (integer): [resize true] se vuoto non ridimensiona
+	 *   - @b thumb_height (integer): [resize true] se vuoto non ridimensiona
+	 * @return null or string (percorso completo al file)
 	 */
 	public function moveExtractFile($path_to_file, $directory, $valid_extension, $options=array()){
 

@@ -1,23 +1,20 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_index.php
+ * @brief Contiene la classe index
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief 
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class index extends AbstractEvtClass{
 
 	private $_page;
@@ -28,39 +25,26 @@ class index extends AbstractEvtClass{
 
 	}
 	
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
 	 */
 	public static function outputFunctions() {
 
 		$list = array(
-			"homePage" => array("label"=>_("Home page di default di GINO CMS"), "role"=>'1'),
 			"admin_page" => array("label"=>_("Home page amministrazione"), "role"=>'2')
 		);
 
 		return $list;
 	}
 
-	public function homePage() {
-
-		$htmlsection = new htmlSection(array('class'=>'public', 'headerTag'=>'header', 'headerLabel'=>_("GINO CMS - Home page")));
-		$GINO = _("Home page di GINO");
-		$GINO .= "<p>"._("Benvenuto in GINO, il CMS open source sviluppato da ")."<a href=\"http://www.otto.to.it\">Otto srl</a></p>";
-		$GINO .= "<p>"._("Per informazioni riguardo all'utilizzo di GINO CMS ti consigliamo di consultare la guida all'indirizzo seguente:")."<br/>";
-		$GINO .= "<a href=\"".WIKI."\">gino.wiki</a>";
-		$GINO .= "</p>";
-		
-		$GINO .= "<p>"._("Per incrementare le funzionalità della tua installazione ti invitiamo a visitare il repository ufficiale di moduli per GINO CMS:")."<br/>";
-		$GINO .= "<a href=\"".REPOSITORY."\">repository ufficiale</a>";
-		$GINO .= "</p>";
-
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-
-	}
-
+	/**
+	 * Pagina di autenticazione
+	 * 
+	 * @see sysfunc::tableLogin()
+	 * @return string
+	 */
 	public function auth_page(){
 
 		$registration = cleanVar($_GET, 'reg', 'int', '');
@@ -78,6 +62,11 @@ class index extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Home page amministrazione
+	 * 
+	 * @return string
+	 */
 	public function admin_page(){
 
 		if(!$this->_access->getAccessAdmin()) {
@@ -124,6 +113,11 @@ class index extends AbstractEvtClass{
 		return $buffer;
 	}
 
+	/**
+	 * Elenco dei moduli di sistema visualizzabili nell'area amministrativa
+	 * 
+	 * @return array
+	 */
 	public function sysModulesManageArray() {
 
 		if(!$this->_access->getAccessAdmin()) {
@@ -143,6 +137,11 @@ class index extends AbstractEvtClass{
 		return $list;
 	}
 	
+	/**
+	 * Elenco dei moduli non di sistema visualizzabili nell'area amministrativa
+	 * 
+	 * @return array
+	 */
 	public function modulesManageArray() {
 
 		if(!$this->_access->getAccessAdmin()) {

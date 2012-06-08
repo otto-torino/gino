@@ -1,33 +1,27 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_page.php
+ * @brief Contiene la classe page
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-
-/*
-Struttura Directory:
-
-contents/
-		page/
-			[module_id]/
-				[block_id]/
-						[file]
-*/
+/**
+ * @brief Libreria dedicata alla gestione delle pagine dell'applicazione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * I contenuti non testuali delle pagine sono strutturati in directory secondo lo schema:
+ *   - contents/
+ *   - page/
+ *   - [module_id]/
+ *   - [block_id]/
+ *   - [file]
+ */
 class page extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -114,6 +108,12 @@ class page extends AbstractEvtClass{
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 	
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: redazione
+	 * @b _group_2: redazione contenuti
+	 */
 	private function setGroups(){
 		
 		// Redazione
@@ -122,21 +122,44 @@ class page extends AbstractEvtClass{
 		$this->_group_2 = array($this->_list_group[0], $this->_list_group[1], $this->_list_group[2]);
 	}
 	
-	private function accessPage($page_id){
+	/**
+	 * Controlla se un utente può accedere ai contenuti di una pagina
+	 * 
+	 * @see access::AccessVerifyPage()
+	 * @see access::AccessVerifyPageIf()
+	 * @param integer $page_id valore ID della pagina
+	 * @param boolean $block blocco di pagina o pagina completa
+	 * @return boolean o redirect
+	 */
+	private function accessPage($page_id, $block=false){
 		
 		$module = $this->_db->getFieldFromId($this->_tbl_item, 'module', 'item_id', $page_id);
 		
 		if(empty($module)) EvtHandler::HttpCall($this->_home, $this->_className.'-notExistPage', '');
 		
-		$this->_access->AccessVerifyPage($module);
+		if($block)
+			return $this->_access->AccessVerifyPageIf($module);
+		else
+			$this->_access->AccessVerifyPage($module);
 	}
 	
+	/**
+	 * Stampa l'errore di pagina non disponibile
+	 * 
+	 * @return string
+	 */
 	public function notExistPage(){
 		
 		$data = $this->notExistPageData();
 		echo $data;
 	}
 	
+	/**
+	 * Controlla se un utente possiede un ruolo valido per accedere a una pagina
+	 *  
+	 * @param integer $id valore ID della pagina
+	 * @return boolean
+	 */
 	public function checkReadPermission($id) {
 		
 		$query = "SELECT role1 FROM ".TBL_MODULE." WHERE id='".$this->_db->getFieldFromId($this->_tbl_page, 'module', 'item_id', $id)."'";
@@ -155,6 +178,11 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Avvia il downolad il un file allegato (in un blocco)
+	 * 
+	 * @return void
+	 */
 	public function downloader(){
 		
 		$doc_id = cleanVar($_GET, 'id', 'int', '');
@@ -223,10 +251,10 @@ class page extends AbstractEvtClass{
 	}
 	
 	/**
-	 * Complete Path
+	 * Percorso alla directory dei contenuti
 	 *
-	 * @param integer $content_id
-	 * @param string $type			absolute or relative (abs|rel)
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $type tipo di percorso da esportare, assoluto (abs) o relativo (rel)
 	 * @return string
 	 */
 	private function pathBlockDir($content_id, $type){
@@ -246,83 +274,80 @@ class page extends AbstractEvtClass{
 		return $directory;
 	}
 	
-	// Old Path
-	private function compatibility($content_id, $filename, $type){
+	/**
+	 * Caricamento delle varibili nel registro
+	 * 
+	 * @param integer $id valore ID della pagina
+	 */
+	private function addRegistry($id) {
+
+		$reg_title = htmlChars(pub::variable('head_title'))." - ".htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $id, 'item_id'));
 		
-		$page_id = $this->_db->getFieldFromId($this->_tbl_content, 'item', 'content_id', $content_id);
-		$page_dir = $this->namePageDir($page_id);
-		
-		$directory1 = $this->_data_dir.$this->_os.$page_dir.$this->_os;
-		$directory2 = $this->_data_dir.$this->_os.$page_dir.$this->_os.$content_id.$this->_os;
-		$directory1w = $this->_data_www.'/'.$page_dir.'/';
-		$directory2w = $this->_data_www.'/'.$page_dir.'/'.$content_id.'/';
-		
-		if(is_file($directory2.$filename))	// New situation
+		$query = "SELECT content_id, layout, img, link, filename FROM ".$this->_tbl_content." WHERE item='$id' AND text!='' ORDER BY order_list LIMIT 0,1";
+		$a = $this->_db->selectquery($query);
+		if(sizeof($a) > 0)
 		{
-			if($type == 'abs') $directory = $directory2.$filename;
-			elseif ($type == 'rel') $directory = $directory2w.$filename;
+			$content_id = htmlChars($a[0]['content_id']);
+			$content_text = htmlChars($this->_trd->selectTXT($this->_tbl_content, 'text', $content_id, 'content_id'), $content_id);
+			$reg_description = cutHtmlText($content_text, 500, '...', true, false, true);
 		}
-		else	// Old situation
-		{
-			if($type == 'abs') $directory = $directory1.$filename;
-			elseif ($type == 'rel') $directory = $directory1w.$filename;
-		}
+		else 
+			$reg_description = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $id, 'item_id'));
 		
-		return $directory;
-	}
-	
-	// SECTION VIEW
-	
-	public function getHeadlines($method) {
-
-		if($method=='displayItem') {
-			$id = cleanVar($_GET, 'id', 'int', '');
-
-			$title = htmlChars(pub::variable('head_title'))." - ".htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $id, 'item_id'));
-
-			$query = "SELECT content_id, layout, img, link, filename FROM ".$this->_tbl_content." WHERE item='$id' AND text!='' ORDER BY order_list LIMIT 0,1";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-			{
-				$content_id = htmlChars($a[0]['content_id']);
-				$content_text = htmlChars($this->_trd->selectTXT($this->_tbl_content, 'text', $content_id, 'content_id'), $content_id);
-				$description = cutHtmlText( $content_text, 500, '...', true, false, true);
-			}
-			else 
-				$description = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $id, 'item_id'));
-			$image_src = is_file(SITE_ROOT.OS."img".OS."logo.jpg")
-					? $this->_url_root.SITE_WWW."/img/logo.jpg"
-					: null;
-			return array("meta_title"=>$title, "description"=>$description, "image_src"=>$image_src);
-		}
-		else return null;
+		$reg_image_src = is_file(SITE_ROOT.OS."img".OS."logo.jpg") ? $this->_url_root.SITE_WWW."/img/logo.jpg" : null;
+		
+		$registry = registry::instance();
+		$registry->description = $reg_description;
+		$registry->addMeta(array('name'=>'title', 'content'=>$reg_title));
+		$registry->addHeadLink(array('rel'=>'image_src', 'href'=>$reg_image_src));
 	}
 
-	public function blockItem($pageId=null){
+	/**
+	 * Interfaccia per visualizzare la pagina come blocco
+	 * 
+	 * @see viewItem()
+	 * @param integer $item_id valore ID della pagina
+	 * @return string
+	 */
+	public function blockItem($item_id=null){
 
-		if(!$pageId) $pageId = cleanVar($_GET, 'id', 'int', '');
-		$GINO = $this->viewItem($pageId, 'block');
-		return $GINO;
+		if(!$item_id) $item_id = cleanVar($_GET, 'id', 'int', '');
+		
+		if($this->accessPage($item_id, true))
+			return $this->viewItem($item_id, 'block');
+		else
+			return null;
 	}
 	
+	/**
+	 * Interfaccia per visualizzare la pagina completa
+	 * 
+	 * @see addRegistry()
+	 * @see viewItem()
+	 * @param integer $item_id valore ID della pagina
+	 * @return string
+	 */
 	public function displayItem($item_id=null){
 
 		if(!$item_id) $item_id = cleanVar($_GET, 'id', 'int', '');
-		$layout = $this->typePage($item_id);
 		
 		$this->accessPage($item_id);
 		
-		$GINO = $this->dataItem($item_id);
-		
-		return $GINO;
-	}
-	
-	private function dataItem($item_id){
-				
+		$this->addRegistry($item_id);
 		return $this->viewItem($item_id, 'page');
 	}
 	
-	public function viewItem($item_id=null, $style=null){
+	/**
+	 * Visualizzazione pagina
+	 * 
+	 * @see selectMedia()
+	 * @param integer $item_id valore ID della pagina
+	 * @param string $style modo di visualizzazione
+	 *   - @a block: come blocco
+	 *   - @a page: come pagina completa
+	 * @return string
+	 */
+	private function viewItem($item_id=null, $style=null){
 	
 		$buffer = '';	
 		$social = $this->_db->getFieldFromId($this->_tbl_item, 'social', 'item_id', $item_id);
@@ -479,6 +504,11 @@ class page extends AbstractEvtClass{
 		return $buffer;
 	}
 	
+	/**
+	 * Mostra l'indirizzo di una pagina
+	 * 
+	 * @return string
+	 */
 	public function textLink(){
 	
 		$code = cleanVar($_GET, 'code', 'int', '');
@@ -492,7 +522,6 @@ class page extends AbstractEvtClass{
 		
 		return $GINO;
 	}
-	// END
 	
 	private function infoPage(){
 		
@@ -508,6 +537,12 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Controlla se una pagina possiede delle sottopagine
+	 * 
+	 * @param integer $page valore ID della pagina
+	 * @return boolean
+	 */
 	private function expandTree($page){
 	
 		$query = "SELECT item_id FROM ".$this->_tbl_item." WHERE parent='$page'";
@@ -515,7 +550,15 @@ class page extends AbstractEvtClass{
 		if(sizeof($a) > 0) return true; else return false;
 	}
 	
-	private function textPage($id, $reference){
+	/**
+	 * Intestazione della pagina
+	 * 
+	 * Viene mostrata al posto del form se l'utente non è associato al gruppo @a _group_1
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @return string
+	 */
+	private function textPage($id){
 	
 		$title = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $id, 'item_id'));
 		$text = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'text', $id, 'item_id'));
@@ -530,6 +573,11 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Interfaccia amministrativa per la gestione delle pagine
+	 * 
+	 * @return string
+	 */
 	public function managePage(){
 	
 		$this->accessGroup('ALL');
@@ -586,7 +634,7 @@ class page extends AbstractEvtClass{
 				}
 				elseif($action == $this->_act_modify)
 				{
-					$form .= $this->modifyContent($id, $cnt, $action, $ref);
+					$form .= $this->formContent($id, $cnt, $action, $ref);
 				}
 				$select_page = $id;
 			}
@@ -607,7 +655,7 @@ class page extends AbstractEvtClass{
 					}
 					else
 					{
-						$form .= $this->textPage($id, $ref);
+						$form .= $this->textPage($id);
 					}
 					
 					if($action == $this->_act_modify)
@@ -634,7 +682,6 @@ class page extends AbstractEvtClass{
 			$GINO .= "</div>\n";
 			
 			$GINO .= "<div class=\"null\"></div>";
-		
 		}
 
 		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) $links_array = array($link_admin, $link_options, $link_dft);
@@ -646,6 +693,16 @@ class page extends AbstractEvtClass{
 		return $htmltab->render();	
 	}
 	
+	/**
+	 * Albero delle pagine a partire dai moduli-pagina
+	 * 
+	 * @see expandTree()
+	 * @see tree()
+	 * @see textLink()
+	 * @param string $reference posizione della pagina selezionata nella struttura delle pagine (percorso completo)
+	 * @param integer $select_page pagina selezionata
+	 * @return string
+	 */
 	private function listTree($reference, $select_page){
 	
 		$page = explode("_", $reference);
@@ -695,11 +752,8 @@ class page extends AbstractEvtClass{
 				// End
 				
 				$lnk_module = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$key&amp;action=".$this->_act_modify."&amp;block=".$this->_block_module."\">".$this->icon('config', _("opzioni"))."</a>";
-				
 				$lnk_modify = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$key&amp;action=".$this->_act_modify."\">".$this->icon('modify', _("modifica"))."</a>";
-				
 				$lnk_insert = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$key&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova sottopagina"))."</a>";
-				
 				$lnk_content = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$key&amp;action=&amp;block=".$this->_block_content."\">".$this->icon('content', '')."</a>";
 				
 				$url = $this->_home."?pt[".$this->_className."-textLink]&amp;code=$key";
@@ -714,10 +768,8 @@ class page extends AbstractEvtClass{
 						? array($lnk_link, $lnk_module, $lnk_content)
 						: array($lnk_link, $lnk_content);
 				
-				
 				$itemContent = (!empty($first_page) AND $first_page == $key)? $this->tree($first_page, $page, $select_page):null;
 				$GINO .= $htmlList->item($itemLabel, $links, $selected, true, $itemContent);
-				
 			}
 			$GINO .= $htmlList->end();
 		}
@@ -731,6 +783,18 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Percorso di una pagina dal modulo-pagina alla pagina selezionata
+	 * 
+	 * Ogni ciclo mostra le sottopagine di una pagina nel percorso
+	 * 
+	 * @see expandTree()
+	 * @see textLink()
+	 * @param string $link_page posizione di una pagina compresa nel percorso tra il modulo-pagina e la pagina selezionata
+	 * @param array $page elenco delle pagine dal punto in cui ci si trova nell'albero alla pagina selezionata
+	 * @param integer $select_page pagina selezionata
+	 * @return string
+	 */
 	private function tree($link_page, $page, $select_page){
 	
 		// PAGES
@@ -758,7 +822,6 @@ class page extends AbstractEvtClass{
 
 			foreach($ist_item AS $key=>$value)
 			{
-				//$title = $value;
 				$title = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $key, 'item_id'));
 				
 				$new_link_page = $link_page.'_'.$key;
@@ -772,9 +835,7 @@ class page extends AbstractEvtClass{
 					: $title;
 				
 				$lnk_modify = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$link_page&amp;action=".$this->_act_modify."\">".$this->icon('modify', '')."</a>";
-				
 				$lnk_insert = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$new_link_page&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova sottopagina"))."</a>";
-				
 				$lnk_content = " <a href=\"".$this->_home."?evt[".$this->_className."-managePage]&amp;id=$key&amp;ref=$link_page&amp;action=&amp;block=".$this->_block_content."\">".$this->icon('content', '')."</a>";
 				
 				$url = $this->_home."?pt[$this->_className-textLink]&amp;code=$key";
@@ -799,6 +860,16 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Form di inserimento e modifica di una pagina
+	 * 
+	 * Titoli e caratteristiche della pagina.
+	 * Per l'inserimento di una nuova pagina principale rifarsi al metodo formModule().
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function formPage($id, $reference){
 	
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_item, "trnsl_id"=>$id));
@@ -874,6 +945,11 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Inserimento e modifica di una pagina
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionPage(){
 	
 		$this->accessGroup($this->_group_1);
@@ -961,6 +1037,14 @@ class page extends AbstractEvtClass{
 		}
 	}
 	
+	/**
+	 * Form di eliminazione di una pagina
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @param string $action azione da eseguire
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function formDeletePage($id, $action, $reference){
 		
 		$gform = new Form('gform', 'post', false);
@@ -983,6 +1067,14 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Elimina la pagina selezionata e le pagine che la seguono nell'albero
+	 * 
+	 * Con le pagine vengono eliminati anche tutti contenuti
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @return void
+	 */
 	private function deleteTree($id){
 		
 		// per evitare di eliminare la pagina principale (modulo)
@@ -1035,6 +1127,14 @@ class page extends AbstractEvtClass{
 		}
 	}
 	
+	/**
+	 * Eliminazione di una pagina
+	 * 
+	 * Non è possibile eliminare le pagine principali (modulo-pagina)
+	 * 
+	 * @see $_group_1
+	 * @see deleteTree()
+	 */
 	public function actionDeletePage(){
 	
 		$this->accessGroup($this->_group_1);
@@ -1062,6 +1162,17 @@ class page extends AbstractEvtClass{
 			exit(error::errorMessage(array('error'=>9), $link_error));
 	}
 	
+	/**
+	 * Visualizzazione schematica dei blocchi di una pagina con la possibilità di operare su di essi delle azioni e di ordinarli 
+	 * 
+	 * @see selectContent()
+	 * @see orderContent()
+	 * @see selectMedia()
+	 * @param integer $id valore ID della pagina
+	 * @param string $action azione da eseguire
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function formBlockPage($id, $action, $reference){
 		
 		$query = "SELECT content_id, layout, text, img, link, filename, order_list FROM ".$this->_tbl_content." WHERE item='$id' ORDER BY order_list";
@@ -1112,7 +1223,6 @@ class page extends AbstractEvtClass{
 		}
 		else
 		{
-			
 			$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Contenuti")));
 			$htmlsection->headerLinks = $this->selectContent($id, '', $reference);
 			$htmlsection->content = "<p>"._("Nessun contenuto inserito")."</p>";
@@ -1122,7 +1232,15 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
-	// Interazione sui contenuti
+	/**
+	 * Scelta del tipo di azione da intraprendere in merito a un blocco di pagina
+	 * 
+	 * @see chosenContent()
+	 * @param integer $item_id valore ID della pagina
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function selectContent($item_id, $content_id, $reference){
 	
 		$gform = new Form('gform', 'post', false, array("tblLayout"=>false));
@@ -1169,6 +1287,14 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Elimina un blocco di pagina
+	 * 
+	 * @see pub::deleteFileDir()
+	 * @param integer $content_id valore ID del blocco
+	 * @param integer $item_id valore ID della pagina
+	 * @return void
+	 */
 	private function deleteBlock($content_id, $item_id){
 		
 		$directory = $this->pathBlockDir($content_id, 'abs');
@@ -1206,8 +1332,15 @@ class page extends AbstractEvtClass{
 		}
 	}
 	
+	/**
+	 * Redirige al metodo @a managePage() in base al tipo di azione intrapreso sul blocco della pagina
+	 * 
+	 * L'azione di eliminazione del blocco viene eseguita all'interno del metodo
+	 * 
+	 * @see deleteBlock()
+	 * @return redirect
+	 */
 	public function chosenContent(){
-		// scelta di azione sui contenuti (delete + redirezione)
 		
 		$this->accessGroup($this->_group_1);
 		
@@ -1277,18 +1410,29 @@ class page extends AbstractEvtClass{
 				$order_new = $order + 1;
 			}
 
-			$GINO .= $this->formContent($item_id, $content_id, $order_new, $action, $reference);
+			$GINO .= $this->formContent($item_id, $content_id, $action, $reference, $order_new);
 		}
 		elseif(!empty($item_id) AND $action == $this->_act_insert_first)
 		{
 			$order_new = 1;
 			
-			$GINO .= $this->formContent($item_id, '', $order_new, $action, $reference);
+			$GINO .= $this->formContent($item_id, '', $action, $reference, $order_new);
 		}
 
 		return $GINO;
 	}
 	
+	/**
+	 * Form di inserimento e modifica di un blocco di pagina del tipo con inclusione HTML
+	 * 
+	 * Un blocco di pagina generato con l'opzione "inserisci da html" è unico per la pagina
+	 * 
+	 * @param integer $item_id valore ID della pagina
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $action azione da eseguire
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function singleContent($item_id, $content_id, $action, $reference){
 	
 		$gform = new Form('gform', 'post', true);
@@ -1371,19 +1515,18 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
-	private function modifyContent($item_id, $content_id, $action, $reference){
-	
-		$GINO = '';
-		
-		if(!empty($content_id) AND $action == $this->_act_modify)
-		{
-			$GINO .= $this->formContent($item_id, $content_id, '', $action, $reference);
-		}
-		
-		return $GINO;
-	}
-	
-	private function formContent($item_id, $content_id, $order_new, $action, $reference){
+	/**
+	 * Form di inserimento e modifica di un blocco di pagina
+	 * 
+	 * @see optionMedia()
+	 * @param integer $item_id valore ID della pagina
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $action azione da eseguire
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @param integer $order_new posizione nella sequenza dei blocchi
+	 * @return string
+	 */
+	private function formContent($item_id, $content_id, $action, $reference, $order_new=''){
 	
 		$gform = new Form('jump', 'post', true, array("trnsl_table"=>$this->_tbl_content, "trnsl_id"=>$content_id));
 		$gform->load('cdataform');
@@ -1507,6 +1650,16 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Elementi multimediali di un blocco della pagina (Form)
+	 * 
+	 * Mostra campi diversi in base al valore del parametro $type_media
+	 * 
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $type_media tipologia di media (vedi pub::_type_media)
+	 * @param string $action azione da eseguire
+	 * @return string
+	 */
 	public function optionMedia($content_id='', $type_media='', $action='') {
 	
 		if(!empty($content_id) AND !empty($action) AND !empty($type_media))
@@ -1614,6 +1767,12 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Elimina i contenuti multimediali associati alla tabella page_block_file
+	 * 
+	 * @see $_group_2
+	 * @see pub::deleteFile()
+	 */
 	public function actionDeleteMedia() {
 	
 		$this->accessGroup($this->_group_2);
@@ -1650,15 +1809,20 @@ class page extends AbstractEvtClass{
 						$GINO .= "<p>"._("non è stato possibile eliminare il file")." '$filename'</p>";
 					}
 				}
-				
-				//$this->_gform = new GinoForm('jump', 'post', false);
-				//$GINO .= $this->_gform->listMultiFile($content_id, $this->_tbl_content_file, $this->_className, 'actionDeleteMedia', 'file_list');
 			}
 		}
 		
 		return $GINO;
 	}
 	
+	/**
+	 * Inserimento e modifica dei blocchi di pagina
+	 * 
+	 * @see $_group_2
+	 * @see actionInsertContentFirst()
+	 * @see actionInsertContent()
+	 * @see actionModifyContent()
+	 */
 	public function actionContent(){
 	
 	$this->accessGroup($this->_group_2);
@@ -1806,6 +1970,13 @@ class page extends AbstractEvtClass{
 		return $count;
 	}
 	
+	/**
+	 * Inserimento e modifica di un blocco di pagina del tipo con inclusione HTML
+	 * 
+	 * Un blocco di pagina generato con l'opzione "inserisci da html" è unico per la pagina
+	 * 
+	 * @see $_group_2
+	 */
 	public function actionSingleContent(){
 	
 		$this->accessGroup($this->_group_2);
@@ -1993,6 +2164,16 @@ class page extends AbstractEvtClass{
 		return $result;
 	}
 	
+	/**
+	 * Form per l'ordinamento dei blocchi di pagina
+	 * 
+	 * @param integer $item_id valore ID della pagina
+	 * @param integer $content_id valore ID del blocco
+	 * @param integer $order_old posizione attuale del blocco
+	 * @param integer $content_tot numero di blocchi della pagina
+	 * @param string $reference valori ID delle pagine che precedono nell'albero la pagina selezionata
+	 * @return string
+	 */
 	private function orderContent($item_id, $content_id, $order_old, $content_tot, $reference){
 	
 		$gform = new Form('orderform', 'post', true, array("tblLayout"=>false));
@@ -2015,6 +2196,11 @@ class page extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Ordinamento dei blocchi di pagina
+	 * 
+	 * @see $_group_2
+	 */
 	public function changeOrder(){
 	
 		$this->accessGroup($this->_group_2);
@@ -2099,6 +2285,19 @@ class page extends AbstractEvtClass{
 		EvtHandler::HttpCall($this->_home, $this->_className.'-managePage', $ref_page);
 	}
 	
+	/**
+	 * Visualizzazione degli elementi multimediali dei blocchi di pagina
+	 * 
+	 * @param integer $content_id valore ID del blocco
+	 * @param string $filename nome del file multimediale (campo @a img della tabella page_block)
+	 * @param string $dirname percorso relativo del file multimediale
+	 * @param string $link collegamento associato a un file multimediale (campo @a link della tabella page_block)
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b preview (boolean): attivare di un preview dell'immagine
+	 *   - @b width (string): larghezza dell'immagine di preview
+	 * @return string
+	 */
 	private function selectMedia($content_id, $filename, $dirname, $link, $options=array()){
 		
 		$preview = array_key_exists('preview', $options) ? $options['preview'] : false;
@@ -2221,6 +2420,14 @@ class page extends AbstractEvtClass{
 		MASTER PAGES (MODULE)
 	*/
 	
+	/**
+	 * Form di inserimento di una nuova pagina principale (modulo-pagina) e di modifica delle opzioni di una pagina principale
+	 * 
+	 * @see $_access_module
+	 * @param integer $id valore ID della pagina
+	 * @param string $reference corrisponde al valore del parametro $i
+	 * @return string
+	 */
 	private function formModule($id, $reference){
 
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_module, "trnsl_id"=>$id));
@@ -2281,6 +2488,11 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Inserimento di una nuova pagina principale e di modifica delle opzioni di una pagina principale
+	 * 
+	 * @see $_access_module
+	 */
 	public function actionModule(){
 
 		$this->accessType($this->_access_module);
@@ -2361,6 +2573,15 @@ class page extends AbstractEvtClass{
 			exit(error::errorMessage(array('error'=>9), $link_error));
 	}
 	
+	/**
+	 * Form di eliminazione di una pagina principale
+	 * 
+	 * @see $_access_module
+	 * @param integer $id valore ID della pagina
+	 * @param string $action azione da eseguire
+	 * @param string $reference corrisponde al valore del parametro $i
+	 * @return string
+	 */
 	private function formDeleteModule($id, $action, $reference){
 
 		$gform = new Form('gform', 'post', false);
@@ -2392,7 +2613,6 @@ class page extends AbstractEvtClass{
 
 			$GINO .= $gform->cinput('delete_action', 'submit', _("elimina"), array(_("Attenzione!"), _("l'eliminazione è definitiva e comporta l'eliminazione delle pagine che seguono nell'albero")), array("classField"=>"submit"));
 			$GINO .= $gform->cform();
-
 		}
 
 		$htmlsection->content = $GINO;
@@ -2400,6 +2620,11 @@ class page extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Eliminazione di una pagina principale
+	 * 
+	 * @see $_access_module
+	 */
 	public function actionDeleteModule(){
 
 		$this->accessType($this->_access_module);
@@ -2481,85 +2706,11 @@ class page extends AbstractEvtClass{
 		exit(error::errorMessage(array('error'=>9), $link_error));
 	}
 	
-	/*
-		LAYOUT
-	*/
-	
-	public function listBlockLayout(){
-	
-		$this->accessGroup('');
-
-		$GINO = EvtHandler::html_header($this->_className);
-		
-		$GINO .= "<div class=\"area\">\n";
-		
-		$GINO .= "<div class=\"area_title\">"._("Layout blocchi di pagina")."</div>\n";
-		
-		$query = "SELECT id, name FROM ".$this->_tbl_content_layout."";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach($a AS $b)
-			{
-				$id = $b['id'];
-				$name = htmlInput($b['name']);
-				
-				$GINO .= "<div class=\"lista\">\n";
-				$GINO .= "<dl>\n";
-				
-				$GINO .= "<dt class=\"special\"></dt>\n";
-				
-				$GINO .= "<dd>\n";
-				
-				$GINO .= "<form action=\"".$this->_home."?evt[".$this->_className."-actionBlockLayout]\" method=\"post\">\n";
-				$GINO .= "<div class=\"form\">\n";
-				
-				$GINO .= "<input type=\"hidden\" id=\"id\" name=\"id\" value=\"$id\" />\n";
-				
-				$GINO .= "<label>\n";
-				$GINO .= "<input type=\"text\" id=\"name\" name=\"name\" value=\"$name\" size=\"40\" maxlength=\"50\" />\n";
-				$GINO .= "</label>\n";
-				
-				//$GINO .= $this->_gform->cinput('name', $name, _("Nome"), 'req', '', '', 'text', 40, 50, '', true, $this->_tbl_content_layout, 'name', $id);
-				
-				$GINO .= "<label><input type=\"submit\" id=\"submit_action\" name=\"submit_action\" value=\""._("cambia")."\" /></label>\n";
-				
-				$GINO .= "</div>\n";
-				$GINO .= "</form>\n";
-		
-				$GINO .= "</dd>\n";
-				
-				$GINO .= "</dl>\n";
-				$GINO .= "</div>\n";
-			}
-		}
-		else
-		{
-			$GINO .= "<p>"._("elementi ancora da inserire.")."</p>\n";
-		}
-		$GINO .= "</div>\n";
-		
-		echo $GINO;
-	}
-	
-	public function actionBlockLayout(){
-	
-		$this->accessGroup('');
-
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$name = cleanVar($_POST, 'name', 'string', '');
-		
-		if(!empty($name))
-		{
-			$query = "UPDATE ".$this->_tbl_content_layout." SET name='$name' WHERE id='$id'";
-			$this->_db->actionquery($query);
-			
-			EvtHandler::HttpCall($this->_home, $this->_className.'-listBlockLayout', '');
-		}
-		else
-			exit(error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_className-listBlockLayout]"));
-	}
-	
+	/**
+	 * Layout di default di un blocco pagina
+	 * 
+	 * @return integer
+	 */
 	private function defaultLayout(){
 	
 		$default = '';
@@ -2576,14 +2727,27 @@ class page extends AbstractEvtClass{
 		
 		return $default;
 	}
-	// END LAYOUT
 	
+	/**
+	 * Definizione dei parametri da utilizzare per il modulo "Ricerca nel sito"
+	 * 
+	 * Il modulo "Ricerca nel sito" richiama questo metodo per ottenere informazioni riguardo alla tabella, campi, pesi ecc... per effettuare la ricerca dei contenuti
+	 * 
+	 * @see searchSite::results()
+	 * @return array array associativo contenente i parametri per la ricerca
+	 */
 	public function searchSite() {
 	
-		return array("table"=>"page AS p, page_block AS pb", "selected_fields"=>array("p.item_id", array("highlight"=>true, "field"=>"p.title"), array("highlight"=>true, "field"=>"p.subtitle"), array("highlight"=>true, "field"=>"pb.text")), "required_clauses"=>array("p.item_id"=>array("field"=>true, "value"=>"pb.item")), "weight_clauses"=>array("p.title"=>array("weight"=>3), "p.subtitle"=>array("weight"=>2), "pb.text"=>array("weight"=>1)));	
-	
+		return array("table"=>"page AS p, page_block AS pb", "selected_fields"=>array("p.item_id", array("highlight"=>true, "field"=>"p.title"), array("highlight"=>true, "field"=>"p.subtitle"), array("highlight"=>true, "field"=>"pb.text")), "required_clauses"=>array("p.item_id"=>array("field"=>true, "value"=>"pb.item")), "weight_clauses"=>array("p.title"=>array("weight"=>3), "p.subtitle"=>array("weight"=>2), "pb.text"=>array("weight"=>1)));
 	}
 
+	/**
+	 * Definisce la presentazione del singolo item trovato a seguito di ricerca (modulo "Ricerca nel sito")
+	 * 
+	 * @see searchSite::results()
+	 * @param array array associativo contenente i risultati della ricerca
+	 * @return string
+	 */
 	public function searchSiteResult($results) {
 	
 		$buffer = "<div><a href=\"$this->_home?evt[$this->_className-displayItem]&id=".$results['p.item_id']."\">";
@@ -2591,7 +2755,6 @@ class page extends AbstractEvtClass{
 		$buffer .= "</a></div>";
 		if($results['pb.text']) $buffer .= "<div class=\"search_text_result\">...".htmlChars($results['pb.text'])."...</div>";
 		return $buffer;
-		
 	}
 }
 ?>

@@ -1,5 +1,31 @@
 <?php
+/**
+ * @file class.document.php
+ * @brief Contiene la classe Document
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria che si preoccupa di costruire la pagina richiesta e di stamparla utilizzando il metodo render()
+ * 
+ * Procedura eseguita dalla libreria:
+ *   - se sono attivi i permalink, converte l'indirizzo dal permalink recuperando la REQUEST_URI (metodo convertLink)
+ *   - verifica la corrispondenza dell'url con una skin (skin::getSkin()) e recupera i riferimenti della skin dal record della tabella sys_layout_skin
+ *   - verifica se la pagina è in cache (outputCache->start)
+ *   - carica la parte iniziale della pagina con i file css e javascript (header html, head e avvio body). I valori di default indicati nella sezione head sono definiti in Impostazioni. E' tuttavia possibile personalizzare questi valori sovrascrivendoli nel registro
+ *   - istanzia il template associato alla skin e recupera il nome del file del template
+ *   - effettua il parser del file di template e sostituisce ai marcatori dei moduli di classe, pagina e funzione il contenuto associato
+ *   - chiude la connessione al database
+ *   - carica i tag di chiusura del file html (body, html)
+ *   - stampa la pagina
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class Document {
 
 	private $_registry, $_db, $session, $_plink;
@@ -30,10 +56,14 @@ class Document {
 	/**
 	 * Crea il documento
 	 * 
-	 * Esempi di contenuti delle varialibi $_SERVER:
+	 * @return string
+	 * 
+	 * Esempi di contenuti delle variabili $_SERVER:
+	 * @code
 	 * $_SERVER["QUERY_STRING"]=> string(18) "articoli/viewList/"
 	 * $_SERVER["REQUEST_URI"]=> string(41) "/gino/articoli/viewList/?b3JkZXI9dGl0bGU="
 	 * $_SERVER["SCRIPT_NAME"]=> string(15) "/gino/index.php"
+	 * @endcode
 	 */
 	public function render() {
 
@@ -89,6 +119,11 @@ class Document {
 		return $buffer;
 	}
 
+	/**
+	 * Caricamento nel registro dei parametri base
+	 * 
+	 * @param object $skinObj
+	 */
 	private function initHeadVariables($skinObj) {
 
 		$this->_registry->title = htmlChars(pub::variable('head_title'));

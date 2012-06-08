@@ -2503,9 +2503,9 @@ msgstr ""
 
 #: app/phpModuleView/class_phpModuleView.php:203
 msgid ""
-"Si consiglia di fare molta attenzione perchè nonostante l'accesso alle "
+"Si consiglia di fare molta attenzione perché nonostante l'accesso alle "
 "funzionalità più pericolose del php sia proibito, si ha un controllo "
-"completo sulle variabili, ed in caso di cattvo uso del modulo si potrebbe "
+"completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe "
 "seriamente compromettere la visualizzazione del modulo o dell'intero sito."
 msgstr ""
 

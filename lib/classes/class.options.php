@@ -1,17 +1,28 @@
 <?php
 /**
+ * @file class.options.php
+ * @brief Contiene la classe options
  * 
- * Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
- * Le opzioni che possono essere associate a ciascun campo sono:
- * 
- * label			string		nome della label
- * value			mixed		valore di default
- * required			boolean		campo obbligatorio
- * section			boolean		segnala l'inizio di un blocco di opzioni
- * section_title	string		nome del blocco di opzioni
- *
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
+ * 
+ * Le opzioni che possono essere associate a ciascun campo sono:
+ * 
+ *   - @b label (string): nome della label
+ *   - @b value (mixed): valore di default
+ *   - @b required (boolean): campo obbligatorio
+ *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
+ *   - @b section_title (string): nome del blocco di opzioni
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class options extends pub {
 
 	private $_class, $_class_prefix;
@@ -80,6 +91,11 @@ class options extends pub {
 		return ($field != 'id' && $field != 'instance');
 	}
 	
+	/**
+	 * Interfaccia per la gestione delle opzioni di una istanza/modulo (Form)
+	 * 
+	 * @return string
+	 */
 	public function manageDoc(){
 
 		if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) return $this->actionOptions();
@@ -199,6 +215,11 @@ class options extends pub {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica delle opzioni di una istanza/modulo
+	 * 
+	 * @return redirect
+	 */
 	public function actionOptions() {
 	
 		$gform = new Form('gform', 'post', false);

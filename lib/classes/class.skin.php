@@ -1,11 +1,32 @@
 <?php
+/**
+ * @file class.skin.php
+ * @brief Contiene la classe skin
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per la gestione delle skin
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class skin extends propertyObject {
 
 	protected $_tbl_data;
 	private static $_tbl_skin = 'sys_layout_skin';
 	private $_home, $_interface;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $id valore ID del record
+	 * @return void
+	 */
 	function __construct($id) {
 
 		$this->_tbl_data = self::$_tbl_skin;
@@ -60,6 +81,12 @@ class skin extends propertyObject {
 		return true;
 	}
 
+	/**
+	 * Elenco delle skin in formato object
+	 * 
+	 * @param string $order per quale campo ordinare i risultati
+	 * @return array
+	 */
 	public static function getAll($order='priority') {
 
 		$db = db::instance();
@@ -75,6 +102,12 @@ class skin extends propertyObject {
 		return $res;
 	}
 
+	/**
+	 * Ricerca la corrispondenza dell'url con una skin
+	 * 
+	 * @param string $relativeUrl percorso relativo
+	 * @return object o false
+	 */
 	public static function getSkin($relativeUrl) {
 
 		$db = db::instance();
@@ -155,6 +188,12 @@ class skin extends propertyObject {
 		else return false;
 	}
 
+	/**
+	 * Elimina dalla tabella delle skin il riferimento a uno specifico file css
+	 * 
+	 * @param integer $id valore ID del css associato alla skin
+	 * @return boolean
+	 */
 	public static function removeCss($id) {
 
 		$db = db::instance();
@@ -164,6 +203,12 @@ class skin extends propertyObject {
 		return $result;
 	}
 	
+	/**
+	 * Elimina dalla tabella delle skin il riferimento a uno specifico template
+	 * 
+	 * @param integer $id valore ID del template associato alla skin
+	 * @return boolean
+	 */
 	public static function removeTemplate($id) {
 		
 		$db = db::instance();
@@ -173,6 +218,11 @@ class skin extends propertyObject {
 		return $result;
 	}
 
+	/**
+	 * Riporta la priorità di una nuova skin
+	 * 
+	 * @return integer
+	 */
 	public static function newSkinPriority() {
 
 		$db = db::instance();
@@ -184,6 +234,11 @@ class skin extends propertyObject {
 		return 1;
 	}
 
+	/**
+	 * Form per la creazione e la modifica di una skin
+	 * 
+	 * @return string
+	 */
 	public function formSkin() {
 
 		$gform = new Form('gform', 'post', true);
@@ -223,6 +278,9 @@ class skin extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica di una skin
+	 */
 	public function actionSkin() {
 
 		$gform = new Form('gform', 'post', false);
@@ -249,6 +307,11 @@ class skin extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
 	}
 	
+	/**
+	 * Form per l'eliminazione di una skin
+	 * 
+	 * @return string
+	 */
 	public function formDelSkin() {
 	
 		$gform = new Form('gform', 'post', false);
@@ -269,6 +332,9 @@ class skin extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di una skin
+	 */
 	public function actionDelSkin() {
 		
 		language::deleteTranslations($this->_tbl_data, $this->id);
@@ -277,6 +343,11 @@ class skin extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
 	}
 
+	/**
+	 * Descrizione della procedura
+	 * 
+	 * @return string
+	 */
 	public static function layoutInfo() {
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni skin")));

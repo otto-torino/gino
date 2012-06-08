@@ -1,10 +1,30 @@
 <?php
+/**
+ * @file class.error.php
+ * @brief Contiene la classe error
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Gestisce gli errori e contiene i codice di errore
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class error {
 
+	/**
+	 * Elenco dei codici di errore
+	 * 
+	 * @return array
+	 */
 	public static function codeMessages() {
 
-		return	array(
+		return array(
 			1=>_("non sono stati compilati tutti i campi obbligatori"),
 			2=>_("non è stato compilato almeno un campo"),
 			3=>_("il file non può essere inserito perché non conforme alle specifiche"),
@@ -44,6 +64,22 @@ class error {
 		);
 	}
 
+	/**
+	 * Gestione dell'errore con reindirizzamento alla pagina costruita nel metodo
+	 * 
+	 * Da utilizzare essenzialmente per gli errori di sistema
+	 * 
+	 * @param string $class nome della classe che genera l'errore
+	 * @param string $function nome del metodo che genera l'errore
+	 * @param string $message testo dell'errore
+	 * @param integer $line numero di linea dell'errore (la costante magica __LINE__ riporta il numero di linea corrente del file)
+	 * @return print page
+	 * 
+	 * Esempio
+	 * @code
+	 * exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
+	 * @endcode
+	 */
 	public static function syserrorMessage($class, $function, $message, $line=null) {
 
 		$buffer = "<html>\n";
@@ -73,6 +109,20 @@ class error {
 		echo $buffer;
 	}
 	
+	/**
+	 * Gestione dell'errore con reindirizzamento a un indirizzo indicato
+	 * 
+	 * @param mixed $message
+	 *   - @a string: testo personalizzato dell'errore
+	 *   - @a array: codice di errore
+	 * @param string $link collegamento al quale reindirizzare a seguito dell'errore
+	 * @return redirect
+	 * 
+	 * Esempio
+	 * @code
+	 * exit(error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
+	 * @endcode
+	 */
 	public static function errorMessage($message, $link) {
 
 		$codeMessages = self::codeMessages();
@@ -91,6 +141,11 @@ class error {
 		header("Location: $link");
 	}
 
+	/**
+	 * Recupera il messaggio di errore
+	 * 
+	 * @return string
+	 */
 	public static function getErrorMessage() {
 
 		$session = session::instance();

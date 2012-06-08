@@ -1,7 +1,35 @@
 <?php
+/**
+ * @file class_phpModuleView.php
+ * @brief Contiene la classe phpModuleView
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+// Include il file class.PhpModule.php
 require_once('class.PhpModule.php');
 
+/**
+ * @brief Permette la creazione di moduli di classe in grado di eseguire codice php completamente personalizzabile
+ * 
+ * Procedura:
+ *   - si crea un modulo di classe selezionando la classe phpModuleView
+ *   - il modulo diventa visibile nella sezione moduli
+ *   - selezionando il modulo creato si accede alle funzionalità della classe phpModuleView
+ *   - nella sezione @a Contenuto è possibile scrivere direttamente il codice php
+ * 
+ * Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate.
+ * Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.
+ * 
+ * Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di non utilizzare le funzioni per la stampa diretta @a echo e @a print, ma di immagazzinare tutto l'output all'interno della variabile @a $buffer, che verrà stampata all'interno del layout.
+ * Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class phpModuleView extends AbstractEvtClass {
 	
 	protected $_instance, $_instanceName;
@@ -46,23 +74,29 @@ class phpModuleView extends AbstractEvtClass {
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 
-		$this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", 
-					  "system");
-
+		$this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
 	}
 	
+	/**
+	 * Fornisce i riferimenti della classe, da utilizzare nel processo di creazione e di eliminazione di una istanza 
+	 * 
+	 * @return array
+	 */
 	public function getClassElements() {
 
 		return array("tables"=>array('php_module', 'php_module_opt', 'php_module_grp', 'php_module_usr'),
-				"css"=>array('phpModule.css'),
-				"folderStructure"=>array(
-					CONTENT_DIR.OS.'phpModule'=> null	
-	     		 	)
-
-		      );
-
+			"css"=>array('phpModule.css'),
+			"folderStructure"=>array(
+				CONTENT_DIR.OS.'phpModule'=> null
+			)
+		);
 	}
 
+	/**
+	 * Eliminazione di una istanza
+	 * 
+	 * @return boolean
+	 */
 	public function deleteInstance() {
 
 		$this->accessGroup('');
@@ -96,15 +130,20 @@ class phpModuleView extends AbstractEvtClass {
 		return $result;
 	}
 
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: assistenti
+	 */
 	private function setGroups(){
 		
-		// Gestione moduli
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 	
-	/*
-	 * Funzioni di classe che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"method pivilege")
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
 	 */
 	public static function outputFunctions() {
 
@@ -115,6 +154,12 @@ class phpModuleView extends AbstractEvtClass {
 		return $list;
 	}
 
+	/**
+	 * Visualizzazione del modulo
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function viewList() {
 
 		$this->accessType($this->_access_base);
@@ -137,9 +182,13 @@ class phpModuleView extends AbstractEvtClass {
 		$htmlsection->content = $GINO.$buffer;
 
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione dei moduli di classe 'phpModuleView'
+	 * 
+	 * @return string
+	 */
 	public function manageDoc() {
 
 		$this->accessGroup('ALL');
@@ -191,8 +240,6 @@ class phpModuleView extends AbstractEvtClass {
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $GINO;
 		return $htmltab->render();
-
-
 	}
 
 	private function info(){
@@ -200,16 +247,11 @@ class phpModuleView extends AbstractEvtClass {
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni")));
 		$buffer = "<p>"._("Il modulo permette di eseguire codice php completamente personalizzabile, e di visualizzare l'output prodotto. Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate. Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.")."</p>\n";
 		$buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
-		$buffer .= "<p>"._("Si consiglia di fare molta attenzione perchè nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattvo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
+		$buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
 		
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
 	}
-
-
-
-
 }
-
 ?>

@@ -1,35 +1,206 @@
 <?php
+/**
+ * @file class.db.php
+ * @brief Contiene l'interfaccia DbManager e la classe db
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+// Include il file di connessione al database plugin.mysql.php
 include_once(PLUGIN_DIR.OS."plugin.mysql.php");
 
+/**
+ * @brief Interfaccia per le librerie di connessione al database
+ * 
+ * Definiscono una serie di metodi che le librerie di connessione al database dovranno implementare.
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 interface DbManager {
 
 	function __construct($params);
 
+	/**
+	 * Apre una connessione al database
+	 * 
+	 * @return boolean
+	 */
 	public function openConnection();
+	
+	/**
+	 * Chiude la connessione
+	 */
 	public function closeConnection();
+	
+	/**
+	 * Istruzione begin
+	 * 
+	 * @return boolean
+	 */
 	public function begin();
+	
+	/**
+	 * Istruzione rollback
+	 * 
+	 * @return boolean
+	 */
 	public function rollback();
+	
+	/**
+	 * Istruzione commit
+	 * 
+	 * @return boolean
+	 */
 	public function commit();
+	
+	/**
+	 * Esecuzione della query (istruzioni insert, update, delete)
+	 * 
+	 * @param string $query query
+	 * @return boolean
+	 */
 	public function actionquery($query);
+	
+	/**
+	 * Esegue una o più query concatenate dal punto e virgola
+	 * 
+	 * @param string $query query
+	 * @return boolean
+	 */
 	public function multiActionquery($query);
+	
+	/**
+	 * Esecuzione della query (istruzione select)
+	 * 
+	 * @param string $query query
+	 * @return array
+	 */
 	public function selectquery($query);
-	public function resultselect($query);	// numero di record risultanti da un select
-	public function affected();				// numero di record interessati da una istruzione INSERT, UPDATE o DELETE
-	public function getlastid($table);		// valore dell'ultimo ID dopo una istruzione INSERT o UPDATE
-	public function autoIncValue($table);	// valore di Autoincrement
+	
+	/**
+	 * Numero di record risultanti da una istruzione SELECT
+	 * 
+	 * @param string $query	query
+	 * @return integer
+	 */
+	public function resultselect($query);
+	
+	/**
+	 * Numero di record interessati da una istruzione INSERT, UPDATE o DELETE
+	 * 
+	 * @return integer
+	 */
+	public function affected();
+	
+	/**
+	 * Valore dell'ultimo ID generato da una colonna Auto Increment a seguito di una istruzione INSERT o UPDATE
+	 * 
+	 * @param string $table nome della tabella
+	 * @return integer
+	 */
+	public function getlastid($table);
+	
+	/**
+	 * Valore di Auto Increment
+	 * 
+	 * @param string $table nome della tabella
+	 * @return integer
+	 */
+	public function autoIncValue($table);
+	
+	/**
+	 * Ricava il valore di un campo a una data condizione
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $field nome del campo del quale occorre ricavare il valore
+	 * @param string $field_id nome del campo condizione (where)
+	 * @param mixed $id valore del campo condizione (where)
+	 * @return mixed
+	 */
 	public function getFieldFromId($table, $field, $field_id, $id);
+	
+	/**
+	 * Verifica se una tabella esiste
+	 * 
+	 * @param string $table nome della tabella
+	 * @return boolean
+	 */
 	public function tableexists($table);
+	
+	/**
+	 * Recupera le informazioni sui campi di una tabella
+	 * 
+	 * @param string $table nome della tabella
+	 * @return array
+	 */
 	public function fieldInformations($table);
-	public function limit($range, $offset);	// istruzione per limitare i risultati di una query
-	public function concat($sequence);		// istruzione per concatenare i campi
+	
+	/**
+	 * Istruzione per limitare i risultati di una query (LIMIT)
+	 *
+	 * @param integer $range
+	 * @param integer $offset
+	 * @return string
+	 * 
+	 * @code
+	 * $this->_db->limit(1, 0);
+	 * @endcode
+	 * 
+	 * sintassi SQL con PostgreSQL:
+	 * @code
+	 * $string = "LIMIT $range OFFSET $offset";
+	 * @endcode
+	 */
+	public function limit($range, $offset);
+	
+	/**
+	 * Istruzione per concatenare i campi
+	 *
+	 * @param mixed $sequence elenco di campi da concatenare
+	 * @return string
+	 * 
+	 * @code
+	 * $this->_db->concat(array("label", "' ('", "server", "')'"));
+	 * @endcode
+	 * 
+	 * sintassi SQL con MySQL:
+	 * @code
+	 * concat(array("lastname", "' '", "firstname"))
+	 * @endcode
+	 * sintassi SQL con PostgreSQL:
+	 * @code
+	 * $string = implode(' || ', $sequence);
+	 * @endcode
+	 * sintassi SQL con SQL Server:
+	 * @code
+	 * $string = implode(' + ', $sequence);
+	 * $concat = $string;
+	 * @endcode
+	 */
+	public function concat($sequence);
+	
+	/**
+	 * Effettua il dump del database
+	 * 
+	 * @param string $file percorso completo del file da scrivere
+	 * @return boolean
+	 */
 	public function dumpDatabase($file);
-
 }
 
-/*
-* Factory Class which creates concrete db objects
-*/
+/**
+ * @brief Classe dalla quale vengono creati gli oggetti che si interfacciano al database
+ * 
+ * Le librerie di connessione al database sono sottoclassi di questa (che funziona come "scheletro") e vengono instanziate nel metodo instance()
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 abstract class db extends singleton {
 
 	/* DB Configuration Paramethers */
@@ -40,6 +211,10 @@ abstract class db extends singleton {
 	private static $_db_charset = DB_CHARSET;
 	private static $_db_schema = DB_SCHEMA;
 	
+	/**
+	 * Istanzia la classe che si occupa della connessione al database
+	 * @return object
+	 */
 	public static function instance() {
 
 		$class = get_class();

@@ -1,10 +1,46 @@
 <?php
+/**
+ * @file class.category.php
+ * @brief Contiene la classe Category
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per gestire una categorizzazione ad albero infinito
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Per poter utilizzare questa libreria occorre:
+ * 1. includere la classe
+ * 2. creare una tabella
+ * @code
+ * CREATE TABLE IF NOT EXISTS `[RIFERIMENTO-TABELLA]_ctg` (
+ * `id` int(11) NOT NULL AUTO_INCREMENT,
+ * `instance` int(11) NOT NULL DEFAULT '0',
+ * `name` varchar(200) NOT NULL,
+ * `parent` int(11) NOT NULL,
+ * `description` text NOT NULL,
+ * PRIMARY KEY (`id`)
+ * ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+ * @endcode
+ */
 class Category extends propertyObject {
 
 	protected $_tbl_data;
 	private $_class_instance;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $id valore ID della categoria selezionata
+	 * @param string $tbl nome della tabella delle categorie
+	 * @param integer $instance valore ID dell'istanza
+	 */
 	function __construct($id, $tbl, $instance) {
 		
 		$this->_tbl_data = $tbl;
@@ -22,9 +58,25 @@ class Category extends propertyObject {
 		else return array('id'=>null, 'instance'=>0, 'name'=>null, 'parent'=>null, 'description'=>null);
 	}
 
-	/*
+	/**
 	 * Print the category tree expanded, with the possibility to give 4 links: insert, modify, delete and view
+	 * 
 	 * Even the list class is custom
+	 * 
+	 * @param integer $parent valore ID della categoria superiore
+	 * @param string $link indirizzo di base al quale aggiungere i parametri per le diverse azioni su di una categoria
+	 *   ad esempio:
+	 *   @code
+	 *   $ctg->printTree(0, $this->_home."?evt[$this->_instanceName-manageDoc]&block=ctg&", array("view"=>false));
+	 *   @endcode
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b css_list (string)
+	 *   - @b id_name (string)
+	 *   - @b insert (boolean)
+	 *   - @b modify (boolean)
+	 *   - @b delete (boolean)
+	 *   - @b view (boolean)
 	 */
 	public function printTree($parent, $link, $options=null) {
 
@@ -70,8 +122,11 @@ class Category extends propertyObject {
 		return $buffer;
 	}
 
-	/*
+	/**
 	 * Gets first level or all category children
+	 * 
+	 * @param boolean $all
+	 * @return array
 	 */
 	public function getChildren($all=false) {
 
@@ -90,8 +145,16 @@ class Category extends propertyObject {
 		return $children;
 	}
 
-	/*
-	 * return an array("key"=>"value") from a query. the value contains all the parent categories. Needed in select form.
+	/**
+	 * Ritorna l'elenco di tutte le categorie superiori. Da utilizzare in un select form
+	 * 
+	 * @param string $query query
+	 * @return array
+	 * 
+	 * Esempio:
+	 * @code
+	 * $gform->select('ctg', $ctg, $ctgObj->inputTreeArray("SELECT id FROM $this->_tbl_ctg WHERE id NOT IN (SELECT parent FROM $this->_tbl_ctg)"), array()); 
+	 * @endcode
 	 */
 	public function inputTreeArray($query) {
 	
@@ -134,8 +197,10 @@ class Category extends propertyObject {
 		return $ctg_parent_tree;
 	}
 
-	/*
-	 * return all end tree categories (categories that have no children)
+	/**
+	 * Ritorna l'elenco delle categorie che non hanno rami figli
+	 * 
+	 * @return array
 	 */
 	public function getEndTreeCategories() {
 	

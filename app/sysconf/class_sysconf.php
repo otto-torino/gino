@@ -1,23 +1,41 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_sysconf.php
+ * @brief Contiene la classe sysconf
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief Gestione delle principali impostazioni di sistema
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Le impostazioni di sistema sono:
+ *   - Livello base autenticazione
+ *   - Livello autenticazione amministratore
+ *   - Gestione lingue
+ *   - Lingua di default (se la gestione lingue è disattivata)
+ *   - Log degli accessi
+ *   - Metodo criptazione password
+ *   - Caricamento metodi richiamati da url
+ *   - Descrizione sito
+ *   - Parole chiave sito
+ *   - Titolo sito
+ *   - Abilita la cache di contenuti e dati
+ *   - Codice google analytics (es. UA-1234567-1)
+ *   - Chiave pubblica reCAPTCHA
+ *   - Chiave privata reCAPTCHA
+ *   - Email amministratore di sistema
+ *   - Email invio automatico comunicazioni
+ *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
+ *   - Contenuto file robots.txt
+ *   - Permalink
+ */
 class sysconf extends AbstractEvtClass{
 
 	private $_title;
@@ -32,6 +50,13 @@ class sysconf extends AbstractEvtClass{
 		$this->_title = _("Impostazioni");
 	}
 	
+	/**
+	 * Interfaccia per la gestione delle impostazioni
+	 * 
+	 * Visualizzazione e form di modifica
+	 * 
+	 * @return string
+	 */
 	public function manageSysconf() {
 
 		$this->accessType($this->_access_admin);
@@ -234,7 +259,6 @@ class sysconf extends AbstractEvtClass{
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $buffer;
 		return $htmltab->render();
-
 	}
 	
 	public function emptyCache() {
@@ -242,9 +266,11 @@ class sysconf extends AbstractEvtClass{
 		$this->deleteFileDir(CACHE_DIR, false);
 
 		header("Location: $this->_home?evt[$this->_className-manageSysconf]");
-
 	}
 
+	/**
+	 * Modifica le impostazioni si sistema
+	 */
 	public function actionSysconf() {
 	
 		$this->accessType($this->_access_admin);

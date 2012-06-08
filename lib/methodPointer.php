@@ -1,4 +1,16 @@
 <?php
+/**
+ * @file methodPointer.php
+ * @brief Prende in carico le richieste ajax, controllando se esistono la classe e il metodo richiesti
+ * 
+ * Una richiesta ajax è valida se
+ *   - la request ha come nome @a pt
+ *   - il metodo è definito nel file @a .ini
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
 if(isset($_REQUEST['pt'])) {
 	

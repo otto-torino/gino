@@ -1,7 +1,23 @@
 <?php
+/**
+ * @file class_searchSite.php
+ * @brief Contiene la classe searchSite
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+// Include la libreria per le ricerche full text
 require_once(CLASSES_DIR.OS."class.search.php");
 
+/**
+ * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class searchSite extends AbstractEvtClass {
 
 	private $_optionsValue;
@@ -43,6 +59,11 @@ class searchSite extends AbstractEvtClass {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
+	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -52,6 +73,11 @@ class searchSite extends AbstractEvtClass {
 		return $list;
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione delle ricerche
+	 * 
+	 * @return string
+	 */
 	public function manageSearchSite() {
 	
 		$this->accessGroup('ALL');
@@ -80,15 +106,22 @@ class searchSite extends AbstractEvtClass {
 		return $htmltab->render();
 	}
 
+	/**
+	 * Form di ricerca
+	 * 
+	 * @return string
+	 */
 	public function form() {
 	
 		$gform = new Form('gform', 'post', true, array('tblLayout'=>false));
 		$gform->load('dataform');
 
-		$buffer = $this->scriptAsset("searchSite.js", "searchSiteJS", 'js');
-		$buffer .= $this->scriptAsset("searchSite.css", "searchSiteCSS", 'css');
+		$registry = registry::instance();
+		$registry->addCss($this->_class_www."/searchSite.css");
+		$registry->addJs($this->_class_www."/searchSite.js");
+		
 		$required = '';
-		$buffer .= $gform->form($this->_home."?evt[".$this->_className."-results]", '', $required);
+		$buffer = $gform->form($this->_home."?evt[".$this->_className."-results]", '', $required);
 		$field = "<input type=\"text\" name=\"search_site\" id=\"search_site\"/>";
 		$button = "<input type=\"submit\" id=\"search_site_submit\" value=\" \" />";
 		
@@ -137,6 +170,14 @@ class searchSite extends AbstractEvtClass {
 		return $buffer;
 	}
 
+	/**
+	 * Stampa i risultati di una ricerca
+	 * 
+	 * La ricerca viene effettuata sui moduli nei quali sono stati definiti i metodi @a searchSite() e @a searchSiteResult()
+	 * 
+	 * @see search::getSearchResults()
+	 * @return string
+	 */
 	public function results() {
 
 		$keywords = cleanVar($_POST, 'search_site', 'string', '');

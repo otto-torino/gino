@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file singleton.php
+ * @brief Contiene la classe singleton
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Singleton Design Pattern
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 abstract class singleton {
 
 	protected static $_instances = array();
@@ -8,7 +23,13 @@ abstract class singleton {
 
 	}
 
-	// singleton main method, return always the same instance
+	/**
+	 * Metodo principale singleton
+	 * 
+	 * Ritorna sempre la stessa istanza
+	 * 
+	 * @return object
+	 */
 	public static function instance() {
 
 		$class = get_called_class();

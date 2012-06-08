@@ -1,11 +1,33 @@
 <?php
+/**
+ * @file class.PhpModule.php
+ * @brief Contiene la classe PhpModule
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Fornisce gli strumenti alla classe phpModuleView per la gestione amministrativa
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class PhpModule extends propertyObject {
 
 	protected $_tbl_data;
 	public static $_tbl_php_mdl = 'php_module';
 	private $_home, $_interface;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $instance valore ID dell'istanza
+	 * @param string $interface nome dell'istanza
+	 * @return void
+	 */
 	function __construct($instance, $interface) {
 
 		$this->_tbl_data = self::$_tbl_php_mdl;
@@ -43,6 +65,11 @@ class PhpModule extends propertyObject {
 		return true;
 	}
 	
+	/**
+	 * Form di inserimento e modifica del codice php
+	 * 
+	 * @return string
+	 */
 	public function formPhpModule() {
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica codice")));
@@ -63,6 +90,9 @@ class PhpModule extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica del codice php
+	 */
 	public function actionPhpModule() {
 		
 		$gform = new Form('gform', 'post', false, array("verifyToken"=>true));
