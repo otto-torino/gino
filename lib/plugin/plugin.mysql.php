@@ -407,5 +407,40 @@ class mysql implements DbManager {
 
 		return true;
 	}
+	
+	/**
+	 * @see DbManager::getTableStructure()
+	 */
+	public function getTableStructure($table) {
+
+		$structure = array("primary_key"=>null, "keys"=>array());
+		$fields = array();
+
+		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
+		$res = mysql_query($query);
+
+		while($row = mysql_fetch_array($res)) {
+			
+			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
+			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
+			$fields[$row['COLUMN_NAME']] = array(
+				"order"=>$row['ORDINAL_POSITION'],
+				"default"=>$row['COLUMN_DEFAULT'],
+				"null"=>$row['IS_NULLABLE'],
+				"type"=>$row['DATA_TYPE'],
+				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
+				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
+				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
+				"key"=>$row['COLUMN_KEY'],
+				"extra"=>$row['EXTRA'] ,
+				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
+			);
+			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
+			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
+		}
+		$structure['fields'] = $fields;
+
+		return $structure;
+	}
 }
 ?>

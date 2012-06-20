@@ -35,4 +35,6 @@ include_once(CLASSES_DIR.OS."class.form.php");
 include_once(CLASSES_DIR.OS."class.admin.php");
 include_once(CLASSES_DIR.OS."class.options.php");
 include_once(CLASSES_DIR.OS."class.account.php");
+
+include_once(CLASSES_DIR.OS.'class.adminTable.php');
 ?>

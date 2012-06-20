@@ -190,6 +190,47 @@ interface DbManager {
 	 * @return boolean
 	 */
 	public function dumpDatabase($file);
+	
+	/**
+	 * Informazioni sulla struttura di una tabella del database
+	 * 
+	 * @param string $table nome della tabella
+	 * @return array
+	 * 
+	 * In MySQL l'array è nella forma \n
+	 * @code
+	 * array(
+	 *   'primary_key'=>'primary_key_name', 
+	 *   'keys'=>array('keyname1', 'keyname2'), 
+	 *   'fields'=>array(
+	 *     'fieldname1'=>array(
+	 *       'property1" => "value1', 
+	 *       'property2" => "value2', 
+	 *       [...]
+	 *     ), 
+	 *     'fieldname2'=>array(
+	 *       'property1" => "value1', 
+	 *       'property2" => "value2', 
+	 *       [...]
+	 *     ), 
+	 *     [...]
+	 *   )
+	 * )
+	 * @endcode
+	 * 
+	 * Per ogni campo si recuperano le seguenti proprietà:
+	 * - @b order: the ordinal position
+	 * - @b deafult: the default value
+	 * - @b null: whether the field is nullable or not
+	 * - @b type: the field type (varchar, int, text, ...)
+	 * - @b max_length: the field max length
+	 * - @b n_int: the number of int digits
+	 * - @b n_precision: the number of decimal digits
+	 * - @b key: the field key if set
+	 * - @b extra: extra information
+	 * - @b enum: valori di un campo enumerazione
+	 */
+	public function getTableStructure($table);
 }
 
 /**
