@@ -80,18 +80,18 @@ class Document {
 		}
 		$relativeUrl = preg_replace("#".preg_quote(SITE_WWW.'/')."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");	//index.php?evt[index-admin_page]
 		
-		$this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
-
 		$skinObj = skin::getSkin(urldecode($relativeUrl));
 		if($skinObj===false) exit(error::syserrorMessage("document", "render", _("skin inesistente"), __LINE__));
+		
+		$this->initHeadVariables($skinObj);
+		
+		$this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
 
 		$buffer = '';
 
 		$cache = new outputCache($buffer, $skinObj->cache ? true : false);
 		if($cache->start('skin', $query_string.$this->session->lng.$skinObj->id, $skinObj->cache)) {
 
-			$this->initHeadVariables($skinObj);
-			
 			$tplObj = new template($skinObj->template);
 			$template = TPL_DIR.OS.$tplObj->filename;
 

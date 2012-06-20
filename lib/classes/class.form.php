@@ -221,9 +221,9 @@ class Form {
 	 * @param string $list_required lista di elementi obbligatori (separati da virgola)
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b func_confirm: nome della funzione js da chiamare (es. window.confirmSend())
-	 *   - @b text_confirm: testo del messaggio che compare nel box di conferma
-	 *   - @b generateToken: costruisce l'input hidden token (contro gli attacchi CSFR)
+	 *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend())
+	 *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma
+	 *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
 	 * @return string
 	 */
 	public function form($action, $upload, $list_required, $options=null){
@@ -589,7 +589,7 @@ class Form {
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b id (string): valore ID del tag
-	 *   - @b pattern (string)
+	 *   - @b pattern (string): espressione regolare che verifica il valore dell'elemento input
 	 *   - @b hint (string): placeholder
 	 *   - @b size (integer): lunghezza del tag
 	 *   - @b maxlength (integer): numero massimo di caratteri consentito
@@ -662,6 +662,22 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Tag input di tipo date in celle di tabella
+	 * 
+	 * @see label()
+	 * @see input()
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param mixed $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo input())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo
+	 *   - @b text_add (string): testo dopo il tag input
+	 * @return string
+	 */
 	public function cinput_date($name, $value, $label, $options){
 
 		$this->setOptions($options);
@@ -932,9 +948,10 @@ class Form {
 	}
 	
 	/**
-	 * Tag checkbox in celle di tabella
+	 * Tag input checkbox in celle di tabella
 	 *
 	 * @see label()
+	 * @see checkbox()
 	 * @param string $name nome input
 	 * @param boolean $checked valore selezionato
 	 * @param mixed $value valore del tag input
@@ -964,7 +981,7 @@ class Form {
 	}
 	
 	/**
-	 * Tag checkbox
+	 * Tag input checkbox
 	 *
 	 * @param string $name nome input
 	 * @param boolean $checked valore selezionato
@@ -993,25 +1010,35 @@ class Form {
 	}
 
 	/**
+	 * Tag input checkbox multiplo (many to many)
 	 * 
 	 * @param string $name nome input
-	 * @param boolean $checked valore selezionato
+	 * @param array $checked valori degli elementi selezionati
 	 * @param mixed $data
+	 *   - string, query
+	 *   - array, elementi del checkbox
 	 * @param string $label testo <label>
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b id
-	 *   - @b classField
-	 *   - @b readonly
-	 *   - @b js
-	 *   - @b other
-	 *   - @b required
-	 *   - @b classLabel
-	 *   - @b maxHeight
-	 *   - @b checkPosition
-	 *   - @b table
-	 *   - @b field
+	 *   - @b id (string)
+	 *   - @b classField (string)
+	 *   - @b readonly (boolean)
+	 *   - @b js (string)
+	 *   - @b other (string)
+	 *   - @b required (string)
+	 *   - @b classLabel (string)
+	 *   - @b maxHeight (integer): altezza in pixel del box contenente gli elementi
+	 *   - @b checkPosition (stringa): posizionamento del checkbox (left)
+	 *   - @b table (string): nome della tabella con il campo da tradurre
+	 *   - @b field (string): nome del campo con il testo da tradurre
+	 *   - @b idName (string): nome del campo di riferimento
 	 * @return string
+	 * 
+	 * Esempio
+	 * @code
+	 * $query = "SELECT id, name FROM ".$this->_tbl_ctg." WHERE instance='$this->_instance' ORDER BY name";
+	 * $buffer = $gform->multipleCheckbox('category[]', explode(",",$ctg_checked), $query, _("Categorie"), array("table"=>$table, "field"=>"name", "idName"=>"id"));
+	 * @endcode
 	 */
 	public function multipleCheckbox($name, $checked, $data, $label, $options=null){
 		
@@ -1343,6 +1370,13 @@ class Form {
 		return $directory;
 	}
 	
+	/**
+	 * Sostituisce nel nome di un file i caratteri diversi da [a-zA-Z0-9_.-] con il carattere underscore (_)
+	 * 
+	 * @param string $filename nome del file
+	 * @param string $prefix prefisso da aggiungere al nome del file
+	 * @return string
+	 */
 	private function checkFilename($filename, $prefix) {
 	
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
@@ -1545,6 +1579,15 @@ class Form {
 		return true;
 	}
 	
+	/**
+	 * Calcola le dimensioni alle quali deve essere ridimensionata una immagine
+	 * 
+	 * @param integer $new_width
+	 * @param integer $new_height
+	 * @param integer $im_width
+	 * @param integer $im_height
+	 * @return array (larghezza, altezza)
+	 */
 	private function resizeImage($new_width, $new_height, $im_width, $im_height){
 		
 		if(!empty($new_width) AND $im_width > $new_width)

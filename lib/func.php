@@ -19,7 +19,8 @@ include(LIB_DIR.OS.'func.var.php');
 include(LIB_DIR.OS.'Mobile_Detect.php');
 
 /**
- * Ritorna il contenuto di una directory
+ * File contenuti in una directory
+ * 
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)
  * @return array
  */
@@ -43,6 +44,7 @@ function searchNameFile($dir){
 
 /**
  * Gestisce il download di un file
+ * 
  * @param string $full_path percorso del file
  * @return void
  */
@@ -100,6 +102,7 @@ function extension($filename, $extensions){
 
 /**
  * Verifica la validità dell'indirizzo email
+ * 
  * @param string $email indirizzo email
  * @return boolean
  */
@@ -109,8 +112,9 @@ function email_control($email)
 }
 
 /**
- * Formatta la data per il database (yyyy-mm-dd)
- * @param string $date valore della data (dd/mm/yyyy), generalmente da input form
+ * Formatta la data per il database (YYYY-MM-DD)
+ * 
+ * @param string $date valore della data (DD/MM/YYYY), generalmente da input form
  * @param string $s separatore utilizzato nella data
  * @return string
  */
@@ -122,8 +126,9 @@ function dateToDbDate($date, $s='/') {
 }
 
 /**
- * Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (dd/mm/[yyyy])
- * @param string $db_date valore del campo date (yyyy-mm-dd)
+ * Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ * 
+ * @param string $db_date valore del campo date (YYYY-MM-DD)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
  * @return string
@@ -136,8 +141,9 @@ function dbDateToDate($db_date, $s='/', $num_year=4) {
 }
 
 /**
- * Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (dd/mm/[yyyy])
- * @param string $datetime valore del campo datetime (yyyy-mm-dd 00:00:00)
+ * Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ * 
+ * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
  * @return string
@@ -148,8 +154,9 @@ function dbDatetimeToDate($datetime, $s='/', $num_year=4) {
 }
 
 /**
- * Riporta l'orario di un campo DATETIME (00:00:00)
- * @param string $datetime valore del campo datetime (yyyy-mm-dd 00:00:00)
+ * Riporta l'orario di un campo DATETIME (HH:MM:SS)
+ * 
+ * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
  * @return string
  */
 function dbDatetimeToTime($datetime) {
@@ -158,18 +165,22 @@ function dbDatetimeToTime($datetime) {
 }
 
 /**
- * Mostra ore e minuti (00:00)
- * @param string $db_time valore del campo time o dell'output della funzione dbDatetimeToTime (00:00:00)
+ * Mostra l'orario (HH:MM[:SS])
+ * 
+ * @param string $db_time valore del campo time o dell'output della funzione dbDatetimeToTime (HH:MM:SS)
+ * @param boolean $seconds visualizzazione dei secondi
  * @return string
  */
-function dbTimeToTime($db_time) {
+function dbTimeToTime($db_time, $seconds=false) {
 	if(empty($db_time) || $db_time=='00:00:00') return '';
-	$db_time = substr($db_time, 0, 5);
+	if(!$seconds)
+		$db_time = substr($db_time, 0, 5);
 	return $db_time;
 }
 
 /**
- * Formatta l'orario per il database (00:00:00)
+ * Formatta l'orario per il database (HH:MM:SS)
+ * 
  * @param string $time orario ([00][{,|:}00][{,|:}00])
  * @return string
  */
@@ -221,6 +232,7 @@ function dbNumberToNumber($number, $decimals=2)
 
 /**
  * Formatta un numero per il database. Con MySQL il separatore dei decimali è il '.'
+ * 
  * @param string $number numero
  * @return float
  */
@@ -232,6 +244,7 @@ function numberToDB($number)
 
 /**
  * Controlla se una variabile è un numero o una stringa numerica
+ * 
  * @param mixed $variable valore della variabile (string|integer|float)
  * @return boolean
  */
