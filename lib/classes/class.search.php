@@ -1,32 +1,53 @@
 <?php
-
-/*
- * SQL CODE TO LOUNCH IN MYSQL SERVER (case unsensitive replace function)
- *
-DELIMITER $$
-
-DROP FUNCTION IF EXISTS `replace_ci`$$
-CREATE FUNCTION `replace_ci` ( str TEXT,needle CHAR(255),str_rep CHAR(255))
-RETURNS TEXT
-DETERMINISTIC
-BEGIN
-DECLARE return_str TEXT;
-SELECT replace(lower(str),lower(needle),str_rep) INTO return_str;
-RETURN return_str;
-END$$
-
-DELIMITER ;
+/**
+ * @file class.search.php
+ * @brief Contiene la classe search
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Libreria per ricerche full text pesate sulle tabelle
+ * 
+ * Codice SQL da eseguire sul database MySQL
+ * @code
+ * DELIMITER $$
+ * 
+ * DROP FUNCTION IF EXISTS `replace_ci`$$
+ * CREATE FUNCTION `replace_ci` ( str TEXT,needle CHAR(255),str_rep CHAR(255))
+ * RETURNS TEXT
+ * DETERMINISTIC
+ * BEGIN
+ * DECLARE return_str TEXT;
+ * SELECT replace(lower(str),lower(needle),str_rep) INTO return_str;
+ * RETURN return_str;
+ * END$$
+ * 
+ * DELIMITER ;
+ * @endcode
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class search {
 
 	private $_table;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param string $table testo del FROM in una query SQL (ad esempio: page AS p, page_block AS pb)
+	 * @param array $opts
+	 *   array associativo di opzioni
+	 *   - @b highlight_range (integer)
+	 */
 	function __construct($table, $opts=array()) {
 	
 		$this->_table = $table;
 		$this->_highlight_range = isset($opts['highlight_range']) ? $opts['highlight_range'] : 120;
-
 	}
 
 	private function clearSearchString($search_string) {
@@ -41,7 +62,6 @@ class search {
 		$clean_string = preg_quote($clean_string);
 	
 		return $clean_string;
-
 	}
 
 	private function getKeywords($search_string) {
@@ -51,9 +71,25 @@ class search {
 		$empty_array = array(""," ");
 
 		return  array_diff(array_unique(explode(" ", $clean_string)), $empty_array);
-
 	}
 
+	/**
+	 * Costruisce la query di una ricerca full text
+	 * 
+	 * @param array $selected_fields campi da selezionare nella ricerca (costruzione del SELECT), ad esempio
+	 *   @code
+	 *   array("p.item_id", array("highlight"=>true, "field"=>"p.title"), array("highlight"=>true, "field"=>"p.subtitle"), array("highlight"=>true, "field"=>"pb.text"))
+	 *   @endcode
+	 * @param array $required_clauses tipo di ricerca sul testo (costruzione del WHERE), ad esempio
+	 *   @code
+	 *   array("p.item_id"=>array("field"=>true, "value"=>"pb.item"))
+	 *   @endcode
+	 * @param array $weight_clauses (costruzione del WHERE e rilevanza dei risultati), ad esempio
+	 *   @code
+	 *   array("p.title"=>array("weight"=>3), "p.subtitle"=>array("weight"=>2), "pb.text"=>array("weight"=>1))
+	 *   @endcode
+	 * @return string
+	 */
 	public function makeQuery($selected_fields, $required_clauses, $weight_clauses){
 	
 		$final_keywords = 0;
@@ -107,9 +143,18 @@ class search {
 		$query = "SELECT ".implode(",", $selected).", $relevance AS relevance, $occurrences AS occurrences FROM $this->_table $sqlwhere ORDER BY relevance DESC, occurrences DESC";
 			
 		return $final_keywords ? $query : false;
-
 	}
 
+	/**
+	 * Risultati di una ricerca full text
+	 * 
+	 * @see makeQuery()
+	 * @param object $dbObj istanza del database (db::instance())
+	 * @param array $selected_fields campi da selezionare nella ricerca
+	 * @param array $required_clauses tipo di ricerca sul testo
+	 * @param array $weight_clauses
+	 * @return array
+	 */
 	public function getSearchResults($dbObj, $selected_fields, $required_clauses, $weight_clauses) {
 	
 		$res = array();
@@ -140,10 +185,6 @@ class search {
 		}
 
 		return $res;
-	
 	}
-
-
 }
-
 ?>

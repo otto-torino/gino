@@ -1,27 +1,21 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file func.var.php
+ * @brief Racchiude le librerie per il trattamento dei valori da e per un input/database
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-/*
-CONTENTS OF FUNCTIONS
-*/
-
+/**
+ * Funzione di sostituzione per Microsoft SQL Server
+ * 
+ * @todo verificare se serve
+ * 
+ * @param string $string_to_escape
+ * @return string
+ */
 function mssql_escape_string($string_to_escape)
 {
 	$replaced_string = str_replace("'","''",$string_to_escape);
@@ -30,10 +24,12 @@ function mssql_escape_string($string_to_escape)
 	return $replaced_string;
 }
 
-/*
-	Replace
-*/
-
+/**
+ * Funzione di sostituzione per i caratteri "strani" di word
+ * 
+ * @param string $text
+ * @return string
+ */
 function replaceChar($text)
 {
 	$find = array("’", "‘", "`");
@@ -46,24 +42,15 @@ function replaceChar($text)
 	return $text;
 }
 
-function replaceChar2($text)
-{
-	$find = array("", "", "`");
-	$text = str_replace($find, "'", $text);
-	$find = array("", "");
-	$text = str_replace($find, "\"", $text);
-	$text = str_replace("…", "...", $text);
-	$text = str_replace("", "-", $text);
-	$text = str_replace("", "€", $text);
-	return $text;
-}
-
-// End Replace
-
-/*
-	Strip
-*/
-
+/**
+ * Rimuove gli attributi javascript ed html nei tag
+ * 
+ * @see remove_attributes()
+ * @param string $text testo
+ * @param boolean $strip_js rimuove gli attributi javascript
+ * @param boolean $strip_attributes rimuove alcuni attributi html
+ * @return string
+ */
 function strip_tags_attributes($text, $strip_js, $strip_attributes)
 {
 	if($strip_js)
@@ -78,14 +65,18 @@ function strip_tags_attributes($text, $strip_js, $strip_attributes)
 	return $text;
 }
 
+/**
+ * Rimuove gli attributi html nei tag
+ * 
+ * @param string $text testo
+ * @return string
+ */
 function remove_attributes($text)
 {
 	// rimuove 'style'
 	//$text = preg_replace("'\\s(style)=\"(.*?)\"'i", '', $text);
 	
-	// => problemi
-	$strip_attrib = 
-"/(font\-size|color|font\-family|line\-height|text\-indent):\\s(\\d+(\\x2E\\d+\\w+|\\W)|\\w+)(;|)(\\s|)/i";
+	//$strip_attrib = "/(font\-size|color|font\-family|line\-height|text\-indent):\\s(\\d+(\\x2E\\d+\\w+|\\W)|\\w+)(;|)(\\s|)/i";
 	//$text = preg_replace($strip_attrib, '', $text);
 	
 	// rimuove 'class' quando non assume un valore
@@ -94,45 +85,36 @@ function remove_attributes($text)
 	return $text;
 }
 
-/*
-// strip selected tags => VERIFICARE
-function _strip_selected_tags_($text, $tags = array())
-{
-	$args = func_get_args();
-	$text = array_shift($args);
-	$tags = func_num_args() > 2 ? array_diff($args, array($text)) : (array)$tags;
-	foreach ($tags as $tag){
-		while(preg_match('/<'.$tag.'(|\W[^>]*)>(.*)<\/'. $tag .'>/iusU', $text, $found)){
-			$text = str_replace($found[0],$found[2],$text);
-		}
-	}
-	return preg_replace('/(<('.implode('|',$tags).')(|\W.*)\/>)/iusU', '', $text);
-}
-*/
-
 /**
-* strip_selected_tags ( string str [, string strip_tags[, strip_content flag]] )
-* ---------------------------------------------------------------------
-* Like strip_tags() but inverse; the strip_tags tags will be stripped, not kept.
-* strip_tags: string with tags to strip, ex: "<a><p><quote>" etc.
-* strip_content flag: TRUE will also strip everything between open and closed tag
-*/
-function strip_selected_tags($str, $tags = '', $stripContent = false)
+ * Rimuove i tag indicati
+ * 
+ * Simile a strip_tags(), ma mentre strip_tags rimuove tutti i tag, questa funzione li preserva
+ * 
+ * @param string $text testo
+ * @param string $tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @param boolean $stripContent rimuove anche il testo contenuto tra l'apertura e la chiusura del tag
+ * @return string
+ */
+function strip_selected_tags($text, $tags='', $stripContent=false)
 {
 	preg_match_all("/<([^>]+)>/i", $tags, $allTags, PREG_PATTERN_ORDER);
 	foreach ($allTags[1] as $tag){
 		if($stripContent){
-			$str = preg_replace("/<".$tag."[^>]*>.*<\/".$tag.">/iU", "", $str);
+			$text = preg_replace("/<".$tag."[^>]*>.*<\/".$tag.">/iU", "", $text);
 		}
-		$str = preg_replace("/<\/?".$tag."[^>]*>/iU", "", $str);
+		$text = preg_replace("/<\/?".$tag."[^>]*>/iU", "", $text);
 	}
-	return $str;
+	return $text;
 }
 
+/**
+ * Rimuove script, stili e altro testo indesiderato (e invisibile) tra i tag 
+ * 
+ * @param string $text testo
+ * @return string
+ */
 function strip_invisible_tags($text)
 {
-	// This function will remove scripts, styles, and other unwanted
-	// invisible text between tags.
 	$text = preg_replace(
 		array(
 			'@<head[^>]*?>.*?</head>@siu',
@@ -153,7 +135,15 @@ function strip_invisible_tags($text)
 	return $text;
 }
 
-function stripAll($text)	// FCK Editor
+/**
+ * Sostituisce le entities con il carattere corrispondente
+ * 
+ * Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html (CK Editor)
+ * 
+ * @param string $text testo
+ * @return string
+ */
+function stripAll($text)
 {
 	//$text = html_entity_decode($text);
 	$text = str_replace("&#8364;","€",$text);
@@ -181,14 +171,20 @@ function stripAll($text)	// FCK Editor
 	return $text;
 }
 
-function stripEditor($text)	// FCKEditor
+/**
+ * Sostituisce alcuni tag utilizzati dall'editor html con i tag standard
+ * 
+ * Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html (CK Editor)
+ * 
+ * @param string $text testo
+ * @return string
+ */
+function stripEditor($text)
 {
-	// FCKEditor Tag
 	$text = str_replace ('<strong>', '<b>', $text);
 	$text = str_replace ('</strong>', '</b>', $text);
 	$text = str_replace ('<em>', '<i>', $text);
 	$text = str_replace ('</em>', '</i>', $text);
-	// End
 	
 	// Link
 	$search = array('target="_top"', 'target="_self"', 'target="_parent"');
@@ -198,8 +194,6 @@ function stripEditor($text)	// FCKEditor
 	return $text;
 }
 
-// End Strip
-
 /*
 	Input/Output DB Values
 */
@@ -207,13 +201,17 @@ function stripEditor($text)	// FCKEditor
 // 1. from HTML Form to DB
 
 /**
-* cleanVar ( string str [, string settype[, string strip_tags]] )
-* ---------------------------------------------------------------------
-* method: $_GET, $_POST, $_REQUEST
-* name: variable name
-* settype: string with variable type: bool|int|float|string|array|object|null
-* strip_tags: string with tags to strip, ex: "<a><p><quote>" etc.
-*/
+ * Modifica il valore presente in un campo del form per inserirlo nel database
+ * 
+ * Imposta il tipo del testo
+ * 
+ * @see clean_sequence()
+ * @param string $method metodo utilizzato (GET, POST, REQUEST)
+ * @param string $name nome della variabile
+ * @param string $type tipo di variabile (bool,int,float,string,array,object,null)
+ * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @return mixed
+ */
 function cleanVar($method, $name, $type, $strip_tags)
 {
 	if(isset($method[$name]) AND !empty($method[$name]))
@@ -264,6 +262,13 @@ function cleanVar($method, $name, $type, $strip_tags)
 	return $value;
 }
 
+/**
+ * Esegue una serie di operazioni sul testo per renderlo compatibile con gino e col database
+ * 
+ * @param mixed $text testo
+ * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @return mixed
+ */
 function clean_sequence($text, $strip_tags){
 	
 	$text = trim($text);
@@ -274,15 +279,21 @@ function clean_sequence($text, $strip_tags){
 	$text = strip_invisible_tags($text);
 	$text = strip_tags_attributes($text, true, true);
 	
-	// Replace
 	$text = replaceChar($text);
-	
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
 	$text = mysql_real_escape_string($text);
 	
 	return $text;
 }
 
+/**
+ * Modifica il valore presente in un campo del form di tipo editor html per inserirlo nel database
+ * 
+ * @param string $method metodo utilizzato (GET, POST, REQUEST)
+ * @param string $name nome della variabile
+ * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @return string
+ */
 function cleanVarEditor($method, $name, $strip_tags)
 {
 	if(isset($method[$name]) AND !empty($method[$name]))
@@ -301,9 +312,7 @@ function cleanVarEditor($method, $name, $strip_tags)
 		$value = html_entity_decode($value, null, 'UTF-8');
 
 		$value = replaceChar($value);
-		
 		$value = stripAll($value);
-		
 		$value = mysql_real_escape_string($value);
 	}
 	else
@@ -313,13 +322,32 @@ function cleanVarEditor($method, $name, $strip_tags)
 	return $value;
 }
 
+/**
+ * Prepara il testo da inserire nel database senza rimuovere il codice html
+ * 
+ * @param string $text testo
+ * @return string
+ */
 function codeDb($text) {
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
 	return mysql_real_escape_string($text);
 }
 
-// Classe multimedia
+/**
+ * Modifica il valore presente in un campo testo del form per inserirlo nel database
+ * 
+ * Si tratta di testo di tipo "codice", nel quale non viene rimosso il codice html
+ * 
+ * @see codeDB()
+ * @param string $method metodo utilizzato (GET, POST, REQUEST)
+ * @param string $name nome della variabile
+ * @param array $options
+ *   array associativo di opzioni
+ *   - @b width (string): sovrascrive la larghezza di visualizzazione di una immagine
+ *   - @b height (string): sovrascrive l'altezza di visualizzazione di una immagine
+ * @return string
+ */
 function codeToDB($method, $name, $options=array()){
 	
 	if(isset($method[$name]) AND !empty($method[$name]))
@@ -341,6 +369,16 @@ function codeToDB($method, $name, $options=array()){
 // End 1
 
 // 2. from DB to HTML
+
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in HTML
+ * 
+ * @param string $string testo
+ * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
+ * @param array $options
+ *   array associativo di opzioni
+ *   - @b newline (boolean): inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i \r\n)
+ */
 function htmlChars($string, $id='', $options=array())
 {
 	$newline = array_key_exists('newline', $options) ? $options['newline'] : false;
@@ -362,6 +400,16 @@ function htmlChars($string, $id='', $options=array())
 	return $string;
 }
 
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in HTML
+ * 
+ * Si tratta di testo di tipo "codice", ovvero inserito con la funzione @a codeToDB().
+ * Crea un blocco che racchiude il codice.
+ * 
+ * @see codeToDB()
+ * @param string $string
+ * @return string
+ */
 function preCodeParser($string) {
 	
 	$final_string = '';
@@ -385,9 +433,20 @@ function preCodeParser($string) {
 	}
 
 	return $final_string;
-
 }
 
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in HTML
+ * 
+ * Si tratta di testo di tipo "codice", ovvero inserito con la funzione @a codeToDB().
+ * Crea un blocco che racchiude il codice e ne evidenzia le righe.
+ * 
+ * @see codeToDB()
+ * @see preCodeParser()
+ * @param string $string
+ * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
+ * @return string
+ */
 function codeParser($string, $id='') {
 	
 	$string = trim($string);
@@ -430,9 +489,15 @@ function codeParser($string, $id='') {
 	}
 
 	return $final_string;
-
 }
 
+/**
+ * Modifica il valore di un campo testo del database per attivare le librerie slimbox
+ * 
+ * @param string $string testo
+ * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
+ * @return string
+ */
 function slimboxReplace($string, $id) {
 
 	$rel = "lightbox-$id";
@@ -449,7 +514,14 @@ function slimboxReplace($string, $id) {
 	return $string;
 }
 
-// only text (\n)
+/**
+ * Mostra il valore di un campo testo del database formattato come "solo testo"
+ * 
+ * Inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i \r\n)
+ * 
+ * @param string $string
+ * @return string
+ */
 function htmlCharsText($string)
 {
 	$string = trim($string);
@@ -461,16 +533,16 @@ function htmlCharsText($string)
 
 	return $string;
 }
-
-function textFromEditor($text) {
-	
-	// to be removed
-	return $text;
-
-}
 // End 2
 
 // 3. from DB to Form
+
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in un input form
+ * 
+ * @param string $string
+ * @return string
+ */
 function htmlInput($string)
 {
 	$string = trim($string);
@@ -482,34 +554,54 @@ function htmlInput($string)
 	return $string;
 }
 
-// textarea -> FCKEditor
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in un input form di tipo editor html
+ * 
+ * @param string $string
+ * @return string
+ */
 function htmlInputEditor($string)
 {
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = str_replace ('rel="external"', 'target="_blank"', $string);
-	//$string = replaceChar2($string);
 	return $string;
 }
 
+/**
+ * Modifica il valore di un campo testo del database per visualizzarlo in un input form di tipo "solo testo"
+ * 
+ * @param string $string
+ * @return string
+ */
 function codeInput($string) {
 
 	$string = preg_replace("/:/", "&#58;", $string);
 	return $string;
-
 }
 
 // End 3
 
-// 4. from DB to Text (ex. email, export file)
-
+/**
+ * Racchiude il testo tra virgolette singole
+ * 
+ * La funzione viene utilizzata ad esempio per racchiudere i campi nelle email e nelle esportazioni di file 
+ * 
+ * @param string $string
+ * @return string
+ */
 function enclosedField($string){
 	
 	$string = '"'.$string.'"';
 	return $string;
 }
-// End 4
 
+/**
+ * Da utilizzare per il testo che deve essere racchiuso in variabili javascript
+ * 
+ * @param string $string
+ * @return string
+ */
 function jsVar($string)
 {
 	$string = str_replace("\n",'',$string);
@@ -523,10 +615,12 @@ function jsVar($string)
 	return $string;
 }
 
-/*
-	HTML entities conversion (but not tags conversion)
-*/
-
+/**
+ * Converte le entities HTML, ma non i tag
+ * 
+ * @param string $string
+ * @return string
+ */
 function htmlToEntities($string){
 	
 	$string = str_replace ('\'','&#039;', $string);

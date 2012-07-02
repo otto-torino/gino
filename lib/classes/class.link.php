@@ -1,4 +1,20 @@
 <?php
+/**
+ * @file class.link.php
+ * @brief Contiene la classe Link
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @brief Libreria che si occupa di convertire gli indirizzi nel formato permalink e viceversa
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class Link {
 	
 	private $_permalinks;
@@ -18,23 +34,25 @@ class Link {
 	/**
 	 * Costruisce un collegamento parziale o completo
 	 * 
-	 * @param string		$class		nome della classe/istanza
-	 * @param string		$method		nome del metodo
-	 * @param string|array	$params1	parametri principali
-	 * 									string: il separatore è '&' (es. id=4&ctg=2)
-	 * 									array: key=>value (array('id'=>4, 'ctg'=>2))
-	 * @param string|array	$params2	parametri secondari
-	 * 									string: il separatore è '&' (es. order=desc&start=20)
-	 * 									array: key=>value (array('order'=>'desc', 'start'=>20))
-	 * @param array			$options
-	 * 		boolean all 		link completo (http://...)
-	 * 		string code 		tipo di evento (di default 'evt')
-	 * 		boolean basename 	mostra il nome del file php (index.php)
+	 * @param string $class nome della classe/istanza
+	 * @param string $method nome del metodo
+	 * @param mixed $params1 parametri principali
+	 *   - string: il separatore è '&' (es. id=4&ctg=2)
+	 *   - array: key=>value (array('id'=>4, 'ctg'=>2))
+	 * @param mixed	$params2 parametri secondari
+	 *   - string: il separatore è '&' (es. order=desc&start=20)
+	 *   - array: key=>value (array('order'=>'desc', 'start'=>20))
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b all (boolean): link completo (http://...)
+	 *   - @b code (string): tipo di evento (di default 'evt')
+	 *   - @b basename (boolean): mostra il nome del file php (index.php)
 	 * @return string
 	 * 
-	 * @example
-	 * Richiamare il metodo listReferenceGINO della classe pagelist:
+	 * Come esempio, per richiamare il metodo listReferenceGINO() della classe pagelist: 
+	 * @code
 	 * $this->_list->listReferenceGINO($this->_plink->aLink($this->_instanceName, 'viewList', $ctg_par, $order_par, array('basename'=>false)));
+	 * @endcode
 	 */
 	public function aLink($class, $method, $params1=null, $params2=null, $options=array()){
 		
@@ -110,11 +128,12 @@ class Link {
 	
 	/**
 	 * Per aggiungere dei parametri all'indirizzo, dopo averlo già impostato col metodo aLink()
-	 * (utilizzato nella classe pagelist per il parametro 'start')
 	 * 
-	 * @param string	$link
-	 * @param string	$params		(es. start=2)
-	 * @param boolean	$secondary
+	 * Metodo utilizzato nella classe pagelist per il parametro @a start
+	 * 
+	 * @param string $link indirizzo
+	 * @param string $params parametri da aggiungere (ad es. start=2)
+	 * @param boolean $secondary parametri secondari
 	 * @return string
 	 */
 	public function addParams($link, $params, $secondary=true){
@@ -184,10 +203,19 @@ class Link {
 	}
 	
 	/**
-	 * Presenta un collegamento prendendo l'indirizzo da un campo del DB (classe menu)
+	 * Presenta un collegamento prendendo l'indirizzo da un campo del database
 	 * 
-	 * @param string $link		esempi: page/displayItem/8, page/displayItem/id/8, index.php?evt[page-displayItem]&id=6
+	 * Metodo utilizzato nella classe menu
+	 * 
+	 * @param string $link indirizzo
 	 * @return string
+	 * 
+	 * Esempi di valori del parametro link
+	 * @code
+	 * page/displayItem/8
+	 * page/displayItem/id/8
+	 * index.php?evt[page-displayItem]&id=6
+	 * @endcode
 	 */
 	public static function linkFromDB($link){
 		
@@ -230,16 +258,19 @@ class Link {
 	/**
 	 * Converte un indirizzo a/da un permalink
 	 * 
-	 * @param string $params	valori da URL (es. $_SERVER['REQUEST_URI'])
+	 * @param string $params valori da URL (es. $_SERVER['REQUEST_URI'])
 	 * @param array $options
-	 * 		string vserver			variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
-	 * 		boolean pToLink			conversione dal formato permalink a quello di gino (di default è il contrario)
-	 * 		boolean basename		opzione per il metodo permalinkToLink; se vero antepone il basename al link (vedi class.skin.php)
-	 * 		boolean setServerVar	reimposta le variabili del server indicate nel metodo setServerVar(). Operazione richiesta dalla classe document
-	 * 		boolean SetDataVar		reimposta le variabili GET e REQUEST. Operazione richiesta dalla classe document
+	 *   array associativo di opzioni
+	 *   - @b vserver (string): variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
+	 *   - @b pToLink (boolean): conversione dal formato permalink a quello di gino (di default è il contrario)
+	 *   - @b basename (boolean): opzione per il metodo permalinkToLink(); se vero antepone il basename al link (vedi class.skin.php)
+	 *   - @b boolean setServerVar (boolean): reimposta le variabili del server indicate nel metodo setServerVar(). Operazione richiesta dalla classe document
+	 *   - @b boolean SetDataVar (boolean): reimposta le variabili GET e REQUEST. Operazione richiesta dalla classe document
 	 * @return string
 	 * 
-	 * @example: evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
+	 * @code
+	 * evt[page-displayItem]&id=5 <-> page/displayItem/5, page/displayItem/id/5
+	 * @endcode
 	 */
 	public function convertLink($params, $options=array()){
 		
@@ -281,6 +312,12 @@ class Link {
 		return $link;
 	}
 	
+	/**
+	 * Conversione di un indirizzo dal formato dell'applicazione al formato permalink
+	 * 
+	 * @param string $query_string valori da URL ricavati dalla variabile del server web indicata dal metodo convertLink()
+	 * @return string
+	 */
 	private function linkToPermalink($query_string){
 		
 		$link = $query_string;
@@ -294,6 +331,14 @@ class Link {
 		return $link;
 	}
 	
+	/**
+	 * Conversione di un indirizzo dal formato permalink al formato dell'applicazione
+	 * 
+	 * @param string $query_string valori da URL ricavati dalla variabile del server web indicata dal metodo convertLink()
+	 * @param boolean $basename se vero antepone il basename al link (vedi class.skin.php)
+	 * @param boolean $setDataVar reimposta le variabili del server indicate nel metodo setServerVar(). Operazione richiesta dalla classe document
+	 * @return string
+	 */
 	private function permalinkToLink($query_string, $basename, $setDataVar=false){
 		
 		$basename = $basename ? 'index.php?' : '';
@@ -382,12 +427,13 @@ class Link {
 	/**
 	 * Costruisce un collegamento in formato permalink
 	 * 
-	 * @param string|array	$params		parametri principali/secondari
-	 * 									string: il separatore è '&' (es. id=4&ctg=2)
-	 * 									array: key=>value (array('id'=>4, 'ctg'=>2))
-	 * @param array			$options
-	 * 		boolean param_sec 			indica se si tratta di parametri secondari
-	 * 		boolean param_sec_exist 	indica se nel link sono presenti parametri secondari
+	 * @param mixed $params parametri principali/secondari
+	 *   - string: il separatore è '&' (es. id=4&ctg=2)
+	 *   - array: key=>value (array('id'=>4, 'ctg'=>2))
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b param_sec (boolean): indica se si tratta di parametri secondari
+	 *   - @b param_sec_exist (boolean): indica se nel link sono presenti parametri secondari
 	 * @return string
 	 */
 	private function opLinkToPerm($params, $options=array()){

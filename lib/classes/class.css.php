@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file class.css.php
+ * @brief Contiene la classe css
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class css extends propertyObject {
 
 	private static $_tbl_css = 'sys_layout_css';
@@ -9,6 +24,21 @@ class css extends propertyObject {
 	private $_home, $_interface;
 	private $_tbl_module;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param string $type tipo di utilizzo
+	 *   - @b module
+	 *   - @b layout
+	 * @param array $params
+	 *   array associativo di opzioni
+	 *   - @b id (integer): valore ID del record
+	 *   - @b class (string): nome della classe
+	 *   - @b module (integer): valore ID del modulo
+	 *   - @b name (string): nome del modulo
+	 *   - @b label (string): etichetta del modulo
+	 * @return void
+	 */
 	function __construct($type, $params) {
 		
 		$db = db::instance();
@@ -24,15 +54,17 @@ class css extends propertyObject {
 		elseif($type=='layout') {
 			$id = $params['id'];
 			$this->_tbl_data = self::$_tbl_css;
-			parent::__construct($this->initP($id));
+			parent::__construct($id);
 
 			$this->_home = 'index.php';
 			$this->_interface = 'layout';
 		}
 	}
 	
-	/*
-	 * MANAGE MODULES' CSS
+	/**
+	 * Interfaccia per la gestione dei file css dei moduli
+	 * 
+	 * @return string
 	 */
 	public function manageModuleCss() {
 
@@ -132,15 +164,6 @@ class css extends propertyObject {
 	 * MANAGE LAYOUT CSS
 	 */
 
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'filename'=>null, 'label'=>null, 'description'=>null);
-	}
-	
 	public function setFilename($value) {
 		
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
@@ -148,6 +171,12 @@ class css extends propertyObject {
 		return true;
 	}
 
+	/**
+	 * Elenco dei file css in formato object (layout)
+	 * 
+	 * @param string $order per quale campo ordinare i risultati
+	 * @return array
+	 */
 	public static function getAll($order='label') {
 
 		$db = db::instance();
@@ -163,6 +192,11 @@ class css extends propertyObject {
 		return $res;
 	}
 
+	/**
+	 * Form per la creazione e la modifica di un file css (layout)
+	 * 
+	 * @return string
+	 */
 	public function formCssLayout() {
 	
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
@@ -189,6 +223,9 @@ class css extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica di un file css (layout)
+	 */
 	public function actionCssLayout() {
 		
 		$gform = new Form('gform', 'post', true);
@@ -219,6 +256,11 @@ class css extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
 	}
 	
+	/**
+	 * Form per l'eliminazione di un file css (layout)
+	 * 
+	 * @return string
+	 */
 	public function formDelCssLayout() {
 	
 		$gform = new Form('gform', 'post', true);
@@ -239,6 +281,9 @@ class css extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di un file css (layout)
+	 */
 	public function actionDelCssLayout() {
 		
 		if($this->filename) @unlink(CSS_DIR.OS.$this->filename);		
@@ -251,6 +296,11 @@ class css extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
 	}
 
+	/**
+	 * Descrizione della procedura
+	 * 
+	 * @return string
+	 */
 	public static function layoutInfo() {
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni css")));

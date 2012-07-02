@@ -1,23 +1,20 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_attached.php
+ * @brief Contiene la classe attached
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief Gestione di archivi di file con struttura ad albero
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class attached extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -90,6 +87,11 @@ class attached extends AbstractEvtClass{
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 	
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: assistenti
+	 */
 	private function setGroups(){
 
 		// Gestione file
@@ -111,6 +113,11 @@ class attached extends AbstractEvtClass{
 		return $directory;
 	}
 	
+	/**
+	 * Avvia il downolad il un allegato
+	 * 
+	 * @return void
+	 */
 	public function downloader(){
 		
 		$doc_id = cleanVar($_GET, 'id', 'int', '');
@@ -136,6 +143,11 @@ class attached extends AbstractEvtClass{
 		else exit();
 	}
 	
+	/**
+	 * Mostra l'indirizzo di un allegato
+	 * 
+	 * @return string
+	 */
 	public function textLink(){
 	
 		$this->accessGroup('ALL');
@@ -199,6 +211,11 @@ class attached extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Interfaccia amministrativa per la gestione degli allegati
+	 * 
+	 * @return string
+	 */
 	public function manageAttached(){
 	
 		$this->accessGroup('ALL');
@@ -394,6 +411,11 @@ class attached extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di un allegato
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionDeleteFile(){
 	
 		$this->accessGroup($this->_group_1);
@@ -483,6 +505,11 @@ class attached extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Inserimento di un allegato
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionFile(){
 	
 		$this->accessGroup($this->_group_1);
@@ -586,6 +613,9 @@ class attached extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Inserimento e modifica di un allegato
+	 */
 	public function actionCtg(){
 	
 		$this->accessGroup('');
@@ -598,7 +628,6 @@ class attached extends AbstractEvtClass{
 		$action = cleanVar($_POST, 'action', 'string', '');
 		$name = cleanVar($_POST, 'name', 'string', '');
 		
-		
 		$ref = "block=".$this->_block_ctg."&action=".$action.($id?"&id=$id":"");
 		$ref_error = $ref;
 		$redirect = $this->_className.'-manageAttached';
@@ -606,9 +635,6 @@ class attached extends AbstractEvtClass{
 		
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
-		
-		//if((empty($name))
-		//EvtHandler::HttpCall($this->_home, $redirect, "$ref_error&error=02");
 		
 		if($action == $this->_act_insert)
 		{
@@ -659,6 +685,9 @@ class attached extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di un allegato
+	 */
 	public function actionDeleteCtg(){
 		
 		$this->accessGroup('');
@@ -700,6 +729,12 @@ class attached extends AbstractEvtClass{
 		EvtHandler::HttpCall($this->_home, $redirect, $link);		
 	}
 	
+	/**
+	 * Slideshow degli allegati con i comandi per spostarsi avanti e indietro
+	 * 
+	 * @see $_group_1
+	 * @return print
+	 */
 	public function slideShow() {
 	
 		$this->accessGroup($this->_group_1);
@@ -768,6 +803,12 @@ class attached extends AbstractEvtClass{
 		exit();
 	}
 	
+	/**
+	 * Libreria javascript per lo slideshow
+	 * 
+	 * @see $_group_1
+	 * @return string
+	 */
 	public function jsLib() {
 	
 		$this->accessGroup($this->_group_1);

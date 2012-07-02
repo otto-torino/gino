@@ -1,48 +1,74 @@
 <?php
-/*
-CREATE TABLE `main_selection` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `reference` int(11) NOT NULL,
-  `aggregator` int(11) NOT NULL,
-  `priority` smallint(2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+/**
+ * @file class.selection.php
+ * @brief Contiene la classe selection
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-ATTENZIONE:
-Negli elenchi a livello di formattazione è a volte preferibile utilizzare la classe 'Form' senza tabelle:
-$gform = new Form('gform', 'post', true, array('tblLayout'=>false));
-
-----------------------------------------------
-UTILIZZO TIPO NEWSLETTER
-scelta di eventi (reference) di una newsletter (aggregator)
-----------------------------------------------
-- reference:	id del record che è stato selezionato (es. un evento o una news)
-- aggregator:	id del contenitore (es. una newsletter)
-
-----------------------------------------------
-UTILIZZO CLASSICO
-scelta di file (reference) associati o meno a un documento (aggregator)
-----------------------------------------------
-- reference: 	id di un file
-- aggregator:	id di qualcosa cui è collegato il file (ad es. un progetto)
-
-Esempio:
-(1) Form
-
-$sels = new selection(0, $id, $this->_instance, $this->_tbl_selection, array('input_name'=>'s_check'));
-$check = $sels->fCheck($gform, array('where'=>"aggregator='$reference'"));
-						
-$itemContent .= $htmlListFile->item($name.$date, array($check), '', false, '', '', 'checkbox');
-
-(2) Action
-
-// Lista non paginata
-$sels = new selection(0, 0, $this->_instance, $this->_tbl_selection, array('aggregator'=>$reference, 'input_name'=>'s_check'));
-$sels->instance = $this->_instance;
-$sels->sortNumber(0);
-$sels->updateListDbData();
-*/
+/**
+ * @brief Gestisce la selezione di un insieme di elementi
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * La libreria deve essere inclusa all'inizio del file della classe che la deve utilizzare:
+ * @code
+ * require_once(CLASSES_DIR.OS.'class.selection.php');
+ * @endcode
+ * 
+ * La procedura di selezione degli elementi necessita della creazione di una tabella degli elementi selezionati:
+ * @code
+ * CREATE TABLE main_selection (
+ * id int(11) NOT NULL AUTO_INCREMENT,
+ * instance int(11) NOT NULL,
+ * reference int(11) NOT NULL,
+ * aggregator int(11) NOT NULL,
+ * priority smallint(2) NOT NULL,
+ * PRIMARY KEY (id)
+ * ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+ * @endcode
+ * 
+ * Negli elenchi a livello di formattazione è a volte preferibile utilizzare la classe 'Form' senza tabelle:
+ * @code
+ * $gform = new Form('gform', 'post', true, array('tblLayout'=>false));
+ * @endcode
+ *
+ * -- UTILIZZO TIPO NEWSLETTER, ovvero scelta di eventi (reference) di una newsletter (aggregator)
+ * 
+ *   - reference:	id del record che è stato selezionato (es. un evento o una news)
+ *   - aggregator:	id del contenitore (es. una newsletter)
+ *
+ * -- UTILIZZO CLASSICO, ovvero scelta di file (reference) associati o meno a un documento (aggregator)
+ * 
+ *   - reference: 	id di un file
+ *   - aggregator:	id di qualcosa cui è collegato il file (ad es. un progetto)
+ *
+ * Esempio 1 (Form)
+ * @code
+ * $sels = new selection(0, $id, $this->_instance, $this->_tbl_selection, array('input_name'=>'s_check'));
+ * $check = $sels->fCheck($gform, array('where'=>"aggregator='$reference'"));					
+ * $itemContent .= $htmlListFile->item($name.$date, array($check), '', false, '', '', 'checkbox');
+ * @endcode
+ * 
+ * Esempio 2 (Action)
+ * @code
+ * // Lista non paginata
+ * $sels = new selection(0, 0, $this->_instance, $this->_tbl_selection, array('aggregator'=>$reference, 'input_name'=>'s_check'));
+ * $sels->instance = $this->_instance;
+ * $sels->sortNumber(0);
+ * $sels->updateListDbData();
+ * @endcode
+ * 
+ * Esempio 3 (Visualizzare gli elementi selezionati)
+ * @code
+ * $sels = new selection(0, 0, $this->_instance, eventItem::$_tbl_selection);
+ * $events = $sels->getListItems(array('class'=>'eventItem'));
+ * @endcode
+ */
 
 class selection extends propertyObject {
 
@@ -53,11 +79,19 @@ class selection extends propertyObject {
 	
 	private $_aggregator, $_input_name;
 	
-	/*
-	@param options	array
-		aggregator	integer
-		input_name	string
-	*/
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $id valore ID del record
+	 * @param integer $reference valore ID del record al quale fa riferimento questo record
+	 * @param integer $instance valore ID dell'istanza
+	 * @param string $table nome della tabella di selezione
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b aggregator (integer): valore ID del record di un contenitore al quale fanno riferimento le reference
+	 *   - @b input_name (string): nome del checkbox (valore di default @a check)
+	 * @return void
+	 */
 	function __construct($id, $reference, $instance, $table, $options=null) {
 	
 		$this->_tbl_data = $table;
@@ -80,6 +114,11 @@ class selection extends propertyObject {
 		else return array('id'=>null, 'instance'=>null, 'reference'=>null, 'aggregator'=>null, 'priority'=>null);
 	}
 	
+	/**
+	 * Imposta il valore dell'istanza
+	 * @param integer $value valore dell'istanza
+	 * @return boolean
+	 */
 	public function setInstance($value) {
 		
 		if($this->_p['instance']!=$value && !in_array('instance', $this->_chgP)) $this->_chgP[] = 'instance';
@@ -87,6 +126,11 @@ class selection extends propertyObject {
 		return true;
 	}
 	
+	/**
+	 * Imposta il valore della priorità
+	 * @param integer $postLabel nome dell'input priorità
+	 * @return boolean
+	 */
 	public function setPriority($postLabel) {
 		
 		$value = cleanVar($_POST, $postLabel, 'int', '');
@@ -95,18 +139,28 @@ class selection extends propertyObject {
 		return true;
 	}
 	
+	/**
+	 * Imposta il valore di inizio ordinamento
+	 * @param integer $value valore di inizio ordinamento
+	 * @return boolean
+	 */
 	public function sortNumber($value) {
 		
 		$this->_sort_number = $value;
 		return true;
 	}
 
-	/*
-	 * text				testo dopo il checkbox
-	 * disabled			checkbox disabilitato
-	 * view_disabled	visualizzare se l'elemento è selezionato anche se è disabilitato
-	 * where			condizioni aggiuntive per la query di ricerca degli elementi selezionati
-	 * 					(ad es. 'where'=>array("aggregator='$reference'"))
+	/**
+	 * Stampa l'input checkbox (per ogni elemento)
+	 * 
+	 * @param object $gform
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b text (string): testo dopo il checkbox
+	 *   - @b disabled (boolean): checkbox disabilitato
+	 *   - @b view_disabled (boolean): visualizzare se l'elemento è selezionato anche se è disabilitato
+	 *   - @b where (array): condizioni aggiuntive per la query di ricerca degli elementi selezionati (es. 'where'=>array("aggregator='$reference'"))
+	 * @return string
 	 */
 	public function fCheck($gform, $options=array()) {
 		
@@ -149,7 +203,9 @@ class selection extends propertyObject {
 		return $input;
 	}
 	
-	// update di una lista completa, non paginata
+	/**
+	 * Modifica di una lista completa, non paginata
+	 */
 	public function updateListDbData() {
 		
 		$check = isset($_POST[$this->_input_name]) ? $_POST[$this->_input_name] : array();
@@ -180,7 +236,11 @@ class selection extends propertyObject {
 		return null;
 	}
 	
-	// update di una lista paginata: occorre confrontare il prima e il dopo
+	/**
+	 * Modifica di una lista paginata in cui occorra confrontare il prima e il dopo
+	 * @see propertyObject::updateDbData()
+	 * @return boolean
+	 */
 	public function updateDbData() {
 		
 		$check = isset($_POST[$this->_input_name]) ? $_POST[$this->_input_name] : array();
@@ -245,18 +305,15 @@ class selection extends propertyObject {
 	 * Elenco record selezionati
 	 *
 	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b sort (boolean): ordinamento (priority)
+	 *   - @b class (string): nome della classe da istanziare per recuperare i valori di 'reference'
+	 *   - @b method (string): nome di metodo di 'class' da richiamare:
+	 *      1. per richiamare una porzione di testo (ex. 'printForNewsletter')
+	 *      2. per recuperare i valori dei record collegati a @a reference; in questo caso ogni elemento dell'array di ritorno deve essere un array dei valori dell'elemento.
+	 *   - @b font (string): famiglia di font
+	 *   - @b view (string): col valore @a list presenta un elenco sintetico dei record
 	 * @return array
-	 * 
-	 * Opzioni
-	 * --------------------
-	 * sort 	boolean 	ordinamento (priority)
-	 * class	string		nome della classe da istanziare per recuperare i valori di 'reference'
-	 * method	string		nome di metodo di 'class' da richiamare:
-	 * 						1. per richiamare una porzione di testo (ex. 'printForNewsletter')
-	 * 						2. per recuperare i valori dei record collegati a 'reference';
-	 * 						in questo caso ogni elemento dell'array di ritorno deve essere un array dei valori dell' elemento.
-	 * font		string		famiglia di font
-	 * view		string		list: presenta un elenco sintetico dei record
 	 */
 	public function getListItems($options=array()) {
 

@@ -1,12 +1,27 @@
 <?php
+/**
+ * @file class_statistics.php
+ * @brief Contiene la classe statistics
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Statistiche degli accessi all'area privata
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class statistics extends AbstractEvtClass {
 	
 	protected $_instance, $_instanceName;
 	private $_title;
 	
 	private $_options;
-        public $_optionsLabels;
+	public $_optionsLabels;
 
 	private $_group_1;
 	
@@ -38,6 +53,12 @@ class statistics extends AbstractEvtClass {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 	
+	/**
+	 * Interfaccia alla visualizzazione delle statistiche
+	 * 
+	 * @see $_access_admin
+	 * @return string
+	 */
 	public function manageStatistics() {
 		
 		$this->accessType($this->_access_admin);
@@ -69,6 +90,12 @@ class statistics extends AbstractEvtClass {
 		return $htmltab->render();
 	}
 	
+	/**
+	 * Elenco delle tipologie di statistica
+	 * 
+	 * @param string $stat tipo di statistica
+	 * @return string
+	 */
 	private function listStats($stat) {
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Elenco")));
@@ -85,9 +112,13 @@ class statistics extends AbstractEvtClass {
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 	
+	/**
+	 * Intestazione delle statistiche sugli accessi all'area privata
+	 * 
+	 * @return string
+	 */
 	private function accessStatistics() {
 	
 		$link_export = "<a href=\"$this->_home?evt[$this->_className-export]\">".pub::icon('export')."</a>";
@@ -97,6 +128,12 @@ class statistics extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Statistiche sugli accessi all'area privata
+	 * 
+	 * @see $_access_admin
+	 * @return string
+	 */
 	public function accessStat() {
 		
 		$this->accessType($this->_access_admin);
@@ -156,9 +193,14 @@ class statistics extends AbstractEvtClass {
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Esportazione delle statistiche sugli accessi all'area privata
+	 * 
+	 * @see $_access_admin
+	 * @return file
+	 */
 	public function export() {
 	
 		$this->accessType($this->_access_admin);
@@ -183,8 +225,6 @@ class statistics extends AbstractEvtClass {
 		$filename = "log_access_".date("YmdHis").".csv";
 		ob_clean();
 		$export->exportData($filename, 'csv');
-
-
 	}
 }
 ?>

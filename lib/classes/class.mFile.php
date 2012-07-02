@@ -1,114 +1,134 @@
 <?php
 /**
- * --------------------------------------------------------------
- * Classe Multifile
- * --------------------------------------------------------------
- * Classe che permette di gestire l'upload multiplo di file.
+ * @file class.mFile.php
+ * @brief Contiene la classe mFile
  * 
- * --------------------------------------------------------------
- * REQUISITI
- * --------------------------------------------------------------
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @brief Classe che permette di gestire l'upload multiplo di file
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * --REQUISITI--
+ * 
  * 1. Questo file deve essere incluso nel file che lo richiama
  * 
  * require_once(CLASSES_DIR.OS."class.mFile.php");
  * 
  * 2. Schema della tabella dei file
  * 
-CREATE TABLE `base_file` (
-`id` int(11) NOT NULL auto_increment,
-`reference` int(11) NOT NULL,
-`filename` varchar(100) NOT NULL,
-`description` varchar(200) NOT NULL,
-PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=1 ;
- *
+ * @code
+ * CREATE TABLE `base_file` (
+ * `id` int(11) NOT NULL auto_increment,
+ * `reference` int(11) NOT NULL,
+ * `filename` varchar(100) NOT NULL,
+ * `description` varchar(200) NOT NULL,
+ * PRIMARY KEY  (`id`)
+ * ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=1 ;
+ * @endcode
+ * 
  * Per consuetudine si chiede di utilizzare come nome '[riferimento_tbl_classe]_file'
  * 
- * --------------------------------------------------------------
- * OPERAZIONI
- * --------------------------------------------------------------
+ * --OPERAZIONI--
+ * 
  * 1. Visualizzare i file
  * 
-$mfile = new mFile();
-$options = array('params'=>"opt=3&amp;key=2", 'ajax'=>true);
-$buffer .= $mfile->mfileList([reference id], [table file], [instance name], [download method], [options]);
- *
+ * @code
+ * $mfile = new mFile();
+ * $options = array('params'=>"opt=3&amp;key=2", 'ajax'=>true);
+ * $buffer .= $mfile->mfileList([reference id], [table file], [instance name], [download method], [options]);
+ * @endcode
+ * 
  * 2. Form
- *
-$mfile = new mFile(array('jsfuncname'=>'fileUpload', 'formname'=>'gform', 'directory'=>$dir, 'div'=>'m_', 'text'=>true));
-$buffer .= $mfile->jsUploadLib();
-$options = array();
-$options1 = array('size'=>20, 'maxlength'=>100, 'extensions'=>$this->_valid_image);	// opzioni di cfile()
-$options2 = array('size'=>20, 'maxlength'=>200);									// opzioni di cinput()
-$buffer .= $gform->cell($mfile->mForm('mfile', $this->id ? $this->id : 0, $options, $options1, $options2));
-
-L'indicazione della directory nell'istanziamento della classe è da inserire nel caso in cui si voglia mostrare 
-l'elenco dei file associati a un record con link di eliminazione. A questo proposito inseriamo la riga:
-
-$buffer .= $gform->cell($mfile->mfileDelList($this->id, $this->_tbl_data."_file", $obj->getInstanceName(), array('view_desc'=>true)));
-
-
-ALTERNATIVE
---------------------
--> al posto di:
-$buffer .= $mfile->jsUploadLib();
-
--> si può cercare di utilizzare (input change):
-$result_div = 'm_file'.$id;
-$buffer .= $mfile->jsInputLib('attached', 'id', '', '', $result_div, $this->_tbl_base_file);
-// in questo ultimo caso dovrò richiamare
-$buffer .= "<div id=\"$result_div\">".$mfile->mFormFromInput($refid, $action, $this->_tbl_base_file, $options, $options1, $options2)."</div>\n";
-
-PER VISUALIZZARE L'ELENCO DEI FILE PRESENTI CON LA POSSIBILITA' DI ELIMINARLI
---------------------
-mfileDelList([id], [table file], [instance name], [opzioni[,[,])
-
-mfileDelList() richiama l'istanza (utilizzando ad es. $obj->getInstanceName()) e, non avendo indicato un metodo specifico,
-richiama il metodo di default mfileDeleteAttached() che occorre inserire nella classe dell'istanza.
-
-	public function mfileDeleteAttached() {
-	
-		$this->accessGroup('ALL');
-
-		$mfile = new mFile();
-		$buffer = $mfile->mfileDelAction();	// array('view_desc'=>true)
-		return $buffer;
-	}
-	
-mfileDelAction() rimanda a 'mfileDeleteAttached'
-
+ * 
+ * @code
+ * $mfile = new mFile(array('jsfuncname'=>'fileUpload', 'formname'=>'gform', 'directory'=>$dir, 'div'=>'m_', 'text'=>true));
+ * $buffer .= $mfile->jsUploadLib();
+ * $options = array();
+ * $options1 = array('size'=>20, 'maxlength'=>100, 'extensions'=>$this->_valid_image);	// opzioni di cfile()
+ * $options2 = array('size'=>20, 'maxlength'=>200);									// opzioni di cinput()
+ * $buffer .= $gform->cell($mfile->mForm('mfile', $this->id ? $this->id : 0, $options, $options1, $options2));
+ * @endcode
+ * 
+ * L'indicazione della directory nell'istanziamento della classe è da inserire nel caso in cui si voglia mostrare 
+ * l'elenco dei file associati a un record con link di eliminazione. A questo proposito inseriamo la riga:
+ * 
+ * @code
+ * $buffer .= $gform->cell($mfile->mfileDelList($this->id, $this->_tbl_data."_file", $obj->getInstanceName(), array('view_desc'=>true)));
+ * @endcode
+ * 
+ * ALTERNATIVE
+ * 
+ * al posto di:
+ * @code
+ * $buffer .= $mfile->jsUploadLib();
+ * @endcode
+ * 
+ * si può cercare di utilizzare (input change):
+ * @code
+ * $result_div = 'm_file'.$id;
+ * $buffer .= $mfile->jsInputLib('attached', 'id', '', '', $result_div, $this->_tbl_base_file);
+ * // in questo ultimo caso dovrò richiamare
+ * $buffer .= "<div id=\"$result_div\">".$mfile->mFormFromInput($refid, $action, $this->_tbl_base_file, $options, $options1, $options2)."</div>\n";
+ * @endcode
+ * 
+ * PER VISUALIZZARE L'ELENCO DEI FILE PRESENTI CON LA POSSIBILITA' DI ELIMINARLI
+ * 
+ * mfileDelList([id], [table file], [instance name], [opzioni[,[,])
+ * 
+ * mfileDelList() richiama l'istanza (utilizzando ad es. $obj->getInstanceName()) e, non avendo indicato un metodo specifico,
+ * richiama il metodo di default mfileDeleteAttached() che occorre inserire nella classe dell'istanza.
+ * 
+ * @code
+ * public function mfileDeleteAttached() {
+ * 	$this->accessGroup('ALL');
+ *  $mfile = new mFile();
+ * 	$buffer = $mfile->mfileDelAction();	// array('view_desc'=>true)
+ * 	return $buffer;
+ * }
+ * @endcode
+ * 
+ * mfileDelAction() rimanda a 'mfileDeleteAttached'
  * 
  * 3. Action
  * 
-$mfile = new mFile(array('text'=>true));
-$options = array('chmod_dir'=>0755, 'overwrite'=>1);
-$upload = $mfile->mAction([input name], [upload dir], [link error], [options]);
-$mfile->dbUploadAction($upload, [reference id], [table file]);
-
-ALTERNATIVA
---------------------
-$mfile = new mFile();
-$upload = $mfile->mAction([input name], [upload dir], [link error], array('chmod_dir'=>0755, 'overwrite'=>0, 'valid_ext'=>$this->_valid_image));
-
-if(sizeof($upload) > 0)
-{
-	foreach($upload AS $key=>$value)
-	{
-		$item = new multimediaItem($id);
-		$item->instance = $this->_instance;
-		$item->image = $key;
-		...
-		if($item->updateDbData())
-		{
-			$form = new Form('', '', '');
-			$resize = $form->createImage($item->image, $directory, array('prefix_file'=>$this->_prefix_img, 'prefix_thumb'=>$this->_prefix_thumb, 'file_dim'=>$this->_img_width, 'thumb_dim'=>$this->_thumb_width));
-		}
-		else unlink($directory.$item->image);
-
+ * @code
+ * $mfile = new mFile(array('text'=>true));
+ * $options = array('chmod_dir'=>0755, 'overwrite'=>1);
+ * $upload = $mfile->mAction([input name], [upload dir], [link error], [options]);
+ * $mfile->dbUploadAction($upload, [reference id], [table file]);
+ * @endcode
  * 
- * -------------------------------
- * SCHEMA METODI
- * -------------------------------
+ * ALTERNATIVA
+ * 
+ * @code
+ * $mfile = new mFile();
+ * $upload = $mfile->mAction([input name], [upload dir], [link error], array('chmod_dir'=>0755, 'overwrite'=>0, 'valid_ext'=>$this->_valid_image));
+ * 
+ * if(sizeof($upload) > 0)
+ * {
+ * 	foreach($upload AS $key=>$value)
+ * 	{
+ * 	 $item = new multimediaItem($id);
+ * 	 $item->instance = $this->_instance;
+ * 	 $item->image = $key;
+ * 	 ...
+ * 	 if($item->updateDbData())
+ * 	 {
+ * 	  $form = new Form('', '', '');
+ * 	  $resize = $form->createImage($item->image, $directory, array('prefix_file'=>$this->_prefix_img, 'prefix_thumb'=>$this->_prefix_thumb, 'file_dim'=>$this->_img_width, 'thumb_dim'=>$this->_thumb_width));
+ * 	 }
+ * 	 else unlink($directory.$item->image);
+ * ...
+ * @endcode
+ * 
+ * --SCHEMA METODI--
  * 
  * jsInputLib()		-> [default] mFormFromInput()
  * mFormFromInput()	-> mForm()
@@ -117,37 +137,31 @@ if(sizeof($upload) > 0)
  * 
  * Per modificare il metodo di default indicare nel metodo che lo richiama il nome del metodo ad hoc e della classe relativa
  * 
- * -------------------------------
- * ESEMPIO AJAX per richiamare il form
- * -------------------------------
+ * --ESEMPIO AJAX per richiamare il form--
  * 
+ * @code
  * $GINO .= $this->jsLib();
  * $GINO .= "<div id=\"f_attach\"></div>\n";	// style=\"display:none;\" (utilizzando nel js showHide($(result)))
- * 
  * $GINO .= "<span onclick=\"fAttach($id, 0, 'f_attach', '".$this->_act_insert."', '', '');\" title=\""._("form allegati")."\">".$this->icon('attach', _("gestione allegati"))."</span>";
+ * @endcode
  * 
- * -> in jsLib():
- * 
-		$GINO .= "<script type=\"text/javascript\">\n";
-		
-		$GINO .= "function fAttach(ref, id, result, action, method, params) {
-			
-			var output = $(result);
-			var call = '';
-			//showHide(output);
-			
-			if(action == '".$this->_act_delete."') call = 'deleteAttach';
-			else call = 'formAttach';
-			
-			var url = '".$this->_home."?pt[".$this->_className."-'+call+']';
-			var data = 'ref='+ref+'&id='+id+'&action='+action+'&div='+result+'&m='+method+'&p='+params;
-			ajaxRequest('post', url, data, result);
-		};\n";
-		
-		$GINO .= "</script>\n";
- *
+ * in jsLib():
+ * @code
+ * 	 $GINO .= "<script type=\"text/javascript\">\n";
+ * 	 $GINO .= "function fAttach(ref, id, result, action, method, params) {
+ * 	  var output = $(result);
+ * 	  var call = '';
+ * 	  //showHide(output);
+ * 	  if(action == '".$this->_act_delete."') call = 'deleteAttach';
+ * 	  else call = 'formAttach';
+ * 			
+ * 	  var url = '".$this->_home."?pt[".$this->_className."-'+call+']';
+ * 	  var data = 'ref='+ref+'&id='+id+'&action='+action+'&div='+result+'&m='+method+'&p='+params;
+ * 	  ajaxRequest('post', url, data, result);
+ *  };\n";
+ * 	$GINO .= "</script>\n";
+ * @endcode
  */
-
 class mFile {
 	
 	private $_home, $_db, $_className;
@@ -164,15 +178,16 @@ class mFile {
 	/**
 	 * Costruttore
 	 *
-	 * Options:
-	 * 
-	 * jsfuncname		string		nome della funzione javascript
-	 * formname			string		nome del form
-	 * directory		string		percorso assoluto dei file	
-	 * text				boolean		attivare la descrizione del file
-	 * div				string		prefisso per i nomi dei div
-	 * form_label_width
-	 * form_field_width
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b jsfuncname (string): nome della funzione javascript
+	 *   - @b formname (string): nome del form
+	 *   - @b directory (string): percorso assoluto dei file	
+	 *   - @b text (boolean): attivare la descrizione del file
+	 *   - @b div (string): prefisso per i nomi dei div
+	 *   - @b form_label_width
+	 *   - @b form_field_width
+	 * @return void
 	 */
 	function __construct($options=null){
 		
@@ -216,7 +231,6 @@ class mFile {
 	
 	private function setDimensions($options) {
 		
-		
 	}
 	
 	// Directory finale: $this->_dir.$this->_os.$id.$this->_os
@@ -232,6 +246,13 @@ class mFile {
 		return $dir;
 	}
 	
+	/**
+	 * Rimuove tutti i caratteri ad eccezione di numeri, lettere, _.-, da una stringa, sostituendoli con un underscore
+	 * 
+	 * @param stringa $filename nome del file
+	 * @param string $prefix eventuale testo da aggiungere in testa al nome del file
+	 * @return string
+	 */
 	private function checkFilename($filename, $prefix='') {
 	
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
@@ -239,21 +260,23 @@ class mFile {
 	}
 	
 	/**
-	 * Visualizzazione file con possibilità di collegamento
-	 *
-	 * @param integer $id			reference id
-	 * @param string $table			table file
-	 * @param string $instance		instance name
-	 * @param string $method		download method (es. mdownloader)
-	 * @return string
+	 * Visualizzazione dei file caricati
 	 * 
-	 * Options:
-	 * @param string name_id			nome dell'identificatore
-	 * @param string params				parametri aggiuntivi (es: opt=3&amp;key=2)
-	 * @param boolean view_text			visualizzare la descrizione (default: false)
-	 * @param boolean ajax				chiamata 'pt' vs 'evt' (default: false)
-	 * @param boolean download			permettere il download dei file (default: true)
-	 * @param integer max_char			numero max di caratteri del nome del file (viene mostrata l'estensione)
+	 * E' prevista la possibilità di attivare il loro scaricamento
+	 *
+	 * @param integer $id reference id
+	 * @param string $table table file
+	 * @param string $instance instance name
+	 * @param string $method download method (es. mdownloader)
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b name_id (string): nome dell'identificatore
+	 *   - @b params (string): parametri aggiuntivi (es: opt=3&amp;key=2)
+	 *   - @b view_text (boolean): visualizzare la descrizione (default: false)
+	 *   - @b ajax (boolean): chiamata 'pt' vs 'evt' (default: false)
+	 *   - @b download (boolean): permettere il download dei file (default: true)
+	 *   - @b max_char(integer): numero massimo di caratteri del nome del file (viene mostrata l'estensione)
+	 * @return string
 	 */
 	public function mfileList($id, $table, $instance, $method, $options=null){
 		
@@ -304,7 +327,18 @@ class mFile {
 		return $GINO;
 	}
 	
-	// Form con passaggio dal metodo jsInputLib()
+	/**
+	 * Form con passaggio dal metodo jsInputLib()
+	 * 
+	 * @see mForm()
+	 * @param integer $refid
+	 * @param string $action
+	 * @param string $table
+	 * @param array $options
+	 * @param array $options_file
+	 * @param array $options_text
+	 * @return string
+	 */
 	public function mFormFromInput($refid=0, $action='', $table='', $options=null, $options_file=null, $options_text=null){
 		
 		$GINO = '';
@@ -327,16 +361,21 @@ class mFile {
 	
 	/**
 	 * Form
-	 *
+	 * 
+	 * @see Form::cinput
+	 * @see Form::noinput
+	 * @see Form::cfile
+	 * 
 	 * @param string $name_file			input name
 	 * @param integer $id				id di riferimento
-	 * @param array $options			opzioni generali
-	 * 		string label_file			label del blocco principale (file)
-	 * 		string label_text			label del blocco principale (descrizione)
-	 * 		string label_cell			label delle righe che vengono create
-	 * @param array $options_file		opzioni del metodo cfile della classe Form
-	 * @param array $options_text		opzioni del metodo cinput della classe Form
-	 * @param array $options_cell		opzioni del metodo noinput della classe Form
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b label_file (string): label del blocco principale (file)
+	 *   - @b label_text (string): label del blocco principale (descrizione)
+	 *   - @b label_cell (string): label delle righe che vengono create
+	 * @param array $options_file opzioni del metodo cfile della classe Form
+	 * @param array $options_text opzioni del metodo cinput della classe Form
+	 * @param array $options_cell opzioni del metodo noinput della classe Form
 	 * @return string
 	 */
 	public function mForm($name_file, $id=0, $options=null, $options_file=null, $options_text=null, $options_cell=null){
@@ -388,24 +427,23 @@ class mFile {
 		return $GINO;
 	}
 	
-	/*
+	/**
 	 * Elenco file associati a un record con link di eliminazione
 	 * 
-	 * @param id			integer		file ID
-	 * @param table			string		table file
-	 * @param instance		string		nome dell'istanza
+	 * @param integer id file ID
+	 * @param string table table file
+	 * @param string instance nome dell'istanza
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b method (string): nome del metodo da richiamare per eliminare il file
+	 *   - @b result (string): div elenco file
+	 *   - @b jsfunc (string): nome della funzione javascript che gestisce l'eliminazione dei file (ajaxRequest)
+	 *   - @b label (string): label dell'elenco file
+	 *   - @b view_desc (boolean): visualizza le descrizioni dei file
+	 *   - @b max_chars (integer): numero di caratteri da mostrare nelle descrizione
+	 *   - @b td_style (string): stile del tag TD
+	 *   - @b label (string): label dell'elenco file
 	 * @return string
-	 * 
-	 * Opzioni
-	 * ----------------
-	 * method		string		nome del metodo da richiamare per eliminare il file
-	 * result		string		div elenco file
-	 * jsfunc		string		nome della funzione javascript che gestisce l'eliminazione dei file (ajaxRequest)
-	 * label		string		label dell'elenco file
-	 * view_desc	boolean		visualizza le descrizioni dei file
-	 * max_chars	integer		numero di caratteri da mostrare nelle descrizione
-	 * td_style		string		stile del tag TD
-	 * label		string		label dell'elenco file
 	 */
 	public function mfileDelList($id, $table, $instance, $options=null){
 		
@@ -481,12 +519,17 @@ class mFile {
 		return $GINO;
 	}
 	
-	/*
-	 * Metodo default di eliminazione di un file
+	/**
+	 * Metodo di default di eliminazione di un file
 	 * 
-	 * method		string
-	 * view_desc	boolean
-	 * td_style		string
+	 * @see pub::deleteFile()
+	 * @see mfileDelList()
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b method (string): nome del metodo da richiamare per eliminare il file (di default è il metodo indicato nella proprietà @a _base_method)
+	 *   - @b view_desc (boolean)
+	 *   - @b td_style (string)
+	 * @return string
 	 */
 	public function mfileDelAction($options=null){
 		
@@ -543,7 +586,17 @@ class mFile {
 		return $GINO;
 	}
 	
-	// Invia a $method le variabili: fid, action, inst, func, tbl, dir
+	/**
+	 * Invia al metodo indicato nel parametro $method le variabili: fid, action, inst, func, tbl, dir
+	 * 
+	 * @param string $jsfunc
+	 * @param string $instance
+	 * @param string $method
+	 * @param string $result
+	 * @param string $table
+	 * @param string $directory
+	 * @return string
+	 */
 	private function jsDeleteLib($jsfunc, $instance, $method, $result, $table, $directory) {
 	
 		$GINO = '';
@@ -593,27 +646,28 @@ class mFile {
 	/**
 	 * Action Upload Multiplo
 	 *
-	 * @param string $name			input name
-	 * @param string $dir_upload	directory di upload (/path/to/directory/)
-	 * @param string $link_error	reindirizzamento causa errore
-	 * @param array $options		opzioni
-	 * 		boolean overwrite		true (o 1 per compatibilità)=sovrascrivi i file, false=non sovrascrivere
-	 * 		integer max_size		dimensione massima upload in KB
-	 * 		boolean check_type		attiva 'types_allowed': true (o 1 per compatibilità)=controlla il tipo di file, false=non controllare
-	 * 		array types_allowed		array per alcuni tipi di file (mime types)
-	 * 		boolean check_denied	verifica '$this->_extension_denied': true (o 1 per compatibilità)=controlla l'estensione del file, false=non controllare
-	 * 		integer debug			1=stampa informazioni di debug, 0=non stampare
-	 * 		integer chmod_dir		permessi della directory (0700)
-	 * 		array valid_ext			estensioni valide
-	 * 		boolean check_name		verifica i caratteri del nome del file
-	 * 		boolean resize			attiva il ridimensionamento di una immagine
-	 * 		string prefix_file		nel caso resize=true
-	 * 		string prefix_thumb		nel caso resize=true
-	 * 		integer width			larghezza in pixel (alternativo al successivo)
-	 * 		integer height			altezza in pixel (alternativo al precedente)
-	 * 		boolean thumb			attiva la generazione del thumbnail
-	 * 		integer t_width			larghezza in pixel del thumbnail (alternativo al successivo)
-	 * 		integer t_height		altezza in pixel del thumbnail (alternativo al precedente)
+	 * @param string $name input name
+	 * @param string $dir_upload directory di upload (/path/to/directory/)
+	 * @param string $link_error reindirizzamento causa errore
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b overwrite (boolean): true (o 1 per compatibilità)=sovrascrivi i file, false=non sovrascrivere
+	 *   - @b max_size (integer): dimensione massima upload in KB
+	 *   - @b check_type (boolean): attiva 'types_allowed': true (o 1 per compatibilità)=controlla il tipo di file, false=non controllare
+	 *   - @b types_allowed (array): array per alcuni tipi di file (mime types)
+	 *   - @b check_denied (boolean): verifica '$this->_extension_denied': true (o 1 per compatibilità)=controlla l'estensione del file, false=non controllare
+	 *   - @b debug (integer): 1=stampa informazioni di debug, 0=non stampare
+	 *   - @b chmod_dir (integer): permessi della directory (0700)
+	 *   - @b valid_ext (array): estensioni valide
+	 *   - @b check_name (boolean): verifica i caratteri del nome del file
+	 *   - @b resize (boolean): attiva il ridimensionamento di una immagine
+	 *   - @b prefix_file (string): nel caso resize=true
+	 *   - @b prefix_thumb (string): nel caso resize=true
+	 *   - @b width (integer): larghezza in pixel (alternativo al successivo)
+	 *   - @b height (integer): altezza in pixel (alternativo al precedente)
+	 *   - @b thumb (boolean): attiva la generazione del thumbnail
+	 *   - @b t_width (integer): larghezza in pixel del thumbnail (alternativo al successivo)
+	 *   - @b t_height (integer): altezza in pixel del thumbnail (alternativo al precedente)
 	 * @return array ('filename'=>'description')
 	 */
 	public function mAction($name, $dir_upload, $link_error, $options=null){
@@ -797,9 +851,10 @@ class mFile {
 	/**
 	 * Inserimento su DB dei risultati dell'upload
 	 *
-	 * @param array $upload			result of mAction()
-	 * @param integer $reference	reference ID
-	 * @param string $table			table file
+	 * @param array $upload result of mAction()
+	 * @param integer $reference reference ID
+	 * @param string $table table file
+	 * @return void
 	 */
 	public function dbUploadAction($upload, $reference, $table){
 		
@@ -816,14 +871,15 @@ class mFile {
 	
 	/**
 	 * Copia i file uploadati da una directory a un'altra
-	 * -> utile quando un file proveniente da un form deve essere associato a più record e inserito
-	 * in directory distinte attinenti questi record 
 	 * 
-	 * @param array $upload			output del metodo 'mAction()'
-	 * @param string $dir_source	directory sorgente (file da copiare)
-	 * @param string $dir_dest		directory di destinazione
-	 * @param string redirect		nomeclasse-nomemetodo
-	 * @param string $link_error	parametri
+	 * Utile quando un file proveniente da un form deve essere associato a più record e inserito in directory distinte attinenti questi record 
+	 * 
+	 * @param array $upload output del metodo 'mAction()'
+	 * @param string $dir_source directory sorgente (file da copiare)
+	 * @param string $dir_dest directory di destinazione
+	 * @param string redirect nomeclasse-nomemetodo
+	 * @param string $link_error parametri
+	 * @return null
 	 */
 	public function copyUploadedFile($upload, $dir_source, $dir_dest, $redirect, $link_error){
 		
@@ -853,9 +909,12 @@ class mFile {
 	/**
 	 * Rimuove i file caricati
 	 * 
-	 * @param string $directory		directory dell'upload
-	 * @param string $filename		nome del file come viene salvato nel record
+	 * @param string $directory directory dell'upload
+	 * @param string $filename nome del file come viene salvato nel record
 	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b prefix_file (string)
+	 *   - @b prefix_thumb (string)
 	 * @return null
 	 */
 	public function removeFile($directory, $filename, $options=null){
@@ -880,16 +939,17 @@ class mFile {
 	
 	/**
 	 * Javascript per presentazione campo multifile a partire da un input
-	 *
-	 * @param string $input_name		nome dell'input di scelta
-	 * @param string $ref_id			ID di riferimento (input name)
-	 * @param string $instance			nome istanza
-	 * @param string $method			nome funzione che recupera i dati
-	 * @param string $result			nome DIV all'interno del quale vengono scritti i risultati
-	 * @param string $table				nome della tabella dei file
-	 * @return string
 	 * 
 	 * Invia alla funzione '$func_name' le variabili: rid, action, tbl, opt
+	 * 
+	 * @see jsUploadLib()
+	 * @param string $input_name nome dell'input di scelta
+	 * @param string $ref_id ID di riferimento (input name)
+	 * @param string $instance nome istanza
+	 * @param string $method nome funzione che recupera i dati
+	 * @param string $result nome DIV all'interno del quale vengono scritti i risultati
+	 * @param string $table nome della tabella dei file
+	 * @return string
 	 */
 	public function jsInputLib($input_name, $ref_id, $instance='', $method='', $result, $table) {
 	
@@ -930,6 +990,11 @@ class mFile {
 		return $GINO;
 	}
 	
+	/**
+	 * Costruisce i blocchi contenenti gli input dei file aggiuntivi
+	 * @param string $text
+	 * @return string
+	 */
 	public function jsUploadLib($text=''){
 		
 		if(empty($text)) $text = _("Aggiungi file");

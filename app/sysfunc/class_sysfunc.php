@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file class_sysfunc.php
+ * @brief Contiene la classe sysfunc
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Metodi personalizzati e interfacce a metodi utilizzati da classi molteplici per espandarne le funzionalità
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class sysfunc extends AbstractEvtClass{
 
 	function __construct(){
@@ -8,6 +23,11 @@ class sysfunc extends AbstractEvtClass{
 
 	}
 	
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
+	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -19,14 +39,23 @@ class sysfunc extends AbstractEvtClass{
 		return $list;
 	}
 
-	public function Autenticazione($bool=false, $classname='index'){
+	/**
+	 * Box di login
+	 * 
+	 * @see access::AccessForm()
+	 * @see account::linkRegistration()
+	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
+	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
+	 * @return string
+	 */
+	public function Autenticazione($bool=false, $classname='user'){
 
 		$GINO = "<div class=\"auth\">\n";
 		$GINO .= "<div class=\"auth_title\">"._("login:")."</div>";
 		$GINO .= "<div class=\"auth_content\">"; 
 		$GINO .= $this->_access->AccessForm();
 		
-		$registration = new account('', $classname);
+		$registration = new account($classname);
 		$GINO .= $registration->linkRegistration($bool);
 		
 		$GINO .= "</div>\n";
@@ -35,6 +64,13 @@ class sysfunc extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Box di login in tabella
+	 * 
+	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
+	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
+	 * @return string
+	 */
 	public function tableLogin($bool=false, $classname='index'){
 
 		$GINO = "<form action=\"\" method=\"post\" id=\"formauth\" name=\"formauth\">\n";
@@ -71,6 +107,11 @@ class sysfunc extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Credits
+	 * 
+	 * @return string
+	 */
 	public function credits() {
 	
 		$credits = "<a class=\"otto\" href=\"http://www.otto.to.it\" target=\"_blank\">&#160;</a>";
@@ -79,10 +120,14 @@ class sysfunc extends AbstractEvtClass{
 		return $credits;
 	}
 
-	/*
-	 * Funzioni utilizzate da classi molteplici, metodo alternativo al wrapper
+	/**
+	 * Interfaccia per la gestione dei file css dei moduli
+	 * 
+	 * @see css::manageModuleCss()
+	 * @param integer $mdl valore ID del modulo
+	 * @param string $class nome della classe
+	 * @return string
 	 */
-
 	public static function manageCss($mdl, $class) {
 
 		$db = db::instance();
@@ -107,6 +152,14 @@ class sysfunc extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Interfaccia per la gestione delle opzioni dei moduli
+	 * 
+	 * @see options::manageDoc()
+	 * @param integer $mdl valore ID del modulo
+	 * @param string $class nome della classe
+	 * @return string
+	 */
 	public static function manageOptions($mdl, $class) {
 	
 		$options = new options($class, $mdl);
@@ -114,6 +167,14 @@ class sysfunc extends AbstractEvtClass{
 		return $options->manageDoc();
 	}
 	
+	/**
+	 * Interfaccia per la gestione delle email personalizzate dei moduli
+	 * 
+	 * @see email::manageDoc()
+	 * @param integer $mdl valore ID del modulo
+	 * @param string $class nome della classe
+	 * @return string
+	 */
 	public static function manageEmail($mdl, $class) {
 	
 		$email = new email($class, $mdl);
@@ -121,6 +182,14 @@ class sysfunc extends AbstractEvtClass{
 		return $email->manageDoc();
 	}
 	
+	/**
+	 * Interfaccia per la gestione dei permessi di accesso alle funzionalità dei moduli
+	 * 
+	 * @see admin::manageDoc()
+	 * @param integer $mdl valore ID del modulo
+	 * @param string $class nome della classe
+	 * @return string
+	 */
 	public static function managePermissions($mdl, $class) {
 	
 		$admin = new admin($class, $mdl);

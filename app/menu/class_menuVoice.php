@@ -1,18 +1,47 @@
 <?php
+/**
+ * @file class_menuVoice.php
+ * @brief Contiene la classe menuVoice
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+// Include la classe propertyObject
 require_once(CLASSES_DIR.OS.'class.propertyObject.php');
 
+/**
+ * @brief Fornisce gli strumenti alla classe menu per la gestione amministrativa
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class menuVoice extends propertyObject {
 	
 	public static $tbl_voices = "sys_menu_voices";
 	private static $_tbl_user_role = "user_role";
 	private $_gform;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $id valore ID della voce di menu
+	 * @return void
+	 */
 	function __construct($id) {
 	
 		$this->_tbl_data = self::$tbl_voices;
-		parent::__construct($this->initP($id));
+		parent::__construct($id);
 	}
 	
+	/**
+	 * Elimina le voci di menu di una istanza (nella procedura di eliminazione di una istanza)
+	 * 
+	 * @param integer $instance valore ID dell'istanza
+	 * @return boolean
+	 */
 	public static function deleteInstanceVoices($instance) {
 
 		$db = db::instance();
@@ -29,22 +58,12 @@ class menuVoice extends propertyObject {
 		return true;
 	}
 
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".self::$tbl_voices." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'instance'=>null, 'parent'=>null, 'label'=>null, 'link'=>null, 'type'=>null, 'role1'=>null, 'orderList'=>null, 'authView'=>null, 'reference'=>null);
-	}
-	
 	public function setParent($postLabel) {
 		
 		$value = cleanVar($_POST, $postLabel, 'int', '');
 		if($this->_p['parent']!=$value && !in_array('parent', $this->_chgP)) $this->_chgP[] = 'parent';
 		$this->_p['parent'] = $value;
 		return true;
-
 	}
 	
 	public function setLink($value) {
@@ -57,7 +76,6 @@ class menuVoice extends propertyObject {
 		
 		if($this->_p['instance']!=$value && !in_array('instance', $this->_chgP)) $this->_chgP[] = 'instance';
 		$this->_p['instance'] = $value;
-
 	}
 
 	public function setOrderList($value) {
@@ -78,12 +96,20 @@ class menuVoice extends propertyObject {
 		$this->orderList = $last+1;
 	}
 
+	/**
+	 * Query di aggiornamento della sequenza delle voci di menu
+	 * 
+	 * @return boolean
+	 */
 	public function updateOrderList() {
 
 		$query = "UPDATE ".self::$tbl_voices." SET orderList=orderList-1 WHERE orderList>'".$this->orderList."' AND parent='".$this->parent."'";		
 		$result = $this->_db->actionquery($query);
 	}
 
+	/**
+	 * Elimina le voci di menu che hanno in comune la stessa voce parent
+	 */
 	public function deleteVoice() {
 
 		foreach($this->getChildren() as $child) $child->deleteVoice();
@@ -105,6 +131,13 @@ class menuVoice extends propertyObject {
 		return $children;
 	}
 
+	/**
+	 * Form di inserimento e modifica di una voce di menu
+	 * 
+	 * @param string $formaction indirizzo dell'azione
+	 * @param integer $parent valore ID della voce parent
+	 * @return string
+	 */
 	public function formVoice($formaction, $parent) {
 	
 		$gform = new Form('gform', 'post', true);
@@ -153,6 +186,12 @@ class menuVoice extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Form di eliminazione di una voce di menu
+	 * 
+	 * @param string $formaction indirizzo dell'azione
+	 * @return string
+	 */
 	public function formDelVoice($formaction) {
 	
 		$gform = new Form('gform', 'post', false);
@@ -226,6 +265,12 @@ class menuVoice extends propertyObject {
 		return $buffer;
 	}
 	
+	/**
+	 * Ricava la voce di menu corrispondente alla pagina caricata
+	 * 
+	 * @param integer $instance valore ID dell'istanza
+	 * @return mixed (integer->valore ID della voce di menu, string->home|admin)
+	 */
 	public static function getSelectedVoice($instance) {
 	
 		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5" 

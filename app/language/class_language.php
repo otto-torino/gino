@@ -1,15 +1,27 @@
 <?php
-/*
- * Notes.
- *
- * The public function of this class shows the menu where to select the language of navigation.
- * The administration part regards with the insertion and monification of languages.
- *
- * The public view privilege and the administrative privilege are setted in the DB, and editable
- * by the user in the sysClass class administration
- *
+/**
+ * @file class_language.php
+ * @brief Contiene la classe language
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Libreria per la gestione delle lingue disponibili per le traduzioni
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Notes.
+ * 
+ * The public function of this class shows the menu where to select the language of navigation.
+ * The administration part regards with the insertion and monification of languages.
+ * 
+ * The public view privilege and the administrative privilege are setted in the DB, and editable by the user in the sysClass class administration
+ */
 class language extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -52,6 +64,11 @@ class language extends AbstractEvtClass{
 		$this->_country_codes = $this->countryCodes();
 	}
 	
+	/**
+	 * Definizione dei permessi di visualizzazione aggiuntivi a quello base
+	 * 
+	 * @see AbstractEvtClass::permission()
+	 */
 	public static function permission(){
 
 		$access_2 = _("Permessi di amministrazione");
@@ -59,6 +76,11 @@ class language extends AbstractEvtClass{
 		return array($access_2, $access_3);
 	}
 
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
+	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -68,6 +90,11 @@ class language extends AbstractEvtClass{
 		return $list;
 	}
 
+	/**
+	 * Codici lingua
+	 * 
+	 * @return array
+	 */
 	private function langCodes(){
 
 		return array(
@@ -241,6 +268,11 @@ class language extends AbstractEvtClass{
 		);
 	}
 
+	/**
+	 * Codici stato
+	 * 
+	 * @return array
+	 */
 	private function countryCodes(){
 
 		return array(
@@ -487,9 +519,9 @@ class language extends AbstractEvtClass{
 	}
 	
 	/**
-	 * Language Choice
-	 *
-	 * @param boolean $p		<div id=language>
+	 * Box di scelta lingua
+	 * 
+	 * @param boolean $p attiva un tag DIV con ID language
 	 * @return string
 	 */
 	public function choiceLanguage($p=true){
@@ -533,9 +565,14 @@ class language extends AbstractEvtClass{
 		}
 	}
 	
+	/**
+	 * Elenco delle lingue dell'applicazione
+	 * 
+	 * @param string $code codice lingua
+	 * @return string
+	 */
 	private function listLanguage($code){
 
-		
 		$link_insert = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova lingua"))."</a>";
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerLinks'=>$link_insert));
@@ -570,6 +607,12 @@ class language extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Interfaccia amministrazione per la gestione delle lingue
+	 * 
+	 * @see $_access_2
+	 * @return string
+	 */
 	public function manageLanguage(){
 
 		$this->accessType($this->_access_2);
@@ -626,9 +669,14 @@ class language extends AbstractEvtClass{
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Form di inserimento e modifica di una lingua
+	 * 
+	 * @param string $code codice lingua
+	 * @return string
+	 */
 	private function formLanguage($code){
 		
 		$gform = new Form('gform', 'post', true);
@@ -690,6 +738,11 @@ class language extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Inserimento e modifica di una lingua
+	 * 
+	 * @see $_access_2
+	 */
 	public function actionLanguage(){
 	
 		$this->accessType($this->_access_2);
@@ -749,6 +802,22 @@ class language extends AbstractEvtClass{
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageLanguage', '');
 	}
 	
+	/**
+	 * Interfaccia che apre o chiude il form per l'inserimento e la modifica delle traduzioni
+	 * 
+	 * Viene richiamato nei metodi della classe Form: cinput(), ctextarea(), fcktextarea()
+	 * 
+	 * @see formTranslation()
+	 * @see gino-min.js
+	 * @see $_access_user
+	 * @param string $type tipologia di input (input, textarea, fckeditor)
+	 * @param string $tbl nome della tabella con il campo da tradurre
+	 * @param string $field nome del campo con il testo da tradurre
+	 * @param integer $id_value valore dell'ID del record di riferimento per la traduzione
+	 * @param integer $width lunghezza del tag input o numero di colonne (textarea)
+	 * @param string $fck_toolbar nome della toolbar dell'editor html
+	 * @return string
+	 */
 	public function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
 	 	
 		$this->accessType($this->_access_user);
@@ -774,9 +843,15 @@ class language extends AbstractEvtClass{
 	 	$GINO .= "</div>\n";
 	 	
 	 	return $GINO;
-	 }
+	}
 	 
-	 public function formTranslation() {
+	/**
+	 * Form per l'inserimento e la modifica delle traduzioni
+	 * 
+	 * @see $_access_user
+	 * @return print
+	 */
+	public function formTranslation() {
 	 	
 		$this->accessType($this->_access_user);
 
@@ -829,14 +904,19 @@ class language extends AbstractEvtClass{
 	 	exit();
 	 }
 	 
-	 public function actionTranslation() {
+	/**
+	 * Inserimento e la modifica delle traduzioni
+	 * 
+	 * @see $_access_2
+	 */
+	public function actionTranslation() {
 	 	
 	 	$this->accessType($this->_access_2);
 	 	
-	 	$action = cleanVar($_POST, 'action', 'string', '');
-	 	$type = cleanVar($_POST, 'type', 'string', '');
-	 	if($type == $this->_input_field || $type == $this->_textarea_field) $text = cleanVar($_POST, 'text', 'string', '');
-	 	elseif($type == $this->_fckeditor_field) {
+		$action = cleanVar($_POST, 'action', 'string', '');
+		$type = cleanVar($_POST, 'type', 'string', '');
+		if($type == $this->_input_field || $type == $this->_textarea_field) $text = cleanVar($_POST, 'text', 'string', '');
+		elseif($type == $this->_fckeditor_field) {
 			$text = cleanVarEditor($_POST, 'text', '');
 			$text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($text));
 			$text = html_entity_decode($text,null,'UTF-8');
@@ -860,9 +940,16 @@ class language extends AbstractEvtClass{
 			CKEDITOR.remove(CKEDITOR.instances['trnsl_".$field."']);
 		</script>";
 	 	exit();
-	 }
-	 
-	  public static function deleteTranslations($tbl, $tbl_id) {
+	}
+	
+	/**
+	 * Elimina una traduzione
+	 * 
+	 * @param string $tbl nome della tabella con il campo da tradurre
+	 * @param integer $tbl_id valore dell'ID del record di riferimento per la traduzione
+	 * @return boolean
+	 */
+	public static function deleteTranslations($tbl, $tbl_id) {
 	 	
 		$db = db::instance();
 		$query = $tbl_id == 'all'
@@ -871,13 +958,24 @@ class language extends AbstractEvtClass{
 		$result = $db->actionquery($query);
 	 	if($result) return true;
 	 	else return false;
-	 }
-	 
-	 public function viewFieldTranslation($tbl, $field, $id_value) {
+	}
+	
+	/**
+	 * Visualizza tutte le traduzioni di un elemento
+	 * 
+	 * Viene richiamato nei metodi della classe Form: cinput(), ctextarea(), fcktextarea()
+	 * 
+	 * @see $_access_user
+	 * @param string $tbl nome della tabella con il campo da tradurre
+	 * @param string $field nome del campo con il testo da tradurre
+	 * @param integer $id_value valore dell'ID del record di riferimento per la traduzione
+	 * @return string
+	 */
+	public function viewFieldTranslation($tbl, $field, $id_value) {
 	 	
-	 	$this->accessType($this->_access_user);
+		$this->accessType($this->_access_user);
 
-	 	$text = '';
+		$text = '';
 	 	
 	 	$query = "SELECT text, language FROM ".$this->_tbl_translation." WHERE tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' ORDER BY language";
 	 	$a = $this->_db->selectquery($query);
@@ -891,9 +989,9 @@ class language extends AbstractEvtClass{
 		}
 	 	
 	 	return $text;
-	 }
+	}
 
-	 public function replaceTextarea() {
+	public function replaceTextarea() {
 	 
 		$gform = new Form('gform', 'post', true);
 
@@ -904,6 +1002,6 @@ class language extends AbstractEvtClass{
 		$GINO = $gform->editorHtml('trnsl_'.$field, null, $fck_toolbar, $width, null, true);
 
 		return $GINO;
-	 }
+	}
 }
 ?>

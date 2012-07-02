@@ -1,20 +1,52 @@
 <?php
-/*----------------------------------------------------------------------
+/**
+ * @file class.pagelist.php
+ * @brief Contiene la classe PageList
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-CLASS NAME:  ORDINAMENTO IN LISTE
-LANGUAGE:    PHP5
-DATE:        04/08/2004
-
-condizioni per l'utilizzo:
-1. in input -> query che ricava il numero totale di elementi
-(SELECT field FROM table WHERE condition)
-2. in output -> la query che recupera gli elementi deve avere
-le istruzioni "LIMIT $this->start(), $this->rangeNumber"
-(inizio, intervallo).
-----------------------------------------------------------------------*/
-
+/**
+ * @brief Gestisce la paginazione dei contenuti
+ * 
+ * Una delle prime classi di gino, risale al 04/08/2004
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Esempio 1 (Query)
+ * @code
+ * $queryTotElements = "SELECT id FROM tbl_doc WHERE ...";
+ * $this->_list = new PageList($doc_for_page, $queryTotElements);
+ * $query = "SELECT * FROM tbl_doc WHERE ... ORDER BY date DESC LIMIT ".$this->_list->start().", ".$this->_list->rangeNumber."";
+ * $a = $this->_db->selectquery($query);
+ * if(sizeof($a) > 0) {
+ *   foreach($a AS $b) { ... }
+ *   $GINO .= $this->_list->listReferenceGINO(evt[".$this->_className."-viewList]&id=$id&...");
+ * }
+ * @endcode
+ * 
+ * Esempio 2 (Array)
+ * @code
+ * $tot_items = eventItem::getTotItems($this->_instance, $options);
+ * $list = new PageList($this->_doc_for_page, $tot_items, 'array');
+ * $items = eventItem::getOrderedItems($this->_instance, $options);
+ * $end = $list->start()+$list->rangeNumber > count($items) ? count($items) : $list->start()+$list->rangeNumber;
+ * $htmlList = new htmlList(array("numItems"=>($end-$list->start()), "separator"=>true));
+ * $GINO .= $htmlList->start();
+ * foreach($items as $item) { ... }
+ * $GINO .= $htmlList->end();
+ * $GINO .= $list->listReferenceGINO("pt[$this->_instanceName-ajaxAdminItems]", true, implode('&', $postvar), "list_$this->_instance", "list_$this->_instance", true, 'updateTooltips');
+ * @endcode
+ */
 class PageList{
 
+	/**
+	 * Numero di elementi per pagina
+	 */
 	public $rangeNumber;
 
 	private $_db;
@@ -27,9 +59,7 @@ class PageList{
 	private $_more;
 	private $_less;
 	
-	/*
-	 * Numero di pagine adiacenti a quella corrente visualizzate come link (escluse la prima e l'ultima)
-	 */
+	// Numero di pagine adiacenti a quella corrente visualizzate come link (escluse la prima e l'ultima)
 	private $_vpage_num;
 	
 	private $_filename, $_url, $_variables, $_symbol;
@@ -40,12 +70,19 @@ class PageList{
 	private $_ajax, $_postvar, $_ref_id, $_load_id, $_script, $_callback, $_cbparams;
 	
 	/**
+	 * Costruttore
 	 * 
-	 * @param int		$items_for_page
-	 * @param string	$queryTot
-	 * @param string	$type
-	 * @param array		$options:
-	 * 			permalink_primary [boolean]: indica se il parametro 'start' deve essere gestito come parametro primario con i permalink
+	 * @param integer $items_for_page numero di elementi per pagina
+	 * @param mixed $queryTot
+	 *   - @a string:
+	 *       - query che ricava il numero totale di elementi (ad es. SELECT field FROM table WHERE condition)
+	 *       - numero degli elementi
+	 *   - @a array:
+	 *       - elenco dei riferimenti degli elementi (elementi object), ad esempio: eventItem::getTotItems($instance, $options);
+	 * @param string $type tipo del parametro queryTot (@a array)
+	 * @param array $options
+	 *   array asspciativo di opzioni
+	 *   - @b permalink_primary (boolean): indica se il parametro @a start deve essere gestito come parametro primario con i permalink
 	 */
 	function __construct($items_for_page, $queryTot, $type, $options=array()) {
 		
@@ -88,6 +125,10 @@ class PageList{
 
 	}
 	
+	/**
+	 * Recupera il valore dello start
+	 * @return integer
+	 */
 	public function start()
 	{
 		$start = cleanVar($_REQUEST, 'start', 'int', '');
@@ -95,6 +136,10 @@ class PageList{
 		return $start<0?0:$start;
 	}
 	
+	/**
+	 * Stampa il resoconto della pagina
+	 * @return string
+	 */
 	public function reassumedPrint()
 	{
 		$printTBL = '';
@@ -137,6 +182,22 @@ class PageList{
 		}
 	}
 
+	/**
+	 * Stampa i collegamenti con le pagine precedenti e successive
+	 * 
+	 * @param string $variables parametro dell'indirizzo indicante lo script da richiamare per le pagine precedenti/seguenti (es. pt[$this->_instanceName-ajaxAdminItems])
+	 * @param boolean $ajax indica se il collegamento tra le pagine avviene attraverso una request ajax
+	 * @param mixed $postvar variabili da aggiungere all'indirizzo (es. p1=var1&p2=var2)
+	 * @param string $ref_id dove caricare lo script ajax
+	 * @param string $load_id parametro per request ajax
+	 * @param boolean $script parametro per request ajax
+	 * @param string $callback parametro per request ajax
+	 * @param string $cbparams parametro per request ajax
+	 * @param array $opt
+	 *   array associativo di opzioni (parametri per request ajax)
+	 *   - @b cache
+	 * @return string
+	 */
 	public function listReferenceGINO($variables, $ajax=false, $postvar='', $ref_id='', $load_id='', $script=false, $callback=null, $cbparams=null, $opt=null) {
 		
 		$this->_filename = basename($_SERVER['PHP_SELF']);
@@ -200,39 +261,4 @@ class PageList{
 		return $BUFFER;
 	}
 }
-
-
-/*
-EXAMPLE
-
-1) query
-
-	$queryTotElements = "SELECT id FROM tbl_doc WHERE ...";
-	$this->_list = new PageList($doc_for_page, $queryTotElements);
-	
-	$query = "SELECT * FROM tbl_doc WHERE ...
-	ORDER BY date DESC LIMIT ".$this->_list->start().", ".$this->_list->rangeNumber."";
-	$a = $this->_db->selectquery($query);
-	if(sizeof($a) > 0)
-	{
-		foreach($a AS $b) { ... }
-		
-		$GINO .= $this->_list->listReferenceGINO(evt[".$this->_className."-viewList]&amp;id=$id&amp;...");
-	}
-
-2) array
-
-	$query = "SELECT id FROM tbl_category WHERE ...";
-	$list_item = $this->_trd->listItemOrdered($query, 'id', 'tbl_category_text', 'asc');	// asc | desc
-	
-	if(sizeof($list_item) > 0)
-	{
-		$this->_list = new PageList($doc_for_page, $list_item, 'array');
-		$list_item_range = array_slice($list_item, $this->_list->start(), $this->_list->rangeNumber, true);
-		
-		foreach($list_item_range AS $key=>$value) { ... }
-		
-		$GINO .= $this->_list->listReferenceGINO("evt[".$this->_className."-manageCat]");
-	}
-*/
 ?>

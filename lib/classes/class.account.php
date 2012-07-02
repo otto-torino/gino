@@ -1,76 +1,38 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
-
 /**
- * Funzionamento (classe che istanzia)
+ * @file class.account.php
+ * @brief Contiene la classe account
  * 
- * Proprietà:
-	private $_account;
-	public $_service;		// se si intende definire l'attivazione del 'servizio' al completamento della registrazione (boolean)
-	public $_service_group;	// gruppo che accede al servizio
-	private $_properties;
- * 
- * Nel costruttore:
-	$this->_account = new account($this, $this->_className);
-	$this->_properties = array(
-		'a'=>'',
-		'b'=>'',
-		'c'=>''
-	);
- *
- * Aggiungere il metodo:
- * 
- * 
-	public function __get($property_name){
-		
-		if(isset($this->_properties[$property_name]))
-		{
-			return $this->_properties[$property_name];
-		}
-		else {
-			return(null);
-		}
-	}
- * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Libreria che rende disponibili dei metodi per la gestione dei dati degli utenti
+ * 
+ * Vengono resi disponibili i metodi per la gestione autonoma dei dati degli utenti e i metodi per le password
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class account extends pub {
 	
-	private $_call_obj, $_call_name;
-	
-	private $_app_aut_trained, $_app_email_contact, $_app_email_send;
+	private $_call_name;
 	
 	private $_user_dir, $_user_www;
 	private $_extension_media, $_lng_tbl_nation;
 
-	function __construct($object='', $class=''){
+	/**
+	 * Costruttore
+	 * 
+	 * @param string $class nome della classe che fornisce i metodi per le interfacce
+	 */
+	function __construct($class=''){
 		
 		parent::__construct();
 
-		if(is_object($object))
-		{
-			$this->_call_obj = $object;
-			$this->setOptionApp();
-		}
-		
 		$this->_call_name = $class;
 		
 		$this->_user_dir = $this->_content_dir.$this->_os.'user'.$this->_os;
@@ -78,17 +40,6 @@ class account extends pub {
 		
 		$this->_extension_media = array('jpg', 'png');
 		$this->_lng_tbl_nation = $this->_lng_nav;
-
-	}
-	
-	private function setOptionApp(){
-		
-		//// NON PRESENTE
-		$this->_app_aut_trained = $this->_call_obj->a;		// Abilitazione automatica alla registrazione di un nuovo utente (oppure tramite conferma da email)
-		
-		//// NON PRESENTE
-		$this->_app_email_contact = $this->_call_obj->b;	// email per contatto
-		$this->_app_email_send = $this->_call_obj->c;		// Invio email come promemoria di attivazione del servizio
 	}
 	
 	private function accessAutRegistration(){
@@ -97,7 +48,13 @@ class account extends pub {
 		EvtHandler::HttpCall($this->_home, '', '');
 	}
 	
-	// Metodo di accesso
+	/**
+	 * Controlla se un utente può registrarsi autonomamente o se può modificare i suoi dati personali 
+	 * 
+	 * @param integer $user valore ID dell'utente
+	 * @param string $action azione da eseguire
+	 * @return redirect
+	 */
 	private function accessAccount($user='', $action=''){
 		
 		if(empty($action)) $action = $this->_act_insert;
@@ -116,9 +73,9 @@ class account extends pub {
 	}
 	
 	/**
-	 * Login Form
+	 * Form di login
 	 *
-	 * @param string	$classname
+	 * @param string $classname
 	 * @return string
 	 */
 	public function login($classname=null) {
@@ -135,24 +92,30 @@ class account extends pub {
 		return $GINO;
 	}
 	
+	/**
+	 * Collegamento alla registrazione autonoma di un utente
+	 * 
+	 * @param boolean $bool mostra il collegamento
+	 * @return string
+	 */
 	public function linkRegistration($bool=false){
 
 		$GINO = '';
 		
 		if($this->_u_aut_registration OR $bool)
 		{
-			if($this->_call_name == 'index') $class = 'user'; else $class = $this->_call_name;
-			
-			$GINO .= "<div class=\"auth_reg_title\"><a href=\"".$this->_home."?evt[$class-registration]\">"._("registrati")."</a>";
+			$GINO .= "<div class=\"auth_reg_title\"><a href=\"".$this->_home."?evt[".$this->_call_name."-registration]\">"._("registrati")."</a>";
 			$GINO .= "</div>\n";
 		}
 		return $GINO;
 	}
 	
-	/*
-		Gestione utenti
-	*/
-	
+	/**
+	 * Form di registrazione autonoma degli utenti e di modifica dei dati personali
+	 * 
+	 * @param string $action azione da eseguire
+	 * @return string
+	 */
 	public function formAccount($action='') {
 
 		$this->accessAccount('', $action);
@@ -267,7 +230,7 @@ class account extends pub {
 		// End
 		
 		if($action == $this->_act_modify)
-			$GINO .= $this->formPwd($user, 'h', 'personal', $action, $pwd_txt, $pwd_max);
+			$GINO .= $this->formPwd($user, 'personal', $action, $pwd_txt, $pwd_max);
 
 		$GINO .= $gform->form($this->_home."?evt[".$this->_call_name."-$action_method]", true, $required);
 		$GINO .= $gform->hidden('user', $user);
@@ -354,10 +317,12 @@ class account extends pub {
 	}
 	
 	/**
-	 * Action Form di Registrazione
+	 * Registrazione autonoma degli utenti
 	 *
-	 * @param string $method		metodo sul quale si viene reindirizzati in caso di risposta positiva
-	 * @param string $params		parametri da inviare in caso di risposta positiva
+	 * @see service()
+	 * @see mailNewRegistration()
+	 * @param string $method metodo sul quale si viene reindirizzati in caso di risposta positiva
+	 * @param string $params parametri da inviare in caso di risposta positiva
 	 */
 	public function actionAccount($method='', $params='', $link_error=null){
 
@@ -543,6 +508,19 @@ class account extends pub {
 		EvtHandler::HttpCall($this->_home, $redirect_true, $link);
 	}
 	
+	/**
+	 * Invio email di conferma della registrazione
+	 * 
+	 * @see email::schemaSendEmail()
+	 * @param string $to indirizzo di invio
+	 * @param string $name nome
+	 * @param string $surname cognome
+	 * @param string $user username
+	 * @param string $password password
+	 * @param string $link indirizzo per confermare la registrazione
+	 * @param string $email_id codice dello schema email associato
+	 * @return email
+	 */
 	private function mailNewRegistration($to, $name, $surname, $user, $password, $link, $email_id){
 
 		$array = array($name, $surname, $user, $password, $link);
@@ -553,15 +531,14 @@ class account extends pub {
 	}
 	
 	/**
-	 * Change User Password
+	 * Form di impostazione della password
 	 *
-	 * @param integer $user		user id
-	 * @param string $format	h: horizontal | v: vertical
-	 * @param string $function	function name (return redirect)
-	 * @param string $action
+	 * @param integer $user valore ID dell'utente
+	 * @param string $function nome del metodo per il redirect
+	 * @param string $action azione da eseguire
 	 * @return string
 	 */
-	private function formPwd($user, $format, $function, $action, $pwd_txt, $pwd_max){
+	private function formPwd($user, $function, $action, $pwd_txt, $pwd_max){
 
 		$buffer = "<div>\n";
 		
@@ -585,6 +562,11 @@ class account extends pub {
 		return $buffer;
 	}
 
+	/**
+	 * Impostazione della password
+	 *
+	 * @return redirect
+	 */
 	public function actionPwd(){
 
 		$user = cleanVar($_POST, 'user', 'int', '');
@@ -663,15 +645,17 @@ class account extends pub {
 		}
 	}
 	
+	/**
+	 * Termini e condizioni del servizio
+	 * 
+	 * @param string $check contenuto aggiuntivo, quale ad esempio un input checkbox di accettazione
+	 * @return string
+	 */
 	private function termCondition($check=''){
 
-		//$GINO = "<p class=\"bold\">"._("Termini e condizioni del servizio")."</p>\n";
-		
 		/*
 		$GINO .= "<p>"._("Proprietà dei dati")."</p>";
-		
 		$GINO .= "<p>"._("È assolutamente vietata la riproduzione, anche parziale, del materiale pubblicato. I loghi, la grafica, i suoni, le immagini e i testi di questo sito non possono essere copiati o ritrasmessi salvo espressa autorizzazione. L'utilizzo per qualsiasi fine non autorizzato è espressamente proibito dalla legge e comporta responsabilità sia civili sia penali.")."</p>";
-
 		$GINO .= "<p>"._("Privacy")."</p>";
 		*/
 
@@ -679,19 +663,20 @@ class account extends pub {
 
 		/*
 		$GINO .= "<p>"._("Come aggiornare le vostre informazioni e preferenze personali")."</p>";
-		
 		$GINO .= "<p>"._("Potete avvisarci di eventuali cambi di nome, recapito postale, titolo, numero di telefono, indirizzo di posta elettronica o preferenze in merito. Se decidete di aggiornare le vostre informazioni o preferenze, o se preferite non ricevere più comunicati da noi o dai nostri partner, non esitate a comunicarcelo. Inviate gli aggiornamenti desiderati via fax.")."</p>";
-
 		$GINO .= "<p>"._("Link")."</p>";
-		
 		$GINO .= "<p>"._("In merito agli eventuali link ad altri siti presenti nelle nostre pagine, l'Azienda non si assume alcuna responsabilità per il contenuto o le direttive sulla riservatezza ed i principi di tali siti web. Vi invitiamo pertanto a leggere le dichiarazioni sulla riservatezza di questi siti, in quanto potrebbero differire dalle nostre.")."</p>\n";
 		*/
-		
 		$GINO .= $check;
 
 		return $GINO;
 	}
 	
+	/**
+	 * Conferma della registrazione da una email inviata automaticamente dal sistema
+	 * 
+	 * @return boolean
+	 */
 	public function confirmRegistration(){
 		
 		$this->accessAutRegistration();
@@ -723,89 +708,11 @@ class account extends pub {
 		return false;
 	}
 	
-	/*
-		Attivazione del servizio
-	*/
-	
-	public function activation(){
-		
-		$GINO = '';
-		
-		$GINO .= "<p>"._("Attiva il servizio sul tuo account.")."</p>";
-		
-		$this->_gform = new GinoForm('gform', 'post', true);
-		
-		$GINO .= $this->_gform->form('', '', '');
-		
-		$url = "index.php?pt[".$this->_className."-actionActivation]";
-		$data = "'active='+$('active').getProperty('value')+'&call=".$this->_call_name."'";
-		$onclick = "onclick=\"sendPost('$url', $data, 'check')\"";
-		
-		$GINO .= $this->_gform->input('active', _("Attiva"), 'button', '', '', $onclick);
-		
-		$GINO .= "<div id=\"check\"></div>";
-		
-		$GINO .= $this->_gform->cform();
-		
-		return $GINO;
-	}
-	
-	public function actionActivation() {
-
-		$active = cleanVar($_POST, 'active', 'string', '');
-		$classname = cleanVar($_POST, 'call', 'string', '');
-		
-		if(!$this->_session_user) exit();
-
-		if(empty($active)) exit();
-		
-		$tblname = $this->tblname($classname);
-		
-		if(sizeof($tblname) > 0)
-		{
-			$group_id = $this->_access->serviceGroup($classname);
-			
-			if($group_id > 0)
-			{
-				if(!$this->_access->service($classname, $group_id))
-				{
-					$query = "INSERT INTO ".$tblname[0]." (group_id, user_id)
-					VALUES ('$group_id', ".$this->_session_user.")";
-					$result = $this->_db->actionquery($query);
-					
-					if($result)
-					{
-						$email = $this->_db->getFieldFromId($this->_tbl_user, 'email', 'user_id', $this->_session_user);
-						
-						if($this->_app_email_send AND !empty($email))
-						{
-							$subject = $this->variable('head_title').' - '._("Attivazione del servizio");
-							$object = _("Gentile Cliente,")."\r\n";
-							$object .= _("Grazie per essersi registrato al servizio.")."\r\n\r\n";
-							$object .= _("Cordiali saluti")."\r\n";
-							$object .= _("Lo Staff");
-							
-							$this->emailSend($email, $subject, $object);
-						}
-					}
-				}
-			}
-		}
-		
-		$url = $this->urlRedirect();
-		
-		if($result) $link = $url[0]; else $link = $url[1];
-		
-		echo "
-		<script type=\"text/javascript\">
-		location.href = \"$link\";
-		</script>
-		";
-		exit();
-	}
-	
-	// End
-	
+	/**
+	 * Genera una password random
+	 * 
+	 * @return string
+	 */
 	public function generatePwd(){
 
 		//set alphabet arrays
@@ -837,6 +744,12 @@ class account extends pub {
 		return $password;
 	}
 	
+	/**
+	 * Verifica la validità di una password
+	 * 
+	 * @param string $pwd password
+	 * @return boolean
+	 */
 	public function verifyPassword($pwd){
 		
 		$pwd_min = $this->_u_pwd_length_min;

@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file class.html.php
+ * @brief Contiene la classe html
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Contenitore per sopperire alla mancanza di template
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class html {
 
 	public static function separator() {
@@ -12,9 +27,7 @@ class html {
 		$buffer .= "</div>\n";
 
 		return $buffer;
-	
 	}
-
 }
 
 ?>

@@ -1,5 +1,26 @@
 <?php
+/**
+ * @file class_instruments.php
+ * @brief Contiene la classe instruments
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Strumenti agguintivi di gino
+ * 
+ * Adesso sono disponibili l'elenco delle risorse disponibili (con i relativi link) e dei mime type.
+ * Per aggiungere uno strumento è necessario:
+ *   - creare un record nella tabella @a instruments
+ *   - associare nel metodo viewItem() il valore del campo id dello strumento con un suo metodo personalizzato (ad es. itemNew)
+ *   - creare il metodo personalizzato (ad es. itemNew)
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class instruments extends AbstractEvtClass {
 
 	private $_optionsValue;
@@ -37,11 +58,21 @@ class instruments extends AbstractEvtClass {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: assistenti
+	 */
 	private function setGroups(){
 		
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 
+	/**
+	 * Interfaccia amministrativa alla gestione degli strumenti
+	 * 
+	 * @return string
+	 */
 	public function manageInstruments() {
 	
 		$this->accessGroup('ALL');
@@ -88,6 +119,12 @@ class instruments extends AbstractEvtClass {
 		return $htmltab->render();
 	}
 
+	/**
+	 * Elenco degli strumenti
+	 * 
+	 * @param integer $select_item valore ID dello strumento selezionato
+	 * @return string
+	 */
 	private function listItems($select_item){
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Elenco strumenti")));
@@ -134,6 +171,12 @@ class instruments extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Associazione del valore ID dello strumento con il metodo di visualizzazione
+	 * 
+	 * @param integer $id valore ID dello strumento
+	 * @return string
+	 */
 	private function viewItem($id){
 		
 		$buffer = '';
@@ -147,6 +190,12 @@ class instruments extends AbstractEvtClass {
 		return $buffer;
 	}
 	
+	/**
+	 * Form di modifica delle intestazioni di uno strumento
+	 * 
+	 * @param integer $id valore ID dello strumento
+	 * @return string
+	 */
 	private function formItem($id){
 		
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_item, "trnsl_id"=>$id));
@@ -193,6 +242,9 @@ class instruments extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Modifica delle intestazioni di uno strumento
+	 */
 	public function actionItem(){
 		
 		$this->accessGroup('');
@@ -247,6 +299,13 @@ class instruments extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	// Metodi personalizzati degli strumenti
+	
+	/**
+	 * Strumento - mostra l'elenco delle risorse disponibili (con i relativi link)
+	 * 
+	 * @return string
+	 */
 	private function itemLink(){
 		
 		$GINO = '';
@@ -339,6 +398,11 @@ class instruments extends AbstractEvtClass {
 		return $GINO;
 	}
 	
+	/**
+	 * Strumento - mostra l'elenco dei mime type (include come iframe il file mime-type-table.html)
+	 * 
+	 * @return string
+	 */
 	private function itemMimetype(){
 		
 		$file = $this->_app_dir.$this->_os.$this->_className.'/doc/mime-type-table.html';

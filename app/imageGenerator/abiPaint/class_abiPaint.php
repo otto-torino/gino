@@ -1,10 +1,48 @@
 <?php
+/**
+ * @file class_abiPaint.php
+ * @brief Contiene la classe abiPaint
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-define("APfolderPATH", "app/imageGenerator/abiPaint"); 
+/**
+ * Directory contenente le librerie
+ * 
+ * @var string
+ */
+define("APfolderPATH", "app/imageGenerator/abiPaint");
+
+/**
+ * Directory contenente le icone degli strumenti
+ * 
+ * @var string
+ */
 define("APicoPATH", APfolderPATH."/img");
+
+/**
+ * Directory di salvataggio dei file (percorso relativo)
+ * 
+ * @var string
+ */
 define("APsfPATH", CONTENT_WWW."/imageGenerator");
+
+/**
+ * Directory di salvataggio dei file (percorso assoluto)
+ * 
+ * @var string
+ */
 define("APsfPATHDIR", CONTENT_DIR.OS."imageGenerator");
 
+/**
+ * @brief Fornisce gli strumenti alla classe imageGenerator per la generazione di immagini
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class abiPaint extends AbstractEvtClass {
 
 	public $lineButton, $pencilButton, $eraserButton, $rectangleButton, $filledRectangleButton, $circleButton, $filledCircleButton, $textButton;
@@ -26,9 +64,14 @@ class abiPaint extends AbstractEvtClass {
 		$this->circleButton = "<img src=\"".APicoPATH."/ico_circle.gif\" id=\"circleButton\" class=\"APico\" title=\"<b>Circle tool</b><br/>Click on the stage where you want the center to be, then drag over to define the radius and relase the button.\" onclick=\"toggleCircle(this)\"/>";
 		$this->filledCircleButton = "<img src=\"".APicoPATH."/ico_filledCircle.gif\" id=\"filledCircleButton\" class=\"APico\" title=\"<b>Filled circle tool</b><br/>Click on the stage where you want the center to be, then drag over to define the radius and relase the button\" onclick=\"toggleFilledCircle(this)\"/>";
 		$this->textButton = "<img src=\"".APicoPATH."/ico_text.gif\" id=\"textButton\" class=\"APico\" title=\"<b>Text tool</b><br/>Click on the stage where you want the text to be. Put the desired text in the field on the right\" onclick=\"toggleText(this)\"/>";
-	
 	}
 
+	/**
+	 * Stampa l'area di lavoro
+	 * 
+	 * @param string $imageSrc percorso relativo al file immagine
+	 * @return string
+	 */
 	public function render($imageSrc=null) {
 
 		$buffer = "<script type=\"text/javascript\" src=\"".APfolderPATH."/abiPaint.js\"></script>";
@@ -68,9 +111,14 @@ class abiPaint extends AbstractEvtClass {
 		if($imageSrc) $buffer .= "<script>initImage($('canvasArea'), '$imageSrc')</script>";
 		
 		return $buffer;
-
 	}
 
+	/**
+	 * Salva il file immagine
+	 * 
+	 * @param string $name nome del file (senza estensione)
+	 * @return void
+	 */
 	public function saveImage($name) {
 
 		$data = $_POST['imageCode'];
@@ -87,14 +135,14 @@ class abiPaint extends AbstractEvtClass {
 		//echo "Download: <a target=\"_blank\" href=\"$this->_home?evt[$this->_className-download]\" onclick=\"$('APdownload').set('text', '');\">image.png</a>";exit;
 	}
 
-
+	/**
+	 * Download del file immagine
+	 * 
+	 * @see download()
+	 */
 	public function download() {
 	
 		download(APsfPATHDIR."/image.png");
-
 	}
-
-
 }
-
 ?>

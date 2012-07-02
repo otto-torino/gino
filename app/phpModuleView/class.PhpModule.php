@@ -1,16 +1,38 @@
 <?php
+/**
+ * @file class.PhpModule.php
+ * @brief Contiene la classe PhpModule
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Fornisce gli strumenti alla classe phpModuleView per la gestione amministrativa
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class PhpModule extends propertyObject {
 
 	protected $_tbl_data;
 	public static $_tbl_php_mdl = 'php_module';
 	private $_home, $_interface;
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param integer $instance valore ID dell'istanza
+	 * @param string $interface nome dell'istanza
+	 * @return void
+	 */
 	function __construct($instance, $interface) {
 
 		$this->_tbl_data = self::$_tbl_php_mdl;
 
-		parent::__construct($this->initP($instance));
+		parent::__construct($instance);
 
 		$this->instance = $instance;
 
@@ -18,13 +40,17 @@ class PhpModule extends propertyObject {
 		$this->_interface = $interface;
 	}
 	
-	private function initP($instance) {
+	// Ricostruisce la struttura
+	public function structure($id) {
 	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$instance'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'instance'=>null, 'content'=>null);
+		parent::structure(null);
+		if($id)
+		{
+			$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$id'";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a)>0) $this->_p = $a[0];
+		}
+		else $this->_p = array('id'=>null, 'instance'=>null, 'content'=>null);
 	}
 	
 	public function setInstance($value) {
@@ -43,6 +69,11 @@ class PhpModule extends propertyObject {
 		return true;
 	}
 	
+	/**
+	 * Form di inserimento e modifica del codice php
+	 * 
+	 * @return string
+	 */
 	public function formPhpModule() {
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica codice")));
@@ -63,6 +94,9 @@ class PhpModule extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica del codice php
+	 */
 	public function actionPhpModule() {
 		
 		$gform = new Form('gform', 'post', false, array("verifyToken"=>true));

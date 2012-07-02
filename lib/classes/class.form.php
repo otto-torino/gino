@@ -1,5 +1,22 @@
 <?php
+/**
+ * @file class.form.php
+ * @brief Contiene la classe Form
+ *
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Interfaccia agli elementi di un form
+ * 
+ * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
+ *
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class Form {
 
 	const _IMAGE_GIF_ = 1;
@@ -32,6 +49,22 @@ class Form {
 	
 	private $_ico_calendar_path;
 	
+	/**
+	 * Costruttore
+	 * 
+	 * @param mixed $formId valore ID del form
+	 * @param string $method metodo del form (get/post)
+	 * @param boolean $validation attiva il controllo di validazione tramite javascript
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b trnsl_table (string): nome della tabella per le traduzioni
+	 *   - @b trnsl_id (integer): riferimento da passare alla tabella per le traduzioni
+	 *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
+	 *   - @b tblLayout (boolean): elementi del form in tabella
+	 *   - @b form_label_width (string): larghezza (%) della colonna con il tag label (default FORM_LABEL_WIDTH)
+	 *   - @b form_field_width (string): larghezza (%) della colonna con il tag input (default FORM_FIELD_WIDTH)
+	 * @return void
+	 */
 	function __construct($formId, $method, $validation, $options=null){
 		
 		$this->session = session::instance();
@@ -53,8 +86,6 @@ class Form {
 		$this->_multi_language = pub::getMultiLanguage();
 		$this->_show_trnsl = SHOW_TRNSL;
 		$this->_trd = new translation($this->session->lng, $this->session->lngDft);
-		
-		//if(!isset($_SESSION)) session_start();
 		
 		$this->_prefix_file = 'img_';
 		$this->_prefix_thumb = 'thumb_';
@@ -128,10 +159,10 @@ class Form {
 	}
 
 	/**
-	 * Recupero dati da sessione
+	 * Recupera i dati dalla sessione del form
 	 *
-	 * @param array $session_value	nome della variabile di sessione
-	 * @param boolean $clear		distrugge la sessione
+	 * @param array $session_value nome della variabile di sessione nella quale sono salvati i valori degli input
+	 * @param boolean $clear distrugge la sessione
 	 * @return global
 	 */
 	public function load($session_value, $clear=true){
@@ -142,7 +173,7 @@ class Form {
 			{
 				for($a=0, $b=count($this->session->$session_value); $a < $b; $a++)
 				{
-					foreach($this->session->$session_value[$a] as $key => $value)
+					foreach($this->session->{$session_value}[$a] as $key => $value)
 					{
 						$GLOBALS[$this->_method][$key] = $value;
 					}
@@ -153,22 +184,47 @@ class Form {
 		}
 	}
 	
+	/**
+	 * Salva i valori dei campi del form in una variabile di sessione
+	 * 
+	 * @param string $session_value nome della variabile di sessione, come definito nel metodo load()
+	 * @return void
+	 */
 	public function save($session_value){
 		
 		$this->session->$session_value = Array();
+		$session_prop = $this->session->$session_value;
 		foreach($this->_requestVar as $key => $value)
-			array_push($this->session->$session_value, Array($key => $value));
+			array_push($session_prop, Array($key => $value));
+		
+		$this->session->$session_value = $session_prop;
 	}
 	
+	/**
+	 * Recupera il valore di un campo del form
+	 * 
+	 * @param string $name nome del campo
+	 * @param mixed $default valore di default
+	 * @return mixed
+	 */
 	public function retvar($name, $default){
 		return isset($GLOBALS[$this->_method][$name]) ? $GLOBALS[$this->_method][$name] : $default;
 	}
 	
-	/*
-	 * Opzioni:
-	 * func_confirm		string		nome della funzione js da chiamare (es. window.confirmSend())
-	 * text_confirm		string		testo del messaggio che compare nel box di conferma
-	 * - per attivarle occorre istanziare la classe 'Form' con il parametro: $validation=true
+	/**
+	 * Tag form
+	 * 
+	 * Per attivare le opzioni @b func_confirm e @b text_confirm occorre istanziare la classe Form con il parametro validation (true)
+	 * 
+	 * @param string $action indirizzo dell'action
+	 * @param boolean $upload attiva l'upload di file
+	 * @param string $list_required lista di elementi obbligatori (separati da virgola)
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend())
+	 *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma
+	 *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
+	 * @return string
 	 */
 	public function form($action, $upload, $list_required, $options=null){
 		
@@ -192,14 +248,21 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Avvia la tabella contenente i campi del form
+	 * @return string
+	 */
 	public function startTable() {
 
 		$GFORM = "<table class=\"formTbl\">\n";
 		$GFORM .= "<tr style=\"visibility:collapse\"><td style=\"width:$this->_form_label_width;border:0px solid #999;\"></td><td style=\"width:$this->_form_field_width;border:0px solid #999;\"></td></tr>";
 		return $GFORM;
-
 	}
 
+	/**
+	 * Chiude il tag form
+	 * @return string
+	 */
 	public function cform(){
 		
 		$GFORM = '';
@@ -209,12 +272,29 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Chiude la tabella contenente i campi del form
+	 * @return string
+	 */
 	public function endTable() {
 
 		$GFORM = "</table>";
 		return $GFORM;
 	}
 
+	/**
+	 * Cella di tabella senza suddivisioni e campi input
+	 * 
+	 * Utilizzata come contenitore e separatore di campi
+	 * 
+	 * @param string $content percorso dell'action
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore dell'id
+	 *   - @b style (string): stile del tag TR
+	 *   - @b other (string): altro nel tag TD
+	 * @return string
+	 */
 	public function cell($content, $options=null) {
 
 		$style = isset($options['style']) ? "style=\"".$options['style']."\"" : '';
@@ -228,6 +308,19 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Inizializza l'editor visuale CKEditor
+	 * 
+	 * Include il file /ckeditor/ckeditor.php
+	 * 
+	 * @param string $name
+	 * @param string $value
+	 * @param string $toolbar
+	 * @param integer $width
+	 * @param integer $height
+	 * @param boolean $replace
+	 * @return string
+	 */
 	public function editorHtml($name, $value, $toolbar, $width, $height, $replace=false){
 		
 		if($width == '100%') $width = '98%'; // TODO correct directly in classes
@@ -252,12 +345,12 @@ class Form {
 	}
 	
 	/**
-	 * Label
+	 * Tag label
 	 *
-	 * @param string	$name
-	 * @param mixed		$text		(array-> array('label'=>_("..."), 'description'=>_("...")))
-	 * @param boolean	$required
-	 * @param string	$class		classe dello span (class=\"\")
+	 * @param string $name nome dell'etichetta
+	 * @param mixed	 $text testo dell'etichetta (array-> array('label'=>_("..."), 'description'=>_("...")))
+	 * @param boolean $required campo obbligatorio
+	 * @param string $class classe dello span (class=\"\")
 	 * @return string
 	 */
 	public function label($name, $text, $required, $class=null){
@@ -283,9 +376,13 @@ class Form {
 		return !empty($list)? $this->hidden('required', $list):'';
 	}
 	
+	/**
+	 * Controlla la compilazione dei campi obbligatori
+	 * @return integer
+	 */
 	public function arequired(){
 		
-		$required = isset($_REQUEST['required'])? cleanVar($_REQUEST, 'required', 'string', '') : '';
+		$required = isset($_REQUEST['required']) ? cleanVar($_REQUEST, 'required', 'string', '') : '';
 		$error = 0;
 		
 		if(!empty($required))
@@ -294,6 +391,17 @@ class Form {
 		return $error;
 	}
 	
+	/**
+	 * Test di controllo reCaptcha
+	 * 
+	 * @see reCaptcha()
+	 * @see defaultCaptcha()
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b text_add (string): testo che segue il controllo
+	 * @return string
+	 */
 	public function captcha($options=null) {
 
 		$public_key = pub::variable("captcha_public");
@@ -301,9 +409,18 @@ class Form {
 
 		if($public_key && $private_key) return $this->reCaptcha($public_key, $options);
 		else return $this->defaultCaptcha($options);
-
 	}
 
+	/**
+	 * Costruzione dell'immagine attraverso javascript
+	 * 
+	 * Nelle Impostazioni di sistema devono essere state inserite le chiavi pubbliche e private reCaptcha
+	 *  
+	 * @param string $public_key
+	 * @param array $options
+	 *   array associativo di opzioni
+	 * @return string
+	 */
 	private function reCaptcha($public_key, $options=null) {
 
 		$options["required"] = true;
@@ -328,6 +445,13 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Costruzione dell'immagine attravrso il file lib/captchaImage.php
+	 * 
+	 * @param array $options
+	 *   array associativo di opzioni
+	 * @return string
+	 */
 	private function defaultCaptcha($options) {
 	
 		$options["required"] = true;
@@ -347,6 +471,13 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Verifica del test reCaptcha
+	 * 
+	 * @see checkReCaptcha()
+	 * @see checkDefaultCaptcha()
+	 * @return boolean
+	 */
 	public function checkCaptcha() {
 
 		$public_key = pub::variable("captcha_public");
@@ -356,6 +487,15 @@ class Form {
 		else return $this->checkDefaultCaptcha();
 	}
 
+	/**
+	 * Verifica nel caso in cui siano state attivate le chiavi pubbliche e private reCaptcha
+	 * 
+	 * Include il file lib/recaptchalib.php
+	 * 
+	 * @param string $public_key
+	 * @param string $private_key
+	 * @return boolean
+	 */
 	private function checkReCaptcha($public_key, $private_key) {
 	
 		require_once(LIB_DIR.OS.'recaptchalib.php');
@@ -366,6 +506,10 @@ class Form {
 		return $resp->is_valid ? true:false;
 	}
 
+	/**
+	 * Verifica di default
+	 * @return boolean
+	 */
 	private function checkDefaultCaptcha() {
 	
 		$captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
@@ -379,15 +523,16 @@ class Form {
 	/**
 	 * Tabella senza Input Form
 	 * 
-	 * @param string $label
-	 * @param string $value
+	 * @param string $label contenuto della prima colonna
+	 * @param string $value contenuto della seconda colonna
 	 * @param array $options
-	 * 		string id			ID del tag TD della label
-	 * 		string style		stile del tag TR
-	 * 		string other		altro nel tag TD della label
-	 * 		string class_label	classe del tag TD della label
-	 * 		string class		classe dello span della label
-	 * @return string
+	 *   array associativo di opzioni
+	 *   - @b id (string): ID del tag TD della label
+	 *   - @b style (string): stile del tag TR
+	 *   - @b other (string): altro nel tag TD della label
+	 *   - @b class_label (string): classe del tag TD della label
+	 *   - @b class (string): classe dello span della label
+	 * @return string	
 	 */
 	public function noinput($label, $value, $options=null) {
 		
@@ -415,12 +560,13 @@ class Form {
 	}
 	
 	/**
-	 * Tag Input (type hidden)
+	 * Tag input hidden
 	 * 
-	 * @param string $name
-	 * @param mixed $value
+	 * @param string $name nome del tag
+	 * @param mixed $value valore del tag
 	 * @param array $options
-	 * 		id		string	valore dell'id
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore ID del tag
 	 * @return string
 	 */
 	public function hidden($name, $value, $options=null) {
@@ -435,21 +581,22 @@ class Form {
 	}
 	
 	/**
-	 * Tag Input
+	 * Tag input
 	 * 
-	 * @param string $name
-	 * @param string $type
-	 * @param mixed $value
+	 * @param string $name nome input
+	 * @param string $type valore della proprietà @a type (text)
+	 * @param string $value valore attivo
 	 * @param array $options
-	 * 		id			string	valore dell'id
-	 * 		pattern		string
-	 * 		hint		string	placeholder
-	 * 		size		integer
-	 * 		maxlength	integer
-	 * 		classField	string	nome della classe
-	 * 		js			string
-	 * 		readonly	boolean
-	 * 		other		string
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore ID del tag
+	 *   - @b pattern (string): espressione regolare che verifica il valore dell'elemento input
+	 *   - @b hint (string): placeholder
+	 *   - @b size (integer): lunghezza del tag
+	 *   - @b maxlength (integer): numero massimo di caratteri consentito
+	 *   - @b classField (string): nome della classe del tag
+	 *   - @b js (string): javascript
+	 *   - @b readonly (boolean): campo di sola lettura
+	 *   - @b other (string): altro nel tag
 	 * @return string
 	 */
 	public function input($name, $type, $value, $options=null){
@@ -473,21 +620,24 @@ class Form {
 	}
 	
 	/**
-	 * Tag Input con Label
+	 * Tag input in celle di tabella
 	 * 
-	 * @param string $name
-	 * @param string $type
-	 * @param string $value
-	 * @param mixed $label
+	 * @see label()
+	 * @see language::formFieldTranslation()
+	 * @param string $name nome input
+	 * @param string $type valore della proprietà @a type (text)
+	 * @param string $value valore attivo
+	 * @param mixed $label testo <label>
 	 * @param array $options
-	 * 		[method input] +
-	 * 		required	boolean
-	 * 		classLabel	string
-	 * 		trnsl		boolean		attiva la traduzione
-	 * 		trnsl_table	string		nome della tabella con il campo da tradurre
-	 * 		trnsl_id	integer		valore dell'ID del record di riferimento per la traduzione
-	 * 		field		string		nome del campo con il testo da tradurre
-	 * 		text_add	string		testo dopo il tag input
+	 *   array associativo di opzioni (aggiungere quelle del metodo input())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b trnsl (boolean): attiva la traduzione
+	 *   - @b trnsl_table (string): nome della tabella con il campo da tradurre
+	 *   - @b trnsl_id (integer): valore dell'ID del record di riferimento per la traduzione
+	 *   - @b field (string): nome del campo con il testo da tradurre
+	 *   - @b size (integer): lunghezza del tag
+	 *   - @b text_add (string): testo dopo il tag input
 	 * @return string
 	 */
 	public function cinput($name, $type, $value, $label, $options){
@@ -512,6 +662,22 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Tag input di tipo date in celle di tabella
+	 * 
+	 * @see label()
+	 * @see input()
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param mixed $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo input())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo
+	 *   - @b text_add (string): testo dopo il tag input
+	 * @return string
+	 */
 	public function cinput_date($name, $value, $label, $options){
 
 		$this->setOptions($options);
@@ -548,19 +714,22 @@ class Form {
 	}
 	
 	/**
-	 * Textarea con Label
+	 * Tag textarea in celle di tabella
 	 *
-	 * @param string $name
-	 * @param string $value
-	 * @param string $label
+	 * @see label()
+	 * @see language::formFieldTranslation()
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param string $label testo <label>
 	 * @param array $options
-	 * 		[method textarea] +
-	 * 		classLabel	string
-	 * 		text_add	string		testo aggiuntivo stampato sotto il box
-	 * 		trnsl		boolean		attiva la traduzione
-	 * 		trsnl_id	integer		valore dell'ID del record di riferimento per la traduzione
-	 * 		trsnl_table	string		nome della tabella con il campo da tradurre
-	 * 		field		string		nome del campo da tradurre
+	 *   array associativo di opzioni (aggiungere quelle del metodo textarea())
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b text_add (string): testo aggiuntivo stampato sotto il box
+	 *   - @b trnsl (boolean): attiva la traduzione
+	 *   - @b trsnl_id (integer): valore dell'ID del record di riferimento per la traduzione
+	 *   - @b trsnl_table (string): nome della tabella con il campo da tradurre
+	 *   - @b field (string): nome del campo da tradurre
+	 *   - @b cols (integer): numero di colonne
 	 * @return string
 	 */
 	public function ctextarea($name, $value, $label, $options=null){
@@ -588,20 +757,21 @@ class Form {
 	}
 
 	/**
-	 * Textarea
+	 * Tag textarea
 	 *
-	 * @param string $name
-	 * @param string $value
+	 * @param string $name nome input
+	 * @param string $value valore attivo
 	 * @param array $options
-	 * 		id			string		attivazione proprietà 'id'
-	 * 		required	boolean		campo obbligatorio
-	 * 		classField	string
-	 * 		rows		integer		numero di righe
-	 * 		cols		integer		numero di colonne
-	 * 		readonly	boolean
-	 * 		js
-	 * 		other
-	 * 		maxlength	integer		numero massimo di caratteri consentiti
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore ID del tag
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classField (string): nome della classe del tag
+	 *   - @b rows (integer): numero di righe
+	 *   - @b cols (integer): numero di colonne
+	 *   - @b readonly (boolean): campo di sola lettura
+	 *   - @b js (string): javascript
+	 *   - @b other (string): altro nel tag
+	 *   - @b maxlength (integer): numero massimo di caratteri consentiti
 	 * @return string
 	 */
 	public function textarea($name, $value, $options){
@@ -632,24 +802,26 @@ class Form {
 	
 	/**
 	 * FCKEditor completo
-	 *
-	 * @param string $name			nome input
-	 * @param string $value			valore attivo
-	 * @param string $label			testo <label>
-	 * @param array $options		opzioni
-	 * 		required	boolean		campo obbligatorio
-	 * 		style1		string		stile <label>
-	 * 		style2		string		stile <p>
-	 * 		notes		boolean		mostra le note
-	 * 		fck_toolbar	string		toolbarset (Basic, Full)
-	 * 		fck_width	string		larghezza(%)
-	 * 		fck_height	integer		altezza (pixel)
-	 * 		img_preview	boolean		mostrare o meno il browser di immagini di sistema
-	 * 		mode		string		valori: table, div
-	 * 		trnsl		boolean		attiva la traduzione
-	 * 		trnsl_table	string		nome della tabella con il campo da tradurre
-	 * 		trnsl_id	integer		valore dell'ID del record di riferimento per la traduzione
-	 * 		field		string		nome del campo con il testo da tradurre
+	 * 
+	 * @see language::formFieldTranslation()
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param string $label testo del tag label
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b style1 (string): stile del tag label
+	 *   - @b style2 (string): stile del tag p
+	 *   - @b notes (boolean): mostra le note
+	 *   - @b fck_toolbar (string): toolbarset (Basic, Full)
+	 *   - @b fck_width (string): larghezza(%)
+	 *   - @b fck_height (integer): altezza (pixel)
+	 *   - @b img_preview (boolean): mostrare o meno il browser di immagini di sistema
+	 *   - @b mode (string): tipologia di contenitore (table, div)
+	 *   - @b trnsl (boolean): attiva la traduzione
+	 *   - @b trnsl_table (string): nome della tabella con il campo da tradurre
+	 *   - @b trnsl_id (integer): valore dell'ID del record di riferimento per la traduzione
+	 *   - @b field (string): nome del campo con il testo da tradurre
 	 * @return string
 	 */
 	public function fcktextarea($name, $value, $label, $options){
@@ -707,18 +879,19 @@ class Form {
 	}
 	
 	/**
-	 * Radio con label
+	 * Tag input radio in celle di tabella
 	 * 
-	 * @param string $name		nome input
-	 * @param string $value		valore attivo
-	 * @param array $data		elementi dei pulsanti radio (array(value=>text[,]))
-	 * @param mixed $default	valore di default
-	 * @param mixed $label		testo <label>
-	 * @param array $options	opzioni
-	 * 		[method radio] +
-	 * 		required	boolean		campo obbligatorio
-	 * 		classLabel	string		valore CLASS del tag SPAN in <label>
-	 * 		text_add	boolean		testo aggiuntivo stampato sotto il box
+	 * @see label()
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
+	 * @param mixed $default valore di default
+	 * @param mixed $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo radio())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b text_add (boolean): testo aggiuntivo stampato sotto il box
 	 * @return string
 	 */
 	public function cradio($name, $value, $data, $default, $label, $options=null){
@@ -735,18 +908,19 @@ class Form {
 	}
 
 	/**
-	 * Radio
+	 * Tag input radio
 	 * 
-	 * @param string $name		nome input
-	 * @param string $value		valore attivo
-	 * @param array $data		elementi dei pulsanti radio (array(value=>text[,]))
-	 * @param mixed $default	valore di default
-	 * @param array $options	opzioni
-	 * 		aspect		string		col valore 'v' gli elementi vengono messi uno sotto l'altro
-	 * 		id			string		valore ID del tag <input>
-	 * 		classField	string		valore CLASS del tag <input>
-	 * 		js			string
-	 * 		other		string
+	 * @param string $name nome input
+	 * @param string $value valore attivo
+	 * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
+	 * @param mixed $default valore di default
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b aspect (string): col valore 'v' gli elementi vengono messi uno sotto l'altro
+	 *   - @b id (string): valore ID del tag <input>
+	 *   - @b classField (string): valore CLASS del tag <input>
+	 *   - @b js (string): javascript
+	 *   - @b other (string): altro nel tag
 	 * @return string
 	 */
 	public function radio($name, $value, $data, $default, $options){
@@ -774,18 +948,24 @@ class Form {
 	}
 	
 	/**
-	 * Checkbox con label
+	 * Tag input checkbox in celle di tabella
 	 *
-	 * @param string	$name
-	 * @param boolean 	$checked	true: di default la casella ha il check
-	 * @param string	$value
-	 * @param string	$label
-	 * @param array		$options
+	 * @see label()
+	 * @see checkbox()
+	 * @param string $name nome input
+	 * @param boolean $checked valore selezionato
+	 * @param mixed $value valore del tag input
+	 * @param string $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo checkbox())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b text_add (string): testo da aggiungere dopo il checkbox
 	 * @return string
 	 * 
-	 * @example:
-	 * $checked = $value=='yes' ? true:false;
-	 * $buffer .= $gform->ccheckbox('cycle', $checked, 'yes', _("Ciclo"));
+	 * @code
+	 * $buffer = $gform->ccheckbox('public', $value=='yes'?true:false, 'yes', _("Pubblico"));
+	 * @endcode
 	 */
 	public function ccheckbox($name, $checked, $value, $label, $options=null){
 		
@@ -800,6 +980,20 @@ class Form {
 		return $GFORM;
 	}
 	
+	/**
+	 * Tag input checkbox
+	 *
+	 * @param string $name nome input
+	 * @param boolean $checked valore selezionato
+	 * @param mixed	$value valore del tag input
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore ID del tag input
+	 *   - @b classField (string): nome della classe del tag input
+	 *   - @b js (string): javascript
+	 *   - @b other (string): altro nel tag
+	 * @return string
+	 */
 	public function checkbox($name, $checked, $value, $options){
 		
 		$this->setOptions($options);
@@ -815,6 +1009,37 @@ class Form {
 		return $GFORM;
 	}
 
+	/**
+	 * Tag input checkbox multiplo (many to many)
+	 * 
+	 * @param string $name nome input
+	 * @param array $checked valori degli elementi selezionati
+	 * @param mixed $data
+	 *   - string, query
+	 *   - array, elementi del checkbox
+	 * @param string $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b id (string)
+	 *   - @b classField (string)
+	 *   - @b readonly (boolean)
+	 *   - @b js (string)
+	 *   - @b other (string)
+	 *   - @b required (string)
+	 *   - @b classLabel (string)
+	 *   - @b maxHeight (integer): altezza in pixel del box contenente gli elementi
+	 *   - @b checkPosition (stringa): posizionamento del checkbox (left)
+	 *   - @b table (string): nome della tabella con il campo da tradurre
+	 *   - @b field (string): nome del campo con il testo da tradurre
+	 *   - @b idName (string): nome del campo di riferimento
+	 * @return string
+	 * 
+	 * Esempio
+	 * @code
+	 * $query = "SELECT id, name FROM ".$this->_tbl_ctg." WHERE instance='$this->_instance' ORDER BY name";
+	 * $buffer = $gform->multipleCheckbox('category[]', explode(",",$ctg_checked), $query, _("Categorie"), array("table"=>$table, "field"=>"name", "idName"=>"id"));
+	 * @endcode
+	 */
 	public function multipleCheckbox($name, $checked, $data, $label, $options=null){
 		
 		$this->setOptions($options);
@@ -912,17 +1137,18 @@ class Form {
 	}
 	
 	/**
-	 * Select con Label
+	 * Tag select in celle dei tabella
 	 *
-	 * @param string		$name	nome input
-	 * @param string		$value	elemento selezionato (ad es. valore da 'modifica')
-	 * @param string|array	$data	elementi del select
-	 * @param string|array	$label	testo del tag label
-	 * @param array			$options
-	 * 		[method select] +
-	 * 		required	boolean	campo obbligatorio
-	 * 		text_add	string	testo dopo il select
-	 * 		classLabel	string	valore CLASS del tag SPAN in <label>
+	 * @see label()
+	 * @param string $name nome input
+	 * @param string $value elemento selezionato (ad es. valore da 'modifica')
+	 * @param mixed $data elementi del select
+	 * @param mixed $label testo del tag label
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo select())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b text_add (string): testo dopo il select
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
 	 * @return string
 	 */
 	public function cselect($name, $value, $data, $label, $options=null) {
@@ -940,23 +1166,24 @@ class Form {
 	}
 	
 	/**
-	 * Select
+	 * Tag select
 	 * 
-	 * @param string 			$name		nome input
-	 * @param mixed				$selected	elemento selezionato
-	 * @param mixed				$data		elementi del select (query-> recupera due campi, array-> key=>value)
-	 * @param array				$options
-	 * 		id			string		ID del tag select
-	 * 		classField	string		nome della classe del tag select
-	 * 		size
-	 * 		multiple	boolean		scelta multipla di elementi
-	 * 		js			string		utilizzare per eventi javascript (ad es. onchange=\"jump\")
-	 * 		other		string		altro da inserire nel tag select
-	 * 		noFirst		boolean		false-> mostra la prima voce vuota
-	 * 		firstVoice	string		testo del primo elemento
-	 * 		firstValue	string|int	valore del primo elemento
-	 * 		maxChars	int			numero massimo di caratteri del testo
-	 * 		cutWords	boolean		taglia l'ultima parola se la stringa supera il numero massimo di caratteri
+	 * @param string $name nome input
+	 * @param mixed $selected elemento selezionato
+	 * @param mixed $data elementi del select (query-> recupera due campi, array-> key=>value)
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo select())
+	 *   - @b id (string): ID del tag select
+	 *   - @b classField (string): nome della classe del tag select
+	 *   - @b size (integer)
+	 *   - @b multiple (boolean): scelta multipla di elementi
+	 *   - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
+	 *   - @b other (string): altro da inserire nel tag select
+	 *   - @b noFirst (boolean): false-> mostra la prima voce vuota
+	 *   - @b firstVoice (string): testo del primo elemento
+	 *   - @b firstValue (mixed): valore del primo elemento
+	 *   - @b maxChars (integer): numero massimo di caratteri del testo
+	 *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri
 	 * @return string
 	 */
 	public function select($name, $selected, $data, $options) {
@@ -1001,24 +1228,28 @@ class Form {
 	}
 	
 	/**
-	 * Gestione completa del file. Integra il checkbox di eliminazione del file.
-	 * Non è gestita l'obbligatorietà del campo.
+	 * Tag input file (proprietà @a type con valore @a file)
+	 * 
+	 * Integra il checkbox di eliminazione del file e non è gestita l'obbligatorietà del campo.
 	 *
-	 * @param string $name		nome dell'input file
-	 * @param string $value		nome file
-	 * @param string $label		testo <label>
-	 * @param array $options	opzioni
-	 * 		[method input] +
-	 * 		extensions	array		estensioni valide
-	 * 		classLabel	string
-	 * 		preview		boolean		mostra l'anteprima di una immagine
-	 * 		previewSrc	string		percorso relativo dell'immagine
-	 * 		del_check	boolean		mostra il check di eliminazione del file
-	 * 		text_add	string		testo aggiuntivo
+	 * @see label()
+	 * @see pub::allowedFile()
+	 * @param string $name nome input
+	 * @param string $value nome del file
+	 * @param string $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo input())
+	 *   - @b extensions (array): estensioni valide
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b preview (boolean): mostra l'anteprima di una immagine
+	 *   - @b previewSrc (string): percorso relativo dell'immagine
+	 *   - @b del_check (boolean): mostra il check di eliminazione del file
+	 *   - @b text_add (string): testo da aggiungere in coda al tag input
 	 * @return string
 	 * 
-	 * @example
-	 * $this->_gform->cfile('file1', $filename, _("testo label"), array("extensions"=>$extension, "del_check"=>true, "preview"=>true, "previewSrc"=>/www/address/file1))
+	 * @code
+	 * $obj->cfile('image', $filename, _("testo label"), array("extensions"=>array('jpg', ...), "del_check"=>true, "preview"=>true, "previewSrc"=>/path/to/image);
+	 * @endcode
 	 */
 	public function cfile($name, $value, $label, $options){
 
@@ -1050,7 +1281,6 @@ class Form {
 			$GFORM .= $this->input($name, 'file', $value, $options);
 			$GFORM .= $text_add;
 			$GFORM .= "</div>";
-
 		}
 		else
 		{
@@ -1069,29 +1299,6 @@ class Form {
 	/*
 		Funzioni per i File
 	*/
-	
-	/**
-	 * Procedura di gestione dell'upload di un file:
-	 *
-	 * 1. controllo del file
-	 * 
-	 * $array_file1 = $this->_gform->verifyFile('filename', $old_file1, $check_file1, true, 'img_', 'thumb_', $path_dir, $this->_extension_attach, $this->_className.'-manageDoc', $link_error);
-	 * 
-	 * 2. query
-	 * 
-	 * utilizzare come variabile per il campo del 'nome file': $array_file1[3]
-	 * 
-	 * 3. operazioni di upload e/o cancellazione
-	 * 
-	 * if($result) ---> da query
-	 * 
-	 * $this->_gform->operationFile($array_file1[0], $filename_tmp, $old_file1, $array_file1[2], $array_file1[1], true, 'img_', 'thumb_', 200, 80, $path_dir, $this->_className.'-manageDoc', $link_error);
-	 * 
-	 * $this->_gform->operationFile($array_file1[0], $filename_tmp, $old_file1, $array_file1[2], $array_file1[1], true, $this->_prefix_img, $this->_prefix_thumb, $this->_height_img, $this->_height_thumb, $directory, $redirect, $link);
-	 * 
-	 */
-	
-	// funzioni esterne: searchNameFile(), extension()
 	
 	private function countEqualName($file_new, $file_old, $resize, $prefix_file, $prefix_thumb, $directory){
 		
@@ -1141,12 +1348,6 @@ class Form {
 				}
 			}
 		}
-		
-		/*
-		if(in_array($this->_prefix_file.$media_name, $listFile))
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageDoc', "error=04");
-		*/
-		
 		return $count;
 	}
 	
@@ -1158,9 +1359,9 @@ class Form {
 	}
 	
 	/**
-	 * Imposta '/' come ultimo carattere della directory
+	 * Imposta il carattere '/' come ultimo carattere della directory
 	 *
-	 * @param string $directory
+	 * @param string $directory nome della directory
 	 * @return string
 	 */
 	private function dirUpload($directory){
@@ -1169,6 +1370,13 @@ class Form {
 		return $directory;
 	}
 	
+	/**
+	 * Sostituisce nel nome di un file i caratteri diversi da [a-zA-Z0-9_.-] con il carattere underscore (_)
+	 * 
+	 * @param string $filename nome del file
+	 * @param string $prefix prefisso da aggiungere al nome del file
+	 * @return string
+	 */
 	private function checkFilename($filename, $prefix) {
 	
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
@@ -1186,34 +1394,39 @@ class Form {
 	}
 	
 	/**
-	 * Verifica l'unicità del nome del file e ritorna le indicazioni
-	 * di upload e cancellazione
-	 *
-	 * @param string $name				nome dell'input file
-	 * @param string $old_file			nome file esistente
-	 * @param boolean $resize			ridimensionamento del file (true|false)
-	 * @param array $valid_extension	estensioni lecite di file
-	 * @param string $directory			directory di upload (/path/to/directory/)
-	 * @param string $link_error		parametri da aggiungere al reindirizzamento
-	 * @param string $table				tabella da aggiornare inserendo il nome del file (UPDATE)
-	 * @param string $field				nome del campo del file
-	 * @param string $idName			nome del campo ID
-	 * @param string $id				valore del campo ID
-	 * @param array $options			opzioni
-	 * 		boolean check_type			attiva 'types_allowed': true (o 1 per compatibilità)=controlla il tipo di file, false=non controllare
-	 * 		array types_allowed			array per alcuni tipi di file (mime types)
-	 * 		integer max_file_size		dimensione massima di un upload (bytes)
-	 * 		boolean thumb				attiva i thumbnail
-	 * 		string prefix				per fornire un prefisso a prescindere dal ridimensionamento
-	 * 		string prefix_file			nel caso resize=true
-	 * 		string prefix_thumb			nel caso resize=true
-	 * 		integer width
-	 * 		integer height
-	 * 		integer thumb_width
-	 * 		integer thumb_height
-	 * 		boolean ftp					permette di inserire il nome del file qualora questo risulti di dimensione superiore
-	 * 									al consentito. Il file fisico deve essere poi inserito via FTP
-	 * 		string errorQuery			query di elimnazione del record qualora non vada a buon fine l'upload del file (INSERT)
+	 * Gestisce l'upload di un file
+	 * 
+	 * Verifica la conformità del file ed effettua l'upload. Eventualmente crea la directory e ridimensiona l'immagine.
+	 * 
+	 * @see dirUpload()
+	 * @see countEqualName()
+	 * @see upload()
+	 * @see saveImage()
+	 * @param string $name nome input
+	 * @param string $old_file nome del file esistente
+	 * @param boolean $resize ridimensionamento del file
+	 * @param array $valid_extension estensioni lecite di file
+	 * @param string $directory directory di upload (/path/to/directory/)
+	 * @param string $link_error parametri da aggiungere al reindirizzamento
+	 * @param string $table tabella da aggiornare inserendo il nome del file (UPDATE)
+	 * @param string $field nome del campo del file
+	 * @param string $idName nome del campo ID
+	 * @param string $id valore del campo ID
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b check_type (boolean): attiva l'opzione @a types_allowed (true, o 1 per compatibilità => controlla il tipo di file, false => non controllare)
+	 *   - @b types_allowed (array): array per alcuni tipi di file (mime types)
+	 *   - @b max_file_size (integer): dimensione massima di un upload (bytes)
+	 *   - @b thumb (boolean): attiva i thumbnail
+	 *   - @b prefix (string): per fornire un prefisso a prescindere dal ridimensionamento
+	 *   - @b prefix_file (string): nel caso resize=true
+	 *   - @b prefix_thumb (string): nel caso resize=true
+	 *   - @b width (integer): larghezza alla quale ridimensionare l'immagine
+	 *   - @b height (integer): altezza alla quale ridimensionare l'immagine
+	 *   - @b thumb_width (integer): larghezza del thumbnail
+	 *   - @b thumb_height (integer): altezza del thumbnail
+	 *   - @b ftp (boolean): permette di inserire il nome del file qualora questo risulti di dimensione superiore al consentito. Il file fisico deve essere poi inserito via FTP
+	 *   - @b errorQuery (string): query di elimnazione del record qualora non vada a buon fine l'upload del file (INSERT)
 	 * @return boolean
 	 */
 	public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
@@ -1366,6 +1579,15 @@ class Form {
 		return true;
 	}
 	
+	/**
+	 * Calcola le dimensioni alle quali deve essere ridimensionata una immagine
+	 * 
+	 * @param integer $new_width
+	 * @param integer $new_height
+	 * @param integer $im_width
+	 * @param integer $im_height
+	 * @return array (larghezza, altezza)
+	 */
 	private function resizeImage($new_width, $new_height, $im_width, $im_height){
 		
 		if(!empty($new_width) AND $im_width > $new_width)
@@ -1389,16 +1611,17 @@ class Form {
 	
 	/**
 	 * Salva le immagini eventualmente ridimensionandole
-	 * Se thumb_width e thumb_height sono nulli, il thumbnail non viene generato
 	 * 
-	 * @param string $filename
-	 * @param string $directory
-	 * @param string $prefix_file
-	 * @param string $prefix_thumb
-	 * @param integer $new_width
-	 * @param integer $new_height
-	 * @param integer $thumb_width
-	 * @param integer $thumb_height
+	 * Se @b thumb_width e @b thumb_height sono nulli, il thumbnail non viene generato
+	 * 
+	 * @param string $filename nome del file
+	 * @param string $directory percorso della directory del file
+	 * @param string $prefix_file prefisso da aggiungere al file
+	 * @param string $prefix_thumb prefisso da aggiungere al thumbnail
+	 * @param integer $new_width larghezza dell'immagine
+	 * @param integer $new_height altezza dell'immagine
+	 * @param integer $thumb_width larghezza del thumbnail
+	 * @param integer $thumb_height altezza del thumbnail
 	 * @return boolean
 	 */
 	public function saveImage($filename, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
@@ -1513,24 +1736,26 @@ class Form {
 	/**
 	 * Ridimensiona e crea il thumbnail di una immagine già caricata
 	 * 
-	 * @param string $filename
-	 * @param string $directory
+	 * @param string $filename nome del file
+	 * @param string $directory percorso della directory del file
 	 * @param array $options
-	 * 		string prefix_file		prefisso del file
-	 *		string prefix_thumb		prefisso del thumbnail
-	 * 		integer width			dimensione in pixel alla quale ridimensionare il file (larghezza)
-	 * 		integer thumb_width		dimensione in pixel alla quale creare il thumbnail (larghezza)
+	 *   array associativo di opzioni
+	 *   - @b prefix_file (string): prefisso del file
+	 *   - @b prefix_thumb (string): prefisso del thumbnail
+	 *   - @b width (integer): dimensione in pixel alla quale ridimensionare il file (larghezza)
+	 *   - @b thumb_width (integer): dimensione in pixel alla quale creare il thumbnail (larghezza)
 	 * @return boolean
 	 * 
-	 * @example 
-	 * col multifile
+	 * Col multifile
+	 * @code
 	 * $mfile = new mFile();
 	 * $upload = $mfile->mAction('mfile', $directory, $link_error, array(...));
 	 * if(sizeof($upload) > 0) {
 	 * 	foreach($upload AS $key=>$value) {
 	 * 		$form = new Form(null, null, null);
 	 * 		$resize = $form->createImage($key, $directory, array(...));
-	 * 
+	 * 		...
+	 * @endcode
 	 */
 	public function createImage($filename, $directory, $options=array()){
 
@@ -1608,8 +1833,15 @@ class Form {
 		}
 	}
 	
-	// Esempio utilizzo:
-	// $GFORM .= "<br /><script type=\"text/javascript\" language=\"javascript\">initCounter($('id_elemento'), {$this->option('maxlength')})</script>";
+	/**
+	 * Funzione javascript che conta il numero dei caratteri ancora disponibili
+	 * 
+	 * @return string
+	 * 
+	 * @code
+	 * $buffer = "<script type=\"text/javascript\" language=\"javascript\">initCounter($('id_elemento'), {$this->option('maxlength')})</script>";
+	 * @endcode
+	 */
 	public function jsCountCharText(){
 		
 		$GFORM = "<script type=\"text/javascript\">\n";

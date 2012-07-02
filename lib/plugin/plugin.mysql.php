@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file plugin.mysql.php
+ * @brief Contiene la classe mysql
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria di connessione ai database MySQL
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class mysql implements DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
@@ -13,14 +28,16 @@ class mysql implements DbManager {
 	private $_dbresults = array();
 	
 	/**
-	 * @param $params: array(
-	 * "connect"=>true,
-	 * "host"=>"localhost",
-	 * "user"=>"root",
-	 * "password"=>"",
-	 * "db_name"=>"db_name",
-	 * "charset"=>"utf-8"
-	 * )
+	 * Costruttore
+	 * 
+	 * @param array $params parametri di connessione al database
+	 *   - @b host (string): nome del server
+	 *   - @b db_name (string): nome del database
+	 *   - @b user (string): utente che si connette
+	 *   - @b password (string): password dell'utente che si connette
+	 *   - @b charset (string): encoding
+	 *   - @b connect (boolean): attiva la connessione
+	 * @return void
 	 */
 	function __construct($params) {
 		
@@ -49,6 +66,9 @@ class mysql implements DbManager {
 		$this->_connection = $connection;
 	}
 	
+	/**
+	 * @see DbManager::openConnection()
+	 */
 	public function openConnection() {
 
 		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
@@ -70,7 +90,9 @@ class mysql implements DbManager {
 	}
 
 	/**
-	 * Chiude connessioni non persistenti
+	 * Chiude le connessioni non persistenti a un server MySQL
+	 * 
+	 * @see DbManager::closeConnection()
 	 */
 	public function closeConnection() {
 
@@ -80,9 +102,10 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Metodi per tabelle innodb
+	 * Per tabelle innodb
+	 * 
+	 * @see DbManager::begin()
 	 */
-	
 	public function begin() {
 		if (!$this->_connection){
 			$this->openConnection();
@@ -96,6 +119,11 @@ class mysql implements DbManager {
 		}
 	}
 	
+	/**
+	 * Per tabelle innodb
+	 * 
+	 * @see DbManager::rollback()
+	 */
 	public function rollback() {
 		if (!$this->_connection) {
 			$this->openConnection();
@@ -109,6 +137,11 @@ class mysql implements DbManager {
 		}
 	}
 
+	/**
+	 * Per tabelle innodb
+	 * 
+	 * @see DbManager::commit()
+	 */
 	public function commit() {
 		if (!$this->_connection) {
 			$this->openConnection();
@@ -121,13 +154,9 @@ class mysql implements DbManager {
 			return true;
 		}
 	}
-	// end
 	
 	/**
-	 * Esecuzione della query (insert, update, delete)
-	 * 
-	 * @param string $qry	query
-	 * @return boolean
+	 * @see DbManager::actionquery()
 	 */
 	public function actionquery($qry) {
 		
@@ -140,6 +169,9 @@ class mysql implements DbManager {
 		return $this->_qry ? true:false;
 	}
 
+	/**
+	 * @see DbManager::multiActionquery()
+	 */
 	public function multiActionquery($qry) {
 	
 		$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
@@ -150,10 +182,7 @@ class mysql implements DbManager {
 	}
 
 	/**
-	 * Esecuzione della query (select)
-	 * 
-	 * @param string $qry	query
-	 * @return array
+	 * @see DbManager::selectquery()
 	 */
 	public function selectquery($qry) {
 
@@ -181,7 +210,7 @@ class mysql implements DbManager {
 	}
 		
 	/**
-	 * will free all memory associated with the result identifier result
+	 * Libera tutta la memoria utilizzata dal Result Set 
 	 */
 	private function freeresult(){
 	
@@ -189,10 +218,7 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Numero di record risultanti da un select
-	 * 
-	 * @param string $qry	query
-	 * @result integer
+	 * @see DbManager::resultselect()
 	 */
 	public function resultselect($qry)
 	{
@@ -210,7 +236,7 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Numero di record interessati da una istruzione INSERT, UPDATE o DELETE
+	 * @see DbManager::affected()
 	 */
 	public function affected() 
 	{ 
@@ -219,10 +245,9 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Last Id (INSERT, UPDATE)
+	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query
 	 * 
-	 * mysql_insert_id() ritorna il valore generato da una colonna AUTO_INCREMENT a seguito di una query di INSERT o UPDATE.
-	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query.
+	 * @see DbManager::getlastid()
 	 */
 	public function getlastid($table)
 	{ 
@@ -238,11 +263,9 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Auto Increment Value
-	 * ottiene il valore del campo AUTO_INCREMENT
+	 * Ottiene il valore del campo AUTO_INCREMENT
 	 * 
-	 * @param string $table		nome della tabella
-	 * @result integer
+	 * @see DbManager::autoIncValue()
 	 */
 	public function autoIncValue($table){
 
@@ -260,6 +283,9 @@ class mysql implements DbManager {
 		return $auto_increment;
 	}
 	
+	/**
+	 * @see DbManager::getFieldFromId()
+	 */
 	public function getFieldFromId($table, $field, $field_id, $id) {
 		
 		$query = "SELECT $field FROM $table WHERE $field_id='$id'";
@@ -275,6 +301,9 @@ class mysql implements DbManager {
 		}
 	}
 	
+	/**
+	 * @see DbManager::tableexists()
+	 */
 	public function tableexists($table){
 		
 		$query = "SHOW TABLES FROM `".$this->_db_name."`";
@@ -287,6 +316,9 @@ class mysql implements DbManager {
 		return false;
 	}
 	
+	/**
+	 * @see DbManager::fieldInformations()
+	 */
 	public function fieldInformations($table) {
 	
 		if($this->_connection) {
@@ -312,16 +344,7 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Limit Command
-	 *
-	 * @param integer $range
-	 * @param integer $offset
-	 * @return string
-	 * 
-	 * @example $this->_db->limit(1, 0);
-	 * 
-	 * -> PostgreSQL:
-	 * $string = "LIMIT $range OFFSET $offset";
+	 * @see DbManager::limit()
 	 */
 	public function limit($range, $offset){
 		
@@ -330,20 +353,7 @@ class mysql implements DbManager {
 	}
 	
 	/**
-	 * Concatenazione di campi
-	 *
-	 * @param array $sequence
-	 * @return string
-	 * 
-	 * @example
-	 * concat(array("lastname", "' '", "firstname"))
-	 * $this->_db->concat(array("label", "' ('", "server", "')'"));
-	 * 
-	 * -> PostgreSQL
-	 * $string = implode(' || ', $sequence);
-	 * -> SQL Server
-	 * $string = implode(' + ', $sequence);
-	 * $concat = $string;
+	 * @see DbManager::concat()
 	 */
 	public function concat($sequence){
 		
@@ -361,6 +371,9 @@ class mysql implements DbManager {
 		return $concat;
 	}
 
+	/**
+	 * @see DbManager::dumpDatabase()
+	 */
 	public function dumpDatabase($file) {
 
 		$tables = mysql_list_tables($this->_db_name);
@@ -393,6 +406,41 @@ class mysql implements DbManager {
 		fclose($fo);
 
 		return true;
+	}
+	
+	/**
+	 * @see DbManager::getTableStructure()
+	 */
+	public function getTableStructure($table) {
+
+		$structure = array("primary_key"=>null, "keys"=>array());
+		$fields = array();
+
+		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
+		$res = mysql_query($query);
+
+		while($row = mysql_fetch_array($res)) {
+			
+			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
+			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
+			$fields[$row['COLUMN_NAME']] = array(
+				"order"=>$row['ORDINAL_POSITION'],
+				"default"=>$row['COLUMN_DEFAULT'],
+				"null"=>$row['IS_NULLABLE'],
+				"type"=>$row['DATA_TYPE'],
+				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
+				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
+				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
+				"key"=>$row['COLUMN_KEY'],
+				"extra"=>$row['EXTRA'] ,
+				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
+			);
+			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
+			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
+		}
+		$structure['fields'] = $fields;
+
+		return $structure;
 	}
 }
 ?>
