@@ -36,7 +36,7 @@ class template extends propertyObject {
 
 		$this->_tbl_data = self::$_tbl_tpl;
 
-		parent::__construct($this->initP($id));
+		parent::__construct($id);
 
 		$this->_home = 'index.php';
 		$this->_interface = 'layout';
@@ -45,15 +45,6 @@ class template extends propertyObject {
 
 		$this->_align_dict = array("1"=>"sinistra", "2"=>"centro", "3"=>"destra");
 		$this->_um_dict = array("1"=>"px", "2"=>"%");
-	}
-	
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'filename'=>null, 'label'=>null, 'description'=>null);
 	}
 	
 	private function initBlocksProperties() {

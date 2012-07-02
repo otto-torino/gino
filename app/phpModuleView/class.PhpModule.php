@@ -32,7 +32,7 @@ class PhpModule extends propertyObject {
 
 		$this->_tbl_data = self::$_tbl_php_mdl;
 
-		parent::__construct($this->initP($instance));
+		parent::__construct($instance);
 
 		$this->instance = $instance;
 
@@ -40,13 +40,17 @@ class PhpModule extends propertyObject {
 		$this->_interface = $interface;
 	}
 	
-	private function initP($instance) {
+	// Ricostruisce la struttura
+	public function structure($id) {
 	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$instance'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'instance'=>null, 'content'=>null);
+		parent::structure(null);
+		if($id)
+		{
+			$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$id'";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a)>0) $this->_p = $a[0];
+		}
+		else $this->_p = array('id'=>null, 'instance'=>null, 'content'=>null);
 	}
 	
 	public function setInstance($value) {

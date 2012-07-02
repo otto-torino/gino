@@ -33,7 +33,7 @@ class menuVoice extends propertyObject {
 	function __construct($id) {
 	
 		$this->_tbl_data = self::$tbl_voices;
-		parent::__construct($this->initP($id));
+		parent::__construct($id);
 	}
 	
 	/**
@@ -58,15 +58,6 @@ class menuVoice extends propertyObject {
 		return true;
 	}
 
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".self::$tbl_voices." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'instance'=>null, 'parent'=>null, 'label'=>null, 'link'=>null, 'type'=>null, 'role1'=>null, 'orderList'=>null, 'authView'=>null, 'reference'=>null);
-	}
-	
 	public function setParent($postLabel) {
 		
 		$value = cleanVar($_POST, $postLabel, 'int', '');

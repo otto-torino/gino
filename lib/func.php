@@ -19,6 +19,19 @@ include(LIB_DIR.OS.'func.var.php');
 include(LIB_DIR.OS.'Mobile_Detect.php');
 
 /**
+ * Ricava il percorso relativo a partire da un percorso assoluto
+ * 
+ * @param string $abspath percorso assoluto
+ */
+function relativePath($abspath) {
+	$path = SITE_WWW.preg_replace("#".preg_quote(SITE_ROOT)."#", "", $abspath);
+	
+	if(OS=="\\") return preg_replace("#".preg_quote("\\")."#", "/", $path);
+	
+	return $path;
+}
+
+/**
  * File contenuti in una directory
  * 
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)

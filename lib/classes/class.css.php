@@ -54,7 +54,7 @@ class css extends propertyObject {
 		elseif($type=='layout') {
 			$id = $params['id'];
 			$this->_tbl_data = self::$_tbl_css;
-			parent::__construct($this->initP($id));
+			parent::__construct($id);
 
 			$this->_home = 'index.php';
 			$this->_interface = 'layout';
@@ -164,15 +164,6 @@ class css extends propertyObject {
 	 * MANAGE LAYOUT CSS
 	 */
 
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'filename'=>null, 'label'=>null, 'description'=>null);
-	}
-	
 	public function setFilename($value) {
 		
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';

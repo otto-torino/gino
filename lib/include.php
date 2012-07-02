@@ -37,4 +37,20 @@ include_once(CLASSES_DIR.OS."class.options.php");
 include_once(CLASSES_DIR.OS."class.account.php");
 
 include_once(CLASSES_DIR.OS.'class.adminTable.php');
+include_once(CLASSES_DIR.OS.'class.inputForm.php');
+include_once(CLASSES_DIR.OS.'class.field.php');
+
+include_once(CLASSES_DIR.OS.'class.charField.php');
+include_once(CLASSES_DIR.OS.'class.dateField.php');
+include_once(CLASSES_DIR.OS.'class.datetimeField.php');
+include_once(CLASSES_DIR.OS.'class.enumField.php');
+include_once(CLASSES_DIR.OS.'class.fileField.php');
+include_once(CLASSES_DIR.OS.'class.floatField.php');
+include_once(CLASSES_DIR.OS.'class.foreignKeyField.php');
+include_once(CLASSES_DIR.OS.'class.hiddenField.php');
+include_once(CLASSES_DIR.OS.'class.imageField.php');
+include_once(CLASSES_DIR.OS.'class.integerField.php');
+include_once(CLASSES_DIR.OS.'class.textField.php');
+include_once(CLASSES_DIR.OS.'class.timeField.php');
+
 ?>

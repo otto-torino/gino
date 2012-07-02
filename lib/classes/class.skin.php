@@ -31,20 +31,10 @@ class skin extends propertyObject {
 
 		$this->_tbl_data = self::$_tbl_skin;
 
-		parent::__construct($this->initP($id));
+		parent::__construct($id);
 
 		$this->_home = 'index.php';
 		$this->_interface = 'layout';
-	}
-	
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'label'=>null, 'session'=>null, 'rexp'=>null, 'urls'=>null, 'template'=>null, 'css'=>null, 'priority'=>null, 
-			'shadow'=>null, 'shadowSize'=>null, 'shadowRadius'=>null, 'shadowColor'=>null, 'shadowOpacity'=>null, 'auth'=>null, 'cache'=>null);
 	}
 	
 	public function setPriority($value) {
