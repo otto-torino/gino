@@ -37,6 +37,7 @@ class textField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'textarea';
+		$this->_value_type = 'string';
 		
 		$this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : true;
 	}

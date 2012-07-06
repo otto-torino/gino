@@ -31,6 +31,7 @@ class datetimeField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = null;
+		$this->_value_type = 'string';
 	}
 	
 	/**

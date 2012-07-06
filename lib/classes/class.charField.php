@@ -37,6 +37,7 @@ class charField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'text';
+		$this->_value_type = 'string';
 		
 		$this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : true;
 	}

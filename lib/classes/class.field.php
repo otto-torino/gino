@@ -37,6 +37,13 @@ class field {
 	 * @var string
 	 */
 	protected $_default_widget;
+	
+	/**
+	 * Tipo di valore in arrivo dall'input
+	 * 
+	 * @var string
+	 */
+	protected $_value_type;
 
 	/**
 	 * Costruttore
@@ -292,6 +299,35 @@ class field {
 		if(!isset($options['widget'])) $options['widget'] = $this->_default_widget;
 		
 		return $this->formElementWidget($form, $options);
+	}
+	
+	/**
+	 * Formatta un elemento input per l'inserimento in database
+	 * 
+	 * @see cleanVar()
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b value_type (string): tipo di valore
+	 *   - @b method (array): metodo di recupero degli elementi del form
+	 * @return mixed
+	 */
+	public function clean($options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		
+		return cleanVar($method, $this->_name, $value_type, null);
+	}
+	
+	/**
+	 * Valida il valore del campo
+	 * 
+	 * @param mixed $value
+	 * @return boolean
+	 */
+	public function validate($value) {
+		
+		return true;
 	}
 }
 ?>

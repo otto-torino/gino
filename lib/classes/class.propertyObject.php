@@ -57,6 +57,7 @@
 
 		$this->_db = db::instance();
 		$this->_structure = $this->structure($id);
+		$this->_p['instance'] = null;
 		
 		$session = session::instance();
 	
@@ -87,13 +88,13 @@
 	 * @param string $pName
 	 * @param mixed $postLabel
 	 */
-	public function __set($pName, $postLabel) {
+	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p)) return null;
 		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($postLabel);
 		else {
-			if($this->_p[$pName]!=cleanVar($_POST, $postLabel, 'string', null) && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
-			$this->_p[$pName] = cleanVar($_POST, $postLabel, 'string', null);
+			if($this->_p[$pName]!=$pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
+			$this->_p[$pName] = $pValue;
 		}
 	}
 
@@ -106,6 +107,14 @@
 	public function ml($pName) {
 		
 		return ($this->_trd->selectTXT($this->_tbl_data, $pName, $this->_p['id']));
+	}
+	
+	/**
+	 * Recupera la struttura
+	 */
+	public function getStructure() {
+		
+		return $this->_structure;
 	}
 
 	/**
@@ -213,7 +222,11 @@
 	 *     'lenght'=>200, 
 	 *     'extensions'=>self::$extension_media, 
 	 *     'path'=>$base_path, 
-	 *     'add_path'=>$add_path_image
+	 *     'add_path'=>$add_path_image, 
+	 *     'resize'=>true, 
+	 *     'check_type'=>false, 
+	 *     'width'=>$this->_controller->getImageWidth(),
+	 *     'thumb_width'=>$this->_controller->getImageThumbWidth()
 	 *   ));
 	 * }
 	 * @endcode
