@@ -272,5 +272,83 @@ class adminTable {
 		
 		return $buffer;
 	}
+	
+	/**
+	 * Gestisce l'azione del form
+	 * 
+	 * @see propertyObject::updateDbData()
+	 * @param object $model
+	 * @param array $options
+	 * @param array $options_element
+	 * @return void
+	 * 
+	 * Esempio:
+	 * @code
+	 * $id = cleanVar($_POST, 'id', 'int', '');
+	 * $start = cleanVar($_POST, 'start', 'int', '');
+	 * 
+	 * $item = new eventItem($id, $this);
+	 * 
+	 * $link_error = $this->_home."?evt[$this->_instanceName-manageDoc]&action={$this->_action}&start=$start";
+	 * if($id) $link_error .= "&id=$id";
+	 * 
+	 * $options_form = array(
+	 *   'link_error'=>$link_error, 
+	 *   'removeFields'=>null
+	 * );
+	 * $options_element = array();
+	 * 
+	 * $admin_table = new adminTable();
+	 * $admin_table->modelAction($item, $options_form, $options_element);
+	 * @endcode
+	 */
+	public function modelAction($model, $options=array(), $options_element=array()) {
+		
+		// Valori di default di form e sessione
+		$default_formid = 'form'.$model->getTable().$model->id;
+		$default_session = 'dataform'.$model->getTable().$model->id;
+		
+		// Opzioni generali form
+		$formId = array_key_exists('formId', $options) ? $options['formId'] : $default_formid;
+		$method = array_key_exists('method', $options) ? $options['method'] : 'post';
+		$validation = array_key_exists('validation', $options) ? $options['validation'] : true;
+		$session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
+		$link_error = array_key_exists('link_error', $options) ? $options['link_error'] : null;
+		
+		// Opzioni per la modifica della struttura del form
+		$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
+		$viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
+		$addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
+		
+		$gform = new Form($formId, $method, $validation);
+		$gform->save($session_value);
+		$req_error = $gform->arequired();
+		
+		if($req_error > 0) 
+			exit(error::errorMessage(array('error'=>1), $link_error));
+		
+		foreach($model->getStructure() as $field=>$object) {
+			
+			if(($removeFields && !in_array($field, $removeFields)) || ($viewFields && in_array($field, $viewFields)) || (!$removeFields && !$viewFields))
+			{
+				if(isset($options_element[$field]))
+					$options_element = $options_element[$field];
+				else 
+					$options_element = array();
+				
+				$value = $object->clean($options_element);
+				$result = $object->validate($value);
+				if($result === true) {
+					$model->{$field} = $value;
+				}
+				else {
+					exit(error::errorMessage(array('error'=>$result['error']), $link_error));
+				}
+				
+			}
+		}
+		
+		$model->updateDbData();
+	}
 }
 ?>

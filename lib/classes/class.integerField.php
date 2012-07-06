@@ -29,6 +29,7 @@ class integerField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'text';
+		$this->_value_type = 'int';
 	}
 	
 	/**

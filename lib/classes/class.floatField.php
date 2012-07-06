@@ -36,6 +36,7 @@ class floatField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'float';
+		$this->_value_type = 'float';
 		
 		$this->_int_digits = array_key_exists('int_digits', $options) ? $options['int_digits'] : 0;
 		$this->_decimal_digits = array_key_exists('decimal_digits', $options) ? $options['decimal_digits'] : 0;
@@ -71,6 +72,19 @@ class floatField extends field {
 	public function formElement($form, $options) {
 		
 		return parent::formElement($form, $options);
+	}
+	
+	/**
+	 * Formatta un elemento input di tipo @a float per l'inserimento in database
+	 * 
+	 * @see field::clean()
+	 */
+	public function clean($options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		
+		return numberToDB(cleanVar($method, $this->_name, $value_type, null));
 	}
 }
 ?>

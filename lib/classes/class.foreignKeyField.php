@@ -45,6 +45,7 @@ class foreignKeyField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'select';
+		$this->_value_type = 'int';
 		
 		$this->_fkey_table = array_key_exists('fkey_table', $options) ? $options['fkey_table'] : null;
 		$this->_fkey_id = array_key_exists('fkey_id', $options) ? $options['fkey_id'] : 'id';

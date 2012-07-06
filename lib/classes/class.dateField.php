@@ -31,6 +31,7 @@ class dateField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'date';
+		$this->_value_type = 'string';
 	}
 	
 	/**
@@ -43,6 +44,19 @@ class dateField extends field {
 	public function formElement($form, $options) {
 		
 		return parent::formElement($form, $options);
+	}
+	
+	/**
+	 * Formatta un elemento input di tipo @a date per l'inserimento in database
+	 * 
+	 * @see field::clean()
+	 */
+	public function clean($options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		
+		return dateToDbDate(cleanVar($method, $this->_name, $value_type, null), "/");
 	}
 }
 ?>

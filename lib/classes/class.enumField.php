@@ -38,6 +38,7 @@ class enumField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'radio';
+		$this->_value_type = 'string';
 		
 		$this->_enum = array_key_exists('enum', $options) ? $options['enum'] : array();
 		$this->_default = array_key_exists('default', $options) ? $options['default'] : '';

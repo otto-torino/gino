@@ -32,6 +32,7 @@ class timeField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'time';
+		$this->_value_type = 'string';
 	}
 	
 	/**
@@ -46,6 +47,19 @@ class timeField extends field {
 	public function formElement($form, $options) {
 		
 		return parent::formElement($form, $options);
+	}
+	
+	/**
+	 * Formatta un elemento input di tipo @a time per l'inserimento in database
+	 * 
+	 * @see field::clean()
+	 */
+	public function clean($options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		
+		return timeToDbTime(cleanVar($method, $this->_name, $value_type, null));
 	}
 }
 ?>
