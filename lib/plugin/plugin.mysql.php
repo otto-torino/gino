@@ -442,5 +442,60 @@ class mysql implements DbManager {
 
 		return $structure;
 	}
+
+	/**
+	 * @see DbManager::getFieldsName()
+	 */
+	public function getFieldsName($table) {
+
+		$fields = array();
+		$query = "SHOW COLUMNS FROM ".$table;
+
+		$res = mysql_query($query);
+		while($row = mysql_fetch_assoc($res)) {
+			$results[] = $row;
+		}
+		mysql_free_result($res);
+
+		foreach($results as $r) {
+			$fields[] = $r['Field'];
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * @see DbManager::getNumRecords()
+	 */
+	public function getNumRecords($table, $where=null, $field='id') {
+
+		$tot = 0;
+
+		$qwhere = $where ? "WHERE ".$where : "";
+		$query = "SELECT COUNT($field) AS tot FROM $table $qwhere";
+		$res = $this->selectquery($query);
+		if($res) {
+			$tot = $res[0]['tot'];
+		}
+
+		return (int) $tot;
+	}
+
+	/**
+	 * @see DbManager::select()
+	 */
+	public function select($fields, $tables, $where, $order=null, $limit=null) {
+
+		$qfields = is_array($fields) ? implode(",", $fields):$fields;
+		$qtables = is_array($tables) ? implode(",", $tables):$tables;
+		$qwhere = $where ? "WHERE ".$where : "";
+		$qorder = $order ? "ORDER BY $order":"";
+		$qlimit = count($limit) ? $this->limit($limit[1],$limit[0]) : "";
+
+		$query = "SELECT $qfields FROM $qtables $qwhere $qorder $qlimit";
+
+		return $this->selectquery($query);
+	}
 }
+
 ?>

@@ -137,8 +137,8 @@ class Form {
 	
 	private function setDimensions($options) {
 		
-		$this->_form_label_width = isset($options['form_label_width'])? $options['form_label_width']:FORM_LABEL_WIDTH;
-		$this->_form_field_width = isset($options['form_field_width'])? $options['form_field_width']:FORM_FIELD_WIDTH;
+		$this->_form_label_width = (isset($options['form_label_width']) && !is_null($options['form_label_width'])) ? $options['form_label_width']:FORM_LABEL_WIDTH;
+		$this->_form_field_width = (isset($options['form_field_width']) && !is_null($options['form_label_width'])) ? $options['form_field_width']:FORM_FIELD_WIDTH;
 	}
 	
 	private function generateFormToken($formName) {

@@ -125,6 +125,46 @@ class fileField extends field {
 		$this->_prefix = $value;
 	}
 	
+	public function getPrefix() {
+		
+		return $this->_prefix;
+	}
+	
+	public function setPrefix($value) {
+		
+		$this->_prefix = $value;
+	}
+	
+	public function getCheckType() {
+		
+		return $this->_check_type;
+	}
+	
+	public function setCheckType($value) {
+		
+		$this->_check_type = $value;
+	}
+	
+	public function getTypesAllowed() {
+		
+		return $this->_types_allowed;
+	}
+	
+	public function setTypesAllowed($value) {
+		
+		$this->_types_allowed = $value;
+	}
+	
+	public function getMaxFileSize() {
+		
+		return $this->_max_file_size;
+	}
+	
+	public function setMaxFileSize($value) {
+		
+		$this->_max_file_size = $value;
+	}
+	
 	/**
 	 * Stampa l'elemento del form
 	 * 
@@ -208,12 +248,23 @@ class fileField extends field {
 		}
 		
 		if($this->_delete_file)
-		{
-			if(is_file($this->_directory.$this->_value)) 
-				if(!@unlink($this->_directory.$this->_value)) {
-					return array('error'=>17);
+			return $this->delete();
+	}
+	
+	/**
+	 * Eliminazione diretta del file
+	 * 
+	 * @return boolean
+	 */
+	public function delete() {
+		
+		if(is_file($this->_directory.$this->_value)) {
+			if(!@unlink($this->_directory.$this->_value)) {
+				return array('error'=>17);
 			}
 		}
+
+		return true;
 	}
 	
 	/**

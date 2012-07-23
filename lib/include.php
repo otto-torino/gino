@@ -14,6 +14,7 @@ include_once(LIB_DIR.OS."const.php");
 include_once(CLASSES_DIR.OS."cache.php");
 include_once(CLASSES_DIR.OS."class.error.php");
 include_once(CLASSES_DIR.OS."class.propertyObject.php");
+include_once(CLASSES_DIR.OS."class.view.php");
 include_once(CLASSES_DIR.OS."class.html.php");
 include_once(CLASSES_DIR.OS."class.htmlSection.php");
 include_once(CLASSES_DIR.OS."class.htmlArticle.php");
@@ -38,19 +39,20 @@ include_once(CLASSES_DIR.OS."class.account.php");
 
 include_once(CLASSES_DIR.OS.'class.adminTable.php');
 include_once(CLASSES_DIR.OS.'class.inputForm.php');
-include_once(CLASSES_DIR.OS.'class.field.php');
 
-include_once(CLASSES_DIR.OS.'class.charField.php');
-include_once(CLASSES_DIR.OS.'class.dateField.php');
-include_once(CLASSES_DIR.OS.'class.datetimeField.php');
-include_once(CLASSES_DIR.OS.'class.enumField.php');
-include_once(CLASSES_DIR.OS.'class.fileField.php');
-include_once(CLASSES_DIR.OS.'class.floatField.php');
-include_once(CLASSES_DIR.OS.'class.foreignKeyField.php');
-include_once(CLASSES_DIR.OS.'class.hiddenField.php');
-include_once(CLASSES_DIR.OS.'class.imageField.php');
-include_once(CLASSES_DIR.OS.'class.integerField.php');
-include_once(CLASSES_DIR.OS.'class.textField.php');
-include_once(CLASSES_DIR.OS.'class.timeField.php');
+include_once(FIELDS_DIR.OS.'class.field.php');
+include_once(FIELDS_DIR.OS.'class.booleanField.php');
+include_once(FIELDS_DIR.OS.'class.charField.php');
+include_once(FIELDS_DIR.OS.'class.dateField.php');
+include_once(FIELDS_DIR.OS.'class.datetimeField.php');
+include_once(FIELDS_DIR.OS.'class.enumField.php');
+include_once(FIELDS_DIR.OS.'class.fileField.php');
+include_once(FIELDS_DIR.OS.'class.floatField.php');
+include_once(FIELDS_DIR.OS.'class.foreignKeyField.php');
+include_once(FIELDS_DIR.OS.'class.hiddenField.php');
+include_once(FIELDS_DIR.OS.'class.imageField.php');
+include_once(FIELDS_DIR.OS.'class.integerField.php');
+include_once(FIELDS_DIR.OS.'class.textField.php');
+include_once(FIELDS_DIR.OS.'class.timeField.php');
 
 ?>

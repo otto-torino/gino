@@ -27,8 +27,8 @@ class floatField extends field {
 	 * 
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - opzioni generali definite come proprietà nella classe field()
-	 *   - @b int_digits (integer)
-	 *   - @b decimal_digits (integer)
+	 *   - @b int_digits (integer) numero totale delle cifre
+	 *   - @b decimal_digits (integer) numero delle cifre decimali
 	 * @return void
 	 */
 	function __construct($options) {
@@ -40,6 +40,11 @@ class floatField extends field {
 		
 		$this->_int_digits = array_key_exists('int_digits', $options) ? $options['int_digits'] : 0;
 		$this->_decimal_digits = array_key_exists('decimal_digits', $options) ? $options['decimal_digits'] : 0;
+	}
+	
+	public function __toString() {
+
+		return (string) dbNumberToNumber($this->_value, $this->_decimal_digits);
 	}
 	
 	public function getIntDigits() {

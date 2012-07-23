@@ -28,6 +28,7 @@
 
 	protected $_db;
 	protected $_tbl_data;
+	protected $_model_label;
 	
 	/**
 	 * Struttura della tabella
@@ -66,6 +67,11 @@
 		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
+ 	public function __toString() {
+
+		return $this->id;
+	}
+	
 	/**
 	 * Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto
 	 * 
@@ -91,7 +97,7 @@
 	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p)) return null;
-		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($postLabel);
+		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		else {
 			if($this->_p[$pName]!=$pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
@@ -138,7 +144,13 @@
 			foreach($this->_chgP as $pName) $chgv[] = "'{$this->_p[$pName]}'";
 			$query = "INSERT INTO $this->_tbl_data ($chgf) VALUES (".implode(",",$chgv).")";
 		}
-		$result = $this->_db->actionquery($query);
+		
+		if($query) {
+			$result = $this->_db->actionquery($query);
+			if(!$result) {
+				return array('error'=>9);
+			}
+		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
 
@@ -155,6 +167,40 @@
 		language::deleteTranslations($this->_tbl_data, $this->_p['id']);
 		$query = "DELETE FROM $this->_tbl_data WHERE id='{$this->_p['id']}'";
 		return $this->_db->actionquery($query);
+	}
+	
+	/**
+	 * Elimina l'oggetto
+	 * 
+	 * @return boolean
+	 */
+ 	public function delete() {
+
+		$result = $this->deleteDbData();
+		if($result !== true) {
+			return array("error"=>37);
+		}
+
+		foreach($this->_structure as $field) {
+			if(method_exists($field, 'delete')) {
+				$result = $field->delete();
+				if($result !== true) {
+					return $result;
+				}
+			}
+		}
+
+		return true;
+	}
+	
+ 	/**
+	 * Espone la label del modello
+	 * 
+	 * @return string
+	 */
+	public function getModelLabel() {
+		
+		return $this->_model_label;
 	}
 	
 	/**
@@ -267,7 +313,6 @@
 				$pkey = $key == $primary_key ? true : false;
 				$ukey = in_array($key, $keys) ? true : false;
 				$auto_increment = $extra == 'auto_increment' ? true : false;
-				if($auto_increment) $type = 'hidden';
 				
 				$dataType = $this->dataType($type);
 				
@@ -298,11 +343,12 @@
 					'decimal_digits'=>$numberDecimalDigits, 
 					'order'=>$order, 
 					'default'=>$default, 
-					'null'=>$null, 
+					'required'=>$null=='NO' ? true : false, 
 					'extra'=>$extra, 
 					'enum'=>$enum, 
 					'label'=>$label, 
-					'value'=>$this->_p[$key]
+					'value'=>$this->_p[$key], 
+					'table'=>$this->_tbl_data
 				);
 				
 				if(!class_exists($dataType))

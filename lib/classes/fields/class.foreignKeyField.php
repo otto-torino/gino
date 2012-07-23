@@ -52,8 +52,15 @@ class foreignKeyField extends field {
 		$this->_fkey_field = array_key_exists('fkey_field', $options) ? $options['fkey_field'] : null;
 		$this->_fkey_where = array_key_exists('fkey_where', $options) ? $options['fkey_where'] : '';
 		$this->_fkey_order = array_key_exists('fkey_order', $options) ? $options['fkey_order'] : '';
-		
-		$this->_enum = $this->foreignKey();
+	}
+	
+	public function __toString() {
+
+		$db = db::instance();
+
+		$value = $db->getFieldFromId($this->_fkey_table, $this->_fkey_field, $this->_fkey_id, $this->_value);
+
+		return (string) $value;
 	}
 	
 	public function getForeignKeyTable() {
@@ -130,6 +137,10 @@ class foreignKeyField extends field {
 		{
 			$where = implode(" AND ", $this->_fkey_where);
 		}
+		elseif(is_string($this->_fkey_where) && $this->_fkey_where)
+		{
+			$where = $this->_fkey_where;
+		}
 		else $where = '';
 		
 		if($where) $where = "WHERE $where";
@@ -148,6 +159,8 @@ class foreignKeyField extends field {
 	 * @return string
 	 */
 	public function formElement($form, $options) {
+		
+		$this->_enum = $this->foreignKey();
 		
 		return parent::formElement($form, $options);
 	}

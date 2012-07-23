@@ -231,6 +231,38 @@ interface DbManager {
 	 * - @b enum: valori di un campo enumerazione
 	 */
 	public function getTableStructure($table);
+	
+	/**
+	 * Recupera il nome dei campi di una tabella
+	 * 
+	 * @param string $table nome della tabella
+	 * @return array
+	 */
+	public function getFieldsName($table);
+	
+	/**
+	 * Numero di record interessati da una query di selezione
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $where condizione della query
+	 * @param string $field nome del campo di selezione per il conteggio dei record
+	 * @return integer
+	 */
+	public function getNumRecords($table, $where, $field);
+	
+	/**
+	 * Costruisce ed esegue una query
+	 * 
+	 * @see limit()
+	 * @see selectquery()
+	 * @param mixed $fields elenco dei campi
+	 * @param mixed $tables elenco delle tabelle
+	 * @param string $where condizione della query
+	 * @param string $order ordinamento
+	 * @param array $limit valori per il range di selezione (array(offset, range))
+	 * @return boolean
+	 */
+	public function select($fields, $tables, $where, $order, $limit);
 }
 
 /**

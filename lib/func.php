@@ -32,6 +32,19 @@ function relativePath($abspath) {
 }
 
 /**
+ * Restituisce l'elemento di un array corrispondente alla chiave data oppure un valore di default 
+ * 
+ * @param string $opt_name nome della chiave
+ * @param array $opt_array array associativo
+ * @param mixed $default valore di default
+ * @return l'elemento corrispondente alla chiave data oppure il default
+ */
+function gOpt($opt_name, $opt_array, $default) {
+
+	return isset($opt_array[$opt_name]) ? $opt_array[$opt_name] : $default;
+}
+
+/**
  * File contenuti in una directory
  * 
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)

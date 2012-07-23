@@ -210,9 +210,10 @@ function stripEditor($text)
  * @param string $name nome della variabile
  * @param string $type tipo di variabile (bool,int,float,string,array,object,null)
  * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @param array $options array associativo di opzioni
  * @return mixed
  */
-function cleanVar($method, $name, $type, $strip_tags)
+function cleanVar($method, $name, $type, $strip_tags, $options=array())
 {
 	if(isset($method[$name]) AND !empty($method[$name]))
 	{
@@ -223,13 +224,13 @@ function cleanVar($method, $name, $type, $strip_tags)
 			$n_array = array();
 			foreach($value AS $element)
 			{
-				$n_array[] = clean_sequence($element, $strip_tags);
+				$n_array[] = clean_sequence($element, $strip_tags, $options);
 			}
 			$value = $n_array;
 		}
 		else
 		{
-			$value = clean_sequence($value, $strip_tags);
+			$value = clean_sequence($value, $strip_tags, $options);
 		}
 	}
 	else
@@ -267,9 +268,14 @@ function cleanVar($method, $name, $type, $strip_tags)
  * 
  * @param mixed $text testo
  * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
+ * @param array $options
+ *   array associativo di opzioni
+ *   - @b escape (boolean)
  * @return mixed
  */
-function clean_sequence($text, $strip_tags){
+function clean_sequence($text, $strip_tags, $options){
+	
+	$escape = gOpt('escape', $options, true);
 	
 	$text = trim($text);
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
@@ -281,7 +287,9 @@ function clean_sequence($text, $strip_tags){
 	
 	$text = replaceChar($text);
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
-	$text = mysql_real_escape_string($text);
+	
+	if($escape)
+		$text = mysql_real_escape_string($text);
 	
 	return $text;
 }

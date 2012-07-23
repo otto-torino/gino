@@ -156,7 +156,14 @@ class PageList{
 
 	private function pageLink($label, $params, $link=true, $opt=null) {
 
-		if(!$this->_ajax && $link)
+		if(gOpt('add_no_permalink', $opt, false)) {
+			if($params != '') {
+				$this->_variables = preg_replace("#&?start=[^&]*#", "", $this->_variables);
+				$url = preg_match("#\?#", $this->_variables) ? $this->_variables.'&'.$params : $this->_variables.'?'.$params;
+			}	
+			return "<a href=\"$url\">".$label."</a>";	// OLD: href=\"".$this->_url.$this->_symbol."$params\"
+		}
+		elseif(!$this->_ajax && $link)
 		{
 			if($params != '')
 			{
@@ -229,7 +236,7 @@ class PageList{
 		
 		$BUFFER = "<div class=\"area_link\">\n";
 		
-		if($this->_last == 1) return "";
+		if($this->_last == 1 || $this->_last == 0) return "";
 				
 		for($i=$this->_actual; $i>1; $i--) {
 			if($i == $this->_last) $LOWPART .= "";

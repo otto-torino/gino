@@ -60,7 +60,8 @@ class error {
 			33=>_("la dimensione del file supera il limite consentito dal sistema"),
 			34=>_("errore nell'esecuzione della query"),
 			35=>_("il codice inserito è già presente, scegliere un altro codice"),
-			36=>_("il formato del codice non è valido")
+			36=>_("il formato del codice non è valido"),
+			37=>_("impossibile eliminare il record")
 		);
 	}
 
@@ -139,6 +140,20 @@ class error {
 		$session->GINOERRORMSG = $buffer;
 
 		header("Location: $link");
+	}
+
+	/**
+	 * Genera un errore 404 
+	 * 
+	 * @static
+	 * @access public
+	 * @return reindirizza alla pagina 404
+	 */
+	public static function raise404() {
+
+		$plink = new link();
+		header("Location: ".$plink->alink('sysfunc', 'page404'));
+		exit();
 	}
 
 	/**

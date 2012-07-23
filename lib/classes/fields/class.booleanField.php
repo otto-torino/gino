@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.enumField.php
- * @brief Contiene la classe enumField
+ * @file class.booleanField.php
+ * @brief Contiene la classe booleanField
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,15 +9,15 @@
  */
 
 /**
- * @brief Campo di tipo ENUM
+ * @brief Campo di tipo BOOLEAN
  * 
- * Tipologie di input associabili: radio, select
- *
+ * Tipologie di input associabili: radio
+ * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class enumField extends field {
+class booleanField extends field {
 
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
@@ -38,10 +38,16 @@ class enumField extends field {
 		parent::__construct($options);
 		
 		$this->_default_widget = 'radio';
-		$this->_value_type = 'string';
+		$this->_value_type = 'int';
 		
 		$this->_enum = array_key_exists('enum', $options) ? $options['enum'] : array();
 		$this->_default = array_key_exists('default', $options) ? $options['default'] : '';
+	}
+	
+	public function __toString() {
+
+		$value = count($this->_enum) ? $this->_enum[$this->_value] : $this->_value;
+		return (string) $value;
 	}
 	
 	public function getEnum() {
@@ -72,9 +78,6 @@ class enumField extends field {
 	 * @return string
 	 */
 	public function formElement($form, $options) {
-		
-		if(!array_key_exists('required', $options))
-			$options['required'] = $this->_required;
 		
 		return parent::formElement($form, $options);
 	}

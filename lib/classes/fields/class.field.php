@@ -22,7 +22,7 @@ class field {
 	 * 
 	 * Vengono esposte dai relativi metodi GET e SET
 	 */
-	protected $_name, $_label, $_value, $_lenght, $_auto_increment, $_primary_key, $_unique_key;
+	protected $_name, $_label, $_value, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table;
 	
 	/**
 	 * Indica se il tipo di campo è obbligatorio 
@@ -56,7 +56,8 @@ class field {
 	 *   - @b auto_increment (boolean): campo auto_increment
 	 *   - @b primary_key (boolean): campo chiave primaria
 	 *   - @b unique_key (boolean): campo chiave unica
-	 *   - @b null (string): campo NULL (valore indicatore del campo obbligatorio)
+	 *   - @b required (boolean): valore indicatore del campo obbligatorio
+	 *   - @b table (string): nome della tabella
 	 * @return void
 	 */
 	function __construct($options) {
@@ -68,7 +69,23 @@ class field {
 		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
 		$this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : false;
 		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
-		$this->_required = (array_key_exists('null', $options) && $options['null'] == 'NO') ? true : false;
+		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
+		$this->_table = array_key_exists('table', $options) ? $options['table'] : '';
+	}
+	
+	public function __toString() {
+
+		return (string) $this->_value;
+	}
+
+	/**
+	 * Indica se il campo può essere utilizzato come ordinamento nella lista della sezione amministrativa
+	 * 
+	 * @return boolean
+	 */
+	public function canBeOrdered() {
+
+		return false;
 	}
 	
 	public function getName() {
@@ -149,6 +166,50 @@ class field {
 	public function setRequired($value) {
 		
 		if(is_bool($value)) $this->_required = $value;
+	}
+	
+	public function getWidget() {
+		
+		return $this->_default_widget;
+	}
+	
+	public function setWidget($value) {
+		
+		if(is_string($value) || is_null($value)) $this->_default_widget = $value;
+	}
+	
+	public function getValueType() {
+		
+		return $this->_value_type;
+	}
+	
+	public function setValueType($value) {
+		
+		if(is_string($value)) $this->_value_type = $value;
+	}
+	
+	/**
+	 * Definisce la condizione WHERE per il campo
+	 * 
+	 * @param string $value
+	 * @return string
+	 */
+	public function filterWhereClause($value) {
+
+		return $this->_table.".".$this->_name." = '".$value."'";
+	}
+	
+	/**
+	 * Definisce l'ordinamento della query
+	 * 
+	 * @param string $order_dir
+	 * @param array $query_where viene passato per reference
+	 * @param array $query_table viene passato per reference
+	 * @return string
+	 */
+	public function adminListOrder($order_dir, &$query_where, &$query_table) {
+
+		return $this->_table.".".$this->_name." ".$order_dir;
 	}
 	
 	/**
@@ -309,14 +370,16 @@ class field {
 	 *   array associativo di opzioni
 	 *   - @b value_type (string): tipo di valore
 	 *   - @b method (array): metodo di recupero degli elementi del form
+	 *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
 	 * @return mixed
 	 */
 	public function clean($options=null) {
 		
 		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
 		$method = isset($options['method']) ? $options['method'] : $_POST;
+		$escape = gOpt('escape', $options, true);
 		
-		return cleanVar($method, $this->_name, $value_type, null);
+		return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 	}
 	
 	/**

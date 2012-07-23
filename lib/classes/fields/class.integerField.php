@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.datetimeField.php
- * @brief Contiene la classe datetimeField
+ * @file class.integerField.php
+ * @brief Contiene la classe integerField
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,15 +9,13 @@
  */
 
 /**
- * @brief Campo di tipo DATETIME
- * 
- * Tipologie di input associabili: nessun input, testo nascosto, testo in formato datetime (YYYY-MM-DD HH:MM:SS)
+ * @brief Campo di tipo INTERO
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class datetimeField extends field {
+class integerField extends field {
 
 	/**
 	 * Costruttore
@@ -30,8 +28,8 @@ class datetimeField extends field {
 
 		parent::__construct($options);
 		
-		$this->_default_widget = null;
-		$this->_value_type = 'string';
+		$this->_default_widget = $this->_auto_increment ? 'hidden' : 'text';
+		$this->_value_type = 'int';
 	}
 	
 	/**

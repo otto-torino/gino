@@ -1030,7 +1030,7 @@ class pub extends EvtHandler{
 	 * 
 	 * @return boolean
 	 */
-	protected function enabledPng(){
+	public function enabledPng(){
 		
 		if (function_exists('gd_info'))
 		{
