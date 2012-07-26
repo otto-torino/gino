@@ -553,6 +553,9 @@ function htmlCharsText($string)
  */
 function htmlInput($string)
 {
+	if(is_null($string))
+		return null;
+	
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = replaceChar($string);

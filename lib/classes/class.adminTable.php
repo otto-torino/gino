@@ -11,13 +11,39 @@
 /**
  * @brief Gestisce i form e il back-office di un modello
  * 
- * Fornisce gli strumenti per costruire la struttura del form e gestirne l'azione
+ * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione)
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
  * Il campo di nome @a instance viene trattato diversamente dagli altri campi: non compare nel form e il valore gli viene passato direttamente dall'istanza. \n
+ * 
+ * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
+ * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a canBeOrdered() ritorna il valore @a true. \n  
+ * 
+ * @b "Gestione dei permessi" \n
+ * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
+ * Esempio:
+ * @code
+ * // se gruppo1 $edit_deny = 'all'
+ * // se gruppo2 $edit_deny = array(2);
+ * // altrimenti $edit_deny = null;
+ * @endcode
+ * 
+ * La gestione fine delle autorizzazioni a operare sui singoli campi della tabella avviene indicando i gruppi autorizzati nell'array delle opzioni della funzionalità utilizzando la chiace @a permission. \n
+ * Il formato è il seguente:
+ * @code
+ * 'permission'=>array(
+ *   'view'=>group, 
+ *   'fields'=>array(
+ *     'field1'=>group, 
+ *     'field2'=>group
+ *   )
+ * )
+ * @endcode
+ * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
+ * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  * 
  * Tabella delle associazioni del tipo di campo con il tipo input di default
  * 
@@ -74,6 +100,41 @@ class adminTable {
 		$this->_allow_insertion = gOpt('allow_insertion', $opts, true);
 		$this->_edit_deny = gOpt('edit_deny', $opts, array());
 		$this->_delete_deny = gOpt('delete_deny', $opts, array());
+	}
+	
+	/**
+	 * Gestione delle autorizzazioni alle funzionalità di back-office e ai singoli campi
+	 * 
+	 * @see AbstractEvtClass::getAccessGroup()
+	 * @param array $options
+	 *   array associativo di opzioni delle diverse funzionalità
+	 *   - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
+	 *     - @b view (mixed): autorizzazione ad accedere a una determinata funzione (funzionalità non attiva)
+	 *     - @b fields (array): contiene i riferimenti di accesso ai singoli campi nella forma nome_campo=>autorizzazione (mixed)
+	 * @param string $field nome del campo; se vuoto viene controllata l'autorizzazione ad accedere alla funzionalità richiesta
+	 * @return redirect or boolean
+	 */
+	private function permission($options, $field='') {
+		
+		$control = array_key_exists('permission', $options) ? $options['permission'] : null;
+		
+		if($field)
+		{
+			if(isset($control['fields']) && 
+			isset($control['fields'][$field]) && 
+			!is_null($control['fields'][$field]))
+			{
+				if(!$this->_controller->getAccessGroup($control['fields'][$field]))
+					return false;
+			}
+			return true;
+		}
+		else
+		{
+			if(isset($control['view']) && !is_null($control['view']))
+				$this->_controller->getAccessGroup($control['view'], false);
+		}
+		return true;
 	}
 	
 	/**
@@ -226,9 +287,12 @@ class adminTable {
 				}
 			}
 			
-			if(($removeFields && !in_array($field, $removeFields)) || 
-			($viewFields && in_array($field, $viewFields)) || 
-			(!$viewFields && !$removeFields))
+			if($this->permission($options, $field) &&
+			(
+				($removeFields && !in_array($field, $removeFields)) || 
+				($viewFields && in_array($field, $viewFields)) || 
+				(!$viewFields && !$removeFields)
+			))
 			{
 				if(isset($inputs[$field]))
 					$options_input = $inputs[$field];
@@ -366,9 +430,12 @@ class adminTable {
 		
 		foreach($model->getStructure() as $field=>$object) {
 			
-			if(($removeFields && !in_array($field, $removeFields)) || 
-			($viewFields && in_array($field, $viewFields)) || 
-			(!$removeFields && !$viewFields))
+			if($this->permission($options, $field) &&
+			(
+				($removeFields && !in_array($field, $removeFields)) || 
+				($viewFields && in_array($field, $viewFields)) || 
+				(!$viewFields && !$removeFields)
+			))
 			{
 				if(isset($options_element[$field]))
 					$options_element = $options_element[$field];
@@ -399,13 +466,14 @@ class adminTable {
 	/**
 	 * Gestisce il backoffice completo di un modello (wrapper)
 	 * 
+	 * @see permission()
 	 * @see adminForm()
 	 * @see adminDelete()
 	 * @see adminList()
 	 * @param string $model_class nome della classe del modello
-	 * @param array $options_view opzioni della vista
-	 * @param array $options_form opzioni del form
-	 * @param array $inputs opzioni degli elementi nel form/action
+	 * @param array $options_view opzioni della vista (comprese le autorizzazioni a visualizzare singoli campi)
+	 * @param array $options_form opzioni del form (comprese le autorizzazioni a mostrare l'input di singoli campi e a salvarli)
+	 * @param array $inputs opzioni degli elementi nel form
 	 * @return string
 	 */
 	public function backOffice($model_class, $options_view=array(), $options_form=array(), $inputs=array()) {
@@ -443,6 +511,10 @@ class adminTable {
 	 */
 	public function adminDelete($model) {
 
+		if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
+			error::raise404();	
+		}
+		
 		$result = $model->delete();
 		$link = $this->editUrl(array(), array('delete', 'id'));
 		if($result === true) {
@@ -465,6 +537,8 @@ class adminTable {
 	 */
 	public function adminForm($model_obj, $options_form, $inputs) {
 
+		// $this->permission($options_form);
+		
 		if(count($_POST)) {
 	 		$link_error = $this->editUrl(null, null);
 			$options_form['link_error'] = $link_error ;
@@ -486,7 +560,7 @@ class adminTable {
 				if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
 					error::raise404();	
 				}
-				$title = sprintf(_("Modifica %s"), $model_obj);
+				$title = sprintf(_("Modifica %s"), $model_obj->getModelLabel());
 			}
 			// insert
 			else {
@@ -523,6 +597,8 @@ class adminTable {
 	 */
 	public function adminList($model, $options_view=array()) {
 
+		// $this->permission($options_view);
+		
 		$db = db::instance();
 
 		$model_structure = $model->getStructure();
@@ -587,36 +663,39 @@ class adminTable {
 
 		foreach($fields_loop as $field_name=>$field_obj) {
 
-			$model_label = $model_structure[$field_name]->getLabel();
-			$label = is_array($model_label) ? $model_label[0] : $model_label;
+			if($this->permission($options_view, $field_name))
+			{
+				$model_label = $model_structure[$field_name]->getLabel();
+				$label = is_array($model_label) ? $model_label[0] : $model_label;
 
-			if($field_obj->canBeOrdered()) {
+				if($field_obj->canBeOrdered()) {
 
-				$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
-				if($order == $field_name." ASC") {
-					$jsover = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-					$jsout = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-					$css_class = "arrow_up";
-				}
-				elseif($order == $field_name." DESC") {
-					$jsover = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-					$jsout = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-					$css_class = "arrow_down";
+					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
+					if($order == $field_name." ASC") {
+						$jsover = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
+						$jsout = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
+						$css_class = "arrow_up";
+					}
+					elseif($order == $field_name." DESC") {
+						$jsover = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
+						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
+						$css_class = "arrow_down";
+					}
+					else {
+						$js = '';
+						$jsover = "$(this).getNext('.arrow').addClass('arrow_up')";
+						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up')";
+						$a_style = "visibility:hidden";
+						$css_class = '';
+					}
+
+					$link = $this->editUrl(array('order'=>$ord), array('start'));
+					$head_t = "<a href=\"".$link."\" onmouseover=\"".$jsover."\" onmouseout=\"".$jsout."\" onclick=\"$(this).setProperty('onmouseout', '')\">".$label."</a>";
+					$heads[] = $head_t." <div style=\"margin-right: 5px;top:3px;\" class=\"right arrow $css_class\"></div>";
 				}
 				else {
-					$js = '';
-					$jsover = "$(this).getNext('.arrow').addClass('arrow_up')";
-					$jsout = "$(this).getNext('.arrow').removeClass('arrow_up')";
-					$a_style = "visibility:hidden";
-					$css_class = '';
+					$heads[] = $label;
 				}
-
-				$link = $this->editUrl(array('order'=>$ord), array('start'));
-				$head_t = "<a href=\"".$link."\" onmouseover=\"".$jsover."\" onmouseout=\"".$jsout."\" onclick=\"$(this).setProperty('onmouseout', '')\">".$label."</a>";
-				$heads[] = $head_t." <div style=\"margin-right: 5px;top:3px;\" class=\"right arrow $css_class\"></div>";
-			}
-			else {
-				$heads[] = $label;
 			}
 		}
 		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
@@ -629,7 +708,11 @@ class adminTable {
 
 			$row = array();
 			foreach($fields_loop as $field_name=>$field_obj) {
-				$row[] =  (string) $record_model_structure[$field_name];	
+				
+				if($this->permission($options_view, $field_name))
+				{
+					$row[] =  (string) $record_model_structure[$field_name];
+				}
 			}
 
 			$links = array();
@@ -669,7 +752,7 @@ class adminTable {
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));
-		$this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model) : null);
+		$this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);
 		$this->_view->assign('pnavigation', $pagelist->listReferenceGINO($_SERVER['REQUEST_URI'], false, '', '', '', false, null, null, array('add_no_permalink'=>true)));
 		$this->_view->assign('psummary', $pagelist->reassumedPrint());
 
@@ -730,10 +813,12 @@ class adminTable {
 	/**
 	 * Form per filtraggio record
 	 * 
+	 * @see permission()
 	 * @param object $model
+	 * @param array $options autorizzazioni alla visualizzazione dei singoli campi
 	 * @return il form
 	 */
-	protected function formFilters($model) {
+	protected function formFilters($model, $options) {
 
 		$model_structure = $model->getStructure();
 		$class_name = get_class($model);
@@ -743,9 +828,13 @@ class adminTable {
 		$form = $gform->form($this->editUrl(array(), array('start')), false, '');
 
 		foreach($this->_filter_fields as $fname) {
-			$field = $model_structure[$fname];
-			$field->setValue($this->session->{$class_name.'_'.$fname.'_filter'});
-			$form .= $field->formElement($gform, array('required'=>false));
+			
+			if($this->permission($options, $fname))
+			{
+				$field = $model_structure[$fname];
+				$field->setValue($this->session->{$class_name.'_'.$fname.'_filter'});
+				$form .= $field->formElement($gform, array('required'=>false));
+			}
 		}
 
 		$onclick = "onclick=\"$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {

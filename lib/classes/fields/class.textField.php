@@ -52,6 +52,11 @@ class textField extends field {
 		if(is_bool($value)) $this->_trnsl = $value;
 	}
 	
+	public function canBeOrdered() {
+
+		return false;
+	}
+	
 	/**
 	 * Stampa l'elemento del form
 	 * 

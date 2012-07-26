@@ -85,7 +85,7 @@ class field {
 	 */
 	public function canBeOrdered() {
 
-		return false;
+		return true;
 	}
 	
 	public function getName() {

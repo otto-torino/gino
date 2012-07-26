@@ -619,6 +619,33 @@ class AbstractEvtClass extends pub{
 	}
 	
 	/**
+	 * Espone il valore dell'istanza
+	 * 
+	 * @return integer
+	 */
+	public function getInstance() {
+
+		return $this->_instance;
+	}
+	
+	/**
+	 * Autorizzazione ad accedere alle funzionalità del back-office
+	 * 
+	 * @see accessGroup()
+	 * @see Access::AccessVerifyGroupIf()
+	 * @param mixed $permission gruppi cui è concesso l'accesso a una determinata funzione
+	 * @param boolean $field_control autorizzazione ad accedere a un singolo campo o a una funzionalità (insert, edit, delete)
+	 * @return redirect or boolean
+	 */
+	public function getAccessGroup($permission, $field_control=true) {
+		
+		if(!$field_control)
+			$this->accessGroup($permission);
+		else
+			return $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $permission);
+	}
+	
+	/**
 	 * Verifica se un utente possiede un ruolo tale da permettergli di accedere a una pagina
 	 * 
 	 * Questo metodo viene incluso in testa al metodo della classe che deve costruire la pagina, e viene utilizzato per la visualizzazione di contenuti. 

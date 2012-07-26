@@ -194,7 +194,7 @@
 	}
 	
  	/**
-	 * Espone la label del modello
+	 * Espone il testo per personalizzare l'intestazione del form di modifica/inserimento
 	 * 
 	 * @return string
 	 */
