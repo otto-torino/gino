@@ -484,7 +484,7 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::select()
 	 */
-	public function select($fields, $tables, $where, $order=null, $limit=null) {
+	public function select($fields, $tables, $where, $order=null, $limit=null, $debug=false) {
 
 		$qfields = is_array($fields) ? implode(",", $fields):$fields;
 		$qtables = is_array($tables) ? implode(",", $tables):$tables;
@@ -493,7 +493,9 @@ class mysql implements DbManager {
 		$qlimit = count($limit) ? $this->limit($limit[1],$limit[0]) : "";
 
 		$query = "SELECT $qfields FROM $qtables $qwhere $qorder $qlimit";
-
+		
+		if($debug) echo $query;
+		
 		return $this->selectquery($query);
 	}
 }

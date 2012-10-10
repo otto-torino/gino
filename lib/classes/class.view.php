@@ -61,7 +61,7 @@ class view {
 	 */
 	public function setViewTpl($view_name, $opts=null) {
 
-		if(!is_null($this->_view_folder) && is_readable($this->_view_folder.OS.$tpl.".php")) {
+		if(!is_null($this->_view_folder) && is_readable($this->_view_folder.OS.$view_name.".php")) {
 			$this->_view_tpl = $this->_view_folder.OS.$view_name.".php";
 		}
 		elseif(is_readable($this->_dft_view_folder.OS.$view_name.".php")) {

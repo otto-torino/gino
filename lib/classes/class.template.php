@@ -788,8 +788,8 @@ class template extends propertyObject {
 		$tplContent = $_POST['tplform_text'];
 		if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);	// magic_quotes_gpc = On
 
-		$this->label = 'label';
-		$this->description = 'description';
+		$this->label = cleanVar($_POST, 'label', 'string', '');
+		$this->description = cleanVar($_POST, 'description', 'string', '');
 		$tplFilename = cleanVar($_POST, 'filename', 'string', '');
 		if($tplFilename) $this->filename = $tplFilename.".tpl";
 		$modTpl = cleanVar($_POST, 'modTpl', 'int', '');
@@ -800,16 +800,17 @@ class template extends propertyObject {
 
 		if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".tpl")) 
 			exit(error::errorMessage(array('error'=>_("Nome file già presente")), $link_error));
-
+		
 		if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
 			fwrite($fp, $tplContent) || exit(error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error));
 			fclose($fp);
 		}
-		else
-			exit(error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+		else exit(error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+		
 		$this->updateDbData();
-
-		if(($this->id && $modTpl == 1) || !$this->id)
+		
+		//if(($this->id && $modTpl == 1) || !$this->id)
+		if($this->id)
 		{
 			$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
 			$blocks_del = cleanVar($_POST, 'blocks_del', 'string', '');

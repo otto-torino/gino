@@ -260,9 +260,10 @@ interface DbManager {
 	 * @param string $where condizione della query
 	 * @param string $order ordinamento
 	 * @param array $limit valori per il range di selezione (array(offset, range))
+	 * @param boolean $debug se vero stampa a video la query
 	 * @return boolean
 	 */
-	public function select($fields, $tables, $where, $order, $limit);
+	public function select($fields, $tables, $where, $order, $limit, $debug);
 }
 
 /**

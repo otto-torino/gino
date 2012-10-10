@@ -575,9 +575,9 @@ class Access extends pub {
 	 * @return boolean
 	 * 
 	 * @code
-	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_user_group, $this->_group_1)
-	 * $this->_access->AccessVerifyGroupIf($this->_className, '', 'ALL')
-	 * $this->_access->AccessVerifyGroupIf($this->_className, '', '')	// amm. sito + amm. classe
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', 'ALL')
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')	// amm. sito + amm. classe
 	 * @endcode
 	 */
 	public function AccessVerifyGroupIf($class_name, $instance, $user_group, $permission){

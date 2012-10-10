@@ -366,6 +366,8 @@
 			$dataType = 'integer';
 		elseif($type == 'float' || $type == 'double' || $type == 'decimal')
 			$dataType = 'float';
+		elseif($type == 'mediumtext')
+			$dataType = 'text';
 		elseif($type == 'varchar')
 			$dataType = 'char';
 		else

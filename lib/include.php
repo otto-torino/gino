@@ -43,8 +43,10 @@ include_once(CLASSES_DIR.OS.'class.inputForm.php');
 include_once(FIELDS_DIR.OS.'class.field.php');
 include_once(FIELDS_DIR.OS.'class.booleanField.php');
 include_once(FIELDS_DIR.OS.'class.charField.php');
+include_once(FIELDS_DIR.OS.'class.constantField.php');
 include_once(FIELDS_DIR.OS.'class.dateField.php');
 include_once(FIELDS_DIR.OS.'class.datetimeField.php');
+include_once(FIELDS_DIR.OS.'class.directoryField.php');
 include_once(FIELDS_DIR.OS.'class.enumField.php');
 include_once(FIELDS_DIR.OS.'class.fileField.php');
 include_once(FIELDS_DIR.OS.'class.floatField.php');
@@ -54,5 +56,6 @@ include_once(FIELDS_DIR.OS.'class.imageField.php');
 include_once(FIELDS_DIR.OS.'class.integerField.php');
 include_once(FIELDS_DIR.OS.'class.textField.php');
 include_once(FIELDS_DIR.OS.'class.timeField.php');
+include_once(FIELDS_DIR.OS.'class.yearField.php');
 
 ?>

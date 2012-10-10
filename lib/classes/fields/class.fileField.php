@@ -125,16 +125,6 @@ class fileField extends field {
 		$this->_prefix = $value;
 	}
 	
-	public function getPrefix() {
-		
-		return $this->_prefix;
-	}
-	
-	public function setPrefix($value) {
-		
-		$this->_prefix = $value;
-	}
-	
 	public function getCheckType() {
 		
 		return $this->_check_type;
@@ -163,6 +153,16 @@ class fileField extends field {
 	public function setMaxFileSize($value) {
 		
 		$this->_max_file_size = $value;
+	}
+	
+	public function getDirectory() {
+		
+		return $this->_directory;
+	}
+	
+	public function setDirectory($value) {
+		
+		$this->_directory = $value;
 	}
 	
 	/**

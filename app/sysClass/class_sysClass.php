@@ -416,6 +416,7 @@ class sysClass extends abstractEvtClass {
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
 
+		$instance = cleanVar($_POST, 'instance', 'string', '');
 		$label = cleanVar($_POST, 'label', 'string', '');
 		$name = cleanVar($_POST, 'name', 'string', '');
 		$rolegroup = cleanVar($_POST, 'rolegroup', 'int', '');
@@ -431,7 +432,6 @@ class sysClass extends abstractEvtClass {
 		
 		// Default values
 		$type = 'class';
-		$instance = 'yes';
 		$removable = 'yes';
 
 		$query = "SELECT id FROM ".$this->_tbl_module_app." WHERE name='$name'";

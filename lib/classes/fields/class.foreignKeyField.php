@@ -32,8 +32,10 @@ class foreignKeyField extends field {
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - opzioni generali definite come proprietà nella classe field()
 	 *   - @b fkey_table (string): nome della tabella dei dati
-	 *   - @b fkey_id (string): nome del campo delle chiavi (default: id)
-	 *   - @b fkey_field (string): nome del campo dei valori
+	 *   - @b fkey_id (string): nome del campo della chiave nel SELECT (default: id)
+	 *   - @b fkey_field (mixed): nome del campo o dei campi dei valori nel SELECT
+	 *     - @a string, nome del campo
+	 *     - @a array, nomi dei campi da concatenare, es. array('firstname', 'lastname')
 	 *   - @b fkey_where (mixed): condizioni della query
 	 *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
 	 *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
@@ -133,6 +135,29 @@ class foreignKeyField extends field {
 		if(is_null($this->_fkey_table) || is_null($this->_fkey_field))
 			return null;
 		
+		if(is_array($this->_fkey_field) && count($this->_fkey_field))
+		{
+			if(sizeof($this->_fkey_field) > 1)
+			{
+				$array = array();
+				foreach($this->_fkey_field AS $value)
+				{
+					$array[] = $value;
+					$array[] = '\' \'';
+				}
+				array_pop($array);
+				
+				$db = db::instance();
+				$fields = $db->concat($array);
+			}
+			else $fields = $this->_fkey_field[0];
+		}
+		elseif(is_string($this->_fkey_field) && $this->_fkey_field)
+		{
+			$fields = $this->_fkey_field;
+		}
+		else return null;
+		
 		if(is_array($this->_fkey_where) && count($this->_fkey_where))
 		{
 			$where = implode(" AND ", $this->_fkey_where);
@@ -146,7 +171,7 @@ class foreignKeyField extends field {
 		if($where) $where = "WHERE $where";
 		if($this->_fkey_order) $order = "ORDER BY ".$this->_fkey_order;
 		
-		$query = "SELECT {$this->_fkey_id}, {$this->_fkey_field} FROM {$this->_fkey_table} $where $order";
+		$query = "SELECT {$this->_fkey_id}, $fields FROM {$this->_fkey_table} $where $order";
 		
 		return $query;
 	}

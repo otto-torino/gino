@@ -45,6 +45,20 @@ class inputForm {
 	}
 	
 	/**
+	 * Form: mostra etichetta e valore al di fuori di un input
+	 * 
+	 * @see Form::noinput()
+	 * @param string $label
+	 * @param mixed $value
+	 * @param array $options opzioni del metodo noinput() della classe Form
+	 * @return string
+	 */
+	public function noinput($label, $value, $options) {
+		
+		return $this->_form->noinput($label, htmlChars($value), $options);
+	}
+	
+	/**
 	 * Form: campo testo
 	 * 
 	 * @see Form::input()

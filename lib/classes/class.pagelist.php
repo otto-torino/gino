@@ -203,6 +203,7 @@ class PageList{
 	 * @param array $opt
 	 *   array associativo di opzioni (parametri per request ajax)
 	 *   - @b cache
+	 *   - @b add_no_permalink (boolean)
 	 * @return string
 	 */
 	public function listReferenceGINO($variables, $ajax=false, $postvar='', $ref_id='', $load_id='', $script=false, $callback=null, $cbparams=null, $opt=null) {

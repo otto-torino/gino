@@ -58,11 +58,7 @@ class textField extends field {
 	}
 	
 	/**
-	 * Stampa l'elemento del form
-	 * 
-	 * @param object $form
-	 * @param array $options opzioni dell'elemento del form
-	 * @return string
+	 * @see field::formElement()
 	 */
 	public function formElement($form, $options) {
 		
@@ -70,6 +66,22 @@ class textField extends field {
 		if(!isset($options['field'])) $options['field'] = $this->_name;
 		
 		return parent::formElement($form, $options);
+	}
+	
+	/**
+	 * @see field::clean()
+	 */
+	public function clean($options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		$escape = gOpt('escape', $options, true);
+		$widget = gOpt('widget', $options, null);
+		
+		if($widget == 'editor')
+			return cleanVarEditor($method, $this->_name);
+		else
+			return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 	}
 }
 ?>

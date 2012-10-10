@@ -53,15 +53,6 @@ class skin extends propertyObject {
 		return true;
 	}
 	
-	public function setAuth($pName) {
-
-		$value = cleanVar($_POST, $pName, 'string', '');
-		$this->_chgP[] = 'auth';
-		$this->_p['auth'] = $value;
-
-		return true;
-	}
-	
 	public function setCache($pName) {
 		
 		$value = cleanVar($_POST, $pName, 'int', '');
@@ -287,7 +278,7 @@ class skin extends propertyObject {
 			exit(error::errorMessage(array('error'=>1), $link_error));
 
 		foreach($_POST as $k=>$v) {
-			$this->{$k} = $k;
+			$this->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 
 		$this->rexp = $rexp;

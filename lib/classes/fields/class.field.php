@@ -229,9 +229,10 @@ class field {
 		{
 			$buffer .= $inputForm->hidden($this->_name, $this->_value, $options);
 		}
-		elseif($options['widget'] == 'textarea')
+		elseif($options['widget'] == 'constant')
 		{
-			$buffer .= $inputForm->textarea($this->_name, $this->_value, $this->_label, $options);
+			$buffer .= $inputForm->hidden($this->_name, $this->_value, $options);
+			$buffer .= $inputForm->noinput($this->_label, $this->_view_value, $options);
 		}
 		elseif($options['widget'] == 'select')
 		{
@@ -340,6 +341,8 @@ class field {
 	 * @param array $options opzioni dell'elemento del form
 	 *   - opzioni dei metodi della classe Form
 	 *   - @b widget (string): tipo di input
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b value (mixed): valore dell'elemento
 	 *   - @b enum (mixed): recupera gli elementi che popolano gli input radio, select, multicheck
 	 *     - @a string, query per recuperare gli elementi (select di due campi)
 	 *     - @a array, elenco degli elementi (key=>value)
@@ -356,8 +359,10 @@ class field {
 			$options['required'] = $this->_required;
 		else
 			$this->setRequired($options['required']);
-			
+		
 		if(!isset($options['widget'])) $options['widget'] = $this->_default_widget;
+		
+		if(array_key_exists('value', $options)) $this->setValue($options['value']);
 		
 		return $this->formElementWidget($form, $options);
 	}

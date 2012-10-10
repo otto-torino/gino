@@ -20,6 +20,7 @@ class css extends propertyObject {
 	private static $_tbl_css = 'sys_layout_css';
 	protected $_tbl_data;
 	private $_class, $_module, $_name, $_label, $_css_list;
+	private $_instance_class;
 	private $_mdlLink;
 	private $_home, $_interface;
 	private $_tbl_module;
@@ -27,6 +28,10 @@ class css extends propertyObject {
 	/**
 	 * Costruttore
 	 * 
+	 * I nomi dei file CSS del modulo vengono recuperati richiamando il metodo getClassElements() che ritorna un array con la chiave @a css (array). \n
+	 * Se il modulo non è istanziabile il metodo getClassElements() dovrà riportare anche la chiave @a instance con valore @a false. \n
+	 * 
+	 * @see getClassElements()
 	 * @param string $type tipo di utilizzo
 	 *   - @b module
 	 *   - @b layout
@@ -49,7 +54,9 @@ class css extends propertyObject {
 			$this->_label = $params['label'];
 			$classElements = call_user_func(array($this->_class, 'getClassElements'));
 			$this->_css_list = $classElements['css'];
-			$this->_mdlLink = HOME_FILE."?evt[$this->_name-manageDoc]&block=css";
+			$this->_instance_class = array_key_exists('instance', $classElements) ? $classElements['instance'] : true;
+			$method = $this->_instance_class ? 'manageDoc' : 'manage'.ucfirst($this->_class);
+			$this->_mdlLink = HOME_FILE."?evt[{$this->_name}-{$method}]&block=css";
 		}
 		elseif($type=='layout') {
 			$id = $params['id'];
@@ -59,6 +66,12 @@ class css extends propertyObject {
 			$this->_home = 'index.php';
 			$this->_interface = 'layout';
 		}
+	}
+	
+	private function cssFileName($css_file) {
+		
+		$name = $this->_instance_class ? baseFileName($css_file)."_".$this->_name.".css" : $css_file;
+		return $name;
 	}
 	
 	/**
@@ -99,7 +112,9 @@ class css extends propertyObject {
 			foreach($this->_css_list as $k=>$css_file) {
 				$selected = ($key === $k)?true:false;
 				$link_modify = "<a href=\"$this->_mdlLink&key=$k&action=modify\">".pub::icon('modify')."</a>";
-				$buffer .= $htmlList->item(baseFileName($css_file)."_".$this->_name.".css", $link_modify, $selected);
+				
+				$filename = $this->cssFileName($css_file);
+				$buffer .= $htmlList->item($filename, $link_modify, $selected);
 			}	
 			$buffer .= $htmlList->end();
 		}
@@ -117,7 +132,7 @@ class css extends propertyObject {
 
 		$key = cleanVar($_GET, 'key', 'int', '');
 
-		$filename = baseFileName($this->_css_list[$key])."_".$this->_name.".css";
+		$filename = $this->cssFileName($this->_css_list[$key]);
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica CSS")." - ".$filename));
 
@@ -140,7 +155,7 @@ class css extends propertyObject {
 	private function actionModuleCssFile() {
 	
 		$key = cleanVar($_GET, 'key', 'int', '');
-		$filename = baseFileName($this->_css_list[$key])."_".$this->_name.".css";
+		$filename = $this->cssFileName($this->_css_list[$key]);
 
 		$file_content = $_POST['file_content'];
 		$fo = fopen(APP_DIR.OS.$this->_class.OS.$filename, 'wb');
@@ -247,7 +262,7 @@ class css extends propertyObject {
 		$link .= ($this->id)?"&action=modify&id=$this->id":"&action=insert";
 		
 		foreach($_POST as $k=>$v) {
-			$this->{$k} = $k;
+			$this->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 		$this->updateDbData();
 

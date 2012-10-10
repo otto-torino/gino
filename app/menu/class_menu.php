@@ -563,7 +563,7 @@ class menu extends AbstractEvtClass {
 		$voice = new menuVoice($voice);
 
 		foreach($_POST as $k=>$v) {
-			$voice->{$k} = $k;
+			$voice->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 		$voice->instance = $this->_instance;
 		$voice->link = $this->_plink->convertLink($link);

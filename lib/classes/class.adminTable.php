@@ -11,7 +11,8 @@
 /**
  * @brief Gestisce i form e il back-office di un modello
  * 
- * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione)
+ * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione). \n
+ * Nel metodo backOffice() viene ricercato automaticamente il parametro 'id' come identificatore del record sul quale interagire. Non utilizzare il parametro 'id' per altri riferimenti.
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -22,6 +23,8 @@
  * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
  * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a canBeOrdered() ritorna il valore @a true. \n  
  * 
+ * Per attivare l'importazione dei file utilizzare l'opzione @a import_file come specificato nel metodo modelAction() e sovrascrivere il metodo readFile(). \n
+ * 
  * @b "Gestione dei permessi" \n
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
@@ -29,18 +32,26 @@
  * // se gruppo1 $edit_deny = 'all'
  * // se gruppo2 $edit_deny = array(2);
  * // altrimenti $edit_deny = null;
+ * $admin_table = new adminTable($this, array('allow_insertion'=>true, 'delete_deny'=>'all'));
  * @endcode
  * 
- * La gestione fine delle autorizzazioni a operare sui singoli campi della tabella avviene indicando i gruppi autorizzati nell'array delle opzioni della funzionalità utilizzando la chiace @a permission. \n
+ * La gestione fine delle autorizzazioni a operare sui singoli campi della tabella avviene indicando i gruppi autorizzati nell'array delle opzioni della funzionalità utilizzando la chiave @a permission. \n
  * Il formato è il seguente:
  * @code
- * 'permission'=>array(
- *   'view'=>group, 
- *   'fields'=>array(
- *     'field1'=>group, 
- *     'field2'=>group
+ * $buffer = $admin_table->backOffice('elearningCtg', 
+ *   array(
+ *     'list_display' => array('id', 'name'),
+ *     'add_params_url'=>array('block'=>'ctg')
+ *   ), 
+ *   array(
+ *     'permission'=>array(
+ *       'view'=>group, 
+ *       'fields'=>array(
+ *       'field1'=>group, 
+ *       'field2'=>group)
+ *     )
  *   )
- * )
+ * );
  * @endcode
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
@@ -65,14 +76,14 @@
  */
 class adminTable {
 
-	private $_controller;
-	private $_db, $session, $_form;
-	private $_view, $_hidden;
+	protected $_controller;
+	protected $_db, $session, $_form;
+	protected $_view, $_hidden;
 	
-	private $_allow_insertion, $_edit_deny, $_delete_deny;
+	protected $_allow_insertion, $_edit_deny, $_delete_deny;
 
-	private $_filter_fields, $_list_display, $_list_remove;
-	private $_ifp;
+	protected $_filter_fields, $_list_display, $_list_remove;
+	protected $_ifp;
 	
 	/**
 	 * Costruttore
@@ -80,6 +91,7 @@ class adminTable {
 	 * @param object $instance oggetto dell'istanza
 	 * @param array $opts
 	 *   array associativo di opzioni
+	 *   - @b view_folder (string): percorso della directory contenente la vista da caricare
 	 *   - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
 	 *   - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
 	 *     - @a string, 'all' -> tutti
@@ -94,8 +106,10 @@ class adminTable {
 		$this->_db = db::instance();
 		$this->session = session::instance();
 		
+		$view_folder = gOpt('view_folder', $opts, null);
+		
 		$this->_form = new Form('', '', '');
-		$this->_view = new view();
+		$this->_view = new view($view_folder);
 
 		$this->_allow_insertion = gOpt('allow_insertion', $opts, true);
 		$this->_edit_deny = gOpt('edit_deny', $opts, array());
@@ -114,7 +128,7 @@ class adminTable {
 	 * @param string $field nome del campo; se vuoto viene controllata l'autorizzazione ad accedere alla funzionalità richiesta
 	 * @return redirect or boolean
 	 */
-	private function permission($options, $field='') {
+	protected function permission($options, $field='') {
 		
 		$control = array_key_exists('permission', $options) ? $options['permission'] : null;
 		
@@ -153,6 +167,7 @@ class adminTable {
 	 * Cicla sulla struttura di model e per ogni field costruisce l'elemento del form. \n
 	 * L'elemento del form di base lo prende da $model->structure[nome_campo]->formElement(opzioni);
 	 * 
+	 * @see permission()
 	 * @param object $model oggetto dell'elemento (record da processare)
 	 * @param array $options
 	 *   - opzioni del form
@@ -160,6 +175,7 @@ class adminTable {
 	 *     - @b removeFields (array): elenco dei campi da non mostrare nel form
 	 *     - @b viewFields (array): elenco dei campi da mostrare nel form
 	 *     - @b addCell (array): elementi html da mostrare in aggiunta nel form
+	 *   - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
 	 * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
 	 *   opzioni valide
 	 *   - opzioni dei metodi della classe Form()
@@ -209,8 +225,8 @@ class adminTable {
 	 * 'addCell'=>$addCell
 	 * );
 	 * 
-	 * $admin_table = new adminTable();
-	 * $admin_table->hidden = $hidden;
+	 * $admin_table = new adminTable($this);
+	 * $admin_table->hidden(array('ref'=>$reference));
 	 * $form = $admin_table->modelForm(
 	 *   $model, 
 	 *   $options_form, 
@@ -381,6 +397,9 @@ class adminTable {
 	 *   - opzioni per selezionare gli elementi da recuperare dal form
 	 *     - @b removeFields (array): elenco dei campi non presenti nel form
 	 *     - @b viewFields (array): elenco dei campi presenti nel form
+	 *   - @b import_file (array): attivare l'importazione di un file
+	 *     - @a field_import (string): nome del campo del file di importazione
+	 *     - @a field_log (string): nome del campo del file di log
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
 	 * 
@@ -406,6 +425,16 @@ class adminTable {
 	 * @endcode
 	 */
 	public function modelAction($model, $options=array(), $options_element=array()) {
+		
+		// Importazione di un file
+		$import = false;
+		if(isset($options['import_file']) && is_array($options['import_file']))
+		{
+			$field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
+			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
+			
+			if($field_import) $import = true;
+		}
 		
 		// Valori di default di form e sessione
 		$default_formid = 'form'.$model->getTable().$model->id;
@@ -438,9 +467,9 @@ class adminTable {
 			))
 			{
 				if(isset($options_element[$field]))
-					$options_element = $options_element[$field];
+					$opt_element = $options_element[$field];
 				else 
-					$options_element = array();
+					$opt_element = array();
 				
 				if($field == 'instance' && is_null($model->instance))
 				{
@@ -448,7 +477,7 @@ class adminTable {
 				}
 				else
 				{
-					$value = $object->clean($options_element);
+					$value = $object->clean($opt_element);
 					$result = $object->validate($value);
 					if($result === true) {
 						$model->{$field} = $value;
@@ -456,8 +485,21 @@ class adminTable {
 					else {
 						return array('error'=>$result['error']);
 					}
+					
+					if($import)
+					{
+						if($field == $field_import)
+							$path_to_file = $object->getPath();
+					}
 				}
 			}
+		}
+		
+		if($import)
+		{
+			$result = $this->readFile($model, $path_to_file);
+			if($field_log)
+				$model->{$field_log} = $result;
 		}
 		
 		return $model->updateDbData();
@@ -478,8 +520,6 @@ class adminTable {
 	 */
 	public function backOffice($model_class, $options_view=array(), $options_form=array(), $inputs=array()) {
 
-		$db = db::instance();
-
 		$id = cleanVar($_REQUEST, 'id', 'int', '');
 		$model_obj = new $model_class($id, $this->_controller);
 
@@ -494,7 +534,7 @@ class adminTable {
 			$buffer = $this->adminForm($model_obj, $options_form, $inputs);
 		}
 		elseif($delete) {
-			$buffer = $this->adminDelete($model_obj);
+			$buffer = $this->adminDelete($model_obj, $options_form);
 		}
 		else {
 			$buffer = $this->adminList($model_obj, $options_view);
@@ -508,30 +548,44 @@ class adminTable {
 	 * 
 	 * @see backOffice()
 	 * @param object $model
+	 * @param array $options_form
+	 *   array associativo di opzioni
+	 *   - @b link_delete (string): indirizzo al quale si viene rimandati dopo la procedura di eliminazione del record (se non presente viene costruito automaticamente)
+	 * @return redirect
 	 */
-	public function adminDelete($model) {
+	public function adminDelete($model, $options_form) {
 
 		if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
 			error::raise404();	
 		}
 		
 		$result = $model->delete();
-		$link = $this->editUrl(array(), array('delete', 'id'));
+		
+		if(isset($options_form['link_delete']) && $options_form['link_delete'])
+			$link_return = $options_form['link_delete'];
+		else
+			$link_return = $this->editUrl(array(), array('delete', 'id'));
+		
 		if($result === true) {
-			header("Location: ".$link);
+			
+			header("Location: ".$link_return);
 			exit();
 		}
 		else {
-			exit(error::errorMessage($result, $link));
+			exit(error::errorMessage($result, $link_return));
 		}
 	}
 
 	/**
 	 * Wrapper per mostrare e processare il form
 	 * 
-	 * @see backOffice()
+	 * @see modelForm()
+	 * @see modelAction()
+	 * @see editUrl()
 	 * @param object $model_obj
 	 * @param array $options_form
+	 *   array associativo di opzioni
+	 *   - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
 	 * @param array $inputs
 	 * @return redirect or string
 	 */
@@ -546,7 +600,13 @@ class adminTable {
 			$action_result = $this->modelAction($model_obj, $options_form, $inputs);
 			
 			if($action_result === true) {
-				header("Location: ".$this->editUrl(array(), array('edit', 'insert', 'id')));
+				
+				if(isset($options_form['link_return']) && $options_form['link_return'])
+					$link_return = $options_form['link_return'];
+				else
+					$link_return = $this->editUrl(array(), array('edit', 'insert', 'id'));
+				
+				header("Location: $link_return");
 				exit();
 			}
 			else {
@@ -593,6 +653,16 @@ class adminTable {
 	 *   - @b items_for_page (integer): numero di record per pagina
 	 *   - @b list_title (string): titolo
 	 *   - @b list_description (string): descrizione sotto il titolo (informazioni aggiuntive)
+	 *   - @b list_where (array): condizioni della query che estrae i dati dell'elenco
+	 *   - @b link_fields (array): campi sui quali impostare un collegamento, nel formato nome_campo=>array('link'=>indirizzo, 'param_id'=>'ref')
+	 *     - @a link (string), indirizzo del collegamento
+	 *     - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
+	 *     esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_plink->aLink($this->_instanceName, 'view')))
+	 *   - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record
+	 *   - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>pub::icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
+	 *     - @a label (string), nome del bottone
+	 *     - @a link (string), indirizzo del collegamento
+	 *     - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
 	 * @return string
 	 */
 	public function adminList($model, $options_view=array()) {
@@ -611,6 +681,10 @@ class adminTable {
 		$this->_ifp = gOpt('items_for_page', $options_view, 20);
 		$list_title = gOpt('list_title', $options_view, ucfirst($model->getModelLabel()));
 		$list_description = gOpt('list_description', $options_view, "<p>"._("Lista record registrati")."</p>");
+		$list_where = gOpt('list_where', $options_view, array());
+		$link_fields = gOpt('link_fields', $options_view, array());
+		$addParamsUrl = gOpt('add_params_url', $options_view, array());
+		$add_buttons = gOpt('add_buttons', $options_view, array());
 
 		// fields to be shown
 		$fields_loop = array();
@@ -642,7 +716,7 @@ class adminTable {
 		//prepare query
 		$query_selection = "DISTINCT(".$model_table.".id)";
 		$query_table = array($model_table);
-		$query_where = array();
+		$query_where = count($list_where) ? $list_where : array();
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
@@ -658,6 +732,7 @@ class adminTable {
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
 		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), $query_order, $limit);
+		if(!$records) $records = array();
 
 		$heads = array();
 
@@ -689,7 +764,9 @@ class adminTable {
 						$css_class = '';
 					}
 
-					$link = $this->editUrl(array('order'=>$ord), array('start'));
+					$add_params = $addParamsUrl;
+					$add_params['order'] = $ord;
+					$link = $this->editUrl($add_params, array('start'));
 					$head_t = "<a href=\"".$link."\" onmouseover=\"".$jsover."\" onmouseout=\"".$jsout."\" onclick=\"$(this).setProperty('onmouseout', '')\">".$label."</a>";
 					$heads[] = $head_t." <div style=\"margin-right: 5px;top:3px;\" class=\"right arrow $css_class\"></div>";
 				}
@@ -711,17 +788,61 @@ class adminTable {
 				
 				if($this->permission($options_view, $field_name))
 				{
-					$row[] =  (string) $record_model_structure[$field_name];
+					$record_value = (string) $record_model_structure[$field_name];
+					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
+					{
+						$link_field = $link_fields[$field_name]['link'];
+						$link_field_param = array_key_exists('param_id', $link_fields[$field_name]) ? $link_fields[$field_name]['param_id'] : 'id';
+						
+						// PROBLEMI CON I PERMALINKS
+						//$plink = new Link();
+						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
+						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
+						
+						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
+					}
+					
+					$row[] = $record_value;
 				}
 			}
 
 			$links = array();
 			
+			if(count($add_buttons))
+			{
+				foreach($add_buttons AS $value)
+				{
+					if(is_array($value))
+					{
+						$label_button = array_key_exists('label', $value) ? $value['label'] : null;
+						$link_button = array_key_exists('link', $value) ? $value['link'] : null;
+						$param_id_button = array_key_exists('param_id', $value) ? $value['param_id'] : 'id';
+						
+						if($label_button && $link_button && $param_id_button)
+						{
+							$link_button = $link_button.'&'.$param_id_button."=".$r['id'];
+							$links[] = "<a href=\"$link_button\">$label_button</a>";
+						}
+					}
+				}
+			}
+			
+			$add_params_edit = array('edit'=>1, 'id'=>$r['id']);
+			$add_params_delete = array('delete'=>1, 'id'=>$r['id']);
+			if(count($addParamsUrl))
+			{
+				foreach($addParamsUrl AS $key=>$value)
+				{
+					$add_params_edit[$key] = $value;
+					$add_params_delete[$key] = $value;
+				}
+			}
+			
 			if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-				$links[] = "<a href=\"".$this->editUrl(array('edit'=>1, 'id'=>$r['id']))."\">".pub::icon('modify')."</a>";
+				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify')."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl(array('delete'=>1, 'id'=>$r['id']))."';\">".pub::icon('delete')."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
 			}
 			$buttons = array(
 				array('text' => implode(' ', $links), 'class' => 'no_border no_bkg')
@@ -857,7 +978,7 @@ class adminTable {
 	 * @param array $remove_params elenco parametri da rimuovere dalla REQUEST_URI
 	 * @return string
 	 */
-	private function editUrl($add_params, $remove_params=null) {
+	protected function editUrl($add_params, $remove_params=null) {
 
 		$url = $_SERVER['REQUEST_URI'];
 
@@ -883,6 +1004,11 @@ class adminTable {
 		}
 
 		return $url;
+	}
+	
+	protected function readFile($model, $path_to_file) {
+		
+		return null;
 	}
 }
 ?>
