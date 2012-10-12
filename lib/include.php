@@ -51,6 +51,7 @@ include_once(FIELDS_DIR.OS.'class.enumField.php');
 include_once(FIELDS_DIR.OS.'class.fileField.php');
 include_once(FIELDS_DIR.OS.'class.floatField.php');
 include_once(FIELDS_DIR.OS.'class.foreignKeyField.php');
+include_once(FIELDS_DIR.OS.'class.manyToManyField.php');
 include_once(FIELDS_DIR.OS.'class.hiddenField.php');
 include_once(FIELDS_DIR.OS.'class.imageField.php');
 include_once(FIELDS_DIR.OS.'class.integerField.php');
