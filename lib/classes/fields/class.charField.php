@@ -53,11 +53,26 @@ class charField extends field {
 	}
 	
 	/**
+	 * @see field::filterWhereClause()
+	 */
+	public function filterWhereClause($value) {
+
+		$value = str_replace("'", "''", $value);
+		
+		if(preg_match("#^\"([^\"]*)\"$#", $value, $matches))
+			$condition = "='".$matches[1]."'";
+		elseif(preg_match("#^\"([^\"]*)$#", $value, $matches))
+			$condition = " LIKE '".$matches[1]."%'";
+		else
+			$condition = " LIKE '%".$value."%'";
+		
+		return $this->_table.".".$this->_name.$condition;
+	}
+	
+	/**
 	 * Stampa l'elemento del form
 	 * 
-	 * @param object $form
-	 * @param array $options opzioni dell'elemento del form
-	 * @return string
+	 * @see field::formElement()
 	 */
 	public function formElement($form, $options) {
 		
