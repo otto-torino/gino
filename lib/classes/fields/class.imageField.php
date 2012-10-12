@@ -224,7 +224,7 @@ class imageField extends fileField {
 	 * @param integer $thumb_height altezza del thumbnail
 	 * @return boolean
 	 */
-	private function saveImage($filename, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
+	protected function saveImage($filename, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
 
 		$thumb = (is_null($thumb_width) && is_null($thumb_height)) ? false : true;
 		$file = $this->_directory.$filename;
