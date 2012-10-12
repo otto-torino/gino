@@ -172,7 +172,6 @@ class imageField extends fileField {
 		if(!$upload) { 
 			return array('error'=>16);
 		}
-		
 		if($this->_resize) {
 			
 			if(!$this->_thumb) { $this->_thumb_width = $this->_thumb_height = null; }
@@ -206,6 +205,9 @@ class imageField extends fileField {
 					}
 			}
 		}
+
+		return true;
+
 	}
 	
 	/**
@@ -237,7 +239,7 @@ class imageField extends fileField {
 		
 		$img_file = $this->_directory.$prefix_file.$filename;
 		$img_size = $this->resizeImage($new_width, $new_height, $im_width, $im_height);
-		
+
 		if($thumb)
 		{
 			$thumb_file = $this->_directory.$prefix_thumb.$filename;
