@@ -79,7 +79,7 @@ class textField extends field {
 		$widget = gOpt('widget', $options, null);
 		
 		if($widget == 'editor')
-			return cleanVarEditor($method, $this->_name);
+			return cleanVarEditor($method, $this->_name, '');
 		else
 			return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 	}

@@ -713,10 +713,18 @@ class adminTable {
 		$tot_ff = count($this->_filter_fields);
 		if($tot_ff) $this->setSessionSearch($model);	
 
+		// managing instance
+		$query_where = array();
+		if(array_key_exists('instance', $model_structure)) {
+			$query_where[] = "instance='".$this->_controller->getInstance()."'";
+		}
+		
 		//prepare query
 		$query_selection = "DISTINCT(".$model_table.".id)";
 		$query_table = array($model_table);
-		$query_where = count($list_where) ? $list_where : array();
+		if(count($list_where)) {
+			$query_where = array_merge($query_where, $list_where);
+		}
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);

@@ -209,7 +209,6 @@ class fileField extends field {
 	 * @see field::validate()
 	 */
 	public function validate($filename){
-
 		if($filename == $this->_value)	// file preesistente
 		{
 			return true;
@@ -234,8 +233,7 @@ class fileField extends field {
 				return array('error'=>03);
 			}
 			
-			$this->saveFile($filename, $filename_tmp);
-			return true;
+			return $this->saveFile($filename, $filename_tmp);
 		}
 		else return true;
 	}
@@ -249,6 +247,8 @@ class fileField extends field {
 		
 		if($this->_delete_file)
 			return $this->delete();
+
+		return true;
 	}
 	
 	/**

@@ -158,7 +158,7 @@ class imageField extends fileField {
 		
 		if(isset($options['preview']) && $options['preview'] && $this->_value != '')
 		{
-			$options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true, 'thumb_file'=>true));
+			$options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true));
 		}
 		
 		if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
@@ -172,7 +172,6 @@ class imageField extends fileField {
 		if(!$upload) { 
 			return array('error'=>16);
 		}
-		
 		if($this->_resize) {
 			
 			if(!$this->_thumb) { $this->_thumb_width = $this->_thumb_height = null; }
@@ -206,6 +205,9 @@ class imageField extends fileField {
 					}
 			}
 		}
+
+		return true;
+
 	}
 	
 	/**
@@ -222,7 +224,7 @@ class imageField extends fileField {
 	 * @param integer $thumb_height altezza del thumbnail
 	 * @return boolean
 	 */
-	private function saveImage($filename, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
+	protected function saveImage($filename, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
 
 		$thumb = (is_null($thumb_width) && is_null($thumb_height)) ? false : true;
 		$file = $this->_directory.$filename;
@@ -237,7 +239,7 @@ class imageField extends fileField {
 		
 		$img_file = $this->_directory.$prefix_file.$filename;
 		$img_size = $this->resizeImage($new_width, $new_height, $im_width, $im_height);
-		
+
 		if($thumb)
 		{
 			$thumb_file = $this->_directory.$prefix_thumb.$filename;
