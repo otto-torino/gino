@@ -158,7 +158,7 @@ class imageField extends fileField {
 		
 		if(isset($options['preview']) && $options['preview'] && $this->_value != '')
 		{
-			$options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true, 'thumb_file'=>true));
+			$options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true));
 		}
 		
 		if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
