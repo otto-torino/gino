@@ -61,8 +61,7 @@ class manyToManyField extends field {
 		$db = db::instance();
 
 		$parts = array();
-		
-		foreach(explode(',', $this->_value) as $v) {
+		foreach($this->_value as $v) {
 			$parts[] = $db->getFieldFromId($this->_fkey_table, $this->_fkey_field, $this->_fkey_id, $v);
 		} 
 
