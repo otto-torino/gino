@@ -324,7 +324,8 @@ class adminTable {
 				$structure .= $object->formElement($gform, $options_input);
 				
 				$name_class = get_class($object);
-				if($name_class == 'fileField' || $name_class == 'imageField')
+				
+				if($object instanceof fileField || $object instanceof imageField)
 					$form_upload = true;
 				
 				if($object->getRequired() == true && $object->getWidget() != 'hidden')
@@ -479,6 +480,7 @@ class adminTable {
 				{
 					$value = $object->clean($opt_element);
 					$result = $object->validate($value);
+
 					if($result === true) {
 						$model->{$field} = $value;
 					}
