@@ -912,7 +912,7 @@ class adminTable {
 
 			foreach($this->_filter_fields as $fname) {
 				if(isset($_POST[$fname]) && $_POST[$fname] !== '') {
-					$this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false));
+					$this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false, "asforminput"=>true));
 				}
 				else {
 					$this->session->{$class_name.'_'.$fname.'_filter'} = null;

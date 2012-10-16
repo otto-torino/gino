@@ -218,7 +218,27 @@ class manyToManyField extends field {
 		
 		$value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 
+		if(gOpt('asforminput', $options, false)) {
+			return $value;
+		}
+
 		return implode(',', $value);
+	}
+
+	/**
+	 * Definisce la condizione WHERE per il campo
+	 * 
+	 * @param string $value
+	 * @return string
+	 */
+	public function filterWhereClause($value) {
+
+		$parts = array();
+		foreach($value as $v) {
+			$parts[] = $this->_table.".".$this->_name." REGEXP '[[:<:]]".$v."[[:>:]]'";
+		}
+
+		return "(".implode(' OR ', $parts).")";
 	}
 }
 ?>

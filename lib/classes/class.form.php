@@ -1040,6 +1040,10 @@ class Form {
 	 */
 	public function multipleCheckbox($name, $checked, $data, $label, $options=null){
 
+		if(is_null($checked)) {
+			$checked = array();
+		}
+
 		$this->setOptions($options);
 		$GFORM = "<tr>\n";
 		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>\n";
