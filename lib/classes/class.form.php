@@ -895,7 +895,6 @@ class Form {
 	 * @return string
 	 */
 	public function cradio($name, $value, $data, $default, $label, $options=null){
-		
 		$this->setOptions($options);
 		$GFORM = "<tr>\n";
 		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>\n";
@@ -927,14 +926,13 @@ class Form {
 		
 		$this->setOptions($options);
 		$GFORM = '';
-
 		$comparison = is_null($value)? $default:$value;
 		$space = $this->option('aspect')=='v'? "<br />":"&nbsp;";
 			
 		if(is_array($data)) {
 			$i=0;
 			foreach($data AS $k => $v) {
-				$GFORM .= ($i?$space:'')."<input type=\"radio\" name=\"$name\" value=\"$k\" ".($comparison==$k?"checked=\"checked\"":"")." ";
+				$GFORM .= ($i?$space:'')."<input type=\"radio\" name=\"$name\" value=\"$k\" ".(!is_null($comparison) && $comparison==$k?"checked=\"checked\"":"")." ";
 				$GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
 				$GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
 				$GFORM .= $this->option('js')?$this->option('js')." ":"";
@@ -1041,7 +1039,7 @@ class Form {
 	 * @endcode
 	 */
 	public function multipleCheckbox($name, $checked, $data, $label, $options=null){
-		
+
 		$this->setOptions($options);
 		$GFORM = "<tr>\n";
 		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>\n";

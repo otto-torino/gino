@@ -911,7 +911,6 @@ class adminTable {
 		if(isset($_POST['ats_submit'])) {
 
 			foreach($this->_filter_fields as $fname) {
-
 				if(isset($_POST[$fname]) && $_POST[$fname] !== '') {
 					$this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false));
 				}
@@ -964,7 +963,11 @@ class adminTable {
 			{
 				$field = $model_structure[$fname];
 				$field->setValue($this->session->{$class_name.'_'.$fname.'_filter'});
-				$form .= $field->formElement($gform, array('required'=>false));
+				$field_label = $field->getLabel();
+				if(is_array($field_label)) {
+					$field->setLabel($field_label[0]);
+				}
+				$form .= $field->formElement($gform, array('required'=>false, 'default'=>null));
 			}
 		}
 
