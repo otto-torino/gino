@@ -78,6 +78,9 @@ class makeList {
 	/**
 	 * Lista dei record
 	 * 
+	 * @see setSessionSearch()
+	 * @see addWhereClauses()
+	 * @see headsList()
 	 * @param object $model
 	 * @param array $options_view
 	 *   array associativo di opzioni
@@ -92,7 +95,8 @@ class makeList {
 	 *   - @b list_description (string): descrizione sotto il titolo (informazioni aggiuntive)
 	 *   - @b query_table (array)
 	 *   - @b query_where (array)
-	 *   - @b table (string)
+	 *   - @b table (string): nome/alias della tabella da utilizzare come prefisso dei campi nella query
+	 *   - @b field_search (array): indica in che modo effettuare la ricerca per un dato campo, esempio: array(field1=>'equal', field2=>'like'[,...])
 	 *   - @b link_delete (boolean): attivare il link di eliminazione di un record (default: false)
 	 *   - @b options_delete (array): opzioni dell'eliminazione di un record
 	 *     - @a field (string): nome del campo di riferimento (default: id)
@@ -111,6 +115,7 @@ class makeList {
 		$query_table = gOpt('query_table', $options, array());
 		$query_where = gOpt('query_where', $options, array());
 		$table = gOpt('table', $options, '');
+		$field_search = gOpt('field_search', $options, array());
 		$link_delete = gOpt('link_delete', $options, false);
 		$options_delete = gOpt('options_delete', $options, array());
 		$add_params_url = gOpt('add_params_url', $options, array());
@@ -135,7 +140,7 @@ class makeList {
 
 		// filters
 		if($tot_ff) {
-			$this->addWhereClauses($query_where, $this->_instance_name, $table);
+			$this->addWhereClauses($query_where, $this->_instance_name, array('table'=>$table, 'field_search'=>$field_search));
 		}
 		// order
 		$query_order = $table.$field_order." ".$order_dir;
@@ -268,18 +273,45 @@ class makeList {
 	}
 
 	/**
-	 * Setta la condizione where usata per filtrare i record nella admin list
+	 * Setta la condizione where usata per filtrare i record nell'elenco
 	 *
 	 * @param array $query_where
 	 * @param string $instance_name
-	 * @param string $table
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b table (string): nome/alias della tabella da utilizzare come prefisso dei campi nella query
+	 *   - @b field_search (array): indica in che modo effettuare la ricerca per un dato campo, esempio: array(field1=>'equal', field2=>'like'[,...])
+	 *     valori validi:
+	 *     - @a equal
+	 *     - @a like (default)
 	 * @return string (the where clause)
 	 */
-	protected function addWhereClauses(&$query_where, $instance_name, $table=null) {
+	protected function addWhereClauses(&$query_where, $instance_name, $options=array()) {
 
+		$table = array_key_exists('table', $options) ? $options['table'] : null;
+		$field_search = array_key_exists('field_search', $options) ? $options['field_search'] : array();
+		
 		foreach($this->_filter_fields as $fname) {
 			if(isset($this->session->{$instance_name.'_'.$fname.'_filter'})) {
-				$query_where[] = $table.$fname." = '".$this->session->{$instance_name.'_'.$fname.'_filter'}."'";
+				
+				$field_name = $table.$fname;
+				$field_value = $this->session->{$instance_name.'_'.$fname.'_filter'};
+				
+				if(array_key_exists($fname, $field_search) && $field_search[$fname] == 'equal')
+				{
+					$query_where[] = "$field_name='$field_value'";
+				}
+				else
+				{
+					if(preg_match("#^\"([^\"]*)\"$#", $field_value, $matches))
+						$condition = "='".$matches[1]."'";
+					elseif(preg_match("#^\"([^\"]*)$#", $field_value, $matches))
+						$condition = " LIKE '".$matches[1]."%'";
+					else
+						$condition = " LIKE '%".$field_value."%'";
+					
+					$query_where[] = $field_name.$condition;
+				}
 			}
 		}
 	}

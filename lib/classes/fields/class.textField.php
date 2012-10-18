@@ -58,6 +58,23 @@ class textField extends field {
 	}
 	
 	/**
+	 * @see field::filterWhereClause()
+	 */
+	public function filterWhereClause($value) {
+
+		$value = str_replace("'", "''", $value);
+		
+		if(preg_match("#^\"([^\"]*)\"$#", $value, $matches))
+			$condition = "='".$matches[1]."'";
+		elseif(preg_match("#^\"([^\"]*)$#", $value, $matches))
+			$condition = " LIKE '".$matches[1]."%'";
+		else
+			$condition = " LIKE '%".$value."%'";
+		
+		return $this->_table.".".$this->_name.$condition;
+	}
+	
+	/**
 	 * @see field::formElement()
 	 */
 	public function formElement($form, $options) {
