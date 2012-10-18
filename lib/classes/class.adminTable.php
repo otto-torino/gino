@@ -324,7 +324,8 @@ class adminTable {
 				$structure .= $object->formElement($gform, $options_input);
 				
 				$name_class = get_class($object);
-				if($name_class == 'fileField' || $name_class == 'imageField')
+				
+				if($object instanceof fileField || $object instanceof imageField)
 					$form_upload = true;
 				
 				if($object->getRequired() == true && $object->getWidget() != 'hidden')
@@ -479,6 +480,7 @@ class adminTable {
 				{
 					$value = $object->clean($opt_element);
 					$result = $object->validate($value);
+
 					if($result === true) {
 						$model->{$field} = $value;
 					}
@@ -909,9 +911,8 @@ class adminTable {
 		if(isset($_POST['ats_submit'])) {
 
 			foreach($this->_filter_fields as $fname) {
-
 				if(isset($_POST[$fname]) && $_POST[$fname] !== '') {
-					$this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false));
+					$this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false, "asforminput"=>true));
 				}
 				else {
 					$this->session->{$class_name.'_'.$fname.'_filter'} = null;
@@ -962,7 +963,11 @@ class adminTable {
 			{
 				$field = $model_structure[$fname];
 				$field->setValue($this->session->{$class_name.'_'.$fname.'_filter'});
-				$form .= $field->formElement($gform, array('required'=>false));
+				$field_label = $field->getLabel();
+				if(is_array($field_label)) {
+					$field->setLabel($field_label[0]);
+				}
+				$form .= $field->formElement($gform, array('required'=>false, 'default'=>null));
 			}
 		}
 

@@ -18,6 +18,7 @@
  *   - @b required (boolean): campo obbligatorio
  *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
  *   - @b section_title (string): nome del blocco di opzioni
+ *   - @b section_description (string): descrizione del blocco di opzioni
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -175,6 +176,9 @@ class options extends pub {
 				{
 					$section_title = array_key_exists('section_title', $field_option) ? $field_option['section_title'] : '';
 					$section_title = "<p class=\"subtitle\">$section_title</p>";
+					if($section_description = gOpt('section_description', $field_option, null)) {
+						$section_title .= "<div>$section_description</div>";
+					}
 					$GINO .= $gform->cell($section_title);
 				}
 				
