@@ -1,47 +1,80 @@
 <?php
-
 /**
- * Struttura HTML
- *
- * Esempio:
+ * @file class.htmlArticle.php
+ * @brief Contiene la classe htmlArticle
  * 
-10/2/2010, Informatica	-> preHeaderLabel
-IL LINGUAGGIO PHP		-> headerLabel
-Le basi del php			-> subHeaderLabel
-
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.	-> content
-
-[paginazione] da 10 a 20	-> footer
-
-- a seguito di 'headerLabel'	-> headerLinks
-- indicare un tag per la label	-> preHeaderTag, headerTag, subHeaderTag
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @brief Fornisce gli elementi per una struttura HTML delle pagine
+ * 
+ * Questa struttura risiede all'interno di una struttura definita dalla libreria htmlSection. 
+ * Un esempio classico è un blog, dove il blog nella sua interezza è stampato da htmlSection, mentre i singoli post da htmlArticle. 
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Esempio di sruttura
+ * @code
+ * preHeaderLabel -> 10/2/2010, Informatica
+ * headerLabel -> IL LINGUAGGIO PHP
+ * subHeaderLabel -> Le basi del php
+ * content -> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+ * 
+ * footer -> ad esempio per la paginazione: da 10 a 20
+ * headerLinks -> a seguito di 'headerLabel'
+ * preHeaderTag, headerTag, subHeaderTag -> indicare un tag per la label
+ * @endcode
+ */
 class htmlArticle {
 
 	private $_p = array(
-			'class'=>null,
-			'id'=>null,
-			'preHeaderTag' =>'h4',
-			'preHeaderLabel' =>null,
-			'headerTag' =>'h1',
-			'headerLabel' =>null,
-			'subHeaderTag' =>'h3',
-			'subHeaderLabel' =>null,
-			'headerLinks' =>null,
-			'content'=>null,
-			'footer'=>null
-		);
+		'class'=>null,
+		'id'=>null,
+		'preHeaderTag' =>'h4',
+		'preHeaderLabel' =>null,
+		'headerTag' =>'h1',
+		'headerLabel' =>null,
+		'subHeaderTag' =>'h3',
+		'subHeaderLabel' =>null,
+		'headerLinks' =>null,
+		'content'=>null,
+		'footer'=>null
+	);
 
-
+	/**
+	 * Costruttore
+	 * 
+	 * @param array $data elementi della pagina
+	 *   - @b class (string): classe del contenitore
+	 *   - @b id (string): id del contenitore
+	 *   - @b preHeaderTag (string): TAG del testo da mostrare prima di headerTag -> renderHeader()
+	 *   - @b preHeaderLabel (string): testo da mostrare prima di headerTag -> renderHeader()
+	 *   - @b headerTag (string): TAG principale -> renderHeader()
+	 *   - @b headerLabel (string): testo del TAG principale -> renderHeader()
+	 *   - @b subHeaderTag (string): TAG del testo seguente headerTag -> renderHeader()
+	 *   - @b subHeaderLabel (string): testo del TAG seguente headerTag -> renderHeader()
+	 *   - @b headerLinks (mixed): collegamenti nel TAG principale -> renderHeader()
+	 *   - @b content (string): contenuto della pagina
+	 *   - @b footer (string): footer
+	 * @return void
+	 */
 	function __construct($data = array()) {
 
 		foreach($data as $k=>$v) {
 			if(array_key_exists($k, $this->_p)) $this->_p[$k] = $v;
 		}
-
 	}
 
+	/**
+	 * Ritorna il valore della proprietà
+	 * @param string $pName
+	 * @return mixed
+	 */
 	public function __get($pName) {
 	
 		if(!array_key_exists($pName, $this->_p)) exit(error::syserrorMessage("htmlArticle", "__get", _("Nome proprietà non valido")." ($pName)", __LINE__));
@@ -49,6 +82,12 @@ class htmlArticle {
 		else return $this->_p[$pName];
 	}
 	
+	/**
+	 * Imposta il valore della proprietà
+	 * @param string $pName
+	 * @param mixed $value
+	 * @return void
+	 */
 	public function __set($pName, $value) {
 
 		if(!array_key_exists($pName, $this->_p)) exit(error::syserrorMessage("htmlArticle", "__set", _("Nome proprietà non valido"), __LINE__));
@@ -56,6 +95,10 @@ class htmlArticle {
 		else $this->_p[$pName] = $value;
 	}
 
+	/**
+	 * Stampa il contenitore
+	 * @return string
+	 */
 	public function render() {
 
 		$buffer = "<article class=\"$this->class\" ".(($this->id)? "id=\"$this->id\"":"").">\n";
@@ -65,7 +108,6 @@ class htmlArticle {
 		$buffer .= "</article>";
 
 		return $buffer;
-
 	}
 
 	private function renderHeader() {
@@ -109,9 +151,5 @@ class htmlArticle {
 
 		return $buffer;
 	}
-
-
-
 }
-
 ?>

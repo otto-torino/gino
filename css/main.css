@@ -747,6 +747,9 @@ background-color: #FF0000;
 .no_border {
 	border-width: 0px !important;
 }
+.no_bkg {
+	background-color: #FFFFFF !important;
+}
 /* /GENERAL STYLES */
 
 /*

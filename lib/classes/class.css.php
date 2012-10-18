@@ -1,14 +1,49 @@
 <?php
+/**
+ * @file class.css.php
+ * @brief Contiene la classe css
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class css extends propertyObject {
 
 	private static $_tbl_css = 'sys_layout_css';
 	protected $_tbl_data;
 	private $_class, $_module, $_name, $_label, $_css_list;
+	private $_instance_class;
 	private $_mdlLink;
 	private $_home, $_interface;
 	private $_tbl_module;
 
+	/**
+	 * Costruttore
+	 * 
+	 * I nomi dei file CSS del modulo vengono recuperati richiamando il metodo getClassElements() che ritorna un array con la chiave @a css (array). \n
+	 * Se il modulo non è istanziabile il metodo getClassElements() dovrà riportare anche la chiave @a instance con valore @a false. \n
+	 * 
+	 * @see getClassElements()
+	 * @param string $type tipo di utilizzo
+	 *   - @b module
+	 *   - @b layout
+	 * @param array $params
+	 *   array associativo di opzioni
+	 *   - @b id (integer): valore ID del record
+	 *   - @b class (string): nome della classe
+	 *   - @b module (integer): valore ID del modulo
+	 *   - @b name (string): nome del modulo
+	 *   - @b label (string): etichetta del modulo
+	 * @return void
+	 */
 	function __construct($type, $params) {
 		
 		$db = db::instance();
@@ -19,20 +54,30 @@ class css extends propertyObject {
 			$this->_label = $params['label'];
 			$classElements = call_user_func(array($this->_class, 'getClassElements'));
 			$this->_css_list = $classElements['css'];
-			$this->_mdlLink = HOME_FILE."?evt[$this->_name-manageDoc]&block=css";
+			$this->_instance_class = array_key_exists('instance', $classElements) ? $classElements['instance'] : true;
+			$method = $this->_instance_class ? 'manageDoc' : 'manage'.ucfirst($this->_class);
+			$this->_mdlLink = HOME_FILE."?evt[{$this->_name}-{$method}]&block=css";
 		}
 		elseif($type=='layout') {
 			$id = $params['id'];
 			$this->_tbl_data = self::$_tbl_css;
-			parent::__construct($this->initP($id));
+			parent::__construct($id);
 
 			$this->_home = 'index.php';
 			$this->_interface = 'layout';
 		}
 	}
 	
-	/*
-	 * MANAGE MODULES' CSS
+	private function cssFileName($css_file) {
+		
+		$name = $this->_instance_class ? baseFileName($css_file)."_".$this->_name.".css" : $css_file;
+		return $name;
+	}
+	
+	/**
+	 * Interfaccia per la gestione dei file css dei moduli
+	 * 
+	 * @return string
 	 */
 	public function manageModuleCss() {
 
@@ -67,7 +112,9 @@ class css extends propertyObject {
 			foreach($this->_css_list as $k=>$css_file) {
 				$selected = ($key === $k)?true:false;
 				$link_modify = "<a href=\"$this->_mdlLink&key=$k&action=modify\">".pub::icon('modify')."</a>";
-				$buffer .= $htmlList->item(baseFileName($css_file)."_".$this->_name.".css", $link_modify, $selected);
+				
+				$filename = $this->cssFileName($css_file);
+				$buffer .= $htmlList->item($filename, $link_modify, $selected);
 			}	
 			$buffer .= $htmlList->end();
 		}
@@ -85,7 +132,7 @@ class css extends propertyObject {
 
 		$key = cleanVar($_GET, 'key', 'int', '');
 
-		$filename = baseFileName($this->_css_list[$key])."_".$this->_name.".css";
+		$filename = $this->cssFileName($this->_css_list[$key]);
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica CSS")." - ".$filename));
 
@@ -108,7 +155,7 @@ class css extends propertyObject {
 	private function actionModuleCssFile() {
 	
 		$key = cleanVar($_GET, 'key', 'int', '');
-		$filename = baseFileName($this->_css_list[$key])."_".$this->_name.".css";
+		$filename = $this->cssFileName($this->_css_list[$key]);
 
 		$file_content = $_POST['file_content'];
 		$fo = fopen(APP_DIR.OS.$this->_class.OS.$filename, 'wb');
@@ -132,15 +179,6 @@ class css extends propertyObject {
 	 * MANAGE LAYOUT CSS
 	 */
 
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0]; 
-		else return array('id'=>null, 'filename'=>null, 'label'=>null, 'description'=>null);
-	}
-	
 	public function setFilename($value) {
 		
 		if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
@@ -148,6 +186,12 @@ class css extends propertyObject {
 		return true;
 	}
 
+	/**
+	 * Elenco dei file css in formato object (layout)
+	 * 
+	 * @param string $order per quale campo ordinare i risultati
+	 * @return array
+	 */
 	public static function getAll($order='label') {
 
 		$db = db::instance();
@@ -163,6 +207,11 @@ class css extends propertyObject {
 		return $res;
 	}
 
+	/**
+	 * Form per la creazione e la modifica di un file css (layout)
+	 * 
+	 * @return string
+	 */
 	public function formCssLayout() {
 	
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
@@ -189,6 +238,9 @@ class css extends propertyObject {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica di un file css (layout)
+	 */
 	public function actionCssLayout() {
 		
 		$gform = new Form('gform', 'post', true);
@@ -210,7 +262,7 @@ class css extends propertyObject {
 		$link .= ($this->id)?"&action=modify&id=$this->id":"&action=insert";
 		
 		foreach($_POST as $k=>$v) {
-			$this->{$k} = $k;
+			$this->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 		$this->updateDbData();
 
@@ -219,6 +271,11 @@ class css extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
 	}
 	
+	/**
+	 * Form per l'eliminazione di un file css (layout)
+	 * 
+	 * @return string
+	 */
 	public function formDelCssLayout() {
 	
 		$gform = new Form('gform', 'post', true);
@@ -239,6 +296,9 @@ class css extends propertyObject {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Eliminazione di un file css (layout)
+	 */
 	public function actionDelCssLayout() {
 		
 		if($this->filename) @unlink(CSS_DIR.OS.$this->filename);		
@@ -251,6 +311,11 @@ class css extends propertyObject {
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
 	}
 
+	/**
+	 * Descrizione della procedura
+	 * 
+	 * @return string
+	 */
 	public static function layoutInfo() {
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni css")));

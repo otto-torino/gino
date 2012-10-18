@@ -1,4 +1,13 @@
 <?php
+/**
+ * @file captchaImage.php
+ * @brief Libreria per generare una immagine captcha
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
 require_once('../configuration.php');
 session_name(SESSION_NAME);
 session_start();

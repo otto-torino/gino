@@ -1,42 +1,34 @@
 <?php
-/*
-CLASS NAME:  GESTORE TRADUZIONI
-LANGUAGE:    PHP
-AUTHOR:      Marco GUIDOTTI
-EMAIL:       marco.guidotti@otto.to.it
-VERSION:     2.0
-DATE:        04/08/2004, 11/2008
+/**
+ * @file class.translation.php
+ * @brief Contiene la classe translation
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-VARIABLES
-
-$lng: lingua valida in sessione
-$lngDft: lingua di default (se non trovata $lng)
-
-TABLE STRUCTURE
-
-CREATE TABLE IF NOT EXISTS `language` (
-  `label` varchar(10) NOT NULL,
-  `language` varchar(50) NOT NULL DEFAULT '',
-  `code` varchar(5) NOT NULL DEFAULT '',
-  `main` enum('no','yes') NOT NULL DEFAULT 'no',
-  `active` enum('no','yes') NOT NULL DEFAULT 'yes',
-  `flag` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `language_translation` (
-  `tbl_id_value` int(11) DEFAULT NULL,
-  `tbl` varchar(200) DEFAULT NULL,
-  `field` varchar(200) DEFAULT NULL,
-  `language` varchar(5) DEFAULT NULL,
-  `text` text
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-*/
+/**
+ * @brief Gestisce le traduzioni
+ * 
+ * Una delle prime classi di gino, risale al 04/08/2004, rivista il 11/2008
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class translation
 {
 	private $_db;
 	
+	/**
+	 * Lingua valida in sessione
+	 */
 	private $_lng;
+	
+	/**
+	 * Lingua di default (se non viene trovata $_lng)
+	 */
 	private $_lngDft;
 	
 	private $_tbl_translation;
@@ -51,6 +43,17 @@ class translation
 		$this->_tbl_translation = 'language_translation';
 	}
 	
+	/**
+	 * Testo di un campo tradotto nella lingua selezionata
+	 * 
+	 * Se non è presente la traduzione viene mostrato il testo nella lingua di default
+	 * 
+	 * @param string $table nome della tabella del testo da tradurre
+	 * @param string $field nome del campo da tradurre
+	 * @param mixed $reference valore del campo di rieferimento 
+	 * @param string $id_name nome del campo di riferimento
+	 * @return string
+	 */
 	public function selectTXT($table, $field, $reference, $id_name='id')
 	{
 		$dft_text = $this->_db->getFieldFromId($table, $field, $id_name, $reference);
@@ -73,6 +76,16 @@ class translation
 		return $dft_text;	
 	}
 	
+	/**
+	 * Ordina i risultati di una query facendo riferimento ai testi tradotti
+	 * 
+	 * @param string $query query
+	 * @param string $id_name nome del campo di riferimento
+	 * @param string $tbl nome della tabella del testo da tradurre
+	 * @param string $ord_field nome del campo da tradurre e in base al quale ordinare
+	 * @param string $ord_type tipo di ordinamento (asc, desc)
+	 * @return array
+	 */
 	public function listItemOrdered($query, $id_name, $tbl, $ord_field, $ord_type) {
 		
 		// get all id from query, ordered casually

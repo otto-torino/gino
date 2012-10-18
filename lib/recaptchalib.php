@@ -1,4 +1,9 @@
 <?php
+/**
+ * @file recaptchalib.php
+ * @brief Contiene la libreria che gestisce la chiamata del reCaptcha
+ */
+
 /*
  * This is a PHP library that handles calling reCAPTCHA.
  *    - Documentation and latest version
@@ -54,8 +59,6 @@ function _recaptcha_qsencode ($data) {
         return $req;
 }
 
-
-
 /**
  * Submits an HTTP POST to a reCAPTCHA server
  * @param string $host
@@ -90,8 +93,6 @@ function _recaptcha_http_post($host, $path, $data, $port = 80) {
 
         return $response;
 }
-
-
 
 /**
  * Gets the challenge HTML (javascript and non-javascript version).
@@ -128,9 +129,6 @@ function recaptcha_get_html ($pubkey, $error = null, $use_ssl = false)
 	</noscript>';
 }
 
-
-
-
 /**
  * A ReCaptchaResponse is returned from recaptcha_check_answer()
  */
@@ -138,7 +136,6 @@ class ReCaptchaResponse {
         var $is_valid;
         var $error;
 }
-
 
 /**
   * Calls an HTTP POST function to verify if the user's guess was correct
@@ -221,7 +218,6 @@ function _recaptcha_aes_encrypt($val,$ky) {
 	return mcrypt_encrypt($enc, $ky, $val, $mode, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
 }
 
-
 function _recaptcha_mailhide_urlbase64 ($x) {
 	return strtr(base64_encode ($x), '+/', '-_');
 }
@@ -233,7 +229,6 @@ function recaptcha_mailhide_url($pubkey, $privkey, $email) {
 		     "you can do so at <a href='http://www.google.com/recaptcha/mailhide/apikey'>http://www.google.com/recaptcha/mailhide/apikey</a>");
 	}
 	
-
 	$ky = pack('H*', $privkey);
 	$cryptmail = _recaptcha_aes_encrypt ($email, $ky);
 	
@@ -270,8 +265,6 @@ function recaptcha_mailhide_html($pubkey, $privkey, $email) {
 	
 	return htmlentities($emailparts[0]) . "<a href='" . htmlentities ($url) .
 		"' onclick=\"window.open('" . htmlentities ($url) . "', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;\" title=\"Reveal this e-mail address\">...</a>@" . htmlentities ($emailparts [1]);
-
 }
-
 
 ?>

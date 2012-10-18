@@ -1,48 +1,20 @@
 <?php
 /**
- *
- *  Class export
- *
- *  Properties:
- *
- *  (string) _s default ",": the field separator, default to comma
- *  (string) _table: the name of the table to export
- *  (mixed)  _fields: the fields to export:
- *                   *: all fields
- *                   * -(field1,field2): all fields except from field1 and field2
- *                   field1,field2: the fields field1 and field2
- *                   array("field1", "field2"): the fields field1 and field2
- *  (bool)   _head: whether or not to print fields' headings
- *  (mixed)  _rids: the records ids to export:
- *  		     *: all records
- *  		     1,3,5: the records with id=1, id=3 and id=5
- *  		     array(1,3,5): the records with id=1, id=3 and id=5 
- *  (string) _order: the field to order the query results by
- *  (array)  _data: competitive to _table: the array containing the data to export:
- *                   array(0=>array("head1", "head2", "head3"), 
- *                         1=>array("value1 record 1", "value 2 record 1", "value 3 record 1"), 
- *                         2=>array("value1 record 2", "value 2 record 2", "value 3 record 2")
- *                   )
- *
- *  Methods are provided to set all these properties:
- *
- *  -setTable
- *  -setSeparator
- *  -setFields
- *  -setHead
- *  -setRids
- *  -setOrder
- *  -setData
- *
- *  Output method:
- *
- *  exportData($filename, $extension, output) : (file)
- *    (string) filename: the name of the file written (the absolute path if the output is file)
- *    (string) extension: the file extension 
- *    (string) output: file|stream 
- *
- *
-**/
+ * @file class.export.php
+ * @brief Contiene la classe export
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @brief Libreria per l'esportazione di tabelle o dati
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class export {
 
 	private $_s = ",";
@@ -55,38 +27,90 @@ class export {
 
 	private $_data;
 
+	/**
+	 * Imposta la proprietà @a _table
+	 * @param string $table the name of the table to export
+	 */
 	public function setTable($table) {
 		$this->_table = $table;	
 	}
 
+	/**
+	 * Imposta la proprietà @a _s
+	 * @param string $s the field separator, default to comma (,)
+	 */
 	public function setSeparator($s) {
 		$this->_s = $s;
 	}
 
+	/**
+	 * Imposta la proprietà @a _fields
+	 * @param mixed $fields
+	 *   the fields to export:
+	 *   - @b *: all fields
+	 *   - @b * -(field1,field2): all fields except from field1 and field2
+	 *   - @b field1,field2: the fields field1 and field2
+	 *   - @b array("field1", "field2"): the fields field1 and field2
+	 */
 	public function setFields($fields) {
 		$this->_fields = $fields;
 	}
 
+	/**
+	 * Imposta la proprietà @a _head
+	 * @param boolean $head whether or not to print fields' headings
+	 */
 	public function setHead($head) {
 		$this->_head = $head;
 	}
 
+	/**
+	 * Imposta la proprietà @a _rids
+	 * @param mixed $rids
+	 *   the records ids to export:
+	 *   - @b *: all records
+	 *   - @b 1,3,5: the records with id=1, id=3 and id=5
+	 *   - @b array(1,3,5): the records with id=1, id=3 and id=5
+	 */
 	public function setRids($rids) {
 		$this->_rids = $rids;
 	}
 
+	/**
+	 * Imposta la proprietà @a _order
+	 * @param string $order the field to order the query results by
+	 */
 	public function setOrder($order) {
 		$this->_order = $order;
 	}
 
+	/**
+	 * Imposta la proprietà @a _data
+	 * @param array $data competitive to _table:
+	 *   the array containing the data to export:
+	 *   array(0=>array("head1", "head2", "head3"), 
+	 *     1=>array("value1 record 1", "value 2 record 1", "value 3 record 1"), 
+	 *     2=>array("value1 record 2", "value 2 record 2", "value 3 record 2")
+	 *   )
+	 */
 	public function setData($data) {
 		$this->_data = $data;
 	}
 
+	/**
+	 * Esporta il file
+	 * 
+	 * Attualmente è prevista soltanto l'esportazione di file CSV
+	 * 
+	 * @see exportCsv()
+	 * @param string $filename the name of the file written (the absolute path if the output is file)
+	 * @param string $extension the file extension
+	 * @param string $output (file|stream)
+	 * @return file
+	 */
 	public function exportData($filename, $extension, $output='stream') {
 
 		if($extension=='csv') return $this->exportCsv($filename, $output);
-		// many other extensions in the future 
 	} 
 
 	private function exportCsv($filename, $output) {
@@ -113,7 +137,6 @@ class export {
 			fwrite($fo, $csv);
 			fclose($fo);
 		}
-
 	}
 
 	private function getData() {
@@ -139,7 +162,6 @@ class export {
 			$data[] = $row;
 
 		return $data;
-
 	}
 
 	private function getHeadFields() {
@@ -162,9 +184,6 @@ class export {
 		elseif(is_array($this->_fields)) $head_fields = $this->_fields;
 
 		return $head_fields;
-
 	}
-
 }
-
 ?>

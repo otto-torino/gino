@@ -1,23 +1,22 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_module.php
+ * @brief Contiene la classe module
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief Libreria per la gestione dei moduli
+ * 
+ * Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class module extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -39,9 +38,13 @@ class module extends AbstractEvtClass{
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 
 		$this->_mdlTypes = array('class'=>_("classe"), 'page'=>_("pagina"), 'func'=>_("funzione"));
-
 	}
 	
+	/**
+	 * Definizione dei permessi di visualizzazione aggiuntivi a quello base
+	 * 
+	 * @see AbstractEvtClass::permission()
+	 */
 	public static function permission(){
 
 		$access_2 = _("Permessi di amministrazione");
@@ -78,6 +81,12 @@ class module extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione dei moduli
+	 * 
+	 * @see $_access_2
+	 * @return string
+	 */
 	public function manageModule(){
 
 		$this->accessType($this->_access_2);
@@ -107,7 +116,6 @@ class module extends AbstractEvtClass{
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $GINO;
 		return $htmltab->render();
-
 	}
 
 	private function infoDoc(){
@@ -118,9 +126,14 @@ class module extends AbstractEvtClass{
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Elenco dei moduli
+	 * 
+	 * @param integer $sel_id valore ID del modulo selezionato
+	 * @return string
+	 */
 	private function listModule($sel_id){
 
 		$link_1 = '';
@@ -158,6 +171,12 @@ class module extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Form di eliminazione di un modulo
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @return string
+	 */
 	private function formRemoveModule($id) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -178,9 +197,13 @@ class module extends AbstractEvtClass{
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 	
+	/**
+	 * Eliminazione di un modulo
+	 * 
+	 * @see $_access_2
+	 */
 	public function actionRemoveModule() {
 
 		$this->accessType($this->_access_2);
@@ -193,7 +216,6 @@ class module extends AbstractEvtClass{
 			$class= $this->_db->getFieldFromId($this->_tbl_module, 'class', 'id', $id);
 			$classObj = new $class($id);
 			$classObj->deleteInstance();
-
 		}
 
 		$query = "DELETE FROM ".$this->_tbl_module." WHERE id='$id'";
@@ -204,6 +226,12 @@ class module extends AbstractEvtClass{
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
 	}
 
+	/**
+	 * Form di inserimento di un modulo - scelta del tipo di modulo
+	 * 
+	 * @see $_mdlTypes
+	 * @see formModule()
+	 */
 	private function formInsertModule() {
 		
 		$gform = new Form('gform', 'post', true);
@@ -223,9 +251,15 @@ class module extends AbstractEvtClass{
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 	
+	/**
+	 * Form di inserimento di un modulo - campi relativi al tipo di modulo scelto
+	 * 
+	 * @see $_access_2
+	 * @param string $type tipo di modulo (class, page, func)
+	 * @return string
+	 */
 	public function formModule($type=null) {
 
 		$this->accessType($this->_access_2);
@@ -262,6 +296,15 @@ class module extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Form di inserimento di un modulo - campi di un modulo classe
+	 * 
+	 * Verifica l'esistenza nella classe del modulo dei metodi @a outputFunctions e @a permission
+	 * 
+	 * @see $_access_2
+	 * @param string $class nome della classe
+	 * @return string
+	 */
 	public function formModuleClass($class=null) {
 	
 		$this->accessType($this->_access_2);
@@ -296,9 +339,13 @@ class module extends AbstractEvtClass{
 		$GINO .= $gform->endTable();
 
 		return $GINO;
-
 	}
 
+	/**
+	 * Inserimento di un nuovo modulo
+	 * 
+	 * @see $_access_2
+	 */
 	public function actionInsertModule() {
 		
 		$this->accessType($this->_access_2);
@@ -329,7 +376,6 @@ class module extends AbstractEvtClass{
 
 		if(preg_match("/[^\w]/", $name)) exit(error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error));
 
-
 		if($type=='class') {
 			$classElements = call_user_func(array($class, 'getClassElements'));
 			/*
@@ -351,7 +397,6 @@ class module extends AbstractEvtClass{
 
 				fwrite($fo, $content);
 				fclose($fo);
-
 			}
 			/*
 			 * create folder structure
@@ -385,6 +430,12 @@ class module extends AbstractEvtClass{
 		else return true;
 	}
 
+	/**
+	 * Form di modifica di un modulo
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @return string
+	 */
 	private function formEditModule($id) {
 
 		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_module, "trnsl_id"=>$id));
@@ -453,9 +504,15 @@ class module extends AbstractEvtClass{
 		$buffer .= $this->formActivateModule($id, $active);
 
 		return $buffer;
-
 	}
 	
+	/**
+	 * Form di attivazione e disattivazione di un modulo
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @param string $active valore del campo @a masquerade
+	 * @return string
+	 */
 	private function formActivateModule($id, $active) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -473,9 +530,13 @@ class module extends AbstractEvtClass{
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Modifica di un modulo
+	 * 
+	 * @see $_access_2
+	 */
 	public function actionEditModule() {
 
 		$this->accessType($this->_access_2);
@@ -504,9 +565,13 @@ class module extends AbstractEvtClass{
 		$result = $this->_db->actionquery($query);
 		
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-
 	}
 
+	/**
+	 * Attivazione e disattivazione di un modulo
+	 * 
+	 * @see $_access_2
+	 */
 	public function actionEditModuleActive() {
 
 		$this->accessType($this->_access_2);
@@ -518,9 +583,6 @@ class module extends AbstractEvtClass{
 		$result = $this->_db->actionquery($query);
 		
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-
-
 	}
-
 }
 ?>

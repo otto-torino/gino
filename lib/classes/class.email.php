@@ -1,24 +1,39 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class.email.php
+ * @brief Contiene la classe email
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-
+/**
+ * @brief Libreria per la gestione di email personalizzate
+ * 
+ * Vedi la classe user
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * Per poter utilizzare questa libreria occorre:
+ * 1. includere la classe
+ * 2. creare una tabella
+ * @code
+ * CREATE TABLE IF NOT EXISTS `[RIFERIMENTO-TABELLA]_email` (
+ * `id` int(11) NOT NULL AUTO_INCREMENT,
+ * `ref_function` smallint(2) NOT NULL,
+ * `description` varchar(255) NOT NULL,
+ * `subject` varchar(200) NOT NULL,
+ * `text` text NOT NULL,
+ * PRIMARY KEY (`id`),
+ * UNIQUE KEY `ref_function` (`ref_function`)
+ * ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+ * @endcode
+ * 3. creare i record delle email personalizzate
+ * 4. definire per ogni email personalizzata un metodo subjectEmail_[valoreID] e un metodo textEmail_[valoreID]
+ */
 class email extends pub {
 
 	private $_class, $_class_prefix;
@@ -36,7 +51,6 @@ class email extends pub {
 		$this->setData($instance, $class);
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-		
 	}
 	
 	private function setData($instance, $class) {
@@ -112,7 +126,6 @@ class email extends pub {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	private function listEmail($select_doc){
@@ -207,7 +220,15 @@ class email extends pub {
 		EvtHandler::HttpCall($this->_home, $this->_return_link, "block=email");
 	}
 
-	public function schemaSendEmail($to, $id, $data){ // mettere $id al posto di $ref_function
+	/**
+	 * Invio di una email
+	 * 
+	 * @param string $to indirizzo di destinazione
+	 * @param integer $id codice dello schema email associato
+	 * @param string $data stringa contenente i riferimenti da inserire nel testo dell'email
+	 * @return email
+	 */
+	public function schemaSendEmail($to, $id, $data){
 		
 		$class = new $this->_class;
 		
@@ -217,8 +238,8 @@ class email extends pub {
 		$subject_function = 'subjectEmail_'.$id;
 		$message_function = 'textEmail_'.$id;
 		
-		$subject = $class->$subject_function($this->_instance);
-		$text = $class->$message_function($this->_instance, $data);
+		$subject = $class->$subject_function();
+		$text = $class->$message_function($data);
 		
 		// Contents
 		if(empty($contents[0])) $subject_all = $subject; else $subject_all = $contents[0];

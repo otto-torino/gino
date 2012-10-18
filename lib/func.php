@@ -1,30 +1,55 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file func.php
+ * @brief Racchiude le funzioni generali utilizzate da gino
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
-/*
-CONTENTS OF FUNCTIONS
-*/
-
+/**
+ * Include le librerie per il trattamento dei valori da e per un input/database
+ */
 include(LIB_DIR.OS.'func.var.php');
+
+/**
+ * Include la libreria per l'identificazione di un dispositivo mobile
+ */
 include(LIB_DIR.OS.'Mobile_Detect.php');
 
+/**
+ * Ricava il percorso relativo a partire da un percorso assoluto
+ * 
+ * @param string $abspath percorso assoluto
+ */
+function relativePath($abspath) {
+	$path = SITE_WWW.preg_replace("#".preg_quote(SITE_ROOT)."#", "", $abspath);
+	
+	if(OS=="\\") return preg_replace("#".preg_quote("\\")."#", "/", $path);
+	
+	return $path;
+}
+
+/**
+ * Restituisce l'elemento di un array corrispondente alla chiave data oppure un valore di default 
+ * 
+ * @param string $opt_name nome della chiave
+ * @param array $opt_array array associativo
+ * @param mixed $default valore di default
+ * @return l'elemento corrispondente alla chiave data oppure il default
+ */
+function gOpt($opt_name, $opt_array, $default) {
+
+	return isset($opt_array[$opt_name]) ? $opt_array[$opt_name] : $default;
+}
+
+/**
+ * File contenuti in una directory
+ * 
+ * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)
+ * @return array
+ */
 function searchNameFile($dir){
 	
 	$filenames = array();
@@ -43,6 +68,12 @@ function searchNameFile($dir){
 	return $filenames;
 }
 
+/**
+ * Gestisce il download di un file
+ * 
+ * @param string $full_path percorso del file
+ * @return void
+ */
 function download($full_path)
 {
 	if($fp = fopen($full_path, "r"))
@@ -69,10 +100,12 @@ function download($full_path)
 
 /**
  * Controlla le estensioni dei file
+ * 
+ * Verifica se il file ha una estensione valida, ovvero presente nell'elenco delle estensioni.
  *
- * @param string $filename
- * @param array $extensions
- * @return bool
+ * @param string $filename nome del file
+ * @param array $extensions elenco delle estensioni valide
+ * @return boolean
  * 
  * se $extensions è vuoto => true
  */
@@ -93,20 +126,39 @@ function extension($filename, $extensions){
 	else return true;
 }
 
+/**
+ * Verifica la validità dell'indirizzo email
+ * 
+ * @param string $email indirizzo email
+ * @return boolean
+ */
 function email_control($email)
 {
 	return !preg_match("#^[a-z0-9_-]+[a-z0-9_.-]*@[a-z0-9_-]+[a-z0-9_.-]*\.[a-z]{2,5}$#", $email) ? false : true;
 }
 
+/**
+ * Formatta la data per il database (YYYY-MM-DD)
+ * 
+ * @param string $date valore della data (DD/MM/YYYY), generalmente da input form
+ * @param string $s separatore utilizzato nella data
+ * @return string
+ */
 function dateToDbDate($date, $s='/') {
 
 	if(!$date) return null;
 	$date_array = explode($s, $date);
 	return $date_array[2].'-'.$date_array[1].'-'.$date_array[0];
-
 }
 
-// $num_year	numero di cifre dell'anno
+/**
+ * Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ * 
+ * @param string $db_date valore del campo date (YYYY-MM-DD)
+ * @param string $s separatore utilizzato nella data
+ * @param integer $num_year numero di cifre dell'anno da mostrare
+ * @return string
+ */
 function dbDateToDate($db_date, $s='/', $num_year=4) {
 	if(empty($db_date) || $db_date=='0000-00-00') return '';
 	$date_array = explode('-', $db_date);
@@ -114,23 +166,50 @@ function dbDateToDate($db_date, $s='/', $num_year=4) {
 	return $date_array[2].$s.$date_array[1].$s.$year;
 }
 
-// $num_year	numero di cifre dell'anno
+/**
+ * Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ * 
+ * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
+ * @param string $s separatore utilizzato nella data
+ * @param integer $num_year numero di cifre dell'anno da mostrare
+ * @return string
+ */
 function dbDatetimeToDate($datetime, $s='/', $num_year=4) {
 	$datetime_array = explode(" ", $datetime);
 	return dbDateToDate($datetime_array[0], $s, $num_year);
 }
 
+/**
+ * Riporta l'orario di un campo DATETIME (HH:MM:SS)
+ * 
+ * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
+ * @return string
+ */
 function dbDatetimeToTime($datetime) {
 	$datetime_array = explode(" ", $datetime);
 	return $datetime_array[1];
 }
 
-function dbTimeToTime($db_time) {
+/**
+ * Mostra l'orario (HH:MM[:SS])
+ * 
+ * @param string $db_time valore del campo time o dell'output della funzione dbDatetimeToTime (HH:MM:SS)
+ * @param boolean $seconds visualizzazione dei secondi
+ * @return string
+ */
+function dbTimeToTime($db_time, $seconds=false) {
 	if(empty($db_time) || $db_time=='00:00:00') return '';
-	$db_time = substr($db_time, 0, 5);
+	if(!$seconds)
+		$db_time = substr($db_time, 0, 5);
 	return $db_time;
 }
 
+/**
+ * Formatta l'orario per il database (HH:MM:SS)
+ * 
+ * @param string $time orario ([00][{,|:}00][{,|:}00])
+ * @return string
+ */
 function timeToDbTime($time) {
 
 	if(!$time) return null;
@@ -158,8 +237,17 @@ function timeToDbTime($time) {
 	return "$hour:$minutes:$seconds";
 }
 
-// Numbers
-
+/**
+ * Formatta un numero con il raggruppamento delle centinaia
+ * 
+ * @code
+ * number_format(float $number, int $decimals = 0, string $dec_point = ',', string $thousands_sep = '.')
+ * @endcode
+ * 
+ * @param float $number numero
+ * @param integer $decimals numero di decimali
+ * @return string
+ */
 function dbNumberToNumber($number, $decimals=2)
 {
 	if(!empty($number))
@@ -168,14 +256,24 @@ function dbNumberToNumber($number, $decimals=2)
 	return $number;
 }
 
-// Con MySQL il separatore dei decimali è il '.'
+/**
+ * Formatta un numero per il database. Con MySQL il separatore dei decimali è il '.'
+ * 
+ * @param string $number numero
+ * @return float
+ */
 function numberToDB($number)
 {
 	$number = str_replace(',', '.', $number);
 	return $number;
 }
 
-// integer|float
+/**
+ * Controlla se una variabile è un numero o una stringa numerica
+ * 
+ * @param mixed $variable valore della variabile (string|integer|float)
+ * @return boolean
+ */
 function isNumeric($variable)
 {
 	if(empty($variable)) return true;
@@ -184,8 +282,21 @@ function isNumeric($variable)
 	
 	if(is_numeric(numberToDB($variable))) return true; else return false;
 }
-// End
 
+/**
+ * Verifica se il valore della variabile è conforme al tipo di controllo indicato
+ * 
+ * @param string $type tipo di controllo da eseguire
+ *   - @b IP: indirizzo IP
+ *   - @b URL: indirizzo URL
+ *   - @b Email: indirizzo email
+ *   - @b ISBN: codice ISBN
+ *   - @b Date: data
+ *   - @b Time: orario
+ *   - @b HexColor: codice colore esadecimale
+ * @param string $var valore della variabile
+ * @return boolean
+ */
 function isValid($type, $var)
 {
 	if(empty($var)) return true;
@@ -233,22 +344,21 @@ function isValid($type, $var)
 }
 
 /**
-* Truncates html text.
-*
-* Cuts a string to the length of $length and replaces the last characters
-* with the ending if the text is longer than length. 
-*Can strip tags or controlo their closure
-*
-* @param string  $html Html string to truncate.
-* @param integer $length Length of returned string, including ellipsis.
-* @param string  $ending Ending to be appended to the trimmed string.
-* @param boolean $strip_tags If true, html tags are replaced by nothing
-* @param boolean $cut_words If false, returned string will not be cut mid-word
-* @param boolean $cut_images If true, returned string will not contain images
-* @param array   $options
-*       - endingPosition (in|out): ending characthers are positioned in the html structure or out of the html structure (after all tags are closed)
-* @return string Trimmed string.
-*/
+ * Accorcia un testo HTML alla lunghezza desiderata (length)
+ * 
+ * Inoltre sostituisce l'ultimo carattere con il valore ending se il testo è più lungo di length. Può strippare i TAG.
+ * 
+ * @param string $html stringa HTML da accorciare
+ * @param integer $length lunghezza della stringa da riportare, incluse le ellissi
+ * @param string $ending finale da aggiungere alla stringa accorciata
+ * @param boolean $strip_tags se vero, i TAG HTML saranno sostituiti da niente
+ * @param boolean $cut_words se falso, l'ultima parola della stringa non sarà tagliata
+ * @param boolean $cut_images se vero, la stringa non conterrà immagini
+ * @param array $options
+ *   array associativo di opzioni
+ *   - @b endingPosition (string) [in|out]: posizionamento dei caratteri dell'ending nella struttura html o al di fuori della struttura html (dopo che sono stati chiusi tutti i TAG)
+ * @return string
+ */
 function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_images, $options=null) {
 	
 	/*
@@ -419,10 +529,10 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
 /**
  * Limita i caratteri di una stringa
  *
- * @param string $string
- * @param integer $max_char
- * @param boolean $word_complete	true: mantiene l'ultima parola completa (utile nei select)
- * @param boolean $file				true: mostra l'estensione finale del file
+ * @param string $string testo da accorciare
+ * @param integer $max_char numero massimo di caratteri
+ * @param boolean $word_complete se vero, mantiene l'ultima parola completa (utile nei select)
+ * @param boolean $file se vero, mostra l'estensione finale del file
  * @return string
  */
 function cutString($string, $max_char, $word_complete=true, $file=false)
@@ -455,6 +565,11 @@ function cutString($string, $max_char, $word_complete=true, $file=false)
 	return $string_new;
 }
 
+/**
+ * Ricava il nome del file senza l'estensione
+ * @param string $filename nome del file
+ * @return string
+ */
 function baseFileName($filename) {
 	$baseFile = '';
 	$filename_a = explode(".", $filename);
@@ -464,6 +579,10 @@ function baseFileName($filename) {
 	return $baseFile;
 }
 
+/**
+ * Elenco delle province
+ * @return array (sigla=>capoluogo)
+ */
 function listProv() {
 
 	$list = array(
@@ -582,14 +701,21 @@ function listProv() {
 	return $list;
 }
 
+/**
+ * Ritorna un indirizzo della condivisione per i social network
+ * 
+ * @param string $site tipo di condivisione (facebook, twitter, linkedin, googleplus)
+ * @param string $url indirizzo da condividere
+ * @param string $title titolo della condivisione
+ * @param string $description descrizione
+ * @return string
+ */
 function share($site, $url, $title=null, $description=null) {
 	
 	$buffer = '';
 	
 	if($site=='facebook') {
-
 		$buffer = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";
-		
 		//$buffer = "<iframe src=\"http://www.facebook.com/plugins/like.php?href=".urlencode($url)."&amp;layout=standard&amp;show_faces=true&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=80\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:80px;\" allowTransparency=\"true\"></iframe>";
 	}
 	elseif($site=='twitter') {
@@ -603,9 +729,17 @@ function share($site, $url, $title=null, $description=null) {
 	}
 
 	return $buffer;
-
 }
 
+/**
+ * Ritorna gli indirizzi delle condivisioni per i social network
+ * 
+ * @param array $social elenco delle tipologie di condivisione (facebook, twitter, linkedin, googleplus, digg); col valore @a all vengono mostrate tutte le condivisioni
+ * @param string $url indirizzo da condividere
+ * @param string $title titolo della condivisione
+ * @param string $description descrizione
+ * @return string
+ */
 function shareAll($social, $url, $title=null, $description=null) {
 
 	if($social==="all") $social = array("facebook", "twitter", "linkedin", "digg", "googleplus");
@@ -634,6 +768,13 @@ function shareAll($social, $url, $title=null, $description=null) {
 	return "<div class=\"share\">".$buffer."</div>";
 }
 
+/**
+ * Converte un numero in cifre
+ * 
+ * @param mixed $numero valore da convertire (float|integer)
+ * @param boolean $decimale se vero, mostra il decimale ([/00])
+ * @return string
+ */
 function traslitterazione($numero, $decimale=false)
 {
     $unita          = array("","uno","due","tre","quattro","cinque","sei","sette","otto","nove");
@@ -707,5 +848,4 @@ function traslitterazione($numero, $decimale=false)
             return  $risultato;
     }
 }
-
 ?>

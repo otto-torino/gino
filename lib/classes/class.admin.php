@@ -1,23 +1,22 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class.admin.php
+ * @brief Contiene la classe admin
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief Libreria per la gestione dei permessi sulle funzionalità del modulo
+ * 
+ * Gestisce l'associazione degli utenti alle funzionalità del modulo
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class admin extends pub {
 
 	private $_title;
@@ -40,7 +39,6 @@ class admin extends pub {
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 
 		$this->_group_admin = $this->_access->adminGroup($this->_class);
-		
 	}
 	
 	private function setData($instance, $class) {
@@ -60,7 +58,6 @@ class admin extends pub {
 		$this->_tbl_guser = $this->_class_prefix.'_usr';
 
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
-
 	}
 
 	private function field_class($field, $class_name){
@@ -89,6 +86,11 @@ class admin extends pub {
 		return $value;
 	}
 	
+	/**
+	 * Interfaccia per la gestione dei gruppi e degli utenti nei gruppi
+	 * 
+	 * @return string
+	 */
 	public function manageDoc(){
 
 		if($this->_action == 'save') {$this->actionUser();exit;}
@@ -112,7 +114,6 @@ class admin extends pub {
 		elseif($id) $form = $this->formUser($id, $this->_action);
 		else $form = $this->infoDoc();
 
-	
 		$GINO = "<div class=\"section_admin\">\n";
 
 		$GINO .= "<div class=\"vertical_1\">\n";
@@ -141,9 +142,14 @@ class admin extends pub {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 	
+	/**
+	 * Elenco dei gruppi
+	 * 
+	 * @param integer $select_doc valore ID del gruppo selezionato
+	 * @return string
+	 */
 	private function listGroup($select_doc){
 		
 		$link_base = $this->_home."?evt[".$this->_return_link."]&amp;block=permissions";
@@ -183,6 +189,11 @@ class admin extends pub {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Elenco degli utenti amministratori dell'applicazione
+	 * 
+	 * @return array
+	 */
 	public function listUserAdmin(){
 		
 		$users =array();
@@ -196,7 +207,6 @@ class admin extends pub {
 			}
 		}
 		return $users;
-
 	}
 	
 	private function formUser($group, $action){
@@ -269,6 +279,14 @@ class admin extends pub {
 		return $buffer;
 	}
 	
+	/**
+	 * Elenco degli utenti che possono essere associati ai gruppi a seguito di una ricerca utente
+	 * 
+	 * Utenti con accesso all'area amministrativa e che non siano amministratori dell'applicazione
+	 * 
+	 * @param string $guser_q elenco utenti da non mostrare (separati da virgola)
+	 * @return string
+	 */
 	public function ajaxAddNoAdminUser($guser_q='') {
 
 		$GINO = '';
@@ -299,6 +317,9 @@ class admin extends pub {
 		return $GINO;
 	}
 
+	/**
+	 * Associazione degli utenti ai gruppi
+	 */
 	public function actionUser(){
 
 		$gform = new Form('gform', 'post', false);
@@ -371,6 +392,13 @@ class admin extends pub {
 		EvtHandler::HttpCall($this->_home, $this->_return_link, $link);
 	}
 	
+	/**
+	 * Visualizza gli utenti di un gruppo
+	 * 
+	 * @param integer $group valore ID del gruppo
+	 * @param string $action
+	 * @return string
+	 */
 	private function formUserView($group, $action){
 	
 		$guser = $this->listUserGroup($group);
@@ -410,7 +438,12 @@ class admin extends pub {
 		return $htmlsection->render();
 	}
 
-	
+	/**
+	 * Elenco utenti di un gruppo
+	 * 
+	 * @param integer $group valore ID del gruppo
+	 * @return array
+	 */
 	public function listUserGroup($group){
 		
 		$user = array();

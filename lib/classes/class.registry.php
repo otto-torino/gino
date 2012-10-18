@@ -1,5 +1,32 @@
 <?php
+/**
+ * @file class.registry.php
+ * @brief Contiene la classe registry
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Registro di gino
+ * 
+ * Gli elementi presenti nel registro vengono caricati prima della generazione delle pagina
+ * 
+ * Le chiavi che possono essere utilizzate per recuperare i valori dal registro sono:
+ *   - @b title (valore del tag meta con name 'title')
+ *   - @b description (valore del tag meta con name 'description')
+ *   - @b keywords (valore del tag meta con name 'keywords')
+ *   - @b favicon (percorso relativo della favicon)
+ *   - @b css (file css)
+ *   - @b js (file javascript)
+ *   - @b meta (tag meta aggiuntivi)
+ *   - @b head_links (link)
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class registry extends singleton {
 
 	/*
@@ -9,38 +36,92 @@ class registry extends singleton {
 	private $vars = array();
 
 	/**
-	 * @set undefined vars
+	 * Imposta il valore di una variabile
 	 *
-	 * @param string $index
-	 * @param mixed $value
+	 * @param string $index nome della variabile
+	 * @param mixed $value valore della variabile
 	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->foo = 'bar';
+	 * @endcode
 	 */
 	public function __set($index, $value) {
 		$this->vars[$index] = $value;
 	}
 	
 	/**
-	 * @get variables
+	 * Ritorna il valore di una variabile
 	 *
-	 * @param mixed $index
+	 * @param mixed $index nome della variabile
 	 * @return mixed
+	 * 
+	 * Esempio
+	 * @code
+	 * echo $instance->foo;
+	 * @endcode
 	 */
 	public function __get($index) {
 		return $this->vars[$index];
 	}
 
+	/**
+	 * Carica un file css in un array (chiave @a css)
+	 * 
+	 * @param string $css percorso relativo al file css
+	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->addCss(CSS_WWW."/file.css");
+	 * @endcode
+	 */
 	public function addCss($css) {
 		$this->vars['css'][] = $css;
 	}
 
+	/**
+	 * Carica un file javascript in un array (chiave @a js)
+	 * 
+	 * @param string $js percorso relativo al file javascript
+	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->addCss(SITE_JS."/file.js");
+	 * @endcode
+	 */
 	public function addJs($js) {
 		$this->vars['js'][] = $js;
 	}
 
+	/**
+	 * Carica gli elementi di un tag meta in un array (chiave @a meta)
+	 * 
+	 * @param array $meta elementi di un tag meta (name, property, content)
+	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->addMeta(array('name'=>'bar', 'property'=>'foo'));
+	 * @endcode
+	 */
 	public function addMeta($meta) {
 		$this->vars['meta'][] = $meta;
 	}
 	
+	/**
+	 * Carica gli elementi di un tag link in un array (chiave @a head_links)
+	 * 
+	 * @param array $link elementi di un tag link (rel, type, title, href)
+	 * @return void
+	 * 
+	 * Esempio
+	 * @code
+	 * $instance->addHeadLink(array('rel'=>'external', 'title'=>'foo', 'href'=>''));
+	 * @endcode
+	 */
 	public function addHeadLink($link) {
 		$this->vars['head_links'][] = $link;
 	}
@@ -48,7 +129,7 @@ class registry extends singleton {
 	/**
 	 * Stampa le variabili di registro
 	 * 
-	 * @param mixed $var
+	 * @param mixed $var nome della chiave che deve essere recuperata dal registro
 	 * @return string
 	 */
 	public function variables($var) {

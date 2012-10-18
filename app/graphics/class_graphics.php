@@ -1,23 +1,25 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_graphics.php
+ * @brief Contiene la classe graphics
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
+/**
+ * @brief Gestione personalizzata degli header e footer del sistema
+ * 
+ * Sono disponibili 5 header e 5 footer completamente personalizzabili ed utilizzabili nella composizione del layout.
+ * Un header/footer può essere di due tipologie:
+ *   - grafica, prevede il caricamento di una immagine
+ *   - codice, prevede l'inserimento di codice html
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class graphics extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -61,15 +63,20 @@ class graphics extends AbstractEvtClass{
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 	
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: assistenti
+	 */
 	private function setGroups(){
 		
-		// Assistenti
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 	
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
 	 */
 	public static function outputFunctions() {
 
@@ -92,9 +99,13 @@ class graphics extends AbstractEvtClass{
 	private function isHeader($id) {
 		
 		return $id<6 ? true : false;
-
 	}
 
+	/**
+	 * Imposta dei codici di sostituzione da utilizzare con un header/footer di tipo @a codice
+	 * 
+	 * @return array
+	 */
 	private function setReplaceHtml(){
 		
 		$lng = new language();
@@ -128,86 +139,142 @@ class graphics extends AbstractEvtClass{
 		return $html;
 	}
 	
+	/**
+	 * Interfaccia all'header con valore ID 1
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printHeaderPublic() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render(1);
-
 	}
 	
+	/**
+	 * Interfaccia all'header con valore ID 2
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printHeaderPrivate() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render(2);
-
 	}
 	
+	/**
+	 * Interfaccia all'header con valore ID 3
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printHeaderAdmin() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render(3);
-
 	}
 	
+	/**
+	 * Interfaccia all'header con valore ID 4
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printHeaderMobile() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render(4);
-
 	}
 
+	/**
+	 * Interfaccia all'header con valore ID 5
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printHeaderAdhoc() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render(5);
-
 	}
 
+	/**
+	 * Interfaccia al footer con valore ID 6
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printFooterPublic() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render('6');
-
 	}
 	
+	/**
+	 * Interfaccia al footer con valore ID 7
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printFooterPrivate() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render('7');
-
 	}
 	
+	/**
+	 * Interfaccia al footer con valore ID 8
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printFooterAdmin() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render('8');
-
 	}
 
+	/**
+	 * Interfaccia al footer con valore ID 9
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printFooterMobile() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render('9');
-
 	}
 
+	/**
+	 * Interfaccia al footer con valore ID 10
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function printFooterAdhoc() {
 
 		$this->accessType($this->_access_base);
 
 		return $this->render('10');
-
 	}
 
+	/**
+	 * Prepara l'header/footer
+	 * 
+	 * @param integer $id valore ID del record
+	 * @return string
+	 */
 	private function render($id) {
 	
 		if(!$id) return '';
@@ -227,17 +294,30 @@ class graphics extends AbstractEvtClass{
 		}
 
 		if($type==1 && $image) 
-			$buffer .= "<a href=\"".$this->_home."\"><img src=\"".$this->_graphics_www."/$image\" alt=\"".($this->isHeader($id) ? _("header") : _("footer"))."\" /></a>\n";
+		{
+			$src = $this->_graphics_www."/$image";
+			if($this->isHeader($id))
+			{
+				$buffer .= "<a href=\"".$this->_home."\"><img src=\"$src\" alt=\""._("header")."\" /></a>\n";
+			}
+			else
+			{
+				$buffer .= "<img src=\"$src\" alt=\""._("footer")."\" />\n";
+			}
+		}
 		elseif($type==2) 
 			$buffer .= $html;
 
 		$buffer .= "</section>";
 
 		return $buffer;
-
-
 	}
 	
+	/**
+	 * Interfaccia amministrativa per la gestione di header e footer
+	 * 
+	 * @return string
+	 */
 	public function manageGraphics(){
 
 		$this->accessGroup('ALL');
@@ -289,9 +369,13 @@ class graphics extends AbstractEvtClass{
 		$htmlsection->content = $GINO;
 
 		return $htmlsection->render();
-
 	}
 	
+	/**
+	 * Preview dell'header/footer
+	 * 
+	 * @return string
+	 */
 	public function preview(){
 
 		$this->accessGroup('ALL');
@@ -346,6 +430,13 @@ class graphics extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Form di modifica header/footer
+	 * 
+	 * @param integer $id valore ID del record
+	 * @param string $action azione da eseguire
+	 * @return string
+	 */
 	private function formDoc($id, $action){
 	
 		$gform = new Form('gform', 'post', true);
@@ -390,6 +481,13 @@ class graphics extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Nel form di modifica di header/footer, in base alla tipologia scelta, mostra un input file o un textarea per il codice html
+	 * 
+	 * @see $_group_1
+	 * @param integer $id valore ID del record
+	 * @return string
+	 */
 	public function formType($id=null) {
 	
 		$this->accessGroup($this->_group_1);
@@ -451,6 +549,11 @@ class graphics extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Modifica header/footer
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionDoc(){
 	
 		$this->accessGroup($this->_group_1);

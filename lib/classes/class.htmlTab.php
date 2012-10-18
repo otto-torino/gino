@@ -1,17 +1,46 @@
 <?php
+/**
+ * @file class.htmlTab.php
+ * @brief Contiene la classe htmlTab
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Fornisce gli elementi per la rappresentazione di una struttura a tab
+ * 
+ * Può essere utilizzata sia all'interno di una struttura definita dalla libreria htmlSection che in modo autonomo.
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class htmlTab {
 
 	private $_browser;
 	private $_p = array(
-			'id'=>null,
-			'title'=>null,
-			'navigationLinks'=>null,
-			'htmlContent'=>null,
-			'linkPosition'=>null,
-			'selectedLink'=>null
-		);
+		'id'=>null,
+		'title'=>null,
+		'navigationLinks'=>null,
+		'htmlContent'=>null,
+		'linkPosition'=>null,
+		'selectedLink'=>null
+	);
 
+	/**
+	 * Costruttore
+	 * 
+	 * @param array $data elementi della pagina
+	 *   - @b id (string): id del contenitore
+	 *   - @b title (string): testo del contenitore
+	 *   - @b navigationLinks (mixed): collegamenti (sui TAB)
+	 *   - @b htmlContent (string): contenuto della pagina
+	 *   - @b linkPosition (string): posizionamento dei TAB (left|right)
+	 *   - @b selectedLink (string): collegamento selezionato
+	 * @return void
+	 */
 	function __construct($data = array()) {
 
 		foreach($data as $k=>$v) {
@@ -20,9 +49,13 @@ class htmlTab {
 
 		$pub = new pub;
 		$this->_browser = $pub->detectBrowser('Parent');
-
 	}
 
+	/**
+	 * Ritorna il valore della proprietà
+	 * @param string $pName
+	 * @return mixed
+	 */
 	public function __get($pName) {
 	
 		if(!array_key_exists($pName, $this->_p)) exit(error::syserrorMessage("htmlTab", "__get", _("Nome proprietà non valido")." ($pName)", __LINE__));
@@ -30,6 +63,12 @@ class htmlTab {
 		else return $this->_p[$pName];
 	}
 	
+	/**
+	 * Imposta il valore della proprietà
+	 * @param string $pName
+	 * @param mixed $value
+	 * @return void
+	 */
 	public function __set($pName, $value) {
 
 		if(!array_key_exists($pName, $this->_p)) exit(error::syserrorMessage("htmlTab", "__set", _("Nome proprietà non valido"), __LINE__));
@@ -37,6 +76,10 @@ class htmlTab {
 		else $this->_p[$pName] = $value;
 	}
 
+	/**
+	 * Stampa il contenitore
+	 * @return string
+	 */
 	public function render() {
 
 		$buffer = "<div class=\"tabContainer\" ".(($this->id)? "id=\"box_$this->id\"":"").">\n";
@@ -45,7 +88,6 @@ class htmlTab {
 		$buffer .= "</div>";
 
 		return $buffer;
-
 	}
 
 	private function renderTop() {
@@ -60,7 +102,6 @@ class htmlTab {
 		$buffer .= "</div>";
 
 		return $buffer;
-
 	}
 
 	private function renderNavigationLinks() {
@@ -72,7 +113,6 @@ class htmlTab {
 		elseif(is_string($this->navigationLinks)) $buffer .= $this->tabNavigation($this->navigationLinks);
 
 		return $buffer;
-
 	}
 
 	private function renderTitle() {
@@ -80,7 +120,6 @@ class htmlTab {
 		$buffer = "<div class=\"tabTitle ".($this->linkPosition=='left'?"tabImgRight":"tabImgLeft")."\">".$this->title."</div>\n";
 
 		return $buffer;
-
 	}
 
 	private function renderContent() {
@@ -89,7 +128,6 @@ class htmlTab {
 		$buffer .= "</div>";
 
 		return $buffer;
-
 	}
 
 	private function tabNavigation($link) {
@@ -102,7 +140,5 @@ class htmlTab {
 
 		return $buffer;
 	}
-
 }
-
 ?>

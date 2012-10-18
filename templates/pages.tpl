@@ -10,20 +10,25 @@
 </div>
 <div class="null"></div>
 </div>
-<div id="block_3" style="width: 960px; margin-top: auto; margin-right: auto; margin-bottom: auto; margin-left: auto; ">
-<div id="nav_3_1_1" style="float:left;width:960px;">
+<div id="block_3" style="width: 1000px; margin: auto;">
+<div id="nav_3_1_1" style="float:left;width:250px;">
 {module classid=4 func=blockList}
 </div>
-<div class="null"></div>
-<div id="nav_3_2_1" style="float:left;width:260px;">
-{module sysclassid=12 func=homePage}
-</div>
-<div id="nav_3_2_2" style="float:left;width:700px;">
+<div id="nav_3_1_2" style="float:left;width:250px;">
 {module id=0}
 </div>
-<div id="nav_3_2_3" style="float:left;width:240px;">
+<div id="nav_3_1_3" style="float:left;width:250px;">
 </div>
-<div id="nav_3_2_4" style="float:left;width:240px;">
+<div id="nav_3_1_4" style="float:left;width:250px;">
+</div>
+<div class="null"></div>
+<div id="nav_3_2_1" style="float:left;width:250px;">
+</div>
+<div id="nav_3_2_2" style="float:left;width:250px;">
+</div>
+<div id="nav_3_2_3" style="float:left;width:250px;">
+</div>
+<div id="nav_3_2_4" style="float:left;width:250px;">
 </div>
 <div class="null"></div>
 </div>

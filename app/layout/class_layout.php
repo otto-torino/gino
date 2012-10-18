@@ -1,5 +1,24 @@
 <?php
+/**
+ * @file class_layout.php
+ * @brief Contiene la classe layout
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Gestisce il layout dell'applicazione raggruppando le funzionalità fornite dalle librerie dei css, template e skin
+ * 
+ * @see class.css.php
+ * @see class.template.php
+ * @see class.skin.php
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class layout extends AbstractEvtClass {
 
 	protected $_instance, $_instanceName;
@@ -25,15 +44,23 @@ class layout extends AbstractEvtClass {
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', 'skin');
 		if(empty($this->_block)) $this->_block = 'css';
-
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione del layout
+	 * 
+	 * @see manageStyleCss()
+	 * @see layoutList()
+	 * @see template::manageTemplate()
+	 * @return string
+	 */
 	public function manageLayout() {
 
 		$this->accessGroup('ALL');
 
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Layout")));	
 		$link_admin = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=permissions\">"._("Permessi")."</a>";
+		$link_style = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=style\">"._("Fogli di stile")."</a>";
 		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLayout]\">"._("Gestione")."</a>";
 		$sel_link = $link_dft;
 
@@ -41,7 +68,12 @@ class layout extends AbstractEvtClass {
 			$buffer = sysfunc::managePermissions(null, $this->_className); 
 			$sel_link = $link_admin;
 		}
+		elseif($this->_block == 'style') {
+			$buffer = $this->manageStyleCss();
+			$sel_link = $link_style;
+		}
 		else {
+			// Azioni sul template
 			if($this->_block=='template' && $this->_action=='mngtpl') {
 				$id = cleanVar($_POST, 'id', 'int', '');
 				$css = cleanVar($_POST, 'css', 'int', '');
@@ -63,6 +95,7 @@ class layout extends AbstractEvtClass {
 				$tplObj = new template(null);
 				return $tplObj->actionCopyTemplate();
 			}
+			// End
 
 			$buffer = "<div class=\"vertical_1\">";
 			$buffer .= $this->layoutList();
@@ -80,13 +113,21 @@ class layout extends AbstractEvtClass {
 		}
 		
 		$htmltab->navigationLinks = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')
-			? array($link_admin, $link_dft)
-			: array($link_dft);
+			? array($link_admin, $link_style, $link_dft)
+			: array($link_style, $link_dft);
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $buffer;
 		return $htmltab->render();
 	}
 
+	/**
+	 * Elenchi dei css, template, skin
+	 * 
+	 *  @see skinList()
+	 *  @see templateList()
+	 *  @see cssList()
+	 *  @return string
+	 */
 	private function layoutList() {
 
 		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=$this->_block&action=$this->_act_insert\">".pub::icon('insert')."</a>";
@@ -104,7 +145,6 @@ class layout extends AbstractEvtClass {
 		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
-
 	}
 
 	private function skinList() {
@@ -143,7 +183,6 @@ class layout extends AbstractEvtClass {
 		}
 
 		return $buffer;
-
 	}
 	
 	private function templateList() {
@@ -313,7 +352,6 @@ class layout extends AbstractEvtClass {
 		$css->actionCssLayout();
 
 		exit();
-
 	}
 	
 	public function actionDelCss() {
@@ -455,6 +493,136 @@ class layout extends AbstractEvtClass {
 		$buffer .= "</div>";
 
 		return $buffer;
+	}
+	
+	/**
+	 * Interfaccia per la gestione dei fogli di stile di gino
+	 * 
+	 * E' possibile modificare i fogli di stile (CSS) presenti nella directory css
+	 * 
+	 * @return string
+	 */
+	private function manageStyleCss() {
+		
+		$fname = cleanVar($_GET, 'fname', 'string', '');
+		
+		$GINO = "<div class=\"vertical_1\">";
+		$GINO .= $this->listStyleCss($fname);
+		$GINO .= "</div>";
+		$GINO .= "<div class=\"vertical_2\">";
+		if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) {
+			$GINO .= $this->formStyleCss($fname);
+		}
+		else $GINO .= $this->infoStyleCss();
+		$GINO .= "</div>";
+		$GINO .= "<div class=\"null\"></div>";
+
+	    return $GINO;
+	}
+	
+	private function infoStyleCss() {
+		
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Informazioni")));
+		
+		$buffer = "<p>"._("In questa sezione è possibile modificare i fogli di stile (CSS) presenti nella directory").' '.CSS_WWW."</p>";
+		$buffer .= "<p>"._("Attenzione, le modifiche possono compromettere la buona visualizzazione del sito.")."</p>";
+		
+		$htmlsection->content = $buffer;
+
+		return $htmlsection->render();
+	}
+	
+	private function listStyleCss($sel) {
+		
+		$title = _("File CSS");
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
+
+		$array = array();
+		$buffer = '';
+		
+		if(is_dir(CSS_DIR))
+		{
+			if($dh = opendir(CSS_DIR)) {
+				while (($file = readdir($dh)) !== false) {
+					if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.css$#', $file))
+					{
+						$array[] = $file;
+					}
+				}
+				closedir($dh);
+			}
+		}
+		
+		if(sizeof($array) > 0)
+		{
+			$htmlList = new htmlList(array("numItems"=>sizeof($array), "separator"=>true));
+			$buffer = $htmlList->start();
+			foreach($array as $value)
+			{
+				$selected = ($value == $sel) ? true : false;
+				$link = $this->_plink->aLink($this->_className, 'manageLayout', '', array('fname'=>$value, 'block'=>'style', 'action'=>$this->_act_modify));
+				$link_modify = "<a href=\"$link\">".pub::icon('modify', _("modifica il file"))."</a>";
+				
+				$buffer .= $htmlList->item(htmlChars($value), array($link_modify), $selected, true);
+			}
+			$buffer .= $htmlList->end();
+		}
+		$htmlsection->content = $buffer;
+
+		return $htmlsection->render();
+	}
+	
+	private function formStyleCss($filename) {
+		
+		$title = _("Modifica il file CSS"). " ($filename)";
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
+		
+		$buffer = '';
+		$pathToFile = CSS_DIR.OS.$filename;
+		$action = $this->_act_modify;
+		$link_return = $this->_home."?evt[$this->_className-manageLayout]&block=style";
+		
+		if(is_file($pathToFile))
+		{
+			$gform = new Form('gform', 'post', true, array("tblLayout"=>false));
+			$gform->load('dataform');
+			$buffer = $gform->form($this->_home."?evt[$this->_className-actionStyleCss]", '', '');
+			$buffer .= $gform->hidden('fname', $filename);
+			$buffer .= $gform->hidden('action', $action);
+
+			$css_contents = file_get_contents($pathToFile);
+			$buffer .= "<textarea name=\"file_content\" style=\"width:98%;height:300px;overflow:auto;border:2px solid #000;\">".$css_contents."</textarea>\n";
+			
+			$buffer .= "<p>".$gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+			$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""))."</p>";
+
+			$buffer .= $gform->cform();
+		}
+		
+		$htmlsection->content = $buffer;
+
+		return $htmlsection->render();
+	}
+	
+	/**
+	 * Salva il foglio di stile
+	 */
+	public function actionStyleCss() {
+	
+		$action = cleanVar($_POST, 'action', 'string', '');
+		$filename = cleanVar($_POST, 'fname', 'string', '');
+
+		if(is_file(CSS_DIR.OS.$filename))
+		{
+			$file_content = $_POST['file_content'];
+			if($fo = fopen(CSS_DIR.OS.$filename, 'wb'))
+			{
+				fwrite($fo, $file_content);
+				fclose($fo);
+			}
+		}
+
+		EvtHandler::HttpCall($this->_home, $this->_className.'-manageLayout', "block=style");
 	}
 }
 ?>

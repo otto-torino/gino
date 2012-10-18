@@ -1,6 +1,23 @@
 <?php
+/**
+ * @file class_menu.php
+ * @brief Contiene la classe menu
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+// Include il file class_menuVoice.php
 require_once('class_menuVoice.php');
 
+/**
+ * @brief Libreria per la gestione dei menu
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class menu extends AbstractEvtClass {
 
 	private static $_menu_functions_list = 'menuFunctionsList';
@@ -76,13 +93,23 @@ class menu extends AbstractEvtClass {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 	
+	/**
+	 * Fornisce i riferimenti della classe, da utilizzare nel processo di creazione e di eliminazione di una istanza 
+	 * 
+	 * @return array
+	 */
 	public static function getClassElements() {
 
 		return array("tables"=>array('sys_menu_voices', 'sys_menu_opt', 'sys_menu_grp', 'sys_menu_usr'),
-			     "css"=>array('menu.css', 'menuH.css', 'menuV.css')
-		      );
+			"css"=>array('menu.css', 'menuH.css', 'menuV.css')
+		);
 	}
 	
+	/**
+	 * Eliminazione di una istanza
+	 * 
+	 * @return boolean
+	 */
 	public function deleteInstance() {
 
 		$this->accessGroup('');
@@ -112,11 +139,21 @@ class menu extends AbstractEvtClass {
 		return $result;
 	}
 
+	/**
+	 * Gruppi per accedere alle funzionalità del modulo
+	 * 
+	 * @b _group_1: assistenti
+	 */
 	private function setGroups(){
 		
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 	
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
+	 */
 	public static function outputFunctions() {
 
 		$list = array(
@@ -127,6 +164,13 @@ class menu extends AbstractEvtClass {
 		return $list;
 	}
 
+	/**
+	 * Interfaccia per visualizzare il menu
+	 * 
+	 * @see renderMenu()
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function blockList() {
 
 		$this->accessType($this->_access_base);
@@ -184,6 +228,12 @@ class menu extends AbstractEvtClass {
 		return $buffer;
 	}
 
+	/**
+	 * Interfaccia per visualizzare le briciole di pane
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function breadCrumbs() {
 		
 		$this->accessType($this->_access_base);
@@ -209,6 +259,15 @@ class menu extends AbstractEvtClass {
 		return $GINO;
 	}
 
+	/**
+	 * Stampa il menu
+	 * 
+	 * @param integer $parent valore ID della voce di menu alla quale la voce corrente è collegata
+	 * @param mixed $s
+	 *   - integer: valore ID della voce di menu corrente
+	 *   - string: home, admin
+	 * @return string
+	 */
 	private function renderMenu($parent=0, $s=0) {
 
 		$GINO = '';
@@ -271,6 +330,11 @@ class menu extends AbstractEvtClass {
 		return $buffer;
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione del menu
+	 * 
+	 * @return string
+	 */
 	public function manageDoc() {
 		
 		$this->accessGroup('ALL');
@@ -342,6 +406,14 @@ class menu extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Voci di menu con gli strumenti per la loro modifica
+	 * 
+	 * @see jsSortLib()
+	 * @param integer $parent valore ID della voce di menu alla quale la voce corrente è collegata
+	 * @param integer $s valore ID della voce di menu corrente
+	 * @return string
+	 */
 	private function renderMenuAdmin($parent=0, $s=0) {
 
 		$GINO = (!$parent)? "<div id=\"menuContainer\">\n":"";
@@ -376,6 +448,11 @@ class menu extends AbstractEvtClass {
 		return $GINO;
 	}
 
+	/**
+	 * Aggiorna l'ordinamento delle voci di menu
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionUpdateOrder() {
 	
 		$this->accessGroup($this->_group_1);
@@ -457,6 +534,11 @@ class menu extends AbstractEvtClass {
 		return $buffer;
 	}
 
+	/**
+	 * Inserimento e modifica di una voce di menu
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionMenuVoice() {
 		
 		$this->accessGroup($this->_group_1);
@@ -481,7 +563,7 @@ class menu extends AbstractEvtClass {
 		$voice = new menuVoice($voice);
 
 		foreach($_POST as $k=>$v) {
-			$voice->{$k} = $k;
+			$voice->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 		$voice->instance = $this->_instance;
 		$voice->link = $this->_plink->convertLink($link);
@@ -499,6 +581,11 @@ class menu extends AbstractEvtClass {
 		return $buffer;
 	}
 
+	/**
+	 * Eliminazione di una voce di menu
+	 * 
+	 * @see $_group_1
+	 */
 	public function actionDelMenuVoice() {
 		
 		$this->accessGroup($this->_group_1);
@@ -520,6 +607,13 @@ class menu extends AbstractEvtClass {
 		EvtHandler::HttpCall($this->_home, $this->_instanceName.'-manageDoc', '');
 	}
 
+	/**
+	 * Ricerca moduli
+	 * 
+	 * @see jsSearchModulesLib()
+	 * @see $_group_1
+	 * @return string
+	 */
 	public function searchModules(){
 
 		$this->accessGroup($this->_group_1);
@@ -542,6 +636,12 @@ class menu extends AbstractEvtClass {
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Libreria javascript per l'ordinamento delle voci di menu
+	 * 
+	 * @see actionUpdateOrder()
+	 * @return string
+	 */
 	private function jsSortLib() {
 	
 		$GINO = "<script type=\"text/javascript\">\n";
@@ -564,6 +664,12 @@ class menu extends AbstractEvtClass {
 		return $GINO;
 	}
 
+	/**
+	 * Libreria javascript per la ricerca dei moduli
+	 * 
+	 * @see printItemsList()
+	 * @return string
+	 */
 	private function jsSearchModulesLib() {
 	
 		$buffer = "<script type=\"text/javascript\">\n";
@@ -593,6 +699,13 @@ class menu extends AbstractEvtClass {
 		return $buffer;
 	}
 	
+	/**
+	 * Mostra le interfacce che le classi mettono a disposizione del menu e le pagine
+	 * 
+	 * @see printItemsClass()
+	 * @see printItemsPage()
+	 * @return string
+	 */
 	public function printItemsList() {
 	
 		$this->accessGroup($this->_group_1);
@@ -677,6 +790,12 @@ class menu extends AbstractEvtClass {
 		return $GINO;
 	}
 	
+	/**
+	 * Pagine
+	 * 
+	 * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
+	 * @return string
+	 */
 	private function printItemsPage($array_search){
 		
 		$GINO = "<fieldset>";
@@ -714,9 +833,11 @@ class menu extends AbstractEvtClass {
 	}
 	
 	/**
-	 * Print Function's Class
+	 * Interfacce che le classi dei moduli mettono a disposizione del menu
+	 * 
+	 * Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
 	 *
-	 * @param array $array_search		field: id,name,label,role1
+	 * @param array $array_search array di array con le chiavi id, name, label, role1
 	 * @return string
 	 */
 	private function printItemsClass($array_search){

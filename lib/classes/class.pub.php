@@ -1,4 +1,22 @@
 <?php
+/**
+ * @file class.pub.php
+ * @brief Contiene la classe pub
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @brief Metodi generali
+ * 
+ * Contiene metodi generali utilizzati dalle classi che estendono la classe @b AbstractEvtClass o la classe @b pub
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class pub extends EvtHandler{
 	
 	public static $delimiter = ';;';
@@ -38,6 +56,11 @@ class pub extends EvtHandler{
 	
 	protected $_log_access, $_email_send, $_email_from;
 	
+	/**
+	 * Costruttore
+	 * 
+	 * Definisce delle proprietà utilizzate dalle classi che estendono la classe @b AbstractEvtClass o la classe @b pub
+	 */
 	function __construct(){
 		
 		$this->_className = get_class($this);	// name of current class
@@ -82,6 +105,15 @@ class pub extends EvtHandler{
 		$this->setOptionUser();
 	}
 	
+	/**
+	 * Esporta i percorsi web del metodo setUrl()
+	 * 
+	 * @param string $value chiave del percorso da recuperare
+	 *   - @b path: proprietà @a _url_path
+	 *   - @b login: proprietà @a _url_path_login
+	 *   - @b root: proprietà @a _url_root
+	 * @return string
+	 */
 	public function getUrl($value){
 		
 		if($value == 'path')
@@ -106,7 +138,10 @@ class pub extends EvtHandler{
 		$this->_home = HOME_FILE;
 	}
 	
-	// Indica  se si è all'interno di una pagina amministrativa
+	/**
+	 * Imposta la proprietà @a _admin_page che indica se si è all'interno di una pagina amministrativa
+	 * @return void
+	 */
 	private function setEvent(){
 		
 		$request = $_SERVER['REQUEST_URI'];
@@ -133,6 +168,10 @@ class pub extends EvtHandler{
 		else $this->_admin_page = false;
 	}
 	
+	/**
+	 * Imposta le variabili del linguaggio
+	 * @return void
+	 */
 	private function setLanguage(){
 		
 		$this->_tbl_language = 'language';
@@ -185,6 +224,10 @@ class pub extends EvtHandler{
 		else $this->_max_file_size = 2048000;
 	}
 	
+	/**
+	 * Imposta le variabili dei percorsi di gino
+	 * @return void
+	 */
 	private function setPath(){
 		
 		$this->_os = OS;
@@ -257,7 +300,6 @@ class pub extends EvtHandler{
 		$this->_doc_pdf = "<img src=\"".$this->_img_www."/ico_pdf.gif\" alt=\""._("pdf")."\" />";
 		$this->_doc_cart = "<img src=\"".$this->_img_www."/ico_cart.gif\" alt=\""._("metti nel carrello")."\" />";
 		$this->_doc_minimize = "<img src=\"".$this->_img_www."/ico_minimize.gif\" alt=\""._("riduci a icona")."\" />";
-	
 	}
 	
 	private function setAction(){
@@ -294,13 +336,11 @@ class pub extends EvtHandler{
 	/**
 	 * Opzioni di classe
 	 *
-	 * @param string $option
-	 * @param boolean|array $options
-	 * @return value
-	 * 
-	 * Opzioni:
-	 * translation (boolean)
-	 * value					valore di default
+	 * @param string $option nome del campo dell'opzione di classe
+	 * @param mixed $options
+	 *   - (array): chiavi value (valore di default), translation (traduzione)
+	 *   - (boolean): indica se è prevista la traduzione (compatibilità con precedenti versioni di gino)
+	 * @return mixed
 	 */
 	protected function setOption($option, $options=false) {
 		
@@ -361,6 +401,10 @@ class pub extends EvtHandler{
 		else return null;
 	}
 
+	/**
+	 * Valore del multi-lingua
+	 * @return string
+	 */
 	public static function getMultiLanguage() {
 		$db = db::instance();
 		$query = "SELECT multi_language FROM ".TBL_SYS_CONF." WHERE id=1";
@@ -368,6 +412,10 @@ class pub extends EvtHandler{
 		return $a[0]['multi_language'];
 	}
 
+	/**
+	 * Valore della lingua di default
+	 * @return string
+	 */
 	public static function getDftLanguage() {
 		$db = db::instance();
 		$query = "SELECT dft_language FROM ".TBL_SYS_CONF." WHERE id=1";
@@ -375,6 +423,11 @@ class pub extends EvtHandler{
 		return $a[0]['dft_language'];
 	}
 
+	/**
+	 * Valore di un campo delle impostazioni di sistema
+	 * @param string $field nome del campo della tabella sys_conf
+	 * @return mixed
+	 */
 	public static function variable($field){
 		
 		$session = session::instance();
@@ -386,12 +439,9 @@ class pub extends EvtHandler{
 	/**
 	 * Percorsi delle directory dei contenuti
 	 *
-	 * @param string $type			abs|rel
-	 * @param string $classname		if empty -> $this->_className
+	 * @param string $type tipo di percorso (abs->assoluto, rel->relativo)
+	 * @param string $classname se nullo -> proprietà @a _className
 	 * @return string
-	 * 
-	 * abs-> percorso assoluto
-	 * rel-> precorso relativo
 	 */
 	private function pathData($type, $classname=''){
 		
@@ -408,8 +458,14 @@ class pub extends EvtHandler{
 		$this->_class_img = $this->_class_www.'/img';
 	}
 	
-	// Serialize/Unserialize Operations
-	
+	/**
+	 * Operazione di serializzazione
+	 * Viene creato nella directory dei contenuti dell'istanza il file @a ser_nomeistanza.txt
+	 * 
+	 * @param string $instanceName nome dell'istanza
+	 * @param object $object oggetto da serializzare
+	 * @return void
+	 */
 	protected function obj_serialize($instanceName, $object){
 		
 		$filename = $this->pathData('abs', $instanceName).$this->_os.'ser_'.$instanceName.'.txt';
@@ -420,6 +476,12 @@ class pub extends EvtHandler{
 		fclose($file);
 	}
 	
+	/**
+	 * Operazione di deserializzazione
+	 * 
+	 * @param string $instanceName nome dell'istanza
+	 * @return void
+	 */
 	protected function obj_unserialize($instanceName){
 		
 		$filename = $this->pathData('abs', $instanceName).$this->_os.'ser_'.$instanceName.'.txt';
@@ -432,8 +494,11 @@ class pub extends EvtHandler{
 		return $object;
 	}
 	
-	// Encode/Decode url params
-	
+	/**
+	 * Codifica i parametri url
+	 * @param string $params parametri url
+	 * @return string
+	 */
 	protected function encode_params($params){
 		
 		if(!empty($params))
@@ -444,6 +509,11 @@ class pub extends EvtHandler{
 		return $params;
 	}
 	
+	/**
+	 * Decodifica i parametri url
+	 * @param string $params parametri url
+	 * @return string
+	 */
 	protected function decode_params($params){
 		
 		if(!empty($params))
@@ -457,7 +527,8 @@ class pub extends EvtHandler{
 	/**
 	 * Indirizzo per il redirect
 	 *
-	 * @param string $params		var1=1&var2=2
+	 * @param string $params parametri url (es. var1=1&var2=2)
+	 * @return array
 	 */
 	protected function urlRedirect($params=''){
 		
@@ -494,6 +565,12 @@ class pub extends EvtHandler{
 		return array($url, $url_error);
 	}
 	
+	/**
+	 * Nomi delle tabelle dei gruppi e degli utenti di un modulo
+	 * 
+	 * @param string $classname nome della classe
+	 * @return array
+	 */
 	protected function tblname($classname){
 		
 		$array = array();
@@ -515,17 +592,16 @@ class pub extends EvtHandler{
 
 	/**
 	 * Inclusione di file CSS e Javascript relativi a singole classi
+	 * Se il percorso non è specificato i file devono essere inseriti nelle directory di classe (@a app)
 	 *
-	 * @param string $file		nome del file
-	 * @param string $id
-	 * @param string $type		(css|js)
-	 * @param string $path		percorso relativo del file
-	 * @param array  $opts		opzioni
+	 * @param string $file nome del file
+	 * @param string $id valore identificativo
+	 * @param string $type tipologia di file (css, js)
+	 * @param string $path percorso relativo del file
+	 * @param array  $opts opzioni
+	 *   array associativo di opzioni
+	 *   - @b onload (boolean): il file javascript viene chiamato con l'onLoad
 	 * @return string
-	 * 
-	 * @example scriptAsset('catalogue.css', 'catCSS', 'css')
-	 * 
-	 * Se il percorso non è specificato i file devono essere inseriti nelle directory di classe ('app')
 	 */
 	public function scriptAsset($file, $id, $type, $path='', $opts=null) {
 		
@@ -566,6 +642,53 @@ class pub extends EvtHandler{
 		return $GINO;
 	}
 	
+	/**
+	 * Icone
+	 * 
+	 * @param string $name codice dell'icona
+	 *   - @b admin
+	 *   - @b attach
+	 *   - @b back
+	 *   - @b cart
+	 *   - @b check
+	 *   - @b close
+	 *   - @b config
+	 *   - @b content
+	 *   - @b duplicate
+	 *   - @b css
+	 *   - @b delete
+	 *   - @b detail
+	 *   - @b download
+	 *   - @b email
+	 *   - @b export
+	 *   - @b feed
+	 *   - @b group
+	 *   - @b help
+	 *   - @b home
+	 *   - @b input
+	 *   - @b insert
+	 *   - @b language
+	 *   - @b layout
+	 *   - @b link
+	 *   - @b list
+	 *   - @b minimize
+	 *   - @b modify
+	 *   - @b new
+	 *   - @b newpdf
+	 *   - @b palette
+	 *   - @b password
+	 *   - @b pdf
+	 *   - @b permission
+	 *   - @b print
+	 *   - @b return
+	 *   - @b revision
+	 *   - @b search
+	 *   - @b sort
+	 *   - @b view
+	 * @param string $text testo della proprietà @a title del tag IMG (sostituisce il testo di default)
+	 * @param string $tiptype col valore @a full si attiva il selettore @a icon_tooltipfull che richiama il javascript associato
+	 * @return string
+	 */
 	public static function icon($name, $text='', $tiptype='base'){
 		
 		switch ($name) {
@@ -746,8 +869,9 @@ class pub extends EvtHandler{
 	/**
 	 * Elimina ricorsivamente i file e le directory
 	 *
-	 * @param string $dir			percorso assoluto alla directory
-	 * @param boolean $delete_dir	per eliminare o meno le directory
+	 * @param string $dir percorso assoluto alla directory
+	 * @param boolean $delete_dir per eliminare o meno le directory
+	 * @return void
 	 */
 	public function deleteFileDir($dir, $delete_dir=true){
 	
@@ -776,16 +900,13 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Elimina il file indicato
-	 *
-	 * @param string $path_to_file
-	 * @param string $home				($this->_home)
-	 * @param string $redirect			(class-function)
-	 * @param string $param_link		(id=3&ref=12&)
-	 * @return boolean
-	 * 
-	 * @example $this->deleteFile($directory.$file, $this->_home, $redirect, $link);
-	 * 
 	 * Metodo pubblico perché viene richiamato dalla classe mFile
+	 *
+	 * @param string $path_to_file percorso assoluto al file
+	 * @param string $home (proprietà @a _home)
+	 * @param string $redirect (class-function)
+	 * @param string $param_link parametri url (es. id=3&ref=12&)
+	 * @return boolean
 	 */
 	public function deleteFile($path_to_file, $home, $redirect, $param_link){
 		
@@ -800,12 +921,13 @@ class pub extends EvtHandler{
 		return true;
 	}
 	
+	/**
+	 * Dimensione in KB di un file
+	 * @param string $bytes numero di byte con virgola (,)
+	 * @return integer
+	 */
 	protected function dimensionFile($bytes){
 	
-		/*
-		$a = explode(',', $bytes);
-		$kb = $a[0];
-		*/
 		$kb = (int)($bytes);
 		if($kb == 0) $kb = 1;
 		
@@ -813,9 +935,9 @@ class pub extends EvtHandler{
 	}
 	
 	/**
-	 * Stringa dei formati di file accettati
+	 * Elenco dei formati di file accettati in formato stringa
 	 *
-	 * @param array $extensions		array("txt", "rtf", "doc")
+	 * @param array $extensions elenco dei formati di file permessi
 	 * @return string
 	 */
 	public static function allowedFile($extensions){
@@ -837,9 +959,9 @@ class pub extends EvtHandler{
 	}
 	
 	/**
-	 * Nome dell'estensione
+	 * Nome dell'estensione di un file
 	 *
-	 * @param string $filename
+	 * @param string $filename nome del file
 	 * @return string
 	 */
 	protected function extensionFile($filename){
@@ -850,10 +972,10 @@ class pub extends EvtHandler{
 	}
 	
 	/**
-	 * Controlla se l'estensione è valida
+	 * Controlla se l'estensione di un file è valida
 	 *
-	 * @param string $filename
-	 * @param array $extensions
+	 * @param string $filename nome del file
+	 * @param array $extensions elenco dei formati di file permessi
 	 * @return boolean
 	 */
 	protected function verifyExtension($filename, $extensions){
@@ -867,6 +989,12 @@ class pub extends EvtHandler{
 		else return false;
 	}
 	
+	/**
+	 * Identifica il tipo di media di un file in riferimento ai valori della proprietà @a _type_media
+	 * 
+	 * @param string $file nome del file
+	 * @return string
+	 */
 	protected function typeMedia($file){
 		
 		$media = '';
@@ -897,7 +1025,12 @@ class pub extends EvtHandler{
 		return $media;
 	}
 	
-	protected function enabledPng(){
+	/**
+	 * Verifica la validità del supporto PNG
+	 * 
+	 * @return boolean
+	 */
+	public function enabledPng(){
 		
 		if (function_exists('gd_info'))
 		{
@@ -916,6 +1049,11 @@ class pub extends EvtHandler{
 		else return false;
 	}
 	
+	/**
+	 * Verifica la validità della classe @a ZipArchive
+	 * 
+	 * @return boolean
+	 */
 	public function enabledZip(){
 		
 		if (class_exists('ZipArchive'))
@@ -924,7 +1062,14 @@ class pub extends EvtHandler{
 			return false;
 	}
 	
-	protected function cryptMethod($pwd, $crypt){
+	/**
+	 * Cripta la password dell'utente
+	 * 
+	 * @param string $pwd
+	 * @param string $crypt metodo di criptazione; default: proprietà @a _crypt (impostazioni di sistema) 
+	 * @return string
+	 */
+	protected function cryptMethod($pwd, $crypt=null){
 
 		if(empty($crypt)) $crypt = $this->_crypt;
 		
@@ -939,14 +1084,10 @@ class pub extends EvtHandler{
 	}
 	
 	/**
-	 * Browser version
+	 * Versione del browser (libreria browscap)
 	 * 
-	 * @param string $field			Parent|Platform
+	 * @param string $field se non indicato viene preso il valore @a Parent; un altro valore valido è @a Platform. Esempio @a Parent: "IE 6.0", "Firefox 1.5", esempio @a Platform: Win2000, Linux, MacPPC
 	 * @return string
-	 * 
-	 * @example 
-	 * Parent: "IE 6.0", "Firefox 1.5"
-	 * Platform: Win2000, Linux, MacPPC
 	 */
 	public function detectBrowser($field=false){
 		
@@ -967,6 +1108,11 @@ class pub extends EvtHandler{
 		return $value;
 	}
 	
+	/**
+	 * Versione del browser (metodo non utilizzato)
+	 * 
+	 * @return string
+	 */
 	private function _detectBrowser_() {
 		
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -996,20 +1142,18 @@ class pub extends EvtHandler{
 	}
 	
 	/**
-	 * Return the user's name
+	 * Nome di un utente
 	 *
-	 * @param integer $user_id
-	 * @param string $string_case		lower | upfirststring | upfirstword | upper
-	 * @param string $field_first		firstname | lastname | company
-	 * @param string $table
-	 * @param string $field_id
+	 * @param integer $user_id valore ID dell'utente
+	 * @param string $string_case tipologia di formattazione
+	 *   - @b lower: nome cognome
+	 *   - @b upfirststring: Nome cognome
+	 *   - @b upfirstword: Nome Cognome
+	 *   - @b upper: NOME COGNOME
+	 * @param string $field_first nome del campo da mostrare come primo (firstname, lastname, company); default: firstname
+	 * @param string $table nome della tabella utenti; default: proprietà _tbl_user
+	 * @param string $field_id nome del campo ID della tabella utenti; default: user_id
 	 * @return string
-	 * 
-	 * @example (case)
-	 * lower: nome cognome
-	 * upfirststring: Nome cognome
-	 * upfirstword: Nome Cognome
-	 * upper: NOME COGNOME
 	 */
 	protected function nameUser($user_id, $string_case, $field_first='', $table='', $field_id=''){
 		
@@ -1064,7 +1208,14 @@ class pub extends EvtHandler{
 		}
 	}
 	
-	// return true if value exist
+	/**
+	 * Verifica se il valore di un campo in una query corrisponde a un dato valore
+	 * 
+	 * @param string $query query di database
+	 * @param string $field nome del campo da verificare
+	 * @param mixed $value_match valore da confrontare
+	 * @return boolean
+	 */
 	protected function valueExist($query, $field, $value_match){
 		
 		$a = $this->_db->selectquery($query);
@@ -1078,9 +1229,17 @@ class pub extends EvtHandler{
 		return false;
 	}
 	
-	protected function emailSend($to, $subject, $object, $from='', $type='text'){
-		
-		// type: text, html
+	/**
+	 * Invio email
+	 * 
+	 * @param string $to indirizzo del destinatario
+	 * @param string $subject oggetto del messaggio
+	 * @param string $object testo del messaggio
+	 * @param string $from indirizzo del mittente; default: proprietà _email_from
+	 * @param string $type
+	 * @return void 
+	 */
+	protected function emailSend($to, $subject, $object, $from=''){
 		
 		$m_to = $to;
 		$m_subject = $subject;
@@ -1092,48 +1251,55 @@ class pub extends EvtHandler{
 		mail($m_to, $m_subject, $m_object, $m_from);
 	}
 	
+	/**
+	 * Testo della policy di una email
+	 * 
+	 * @return string
+	 */
 	protected function emailPolicy(){
 		
-		// if(empty($email_admin)) $email_admin = '[inserire nelle impostazioni]';
-		
 		$GINO = "\n\n"._("Indirizzo web").": http://".$_SERVER['HTTP_HOST'].$this->_site_www."\n---------------------------------------------------------------\n"._("La presente email è stata inviata con procedura automatica. Si prega di non rispondere alla presente email.")."\n\n"._("Per problemi o segnalazioni potete scrivere a ").$this->_email_send;
-
 		return $GINO;
 	}
 	
-	/*
-	 * Esportazione file
-	 * 
-	 * I valori da DB devono passare attraverso le funzioni:
-	 * 
-	 * $firstname = enclosedField(utf8_encode($b['firstname']));	-> TESTO
-	 * $date = utf8_encode($b['date']);								-> DATA
-	 * $number = $b['number'];										-> NUMERO
-	 * 
-	 * Creare il file sul filesystem:
-	 * 
-$filename = $this->_doc_dir.'/'.$filename;
-if(file_exists($filename)) unlink($filename);
-$this->writeFile($filename, $output, 'csv');
-	 * 
-	 * Effettuare il download del file:
-	 * 
-$filename = 'export.csv';
-header("Content-type: application/csv \r \n");
-header("Content-Disposition: inline; filename=$filename");
-echo $output;
-exit();
-	 */
-	 
 	/**
-	 * Crea un file con specifiche caratteristiche
+	 * Crea un file con caratteristiche specifiche di encoding
 	 *
-	 * @param string $filename		absolute path to file
-	 * @param string $content		file content
-	 * @param string $type			utf8, iso8859, csv
+	 * @param string $filename percorso assoluto al file
+	 * @param string $content contenuto del file
+	 * @param string $type tipologia di file
+	 *   - @b utf8
+	 *   - @b iso8859
+	 *   - @b csv: in questo caso utilizzare la funzione utf8_encode() sui valori da DB
+	 * @return void
 	 * 
-	 * @see 
-	 * csv: utilizzare la funzione utf8_encode() sui valori da DB
+	 * -- Procedura di esportazione di un file
+	 * 
+	 * 1. I valori da database devono passare attraverso le funzioni utf8_encode() e enclosedField():
+	 * 
+	 * @code
+	 * $firstname = enclosedField(utf8_encode($b['firstname']));	//-> TESTO
+	 * $date = utf8_encode($b['date']);								//-> DATA
+	 * $number = $b['number'];										//-> NUMERO
+	 * @endcode
+	 * 
+	 * 2. Creare il file sul filesystem:
+	 * 
+	 * @code
+	 * $filename = $this->_doc_dir.'/'.$filename;
+	 * if(file_exists($filename)) unlink($filename);
+	 * $this->writeFile($filename, $output, 'csv');
+	 * @endcode
+	 * 
+	 * 3. Effettuare il download del file:
+	 * 
+	 * @code
+	 * $filename = 'export.csv';
+	 * header("Content-type: application/csv \r \n");
+	 * header("Content-Disposition: inline; filename=$filename");
+	 * echo $output;
+	 * exit();
+	 * @endcode
 	 */
 	protected function writeFile($filename, $content, $type) {
 		
@@ -1162,6 +1328,12 @@ exit();
 		fclose($dhandle);
 	}
 	
+	/**
+	 * Rimuove il BOM (Byte Order Mark)
+	 * 
+	 * @param string $str
+	 * @return string
+	 */
 	protected function removeBOM($str=''){
 		
 		if(substr($str, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {

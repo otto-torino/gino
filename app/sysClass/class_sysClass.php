@@ -1,5 +1,20 @@
 <?php
+/**
+ * @file class_sysClass.php
+ * @brief Contiene la classe sysClass
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Libreria per la gestione dei moduli di sistema
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class sysClass extends abstractEvtClass {
 
 	protected $_instance, $_instanceName;
@@ -7,7 +22,6 @@ class sysClass extends abstractEvtClass {
 	private $_action;
 	private $_archive_extensions;
 	
-
 	function __construct(){
 
 		parent::__construct();
@@ -51,6 +65,12 @@ class sysClass extends abstractEvtClass {
 		return $GINO;
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione dei moduli di sistema
+	 * 
+	 * @see $_access_admin
+	 * @return string
+	 */
 	public function manageSysClass() {
 		
 		$this->accessType($this->_access_admin);
@@ -83,9 +103,14 @@ class sysClass extends abstractEvtClass {
 		$htmltab->selectedLink = $sel_link;
 		$htmltab->htmlContent = $GINO;
 		return $htmltab->render();
-
 	}
 
+	/**
+	 * Elenco dei moduli di sistema
+	 * 
+	 * @param integer $sel_id valore ID del modulo selezionato
+	 * @return string
+	 */
 	private function sysClassList($sel_id) {
 
 		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageSysClass]&action=$this->_act_insert\">".pub::icon('insert', _("installa nuovo modulo"))."</a>";
@@ -120,6 +145,11 @@ class sysClass extends abstractEvtClass {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Form di installazione di un modulo di sistema
+	 * 
+	 * @return string
+	 */
 	private function formInsertSysClass() {
 		
 		$gform = new Form('gform', 'post', true);
@@ -137,9 +167,15 @@ class sysClass extends abstractEvtClass {
 
 		$htmlsection->content = $GINO;
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Installazione modulo di sistema
+	 * 
+	 * Il modulo viene attivato nell'installazione
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionInsertSysClass() {
 		
 		$this->accessType($this->_access_admin);
@@ -292,6 +328,11 @@ class sysClass extends abstractEvtClass {
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
 	}
 	
+	/**
+	 * Form per l'installazione manuale di un modulo di sistema
+	 * 
+	 * @return string
+	 */
 	private function formManualSysClass() {
 		
 		$gform = new Form('mform', 'post', true);
@@ -355,6 +396,13 @@ class sysClass extends abstractEvtClass {
 		return $GINO;
 	}
 
+	/**
+	 * Installazione manuale di un modulo di sistema
+	 * 
+	 * Il modulo viene attivato nell'installazione
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionManualSysClass() {
 		
 		$this->accessType($this->_access_admin);
@@ -368,6 +416,7 @@ class sysClass extends abstractEvtClass {
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
 
+		$instance = cleanVar($_POST, 'instance', 'string', '');
 		$label = cleanVar($_POST, 'label', 'string', '');
 		$name = cleanVar($_POST, 'name', 'string', '');
 		$rolegroup = cleanVar($_POST, 'rolegroup', 'int', '');
@@ -383,7 +432,6 @@ class sysClass extends abstractEvtClass {
 		
 		// Default values
 		$type = 'class';
-		$instance = 'yes';
 		$removable = 'yes';
 
 		$query = "SELECT id FROM ".$this->_tbl_module_app." WHERE name='$name'";
@@ -407,6 +455,14 @@ class sysClass extends abstractEvtClass {
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
 	}
 
+	/**
+	 * Form di modifica di un modulo di sistema
+	 * 
+	 * Verifica l'esistenza nella classe del modulo dei metodi @a outputFunctions e @a permission
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @return string
+	 */
 	private function formEditSysClass($id) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -474,9 +530,15 @@ class sysClass extends abstractEvtClass {
 		$GINO .= $this->formUpgradeSysClass($id, $version);
 
 		return $GINO;
-
 	}
 
+	/**
+	 * Form di attivazione del modulo
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @param string $active stato dell'attivazione
+	 * @return string 
+	 */
 	private function formActivateSysClass($id, $active) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -496,9 +558,15 @@ class sysClass extends abstractEvtClass {
 		$htmlsection->content = $GINO;
 		
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Form di aggiornamento del modulo
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @param string $version versione del modulo
+	 * @return string
+	 */
 	private function formUpgradeSysClass($id, $version) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -522,9 +590,13 @@ class sysClass extends abstractEvtClass {
 		$htmlsection->content = $GINO;
 		
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Modifica del modulo
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionEditSysClass() {
 	
 		$this->accessType($this->_access_admin);
@@ -544,9 +616,13 @@ class sysClass extends abstractEvtClass {
 		$result = $this->_db->actionquery($query);
 		
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
-
 	}
 
+	/**
+	 * Modifica dello stato dell'attivazione del modulo
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionEditSysClassActive() {
 	
 		$this->accessType($this->_access_admin);
@@ -559,9 +635,13 @@ class sysClass extends abstractEvtClass {
 		$result = $this->_db->actionquery($query);
 		
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
-
 	}
 
+	/**
+	 * Aggiornamento del modulo
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionUpgradeSysClass() {
 		
 		$this->accessType($this->_access_admin);
@@ -702,7 +782,6 @@ class sysClass extends abstractEvtClass {
 		$this->deleteFileDir($class_dir, true);
 
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
-
 	}
 
 	private function upgradeFolders($files_dir, $module_dir, $noCopyFiles) {
@@ -724,9 +803,14 @@ class sysClass extends abstractEvtClass {
 			}
 		}
 		return $res;
-	
 	}
 
+	/**
+	 * Form di eliminazione di un modulo di sistema
+	 * 
+	 * @param integer $id valore ID del modulo
+	 * @return string
+	 */
 	private function formRemoveSysClass($id) {
 		
 		$gform = new Form('gform', 'post', true);
@@ -773,9 +857,13 @@ class sysClass extends abstractEvtClass {
 		$htmlsection->content = $GINO;
 		
 		return $htmlsection->render();
-
 	}
 
+	/**
+	 * Eliminazione di un modulo di sistema
+	 * 
+	 * @see $_access_admin
+	 */
 	public function actionRemoveSysClass() {
 		
 		$this->accessType($this->_access_admin);
@@ -825,7 +913,6 @@ class sysClass extends abstractEvtClass {
 		$result = $this->_db->actionquery($query);
 
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysClass', '');
-
 	}
 
 	private function info() {
@@ -854,5 +941,4 @@ class sysClass extends abstractEvtClass {
 		return $htmlsection->render();
 	}
 }
-
 ?>

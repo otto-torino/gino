@@ -1,19 +1,50 @@
 <?php
+/**
+ * @file class.javascript.php
+ * @brief Contiene la classe javascript
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Contiene i metodi per includere alcuni javascript
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class javascript {
 
+	/**
+	 * Include il file javascript con la libreria delle mappe
+	 * 
+	 * @return string
+	 */
 	public static function abiMapLib() {
 		
 		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/abiMap.js\"></script>\n";
 		return $buffer;
 	}
 
+	/**
+	 * Include il file javascript con la libreria slimbox
+	 * 
+	 * @return string
+	 */
 	public static function slimboxLib() {
 		
 		$buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/slimbox.js\"></script>\n";
 		return $buffer;
 	}
 
+	/**
+	 * Funzioni javascript caricate all'interno della sezione HEAD dell'html
+	 * 
+	 * @param object $skinObj skin associata alla pagina
+	 * @return string
+	 */
 	public static function onLoadFunction($skinObj) {
 
 		$buffer = "<script type=\"text/javascript\">\n";

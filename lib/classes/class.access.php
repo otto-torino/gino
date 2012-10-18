@@ -1,5 +1,22 @@
 <?php
+/**
+ * @file class.access.php
+ * @brief Contiene la classe Access
+ *
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
+/**
+ * @brief Classe per la gestione degli accessi
+ * 
+ * La classe gestisce il processo di autenticazione e l'accesso al sito e alle sue funzionalità
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class Access extends pub {
 	
 	public $default_role;
@@ -12,6 +29,9 @@ class Access extends pub {
 
 	private $_block_page;
 
+	/**
+	 * Costruttore
+	 */
 	function __construct(){
 
 		$this->_db = db::instance();
@@ -45,6 +65,16 @@ class Access extends pub {
 		return (sizeof($a) > 0);
 	}
 	
+	/**
+	 * Verifica utente/password
+	 * 
+	 * Imposta le variabili di sessione userId, userName, userRole e richiama il metodo logAccess()
+	 * 
+	 * @see logAccess()
+	 * @param string $user
+	 * @param string $pwd
+	 * @return boolean
+	 */
 	private function AuthenticationMethod($user, $pwd){
 
 		$pwd = pub::cryptMethod($pwd, $this->_crypt);
@@ -75,6 +105,11 @@ class Access extends pub {
 		}
 	}
 	
+	/**
+	 * Registra il log dell'accesso a gino
+	 * @param integer $userid
+	 * @return void
+	 */
 	private function logAccess($userid) {
 		
 		date_default_timezone_set('Europe/Rome');
@@ -88,7 +123,6 @@ class Access extends pub {
 	
 	/**
 	 * Form di autenticazione
-	 *
 	 * @return string
 	 */
 	public function AccessForm(){
@@ -107,8 +141,10 @@ class Access extends pub {
 		return $GINO;
 	}
 	
-	/*
-	 * Funzione di Autenticazione
+	/**
+	 * Autenticazione a gino
+	 * @see AuthenticationMethod()
+	 * @return void
 	 */
 	public function Authentication(){
 		if((isset($_POST['action']) && $_POST['action']=='auth')) {
@@ -145,7 +181,6 @@ class Access extends pub {
 
 	/**
 	 * Restituisce l'ID del ruolo dell'utente
-	 *
 	 * @return integer
 	 */
 	public function userRole(){
@@ -176,7 +211,14 @@ class Access extends pub {
 		return $value;
 	}
 	
-	// ID del ruolo di una data classe
+	/**
+	 * Restituisce l'ID del ruolo di una data classe
+	 * 
+	 * @param string $class_name nome della classe
+	 * @param integer $instance valore ID dell'istanza
+	 * @param string $role riferimento per la ricerca del ruolo (user, user2, user3)
+	 * @return integer
+	 */
 	public function classRole($class_name, $instance, $role){
 
 		$value = '';
@@ -194,13 +236,12 @@ class Access extends pub {
 	}
 	
 	/**
-	 * Verifica del ruolo utente per l'accesso a una pagina di classe.
-	 * Viene utilizzata nella funzione accessType($role).
-	 *
-	 * @param integer $role		ID del ruolo
-	 * @return boolean
+	 * Verifica del ruolo utente per l'accesso a una pagina di classe
 	 * 
-	 * @example $this->_access->accessType($this->_access_base)
+	 * Viene utilizzata nel metodo accessType()
+	 * 
+	 * @param integer $role valore ID del ruolo (es. proprietà @a _access_base)
+	 * @return boolean
 	 */
 	public function AccessVerifyRoleID($role){
 
@@ -218,10 +259,8 @@ class Access extends pub {
 	/**
 	 * Verifica la possibilità di accedere a specifiche funzionalità in riferimento al proprio ruolo
 	 *
-	 * @param integer $role		ID del ruolo
+	 * @param integer $role valore ID del ruolo (es. proprietà @a _access_global)
 	 * @return boolean
-	 * 
-	 * @example $this->_access->AccessVerifyRoleIDIf($this->_access_global)
 	 */
 	public function AccessVerifyRoleIDIf($role){
 
@@ -237,10 +276,12 @@ class Access extends pub {
 	}
 	
 	/**
-	 * Verifica del ruolo utente per l'accesso a una pagina.
+	 * Verifica del ruolo utente per l'accesso a una pagina
+	 * 
+	 * Con una risposta negativa redirige a una pagina di errore. Viene verificato il campo role1.
 	 *
-	 * @param integer $module_id
-	 * @return boolean
+	 * @param integer $module_id valore ID del modulo
+	 * @return boolean o redirect
 	 */
 	public function AccessVerifyPage($module_id){
 
@@ -279,6 +320,31 @@ class Access extends pub {
 		}
 	}
 	
+	/**
+	 * Verifica del ruolo utente per l'accesso ai contenuti di una pagina
+	 * 
+	 * Con una risposta negativa non mostra i contenuti. Viene verificato il campo role1.
+	 *
+	 * @param integer $module_id valore ID del modulo
+	 * @return boolean
+	 */
+	public function AccessVerifyPageIf($module_id){
+
+		$query = "SELECT role1 FROM ".TBL_MODULE." WHERE id='$module_id' AND type='page'";
+		$a = $this->_db->selectquery($query);
+		if(sizeof($a) > 0)
+		{
+			foreach($a AS $b)
+			{
+				$role = $b['role1'];
+			}
+		}
+		
+		if(empty($role)) return false;
+		
+		if($role >= $this->userRole()) return true; else return false;
+	}
+	
 	/*
 		Gruppi
 	*/
@@ -314,10 +380,11 @@ class Access extends pub {
 
 		exit(error::errorMessage(array('error'=>$message), $redirect));
 	}
+	
 	/**
-	 * ID Gruppo amministratore della classe
+	 * Restituisce il gruppo amministratore di una classe
 	 *
-	 * @param string $class_name
+	 * @param string $class_name nome della classe
 	 * @return integer
 	 */
 	public function adminGroup($class_name){
@@ -341,7 +408,8 @@ class Access extends pub {
 	/**
 	 * Verifica se un utente è l'amministratore di una classe
 	 *
-	 * @param string $class_name
+	 * @param string $class_name nome della classe
+	 * @param integer $instance valore ID dell'istanza
 	 * @return boolean
 	 */
 	public function AccessAdminClass($class_name, $instance){
@@ -375,7 +443,11 @@ class Access extends pub {
 		return $control;
 	}
 	
-	// Elenco dei gruppi della classe
+	/**
+	 * Elenco dei gruppi di una classe
+	 * @param string $class_name nome della classe
+	 * @return array
+	 */
 	public function listGroup($class_name){
 		
 		$group = array();
@@ -409,7 +481,9 @@ class Access extends pub {
 	/**
 	 * Elenco dei gruppi di un utente in riferimento a una data classe
 	 *
-	 * @param string $class_name
+	 * @param string $class_name nome della classe
+	 * @param integer $instance valore ID dell'istanza
+	 * @param boolean $no_admin true -> gruppo che non ha funzionalità amministrative 
 	 * @return array
 	 */
 	public function userGroup($class_name, $instance=null, $no_admin = true){
@@ -446,18 +520,20 @@ class Access extends pub {
 	}
 	
 	/**
-	 * Verifica l'appartenenza ad almeno un gruppo della classe
-	 *
-	 * @param string $class_name		nome della classe
-	 * @param array $user_group			gruppi cui può accedere l'utente
-	 * @param array|string $permission	gruppi cui è concesso l'accesso a una determinata funzione
+	 * Verifica l'appartenenza di un utente ad almeno un gruppo di una data classe
+	 * 
+	 * @see metodo accessGroup(), classe AbstractEvtClass
+	 * @param string $class_name nome della classe
+	 * @param integer $instance valore ID dell'istanza
+	 * @param array $user_group gruppi ai quali può accedere l'utente
+	 * @param mixed $permission gruppi ai quali è concesso l'accesso a una determinata funzione
 	 * @return boolean
 	 * 
-	 * @example all'interno della classe -> $this->accessGroup()
-	 * 
+	 * @code
 	 * $this->accessGroup($this->_group_1);	// accesso a gruppi selezionati
 	 * $this->accessGroup('ALL');	// accesso a tutti i gruppi della classe
 	 * $this->accessGroup('');		// amm. sito + amm. classe
+	 * @endcode
 	 */
 	public function AccessVerifyGroup($class_name, $instance, $user_group, $permission){
 
@@ -490,17 +566,19 @@ class Access extends pub {
 	}
 	
 	/**
-	 * Controlla se un utente può accedere a porzioni di codice.
+	 * Controlla se un utente può accedere a porzioni di codice
 	 *
-	 * @param string $class_name		nome della classe
-	 * @param array $user_group			gruppi cui è associato l'utente
-	 * @param array|string $permission	gruppi che possiedono i permessi
+	 * @param string $class_name nome della classe
+	 * @param integer $instance valore ID dell'istanza
+	 * @param array $user_group gruppi ai quali è associato l'utente
+	 * @param mixed $permission gruppi che possiedono i permessi
 	 * @return boolean
 	 * 
-	 * @example
-	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_user_group, $this->_group_1)
-	 * $this->_access->AccessVerifyGroupIf($this->_className, '', 'ALL')
-	 * $this->_access->AccessVerifyGroupIf($this->_className, '', '')	// amm. sito + amm. classe
+	 * @code
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', 'ALL')
+	 * $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')	// amm. sito + amm. classe
+	 * @endcode
 	 */
 	public function AccessVerifyGroupIf($class_name, $instance, $user_group, $permission){
 
@@ -533,9 +611,10 @@ class Access extends pub {
 		return $control;
 	}
 
-	/*
-		Verifica dell'accesso
-	*/
+	/**
+	 * Verifica dell'accesso
+	 * @return void
+	 */
 	public function AccessVerify(){
 
 		if(empty($this->_session_user))
@@ -545,14 +624,17 @@ class Access extends pub {
 		}
 	}
 
+	/**
+	 * Verifica dell'accesso
+	 * @return boolean
+	 */
 	public function AccessVerifyIf(){
 
 		if(empty($this->_session_user)) return false; else return true;
 	}
 	
 	/**
-	 * Metodo di accesso all'area amministrativa
-	 *
+	 * Accesso all'area amministrativa
 	 * @return boolean
 	 */
 	public function getAccessAdmin() {
@@ -585,6 +667,10 @@ class Access extends pub {
 		return false;
 	}
 	
+	/**
+	 * Elenco dei ruoli di gino
+	 * @return array
+	 */
 	public function listRole(){
 
 		$role_type = array(); $role_name = array();

@@ -1,24 +1,29 @@
 <?php
-/*================================================================================
-    Gino - a generic CMS framework
-    Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class.options.php
+ * @brief Contiene la classe options
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-   For additional information: <opensource@otto.to.it>
-================================================================================*/
-
+/**
+ * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
+ * 
+ * Le opzioni che possono essere associate a ciascun campo sono:
+ * 
+ *   - @b label (string): nome della label
+ *   - @b value (mixed): valore di default
+ *   - @b required (boolean): campo obbligatorio
+ *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
+ *   - @b section_title (string): nome del blocco di opzioni
+ *   - @b section_description (string): descrizione del blocco di opzioni
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class options extends pub {
 
 	private $_class, $_class_prefix;
@@ -55,7 +60,6 @@ class options extends pub {
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
-
 	}
 
 	private function field_class($field, $class_name){
@@ -88,6 +92,11 @@ class options extends pub {
 		return ($field != 'id' && $field != 'instance');
 	}
 	
+	/**
+	 * Interfaccia per la gestione delle opzioni di una istanza/modulo (Form)
+	 * 
+	 * @return string
+	 */
 	public function manageDoc(){
 
 		if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) return $this->actionOptions();
@@ -163,6 +172,16 @@ class options extends pub {
 
 				$field_option = $class_instance->_optionsLabels[$f->name];
 				
+				if(is_array($field_option) && array_key_exists('section', $field_option) && $field_option['section'])
+				{
+					$section_title = array_key_exists('section_title', $field_option) ? $field_option['section_title'] : '';
+					$section_title = "<p class=\"subtitle\">$section_title</p>";
+					if($section_description = gOpt('section_description', $field_option, null)) {
+						$section_title .= "<div>$section_description</div>";
+					}
+					$GINO .= $gform->cell($section_title);
+				}
+				
 				if(is_array($field_option) AND array_key_exists('label', $field_option))
 				{
 					$field_label = $field_option['label'];
@@ -190,7 +209,6 @@ class options extends pub {
 					$GINO .= $gform->cinput_date($f->name, dbDateToDate(${$f->name}, '/'),  $field_label, array("required"=>$field_required));
 				}
 				else $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
-
 			}
 		}
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
@@ -201,6 +219,11 @@ class options extends pub {
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica delle opzioni di una istanza/modulo
+	 * 
+	 * @return redirect
+	 */
 	public function actionOptions() {
 	
 		$gform = new Form('gform', 'post', false);

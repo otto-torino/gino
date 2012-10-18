@@ -1,27 +1,26 @@
 <?php
-/*================================================================================
-Gino - a generic CMS framework
-Copyright (C) 2005  Otto Srl - written by Marco Guidotti
+/**
+ * @file class_user.php
+ * @brief Contiene la classe user
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-For additional information: <opensource@otto.to.it>
-================================================================================*/
-
+// Include una libreria per la gestione autonoma degli utenti
 require_once(CLASSES_DIR.OS."class.account.php");
+
+// Include una libreria per la gestione di email personalizzate
 require_once(CLASSES_DIR.OS."class.email.php");
 
+/**
+ * @brief Libreria per la gestione degli utenti
+ * 
+ * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class user extends AbstractEvtClass{
 
 	protected $_instance, $_instanceName;
@@ -29,7 +28,7 @@ class user extends AbstractEvtClass{
 	
 	private $_title;
 	
-	private $_properties, $_options;
+	private $_options;
 	public $_optionsLabels;
 
 	private $_group_1;
@@ -110,29 +109,10 @@ class user extends AbstractEvtClass{
 		$this->_extension_media = array('jpg', 'png');
 		$this->_lng_tbl_nation = $this->_lng_nav;
 
-		// Class account
-		$this->_account = new account($this, $this->_className);
-		$this->_properties = array(
-			'a'=>'',
-			'b'=>'',
-			'c'=>''
-		);
-		// End
+		$this->_account = new account($this->_className);
 		
 		$this->setAddUserData();
 	}
-	
-	public function __get($property_name){
-		
-		return isset($this->_properties[$property_name]) ? $this->_properties[$property_name]:null;
-	}
-	
-	/*
-	public function __set($property_name, $value){
-		
-		$this->_properties[$property_name] = $value;
-	}
-	*/
 	
 	private function setGroups(){
 
@@ -140,6 +120,12 @@ class user extends AbstractEvtClass{
 		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
 	}
 
+	/**
+	 * Definisce i permessi di visualizzazione aggiuntivi a quello base
+	 * 
+	 * @see AbstractEvtClass::permission()
+	 * @return array
+	 */
 	public static function permission(){
 
 		$access_2 = _("Permessi di registrazione tramite form utente");// _("accesso form di registrazione utenti")
@@ -157,13 +143,17 @@ class user extends AbstractEvtClass{
 		else $this->_user_for_page = 20;
 	}
 
+	/**
+	 * Impostazione di campi aggiuntivi alla tabella utenti
+	 * 
+	 * Il riferimento è la tabella @a user_add
+	 * 
+	 * Valori di default:
+	 *   - empty => non visibile
+	 *   - yes|no => visibile 
+	 */
 	private function setAddUserData(){
 
-		/*
-		Default value:
-		empty => not visible
-		yes|no => visible
-		*/
 		$this->_other_field1 = '';	// yes|no
 		$this->_other_field2 = '';
 		$this->_other_field3 = '';
@@ -173,9 +163,10 @@ class user extends AbstractEvtClass{
 		$this->_label_field3 = '';
 	}
 
-	/*
-	 * Funzioni che possono essere richiamate da menu e messe all'interno del template;
-	 * array ("function" => array("label"=>"description", "role"=>"privileges"))
+	/**
+	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
+	 * 
+	 * @return array
 	 */
 	public static function outputFunctions() {
 	
@@ -188,9 +179,14 @@ class user extends AbstractEvtClass{
 		);
 
 		return $list;
-	
 	}
 
+	/**
+	 * Interfaccia per mostrare l'elenco degli utenti come blocco di pagina
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function blockList(){
 
 		$this->accessType($this->_access_base);
@@ -221,6 +217,12 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Interfaccia per mostrare l'elenco degli utenti come pagina
+	 * 
+	 * @see $_access_base
+	 * @return string
+	 */
 	public function viewList(){
 
 		$this->accessType($this->_access_base);
@@ -318,17 +320,22 @@ class user extends AbstractEvtClass{
 		return '';
 	}
 
+	/**
+	 * Scheda personale dell'utente
+	 * 
+	 * @see $_access_3
+	 * @return string
+	 */
 	public function userCard() {
 		
 		$this->accessType($this->_access_3);
-
-		$htmlsection = new htmlSection(array('class'=>'public', 'headerTag'=>'header'));
 
 		$query = "SELECT * FROM ".$this->_tbl_user." WHERE user_id=".$this->_session_user." AND pub='yes'";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
-
+			$htmlsection = new htmlSection(array('class'=>'public', 'headerTag'=>'header'));
+			
 			foreach($a AS $b)
 			{
 				$firstname = htmlChars($b['firstname']);
@@ -347,8 +354,10 @@ class user extends AbstractEvtClass{
 
 				$htmlsection->headerLabel = _("Scheda utente");
 
-				$GINO = $this->scriptAsset("user.css", "userCSS", 'css');
-				$GINO .= "<table class=\"userCard\">";
+				$registry = registry::instance();
+				$registry->addCss($this->_class_www."/user.css");
+				
+				$GINO = "<table class=\"userCard\">";
 				$GINO .= "<tr><th style=\"width:".(self::$width_thumb+10)."px\"><div style=\"text-align:center\">";
 				if(!empty($photo)) {
 					$file = $this->_data_www."/".self::$prefix_thumb."$photo";
@@ -376,11 +385,14 @@ class user extends AbstractEvtClass{
 		
 			return $htmlsection->render();
 		}
-
-		return '';
-
+		else return null;
 	}
 
+	/**
+	 * Interfaccia amministrativa per la gestione degli utenti
+	 * 
+	 * @return string
+	 */
 	public function manageUser(){
 
 		$this->accessGroup('ALL');
@@ -392,7 +404,10 @@ class user extends AbstractEvtClass{
 		$link_dft = "<a href=\"$this->_home?evt[$this->_className-manageUser]\">"._("Gestione")."</a>";
 		$sel_link = $link_dft;
 
-		$GINO = $this->scriptAsset("user.css", "userCSS", 'css');
+		$registry = registry::instance();
+		$registry->addCss($this->_class_www."/user.css");
+		
+		$GINO = '';
 
 		if($this->_block == 'options') {$GINO .= sysfunc::manageOptions(null, $this->_className); $sel_link = $link_options;}
 		elseif($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
@@ -437,6 +452,11 @@ class user extends AbstractEvtClass{
 		return "<p class=\"center\">$bar</p>";
 	}
 	
+	/**
+	 * Elenco utenti di sistema
+	 * 
+	 * @return string
+	 */
 	private function listUser(){
 		
 		$link_insert = "<a href=\"".$this->_home."?evt[".$this->_className."-manageUser]&action=$this->_act_insert\">".$this->icon('insert', '')."</a>";
@@ -451,16 +471,12 @@ class user extends AbstractEvtClass{
 		if(empty($search) OR $search == 1)
 		{
 			$order = "name ASC";
-			
-			if(!empty($char)) $where = "WHERE lastname LIKE '$char%'";
-			else $where = '';
+			$where = !empty($char) ? "WHERE lastname LIKE '$char%'" : '';
 		}
 		elseif($search == 2)
 		{
 			$order = "company ASC, name ASC";
-			
-			if(!empty($char)) $where = "WHERE company LIKE '$char%' AND company!=''";
-			else $where = "WHERE company!=''";
+			$where = !empty($char) ? "WHERE company LIKE '$char%' AND company!=''" : "WHERE company!=''";
 		}
 		// End
 		
@@ -481,7 +497,9 @@ class user extends AbstractEvtClass{
 			
 			$this->_gform = new Form('ginoform', 'post', false);
 
-			$GINO .= $this->scriptAsset("user.js", "userJS", 'js');
+			$registry = registry::instance();
+			$registry->addJs($this->_class_www."/user.js");
+			
 			$GINO .= "<table class=\"userTableList\" summary=\""._("elenco utenti con accesso al sistema")."\">\n";
 			$GINO .= "<tr>\n";
 			$GINO .= "<th".($search==1 || empty($search)?" class=\"thOrder\"":"").">";
@@ -538,7 +556,6 @@ class user extends AbstractEvtClass{
 								
 				if($this->_user_other)
 				{
-					
 					$query2 = "SELECT * FROM ".$this->_tbl_user_add." WHERE user_id='$user'";
 					$c = $this->_db->selectquery($query2);
 					if(sizeof($c) > 0)
@@ -553,13 +570,6 @@ class user extends AbstractEvtClass{
 							{
 								if(!empty($field1))
 								{
-									/*
-									$array = array('yes'=>_("si"), 'no'=>_("no"));
-									$GINO .= "<td class=\"special\">";
-									$GINO .= $this->_gform->label('field1', '', '', '').$this->_gform->clabel();
-									$GINO .= $this->_gform->bradio('field1', $field1, 'array', $array, $this->_other_field1, 'h', '');
-									$GINO .= "</td>\n";
-									*/
 									$GINO .= $this->inputValue($this->_gform, "field1", 'yes', $field1, '', '', array("id"=>"field1_$user"));
 								}
 								else
@@ -616,12 +626,6 @@ class user extends AbstractEvtClass{
 
 				if($this->_user_view)
 				{
-					/*
-					$GINO .= "<td>";
-					$GINO .= $this->_gform->label('public', '', '', '').$this->_gform->clabel();
-					$GINO .= $this->_gform->bradio('public', $public, 'array', $array, 'no', 'h', '');
-					$GINO .= "</td>";
-					*/
 					$GINO .= $this->inputValue($this->_gform, "public", 'yes', $public, '', '', array("id"=>"public_$user"));
 				}
 
@@ -666,6 +670,13 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 	
+	/**
+	 * Form di inserimento e modifica di un utente (amministrazione)
+	 * 
+	 * @param integer $user valore ID dell'utente
+	 * @param string $action azione da eseguire
+	 * @return string
+	 */
 	private function formUser($user, $action){
 
 		$GINO = '';
@@ -831,6 +842,14 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Interfaccia per la modifica e l'eliminazione di un utente (amministrazione)
+	 * 
+	 * @see formUser
+	 * @see formPwd
+	 * @see formDeleteUser
+	 * @return string
+	 */
 	public function modifyUser(){
 
 		$this->accessGroup('ALL');
@@ -881,7 +900,7 @@ class user extends AbstractEvtClass{
 		if($action == $this->_act_modify)
 		{
 			if($this->_session_role < $user_role OR $user == $this->_session_user)
-				$GINO = $this->formPwd($user, 'h', 'manageUser', $action);
+				$GINO = $this->formPwd($user, 'manageUser', $action);
 
 			$GINO .= $this->formUser($user, $action);
 		}
@@ -895,6 +914,12 @@ class user extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
+	/**
+	 * Inserimento e modifica di un utente (amministrazione)
+	 * 
+	 * @see account::verifyPassword()
+	 * @see account::generatePwd()
+	 */
 	public function actionUser(){
 
 		$this->accessGroup('ALL');
@@ -1059,9 +1084,15 @@ class user extends AbstractEvtClass{
 		}
 		
 		EvtHandler::HttpCall($this->_home, "$this->_className-manageUser", "start=$start");
-
 	}
 
+	/**
+	 * Form di eliminazione di un utente
+	 * 
+	 * @param integer $user valore ID di un utente
+	 * @param string $action azione da eseguire
+	 * @return string
+	 */
 	private function formDeleteUser($user, $action){
 
 		$gform = new Form('gform', 'post', false);
@@ -1077,6 +1108,11 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Eliminazione di un utente
+	 * 
+	 * @return redirect
+	 */
 	public function actionDeleteUser(){
 
 		$this->accessGroup('');
@@ -1127,15 +1163,14 @@ class user extends AbstractEvtClass{
 	}
 
 	/**
-	 * Change User Password
+	 * Form di sostituzione di una password utente
 	 *
-	 * @param integer $user		user id
-	 * @param string $format	h: horizontal | v: vertical
-	 * @param string $function	function name (for return redirect)
-	 * @param string $action
+	 * @param integer $user valore ID utente
+	 * @param string $function nome del metodo del redirect
+	 * @param string $action azione da eseguire
 	 * @return string
 	 */
-	private function formPwd($user, $format, $function, $action){
+	private function formPwd($user, $function, $action){
 
 		$GINO = "<div class=\"section\">\n";
 		
@@ -1168,6 +1203,12 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Sostituzione di una password utente
+	 * 
+	 * @see $_access_3
+	 * @return redirect
+	 */
 	public function changePwd(){
 
 		$this->accessType($this->_access_3);
@@ -1250,6 +1291,11 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Aggiorna i campi pub e valid di un utente (visibilità della scheda e attivazione)
+	 * 
+	 * @return string
+	 */
 	public function changeValid(){
 
 		$this->accessGroup('ALL');
@@ -1286,6 +1332,11 @@ class user extends AbstractEvtClass{
 		return _("OK");
 	}
 
+	/**
+	 * Aggiorna i campi aggiuntivi di un utente
+	 * 
+	 * @return boolean or string
+	 */
 	public function changeOther(){
 
 		$this->accessGroup('ALL');
@@ -1320,7 +1371,6 @@ class user extends AbstractEvtClass{
 		if(!$result)
 			return "request error:"._("Impossibile eseguire l'operazione richiesta, contattare l'amministratore del sistema");
 		else return true;
-
 	}
 
 	private function textNewUser(){
@@ -1347,6 +1397,12 @@ class user extends AbstractEvtClass{
 		return $GINO;
 	}
 
+	/**
+	 * Inserimento di un nuovo utente
+	 * 
+	 * @see formUser()
+	 * @return string
+	 */
 	public function newUser(){
 
 		$this->accessGroup('ALL');
@@ -1357,17 +1413,23 @@ class user extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
-	/*
-		EMAIL personalizzate
-	*/
-	
-	public static function subjectEmail_1($instance){
+	/**
+	 * Oggetto - Email inviata a un utente quando si registra autonomamente e viene automaticamente attivato
+	 * 
+	 * @return string
+	 */
+	public static function subjectEmail_1(){
 
 		$title = pub::variable('head_title');
 		return _("Nuova registrazione").' - '.$title;
 	}
 
-	public static function textEmail_1($instance, $var=''){
+	/**
+	 * Testo - Email inviata a un utente quando si registra autonomamente e viene automaticamente attivato
+	 * 
+	 * @return string
+	 */
+	public static function textEmail_1($var=''){
 
 		if(!empty($var))
 		{
@@ -1392,13 +1454,23 @@ class user extends AbstractEvtClass{
 		return $text;
 	}
 	
-	public static function subjectEmail_2($instance){
+	/**
+	 * Oggetto - Email inviata a un utente quando si registra autonomamente e non viene automaticamente attivato
+	 * 
+	 * @return string
+	 */
+	public static function subjectEmail_2(){
 
 		$title = pub::variable('head_title');
 		return _("Nuova registrazione").' - '.$title;
 	}
 
-	public static function textEmail_2($instance, $var=''){
+	/**
+	 * Testo - Email inviata a un utente quando si registra autonomamente e non viene automaticamente attivato
+	 * 
+	 * @return string
+	 */
+	public static function textEmail_2($var=''){
 
 		if(!empty($var))
 		{
@@ -1423,18 +1495,25 @@ class user extends AbstractEvtClass{
 		return $text;
 	}
 
-	/*
-		REGISTRAZIONE AUTOMATICA NUOVI UTENTI
-	*/
-
+	/**
+	 * Interfaccia al form di registrazione autonoma degli utenti
+	 * 
+	 * @see $_access_2
+	 * @see account::formAccount()
+	 */
 	public function registration() {
 
 		$this->accessType($this->_access_2);
 
 		return $this->_account->formAccount();
-
 	}
 
+	/**
+	 * Rimando alla registrazione autonoma degli utenti
+	 * 
+	 * @see $_access_2
+	 * @see account::actionAccount()
+	 */
 	public function actionRegistration() {
 
 		$this->accessType($this->_access_2);
@@ -1442,6 +1521,12 @@ class user extends AbstractEvtClass{
 		$this->_account->actionAccount('registrationMsg', '', $this->_home."?evt[$this->_className-registration]");
 	}
 
+	/**
+	 * Pagina di riepilogo della registrazione autonoma in caso di risposta positiva
+	 * 
+	 * @see $_access_2
+	 * @return string
+	 */
 	public function registrationMsg() {
 
 		$this->accessType($this->_access_2);
@@ -1459,7 +1544,6 @@ class user extends AbstractEvtClass{
 		{
 			$GINO .= "<br />"._("All'indirizzo di posta elettronica che avete indicato è stata inviata una email di conferma della registrazione. L'account è attivo da questo momento.");
 		}
-		
 		$GINO .= "</p>";
 
 		$GINO .= "<p>"._("Torna alla ")."<b><a href=\"$this->_home\">"._("home")."</a></b>.</p>";
@@ -1469,12 +1553,18 @@ class user extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 	
+	/**
+	 * Pagina di conferma della registrazione (da una email inviata automaticamente dal sistema)
+	 * 
+	 * @see account::confirmRegistration()
+	 * @see $_access_2
+	 * @return string
+	 */
 	public function confirmRegistration(){
 		
 		$this->accessType($this->_access_2);
 
 		return $this->confirmRegistrationData();
-
 	}
 	
 	private function confirmRegistrationData() {
@@ -1493,26 +1583,38 @@ class user extends AbstractEvtClass{
 		return $htmlsection->render();
 	}
 
-	/*
-		Modifica dai personali
-	*/
+	/**
+	 * Interfaccia al form di modifica dei dati personali
+	 * 
+	 * @see account::formAccount()
+	 * @see $_access_3
+	 */
 	public function personal() {
 
 		$this->accessType($this->_access_3);
 
 		if(!empty($this->_session_user))
 			return $this->_account->formAccount($this->_act_modify);
-		
 	}
 
+	/**
+	 * Rimando alla modifica dei dati personali
+	 * 
+	 * @see account::actionAccount()
+	 * @see $_access_3
+	 */
 	public function actionPersonal(){
 		
 		$this->accessType($this->_access_3);
 		
 		$this->_account->actionAccount('', '');
 	}
-	// End
-
+	
+	/**
+	 * Controlla se uno username è disponibile
+	 * 
+	 * @return string
+	 */
 	public function actionCheckUsername() {
 
 		$username = cleanVar($_POST, 'username', 'string', '');
@@ -1533,14 +1635,21 @@ class user extends AbstractEvtClass{
 		}
 	}
 
-	/*
-		Export File
-	*/
+	/**
+	 * Collegamento all'esportazione degli utenti del sistema sotto forma di file
+	 * 
+	 * @return string
+	 */
 	private function exportFile(){
 		
 		return "<a href=\"".$this->_home."?evt[".$this->_className."-export]\">".$this->icon('export', '')."</a>";
 	}
 	
+	/**
+	 * Esportazione degli utenti del sistema sotto forma di file CSV
+	 * 
+	 * @return file
+	 */
 	public function export(){
 		
 		$this->accessGroup('ALL');
@@ -1606,7 +1715,5 @@ class user extends AbstractEvtClass{
 		echo $output;
 		exit();
 	}
-	
 }
-
 ?>
