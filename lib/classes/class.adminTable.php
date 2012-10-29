@@ -59,10 +59,11 @@
  * Tabella delle associazioni del tipo di campo con il tipo input di default
  * 
  * <table>
- * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget</th></tr>
+ * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
  * <tr><td>charField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
  * <tr><td>dateField()</td><td>DATE</td><td>date</td></tr>
  * <tr><td>datetimeField()</td><td>DATETIME</td><td>null</td></tr>
+ * <tr><td>directoryField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
  * <tr><td>enumField()</td><td>ENUM</td><td>radio</td></tr>
  * <tr><td>fileField()</td><td>FILE</td><td>file</td></tr>
  * <tr><td>floatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
@@ -70,8 +71,10 @@
  * <tr><td>hiddenField()</td><td>HIDDEN</td><td>hidden</td></tr>
  * <tr><td>imageField()</td><td>IMAGE</td><td>image</td></tr>
  * <tr><td>integerField()</td><td>TINYINT, SMALLINT, MEDIUMINT, INT</td><td>text</td></tr>
+ * <tr><td>manyToManyField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
  * <tr><td>textField()</td><td>TEXT</td><td>textarea</td></tr>
  * <tr><td>timeField()</td><td>TIME</td><td>time</td></tr>
+ * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
  */
 class adminTable {

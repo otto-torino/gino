@@ -119,6 +119,33 @@ class sysfunc extends AbstractEvtClass{
 
 		return $credits;
 	}
+	
+	/**
+	 * Pagina di errore contenuto non disponibile 
+	 * 
+	 * @param string $title titolo della pagina 
+	 * @param string $message messaggio mostrato
+	 * @access public
+	 * @return pagina di errore
+	 */
+	public function page404($title = '', $message = '') {
+
+		if(!$title) {
+			$title = _("404 Pagina inesistente");
+		}
+
+		if(!$message) {
+			$message = _("Il contenuto cercato non esiste, è stato rimosso oppure spostato.");
+		}
+
+		$view = new view();
+
+		$view->setViewTpl('404');
+		$view->assign('title', $title);
+		$view->assign('message', $message);
+
+		return $view->render();
+	}
 
 	/**
 	 * Interfaccia per la gestione dei file css dei moduli
