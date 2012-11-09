@@ -393,6 +393,7 @@ class adminTable {
 	/**
 	 * Gestisce l'azione del form
 	 * 
+	 * @see readFile()
 	 * @see propertyObject::updateDbData()
 	 * @see field::clean()
 	 * @param object $model
@@ -401,8 +402,9 @@ class adminTable {
 	 *   - opzioni per selezionare gli elementi da recuperare dal form
 	 *     - @b removeFields (array): elenco dei campi non presenti nel form
 	 *     - @b viewFields (array): elenco dei campi presenti nel form
-	 *   - @b import_file (array): attivare l'importazione di un file
+	 *   - @b import_file (array): attivare l'importazione di un file (richiama il metodo readFile())
 	 *     - @a field_import (string): nome del campo del file di importazione
+	 *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *     - @a field_log (string): nome del campo del file di log
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
@@ -435,6 +437,7 @@ class adminTable {
 		if(isset($options['import_file']) && is_array($options['import_file']))
 		{
 			$field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
+			$field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
 			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
 			
 			if($field_import) $import = true;
@@ -502,7 +505,7 @@ class adminTable {
 		
 		if($import)
 		{
-			$result = $this->readFile($model, $path_to_file);
+			$result = $this->readFile($model, $path_to_file, $field_verify);
 			if($field_log)
 				$model->{$field_log} = $result;
 		}
@@ -1022,7 +1025,15 @@ class adminTable {
 		return $url;
 	}
 	
-	protected function readFile($model, $path_to_file) {
+	/**
+	 * Legge il file e ne importa il contenuto
+	 * 
+	 * @param object $model
+	 * @param string $path_to_file
+	 * @param array $verify_items valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 * @return string (log dell'importazione)
+	 */
+	protected function readFile($model, $path_to_file, $verify_items) {
 		
 		return null;
 	}
