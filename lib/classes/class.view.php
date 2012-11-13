@@ -8,17 +8,10 @@
  * @author abidibo abidibo@gmail.com
  */
 
-/**
- * @brief Gestisce le viste, impostando il template e ritornando l'output
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- */
 class view {
 	
 	/**
-	 * oggetto che contiene il context della view 
+	 * oggetto che contine il context della view 
 	 */
 	protected $_data;
 	
