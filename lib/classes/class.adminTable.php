@@ -59,10 +59,11 @@
  * Tabella delle associazioni del tipo di campo con il tipo input di default
  * 
  * <table>
- * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget</th></tr>
+ * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
  * <tr><td>charField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
  * <tr><td>dateField()</td><td>DATE</td><td>date</td></tr>
  * <tr><td>datetimeField()</td><td>DATETIME</td><td>null</td></tr>
+ * <tr><td>directoryField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
  * <tr><td>enumField()</td><td>ENUM</td><td>radio</td></tr>
  * <tr><td>fileField()</td><td>FILE</td><td>file</td></tr>
  * <tr><td>floatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
@@ -70,8 +71,10 @@
  * <tr><td>hiddenField()</td><td>HIDDEN</td><td>hidden</td></tr>
  * <tr><td>imageField()</td><td>IMAGE</td><td>image</td></tr>
  * <tr><td>integerField()</td><td>TINYINT, SMALLINT, MEDIUMINT, INT</td><td>text</td></tr>
+ * <tr><td>manyToManyField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
  * <tr><td>textField()</td><td>TEXT</td><td>textarea</td></tr>
  * <tr><td>timeField()</td><td>TIME</td><td>time</td></tr>
+ * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
  */
 class adminTable {
@@ -390,6 +393,7 @@ class adminTable {
 	/**
 	 * Gestisce l'azione del form
 	 * 
+	 * @see readFile()
 	 * @see propertyObject::updateDbData()
 	 * @see field::clean()
 	 * @param object $model
@@ -398,8 +402,9 @@ class adminTable {
 	 *   - opzioni per selezionare gli elementi da recuperare dal form
 	 *     - @b removeFields (array): elenco dei campi non presenti nel form
 	 *     - @b viewFields (array): elenco dei campi presenti nel form
-	 *   - @b import_file (array): attivare l'importazione di un file
+	 *   - @b import_file (array): attivare l'importazione di un file (richiama il metodo readFile())
 	 *     - @a field_import (string): nome del campo del file di importazione
+	 *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *     - @a field_log (string): nome del campo del file di log
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
@@ -432,6 +437,7 @@ class adminTable {
 		if(isset($options['import_file']) && is_array($options['import_file']))
 		{
 			$field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
+			$field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
 			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
 			
 			if($field_import) $import = true;
@@ -499,7 +505,7 @@ class adminTable {
 		
 		if($import)
 		{
-			$result = $this->readFile($model, $path_to_file);
+			$result = $this->readFile($model, $path_to_file, $field_verify);
 			if($field_log)
 				$model->{$field_log} = $result;
 		}
@@ -1019,7 +1025,15 @@ class adminTable {
 		return $url;
 	}
 	
-	protected function readFile($model, $path_to_file) {
+	/**
+	 * Legge il file e ne importa il contenuto
+	 * 
+	 * @param object $model
+	 * @param string $path_to_file
+	 * @param array $verify_items valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 * @return string (log dell'importazione)
+	 */
+	protected function readFile($model, $path_to_file, $verify_items) {
 		
 		return null;
 	}
