@@ -430,7 +430,7 @@ class mFile {
 	/**
 	 * Elenco file associati a un record con link di eliminazione
 	 * 
-	 * @param integer id file ID
+	 * @param integer id valore ID del riferimento
 	 * @param string table table file
 	 * @param string instance nome dell'istanza
 	 * @param array $options
