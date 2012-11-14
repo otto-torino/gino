@@ -26,7 +26,7 @@ if(isset($_REQUEST['pt'])) {
 		$class = $db->getFieldFromId('sys_module', 'class', 'name', $mdl);
 		$instance = new $class($db->getFieldFromId(TBL_MODULE, 'id', 'name', $mdl));
 	}
-	else exit(error::syserrorMessage("document", "modUrl", "Modulo sconosciuto", __LINE__));
+	else exit(error::syserrorMessage("methodPointer", "none", "Modulo sconosciuto", __LINE__));
 	
 	$methodCheck = parse_ini_file(APP_DIR.OS.$class.OS.$class.".ini", true);
 	$publicMethod = @$methodCheck['PUBLIC_METHODS'][$function];
