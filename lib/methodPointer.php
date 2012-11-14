@@ -33,6 +33,6 @@ if(isset($_REQUEST['pt'])) {
 
 	if(isset($publicMethod)) {echo $instance->$function();exit();}
 
-	exit("request error:"._("Errore! Il metodo richiamato non esiste"));
+	exit("request error:".sprintf(_("Errore! Il metodo %s non esiste"), $function));
 }
 ?>
