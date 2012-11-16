@@ -755,7 +755,7 @@ class pub extends EvtHandler{
 				$title = _("esporta");
 				break;
 			case 'feed':
-				$icon = 'ico_feed.png';
+				$icon = 'icoRSS_black.png';
 				$title = _("feed rss");
 				break;
 			case 'group':
