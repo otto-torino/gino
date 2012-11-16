@@ -524,6 +524,8 @@ class Form {
 	 * Tabella senza Input Form
 	 * 
 	 * @param string $label contenuto della prima colonna
+	 *   - string
+	 *   - array, ad esempio array(_("etichetta"), _("spiegazione"))
 	 * @param string $value contenuto della seconda colonna
 	 * @param array $options
 	 *   array associativo di opzioni
@@ -549,8 +551,11 @@ class Form {
 		if(!empty($label) OR !empty($value))
 		{
 			$GFORM .= "<tr $style>\n";
-			$GFORM .= "<td $id class=\"$class_label\" $other>";
-			$GFORM .= "<span class=\"$class\">$label</span>";
+			if(is_array($label) && count($label)==2) {
+				$GFORM .= "<span class=\"$class\">".(isset($label['label'])?$label['label']:$label[0])."</span>";
+				$GFORM .= "<br/><span class=\"form_text_label_exp\">".(isset($label['description'])?$label['description']:$label[1])."</span>";
+			}
+			else $GFORM .= "<span class=\"$class\">$label</span>";
 			$GFORM .= "</td>\n";
 			$GFORM .= "<td>$value</td>\n";
 			$GFORM .= "</tr>\n";
