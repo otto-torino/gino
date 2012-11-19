@@ -551,6 +551,7 @@ class Form {
 		if(!empty($label) OR !empty($value))
 		{
 			$GFORM .= "<tr $style>\n";
+			$GFORM .= "<td $id class=\"$class_label\" $other>";
 			if(is_array($label) && count($label)==2) {
 				$GFORM .= "<span class=\"$class\">".(isset($label['label'])?$label['label']:$label[0])."</span>";
 				$GFORM .= "<br/><span class=\"form_text_label_exp\">".(isset($label['description'])?$label['description']:$label[1])."</span>";
