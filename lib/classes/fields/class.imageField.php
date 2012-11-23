@@ -166,6 +166,9 @@ class imageField extends fileField {
 		return parent::formElement($form, $options);
 	}
 	
+	/**
+	 * @see fileField::saveFile()
+	 */
 	protected function saveFile($filename, $filename_tmp) {
 		
 		$upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? true : false;
@@ -207,7 +210,36 @@ class imageField extends fileField {
 		}
 
 		return true;
+	}
+	
+	/**
+	 * @see fileField::delete()
+	 */
+	public function delete() {
+		
+		if($this->_resize)
+		{
+			if(is_file($this->_directory.$this->_prefix_file.$this->_value)) 
+				if(!@unlink($this->_directory.$this->_prefix_file.$this->_value)) {
+					return array('error'=>17);
+			}
+			
+			if($this->_thumb && !empty($this->_prefix_thumb)) {
+				if(is_file($this->_directory.$this->_prefix_thumb.$this->_value))
+					if(!@unlink($this->_directory.$this->_prefix_thumb.$this->_value)) {
+						return array('error'=>17);
+					}
+			}
+		}
+		elseif(!$this->_resize)
+		{
+			if(is_file($this->_directory.$this->_value)) 
+				if(!@unlink($this->_directory.$this->_value)) {
+					return array('error'=>17);
+				}
+		}
 
+		return true;
 	}
 	
 	/**
