@@ -278,7 +278,7 @@ class graphics extends AbstractEvtClass{
 	private function render($id) {
 	
 		if(!$id) return '';
-		$buffer = "<section id=\"site_".($this->isHeader($id) ? "header" : "footer")."\" class=\"public\">\n";
+		$buffer = "<div id=\"site_".($this->isHeader($id) ? "header" : "footer")."\" class=\"public\">\n";
 		
 		$query = "SELECT type, html, image FROM ".$this->_tbl_graphics." WHERE id='$id'";
 		$a = $this->_db->selectquery($query);
@@ -308,7 +308,7 @@ class graphics extends AbstractEvtClass{
 		elseif($type==2) 
 			$buffer .= $html;
 
-		$buffer .= "</section>";
+		$buffer .= "</div>";
 
 		return $buffer;
 	}

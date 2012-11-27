@@ -529,7 +529,10 @@ class language extends AbstractEvtClass{
 		$GINO = $this->scriptAsset("language.css", "languageCSS", 'css');
 		
 		if($this->_multi_language == 'yes') {
-			if($p) $GINO .= "<div id=\"section_language\">\n";
+			if($p) {
+				$GINO .= "<section id=\"section_language\">\n";
+				$GINO .= '<h1 class="hidden">' . $this->_title . '</h1>';
+			}
 			
 			$query_i = "SELECT label FROM ".$this->_tbl_language." WHERE active='yes' AND code='".$this->_lng_nav."' ORDER BY language";
 			$a_i = $this->_db->selectquery($query_i);
@@ -559,7 +562,9 @@ class language extends AbstractEvtClass{
 				$GINO .= $list;
 			}
 
-			if($p) $GINO .= "</div>\n";
+			if($p) {
+				$GINO .= "</section>\n";
+			}
 
 			return $GINO;
 		}

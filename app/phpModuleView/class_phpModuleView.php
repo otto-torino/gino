@@ -166,7 +166,7 @@ class phpModuleView extends AbstractEvtClass {
 
 		$phpMdl = new PhpModule($this->_instance, $this->_instanceName);
 		
-		$htmlsection = new htmlSection(array('id'=>"phpModuleView_".$this->_instanceName, 'class'=>'public', 'headerTag'=>'header', 'headerLabel'=>($this->_title_visible?$this->_title:"")));
+		$htmlsection = new htmlSection(array('id'=>"phpModuleView_".$this->_instanceName, 'class'=>'public', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerClass'=>($this->_title_visible ? '' : 'hidden')));
 		$GINO = $this->scriptAsset("phpModule_".$this->_instanceName.".css", "phpMdlCSS".$this->_instance, 'css');
 
 		$rexpf = array();

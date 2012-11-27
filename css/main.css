@@ -426,6 +426,9 @@ POSITION STYLES
 /*
 GENERAL STYLES
 */
+.hidden {
+	display: none;
+}
 .evidence {
 	color: #ff0000;
 }

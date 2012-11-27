@@ -114,7 +114,8 @@ class sysfunc extends AbstractEvtClass{
 	 */
 	public function credits() {
 	
-		$credits = "<a class=\"otto\" href=\"http://www.otto.to.it\" target=\"_blank\">&#160;</a>";
+		$credits = '<h1 class="hidden">' . _('Credits') . '</h1>';
+		$credits .= "<a class=\"otto\" href=\"http://www.otto.to.it\" target=\"_blank\">&#160;</a>";
 		$credits .= "<div class=\"null\"></div>";
 
 		return $credits;
