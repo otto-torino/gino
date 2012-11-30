@@ -20,4 +20,4 @@
 	height:40px;
 }
 
-#block_2 section.public, #block_4 section.public { margin: 0px auto; width:960px;  }
+#block_2 div#site_header, #block_4 div#site_footer { margin: 0px auto; width:960px; }
