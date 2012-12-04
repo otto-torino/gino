@@ -171,6 +171,10 @@ class imageField extends fileField {
 	 */
 	protected function saveFile($filename, $filename_tmp) {
 		
+		if(!is_dir($this->_directory))
+			if(!mkdir($this->_directory, 0755, true))
+				return array('error'=>32);
+		
 		$upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? true : false;
 		if(!$upload) { 
 			return array('error'=>16);

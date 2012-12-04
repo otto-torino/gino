@@ -240,6 +240,10 @@ class fileField extends field {
 	
 	protected function saveFile($filename, $filename_tmp) {
 		
+		if(!is_dir($this->_directory))
+			if(!mkdir($this->_directory, 0755, true))
+				return array('error'=>32);
+		
 		$upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? true : false;
 		if(!$upload) { 
 			return array('error'=>16);
@@ -288,8 +292,6 @@ class fileField extends field {
 		$filename = $thumb_file ? $this->_prefix_thumb.$this->_value: $this->_value;
 		$directory = $this->_path_abs.$this->_path_add;
 		$directory = $this->conformPath($directory);
-		if($type == 'abs')
-			if(!is_dir($directory)) mkdir($directory, 0755, true);
 		
 		if($complete)
 			$directory = $directory.$filename;
