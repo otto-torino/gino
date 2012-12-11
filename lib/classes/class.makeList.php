@@ -103,7 +103,20 @@ class makeList {
 	 *     - @a text (string): testo del javascript di eliminazione
 	 *   - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record, nel formato array(key=>value[,])
 	 *   - @b input_first (boolean): riserva la prima colonna a un campo input
+	 *   - @b tr_class (string): classe css del tag TR utilizzato per evidenziare alcuni record
 	 * @return string
+	 * 
+	 * @example Per mettere in evidenza alcuni record con la classe di css 'tr_class' si può inserire nel ciclo: 
+	 * @code
+	 * foreach($this->_list_display AS $key=>$options_field) { ... }
+	 * @endcode 
+	 * una condizione simile:
+	 * @code
+	 * if($key == 'id' && $reference_id && $this->condition($r[$key], $reference_id))
+	 * {
+	 *   $row['evidence'] = true;
+	 * }
+	 * @endcode
 	 */
 	public function printList($options=array()) {
 		
@@ -120,6 +133,7 @@ class makeList {
 		$options_delete = gOpt('options_delete', $options, array());
 		$add_params_url = gOpt('add_params_url', $options, array());
 		$input_first = gOpt('input_first', $options, false);
+		$tr_class = gOpt('tr_class', $options, null);
 		
 		if($table) $table = $table.'.';
 		
@@ -190,6 +204,7 @@ class makeList {
 		$this->_view->setViewTpl('table');
 		$this->_view->assign('class', 'generic');
 		$this->_view->assign('caption', '');
+		$this->_view->assign('tr_class', $tr_class);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
 
