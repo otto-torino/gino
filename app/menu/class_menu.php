@@ -566,7 +566,12 @@ class menu extends AbstractEvtClass {
 			$voice->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
 		$voice->instance = $this->_instance;
-		$voice->link = $this->_plink->convertLink($link);
+		if($voice->type == 'int') {
+			$voice->link = $this->_plink->convertLink($link);
+		}
+		else {
+			$voice->link = $link;
+		}
 		if(!$id) $voice->initOrderList();
 
 		$voice->updateDbData();
