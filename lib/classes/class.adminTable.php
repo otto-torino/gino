@@ -406,6 +406,7 @@ class adminTable {
 	 *     - @a field_import (string): nome del campo del file di importazione
 	 *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *     - @a field_log (string): nome del campo del file di log
+	 *     - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
 	 * 
@@ -439,6 +440,7 @@ class adminTable {
 			$field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
 			$field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
 			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
+			$dump = array_key_exists('dump', $options['import_file']) ? $options['import_file']['dump'] : false;
 			
 			if($field_import) $import = true;
 		}
@@ -505,7 +507,7 @@ class adminTable {
 		
 		if($import)
 		{
-			$result = $this->readFile($model, $path_to_file, $field_verify);
+			$result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump));
 			if($field_log)
 				$model->{$field_log} = $result;
 		}
@@ -1030,12 +1032,45 @@ class adminTable {
 	 * 
 	 * @param object $model
 	 * @param string $path_to_file
-	 * @param array $verify_items valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b verify_items (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 *   - @b dump (boolean): effettua il dump della tabella prima dell'importazione
 	 * @return string (log dell'importazione)
 	 */
-	protected function readFile($model, $path_to_file, $verify_items) {
+	protected function readFile($model, $path_to_file, $options=array()) {
 		
 		return null;
+	}
+	
+	/**
+	 * Restore di un file
+	 * 
+	 * @see db::restore()
+	 * @param string $table nome della tabella
+	 * @param string $filename nome del file da importare
+	 * @param array $options array associativo di opzioni
+	 * @return boolean
+	 */
+	protected function restore($table, $filename, $options=array()) {      
+	
+		$db = db::instance();
+		return $db->restore($table, $filename, $options);
+	}
+	
+	/**
+	 * Dump di una tabella
+	 * 
+	 * @see db::dump()
+	 * @param string $table
+	 * @param string $filename nome del file completo di percorso
+	 * @param array $options array associativo di opzioni
+	 * @return string (nome del file di dump)
+	 */
+	protected function dump($table, $filename, $options=array()) {
+		
+		$db = db::instance();
+		return $db->dump($table, $filename, $options);
 	}
 }
 ?>

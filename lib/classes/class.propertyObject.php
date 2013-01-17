@@ -92,7 +92,7 @@
 	 * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
 	 * 
 	 * @param string $pName
-	 * @param mixed $postLabel
+	 * @param mixed $pValue
 	 */
 	public function __set($pName, $pValue) {
 

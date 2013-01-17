@@ -264,6 +264,36 @@ interface DbManager {
 	 * @return boolean
 	 */
 	public function select($fields, $tables, $where, $order, $limit, $debug);
+	
+	/**
+	 * Restore di un file (ad es. di un backup)
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $filename nome del file da importare
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b fields (array): nomi dei campi
+	 *   - @b delim (string): separatore di campo
+	 *   - @b enclosed (string): separatore di testo
+	 *   - @b escaped (string): sequenza di escape
+	 *   - @b lineend (string): fine linea
+	 *   - @b hasheader (boolean): presenza come header della riga con le intestazioni
+	 * @return boolean
+	 */
+	public function restore($table, $filename, $options=array());
+	
+	/**
+	 * Dump di una tabella
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $filename nome del file completo di percorso
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b delim (string): separatore di campo
+	 *   - @b enclosed (string): separatore di testo
+	 * @return string (nome del file di dump)
+	 */
+	public function dump($table, $filename, $options=array());
 }
 
 /**
