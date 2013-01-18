@@ -112,8 +112,10 @@ class searchSite extends AbstractEvtClass {
 	 * @return string
 	 */
 	public function form() {
+
+		$htmlsection = new htmlSection(array('id'=>"searchSite_form",'class'=>'public', 'headerTag'=>'h1', 'headerLabel'=>_("Ricerca nel sito")));
 	
-		$gform = new Form('gform', 'post', true, array('tblLayout'=>false));
+		$gform = new Form('search_site_form', 'post', true, array('tblLayout'=>false));
 		$gform->load('dataform');
 
 		$registry = registry::instance();
@@ -138,7 +140,9 @@ class searchSite extends AbstractEvtClass {
 		$buffer .= $this->checkOptions();
 		$buffer .= $gform->cform();
 
-		return $buffer;
+    $htmlsection->content = $buffer;
+
+		return $htmlsection->render();
 	}
 
 	private function checkOptions() {

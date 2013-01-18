@@ -136,7 +136,7 @@ class Document {
 		$this->_registry->addCss(CSS_WWW."/slimbox.css");
 		
 		if($skinObj->css) {
-			$cssObj = new css('layout', $skinObj->css);
+			$cssObj = new css('layout', array('id'=>$skinObj->css));
 			$this->_registry->addCss(CSS_WWW."/".$cssObj->filename);
 		}
 		

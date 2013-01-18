@@ -134,12 +134,12 @@
 			if(!sizeof($this->_chgP)) return true;
 			$query = "UPDATE $this->_tbl_data SET ";
 			$sets = array();
-			foreach($this->_chgP as $pName) $sets[] = "$pName='{$this->_p[$pName]}'";
+			foreach($this->_chgP as $pName) $sets[] = "`$pName`='{$this->_p[$pName]}'";
 			$query .= implode(',',$sets)." WHERE id='{$this->_p['id']}'";
 		}
 		else {
 			if(!sizeof($this->_chgP)) return true;
-			$chgf = implode(',',$this->_chgP);
+			$chgf = "`".implode('`,`',$this->_chgP)."`";
 			$chgv = array();
 			foreach($this->_chgP as $pName) $chgv[] = "'{$this->_p[$pName]}'";
 			$query = "INSERT INTO $this->_tbl_data ($chgf) VALUES (".implode(",",$chgv).")";

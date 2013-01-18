@@ -27,7 +27,7 @@ window.addEvent('domready', function() {
 function position(el) {
 	el.layer.setStyles({
 		'position': 'absolute',
-		'top': (el.getCoordinates(el.getParent()).top+8)+'px',  	
+		'top': (el.getCoordinates(el.getParent()).top)+'px',  	
 		'left': (el.getCoordinates(el.getParent()).left+8)+'px'  	
 	});
 }
@@ -63,13 +63,11 @@ function viewCheckOptions(height_or, width_or) {
 			'width': '0px',
 			'height': '0px',
 			'display': 'block',
-			'top': (top+26)+'px',
-			'left': left+'px'
 		});
 	}
 	else { var height_f = height_or; var height_t = 0; var width_f = width_or; var width_t = 0; var close = true; }
 
-	var myEffect = new Fx.Morph(optionLayer, {duration: 'long', transition: Fx.Transitions.Sine.easeOut});
+	var myEffect = new Fx.Morph(optionLayer, {duration: 'short', transition: Fx.Transitions.Sine.easeOut});
 	myEffect.start({
     		'height': [height_f, height_t],
     		'width': [width_f, width_t] 

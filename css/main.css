@@ -1034,3 +1034,9 @@ div.separator {
 .search_half_title_result {
 	font-weight: normal;
 }
+/* /SEARCH SITE */
+
+.fb-share-button span, .fb-share-button iframe {
+	width: 100px! important;
+	height: 18px! important;
+}
