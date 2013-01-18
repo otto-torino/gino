@@ -273,11 +273,11 @@ interface DbManager {
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b fields (array): nomi dei campi
-	 *   - @b delim (string): separatore di campo
-	 *   - @b enclosed (string): separatore di testo
-	 *   - @b escaped (string): sequenza di escape
-	 *   - @b lineend (string): fine linea
-	 *   - @b hasheader (boolean): presenza come header della riga con le intestazioni
+	 *   - @b delim (string): stringa che viene usata per separare tra loro i valori dei campi
+	 *   - @b enclosed (string): stringa utilizzata per racchiudere i valori di tipo stringa
+	 *   - @b escaped (string): carattere di escape, cioè quello utilizzato prima dei caratteri speciali
+	 *   - @b lineend (string): stringa utilizzata come separatore tra i record
+	 *   - @b hasheader (boolean): se il file comincia con una riga contenente i nomi dei campi
 	 * @return boolean
 	 */
 	public function restore($table, $filename, $options=array());
@@ -289,8 +289,8 @@ interface DbManager {
 	 * @param string $filename nome del file completo di percorso
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b delim (string): separatore di campo
-	 *   - @b enclosed (string): separatore di testo
+	 *   - @b delim (string): stringa che viene usata per separare tra loro i valori dei campi
+	 *   - @b enclosed (string): stringa utilizzata per racchiudere i valori di tipo stringa
 	 * @return string (nome del file di dump)
 	 */
 	public function dump($table, $filename, $options=array());

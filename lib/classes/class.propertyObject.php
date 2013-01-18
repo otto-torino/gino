@@ -99,7 +99,7 @@
 		if(!array_key_exists($pName, $this->_p)) return null;
 		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		else {
-			if($this->_p[$pName]!=$pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
+			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
 	}

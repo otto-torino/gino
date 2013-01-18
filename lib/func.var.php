@@ -215,7 +215,7 @@ function stripEditor($text)
  */
 function cleanVar($method, $name, $type, $strip_tags, $options=array())
 {
-	if(isset($method[$name]) AND !empty($method[$name]))
+	if(isset($method[$name]) AND $method[$name] !== '')
 	{
 		$value = $method[$name];
 		
@@ -257,9 +257,9 @@ function cleanVar($method, $name, $type, $strip_tags, $options=array())
 			$value = floatval($value);
 			$value = str_replace($larr['decimal_point'], '.', $value);
 		}
-		else settype($value, $type);
+		elseif($value !== null) settype($value, $type);
 	}
-
+	
 	return $value;
 }
 

@@ -129,11 +129,11 @@ class PageList{
 	 * Recupera il valore dello start
 	 * @return integer
 	 */
-	public function start()
+	public function start() 
 	{
 		$start = cleanVar($_REQUEST, 'start', 'int', '');
 		
-		return $start<0?0:$start;
+		return $start>0?$start:0;
 	}
 	
 	/**

@@ -524,6 +524,10 @@ class mysql implements DbManager {
 	
 	/**
 	 * @see DbManager::dump()
+	 * 
+	 * Per poter effettuare questa operazione occorre: \n
+	 *   - assegnare il permesso FILE all'utente del database: GRANT FILE ON *.* TO 'dbuser'@'localhost';
+	 *   - la directory di salvataggio deve avere i permessi 777, oppure deve avere come proprietario l'utente di sistema mysql (gruppo mysql)
 	 */
 	public function dump($table, $filename, $options=array()) {
 		

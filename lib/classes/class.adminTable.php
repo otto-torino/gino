@@ -407,6 +407,7 @@ class adminTable {
 	 *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *     - @a field_log (string): nome del campo del file di log
 	 *     - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
+	 *     - @a dump_path (string): percorso del file di dump
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
 	 * 
@@ -441,6 +442,7 @@ class adminTable {
 			$field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
 			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
 			$dump = array_key_exists('dump', $options['import_file']) ? $options['import_file']['dump'] : false;
+			$dump_path = array_key_exists('dump_path', $options['import_file']) ? $options['import_file']['dump_path'] : null;
 			
 			if($field_import) $import = true;
 		}
@@ -507,7 +509,7 @@ class adminTable {
 		
 		if($import)
 		{
-			$result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump));
+			$result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump, 'dump_path'=>$dump_path));
 			if($field_log)
 				$model->{$field_log} = $result;
 		}
@@ -1036,6 +1038,7 @@ class adminTable {
 	 *   array associativo di opzioni
 	 *   - @b verify_items (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *   - @b dump (boolean): effettua il dump della tabella prima dell'importazione
+	 *   - @b dump_path (string): percorso del file di dump
 	 * @return string (log dell'importazione)
 	 */
 	protected function readFile($model, $path_to_file, $options=array()) {
