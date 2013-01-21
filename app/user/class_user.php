@@ -1042,7 +1042,7 @@ class user extends AbstractEvtClass{
 			address, cap, city, nation, text, pub, role, date, valid, privacy
 			) VALUES (
 			'$firstname', '$lastname', '$company', '$phone', '$fax', '$email', '$username', '$password',
-			'$address', $cap, '$city', $nation, '$text',
+			'$address', '$cap', '$city', '$nation', '$text',
 			'".$publication."', '$role', '$date', '".$validation."', 'yes'
 			)";
 			$result = $this->_db->actionquery($query);
@@ -1068,7 +1068,7 @@ class user extends AbstractEvtClass{
 			$query = "UPDATE ".$this->_tbl_user." SET
 			firstname='$firstname', lastname='$lastname', company='$company',
 			phone='$phone', fax='$fax', ".$email_field."
-			address='$address', cap=$cap, city='$city', nation=$nation,
+			address='$address', cap='$cap', city='$city', nation='$nation',
 			text='$text'".$role_field."
 			WHERE user_id='$user'";
 			$result = $this->_db->actionquery($query);

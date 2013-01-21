@@ -440,7 +440,7 @@ class account extends pub {
 			address, cap, city, nation, text, pub, role, date, valid, privacy
 			) VALUES (
 			'$firstname', '$lastname', '$company', '$phone', '$fax', '$email', '$username', '$password',
-			'$address', $cap, '$city', $nation, '$text', '$publication', $role, '$date', '$valid', '$privacy'
+			'$address', '$cap', '$city', '$nation', '$text', '$publication', '$role', '$date', '$valid', '$privacy'
 			)";
 			$result = $this->_db->actionquery($query);
 
@@ -496,7 +496,7 @@ class account extends pub {
 			$query = "UPDATE ".$this->_tbl_user." SET
 			firstname='$firstname', lastname='$lastname', company='$company',
 			phone='$phone', fax='$fax', ".$email_field."
-			address='$address', cap=$cap, city='$city', nation=$nation,
+			address='$address', cap='$cap', city='$city', nation='$nation',
 			text='$text'
 			WHERE user_id='$user'";
 			$result = $this->_db->actionquery($query);
