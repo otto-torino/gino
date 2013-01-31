@@ -1416,10 +1416,10 @@ class Form {
 	 * @param array $valid_extension estensioni lecite di file
 	 * @param string $directory directory di upload (/path/to/directory/)
 	 * @param string $link_error parametri da aggiungere al reindirizzamento
-	 * @param string $table tabella da aggiornare inserendo il nome del file (UPDATE)
-	 * @param string $field nome del campo del file
-	 * @param string $idName nome del campo ID
-	 * @param string $id valore del campo ID
+	 * @param string $table tabella da aggiornare inserendo il nome del file (UPDATE); se NULL non viene effettuata la query di UPDATE
+	 * @param string $field nome del campo del file; se NULL non viene effettuata la query di UPDATE
+	 * @param string $idName nome del campo ID; se NULL non viene effettuata la query di UPDATE
+	 * @param string $id valore del campo ID; se NULL non viene effettuata la query di UPDATE
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b check_type (boolean): attiva l'opzione @a types_allowed (true, o 1 per compatibilità => controlla il tipo di file, false => non controllare)
@@ -1568,20 +1568,23 @@ class Form {
 		elseif($delete) $filename_sql = '';
 		else $filename_sql = $old_file;
 
-		$db = db::instance();
-		$query = "UPDATE $table SET $field='$filename_sql' WHERE $idName='$id'";
-		$result = $db->actionquery($query);
+		if($table && $field && $filename_sql && $idName && $id)
+		{
+			$db = db::instance();
+			$query = "UPDATE $table SET $field='$filename_sql' WHERE $idName='$id'";
+			$result = $db->actionquery($query);
 
-		if(!$result) {
-			if($upload && !$resize) {
-				@unlink($directory.$new_file);
+			if(!$result) {
+				if($upload && !$resize) {
+					@unlink($directory.$new_file);
+				}
+				elseif($upload && $resize) {
+					@unlink($directory.$prefix_file.$new_file);
+					@unlink($directory.$prefix_thumb.$new_file);
+				}
+				if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>16), $link_error));
 			}
-			elseif($upload && $resize) {
-				@unlink($directory.$prefix_file.$new_file);
-				@unlink($directory.$prefix_thumb.$new_file);
-			}
-			if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-			exit(error::errorMessage(array('error'=>16), $link_error));
 		}
 
 		return true;
