@@ -102,7 +102,7 @@ class makeList {
 	 *     - @a field (string): nome del campo di riferimento (default: id)
 	 *     - @a text (string): testo del javascript di eliminazione
 	 *   - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record, nel formato array(key=>value[,])
-	 *   - @b input_first (boolean): riserva la prima colonna a un campo input
+	 *   - @b input_first (boolean): riserva la prima colonna a un campo input (default true)
 	 *   - @b tr_class (string): classe css del tag TR utilizzato per evidenziare alcuni record
 	 * @return string
 	 * 

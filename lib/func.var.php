@@ -611,13 +611,23 @@ function enclosedField($string){
  * Da utilizzare per il testo che deve essere racchiuso in variabili javascript
  * 
  * @param string $string
+ * @param boolean $newline mantiene gli 'a capo' (default false)
  * @return string
  */
-function jsVar($string)
+function jsVar($string, $newline=false)
 {
-	$string = str_replace("\n",'',$string);
-	$string = str_replace("\r",'',$string);
-	$string = str_replace("\t",'',$string);
+	if($newline)
+	{
+		$string = str_replace("\n",'\\n',$string);
+		$string = str_replace("\r",'\\r',$string);
+		$string = str_replace("\t",'\\t',$string);
+	}
+	else 
+	{
+		$string = str_replace("\n",'',$string);
+		$string = str_replace("\r",'',$string);
+		$string = str_replace("\t",'',$string);
+	}
 	
 	$string = str_replace("'","\'",$string);
 	$string = str_replace("&#039;",'\\\'',$string);
