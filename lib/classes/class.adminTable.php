@@ -737,12 +737,16 @@ class adminTable {
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
+    $query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
 		}
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
+
+    $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+    $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
 		$tot_records = $tot_records_result[0]['tot'];
@@ -869,11 +873,18 @@ class adminTable {
 			); 
 
 			$rows[] = array_merge($row, $buttons);
-		}
+    }
+
+    if($tot_ff) {
+      $caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
+    }
+    else {
+      $caption = '';
+    }
 
 		$this->_view->setViewTpl('table');
 		$this->_view->assign('class', 'generic');
-		$this->_view->assign('caption', '');
+		$this->_view->assign('caption', $caption);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
 
@@ -890,6 +901,7 @@ class adminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
+		$this->_view->assign('search_icon', pub::icon('search'));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

@@ -137,7 +137,13 @@ section.admin h1, section.admin header {
 	min-height: 20px;
 }
 section.admin header { background-color:#aa0f3b; }
-section.admin h1 { background-color:#aa0f3b; }
+section.admin h1 { 
+  background-color:#aa0f3b;
+  margin: 5px;
+}
+section.admin header > .right {
+  margin: 5px 5px 0 0;
+}
 
 section.admin header a:link, section.admin header a:visited { color: #fff; }
 section div.headerInside {}
