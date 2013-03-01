@@ -20,7 +20,14 @@
 class pub extends EvtHandler{
 	
 	public static $delimiter = ';;';
+	
+	/**
+	 * Nome della classe corrente
+	 * 
+	 * @var string
+	 */
 	protected $_className;
+	
 	protected $_access, $_db, $session, $_trd, $_list, $_plink;
 	protected $_session_user, $_session_user_name, $_session_role, $_access_admin, $_access_user;
 	protected $_module_type, $_module_text;
@@ -31,8 +38,63 @@ class pub extends EvtHandler{
 	protected $_multi_language, $_delimiter;
 	
 	protected $_os, $_site_www, $_app_www, $_img_www, $_extra_www, $_content_www, $_graphics_www;
-	protected $_tmp_dir, $_app_dir, $_extra_dir, $_content_dir;
-	protected $_class_www, $_class_img, $_data_www, $_data_dir;
+	
+	/**
+	 * Percorso assoluto alla directory temporanea
+	 * 
+	 * @var string
+	 */
+	protected $_tmp_dir;
+	
+	/**
+	 * Percorso assoluto alla directory extra
+	 * 
+	 * @var string
+	 */
+	protected $_extra_dir;
+	
+	/**
+	 * Percorso assoluto alla directory delle applicazioni
+	 * 
+	 * @var string
+	 */
+	protected $_app_dir;
+	
+	/**
+	 * Percorso assoluto alla directory dei contenuti
+	 * 
+	 * @var string
+	 */
+	protected $_content_dir;
+	
+	/**
+	 * Percorso relativo alla directory dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_class_www;
+	
+	/**
+	 * Percorso relativo alla directory immagini dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_class_img;
+
+	/**
+	 * Percorso relativo alla directory dei contenuti dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected  $_data_www;
+	
+	/**
+	 * Percorso assoluto alla directory dei contenuti dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_data_dir;
+	
 	protected $_max_role, $_min_role, $_max_file_size;
 	protected $_mobile;
 	
@@ -63,7 +125,7 @@ class pub extends EvtHandler{
 	 */
 	function __construct(){
 		
-		$this->_className = get_class($this);	// name of current class
+		$this->_className = get_class($this);
 		
 		$this->_db = db::instance();
 		$this->session = session::instance();
@@ -452,6 +514,11 @@ class pub extends EvtHandler{
 		else return '';
 	}
 	
+	/**
+	 * Percorsi dell'applicazione
+	 * 
+	 * @return void
+	 */
 	private function pathApp(){
 		
 		$this->_class_www = $this->_app_www.'/'.$this->_className;
@@ -460,6 +527,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Operazione di serializzazione
+	 * 
 	 * Viene creato nella directory dei contenuti dell'istanza il file @a ser_nomeistanza.txt
 	 * 
 	 * @param string $instanceName nome dell'istanza
@@ -496,6 +564,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Codifica i parametri url
+	 * 
 	 * @param string $params parametri url
 	 * @return string
 	 */
@@ -511,6 +580,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Decodifica i parametri url
+	 * 
 	 * @param string $params parametri url
 	 * @return string
 	 */

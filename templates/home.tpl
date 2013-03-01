@@ -15,25 +15,23 @@
 {module classid=4 func=blockList}
 </div>
 <div class="null"></div>
-<div id="nav_3_2_1" style="float:left;width:320px;">
+<div id="nav_3_2_1" style="float:left;width:380px;">
 {module pageid=4 func=full}
 {module pageid=8 func=full}
 </div>
-<div id="nav_3_2_2" style="float:left;width:320px;">
+<div id="nav_3_2_2" style="float:left;width:580px;">
 {module pageid=5 func=full}
-</div>
-<div id="nav_3_2_3" style="float:left;width:320px;">
 {module pageid=7 func=full}
 {module pageid=9 func=full}
 </div>
+<div id="nav_3_2_3" style="float:left;width:320px;">
+</div>
 <div class="null"></div>
-<div id="nav_3_3_1" style="float:left;width:240px;">
+<div id="nav_3_3_1" style="float:left;width:320px;">
 </div>
-<div id="nav_3_3_2" style="float:left;width:240px;">
+<div id="nav_3_3_2" style="float:left;width:320px;">
 </div>
-<div id="nav_3_3_3" style="float:left;width:240px;">
-</div>
-<div id="nav_3_3_4" style="float:left;width:240px;">
+<div id="nav_3_3_3" style="float:left;width:320px;">
 </div>
 <div class="null"></div>
 </div>

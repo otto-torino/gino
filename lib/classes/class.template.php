@@ -642,10 +642,14 @@ class template extends propertyObject {
 				if($old)
 				{
 					$ref_nav = "nav_".$pos."_".$ii."_".$iii;
-					$pattern = '#<div id="'.$ref_nav.'" [a-zA-Z0-9 ":;%=]+>[\r\n ]*(\{[a-zA-Z0-9= \{\}\r\n]+\})[\r\n ]*<\/div>#';
+					$pattern = '#<div id="'.$ref_nav.'" style="([a-zA-Z0-9 ":;%=]+)">[\r\n ]*(\{[a-zA-Z0-9= \{\}\r\n]+\})?[\r\n ]*<\/div>#';
 					if(preg_match($pattern, $template, $matches))
 					{
-						if($matches[0]) $module = $matches[1];
+						if($matches[0])
+						{
+							$nav_style = $matches[1];
+							if(array_key_exists(2, $matches)) $module = $matches[2];
+						}
 					}
 				}
 				

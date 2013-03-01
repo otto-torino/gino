@@ -96,7 +96,7 @@ a.otto:hover
 
 /* <HEADERS> */
 h1, h2, h3, h4, h5, h6 {
-	color: #000;
+	color: #FC2E69;
 	padding: 2px;
 	margin: 0px 0px 5px 0px;
 }
@@ -128,9 +128,7 @@ SECTION
 */
 section { margin: 5px; }
 
-section.public h1 {
-	border-bottom: 2px solid #aaa;
-}
+section.public h1 {}
 section.admin { padding: 5px 0; }
 section.admin h1, section.admin header {
 	color:#ffffff;
