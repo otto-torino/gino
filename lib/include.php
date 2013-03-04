@@ -21,6 +21,7 @@ include_once(CLASSES_DIR.OS."class.htmlArticle.php");
 include_once(CLASSES_DIR.OS."class.htmlList.php");
 include_once(CLASSES_DIR.OS."class.htmlTab.php");
 include_once(CLASSES_DIR.OS."class.template.php");
+include_once(CLASSES_DIR.OS."class.frontend.php");
 include_once(CLASSES_DIR.OS."class.css.php");
 include_once(CLASSES_DIR.OS."class.skin.php");
 include_once(CLASSES_DIR.OS."class.javascript.php");

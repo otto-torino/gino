@@ -179,6 +179,38 @@ class sysfunc extends AbstractEvtClass{
 
 		return $GINO;
 	}
+	
+	/**
+	 * Interfaccia per la gestione dei file di front-end dei moduli
+	 * 
+	 * @see frontend::manageFrontend()
+	 * @param integer $mdl valore ID del modulo
+	 * @param string $class nome della classe
+	 * @return string
+	 */
+	public static function manageFrontend($mdl, $class) {
+
+		$db = db::instance();
+
+		if($mdl) {
+			$query = "SELECT name, label FROM ".TBL_MODULE." WHERE id='$mdl'";
+			$a = $db->selectquery($query);
+			if(sizeof($a)>0) {
+				$name = $a[0]['name']; 
+				$label = $a[0]['label']; 
+			}
+		}
+		else {
+			$name = $class;
+			$label = $db->getFieldFromId(TBL_MODULE_APP, 'label', 'name', $class);
+		}
+
+		$frontend = new frontend(array("class"=>$class, "module"=>$mdl, "name"=>$name, "label"=>$label));
+
+		$GINO = $frontend->manageFrontend();
+
+		return $GINO;
+	}
 
 	/**
 	 * Interfaccia per la gestione delle opzioni dei moduli
