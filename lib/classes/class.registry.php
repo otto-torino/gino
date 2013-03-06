@@ -160,24 +160,32 @@ class registry extends singleton {
 		elseif($var == 'meta')
 		{
 			$buffer = '';
-			foreach(array_unique($this->vars[$var]) as $meta)
-			{
-				$buffer .= "<meta"
-				.(isset($meta['name']) ? " name=\"".$meta['name']."\"" : '')
-				.(isset($meta['property']) ? " property=\"".$meta['property']."\"" : '')
-				." content=\"".$meta['content']."\" />\n";
+      $already_inserted = array();
+			foreach($this->vars[$var] as $meta)
+      {
+        if(!in_array($meta, $already_inserted)) {
+          $buffer .= "<meta"
+          .(isset($meta['name']) ? " name=\"".$meta['name']."\"" : '')
+          .(isset($meta['property']) ? " property=\"".$meta['property']."\"" : '')
+          ." content=\"".$meta['content']."\" />\n";
+          $already_inserted[] = $meta;
+        }
 			}
 			return $buffer;
 		}
 		elseif($var == 'head_links')
 		{
 			$buffer = '';
-			foreach(array_unique($this->vars[$var]) as $hlink) {
-				$buffer .= "<link"
-				.(isset($hlink['rel']) ? " rel=\"".$hlink['rel']."\"" : '')
-				.(isset($hlink['type']) ? " type=\"".$hlink['type']."\"" : '')
-				.(isset($hlink['title']) ? " title=\"".$hlink['title']."\"" : '')
-				." href=\"".$hlink['href']."\" />\n";
+      $already_inserted = array();
+			foreach($this->vars[$var] as $hlink) {
+        if(!in_array($hlink, $already_inserted)) {
+          $buffer .= "<link"
+          .(isset($hlink['rel']) ? " rel=\"".$hlink['rel']."\"" : '')
+          .(isset($hlink['type']) ? " type=\"".$hlink['type']."\"" : '')
+          .(isset($hlink['title']) ? " title=\"".$hlink['title']."\"" : '')
+          ." href=\"".$hlink['href']."\" />\n";
+          $already_inserted[] = $hlink;
+        }
 			}
 			return $buffer;
 		}

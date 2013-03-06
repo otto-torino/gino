@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 2.11.8.1deb5+lenny6
+-- version 3.3.8
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generato il: 11 Ott, 2011 at 12:03 PM
--- Versione MySQL: 5.0.51
--- Versione PHP: 5.2.6-1+lenny4
+-- Generato il: 01 mar, 2013 at 11:49 AM
+-- Versione MySQL: 5.1.48
+-- Versione PHP: 5.3.15
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -26,10 +26,10 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 
 CREATE TABLE IF NOT EXISTS `attached` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
@@ -49,10 +49,10 @@ INSERT INTO `attached` (`id`, `category`, `name`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `attached_ctg` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `directory` varchar(20) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -69,11 +69,11 @@ INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `attached_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -91,12 +91,12 @@ INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `attached_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `opt_ctg` tinyint(1) NOT NULL,
   `items_for_page` int(3) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -210,12 +210,12 @@ CREATE TABLE IF NOT EXISTS `instruments_usr` (
 
 CREATE TABLE IF NOT EXISTS `language` (
   `label` varchar(10) NOT NULL,
-  `language` varchar(50) NOT NULL default '',
-  `code` varchar(5) NOT NULL default '',
-  `main` enum('no','yes') NOT NULL default 'no',
-  `active` enum('no','yes') NOT NULL default 'yes',
-  `flag` varchar(20) default NULL,
-  PRIMARY KEY  (`code`)
+  `language` varchar(50) NOT NULL DEFAULT '',
+  `code` varchar(5) NOT NULL DEFAULT '',
+  `main` enum('no','yes') NOT NULL DEFAULT 'no',
+  `active` enum('no','yes') NOT NULL DEFAULT 'yes',
+  `flag` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -235,11 +235,11 @@ INSERT INTO `language` (`label`, `language`, `code`, `main`, `active`, `flag`) V
 --
 
 CREATE TABLE IF NOT EXISTS `language_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(200) NOT NULL,
   `title` varchar(200) NOT NULL,
   `opt_flag` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -256,10 +256,10 @@ INSERT INTO `language_opt` (`id`, `instance`, `title`, `opt_flag`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `language_translation` (
-  `tbl_id_value` int(11) default NULL,
-  `tbl` varchar(200) default NULL,
-  `field` varchar(200) default NULL,
-  `language` varchar(5) default NULL,
+  `tbl_id_value` int(11) DEFAULT NULL,
+  `tbl` varchar(200) DEFAULT NULL,
+  `field` varchar(200) DEFAULT NULL,
+  `language` varchar(5) DEFAULT NULL,
   `text` text
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -283,12 +283,12 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 --
 
 CREATE TABLE IF NOT EXISTS `nation` (
-  `id` smallint(4) NOT NULL auto_increment,
+  `id` smallint(4) NOT NULL AUTO_INCREMENT,
   `it_IT` varchar(100) NOT NULL,
   `en_US` varchar(100) NOT NULL,
   `fr_FR` varchar(100) NOT NULL,
   `onu` date NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=193 ;
 
 --
@@ -496,16 +496,16 @@ INSERT INTO `nation` (`id`, `it_IT`, `en_US`, `fr_FR`, `onu`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `page` (
-  `item_id` int(11) NOT NULL auto_increment,
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
   `module` int(11) NOT NULL,
   `parent` int(11) NOT NULL,
   `date` datetime NOT NULL,
   `title` varchar(200) NOT NULL,
   `subtitle` text NOT NULL,
-  `view_title` enum('yes','no') NOT NULL default 'yes',
-  `social` enum('yes','no') NOT NULL default 'no',
-  `cache` int(16) default '0',
-  PRIMARY KEY  (`item_id`)
+  `view_title` enum('yes','no') NOT NULL DEFAULT 'yes',
+  `social` enum('yes','no') NOT NULL DEFAULT 'no',
+  `cache` int(16) DEFAULT '0',
+  PRIMARY KEY (`item_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
@@ -513,7 +513,7 @@ CREATE TABLE IF NOT EXISTS `page` (
 --
 
 INSERT INTO `page` (`item_id`, `module`, `parent`, `date`, `title`, `subtitle`, `view_title`, `social`, `cache`) VALUES
-(4, 10, 0, '2011-09-16 10:06:30', 'gino CMS', '', 'yes', 'no', 0),
+(4, 10, 0, '2011-09-16 10:06:30', 'Che cos''è gino CMS', '', 'yes', 'no', 0),
 (5, 11, 0, '2011-09-16 11:33:18', 'Tecnologia', '', 'yes', 'no', 0),
 (7, 13, 0, '2011-09-16 15:43:40', 'Licenza', '', 'yes', 'no', 0),
 (8, 14, 0, '2011-09-16 16:12:21', 'Documentazione', '', 'yes', 'no', 0),
@@ -526,15 +526,15 @@ INSERT INTO `page` (`item_id`, `module`, `parent`, `date`, `title`, `subtitle`, 
 --
 
 CREATE TABLE IF NOT EXISTS `page_block` (
-  `content_id` int(11) NOT NULL auto_increment,
-  `item` int(11) NOT NULL default '0',
+  `content_id` int(11) NOT NULL AUTO_INCREMENT,
+  `item` int(11) NOT NULL DEFAULT '0',
   `layout` smallint(1) NOT NULL,
   `text` text,
-  `img` varchar(100) default NULL,
-  `link` varchar(100) default NULL,
-  `filename` varchar(100) default NULL,
-  `order_list` int(2) NOT NULL default '0',
-  PRIMARY KEY  (`content_id`)
+  `img` varchar(100) DEFAULT NULL,
+  `link` varchar(100) DEFAULT NULL,
+  `filename` varchar(100) DEFAULT NULL,
+  `order_list` int(2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`content_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
@@ -542,11 +542,11 @@ CREATE TABLE IF NOT EXISTS `page_block` (
 --
 
 INSERT INTO `page_block` (`content_id`, `item`, `layout`, `text`, `img`, `link`, `filename`, `order_list`) VALUES
-(3, 4, 1, '<p>\r\n	gino CMS è uno dei <b>framework open source</b> sviluppati internamente da Otto, che utilizziamo per offrire servizi ai nostri clienti.</p>\r\n<p>\r\n	È un <b>CMS</b>, acronimo di <b>Content Management System</b>, cioè un sistema di gestione dei contenuti web creato appositamente per <b>facilitarne la gestione</b>.</p>', '', '', '', 1),
-(4, 5, 1, '<p>\r\n	<b>gino</b> nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p>\r\n<p>\r\n	<img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" style="width: 300px; height: 259px; " /></p>', '', '', '', 1),
-(6, 7, 1, '<p>\r\n	<img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 100px; height: 137px; " />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>. In particolare, Gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
-(7, 8, 1, '<p>\r\n	La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p>\r\n<p class="null">\r\n	<img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 120px; height: 161px; " />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
-(8, 9, 1, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left; width: 128px; height: 128px; " />Le funzionalità di gino possono essere ampliate utilizzando i <b>moduli aggiuntivi</b> disponibili. gino incorpora un meccanismo per il <b>caricamento</b> semplificato e l''<b>aggiornamento</b> di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1);
+(3, 4, 1, '<p>\r\n	gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p>\r\n<p>\r\n	È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', '', '', 1),
+(4, 5, 1, '<p>\r\n	gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p>\r\n<p>\r\n	<img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', '', '', 1),
+(6, 7, 1, '<p>\r\n	<img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p>\r\n<p>\r\n	In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
+(7, 8, 1, '<p>\r\n	La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p>\r\n<p>\r\n	 </p>\r\n<p class="null">\r\n	<img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1),
+(8, 9, 1, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', '', '', 1);
 
 -- --------------------------------------------------------
 
@@ -555,15 +555,15 @@ INSERT INTO `page_block` (`content_id`, `item`, `layout`, `text`, `img`, `link`,
 --
 
 CREATE TABLE IF NOT EXISTS `page_block_add` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_id` int(11) NOT NULL,
   `media_width` int(4) NOT NULL,
   `media_height` int(4) NOT NULL,
   `media_alt_text` varchar(100) NOT NULL,
-  `filename1` varchar(100) default NULL,
-  `filename2` varchar(100) default NULL,
-  `filename3` varchar(100) default NULL,
-  PRIMARY KEY  (`id`)
+  `filename1` varchar(100) DEFAULT NULL,
+  `filename2` varchar(100) DEFAULT NULL,
+  `filename3` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=9 ;
 
 --
@@ -584,11 +584,11 @@ INSERT INTO `page_block_add` (`id`, `content_id`, `media_width`, `media_height`,
 --
 
 CREATE TABLE IF NOT EXISTS `page_block_file` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reference` int(11) NOT NULL,
   `filename` varchar(100) NOT NULL,
   `description` varchar(200) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=1 ;
 
 --
@@ -603,11 +603,11 @@ CREATE TABLE IF NOT EXISTS `page_block_file` (
 --
 
 CREATE TABLE IF NOT EXISTS `page_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
@@ -626,11 +626,11 @@ INSERT INTO `page_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `page_layout` (
-  `id` smallint(1) NOT NULL auto_increment,
+  `id` smallint(1) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `img` varchar(20) NOT NULL,
-  `default_value` enum('no','yes') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `default_value` enum('no','yes') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
@@ -653,14 +653,14 @@ INSERT INTO `page_layout` (`id`, `name`, `img`, `default_value`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `page_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `block_title` tinyint(1) NOT NULL default '0',
+  `block_title` tinyint(1) NOT NULL DEFAULT '0',
   `block_chars` int(6) NOT NULL,
-  `read_all` tinyint(1) NOT NULL default '0',
+  `read_all` tinyint(1) NOT NULL DEFAULT '0',
   `block_media` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -694,10 +694,10 @@ CREATE TABLE IF NOT EXISTS `page_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `php_module` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `content` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -715,11 +715,11 @@ INSERT INTO `php_module` (`id`, `instance`, `content`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `php_module_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -737,11 +737,11 @@ INSERT INTO `php_module_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `php_module_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(200) NOT NULL,
   `title` varchar(200) NOT NULL,
   `title_vis` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -773,12 +773,12 @@ CREATE TABLE IF NOT EXISTS `php_module_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `search_site_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `template` text NOT NULL,
   `sys_mdl` varchar(256) NOT NULL,
   `inst_mdl` varchar(256) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -793,27 +793,27 @@ CREATE TABLE IF NOT EXISTS `search_site_opt` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_conf` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `user_role` int(1) NOT NULL,
   `admin_role` int(1) NOT NULL,
-  `multi_language` enum('yes','no') NOT NULL default 'no',
+  `multi_language` enum('yes','no') NOT NULL DEFAULT 'no',
   `dft_language` varchar(5) NOT NULL,
   `precharge_mdl_url` enum('yes','no') NOT NULL,
-  `log_access` enum('yes','no') NOT NULL default 'no',
+  `log_access` enum('yes','no') NOT NULL DEFAULT 'no',
   `head_description` varchar(255) NOT NULL,
   `head_keywords` varchar(255) NOT NULL,
   `head_title` varchar(255) NOT NULL,
   `google_analytics` varchar(20) NOT NULL,
-  `captcha_public` varchar(64) default NULL,
-  `captcha_private` varchar(64) default NULL,
-  `email_name` varchar(100) default NULL,
-  `email_from_app` varchar(100) default NULL,
-  `mobile` enum('yes','no') NOT NULL default 'no',
-  `password_crypt` enum('none','sha1','md5') default 'none',
-  `email_admin` varchar(100) default NULL,
+  `captcha_public` varchar(64) DEFAULT NULL,
+  `captcha_private` varchar(64) DEFAULT NULL,
+  `email_name` varchar(100) DEFAULT NULL,
+  `email_from_app` varchar(100) DEFAULT NULL,
+  `mobile` enum('yes','no') NOT NULL DEFAULT 'no',
+  `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
+  `email_admin` varchar(100) DEFAULT NULL,
   `enable_cache` int(1) NOT NULL,
-  `permalinks` enum('yes','no') NOT NULL default 'yes',
-  PRIMARY KEY  (`id`)
+  `permalinks` enum('yes','no') NOT NULL DEFAULT 'yes',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -830,13 +830,13 @@ INSERT INTO `sys_conf` (`id`, `user_role`, `admin_role`, `multi_language`, `dft_
 --
 
 CREATE TABLE IF NOT EXISTS `sys_graphics` (
-  `id` smallint(2) NOT NULL auto_increment,
+  `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `description` varchar(100) NOT NULL,
-  `type` int(1) NOT NULL default '1',
+  `type` int(1) NOT NULL DEFAULT '1',
   `image` varchar(128) NOT NULL,
   `html` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=11 ;
 
 --
@@ -862,11 +862,11 @@ INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_graphics_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -901,10 +901,10 @@ CREATE TABLE IF NOT EXISTS `sys_graphics_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_image` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -919,11 +919,11 @@ CREATE TABLE IF NOT EXISTS `sys_image` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_image_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -957,11 +957,11 @@ CREATE TABLE IF NOT EXISTS `sys_image_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_css` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
@@ -980,11 +980,11 @@ INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -1015,7 +1015,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
 
 --
--- Dumping data for table `sys_layout_skin`
+-- Dump dei dati per la tabella `sys_layout_skin`
 --
 
 INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
@@ -1037,11 +1037,11 @@ INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `templa
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
@@ -1065,7 +1065,7 @@ INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `tpl` int(4) NOT NULL,
   `position` int(2) NOT NULL,
   `width` int(4) NOT NULL,
@@ -1073,7 +1073,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
   `align` int(1) NOT NULL,
   `rows` int(2) NOT NULL,
   `cols` int(2) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=62 ;
 
 --
@@ -1090,7 +1090,7 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (45, 6, 1, 0, 0, 0, 1, 1),
 (30, 2, 1, 0, 0, 0, 1, 1),
 (31, 2, 2, 0, 0, 0, 1, 1),
-(32, 2, 3, 960, 1, 2, 3, 4),
+(32, 2, 3, 960, 1, 2, 3, 3),
 (33, 2, 4, 0, 0, 0, 1, 1),
 (34, 2, 5, 960, 1, 2, 1, 2),
 (35, 3, 1, 0, 0, 0, 1, 1),
@@ -1138,16 +1138,18 @@ CREATE TABLE IF NOT EXISTS `sys_layout_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_log_access` (
-  `id` int(11) NOT NULL auto_increment,
-  `user_id` int(11) default NULL,
-  `date` datetime default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
 -- Dump dei dati per la tabella `sys_log_access`
 --
 
+INSERT INTO `sys_log_access` (`id`, `user_id`, `date`) VALUES
+(1, 1, '2012-07-30 14:46:56');
 
 -- --------------------------------------------------------
 
@@ -1156,11 +1158,11 @@ CREATE TABLE IF NOT EXISTS `sys_log_access` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_menu_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -1178,7 +1180,7 @@ INSERT INTO `sys_menu_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `vis_title` tinyint(1) NOT NULL,
@@ -1189,8 +1191,8 @@ CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
   `click_event` tinyint(1) NOT NULL,
   `initShowIcon` tinyint(1) NOT NULL,
   `path_to_sel` tinyint(1) NOT NULL,
-  `cache` int(16) default '0',
-  PRIMARY KEY  (`id`)
+  `cache` int(16) DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
@@ -1225,7 +1227,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_usr` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `parent` int(11) NOT NULL,
   `label` varchar(200) NOT NULL,
@@ -1235,7 +1237,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
   `orderList` int(3) NOT NULL,
   `authView` int(1) NOT NULL,
   `reference` varchar(200) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -1250,19 +1252,19 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
 --
 
 CREATE TABLE IF NOT EXISTS `sys_module` (
-  `id` int(11) NOT NULL auto_increment,
-  `label` varchar(100) character set latin1 NOT NULL,
-  `name` varchar(100) character set latin1 NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `label` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `name` varchar(100) CHARACTER SET latin1 NOT NULL,
   `class` varchar(200) NOT NULL,
-  `type` enum('page','class','func') character set latin1 NOT NULL default 'page',
+  `type` enum('page','class','func') CHARACTER SET latin1 NOT NULL DEFAULT 'page',
   `role1` smallint(2) NOT NULL,
   `role2` smallint(2) NOT NULL,
   `role3` smallint(2) NOT NULL,
-  `directory` varchar(200) character set latin1 default NULL,
-  `masquerade` enum('yes','no') character set latin1 NOT NULL default 'yes',
+  `directory` varchar(200) CHARACTER SET latin1 DEFAULT NULL,
+  `masquerade` enum('yes','no') CHARACTER SET latin1 NOT NULL DEFAULT 'yes',
   `role_group` int(2) NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
 
 --
@@ -1290,23 +1292,23 @@ INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role
 --
 
 CREATE TABLE IF NOT EXISTS `sys_module_app` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
   `type` enum('class','page','func') NOT NULL,
   `role1` smallint(2) NOT NULL,
   `role2` smallint(2) NOT NULL,
   `role3` smallint(2) NOT NULL,
-  `masquerade` enum('yes','no') NOT NULL default 'yes',
+  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
   `role_group` int(2) NOT NULL,
   `tbl_name` varchar(30) NOT NULL,
   `order_list` smallint(2) NOT NULL,
-  `instance` enum('yes','no') NOT NULL default 'no',
+  `instance` enum('yes','no') NOT NULL DEFAULT 'no',
   `description` text NOT NULL,
   `removable` enum('yes','no') NOT NULL,
   `class_version` varchar(200) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 --
 -- Dump dei dati per la tabella `sys_module_app`
@@ -1330,7 +1332,6 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `
 (15, 'phpModuleView', 'phpModuleView', 'class', 0, 0, 0, 'no', 1, 'php_module', 15, 'yes', 'Generatore di moduli contenenti codice php', 'yes', '1.0'),
 (16, 'Strumenti', 'instruments', 'class', 4, 4, 4, 'no', 1, 'instruments', 16, 'no', 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 'no', '1.0');
 
-
 -- --------------------------------------------------------
 
 --
@@ -1338,10 +1339,10 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `
 --
 
 CREATE TABLE IF NOT EXISTS `sys_stat_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -1359,10 +1360,10 @@ INSERT INTO `sys_stat_opt` (`id`, `instance`, `title`) VALUES
 
 CREATE TABLE IF NOT EXISTS `user_add` (
   `user_id` int(11) NOT NULL,
-  `field1` enum('yes','no') NOT NULL default 'no',
-  `field2` enum('yes','no') NOT NULL default 'no',
-  `field3` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`user_id`)
+  `field1` enum('yes','no') NOT NULL DEFAULT 'no',
+  `field2` enum('yes','no') NOT NULL DEFAULT 'no',
+  `field3` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -1377,27 +1378,27 @@ CREATE TABLE IF NOT EXISTS `user_add` (
 --
 
 CREATE TABLE IF NOT EXISTS `user_app` (
-  `user_id` int(11) NOT NULL auto_increment,
-  `firstname` varchar(50) NOT NULL default '',
-  `lastname` varchar(50) NOT NULL default '',
-  `company` varchar(100) default NULL,
-  `phone` varchar(30) default NULL,
-  `fax` varchar(30) default NULL,
-  `email` varchar(100) NOT NULL default '',
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `firstname` varchar(50) NOT NULL DEFAULT '',
+  `lastname` varchar(50) NOT NULL DEFAULT '',
+  `company` varchar(100) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `fax` varchar(30) DEFAULT NULL,
+  `email` varchar(100) NOT NULL DEFAULT '',
   `username` varchar(50) NOT NULL,
   `userpwd` varchar(100) NOT NULL,
-  `address` varchar(200) default NULL,
-  `cap` int(5) default NULL,
-  `city` varchar(50) default NULL,
-  `nation` smallint(4) default NULL,
+  `address` varchar(200) DEFAULT NULL,
+  `cap` int(5) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `nation` smallint(4) DEFAULT NULL,
   `text` text,
-  `photo` varchar(50) default NULL,
-  `pub` enum('no','yes') NOT NULL default 'no',
-  `role` smallint(2) NOT NULL default '0',
-  `date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `valid` enum('yes','no') NOT NULL default 'yes',
-  `privacy` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`user_id`)
+  `photo` varchar(50) DEFAULT NULL,
+  `pub` enum('no','yes') NOT NULL DEFAULT 'no',
+  `role` smallint(2) NOT NULL DEFAULT '0',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `valid` enum('yes','no') NOT NULL DEFAULT 'yes',
+  `privacy` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -1414,12 +1415,12 @@ INSERT INTO `user_app` (`user_id`, `firstname`, `lastname`, `company`, `phone`, 
 --
 
 CREATE TABLE IF NOT EXISTS `user_email` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `ref_function` smallint(2) NOT NULL,
   `description` varchar(255) NOT NULL,
   `subject` varchar(200) NOT NULL,
   `text` text NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `ref_function` (`ref_function`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
@@ -1438,11 +1439,11 @@ INSERT INTO `user_email` (`id`, `ref_function`, `description`, `subject`, `text`
 --
 
 CREATE TABLE IF NOT EXISTS `user_grp` (
-  `id` int(2) NOT NULL auto_increment,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL default 'no',
-  PRIMARY KEY  (`id`)
+  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
@@ -1460,7 +1461,7 @@ INSERT INTO `user_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `user_opt` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `more_info` tinyint(1) NOT NULL,
@@ -1476,7 +1477,7 @@ CREATE TABLE IF NOT EXISTS `user_opt` (
   `pwd_min_length` int(2) NOT NULL,
   `pwd_max_length` int(2) NOT NULL,
   `pwd_number` int(10) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
@@ -1493,10 +1494,10 @@ INSERT INTO `user_opt` (`id`, `instance`, `title`, `more_info`, `media_info`, `u
 --
 
 CREATE TABLE IF NOT EXISTS `user_registration` (
-  `id` int(11) NOT NULL auto_increment,
-  `user_id` int(11) default NULL,
-  `session` varchar(50) default NULL,
-  PRIMARY KEY  (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `session` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -1511,11 +1512,11 @@ CREATE TABLE IF NOT EXISTS `user_registration` (
 --
 
 CREATE TABLE IF NOT EXISTS `user_role` (
-  `role_id` smallint(2) NOT NULL auto_increment,
-  `name` varchar(20) NOT NULL default '',
-  `identifier` varchar(10) NOT NULL default '',
-  `default_value` enum('no','yes') NOT NULL default 'no',
-  PRIMARY KEY  (`role_id`)
+  `role_id` smallint(2) NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `identifier` varchar(10) NOT NULL DEFAULT '',
+  `default_value` enum('no','yes') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`role_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
@@ -1545,7 +1546,3 @@ CREATE TABLE IF NOT EXISTS `user_usr` (
 -- Dump dei dati per la tabella `user_usr`
 --
 
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

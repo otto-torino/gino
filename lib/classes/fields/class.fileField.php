@@ -187,7 +187,7 @@ class fileField extends field {
 		if(isset($_FILES[$this->_name]['name']) AND $_FILES[$this->_name]['name'] != '')
 		{
 			$filename = $_FILES[$this->_name]['name'];
-			$filename = $this->checkFilename($filename, $this->_prefix);
+			$filename = $this->checkFilename($filename, $this->_prefix, $options);
 		}
 		else $filename = '';
 		
@@ -240,6 +240,10 @@ class fileField extends field {
 	
 	protected function saveFile($filename, $filename_tmp) {
 		
+		if(!is_dir($this->_directory))
+			if(!mkdir($this->_directory, 0755, true))
+				return array('error'=>32);
+		
 		$upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? true : false;
 		if(!$upload) { 
 			return array('error'=>16);
@@ -288,8 +292,6 @@ class fileField extends field {
 		$filename = $thumb_file ? $this->_prefix_thumb.$this->_value: $this->_value;
 		$directory = $this->_path_abs.$this->_path_add;
 		$directory = $this->conformPath($directory);
-		if($type == 'abs')
-			if(!is_dir($directory)) mkdir($directory, 0755, true);
 		
 		if($complete)
 			$directory = $directory.$filename;
@@ -319,17 +321,64 @@ class fileField extends field {
 	 * 
 	 * @param string $filename nome del file
 	 * @param string $prefix prefisso da aggiungere al nome del file
+	 * @param array $options
+	 *   array associativo di opzioni in aggiunta a quelle del metodo clean()
+	 *   - @b add_index (boolean)
+	 *     - true, aggiunge un numero progressivo al nome del file, ad esempio da foo.1.txt a foo.1.2.txt
+	 *     - false (default), incrementa il numero senza aggiungerlo, ad esempio da foo.1.txt a foo.2.txt
 	 * @return string
 	 */
-	private function checkFilename($filename, $prefix) {
+	private function checkFilename($filename, $prefix, $options=null) {
 	
+		$add_index = gOpt('add_index', $options, false);
+		
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
 		$filename = $prefix.$filename;
 		
 		$files = scandir($this->_directory);
-		$i=1;
 		
-		while(in_array($filename, $files)) { $filename = substr($filename, 0, strrpos($filename, '.')+1).$i.substr($filename, strrpos($filename, '.')); $i++; }
+		if($add_index)
+		{
+			$i=1;
+			while(in_array($filename, $files))
+			{
+				$filename = substr($filename, 0, strrpos($filename, '.')+1).$i.substr($filename, strrpos($filename, '.'));
+				$i++;
+			}
+		}
+		else
+		{
+			while(in_array($filename, $files))
+			{
+				$info = pathinfo($filename);
+				$file =  basename($filename, '.'.$info['extension']);
+				
+				if(preg_match('#([.]+)+#', $file))
+				{
+					$prefix = substr($file, 0, strrpos($file, '.')+1);
+					
+					$i = substr($file, strrpos($file, '.')+1);
+					
+					if(preg_match('#(^[0-9]+$)#', $i))
+					{
+						(int) $i;
+						$i++;
+					}
+					else
+					{
+						if($i) $prefix .= $i.'.';
+						$i=1;
+					}
+				}
+				else
+				{
+					$prefix = $file.'.';
+					$i=1;
+				}
+				
+				$filename = $prefix.$i.'.'.$info['extension'];
+			}
+		}
 		
 		return $filename;
 	}

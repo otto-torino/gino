@@ -95,12 +95,12 @@ a.otto:hover
 .fl_field input[type=text], .fl_field input[type=password] { width:120px; }
 
 /* <HEADERS> */
-header, h1, h2, h3, h4, h5, h6 {
-	color: #000;
+h1, h2, h3, h4, h5, h6 {
+	color: #FC2E69;
 	padding: 2px;
 	margin: 0px 0px 5px 0px;
 }
-header, h1 { font-size: 13px; font-weight:bold; }
+h1 { font-size: 13px; font-weight:bold; }
 h2 { font-size: 12px; font-weight:bold; }
 h3 { font-size: 11px }
 /* </HEADERS> */
@@ -128,23 +128,27 @@ SECTION
 */
 section { margin: 5px; }
 
-section.public header {
-	border-bottom: 2px solid #aaa;
-}
+section.public h1 {}
 section.admin { padding: 5px 0; }
 section.admin h1, section.admin header {
 	color:#ffffff;
 	min-height: 20px;
 }
 section.admin header { background-color:#aa0f3b; }
-section.admin h1 { background-color:#aa0f3b; }
+section.admin h1 { 
+  background-color:#aa0f3b;
+  margin: 5px;
+}
+section.admin header > .right {
+  margin: 5px 5px 0 0;
+}
 
 section.admin header a:link, section.admin header a:visited { color: #fff; }
 section div.headerInside {}
 
 /*header footer credits*/
-section#site_header { margin: 1px; }
-section#site_footer {}
+div#site_header { margin: 1px; }
+div#site_footer {}
 section#site_credits {}
 /*
 NAV
@@ -426,6 +430,9 @@ POSITION STYLES
 /*
 GENERAL STYLES
 */
+.hidden {
+	display: none;
+}
 .evidence {
 	color: #ff0000;
 }
@@ -1030,4 +1037,10 @@ div.separator {
 
 .search_half_title_result {
 	font-weight: normal;
+}
+/* /SEARCH SITE */
+
+.fb-share-button span, .fb-share-button iframe {
+	width: 100px! important;
+	height: 18px! important;
 }

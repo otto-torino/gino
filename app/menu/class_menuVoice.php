@@ -58,14 +58,6 @@ class menuVoice extends propertyObject {
 		return true;
 	}
 
-	public function setParent($postLabel) {
-		
-		$value = cleanVar($_POST, $postLabel, 'int', '');
-		if($this->_p['parent']!=$value && !in_array('parent', $this->_chgP)) $this->_chgP[] = 'parent';
-		$this->_p['parent'] = $value;
-		return true;
-	}
-	
 	public function setLink($value) {
 		
 		if($this->_p['link']!=$value && !in_array('link', $this->_chgP)) $this->_chgP[] = 'link';

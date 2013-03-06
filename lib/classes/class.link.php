@@ -345,30 +345,32 @@ class Link {
 		
 		$link = $query_string;
 		$array = explode('/', $query_string);
-		
-		if(sizeof($array) == 2)
-		{
-			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
-			if($setDataVar)
-			{
-				$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
-				$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
-			}
+		if($array[count($array) - 1] == '') {
+			unset($array[count($array) - 1]);
 		}
-		elseif(sizeof($array) > 2)
-		{
+
+		$secondary_params = '';
+		if(count($array) && substr($array[count($array) - 1], 0, 1) == '?') {
+			$secondary_params = array_pop($array);
+		}
+
+		$array_size = count($array);
+
+		if($array_size >= 2) {
 			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
-			$key = true;
 			$string_get = '';
-			for($i=2, $end=sizeof($array); $i<$end; $i++)
+		
+			if($secondary_params)	// parametri secondari
 			{
-				if(preg_match("#^\?([a-zA-Z0-9+/.=]+)$#", $array[$i], $matches))	// parametri secondari
-				{
-					$params = base64_decode($matches[1]);
-					$link .= "&".$params;
-					$string_get .= "&".$params;
-				}
-				elseif($end == 3 && $this->_compressed_form)	// page/displayItem/3
+				$params = base64_decode(substr($secondary_params, 1));
+				$link .= "&".$params;
+				$string_get .= "&".$params;
+			}
+
+			$key = true;
+			for($i=2, $end=$array_size; $i<$end; $i++)
+			{
+				if($end == 3 && $this->_compressed_form)	// page/displayItem/3
 				{
 					$link .= "&{$this->_field_id}=".$array[$i];
 					$string_get .= "&{$this->_field_id}=".$array[$i];
@@ -480,6 +482,8 @@ class Link {
 					
 					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 						$link .= '/'.$a_item[1];
+					elseif(!array_key_exists(1, $a_item))
+						$link .= '/'.$a_item[0].'/';
 					else
 						$link .= '/'.$a_item[0].'/'.$a_item[1];
 				}

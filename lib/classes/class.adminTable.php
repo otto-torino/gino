@@ -406,6 +406,8 @@ class adminTable {
 	 *     - @a field_import (string): nome del campo del file di importazione
 	 *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
 	 *     - @a field_log (string): nome del campo del file di log
+	 *     - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
+	 *     - @a dump_path (string): percorso del file di dump
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
 	 * 
@@ -439,6 +441,8 @@ class adminTable {
 			$field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
 			$field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
 			$field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
+			$dump = array_key_exists('dump', $options['import_file']) ? $options['import_file']['dump'] : false;
+			$dump_path = array_key_exists('dump_path', $options['import_file']) ? $options['import_file']['dump_path'] : null;
 			
 			if($field_import) $import = true;
 		}
@@ -505,7 +509,7 @@ class adminTable {
 		
 		if($import)
 		{
-			$result = $this->readFile($model, $path_to_file, $field_verify);
+			$result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump, 'dump_path'=>$dump_path));
 			if($field_log)
 				$model->{$field_log} = $result;
 		}
@@ -733,12 +737,16 @@ class adminTable {
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
+    $query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
 		}
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
+
+    $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+    $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
 		$tot_records = $tot_records_result[0]['tot'];
@@ -865,11 +873,18 @@ class adminTable {
 			); 
 
 			$rows[] = array_merge($row, $buttons);
-		}
+    }
+
+    if($tot_ff) {
+      $caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
+    }
+    else {
+      $caption = '';
+    }
 
 		$this->_view->setViewTpl('table');
 		$this->_view->assign('class', 'generic');
-		$this->_view->assign('caption', '');
+		$this->_view->assign('caption', $caption);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
 
@@ -886,6 +901,7 @@ class adminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
+		$this->_view->assign('search_icon', pub::icon('search'));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));
@@ -1030,12 +1046,46 @@ class adminTable {
 	 * 
 	 * @param object $model
 	 * @param string $path_to_file
-	 * @param array $verify_items valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b verify_items (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
+	 *   - @b dump (boolean): effettua il dump della tabella prima dell'importazione
+	 *   - @b dump_path (string): percorso del file di dump
 	 * @return string (log dell'importazione)
 	 */
-	protected function readFile($model, $path_to_file, $verify_items) {
+	protected function readFile($model, $path_to_file, $options=array()) {
 		
 		return null;
+	}
+	
+	/**
+	 * Restore di un file
+	 * 
+	 * @see db::restore()
+	 * @param string $table nome della tabella
+	 * @param string $filename nome del file da importare
+	 * @param array $options array associativo di opzioni
+	 * @return boolean
+	 */
+	protected function restore($table, $filename, $options=array()) {      
+	
+		$db = db::instance();
+		return $db->restore($table, $filename, $options);
+	}
+	
+	/**
+	 * Dump di una tabella
+	 * 
+	 * @see db::dump()
+	 * @param string $table
+	 * @param string $filename nome del file completo di percorso
+	 * @param array $options array associativo di opzioni
+	 * @return string (nome del file di dump)
+	 */
+	protected function dump($table, $filename, $options=array()) {
+		
+		$db = db::instance();
+		return $db->dump($table, $filename, $options);
 	}
 }
 ?>

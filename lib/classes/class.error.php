@@ -152,7 +152,7 @@ class error {
 	public static function raise404() {
 
 		$plink = new link();
-		header("Location: ".$plink->alink('sysfunc', 'page404'));
+		header("Location: "."http://".$_SERVER['HTTP_HOST'].'/'.SITE_WWW.$plink->alink('sysfunc', 'page404'));
 		exit();
 	}
 

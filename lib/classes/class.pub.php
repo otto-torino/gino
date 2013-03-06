@@ -20,7 +20,14 @@
 class pub extends EvtHandler{
 	
 	public static $delimiter = ';;';
+	
+	/**
+	 * Nome della classe corrente
+	 * 
+	 * @var string
+	 */
 	protected $_className;
+	
 	protected $_access, $_db, $session, $_trd, $_list, $_plink;
 	protected $_session_user, $_session_user_name, $_session_role, $_access_admin, $_access_user;
 	protected $_module_type, $_module_text;
@@ -31,8 +38,63 @@ class pub extends EvtHandler{
 	protected $_multi_language, $_delimiter;
 	
 	protected $_os, $_site_www, $_app_www, $_img_www, $_extra_www, $_content_www, $_graphics_www;
-	protected $_tmp_dir, $_app_dir, $_extra_dir, $_content_dir;
-	protected $_class_www, $_class_img, $_data_www, $_data_dir;
+	
+	/**
+	 * Percorso assoluto alla directory temporanea
+	 * 
+	 * @var string
+	 */
+	protected $_tmp_dir;
+	
+	/**
+	 * Percorso assoluto alla directory extra
+	 * 
+	 * @var string
+	 */
+	protected $_extra_dir;
+	
+	/**
+	 * Percorso assoluto alla directory delle applicazioni
+	 * 
+	 * @var string
+	 */
+	protected $_app_dir;
+	
+	/**
+	 * Percorso assoluto alla directory dei contenuti
+	 * 
+	 * @var string
+	 */
+	protected $_content_dir;
+	
+	/**
+	 * Percorso relativo alla directory dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_class_www;
+	
+	/**
+	 * Percorso relativo alla directory immagini dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_class_img;
+
+	/**
+	 * Percorso relativo alla directory dei contenuti dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected  $_data_www;
+	
+	/**
+	 * Percorso assoluto alla directory dei contenuti dell'applicazione
+	 * 
+	 * @var string
+	 */
+	protected $_data_dir;
+	
 	protected $_max_role, $_min_role, $_max_file_size;
 	protected $_mobile;
 	
@@ -63,7 +125,7 @@ class pub extends EvtHandler{
 	 */
 	function __construct(){
 		
-		$this->_className = get_class($this);	// name of current class
+		$this->_className = get_class($this);
 		
 		$this->_db = db::instance();
 		$this->session = session::instance();
@@ -98,7 +160,6 @@ class pub extends EvtHandler{
 		$this->setEvent();
 		$this->setPath();
 		$this->setSysTable();
-		$this->setImgIcon();
 		$this->setAction();
 		$this->setLink();
 		$this->setConfig();
@@ -271,37 +332,6 @@ class pub extends EvtHandler{
 		$this->_tbl_translation = 'language_translation';
 	}
 	
-	private function setImgIcon(){
-		
-		$this->_doc_insert = "<img src=\"".$this->_img_www."/ico_insert.gif\" alt=\""._("nuovo")."\" />";
-		$this->_doc_modify = "<img src=\"".$this->_img_www."/ico_modify.gif\" alt=\""._("modifica")."\" />";
-		$this->_doc_delete = "<img src=\"".$this->_img_www."/ico_delete.gif\" alt=\""._("elimina")."\" />";
-		$this->_doc_list = "<img src=\"".$this->_img_www."/ico_list.gif\" alt=\""._("elenco")."\" />";
-		$this->_doc_return = "<img src=\"".$this->_img_www."/ico_return.gif\" alt=\""._("indietro")."\" title=\""._("indietro")."\" />";
-		$this->_doc_language = "<img src=\"".$this->_img_www."/ico_language.gif\" alt=\""._("traduzione")."\" title=\""._("traduzione")."\" />";
-		$this->_doc_link = "<img src=\"".$this->_img_www."/ico_link.gif\" alt=\""._("link")."\" title=\""._("link")."\" />";
-		$this->_doc_content = "<img src=\"".$this->_img_www."/ico_content.gif\" alt=\""._("contenuti")."\" />";
-		$this->_doc_view = "<img src=\"".$this->_img_www."/ico_view.gif\" alt=\""._("visualizza")."\" title=\""._("visualizza")."\" />";
-		$this->_doc_email = "<img src=\"".$this->_img_www."/ico_email.gif\" alt=\""._("email")."\" title=\""._("email")."\"/>";
-		$this->_doc_check = "<img src=\"".$this->_img_www."/ico_check.gif\" alt=\""._("check")."\" />";
-		$this->_doc_user = "<img src=\"".$this->_img_www."/ico_group.gif\" alt=\""._("utenti")."\" />";
-		$this->_doc_permission = "<img src=\"".$this->_img_www."/ico_permission.gif\" alt=\""._("permessi")."\" title=\""._("permessi")."\" />";
-		$this->_doc_password = "<img src=\"".$this->_img_www."/ico_password.gif\" alt=\""._("password")."\" />";
-		$this->_doc_search = "<img src=\"".$this->_img_www."/ico_search.gif\" alt=\""._("ricerca")."\" title=\""._("ricerca")."\"/>";
-		$this->_doc_sort = "<img src=\"".$this->_img_www."/ico_sort.gif\" alt=\""._("ordina")."\" title=\""._("ordina")."\" />";
-		$this->_doc_new = "<img src=\"".$this->_img_www."/ico_new.gif\" alt=\""._("novità")."\" />";
-		$this->_doc_color = "<img src=\"".$this->_img_www."/ico_palette.gif\" alt=\""._("palette colori")."\" title=\""._("palette colori")."\"/>";
-		$this->_doc_help = "<img src=\"".$this->_img_www."/ico_help.gif\" alt=\""._("help in linea")."\" title=\""._("help")."\"/>";
-		$this->_doc_config = "<img src=\"".$this->_img_www."/ico_config.gif\" alt=\""._("impostazioni")."\" title=\""._("impostazioni")."\"/>";
-		$this->_doc_home = "<img src=\"".$this->_img_www."/ico_home.gif\" alt=\""._("home")."\" title=\""._("home")."\"/>";
-		$this->_doc_admin = "<img src=\"".$this->_img_www."/ico_admin.gif\" alt=\""._("amministrazione")."\" title=\""._("amministrazione")."\"/>";
-		$this->_doc_back = "<img src=\"".$this->_img_www."/ico_back.gif\" alt=\""._("inizio")."\" />";
-		$this->_doc_export = "<img src=\"".$this->_img_www."/ico_export.gif\" alt=\""._("esporta")."\" />";
-		$this->_doc_pdf = "<img src=\"".$this->_img_www."/ico_pdf.gif\" alt=\""._("pdf")."\" />";
-		$this->_doc_cart = "<img src=\"".$this->_img_www."/ico_cart.gif\" alt=\""._("metti nel carrello")."\" />";
-		$this->_doc_minimize = "<img src=\"".$this->_img_www."/ico_minimize.gif\" alt=\""._("riduci a icona")."\" />";
-	}
-	
 	private function setAction(){
 		
 		$this->_act_insert = 'insert';
@@ -452,6 +482,11 @@ class pub extends EvtHandler{
 		else return '';
 	}
 	
+	/**
+	 * Percorsi dell'applicazione
+	 * 
+	 * @return void
+	 */
 	private function pathApp(){
 		
 		$this->_class_www = $this->_app_www.'/'.$this->_className;
@@ -460,6 +495,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Operazione di serializzazione
+	 * 
 	 * Viene creato nella directory dei contenuti dell'istanza il file @a ser_nomeistanza.txt
 	 * 
 	 * @param string $instanceName nome dell'istanza
@@ -496,6 +532,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Codifica i parametri url
+	 * 
 	 * @param string $params parametri url
 	 * @return string
 	 */
@@ -511,6 +548,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Decodifica i parametri url
+	 * 
 	 * @param string $params parametri url
 	 * @return string
 	 */
@@ -755,7 +793,7 @@ class pub extends EvtHandler{
 				$title = _("esporta");
 				break;
 			case 'feed':
-				$icon = 'ico_feed.png';
+				$icon = 'icoRSS_black.png';
 				$title = _("feed rss");
 				break;
 			case 'group':

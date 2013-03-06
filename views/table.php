@@ -10,6 +10,7 @@
  * Available variables:
  * - @b class: table css class
  * - @b caption: (optional) table caption
+ * - @b tr_class: (string) css class of the highlighted item
  * - @b heads: array of table headers, each element may be a string (header text) or an associative array:
  *   - @b class: css class of the th element 
  *   - @b text: header text 
@@ -17,7 +18,7 @@
  *   - @b header: (bool) is the cell an header? 
  *   - @b colspan: (int) cell colspan attribute 
  *   - @b title: title attribute of the cell 
- *   - @b class: css calss of the cell 
+ *   - @b class: css class of the cell 
  *   - @b text: cell text 
  * - @b foots: table footer, may be an array of texts (one foreach cell), or a string (is displayed in an unique cell with a colspan attribute)
  * 
@@ -41,7 +42,13 @@
 	<tbody>
 		<?php
 			foreach($rows as $row) {
-				echo "<tr>\n";
+				if(isset($row['evidence']) && $row['evidence'] && $tr_class)
+				{
+					$selected = "class=\"".$tr_class."\"";
+					unset($row['evidence']);
+				}
+				else $selected = '';
+				echo "<tr $selected>\n";
 				foreach($row as $cell) {
 					$cell_tag = (is_array($cell) && isset($cell['header']) && $cell['header']) ? "th" : "td";
 					$cell_colspan = (is_array($cell) && isset($cell['colspan']) && $cell['colspan']) ? " colspan=\"".$cell['colspan']."\"" : "";

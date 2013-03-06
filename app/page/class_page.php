@@ -376,12 +376,15 @@ class page extends AbstractEvtClass{
 				$title = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'title', $item_id, 'item_id'));
 				$text = htmlChars($this->_trd->selectTXT($this->_tbl_item, 'subtitle', $item_id, 'item_id'));
 
-				$htmlsection = new htmlSection(array('id'=>"page_".$item_id,'class'=>'public', 'headerTag'=>'header'));
-				if(($view=='yes' && $style=='page')||($view=='yes' && $style=='block' && $this->_block_title)) $htmlsection->headerLabel = $title;
+				$htmlsection = new htmlSection(array('id'=>"page_".$item_id,'class'=>'public', 'headerTag'=>'h1'));
+				$htmlsection->headerLabel = $title;
+				if($view=='no' || ($style=='block' && !$this->_block_title)) {
+					$htmlsection->headerClass = 'hidden';
+				}
 			
 				$GINO = '';
 				if((($view=='yes' && $style=='page')||($view=='yes' && $style=='block' && $this->_block_title)) && !empty($text))
-					$GINO .= "<div class=\"subtitle\">$text</div>\n";
+					$GINO .= "<h2 class=\"subtitle\">$text</h2>\n";
 				
 				$query = "SELECT content_id, layout, img, link, filename FROM ".$this->_tbl_content." WHERE item='$item_id' ORDER BY order_list";
 				$a = $this->_db->selectquery($query);
@@ -715,7 +718,7 @@ class page extends AbstractEvtClass{
 		}
 		else $link_module = '';
 		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Albero pagine"), 'headerLinks'=>$link_module));
+		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Albero pagine"), 'headerLinks'=>$link_module));
 
 		$query = "SELECT i.item_id FROM ".$this->_tbl_module." AS m, ".$this->_tbl_item." AS i
 		WHERE m.type='".$this->_module_type[0]."' AND i.parent='0' AND i.module=m.id";

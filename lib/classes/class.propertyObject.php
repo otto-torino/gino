@@ -92,14 +92,14 @@
 	 * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
 	 * 
 	 * @param string $pName
-	 * @param mixed $postLabel
+	 * @param mixed $pValue
 	 */
 	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p)) return null;
 		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		else {
-			if($this->_p[$pName]!=$pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
+			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
 	}
@@ -134,12 +134,12 @@
 			if(!sizeof($this->_chgP)) return true;
 			$query = "UPDATE $this->_tbl_data SET ";
 			$sets = array();
-			foreach($this->_chgP as $pName) $sets[] = "$pName='{$this->_p[$pName]}'";
+			foreach($this->_chgP as $pName) $sets[] = "`$pName`='{$this->_p[$pName]}'";
 			$query .= implode(',',$sets)." WHERE id='{$this->_p['id']}'";
 		}
 		else {
 			if(!sizeof($this->_chgP)) return true;
-			$chgf = implode(',',$this->_chgP);
+			$chgf = "`".implode('`,`',$this->_chgP)."`";
 			$chgv = array();
 			foreach($this->_chgP as $pName) $chgv[] = "'{$this->_p[$pName]}'";
 			$query = "INSERT INTO $this->_tbl_data ($chgf) VALUES (".implode(",",$chgv).")";

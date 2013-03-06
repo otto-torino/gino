@@ -215,7 +215,7 @@ function stripEditor($text)
  */
 function cleanVar($method, $name, $type, $strip_tags, $options=array())
 {
-	if(isset($method[$name]) AND !empty($method[$name]))
+	if(isset($method[$name]) AND $method[$name] !== '')
 	{
 		$value = $method[$name];
 		
@@ -257,9 +257,9 @@ function cleanVar($method, $name, $type, $strip_tags, $options=array())
 			$value = floatval($value);
 			$value = str_replace($larr['decimal_point'], '.', $value);
 		}
-		else settype($value, $type);
+		elseif($value !== null) settype($value, $type);
 	}
-
+	
 	return $value;
 }
 
@@ -611,13 +611,23 @@ function enclosedField($string){
  * Da utilizzare per il testo che deve essere racchiuso in variabili javascript
  * 
  * @param string $string
+ * @param boolean $newline mantiene gli 'a capo' (default false)
  * @return string
  */
-function jsVar($string)
+function jsVar($string, $newline=false)
 {
-	$string = str_replace("\n",'',$string);
-	$string = str_replace("\r",'',$string);
-	$string = str_replace("\t",'',$string);
+	if($newline)
+	{
+		$string = str_replace("\n",'\\n',$string);
+		$string = str_replace("\r",'\\r',$string);
+		$string = str_replace("\t",'\\t',$string);
+	}
+	else 
+	{
+		$string = str_replace("\n",'',$string);
+		$string = str_replace("\r",'',$string);
+		$string = str_replace("\t",'',$string);
+	}
 	
 	$string = str_replace("'","\'",$string);
 	$string = str_replace("&#039;",'\\\'',$string);

@@ -35,6 +35,7 @@ class htmlSection {
 		'preHeaderTag' =>'h4',
 		'preHeaderLabel' =>null,
 		'headerTag' =>'header',
+		'headerClass' =>null,
 		'headerLabel' =>null,
 		'subHeaderTag' =>'h3',
 		'subHeaderLabel' =>null,
@@ -52,6 +53,7 @@ class htmlSection {
 	 *   - @b preHeaderTag (string): TAG del testo da mostrare prima di headerTag -> renderHeader()
 	 *   - @b preHeaderLabel (string): testo da mostrare prima di headerTag -> renderHeader()
 	 *   - @b headerTag (string): TAG principale -> renderHeader()
+	 *   - @b headerClass (string): classe css del TAG principale -> renderHeader()
 	 *   - @b headerLabel (string): testo del TAG principale -> renderHeader()
 	 *   - @b subHeaderTag (string): TAG del testo seguente headerTag -> renderHeader()
 	 *   - @b subHeaderLabel (string): testo del TAG seguente headerTag -> renderHeader()
@@ -107,34 +109,53 @@ class htmlSection {
 		return $buffer;
 	}
 
+	/**
+	 * Stampa l'header della section
+	 * @return string
+	 */
 	private function renderHeader() {
 
+		//@todo remove when all header strings have been changed
+		if($this->headerTag == 'header') {
+			$this->headerTag = 'h1';
+		}
+
 		$buffer = '';
-		if($this->preHeaderLabel || $this->subHeaderLabel) $buffer .= "<hgroup>";
+		if($this->preHeaderLabel || $this->headerLinks) $buffer .= "<header>";
 		if($this->preHeaderLabel) {
 			$buffer .= "<".$this->preHeaderTag.">";
 			$buffer .= $this->preHeaderLabel;
 			$buffer .= "</".$this->preHeaderTag.">";
 		}
-		$buffer .= "<".$this->headerTag.">";
+		if($this->subHeaderLabel && preg_match("#h\d#", $this->subHeaderLabel) && !$this->headerLinks) {
+			$buffer .= "<hgroup>";
+		}
 		if($this->headerLinks) {
-			$buffer .= "<div class=\"headerInside left\">".$this->headerLabel."</div>";
+			$buffer .= "<".$this->headerTag." class=\"headerInside left".($this->headerClass ? " ".$this->headerClass : "")."\">".$this->headerLabel."</".$this->headerTag.">";
 			$buffer .= "<div class=\"headerInside right\">".((is_array($this->headerLinks))?implode(" ", $this->headerLinks):$this->headerLinks)."</div>";
 			$buffer .= "<div class=\"null\"></div>\n";
 		}
-		else $buffer .= $this->headerLabel;
-		$buffer .= "</".$this->headerTag.">";
+		else {
+			$buffer .= "<".$this->headerTag.($this->headerClass ? " class=\"".$this->headerClass."\"" : "").">".$this->headerLabel."</".$this->headerTag.">";
+		}
 		if($this->subHeaderLabel) {
 			$buffer .= "<".$this->subHeaderTag.">";
 			$buffer .= $this->subHeaderLabel;
 			$buffer .= "</".$this->subHeaderTag.">";
 		}
-
-		if($this->preHeaderLabel || $this->subHeaderLabel) $buffer .= "</hgroup>";
+		if($this->subHeaderLabel && preg_match("#h\d#", $this->subHeaderLabel) && !$this->headerLinks) {
+			$buffer .= "</hgroup>";
+		}
+		if($this->preHeaderLabel || $this->headerLinks) $buffer .= "</header>";
 
 		return $buffer;
+
 	}
 	
+	/**
+	 * Stampa il contenuto della section
+	 * @return string
+	 */
 	private function renderContent() {
 
 		$buffer = "<div class=\"section_body\">".$this->content."</div>";
@@ -142,6 +163,10 @@ class htmlSection {
 		return $buffer;
 	}
 	
+	/**
+	 * Stampa il footer della section
+	 * @return string
+	 */
 	private function renderFooter() {
 
 		$buffer = "<footer>$this->footer</footer>";
