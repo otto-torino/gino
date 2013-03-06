@@ -598,7 +598,7 @@ class language extends AbstractEvtClass{
 				$language = htmlChars($b['language']);
 				$code_lng = $b['code'];
 				
-				$link_modify = "<a title=\""._("modifica")."\" href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]&amp;code=$b[code]&amp;action=".$this->_act_modify."\">".$this->_doc_modify."</a>";
+				$link_modify = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]&amp;code=$b[code]&amp;action=".$this->_act_modify."\">".pub::icon('modify')."</a>";
 			
 				$selected = ($code==$code_lng)?true:false;				
 

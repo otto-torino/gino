@@ -160,7 +160,6 @@ class pub extends EvtHandler{
 		$this->setEvent();
 		$this->setPath();
 		$this->setSysTable();
-		$this->setImgIcon();
 		$this->setAction();
 		$this->setLink();
 		$this->setConfig();
@@ -331,37 +330,6 @@ class pub extends EvtHandler{
 		$this->_tbl_user_role = 'user_role';
 		$this->_tbl_user_email = 'user_email';
 		$this->_tbl_translation = 'language_translation';
-	}
-	
-	private function setImgIcon(){
-		
-		$this->_doc_insert = "<img src=\"".$this->_img_www."/ico_insert.gif\" alt=\""._("nuovo")."\" />";
-		$this->_doc_modify = "<img src=\"".$this->_img_www."/ico_modify.gif\" alt=\""._("modifica")."\" />";
-		$this->_doc_delete = "<img src=\"".$this->_img_www."/ico_delete.gif\" alt=\""._("elimina")."\" />";
-		$this->_doc_list = "<img src=\"".$this->_img_www."/ico_list.gif\" alt=\""._("elenco")."\" />";
-		$this->_doc_return = "<img src=\"".$this->_img_www."/ico_return.gif\" alt=\""._("indietro")."\" title=\""._("indietro")."\" />";
-		$this->_doc_language = "<img src=\"".$this->_img_www."/ico_language.gif\" alt=\""._("traduzione")."\" title=\""._("traduzione")."\" />";
-		$this->_doc_link = "<img src=\"".$this->_img_www."/ico_link.gif\" alt=\""._("link")."\" title=\""._("link")."\" />";
-		$this->_doc_content = "<img src=\"".$this->_img_www."/ico_content.gif\" alt=\""._("contenuti")."\" />";
-		$this->_doc_view = "<img src=\"".$this->_img_www."/ico_view.gif\" alt=\""._("visualizza")."\" title=\""._("visualizza")."\" />";
-		$this->_doc_email = "<img src=\"".$this->_img_www."/ico_email.gif\" alt=\""._("email")."\" title=\""._("email")."\"/>";
-		$this->_doc_check = "<img src=\"".$this->_img_www."/ico_check.gif\" alt=\""._("check")."\" />";
-		$this->_doc_user = "<img src=\"".$this->_img_www."/ico_group.gif\" alt=\""._("utenti")."\" />";
-		$this->_doc_permission = "<img src=\"".$this->_img_www."/ico_permission.gif\" alt=\""._("permessi")."\" title=\""._("permessi")."\" />";
-		$this->_doc_password = "<img src=\"".$this->_img_www."/ico_password.gif\" alt=\""._("password")."\" />";
-		$this->_doc_search = "<img src=\"".$this->_img_www."/ico_search.gif\" alt=\""._("ricerca")."\" title=\""._("ricerca")."\"/>";
-		$this->_doc_sort = "<img src=\"".$this->_img_www."/ico_sort.gif\" alt=\""._("ordina")."\" title=\""._("ordina")."\" />";
-		$this->_doc_new = "<img src=\"".$this->_img_www."/ico_new.gif\" alt=\""._("novità")."\" />";
-		$this->_doc_color = "<img src=\"".$this->_img_www."/ico_palette.gif\" alt=\""._("palette colori")."\" title=\""._("palette colori")."\"/>";
-		$this->_doc_help = "<img src=\"".$this->_img_www."/ico_help.gif\" alt=\""._("help in linea")."\" title=\""._("help")."\"/>";
-		$this->_doc_config = "<img src=\"".$this->_img_www."/ico_config.gif\" alt=\""._("impostazioni")."\" title=\""._("impostazioni")."\"/>";
-		$this->_doc_home = "<img src=\"".$this->_img_www."/ico_home.gif\" alt=\""._("home")."\" title=\""._("home")."\"/>";
-		$this->_doc_admin = "<img src=\"".$this->_img_www."/ico_admin.gif\" alt=\""._("amministrazione")."\" title=\""._("amministrazione")."\"/>";
-		$this->_doc_back = "<img src=\"".$this->_img_www."/ico_back.gif\" alt=\""._("inizio")."\" />";
-		$this->_doc_export = "<img src=\"".$this->_img_www."/ico_export.gif\" alt=\""._("esporta")."\" />";
-		$this->_doc_pdf = "<img src=\"".$this->_img_www."/ico_pdf.gif\" alt=\""._("pdf")."\" />";
-		$this->_doc_cart = "<img src=\"".$this->_img_www."/ico_cart.gif\" alt=\""._("metti nel carrello")."\" />";
-		$this->_doc_minimize = "<img src=\"".$this->_img_www."/ico_minimize.gif\" alt=\""._("riduci a icona")."\" />";
 	}
 	
 	private function setAction(){

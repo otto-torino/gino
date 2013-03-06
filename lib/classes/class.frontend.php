@@ -21,8 +21,6 @@
  */
 class frontend extends propertyObject {
 
-	private static $_tbl_css = 'sys_layout_css';
-	protected $_tbl_data;
 	private $_class, $_module, $_name, $_label, $_css_list;
 	private $_view_list;
 	private $_instance_class;
