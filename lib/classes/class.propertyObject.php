@@ -223,6 +223,8 @@
 	 * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField, hiddenField.
 	 * 
 	 * @see DbManager::getTableStructure()
+	 * @see dataCache::get()
+	 * @see dataCache::save()
 	 * @param integer $id valore ID del record di riferimento
 	 * @return array
 	 * 
@@ -286,7 +288,11 @@
 			if(sizeof($a)>0) $this->_p = $a[0];
 		}
  		
- 		$fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
+ 		$cache = new dataCache();
+		if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600)) {
+			$fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
+			$cache->save($fieldsTable);
+		}
 		
 		$structure = array();
 		
