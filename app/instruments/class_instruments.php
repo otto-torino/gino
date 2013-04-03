@@ -11,8 +11,8 @@
 /**
  * @brief Strumenti agguintivi di gino
  * 
- * Adesso sono disponibili l'elenco delle risorse disponibili (con i relativi link) e dei mime type.
- * Per aggiungere uno strumento è necessario:
+ * Adesso sono disponibili l'elenco delle risorse disponibili (con i relativi link) e dei mime type. \n
+ * Per aggiungere uno strumento è necessario: \n
  *   - creare un record nella tabella @a instruments
  *   - associare nel metodo viewItem() il valore del campo id dello strumento con un suo metodo personalizzato (ad es. itemNew)
  *   - creare il metodo personalizzato (ad es. itemNew)

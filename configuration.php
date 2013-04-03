@@ -66,6 +66,6 @@ define('SESSION_NAME', 'GINO_SESSID');
 /**
  * Dimensione massima dei file per l'upload (2Mb => 2*1024*1024)
  */
-define('MAX_FILE_SIZE', 2097152);
+define('MAX_FILE_SIZE', 5242880);
 
 ?>

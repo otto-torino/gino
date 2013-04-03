@@ -482,6 +482,8 @@ class Link {
 					
 					if(sizeof($array) == 1 && $a_item[0] == $this->_field_id && $this->_compressed_form && !$secondary_exist)
 						$link .= '/'.$a_item[1];
+					elseif(!array_key_exists(1, $a_item))
+						$link .= '/'.$a_item[0].'/';
 					else
 						$link .= '/'.$a_item[0].'/'.$a_item[1];
 				}
