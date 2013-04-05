@@ -31,11 +31,12 @@ form { margin:0px; }
 	width:66%;
 }
 /* <ANCHORS AND AJAX LINKS> */
-a:link, a:visited {
+a:link, a:visited, .link {
 	color: #fc2e69;
 	text-decoration: none;
+  cursor: pointer;
 }
-a:hover {
+a:hover, .link:hover {
 	color: #fc2e69;
 	text-decoration: underline;
 }
@@ -52,11 +53,6 @@ a.otto:hover
 	background: url('../img/otto_credits_over.jpg') no-repeat center center;
 }
 
-.link
-{
-	cursor: pointer;
-	color:#a08e5a;
-}
 /* </ANCHORS AND AJAX LINKS> */
 
 /* TOP BAR */
@@ -133,11 +129,16 @@ section.admin { padding: 5px 0; }
 section.admin h1, section.admin header {
 	min-height: 20px;
 }
-section.admin header { background-color:#aa0f3b; }
+section.admin header { background-color:#aa0f3b; margin: 0 0 5px; }
 section.admin h1 { 
   background-color:#aa0f3b;
-  margin: 5px;
 	color:#ffffff;
+  padding: 5px;
+  margin: 0 0 5px;
+}
+section.admin header > h1 {
+  padding: 0;
+  margin: 5px;
 }
 section.admin header > .right {
   margin: 5px 5px 0 0;
@@ -505,8 +506,10 @@ div.abiWin {
 	position: absolute;
 	padding: 5px;
 	background-color: #e7e7e7;
+  background: linear-gradient(to bottom, #ddd, #eee);
 	border: 1px solid #000;
 	z-index: 10000;
+  box-shadow: 0px 0px 10px #333;
 }
 
 div.abiWin header.abiHeader {
@@ -874,19 +877,19 @@ table.generic {
 	width: 100%;
 }
 table.generic th {
-	border: 1px solid #000;
-	background-color: #666;
+	border: 1px solid #666;
+	background-color: #999;
 	color:#fff;
-	padding:2px;
+	padding:5px;
 }
-table.generic a:link, table.generic a:visited {
+table.generic th a:link, table.generic th a:visited {
 	color:#ddfd04;
 }
 
 table.generic td {
-	border: 1px solid #000;
+	border: 1px solid #666;
 	color:#000;
-	padding:2px;
+	padding:5px;
 }
 table.generic th.thIcon {
 	border: 0px;
@@ -901,6 +904,9 @@ table.generic tr.trOdd {
 }
 table.generic tr.trEven {
 	background-color: #fff;
+}
+table.generic tr:hover {
+  background: #ddd;
 }
 
 table.sysMdlList {
@@ -985,6 +991,7 @@ div.rightCtrlOff {
 	opacity:0.9;
 	filter: alpha(opacity = 90);
 	max-width: 200px;
+  z-index: 10;
 }
 
 .tipsfull .tips {
@@ -1043,4 +1050,16 @@ div.separator {
 .fb-share-button span, .fb-share-button iframe {
 	width: 100px! important;
 	height: 18px! important;
+}
+
+/*
+ * ATTACHED LIST 
+ */
+.drag-attached-view img {
+  height: 30px;
+}
+.attached-filter-ctg {
+  padding: 10px;
+  background: #eee;
+  border: 1px solid #bbb;
 }
