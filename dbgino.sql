@@ -21,31 +21,35 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 -- --------------------------------------------------------
 
+
 --
--- Struttura della tabella `attached`
+-- Table structure for table `attached`
 --
 
 CREATE TABLE IF NOT EXISTS `attached` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
+  `file` varchar(100) NOT NULL,
+  `notes` text,
+  `insertion_date` datetime NOT NULL,
+  `last_edit_date` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
--- Dump dei dati per la tabella `attached`
+-- Dumping data for table `attached`
 --
 
-INSERT INTO `attached` (`id`, `category`, `name`) VALUES
-(1, 1, 'lamp.jpg'),
-(2, 1, 'OSI_logo.jpg'),
-(3, 1, 'github.jpg'),
-(4, 1, 'plugin.jpg');
+INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
+(1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
+(2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
+(3, 1, 'github.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
+(4, 1, 'plugin.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `attached_ctg`
+-- Table structure for table `attached_ctg`
 --
 
 CREATE TABLE IF NOT EXISTS `attached_ctg` (
@@ -56,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `attached_ctg` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `attached_ctg`
+-- Dumping data for table `attached_ctg`
 --
 
 INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
@@ -65,7 +69,7 @@ INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `attached_grp`
+-- Table structure for table `attached_grp`
 --
 
 CREATE TABLE IF NOT EXISTS `attached_grp` (
@@ -77,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `attached_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `attached_grp`
+-- Dumping data for table `attached_grp`
 --
 
 INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
@@ -87,29 +91,7 @@ INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `attached_opt`
---
-
-CREATE TABLE IF NOT EXISTS `attached_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `opt_ctg` tinyint(1) NOT NULL,
-  `items_for_page` int(3) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `attached_opt`
---
-
-INSERT INTO `attached_opt` (`id`, `instance`, `title`, `opt_ctg`, `items_for_page`) VALUES
-(1, 0, 'Allegati', 1, 30);
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `attached_usr`
+-- Table structure for table `attached_usr`
 --
 
 CREATE TABLE IF NOT EXISTS `attached_usr` (
@@ -117,10 +99,6 @@ CREATE TABLE IF NOT EXISTS `attached_usr` (
   `group_id` int(2) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `attached_usr`
---
 
 
 -- --------------------------------------------------------
