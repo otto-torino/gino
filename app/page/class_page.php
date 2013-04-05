@@ -133,6 +133,8 @@ class page extends AbstractEvtClass{
 	 */
 	private function accessPage($page_id, $block=false){
 		
+		return true;
+		
 		$module = $this->_db->getFieldFromId($this->_tbl_item, 'module', 'item_id', $page_id);
 		
 		if(empty($module)) EvtHandler::HttpCall($this->_home, $this->_className.'-notExistPage', '');

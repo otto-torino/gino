@@ -1231,19 +1231,19 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
 
 CREATE TABLE IF NOT EXISTS `sys_module` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(100) CHARACTER SET latin1 NOT NULL,
-  `name` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `label` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `class` varchar(200) NOT NULL,
-  `type` enum('page','class','func') CHARACTER SET latin1 NOT NULL DEFAULT 'page',
+  `type` enum('class','func') NOT NULL DEFAULT 'class',
   `role1` smallint(2) NOT NULL,
   `role2` smallint(2) NOT NULL,
   `role3` smallint(2) NOT NULL,
-  `directory` varchar(200) CHARACTER SET latin1 DEFAULT NULL,
-  `masquerade` enum('yes','no') CHARACTER SET latin1 NOT NULL DEFAULT 'yes',
+  `directory` varchar(200) DEFAULT NULL,
+  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
   `role_group` int(2) NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dump dei dati per la tabella `sys_module`
@@ -1256,12 +1256,7 @@ INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role
 (4, 'Menu principale', 'mainMenu', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu area amministrativa'),
 (6, 'Top Bar', 'topbar', 'phpModuleView', 'class', 5, 5, 5, NULL, 'no', 0, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto aall''amministrazione dei singoli moduli'),
-(10, 'Gino CMS', '', '', 'page', 5, 5, 5, '10', 'no', 0, ''),
-(11, 'Tecnologia', '', '', 'page', 5, 5, 5, '11', 'no', 0, ''),
-(13, 'Licenza', '', '', 'page', 5, 5, 5, '13', 'no', 0, ''),
-(14, 'Documentazione', '', '', 'page', 5, 5, 5, '14', 'no', 0, ''),
-(15, 'Estendere Gino', '', '', 'page', 5, 5, 5, '15', 'no', 0, '');
+(9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto aall''amministrazione dei singoli moduli');
 
 -- --------------------------------------------------------
 
@@ -1273,7 +1268,7 @@ CREATE TABLE IF NOT EXISTS `sys_module_app` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `type` enum('class','page','func') NOT NULL,
+  `type` enum('class','func') NOT NULL,
   `role1` smallint(2) NOT NULL,
   `role2` smallint(2) NOT NULL,
   `role3` smallint(2) NOT NULL,
