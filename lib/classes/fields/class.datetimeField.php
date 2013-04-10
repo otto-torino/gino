@@ -102,13 +102,5 @@ class datetimeField extends field {
 		}
 		else return parent::clean($options);
 	}
-	
-	/**
-	 * @see field::validate()
-	 */
-	public function validate($filename){
-
-		return true;
-	}
 }
 ?>

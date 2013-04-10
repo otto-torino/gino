@@ -48,6 +48,7 @@ include_once(FIELDS_DIR.OS.'class.constantField.php');
 include_once(FIELDS_DIR.OS.'class.dateField.php');
 include_once(FIELDS_DIR.OS.'class.datetimeField.php');
 include_once(FIELDS_DIR.OS.'class.directoryField.php');
+include_once(FIELDS_DIR.OS.'class.emailField.php');
 include_once(FIELDS_DIR.OS.'class.enumField.php');
 include_once(FIELDS_DIR.OS.'class.fileField.php');
 include_once(FIELDS_DIR.OS.'class.floatField.php');
