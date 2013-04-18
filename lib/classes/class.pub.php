@@ -105,7 +105,7 @@ class pub extends EvtHandler{
 	protected $_tbl_language, $_lng_dft, $_lng_dft_name, $_lng_nav, $_lng_nav_name;
 	protected $_tbl_sysconf, $_tbl_module, $_tbl_module_app, $_tbl_position;
 	protected $_tbl_menu, $_tbl_menu_tree;
-	protected $_tbl_page, $_tbl_page_block;
+	protected $_tbl_page;
 	protected $_tbl_nation, $_tbl_user, $_tbl_user_add, $_tbl_user_reg, $_tbl_user_role, $_tbl_user_email;
 	protected $_tbl_translation;
 	
@@ -321,8 +321,7 @@ class pub extends EvtHandler{
 		$this->_tbl_position = 'sys_position';
 		$this->_tbl_menu = 'sys_menu';
 		$this->_tbl_menu_tree = 'sys_menu_tree';
-		$this->_tbl_page = 'page';
-		$this->_tbl_page_block = 'page_block';
+		$this->_tbl_page = 'page_entry';
 		$this->_tbl_nation = 'nation';
 		$this->_tbl_user = 'user_app';
 		$this->_tbl_user_add = 'user_add';

@@ -206,7 +206,7 @@ class Document {
 	 *   - @b $matches[0] complete matching 
 	 *   - @b $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
 	 *   - @b $matches[3] match div id, es. nav_1_1
-	 *   - @b $matches[4] match div content, es. {mod id=20}
+	 *   - @b $matches[4] match div content, es. {module classid=20 func=blockList}
 	 *   - @b $matches[5] match close tag, es. </div>
 	 * @return string
 	 */
@@ -225,6 +225,16 @@ class Document {
 		return $navContent;
 	}
 
+	/**
+	 * Gestisce il tipo di elemento da richiamare 
+	 * 
+	 * @see modPage()
+	 * @see modClass()
+	 * @see modFunc()
+	 * @see modUrl()
+	 * @param string $mdlMarker
+	 * @return string
+	 */
 	private function renderModule($mdlMarker) {
 
 		preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
@@ -245,6 +255,13 @@ class Document {
 		return $mdlContent;
 	}
 	
+	/**
+	 * Elemento pagina
+	 * 
+	 * @see page::box()
+	 * @param integer $mdlId valore ID della pagina
+	 * @return string
+	 */
 	private function modPage($mdlId){
 
 		if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
@@ -252,7 +269,7 @@ class Document {
 
 		$page = $this->_instances['page'];
 		
-		return $page->displayItem($mdlId);
+		return $page->box($mdlId);
 	}
 
 	private function modClass($mdlId, $mdlFunc, $mdlType){

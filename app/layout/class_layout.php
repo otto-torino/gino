@@ -396,6 +396,11 @@ class layout extends AbstractEvtClass {
 		exit();
 	}
 
+	/**
+	 * Elenco dei moduli e delle pagine disponibili
+	 * 
+	 * @return string
+	 */
 	public function modulesList() {
 
 		$this->accessGroup('');
@@ -409,7 +414,7 @@ class layout extends AbstractEvtClass {
 		/*
 		 * Pages
 		 */
-		$query = "SELECT item_id as id, parent, title 
+		$query = "SELECT id, parent, title 
 			  FROM ".$this->_tbl_page." 
 			  ORDER BY title";
 		$a = $this->_db->selectquery($query);
@@ -421,7 +426,7 @@ class layout extends AbstractEvtClass {
 				$role_txt = 'DA PREDISPORRE';
 				$code_full = "{module pageid=".$b['id']." func=full}";
 				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-displayItem]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$role_txt</td></tr>";
+				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-box]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$role_txt</td></tr>";
 			}
 		}
 		/*

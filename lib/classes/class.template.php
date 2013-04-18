@@ -693,8 +693,8 @@ class template extends propertyObject {
 				$mdlType = (!empty($m[1]))? $m[1]:null;
 
 				if($mdlType=='page') {
-					$title = $this->_db->getFieldFromId('page', 'title', 'item_id', $mdlId);
-					$jsurl = $this->_home."?pt[page-displayItem]&id=".$mdlId;
+					$title = $this->_db->getFieldFromId('page_entry', 'title', 'id', $mdlId);
+					$jsurl = $this->_home."?pt[page-box]&id=".$mdlId;
 				}
 				elseif($mdlType=='class' || $mdlType=='class') {
 					$classname = $this->_db->getFieldFromId('sys_module', 'class', 'id', $mdlId);
