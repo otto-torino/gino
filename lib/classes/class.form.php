@@ -982,35 +982,6 @@ class Form {
   }
 
 	/**
-	 * Tag select in celle dei tabella
-	 *
-	 * @see label()
-	 * @param string $name nome input
-	 * @param string $value elemento selezionato (ad es. valore da 'modifica')
-	 * @param mixed $data elementi del select
-	 * @param mixed $label testo del tag label
-	 * @param array $options
-	 *   array associativo di opzioni (aggiungere quelle del metodo select())
-	 *   - @b required (boolean): campo obbligatorio
-	 *   - @b text_add (string): testo dopo il select
-	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
-	 * @return string
-	 */
-	public function cselect($name, $value, $data, $label, $options=null) {
-
-		$this->setOptions($options);
-		$GFORM = "<tr>\n";
-		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>";
-		$GFORM .= "<td class=\"form_field\">";
-		$GFORM .= $this->select($name, $value, $data, $options);
-		if($this->option('text_add')) $GFORM .= $this->option('text_add');
-		$GFORM .= "</td>\n";
-		$GFORM .= "</tr>\n";
-
-		return $GFORM;
-	}
-
-	/**
 	 * Tag input checkbox multiplo (many to many)
 	 * 
 	 * @param string $name nome input
@@ -1180,34 +1151,34 @@ class Form {
 		return $GFORM;
 	}
 
-  /**
-   * Tag select in celle dei tabella
-   *
-   * @see label()
-   * @param string $name nome input
-   * @param string $value elemento selezionato (ad es. valore da 'modifica')
-   * @param mixed $data elementi del select
-   * @param mixed $label testo del tag label
-   * @param array $options
-   *   array associativo di opzioni (aggiungere quelle del metodo select())
-   *   - @b required (boolean): campo obbligatorio
-   *   - @b text_add (string): testo dopo il select
-   *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
-   * @return string
-   */
-  public function cselect($name, $value, $data, $label, $options=null) {
+  	/**
+	 * Tag select in celle dei tabella
+	 *
+	 * @see label()
+	 * @param string $name nome input
+	 * @param string $value elemento selezionato (ad es. valore da 'modifica')
+	 * @param mixed $data elementi del select
+	 * @param mixed $label testo del tag label
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo select())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b text_add (string): testo dopo il select
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 * @return string
+	 */
+	public function cselect($name, $value, $data, $label, $options=null) {
 
-    $this->setOptions($options);
-    $GFORM = "<tr>\n";
-    $GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>";
-    $GFORM .= "<td class=\"form_field\">";
-    $GFORM .= $this->select($name, $value, $data, $options);
-    if($this->option('text_add')) $GFORM .= $this->option('text_add');
-    $GFORM .= "</td>\n";
-    $GFORM .= "</tr>\n";
+		$this->setOptions($options);
+		$GFORM = "<tr>\n";
+		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>";
+		$GFORM .= "<td class=\"form_field\">";
+		$GFORM .= $this->select($name, $value, $data, $options);
+		if($this->option('text_add')) $GFORM .= $this->option('text_add');
+		$GFORM .= "</td>\n";
+		$GFORM .= "</tr>\n";
 
-    return $GFORM;
-  }
+		return $GFORM;
+	}
 
   /**
    * Tag select
