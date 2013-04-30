@@ -414,19 +414,21 @@ class layout extends AbstractEvtClass {
 		/*
 		 * Pages
 		 */
-		$query = "SELECT id, parent, title 
-			  FROM ".$this->_tbl_page." 
-			  ORDER BY title";
+		$query = "SELECT id, title, private, users FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Pagine")."</th></tr>";
 			$buffer .= "<tr><th colspan=\"2\">"._("Titolo")."</th><th>"._("Permessi")."</th></tr>";
 			foreach($a as $b) {
-				//$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $b['role1']);
-				$role_txt = 'DA PREDISPORRE';
+				$access_txt = '';
+				if($b['private'])
+					$access_txt .= _("pagina privata")."<br />";
+				if($b['users'])
+					$access_txt .= _("pagina limitata ad utenti selezionati");
+				
 				$code_full = "{module pageid=".$b['id']." func=full}";
 				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-box]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$role_txt</td></tr>";
+				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-box]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
 			}
 		}
 		/*

@@ -12,32 +12,73 @@
 /**
  * Caratteristiche, opzioni configurabili da backoffice ed output disponibili per i template e le voci di menu.
  *
- * CARATTERISTICHE    
- *  
- * Modulo di gestione pagine, con predisposizione contenuti per ricerca nel sito e newsletter 
- *
+ * CARATTERISTICHE
+ * ---------------
+ * Modulo di gestione pagine, con predisposizione contenuti per ricerca nel sito e newsletter
+ * 
+ * PERMESSI
+ * ---------------
+ * Sono previsti tre gruppi di lavoro:
+ * - pubblicazione ($_group_1)
+ * - redazione ($_group_2)
+ * - accesso alle pagine private ($_group_3)
+ * 
+ * Le persone associate al gruppo redazione non hanno accesso ai campi 'published', 'private', 'users'.
+ * 
+ * POLITICHE DI VISUALIZZAZIONE
+ * ---------------
+ * Alla visualizzazione di una pagina concorrono i seguenti elementi:
+ * - pubblicazione della pagina (campo @a published)
+ * - visualizzazione a utenti appartenenti al gruppo "utenti pagine private" (campo @a private)
+ * - visualizzazione a utenti specifici (campo @a users)
+ * 
+ * ###Utenti non autenticati
+ * Una pagina viene visualizzata se:
+ * - è pubblicata (published=1)
+ * - non è associata a specifici utenti (users='')
+ * - non è privata (private=0)
+ * 
+ * ###Utenti autenticati
+ * Una pagina viene visualizzata se:
+ * - è pubblicata (published=1)
+ * - si appartiene almeno al gruppo "redazione"
+ * 
+ * Nel caso in cui l'utente non appartenga al gruppo redazione:
+ * 1) se la pagina è associata a specifici utenti si controlla se l'utente della sessione è compreso tra questi utenti
+ * 2) se la pagina è privata si controlla se l'utente della sessione appartiene al gruppo "utenti pagine private"
+ * 3) se la pagina è associata a specifici utenti ed è anche privata dovranno essere valide entrambe le condizioni 1 e 2
+ * 
+ * ###Metodi
+ * Il metodo utilizzato per verificare le condizioni di accesso alle pagine è accessPage(). \n
+ * Il metodo defAccessPage() viene invece utilizzato per definire quali pagine possano essere mostrate negli elenchi, aggiungendo alle opzioni del metodo richiamato (archive, last, ...) le seguenti opzioni:
+ * - valore ID dell'utente in sessione (@a access_user)
+ * - se l'utente può accedere alle pagine private (@a access_private)
+ * 
+ * Queste opzioni concorrono alla definizione delle condizioni di una selezione, in particolare nel metodo pageEntry::accessWhere(). 
+ * 
  * OPZIONI CONFIGURABILI
- * - titolo ultimi post
- * - titolo archivio post
- * - titolo vetrina post
+ * ---------------
+ * - titolo ultime pagine pubblicate
+ * - titolo archivio pagine
+ * - titolo vetrina pagine
  * - titolo tag cloud
- * - numero ultimi post
- * - template singolo elemento ultimi post
- * - numero post in vetrina
+ * - numero ultime pagine
+ * - template singolo elemento ultime pagine
+ * - numero pagine in vetrina
  * - template singolo elemento vetrina
- * - numero di post per pagina in archivio
+ * - numero di elementi per pagina in archivio
  * - template singolo elemento archivio
- * - template post
+ * - template pagina
  * - moderazione commenti
  * - notifica commenti
  *
  * OUTPUTS
- * - ultimi post
- * - albero post per data
- * - archivio post
- * - vetrina post
+ * ---------------
+ * - ultime pagine pubblicate
+ * - archivio pagine
+ * - vetrina pagine
  * - tag cloud
- * - dettaglio post
+ * - pagina
  * - feed RSS
  */
 
@@ -180,6 +221,30 @@ class page extends AbstractEvtClass {
 	 * Percorso assoluto alla directory contenente le viste 
 	 */
 	private $_view_dir;
+	
+	/**
+	 * Contiene gli id dei gruppi abilitati alla pubblicazione e redazione
+	 * 
+	 * @var array 
+	 * @access private
+	 */
+	private $_group_1;
+	
+	/**
+	 * Contiene gli id dei gruppi abilitati alla redazione
+	 * 
+	 * @var array 
+	 * @access private
+	 */
+	private $_group_2;
+	
+	/**
+	 * Contiene gli id dei gruppi che possono accedere alle pagine private
+	 * 
+	 * @var array 
+	 * @access private
+	 */
+	private $_group_3;
 
 	/*
 	 * Parametro action letto da url 
@@ -224,7 +289,7 @@ class page extends AbstractEvtClass {
 		$newsletter_tpl_code = "";
 
 		$this->_optionsValue = array(
-			'last_title'=>_("Pagina"),
+			'last_title'=>_("Ultime pagine pubblicate"),
 			'archive_title'=>_("Pagine"),
 			'showcase_title'=>_("In evidenza"),
 			'cloud_title'=>_("Categorie"),
@@ -438,6 +503,9 @@ class page extends AbstractEvtClass {
 		
 		// Redazione
 		$this->_group_2 = array($this->_list_group[0], $this->_list_group[1], $this->_list_group[2]);
+		
+		// Accesso alle pagine private
+		$this->_group_3 = array($this->_list_group[0], $this->_list_group[1], $this->_list_group[2], $this->_list_group[3]);
 	}
 
 	/**
@@ -469,7 +537,6 @@ class page extends AbstractEvtClass {
 
 		$list = array(
 			"last" => array("label"=>_("Lista utime pagine"), "role"=>'1'),
-			//"tree" => array("label"=>_("Albero pagine per data"), "role"=>'1'),
 			"archive" => array("label"=>_("Elenco pagine categorizzate"), "role"=>'1'),
 			"showcase" => array("label"=>_("Vetrina (più letti)"), "role"=>'1'),
 			//"tagcloud" => array("label"=>_("Tag cloud"), "role"=>'1')
@@ -533,12 +600,57 @@ class page extends AbstractEvtClass {
 		
 		return $directory;
 	}
+	
+	/**
+	 * Gestisce l'accesso alla visualizzazione delle pagine
+	 * 
+	 * @param object $item
+	 * @return boolean
+	 */
+	private function accessPage($item) {
+		
+		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
+			return true;
+		
+		if($item->users)
+		{
+			$users = explode(',', $item->users);
+			if(!in_array($this->_session_user, $users))
+				return false;
+		}
+		
+		if($item->private && !$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3))
+			return false;
+		
+		return true;
+	}
+	
+	/**
+	 * Condizioni di accesso alle pagine nel caso in cui l'utente non appartenga al gruppo redazione
+	 * 
+	 * Se necessario aggiunge alle condizioni definite le condizioni di accesso alle pagine tramite le chiavi @a access_user e @a access_private.
+	 * 
+	 * @param array $conditions elenco delle condizioni del WHERE
+	 * @return array
+	 */
+	private function defAccessPage($conditions=array()) {
+		
+		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
+		{
+			$conditions['access_user'] = $this->_session_user;
+			$conditions['access_private'] = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3);
+		}
+		
+		return $conditions;
+	}
 
 	/**
-	 * Front end ultimi post 
+	 * Front end elenco ultime pagine 
 	 * 
 	 * @access public
-	 * @return lista ultimi post
+	 * @see defAccessPage()
+	 * @see pageEntry::get()
+	 * @return string
 	 */
 	public function last() {
 
@@ -557,8 +669,11 @@ class page extends AbstractEvtClass {
 			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS') 	
 		));
 
-		$entries = pageEntry::get($this, array('published'=>true, 'order'=>'creation_date DESC', 'limit'=>array(0, $this->_last_number)));
-
+		$options = array('published'=>true, 'order'=>'creation_date DESC', 'limit'=>array(0, $this->_last_number));
+		$options = $this->defAccessPage($options);
+		
+		$entries = pageEntry::get($this, $options);
+		
 		preg_match_all("#{{[^}]+}}#", $this->_last_tpl_code, $matches);
 		$items = array();
 		foreach($entries as $entry) {
@@ -577,14 +692,13 @@ class page extends AbstractEvtClass {
 		$view->assign('archive', $archive);
 
 		return $view->render();
-
 	}
 
 	/**
 	 * Front end archivio 
 	 * 
 	 * @access public
-	 * @return archivio
+	 * @return string
 	 * 
 	 * Parametri GET: \n
 	 *   - id (string), nome del tag
@@ -632,12 +746,18 @@ class page extends AbstractEvtClass {
 			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS') 	
 		));
 		
-		$entries_number = pageEntry::getCount($this, array('tag'=>$tag_id, 'published'=>true));
+		$options_count = array('tag'=>$tag_id, 'published'=>true);
+		$options_count = $this->defAccessPage($options_count);
+		
+		$entries_number = pageEntry::getCount($options_count);
 
 		$pagination = new pagelist($this->_archive_efp, $entries_number, 'array');
 		$limit = array($pagination->start(), $this->_archive_efp);
 
-		$entries = pageEntry::get($this, array('published'=>true, 'tag'=>$tag_id, 'category'=>$category_id, 'order'=>'creation_date DESC', 'limit'=>$limit));
+		$options = array('published'=>true, 'tag'=>$tag_id, 'category'=>$category_id, 'order'=>'creation_date DESC', 'limit'=>$limit);
+		$options = $this->defAccessPage($options);
+		
+		$entries = pageEntry::get($this, $options);
 
 		preg_match_all("#{{[^}]+}}#", $this->_archive_tpl_code, $matches);
 		$items = array();
@@ -699,7 +819,9 @@ class page extends AbstractEvtClass {
 	 * Front end vetrina pagine più lette 
 	 * 
 	 * @access public
-	 * @return vetrina
+	 * @see defAccessPage()
+	 * @see pageEntry::get()
+	 * @return string
 	 */
 	public function showcase() {
 		
@@ -709,7 +831,10 @@ class page extends AbstractEvtClass {
 		$registry->addCss($this->_class_www."/page.css");
 		$registry->addJs($this->_class_www."/page.js");
 
-		$entries = pageEntry::get($this, array('published'=>true, 'order'=>'\'read\' DESC, creation_date DESC', 'limit'=>array(0, $this->_showcase_number)));
+		$options = array('published'=>true, 'order'=>'\'read\' DESC, creation_date DESC', 'limit'=>array(0, $this->_showcase_number));
+		$options = $this->defAccessPage($options);
+		
+		$entries = pageEntry::get($this, $options);
 
 		preg_match_all("#{{[^}]+}}#", $this->_showcase_tpl_code, $matches);
 		$items = array();
@@ -754,6 +879,7 @@ class page extends AbstractEvtClass {
 	 * 
 	 * @access public
 	 * @see pageEntry::getFromSlug()
+	 * @see accessPage()
 	 * @see parseTemplate()
 	 * @see view::setViewTpl()
 	 * @see view::assign()
@@ -781,6 +907,9 @@ class page extends AbstractEvtClass {
 		if(!$item || !$item->id || !$item->published) {
 			return null;
 		}
+		
+		if(!$this->accessPage($item))
+			return null;
 
 		preg_match_all("#{{[^}]+}}#", $this->_box_tpl_code, $matches);
 		$tpl = $this->parseTemplate($item, $this->_box_tpl_code, $matches);
@@ -793,11 +922,12 @@ class page extends AbstractEvtClass {
 
 		return $view->render();
 	}
-
+	
 	/**
 	 * Front end pagina 
 	 * 
 	 * @see pageEntry::getFromSlug()
+	 * @see accessPage()
 	 * @see parseTemplate()
 	 * @see formComment()
 	 * @see pageComment::getTree()
@@ -841,7 +971,10 @@ class page extends AbstractEvtClass {
 		if(!$item || !$item->id || !$item->published) {
 			error::raise404();
 		}
-
+		
+		if(!$this->accessPage($item))
+			return "<p>"._("I contenuti della pagina non sono disponibili")."</p>";
+		
 		$tpl_item = $item->tpl_code ? $item->tpl_code : $this->_entry_tpl_code;
 		
 		preg_match_all("#{{[^}]+}}#", $tpl_item, $matches);
@@ -1103,8 +1236,8 @@ class page extends AbstractEvtClass {
 	 */
 	public function managePage() {
 
-		$this->accessGroup('ALL');
-
+		$this->accessGroup($this->_group_2);
+		
 		$method = 'managePage';
 
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Pagine")));
@@ -1179,7 +1312,7 @@ class page extends AbstractEvtClass {
 		$name_onblur = "onblur=\"var date = new Date(); $('slug').value = date.getFullYear() + (date.getMonth().toInt() < 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) + (date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString()) + '-' + $(this).value.slugify()\"";
 
 		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)) {
-			$remove_fields = array('author', 'published', 'read');
+			$remove_fields = array('author', 'published', 'private', 'users', 'read');
 		}
 		else {
 			$remove_fields = array('author', 'read');
@@ -1206,7 +1339,7 @@ class page extends AbstractEvtClass {
 		$buffer .= $admin_table->backOffice(
 			'pageEntry', 
 			array(
-				'list_display' => array('id', 'creation_date', 'title', 'slug', 'category_id', 'published'),
+				'list_display' => array('id', 'creation_date', 'title', 'slug', 'category_id', 'published', 'private'),
 				'list_title'=>_("Elenco post"), 
 				'filter_fields'=>array('title', 'category_id', 'tags', 'published')
 				),
@@ -1214,24 +1347,27 @@ class page extends AbstractEvtClass {
 				'removeFields' => $remove_fields
 				), 
 			array(
-				'title' => array(
-					'js' => $name_onblur
+				'category_id'=>array(
+					'required'=>false
+				), 
+				'title'=>array(
+					'js'=>$name_onblur
 				),
-				'slug' => array(
-					'id' => 'slug'
+				'slug'=>array(
+					'id'=>'slug'
 				),
-				'tags' => array(
-					'id' => 'tags'
+				'tags'=>array(
+					'id'=>'tags'
 				),
-				'text' => array(
+				'text'=>array(
 					'widget'=>'editor', 
 					'notes'=>true, 
 					'img_preview'=>true, 
 				),
-				'image' => array(
+				'image'=>array(
 					'preview'=>true
 				),
-				'tpl_code' => array(
+				'tpl_code'=>array(
 					'cols'=>40,
 					'rows'=>10
 				)
@@ -1265,6 +1401,7 @@ class page extends AbstractEvtClass {
 	/**
 	 * Interfaccia di amministrazione dei tag
 	 * 
+	 * @see pageEntry::getAssociatedTags()
 	 * @return interfaccia di back office
 	 */
 	private function manageTag() {
@@ -1391,7 +1528,6 @@ class page extends AbstractEvtClass {
         $buffer = $this->parseTemplate($entry, $this->_newsletter_tpl_code, $matches);
 
         return $buffer;
-
     }
 
 	/**
@@ -1455,3 +1591,4 @@ class page extends AbstractEvtClass {
 		exit;
 	}
 }
+?>

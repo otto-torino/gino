@@ -49,6 +49,8 @@ class pageEntry extends propertyObject {
 			'tags'=>_('Tag'),
 			'enable_comments'=>_('abilita commenti'),
 			'published'=>_('Pubblicato'),
+			'private'=>array(_("Privata"), _("pagina visualizzabile dal gruppo 'utenti pagine private'")),
+			'users'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),  
 			'read'=>_('Visualizzazioni'), 
 			'tpl_code'=>array(_("Template"), _("sovrascrive il template di default"))
 		);
@@ -101,7 +103,28 @@ class pageEntry extends propertyObject {
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
 			'value'=>$this->published, 
-			'table'=>$this->_tbl_data 
+			'table'=>$this->_tbl_data
+		));
+		
+		$structure['private'] = new booleanField(array(
+			'name'=>'private', 
+			'required'=>true,
+			'label'=>$this->_fields_label['private'], 
+			'enum'=>array(1 => _('si'), 0 => _('no')), 
+			'default'=>0,
+			'value'=>$this->private, 
+			'table'=>$this->_tbl_data
+		));
+		
+		$structure['users'] = new manyToManyField(array(
+			'name'=>'users', 
+			'label'=>$this->_fields_label['users'], 
+			'fkey_table'=>'user_app', 
+			'fkey_id'=>'user_id', 
+			'fkey_field'=>array('lastname', 'firstname'), 
+			'fkey_where'=>"valid='yes'", 
+			'fkey_order'=>"lastname ASC", 
+			'value'=>$this->users
 		));
 
 		$structure['enable_comments'] = new booleanField(array(
@@ -237,10 +260,58 @@ class pageEntry extends propertyObject {
 
 		return $res;
 	}
+	
+	/**
+	 * Definisce le condizioni di accesso a una pagina integrando le condizioni del WHERE
+	 * 
+	 * @param integer $access_user valore ID dell'utente
+	 * @param boolean $access_private indica se l'utente appartiene al gruppo "utenti pagine private"
+	 * @return string
+	 */
+	private static function accessWhere($access_user, $access_private) {
+		
+		$where = '';
+		
+		if($access_user == 0)	// condizione di non autenticazione
+		{
+			$where = "(users IS NULL OR users='') AND private='0'";
+		}
+		elseif($access_user && is_int($access_user))
+		{
+			// condizione campo users non vuoto
+			$w1 = "users IS NOT NULL AND users!='' AND users REGEXP '[[:<:]]".$access_user."[[:>:]]'";
+			
+			// condizione campo users vuoto, da abbinare all'accesso privato se impostato 
+			$w2 = "users IS NULL OR users=''";
+			
+			if(is_bool($access_private))
+			{
+				if(!$access_private)
+				{
+					$w3 = "private='0'";
+					
+					$where = "(($w1) OR ($w2 AND $w3)";
+				}
+				else
+				{
+					$where = "(($w1) OR ($w2)";
+				}
+			}
+			else $where = "(($w1) OR ($w2)";
+		}
+		elseif(is_bool($access_private)) {
+			if(!$access_private) {
+				$where = "private='0'";
+			}
+		}
+		
+		return $where;
+	}
 
 	/**
 	 * Restituisce oggetti di tipo @ref pageEntry 
 	 * 
+	 * @see accessWhere()
 	 * @param object $controller istanza del controller 
 	 * @param array $options array associativo di opzioni
 	 *   - @b published (boolean)
@@ -248,6 +319,8 @@ class pageEntry extends propertyObject {
 	 *   - @b category (integer)
 	 *   - @b order (string)
 	 *   - @b limit (string)
+	 *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
+	 *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
 	 * @return array di istanze di tipo pageEntry
 	 */
 	public static function get($controller, $options = null) {
@@ -259,6 +332,9 @@ class pageEntry extends propertyObject {
 		$category = gOpt('category', $options, null);
 		$order = gOpt('order', $options, 'creation_date');
 		$limit = gOpt('limit', $options, null);
+		
+		$access_user = gOpt('access_user', $options, null);
+		$access_private = gOpt('access_private', $options, null);
 
 		$db = db::instance();
 		$selection = 'id';
@@ -273,9 +349,17 @@ class pageEntry extends propertyObject {
 		if($tag) {
 			$where_arr[] = "id IN (SELECT entry FROM ".self::$tbl_entry_tag." WHERE tag='".$tag."')";
 		}
+		
 		$where = implode(' AND ', $where_arr);
-
-		$rows = $db->select($selection, $table, $where, $order, $limit);
+		
+		$where_add = self::accessWhere($access_user, $access_private);
+		
+		if($where && $where_add)
+			$where = $where." AND ".$where_add;
+		elseif(!$where && $where_add)
+			$where = $where_add;
+		
+		$rows = $db->select($selection, $table, $where, $order, $limit, false);
 		if(count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new pageEntry($row['id'], $controller);
@@ -288,10 +372,13 @@ class pageEntry extends propertyObject {
 	/**
 	 * Restituisce il numero di oggetti pageEntry selezionati 
 	 * 
+	 * @see accessWhere()
 	 * @param array $options array associativo di opzioni
 	 *   - @b published (boolean)
 	 *   - @b tag (integer)
 	 *   - @b category (integer)
+	 *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
+	 *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
 	 * @return numero di post
 	 */
 	public static function getCount($options = null) {
@@ -301,6 +388,9 @@ class pageEntry extends propertyObject {
 		$published = gOpt('published', $options, true);
 		$tag = gOpt('tag', $options, null);
 		$category = gOpt('category', $options, null);
+		
+		$access_user = gOpt('access_user', $options, null);
+		$access_private = gOpt('access_private', $options, null);
 
 		$db = db::instance();
 		$selection = 'COUNT(id) AS tot';
@@ -315,7 +405,14 @@ class pageEntry extends propertyObject {
 		if($tag) {
 			$where_arr[] = "id IN (SELECT entry FROM ".self::$tbl_entry_tag." WHERE tag='".$tag."')";
 		}
+		
 		$where = implode(' AND ', $where_arr);
+		$where_add = self::accessWhere($access_user, $access_private);
+		
+		if($where && $where_add)
+			$where = $where." AND ".$where_add;
+		elseif(!$where && $where_add)
+			$where = $where_add;
 
 		$rows = $db->select($selection, $table, $where, null, null);
 		if($rows and count($rows)) {

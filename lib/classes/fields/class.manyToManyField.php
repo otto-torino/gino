@@ -59,12 +59,14 @@ class manyToManyField extends field {
 	public function __toString() {
 
 		$db = db::instance();
+		
+		$field = $this->defineField($db);
+		if(!$field) return null;
 
 		$parts = array();
 		foreach($this->_value as $v) {
-			$parts[] = $db->getFieldFromId($this->_fkey_table, $this->_fkey_field, $this->_fkey_id, $v);
+			$parts[] = $db->getFieldFromId($this->_fkey_table, $field, $this->_fkey_id, $v);
 		} 
-
 
 		return (string) implode(', ', $parts);
 	}
@@ -130,14 +132,12 @@ class manyToManyField extends field {
 	}
 	
 	/**
-	 * Imposta la query di selezione dei dati di una chiave esterna
+	 * Formatta il nome del campo da ricercare, tenendo conto di eventuali concatenamenti
 	 * 
+	 * @param object $db
 	 * @return string
 	 */
-	private function foreignKey() {
-		
-		if(is_null($this->_fkey_table) || is_null($this->_fkey_field))
-			return null;
+	private function defineField($db=null) {
 		
 		if(is_array($this->_fkey_field) && count($this->_fkey_field))
 		{
@@ -151,7 +151,8 @@ class manyToManyField extends field {
 				}
 				array_pop($array);
 				
-				$db = db::instance();
+				if(!$db) $db = db::instance();
+				
 				$fields = $db->concat($array);
 			}
 			else $fields = $this->_fkey_field[0];
@@ -160,7 +161,24 @@ class manyToManyField extends field {
 		{
 			$fields = $this->_fkey_field;
 		}
-		else return null;
+		else $fields = null;
+		
+		return $fields;
+	}
+	
+	/**
+	 * Imposta la query di selezione dei dati di una chiave esterna
+	 * 
+	 * @see defineField()
+	 * @return string
+	 */
+	private function foreignKey() {
+		
+		if(is_null($this->_fkey_table) || is_null($this->_fkey_field))
+			return null;
+		
+		$field = $this->defineField();
+		if(!$field) return null;
 		
 		if(is_array($this->_fkey_where) && count($this->_fkey_where))
 		{
@@ -175,7 +193,7 @@ class manyToManyField extends field {
 		if($where) $where = "WHERE $where";
 		if($this->_fkey_order) $order = "ORDER BY ".$this->_fkey_order;
 		
-		$query = "SELECT {$this->_fkey_id}, $fields FROM {$this->_fkey_table} $where $order";
+		$query = "SELECT {$this->_fkey_id}, $field FROM {$this->_fkey_table} $where $order";
 		
 		return $query;
 	}

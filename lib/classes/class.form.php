@@ -981,165 +981,204 @@ class Form {
     return $GFORM;
   }
 
-  /**
-   * Tag input checkbox
-   *
-   * @param string $name nome input
-   * @param boolean $checked valore selezionato
-   * @param mixed  $value valore del tag input
-   * @param array $options
-   *   array associativo di opzioni
-   *   - @b id (string): valore ID del tag input
-   *   - @b classField (string): nome della classe del tag input
-   *   - @b js (string): javascript
-   *   - @b other (string): altro nel tag
-   * @return string
-   */
-  public function checkbox($name, $checked, $value, $options){
+	/**
+	 * Tag select in celle dei tabella
+	 *
+	 * @see label()
+	 * @param string $name nome input
+	 * @param string $value elemento selezionato (ad es. valore da 'modifica')
+	 * @param mixed $data elementi del select
+	 * @param mixed $label testo del tag label
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo select())
+	 *   - @b required (boolean): campo obbligatorio
+	 *   - @b text_add (string): testo dopo il select
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 * @return string
+	 */
+	public function cselect($name, $value, $data, $label, $options=null) {
 
-    $this->setOptions($options);
-    $GFORM = '';
+		$this->setOptions($options);
+		$GFORM = "<tr>\n";
+		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>";
+		$GFORM .= "<td class=\"form_field\">";
+		$GFORM .= $this->select($name, $value, $data, $options);
+		if($this->option('text_add')) $GFORM .= $this->option('text_add');
+		$GFORM .= "</td>\n";
+		$GFORM .= "</tr>\n";
 
-    $GFORM .= "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked?"checked=\"checked\"":"")." ";
-        $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-        $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $GFORM .= $this->option('js')?$this->option('js')." ":"";
-        $GFORM .= $this->option('other')?$this->option('other')." ":"";
-        $GFORM .= "/>";
+		return $GFORM;
+	}
 
-    return $GFORM;
-  }
+	/**
+	 * Tag input checkbox multiplo (many to many)
+	 * 
+	 * @param string $name nome input
+	 * @param array $checked valori degli elementi selezionati
+	 * @param mixed $data
+	 *   - string, query
+	 *   - array, elementi del checkbox
+	 * @param string $label testo <label>
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b id (string)
+	 *   - @b classField (string)
+	 *   - @b readonly (boolean)
+	 *   - @b js (string)
+	 *   - @b other (string)
+	 *   - @b required (string)
+	 *   - @b classLabel (string)
+	 *   - @b maxHeight (integer): altezza in pixel del box contenente gli elementi
+	 *   - @b checkPosition (stringa): posizionamento del checkbox (left)
+	 *   - @b table (string): nome della tabella con il campo da tradurre
+	 *   - @b field (mixed): nome o nomi dei campi da recuperare
+	 *     - string: nome del campo con il testo da tradurre
+	 *     - array: nomi dei campi da concatenare
+	 *   - @b idName (string): nome del campo di riferimento
+	 * @return string
+	 * 
+	 * Esempio
+	 * @code
+	 * $query = "SELECT id, name FROM ".$this->_tbl_ctg." WHERE instance='$this->_instance' ORDER BY name";
+	 * $buffer = $gform->multipleCheckbox('category[]', explode(",",$ctg_checked), $query, _("Categorie"), array("table"=>$table, "field"=>"name", "idName"=>"id"));
+	 * @endcode
+	 */
+	public function multipleCheckbox($name, $checked, $data, $label, $options=null){
 
-  /**
-   * Tag input checkbox multiplo (many to many)
-   * 
-   * @param string $name nome input
-   * @param array $checked valori degli elementi selezionati
-   * @param mixed $data
-   *   - string, query
-   *   - array, elementi del checkbox
-   * @param string $label testo <label>
-   * @param array $options
-   *   array associativo di opzioni
-   *   - @b id (string)
-   *   - @b classField (string)
-   *   - @b readonly (boolean)
-   *   - @b js (string)
-   *   - @b other (string)
-   *   - @b required (string)
-   *   - @b classLabel (string)
-   *   - @b maxHeight (integer): altezza in pixel del box contenente gli elementi
-   *   - @b checkPosition (stringa): posizionamento del checkbox (left)
-   *   - @b table (string): nome della tabella con il campo da tradurre
-   *   - @b field (string): nome del campo con il testo da tradurre
-   *   - @b idName (string): nome del campo di riferimento
-   * @return string
-   * 
-   * Esempio
-   * @code
-   * $query = "SELECT id, name FROM ".$this->_tbl_ctg." WHERE instance='$this->_instance' ORDER BY name";
-   * $buffer = $gform->multipleCheckbox('category[]', explode(",",$ctg_checked), $query, _("Categorie"), array("table"=>$table, "field"=>"name", "idName"=>"id"));
-   * @endcode
-   */
-  public function multipleCheckbox($name, $checked, $data, $label, $options=null){
+		if(is_null($checked)) {
+			$checked = array();
+		}
 
-    if(is_null($checked)) {
-      $checked = array();
-    }
+		$this->setOptions($options);
+		$GFORM = "<tr>\n";
+		$GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>\n";
+		$GFORM .= "<td class=\"form_field\">\n";
 
-    $this->setOptions($options);
-    $GFORM = "<tr>\n";
-    $GFORM .= "<td class=\"form_label\">".$this->label($name, $label, $this->option('required'), $this->option('classLabel'))."</td>\n";
-    $GFORM .= "<td class=\"form_field\">\n";
+		if($this->option("maxHeight"))
+			$GFORM .= "<div style=\"max-height:".$this->option("maxHeight")."px;overflow: auto;border:1px solid #000000;\">\n";
 
-    if($this->option("maxHeight"))
-      $GFORM .= "<div style=\"max-height:".$this->option("maxHeight")."px;overflow: auto;border:1px solid #000000;\">\n";
+		$odd = true;
+		if(is_string($data))
+		{
+			$result = mysql_query($data);
+			if(mysql_num_rows($result) > 0)
+			{
+				$GFORM .= "<table style=\"width:100%;\">\n";
+				while ($row = mysql_fetch_array($result))
+				{
+					list($val1, $val2) = $row;
+					if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
 
-    $odd = true;
-    if(is_string($data))
-    {
-      $result = mysql_query($data);
-      if(mysql_num_rows($result) > 0)
-      {
-        $GFORM .= "<table style=\"width:100%;\">\n";
-        while ($row = mysql_fetch_array($result))
-        {
-          list($val1, $val2) = $row;
-          if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
+					if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
+					$GFORM .= "<tr class=\"$class\">\n";
 
-          if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
-          $GFORM .= "<tr class=\"$class\">\n";
+					$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$val1\" $check";
+					$checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
+					$checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
+					$checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
+					$checkbox .= $this->option('js')?$this->option('js')." ":"";
+					$checkbox .= $this->option('other')?$this->option('other')." ":"";
+					$checkbox .= " />";
 
-          $checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$val1\" $check";
-          $checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-          $checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-          $checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-          $checkbox .= $this->option('js')?$this->option('js')." ":"";
-          $checkbox .= $this->option('other')?$this->option('other')." ":"";
-          $checkbox .= " />";
+					$field = $this->option('field');
+					if(is_array($field) && count($field))
+					{
+						$db = db::instance();
+						
+						if(sizeof($field) > 1)
+						{
+							$array = array();
+							foreach($field AS $value)
+							{
+								$array[] = $value;
+								$array[] = '\' \'';
+							}
+							array_pop($array);
+							
+							$fields = $db->concat($array);
+						}
+						else $fields = $field[0];
+						
+						$record = $db->select($fields." AS v", $this->option('table'), $this->option('idName')."='$val1'");
+						
+						if(!$record)
+							$value_name = '';
+						else 
+						{
+							foreach($record AS $r)
+							{
+								$value_name = $r['v'];
+							}
+						}
+					}
+					elseif(is_string($field))
+					{
+						$value_name = htmlChars($this->_trd->selectTXT($this->option('table'), $field, $val1, $this->option('idName')));
+					}
+					else $value_name = '';
+					
+					if($this->option("checkPosition")=='left') {
+						$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
+						$GFORM .= "<td>".$value_name."</td>";
+					}
+					else {
+						$GFORM .= "<td>".$value_name."</td>";
+						$GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
+					}
+					$GFORM .= "</tr>\n";
 
-          if($this->option("checkPosition")=='left') {
-            $GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-            $GFORM .= "<td>".htmlChars($this->_trd->selectTXT($this->option('table'), $this->option('field'), $val1, $this->option('idName')))."</td>";
-          }
-          else {
-            $GFORM .= "<td>".htmlChars($this->_trd->selectTXT($this->option('table'), $this->option('field'), $val1, $this->option('idName')))."</td>";
-            $GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
-          }
-          $GFORM .= "</tr>\n";
+					$odd = !$odd;
+				}
+				$GFORM .= "</table>\n";
+			}
+			else $GFORM .= _("non risultano scelte disponibili");
+		}
+		elseif(is_array($data))
+		{
+			$i = 0;
+			if(sizeof($data)>0)
+			{
+				$GFORM .= "<table style=\"width:100%;\">\n";
+				foreach($data as $k=>$v)
+				{
+					$check = in_array($k, $checked)? "checked=\"checked\"": "";
 
-          $odd = !$odd;
-        }
-        $GFORM .= "</table>\n";
-      }
-      else $GFORM .= _("non risultano scelte disponibili");
-    }
-    elseif(is_array($data))
-    {
-      $i = 0;
-      if(sizeof($data)>0)
-      {
-        $GFORM .= "<table style=\"width:100%;\">\n";
-        foreach($data as $k=>$v)
-        {
-          $check = in_array($k, $checked)? "checked=\"checked\"": "";
+					if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
+					$GFORM .= "<tr class=\"$class\">\n";
 
-          if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
-          $GFORM .= "<tr class=\"$class\">\n";
+					$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$k\" $check";
+					$checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
+					$checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
+					$checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
+					$checkbox .= $this->option('js')?$this->option('js')." ":"";
+					$checkbox .= $this->option('other')?$this->option('other')." ":"";
+					$checkbox .= " />";
 
-          $checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$k\" $check";
-          $checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-          $checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-          $checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-          $checkbox .= $this->option('js')?$this->option('js')." ":"";
-          $checkbox .= $this->option('other')?$this->option('other')." ":"";
-          $checkbox .= " />";
+					if($this->option("checkPosition")=='left') {
+					$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
+					$GFORM .= "<td>$v</td>";
+					}
+					else {
+					$GFORM .= "<td>$v</td>";
+					$GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
+					}
 
-          if($this->option("checkPosition")=='left') {
-            $GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-            $GFORM .= "<td>$v</td>";
-          }
-          else {
-            $GFORM .= "<td>$v</td>";
-            $GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
-          }
+					$GFORM .= "</tr>\n";
 
-          $GFORM .= "</tr>\n";
+					$odd = !$odd;
+					$i++;
+				}
+				$GFORM .= "</table>\n";
+			}
+			else $GFORM .= _("non risultano scelte disponibili");
+		}
 
-          $odd = !$odd;
-          $i++;
-        }
-        $GFORM .= "</table>\n";
-      }
-      else $GFORM .= _("non risultano scelte disponibili");
-    }
+		if($this->option("maxHeight")) $GFORM .= "</div>\n";
+		$GFORM .= "</td>\n";
+		$GFORM .= "</tr>\n";
 
-    if($this->option("maxHeight")) $GFORM .= "</div>\n";
-    $GFORM .= "</td>\n";
-    $GFORM .= "</tr>\n";
-
-    return $GFORM;
-  }
+		return $GFORM;
+	}
 
   /**
    * Tag select in celle dei tabella
