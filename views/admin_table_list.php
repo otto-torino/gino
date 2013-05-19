@@ -67,5 +67,5 @@
       })
     })()
   </script>
-  <? endif ?>
+  <?php endif ?>
 </section>

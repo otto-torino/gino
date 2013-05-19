@@ -167,6 +167,7 @@ class menu extends AbstractEvtClass {
 	/**
 	 * Interfaccia per visualizzare il menu
 	 * 
+	 * @see menuVoice::getSelectedVoice()
 	 * @see renderMenu()
 	 * @see $_access_base
 	 * @return string
@@ -262,6 +263,7 @@ class menu extends AbstractEvtClass {
 	/**
 	 * Stampa il menu
 	 * 
+	 * @see page::goToPage()
 	 * @param integer $parent valore ID della voce di menu alla quale la voce corrente è collegata
 	 * @param mixed $s
 	 *   - integer: valore ID della voce di menu corrente
@@ -271,34 +273,50 @@ class menu extends AbstractEvtClass {
 	private function renderMenu($parent=0, $s=0) {
 
 		$GINO = '';
-		$auth_where = $this->_session_user?"AND authView='1'":"";
-		$query = "SELECT id FROM ".menuVoice::$tbl_voices." WHERE instance='$this->_instance' AND parent='$parent' $auth_where AND role1>=$this->_session_role ORDER BY orderList";
+		
+		$auth_where_page = "voice='page'";
+		
+		$auth_class = array();
+		$auth_class[] = "voice='class'";
+		$auth_class[] = "role1>=$this->_session_role";
+		if($this->_session_user) $auth_class[] = "authView='1'";
+		$auth_where_class = '('.implode(' AND ', $auth_class).')';
+		
+		$query = "SELECT id FROM ".menuVoice::$tbl_voices." WHERE instance='$this->_instance' AND parent='$parent' AND ($auth_where_class OR $auth_where_page) ORDER BY orderList";
 		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
+		if(sizeof($a) > 0)
+		{
 			$GINO .= ($parent!=0)?"<ul>\n":"<ul id=\"menu_".$this->_instance."\" class=\"mainmenu\">\n"; 
 			$GINO .= ($parent==0 && $this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
-			foreach($a as $b) {
+			foreach($a as $b)
+			{
 				$voice = new menuVoice($b['id']);
-				if($voice->link && $voice->type=='ext')
-					$link = "href=\"".$voice->link."\"";
-				elseif($voice->link)
-					$link = "href=\"".$this->_plink->linkFromDB($voice->link)."\"";
-				else
-					$link = '';
 				
-				$rel = ($voice->type=='ext')?"target=\"_blank\" rel=\"external\"":"";
-				$class = ($s==$voice->id)?"selectedVoice":"";
-				$GINO .= "<li id=\"id".$voice->id."\" class=\"$class\"><a $rel $link>".htmlChars($voice->ml('label'))."</a>";
-				$GINO .= $this->renderMenu($voice->id, $s);
-				$GINO .= "</li>\n";
+				if($voice->voice == 'class' || ($voice->voice == 'page' && page::goToPage($voice->page_id, $this->_session_user)))
+				{
+					if($voice->link && $voice->type=='ext')
+						$link = "href=\"".$voice->link."\"";
+					elseif($voice->link)
+						$link = "href=\"".$this->_plink->linkFromDB($voice->link)."\"";
+					else
+						$link = '';
+					
+					$rel = ($voice->type=='ext')?"target=\"_blank\" rel=\"external\"":"";
+					$class = ($s==$voice->id)?"selectedVoice":"";
+					$GINO .= "<li id=\"id".$voice->id."\" class=\"$class\"><a $rel $link>".htmlChars($voice->ml('label'))."</a>";
+					$GINO .= $this->renderMenu($voice->id, $s);
+					$GINO .= "</li>\n";
+				}
 			}
 			$GINO .= ($parent==0 && $this->_opt_admin && $this->_access->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
 			$GINO .= ($parent==0 && $this->_opt_logout && $this->_access->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
 
 			$GINO .= "</ul>\n"; 
 		}
-		else {
-			if($parent==0) {
+		else
+		{
+			if($parent==0)
+			{
 				if($this->_opt_home || ($this->_opt_admin && $this->_access->getAccessAdmin()) || ($this->_opt_logout && $this->_access->AccessVerifyIf())) {
 					$GINO .= "<ul id=\"menu_".$this->_instance."\" class=\"mainmenu\">\n";
 					$GINO .= ($this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
@@ -550,31 +568,41 @@ class menu extends AbstractEvtClass {
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$parent = cleanVar($_POST, 'parent', 'int', '');
 		$link = cleanVar($_POST, 'link', 'string', '');
-		$voice = ($parent)?null:$id;
+		$voice = cleanVar($_POST, 'voice', 'string', '');
+		
+		// per i controlli
+		$page_id = cleanVar($_POST, 'page_id', 'int', '');
+		$role1 = cleanVar($_POST, 'role1', 'int', '');
+		
+		$voice_id = ($parent) ? null : $id;
 
-		$link_error_p = "action=$this->_action";
-		if($id) $link_error_p .= "&id=$id";
+		$link_params = "action=$this->_action";
+		if($id) $link_params .= "&id=$id";
 
-		$link_error = $this->_home."?evt[$this->_instanceName-manageDoc]&$link_error_p";
+		$link_error = $this->_home."?evt[$this->_instanceName-manageDoc]&$link_params";
 
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
 
-		$voice = new menuVoice($voice);
+		if(($voice == 'class' && !$role1) || ($voice == 'page' && !$page_id))
+			exit(error::errorMessage(array('error'=>1), $link_error));
+		
+		$menu_voice = new menuVoice($voice_id);
 
 		foreach($_POST as $k=>$v) {
-			$voice->{$k} = cleanVar($_POST, $k, 'string', '');
+			$menu_voice->{$k} = cleanVar($_POST, $k, 'string', '');
 		}
-		$voice->instance = $this->_instance;
-		if($voice->type == 'int') {
-			$voice->link = $this->_plink->convertLink($link);
+		$menu_voice->instance = $this->_instance;
+		
+		if($menu_voice->type == 'int') {
+			$menu_voice->link = $this->_plink->convertLink($link);
 		}
 		else {
-			$voice->link = $link;
+			$menu_voice->link = $link;
 		}
-		if(!$id) $voice->initOrderList();
+		if(!$id) $menu_voice->initOrderList();
 
-		$voice->updateDbData();
+		$menu_voice->updateDbData();
 
 		EvtHandler::HttpCall($this->_home, $this->_instanceName.'-manageDoc', '');
 	}
@@ -646,6 +674,9 @@ class menu extends AbstractEvtClass {
 	 * 
 	 * @see actionUpdateOrder()
 	 * @return string
+	 * 
+	 * Chiamate Ajax: \n
+	 *   - actionUpdateOrder()
 	 */
 	private function jsSortLib() {
 	
@@ -674,6 +705,9 @@ class menu extends AbstractEvtClass {
 	 * 
 	 * @see printItemsList()
 	 * @return string
+	 * 
+	 * Chiamate Ajax: \n
+	 *   - printItemsList()
 	 */
 	private function jsSearchModulesLib() {
 	
@@ -735,30 +769,29 @@ class menu extends AbstractEvtClass {
 			
 			if(sizeof($j) > 0) $GINO .= $this->printItemsClass($j);
 		}
-		else if(!empty($page)) {
+		elseif(!empty($page)) {
 			
 			$results_nav = array();
 			$results = array();
 			$final_results = array();
 			
-		 	$query = "SELECT p.item_id, m.role1, t.text FROM ".$this->_tbl_page." AS p, ".$this->_tbl_module." AS m, ".$this->_tbl_translation." AS t WHERE t.text LIKE '%$page%' AND t.language='".$this->_lng_nav."' AND t.tbl='".$this->_tbl_page."' AND t.field='title' AND t.tbl_id_value=p.item_id AND  p.module=m.id AND m.masquerade='no'";
+		 	$query = "SELECT p.id, t.text FROM ".$this->_tbl_page." AS p, ".$this->_tbl_translation." AS t WHERE t.text LIKE '%$page%' AND t.language='".$this->_lng_nav."' AND t.tbl='".$this->_tbl_page."' AND t.field='title' AND t.tbl_id_value=p.id AND p.published='1'";
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
 			{
 				foreach($a AS $b)
 				{
-					$results_nav[$b['item_id']] = $b['text'];
+					$results_nav[$b['id']] = $b['text'];
 				}
 			}
-				
-			$query = "SELECT p.item_id, p.title, m.role1 FROM ".$this->_tbl_page." AS p, ".$this->_tbl_module." AS m WHERE p.title LIKE '%$page%' AND  p.module=m.id AND m.masquerade='no' AND p.item_id NOT IN(SELECT tbl_id_value FROM ".$this->_tbl_translation." WHERE tbl='".$this->_tbl_page."' AND field='title' AND language='".$this->_lng_nav."') ORDER BY title";
-			$a = $this->_db->selectquery($query);
 			
+			$query = "SELECT id, title FROM ".$this->_tbl_page." WHERE title LIKE '%$page%' AND published='1' AND id NOT IN (SELECT tbl_id_value FROM ".$this->_tbl_translation." WHERE tbl='".$this->_tbl_page."' AND field='title' AND language='".$this->_lng_nav."') ORDER BY title";
+			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
 			{	
 				foreach($a AS $b)
 				{
-					$results[$b['item_id']] = $b['title'];
+					$results[$b['id']] = $b['title'];
 				}
 			}
 			
@@ -769,10 +802,10 @@ class menu extends AbstractEvtClass {
 			
 			if(sizeof($final_results)) $GINO .= $this->printItemsPage($final_results);
 		}
-		else if(!empty($all) && $all=='all') {
+		elseif(!empty($all) && $all=='all') {
 			
-			$query = "SELECT p.item_id, m.role1 FROM ".$this->_tbl_page." AS p, ".$this->_tbl_module." AS m WHERE p.module=m.id AND m.masquerade='no' ORDER BY title";
-			$results_ordered = $this->_trd->listItemOrdered($query, 'item_id', $this->_tbl_page, 'title', 'asc');
+			$query = "SELECT id FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
+			$results_ordered = $this->_trd->listItemOrdered($query, 'id', $this->_tbl_page, 'title', 'asc');
 			if(sizeof($results_ordered) > 0)
 			{
 				$GINO .= $this->printItemsPage($results_ordered);
@@ -787,7 +820,6 @@ class menu extends AbstractEvtClass {
 			$j = array_merge($a,$a2);
 			
 			if(sizeof($j) > 0) $GINO .= $this->printItemsClass($j);
-			
 		}
 
 		$GINO .= "</div>";
@@ -798,6 +830,7 @@ class menu extends AbstractEvtClass {
 	/**
 	 * Pagine
 	 * 
+	 * @see page::getUrlPage()
 	 * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
 	 * @return string
 	 */
@@ -812,25 +845,39 @@ class menu extends AbstractEvtClass {
 			$class = ($odd)?"m_list_item_odd":"m_list_item_even";
 			$page_id = $key;
 			$page_title = htmlChars($value);
-			$page_module = $this->_db->getFieldFromId($this->_tbl_page, 'module', 'item_id', $page_id);
-			$page_role1 = $this->_db->getFieldFromId($this->_tbl_module, 'role1', 'id', $page_module);
+			$page_url = page::getUrlPage($page_id);
+			$page_role = '';
+			
+			$query = "SELECT private, users FROM ".$this->_tbl_page." WHERE id='$page_id'";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a) > 0) {
+				foreach($a as $b) {
+					$private = $b['private'];
+					$users = $b['users'];
+					
+					if($private) $page_role .= _("pagina privata");
+					if($private && $users) $page_role .= " / ";
+					if($users) $page_role .= _("pagina limitata ad utenti selezionati");
+				}
+			}
+			if($page_role) $page_role = "<span style=\"color:#ff0000\">($page_role)</span> - \n";
 			
 			$GINO .= "<div class=\"$class\" style=\"padding:5px;\">";
 			$GINO .= "<div class=\"left\"><span style=\"font-weight:bold\">".$page_title."</span><br/>";
-			$GINO .= "<span style=\"color:#ff0000\">(".$this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $page_role1).")</span> - \n";
-			$GINO .= "<span>index.php?evt[page-displayItem]&id=".$page_id."</span>";
+			$GINO .= $page_role;
+			$GINO .= "<span>$page_url</span>";
 			$GINO .= "</div>";
 			$GINO .= "<div class=\"right\">";
 			$GINO .= "<a href=\"#top\"><input class=\"generic\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-			$('link').setProperty('value', 'index.php?evt[page-displayItem]&id=".$page_id."');
+			$('link').setProperty('value', '$page_url');
 			$('reference').setProperty('value', '".jsVar($page_title)."');
-			$$('input[name=type]').each(function(it){if(it.getProperty('value') == 'int') it.setProperty('checked','checked')});
-			$('role1').addEvent('change', updaterole('".$page_role1."'))\" /></a>\n";
+			$('page_id').setProperty('value', '$page_id');
+			$$('input[name=voice]').each(function(it){if(it.getProperty('value') == 'page') it.setProperty('checked','checked')});
+			$$('input[name=type]').each(function(it){if(it.getProperty('value') == 'int') it.setProperty('checked','checked')});\" /></a>\n";
 			$GINO .= "</div>";
 			$GINO .= "<div class=\"null\"></div>";
 			$GINO .= "</div>";
 			$odd = !$odd;
-			
 		}
 		$GINO .= "</fieldset>";
 		
@@ -891,15 +938,14 @@ class menu extends AbstractEvtClass {
 							$GINO .= "<div class=\"right\"><a href=\"#top\"><input class=\"generic\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
 							$('link').setProperty('value', 'index.php?evt[".$instanceName."-".$func."]');
 							$('reference').setProperty('value', '$text');
+							$$('input[name=voice]').each(function(it){if(it.getProperty('value') == 'class') it.setProperty('checked','checked')});
 							$$('input[name=type]').each(function(it){if(it.getProperty('value') == 'int') it.setProperty('checked','checked')});
 							$('role1').addEvent('change', updaterole('".$class_role."'))\" /></a></div>\n";
 							$GINO .= "<div class=\"null\"></div>";
 							$GINO .= "</div>";
 						}
 					}
-
 				}
-				
 				if($cnt == 0)
 				$GINO.= _("non ci sono classi visualizzabili");
 				$odd = !$odd;

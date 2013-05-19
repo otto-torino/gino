@@ -982,6 +982,35 @@ class Form {
   }
 
 	/**
+	 * Tag input checkbox
+	 *
+	 * @param string $name nome input
+	 * @param boolean $checked valore selezionato
+	 * @param mixed  $value valore del tag input
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b id (string): valore ID del tag input
+	 *   - @b classField (string): nome della classe del tag input
+	 *   - @b js (string): javascript
+	 *   - @b other (string): altro nel tag
+	 * @return string
+	 */
+	public function checkbox($name, $checked, $value, $options){
+
+		$this->setOptions($options);
+		$GFORM = '';
+
+		$GFORM .= "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked?"checked=\"checked\"":"")." ";
+		$GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
+		$GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
+		$GFORM .= $this->option('js')?$this->option('js')." ":"";
+		$GFORM .= $this->option('other')?$this->option('other')." ":"";
+		$GFORM .= "/>";
+
+		return $GFORM;
+	}
+
+	/**
 	 * Tag input checkbox multiplo (many to many)
 	 * 
 	 * @param string $name nome input

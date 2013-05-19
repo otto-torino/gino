@@ -52,7 +52,7 @@ class pageEntry extends propertyObject {
 			'private'=>array(_("Privata"), _("pagina visualizzabile dal gruppo 'utenti pagine private'")),
 			'users'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),  
 			'read'=>_('Visualizzazioni'), 
-			'tpl_code'=>array(_("Template"), _("sovrascrive il template di default"))
+			'tpl_code'=>array(_("Template"), _("sovrascrive il template di default")."<br />".page::explanationTemplate())
 		);
 
 		parent::__construct($id);
@@ -186,7 +186,7 @@ class pageEntry extends propertyObject {
 
 		$db = db::instance();
 		
-		if(preg_match('#^[0-9]$#', $slug))
+		if(preg_match('#^[0-9]+$#', $slug))
 		{
 			$res = new pageEntry($slug, $controller);
 		}
@@ -476,7 +476,7 @@ class pageEntry extends propertyObject {
 	 */
 	public function imgPath($controller) {
 
-		return $controller->getBasePath().'/'.$this->image;
+		return $controller->getBasePath('rel').'/'.$this->image;
 	}
 }
 

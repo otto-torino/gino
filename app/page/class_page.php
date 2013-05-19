@@ -53,8 +53,9 @@
  * Il metodo defAccessPage() viene invece utilizzato per definire quali pagine possano essere mostrate negli elenchi, aggiungendo alle opzioni del metodo richiamato (archive, last, ...) le seguenti opzioni:
  * - valore ID dell'utente in sessione (@a access_user)
  * - se l'utente può accedere alle pagine private (@a access_private)
+ * Queste opzioni concorrono alla definizione delle condizioni di una selezione, in particolare nel metodo pageEntry::accessWhere().
  * 
- * Queste opzioni concorrono alla definizione delle condizioni di una selezione, in particolare nel metodo pageEntry::accessWhere(). 
+ * La classe mette a disposizione delle altre classi e applicazioni il metodo goToPage() per controllare se una pagina può essere visualizzata. Ad esempio vedi la classe menu().
  * 
  * OPZIONI CONFIGURABILI
  * ---------------
@@ -310,28 +311,6 @@ class page extends AbstractEvtClass {
 			'newsletter_tpl_code'=>$newsletter_tpl_code,
 		);
 
-		$code_exp = _("Le proprietà della pagina devono essere inserite all'interno di doppie parentesi {{ proprietà }}. Proprietà disponibili:<br/>");
-		$code_exp .= "<ul>";
-		$code_exp .= "<li><b>img</b>: "._('immagine')."</li>";
-		$code_exp .= "<li><b>title</b>: "._('titolo')."</li>";
-		$code_exp .= "<li><b>text</b>: "._('testo')."</li>";
-		$code_exp .= "<li><b>creation_date</b>: "._('data di creazione')."</li>";
-		$code_exp .= "<li><b>creation_time</b>: "._('hh:mm di creazione')."</li>";
-		$code_exp .= "<li><b>last_edit_date</b>: "._('data di ultima modifica')."</li>";
-		$code_exp .= "<li><b>author</b>: "._('autore post')."</li>";
-		$code_exp .= "<li><b>author_img</b>: "._('fotografia autore post')."</li>";
-		$code_exp .= "<li><b>tags</b>: "._('tag associati')."</li>";
-		$code_exp .= "<li><b>read</b>: "._('numero di letture')."</li>";
-		$code_exp .= "<li><b>social</b>: "._('condivisione social')."</li>";
-		$code_exp .= "<li><b>comments</b>: "._('numero di commenti con link')."</li>";
-		$code_exp .= "</ul>";
-		$code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili:<br />");
-		$code_exp .= "<ul>";
-		$code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio del post alla proprietà')."</li>";
-		$code_exp .= "<li><b><span style='text-style: normal'>img|class:name_class</span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
-		$code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
-		$code_exp .= "</ul>";
-
 		$this->_last_title = htmlChars($this->setOption('last_title', array('value'=>$this->_optionsValue['last_title'], 'translation'=>true)));
 		$this->_showcase_title = htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
 		$this->_archive_title = htmlChars($this->setOption('archive_title', array('value'=>$this->_optionsValue['archive_title'], 'translation'=>true)));
@@ -362,7 +341,7 @@ class page extends AbstractEvtClass {
 		$this->_options = new options($this->_className, $this->_instance);
 		$this->_optionsLabels = array(
 			"last_title"=>array(
-				'label'=>_("Titolo ultimi post"), 
+				'label'=>_("Titolo ultime pagine pubblicate"), 
 				'value'=>$this->_optionsValue['last_title'], 
 				'section'=>true, 
 				'section_title'=>_('Titoli delle viste pubbliche')
@@ -383,11 +362,11 @@ class page extends AbstractEvtClass {
 				'label'=>_("Numero ultime pagine"),
 				'value'=>$this->_optionsValue['last_number'],
 				'section'=>true, 
-				'section_title'=>_('Opzioni vista ultime pagine'),
+				'section_title'=>_('Opzioni vista ultime pagine pubblicate'),
 				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
 			),
 			"last_tpl_code"=>array(
-				'label'=>array(_("Template singolo elemento vista ultimi post"), $code_exp), 
+				'label'=>array(_("Template singolo elemento vista ultime pagine"), self::explanationTemplate()), 
 				'value'=>$this->_optionsValue['last_tpl_code'],
 			), 
 			"showcase_number"=>array(
@@ -452,7 +431,7 @@ class page extends AbstractEvtClass {
 					: "<p>"._('Il modulo newsletter non è installato')."</p>",
 			),
 			"newsletter_tpl_code"=>array(
-				'label'=>array(_("Template pagina in inserimento newsletter"), $code_exp), 
+				'label'=>array(_("Template pagina in inserimento newsletter"), self::explanationTemplate()), 
 				'value'=>$this->_optionsValue['newsletter_tpl_code'],
 			),
 		);
@@ -554,6 +533,62 @@ class page extends AbstractEvtClass {
 
 		return $this->_instanceName;
 	}
+	
+	/**
+	 * Linee guida sulla costruzione di un template
+	 * 
+	 * @return string
+	 */
+	public static function explanationTemplate() {
+		
+		$code_exp = _("Le proprietà della pagina devono essere inserite all'interno di doppie parentesi {{ proprietà }}. Proprietà disponibili:<br/>");
+		$code_exp .= "<ul>";
+		$code_exp .= "<li><b>img</b>: "._('immagine')."</li>";
+		$code_exp .= "<li><b>title</b>: "._('titolo')."</li>";
+		$code_exp .= "<li><b>text</b>: "._('testo')."</li>";
+		$code_exp .= "<li><b>creation_date</b>: "._('data di creazione')."</li>";
+		$code_exp .= "<li><b>creation_time</b>: "._('hh:mm di creazione')."</li>";
+		$code_exp .= "<li><b>last_edit_date</b>: "._('data di ultima modifica')."</li>";
+		$code_exp .= "<li><b>author</b>: "._('autore post')."</li>";
+		$code_exp .= "<li><b>author_img</b>: "._('fotografia autore post')."</li>";
+		$code_exp .= "<li><b>tags</b>: "._('tag associati')."</li>";
+		$code_exp .= "<li><b>read</b>: "._('numero di letture')."</li>";
+		$code_exp .= "<li><b>social</b>: "._('condivisione social')."</li>";
+		$code_exp .= "<li><b>comments</b>: "._('numero di commenti con link')."</li>";
+		$code_exp .= "</ul>";
+		$code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili:<br />");
+		$code_exp .= "<ul>";
+		$code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio del post alla proprietà')."</li>";
+		$code_exp .= "<li><b><span style='text-style: normal'>img|class:name_class</span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
+		$code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
+		$code_exp .= "</ul>";
+		
+		return $code_exp;
+	}
+	
+	/**
+	 * Indirizzo di visualizzazione di una pagina
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @param boolean $box indirizzo per una pagina inserita nel template del layout
+	 * @return string
+	 */
+	public static function getUrlPage($id, $box=false) {
+
+		if($box)
+		{
+			$method = 'box';
+			$call = 'pt';
+		}
+		else
+		{
+			$method = 'view';
+			$call = 'evt';
+		}
+		
+		$link = "index.php?".$call."[page-$method]&id=$id";
+		return $link;
+	}
 
 	/**
 	 * Getter dell'opzione comment_notification 
@@ -626,9 +661,78 @@ class page extends AbstractEvtClass {
 	}
 	
 	/**
+	 * Accesso alla visualizzazione delle pagine per le chiamate esterne alla classe (es. menu)
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @param integer $user_id valore ID dell'utente
+	 * @return boolean
+	 */
+	public static function goToPage($id, $user_id) {
+		
+		$db = db::instance();
+		
+		$classname = 'page';
+		$instance = 0;
+		
+		$query = "SELECT private, users FROM ".pageEntry::$tbl_entry." WHERE id='$id'";
+		$a = $db->selectquery($query);
+		if(sizeof($a) > 0)
+		{
+			foreach ($a AS $b)
+			{
+				$page_private = $b['private'];
+				$page_users = $b['users'];
+			}
+		}
+		else return false;
+		
+		$user_group = $group = array();
+		
+		$query = "SELECT group_id FROM page_usr WHERE user_id='$user_id' AND instance='0'";
+		$a = $db->selectquery($query);
+		if(sizeof($a) > 0)
+		{
+			foreach ($a AS $b)
+			{
+				$user_group[] = $b['group_id'];
+			}
+		}
+		
+		$query = "SELECT id FROM page_grp ORDER BY id ASC";
+		$a = $db->selectquery($query);
+		if(sizeof($a) > 0)
+		{
+				foreach ($a AS $b)
+			{
+				$group[] = $b['id'];
+			}
+		}
+		
+		$group_2 = array($group[0], $group[1], $group[2]);
+		$group_3 = array($group[0], $group[1], $group[2], $group[3]);
+		
+		$access = new Access();
+		
+		if($access->AccessVerifyGroupIf($classname, $instance, $user_group, $group_2))
+			return true;
+		
+		if($page_users)
+		{
+			$users = explode(',', $page_users);
+			if(!in_array($user_id, $users))
+				return false;
+		}
+		
+		if($page_private && !$access->AccessVerifyGroupIf($classname, $instance, $user_group, $group_3))
+			return false;
+		
+		return true;
+	}
+	
+	/**
 	 * Condizioni di accesso alle pagine nel caso in cui l'utente non appartenga al gruppo redazione
 	 * 
-	 * Se necessario aggiunge alle condizioni definite le condizioni di accesso alle pagine tramite le chiavi @a access_user e @a access_private.
+	 * Aggiunge alle condizioni definite le condizioni di accesso alle pagine tramite le chiavi @a access_user e @a access_private.
 	 * 
 	 * @param array $conditions elenco delle condizioni del WHERE
 	 * @return array
@@ -645,7 +749,7 @@ class page extends AbstractEvtClass {
 	}
 
 	/**
-	 * Front end elenco ultime pagine 
+	 * Front end elenco ultime pagine pubblicate
 	 * 
 	 * @access public
 	 * @see defAccessPage()
