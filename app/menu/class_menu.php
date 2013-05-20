@@ -263,7 +263,7 @@ class menu extends AbstractEvtClass {
 	/**
 	 * Stampa il menu
 	 * 
-	 * @see page::goToPage()
+	 * @see page::accessPage()
 	 * @param integer $parent valore ID della voce di menu alla quale la voce corrente è collegata
 	 * @param mixed $s
 	 *   - integer: valore ID della voce di menu corrente
@@ -286,13 +286,15 @@ class menu extends AbstractEvtClass {
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
+			$page = new page();
+			
 			$GINO .= ($parent!=0)?"<ul>\n":"<ul id=\"menu_".$this->_instance."\" class=\"mainmenu\">\n"; 
 			$GINO .= ($parent==0 && $this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
 			foreach($a as $b)
 			{
 				$voice = new menuVoice($b['id']);
 				
-				if($voice->voice == 'class' || ($voice->voice == 'page' && page::goToPage($voice->page_id, $this->_session_user)))
+				if($voice->voice == 'class' || ($voice->voice == 'page' && $page->accessPage(array('page_id'=>$voice->page_id))))
 				{
 					if($voice->link && $voice->type=='ext')
 						$link = "href=\"".$voice->link."\"";

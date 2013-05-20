@@ -49,13 +49,12 @@
  * 3) se la pagina è associata a specifici utenti ed è anche privata dovranno essere valide entrambe le condizioni 1 e 2
  * 
  * ###Metodi
- * Il metodo utilizzato per verificare le condizioni di accesso alle pagine è accessPage(). \n
+ * Il metodo utilizzato per verificare le condizioni di accesso alle pagine è accessPage().
+ * Questo metodo è pubblico e può essere utilizzato anche dalle altre classi e applicazioni, come ad esempio la classe menu().
  * Il metodo defAccessPage() viene invece utilizzato per definire quali pagine possano essere mostrate negli elenchi, aggiungendo alle opzioni del metodo richiamato (archive, last, ...) le seguenti opzioni:
  * - valore ID dell'utente in sessione (@a access_user)
  * - se l'utente può accedere alle pagine private (@a access_private)
  * Queste opzioni concorrono alla definizione delle condizioni di una selezione, in particolare nel metodo pageEntry::accessWhere().
- * 
- * La classe mette a disposizione delle altre classi e applicazioni il metodo goToPage() per controllare se una pagina può essere visualizzata. Ad esempio vedi la classe menu().
  * 
  * OPZIONI CONFIGURABILI
  * ---------------
@@ -639,91 +638,48 @@ class page extends AbstractEvtClass {
 	/**
 	 * Gestisce l'accesso alla visualizzazione delle pagine
 	 * 
-	 * @param object $item
+	 * @param array options
+	 *   array associativo di opzioni
+	 *   - @b page_obj (object): oggetto della pagina
+	 *   - @b page_id (integer): valore ID della pagina
 	 * @return boolean
 	 */
-	private function accessPage($item) {
+	public function accessPage($options=array()) {
 		
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
-			return true;
+		$page_obj = array_key_exists('page_obj', $options) ? $options['page_obj'] : null;
+		$page_id = array_key_exists('page_id', $options) ? $options['page_id'] : null;
 		
-		if($item->users)
+		if($page_obj)
 		{
-			$users = explode(',', $item->users);
-			if(!in_array($this->_session_user, $users))
-				return false;
+			$p_private = $page_obj->private;
+			$p_users = $page_obj->users;
 		}
-		
-		if($item->private && !$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3))
-			return false;
-		
-		return true;
-	}
-	
-	/**
-	 * Accesso alla visualizzazione delle pagine per le chiamate esterne alla classe (es. menu)
-	 * 
-	 * @param integer $id valore ID della pagina
-	 * @param integer $user_id valore ID dell'utente
-	 * @return boolean
-	 */
-	public static function goToPage($id, $user_id) {
-		
-		$db = db::instance();
-		
-		$classname = 'page';
-		$instance = 0;
-		
-		$query = "SELECT private, users FROM ".pageEntry::$tbl_entry." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a) > 0)
+		elseif($page_id)
 		{
-			foreach ($a AS $b)
+			$query = "SELECT private, users FROM ".pageEntry::$tbl_entry." WHERE id='$page_id'";
+			$a = $this->_db->selectquery($query);
+			if(sizeof($a) > 0)
 			{
-				$page_private = $b['private'];
-				$page_users = $b['users'];
+				foreach ($a AS $b)
+				{
+					$p_private = $b['private'];
+					$p_users = $b['users'];
+				}
 			}
 		}
 		else return false;
 		
-		$user_group = $group = array();
-		
-		$query = "SELECT group_id FROM page_usr WHERE user_id='$user_id' AND instance='0'";
-		$a = $db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach ($a AS $b)
-			{
-				$user_group[] = $b['group_id'];
-			}
-		}
-		
-		$query = "SELECT id FROM page_grp ORDER BY id ASC";
-		$a = $db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-				foreach ($a AS $b)
-			{
-				$group[] = $b['id'];
-			}
-		}
-		
-		$group_2 = array($group[0], $group[1], $group[2]);
-		$group_3 = array($group[0], $group[1], $group[2], $group[3]);
-		
-		$access = new Access();
-		
-		if($access->AccessVerifyGroupIf($classname, $instance, $user_group, $group_2))
+		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
 			return true;
 		
-		if($page_users)
+		if($p_users)
 		{
-			$users = explode(',', $page_users);
-			if(!in_array($user_id, $users))
+			$users = explode(',', $p_users);
+			if(!in_array($this->_session_user, $users))
 				return false;
 		}
 		
-		if($page_private && !$access->AccessVerifyGroupIf($classname, $instance, $user_group, $group_3))
+		if($p_private && !$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3))
 			return false;
 		
 		return true;
@@ -747,7 +703,7 @@ class page extends AbstractEvtClass {
 		
 		return $conditions;
 	}
-
+	
 	/**
 	 * Front end elenco ultime pagine pubblicate
 	 * 
@@ -1012,7 +968,7 @@ class page extends AbstractEvtClass {
 			return null;
 		}
 		
-		if(!$this->accessPage($item))
+		if(!$this->accessPage(array('page_obj'=>$item)))
 			return null;
 
 		preg_match_all("#{{[^}]+}}#", $this->_box_tpl_code, $matches);
@@ -1076,7 +1032,7 @@ class page extends AbstractEvtClass {
 			error::raise404();
 		}
 		
-		if(!$this->accessPage($item))
+		if(!$this->accessPage(array('page_obj'=>$item)))
 			return "<p>"._("I contenuti della pagina non sono disponibili")."</p>";
 		
 		$tpl_item = $item->tpl_code ? $item->tpl_code : $this->_entry_tpl_code;

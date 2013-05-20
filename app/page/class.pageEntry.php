@@ -476,7 +476,7 @@ class pageEntry extends propertyObject {
 	 */
 	public function imgPath($controller) {
 
-		return $controller->getBasePath('rel').'/'.$this->image;
+		return $controller->getBasePath('rel').'/'.$this->id.'/'.$this->image;
 	}
 }
 
