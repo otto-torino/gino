@@ -36,7 +36,6 @@ class pageCategory extends propertyObject {
 		
 		$this->_fields_label = array(
 			'name'=>_("Nome"), 
-			'parent'=>_('Categoria superiore'),
 			'description'=>_('Descrizione')
 		);
 		
@@ -66,38 +65,15 @@ class pageCategory extends propertyObject {
 		
 		$structure = parent::structure($id);
 
-		$ref_id = cleanVar($_GET, 'ref', 'int', '');
-		$insert = cleanVar($_GET, 'insert', 'int', '');
-		
-		if($ref_id && $insert)
-		{
-			$structure['name'] = new charField(array(
-				'name'=>'name', 
-				'required'=>true, 
-				'value'=>'', 
-				'label'=>$this->_fields_label['name']
-			));
-			
-			$structure['parent'] = new constantField(array(
-				'name'=>'parent', 
-				'value'=>$ref_id, 
-				'label'=>$this->_fields_label['parent'], 
-				'const_table'=>$this->_tbl_data, 
-				'const_field'=>'name'
-			));
-		}
-		else
-		{
-			$structure['parent'] = new foreignKeyField(array(
-				'name'=>'parent', 
-				'required'=>false, 
-				'value'=>$this->parent, 
-				'label'=>$this->_fields_label['parent'], 
-				'fkey_table'=>$this->_tbl_data, 
-				'fkey_field'=>'name', 
-				'fkey_order'=>'name'
-			));
-		}
+		/*$structure['parent'] = new foreignKeyField(array(
+			'name'=>'parent', 
+			'required'=>false, 
+			'value'=>$this->parent, 
+			'label'=>$this->_fields_label['parent'], 
+			'fkey_table'=>$this->_tbl_data, 
+			'fkey_field'=>'name', 
+			'fkey_order'=>'name'
+		));*/
 
 		return $structure;
 	}

@@ -82,7 +82,6 @@
  * - feed RSS
  */
 
-require_once(CLASSES_DIR.OS."class.category.php");
 require_once('class.adminTablePageCategory.php');
 require_once('class.pageCategory.php');
 require_once('class.pageEntry.php');
@@ -947,6 +946,8 @@ class page extends AbstractEvtClass {
 	 * @param integer $id valore ID della pagina
 	 * @return string
 	 * 
+	 * Il template di default impostato nelle opzioni della libreria può essere sovrascritto da un template personalizzato (campo @a box_tpl_code).
+	 * 
 	 * Parametri GET: \n
 	 *   - id (integer), valore ID della pagina
 	 */
@@ -971,8 +972,10 @@ class page extends AbstractEvtClass {
 		if(!$this->accessPage(array('page_obj'=>$item)))
 			return null;
 
-		preg_match_all("#{{[^}]+}}#", $this->_box_tpl_code, $matches);
-		$tpl = $this->parseTemplate($item, $this->_box_tpl_code, $matches);
+		$tpl_item = $item->box_tpl_code ? $item->box_tpl_code : $this->_box_tpl_code;
+		
+		preg_match_all("#{{[^}]+}}#", $tpl_item, $matches);
+		$tpl = $this->parseTemplate($item, $tpl_item, $matches);
 
 		$view = new view($this->_view_dir);
 
@@ -993,6 +996,8 @@ class page extends AbstractEvtClass {
 	 * @see pageComment::getTree()
 	 * @access public
 	 * @return string
+	 * 
+	 * Il template di default impostato nelle opzioni della libreria può essere sovrascritto da un template personalizzato (campo @a tpl_code).
 	 */
 	public function view() {
 
@@ -1221,7 +1226,12 @@ class page extends AbstractEvtClass {
 			if(!$obj->image) {
 				return '';
 			}
-			$pre_filter = "<img src=\"".$obj->imgPath($this)."\" alt=\"img: ".jsVar($obj->ml('title'))."\" />";	
+			
+			$image = "<img src=\"".$obj->imgPath($this)."\" alt=\"img: ".jsVar($obj->ml('title'))."\" />";
+			if($obj->url_image)
+				$image = "<a href=\"".$obj->url_image."\">$image</a>";
+			
+			$pre_filter = $image;	
 		}
 		elseif($property == 'author_img') {
     		$user_image = $this->_db->getFieldFromId($this->_tbl_user, 'photo', 'user_id', $obj->author);
@@ -1255,6 +1265,9 @@ class page extends AbstractEvtClass {
 			$pre_filter = implode(', ', $tags);
 		}
 		elseif($property == 'social') {
+			if(!$obj->social) {
+				return '';
+			}
 			$pre_filter = shareAll('all', $this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
 		}
 		elseif($property == 'comments') {
@@ -1361,6 +1374,9 @@ class page extends AbstractEvtClass {
 	 * @see pageTag::getAllList()
 	 * @see pageEntryAdminTable::backOffice()
 	 * @return interfaccia di back office delle pagine
+	 * 
+	 * Chiamate Ajax: \n
+	 *   - checkSlug()
 	 */
 	private function manageEntry() {
 		
@@ -1369,10 +1385,10 @@ class page extends AbstractEvtClass {
 		$registry->addJs($this->_class_www.'/MooComplete.js');
 		$registry->addCss($this->_class_www.'/MooComplete.css');
 
-		$name_onblur = "onblur=\"var date = new Date(); $('slug').value = date.getFullYear() + (date.getMonth().toInt() < 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) + (date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString()) + '-' + $(this).value.slugify()\"";
+		//$name_onblur = "onblur=\"var date = new Date(); $('slug').value = date.getFullYear() + (date.getMonth().toInt() < 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) + (date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString()) + '-' + $(this).value.slugify()\"";
 
 		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)) {
-			$remove_fields = array('author', 'published', 'private', 'users', 'read');
+			$remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
 		}
 		else {
 			$remove_fields = array('author', 'read');
@@ -1394,6 +1410,12 @@ class page extends AbstractEvtClass {
 
 		$buffer .= "</script>";
 		
+		// Controllo unicità slug
+		$url = $this->_home."?pt[".$this->_instanceName."-checkSlug]";
+		$div_id = 'check_slug';
+		$availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
+		$availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";	// color:#ff0000;
+		
 		$admin_table = new pageEntryAdminTable($this, array());
 		
 		$buffer .= $admin_table->backOffice(
@@ -1407,14 +1429,18 @@ class page extends AbstractEvtClass {
 				'removeFields' => $remove_fields
 				), 
 			array(
+				'id'=>array(
+					'id'=>'id'
+				),
 				'category_id'=>array(
 					'required'=>false
 				), 
 				'title'=>array(
-					'js'=>$name_onblur
+					//'js'=>$name_onblur
 				),
 				'slug'=>array(
-					'id'=>'slug'
+					'id'=>'slug', 
+					'text_add'=>$availability
 				),
 				'tags'=>array(
 					'id'=>'tags'
@@ -1423,11 +1449,20 @@ class page extends AbstractEvtClass {
 					'widget'=>'editor', 
 					'notes'=>true, 
 					'img_preview'=>true, 
+					'fck_toolbar'=>'Full'
 				),
 				'image'=>array(
-					'preview'=>true
+					'preview'=>true, 
+					'del_check'=>true
+				),
+				'url_image'=>array(
+					'size'=>40
 				),
 				'tpl_code'=>array(
+					'cols'=>40,
+					'rows'=>10
+				),
+				'box_tpl_code'=>array(
 					'cols'=>40,
 					'rows'=>10
 				)
@@ -1444,14 +1479,14 @@ class page extends AbstractEvtClass {
 	 */
 	private function manageCtg() {
 		
-		$category = new category($this);
-		$buffer = $category->backOffice('pageCategory', 
+		$admin_table = new adminTable($this, array());
+		
+		$buffer = $admin_table->backOffice('pageCategory', 
 			array(
+				'list_display' => array('id', 'name', 'description'),
 				'list_title'=>_("Elenco categorie"), 
 				'list_description'=>'', 
-				'filter_fields'=>array(), 
-				'link'=>$this->_home."?evt[$this->_instanceName-managePage]", 
-				'add_params_url'=>array('block'=>'ctg')
+				'filter_fields'=>array()
 			)
 		);
 		
@@ -1504,6 +1539,45 @@ class page extends AbstractEvtClass {
 		);
 
 		return $buffer;
+	}
+	
+	/**
+	 * Controlla l'unicità del valore dello slug
+	 * 
+	 * @param boolean $string determina il tipo di output
+	 *   - @a true, stringa col risultato del controllo di validità dello slug (valore di default)
+	 *   - @a false, valore booleano della validità dello slug
+	 * @return mixed (boolean or string)
+	 * 
+	 * Parametri POST: \n
+	 *   - id (integer), valore ID della pagina
+	 *   - slug (string), valore dello slug
+	 */
+	public function checkSlug($string=true) {
+		
+		$id = cleanVar($_POST, 'id', 'int', '');
+		$slug = cleanVar($_POST, 'slug', 'string', '');
+		
+		if(!$slug)
+		{
+			$valid = false;
+		}
+		else
+		{
+			$where_add = $id ? " AND id!='$id'" : '';
+			$query = "SELECT id FROM ".pageEntry::$tbl_entry." WHERE slug='$slug'".$where_add;
+			$a = $this->_db->selectquery($query);
+			$valid = sizeof($a) > 0 ? false : true;
+		}
+		
+		if($valid && $speak)
+			return _("valido");
+		elseif(!$valid && $speak)
+			return _("non valido");
+		else
+			return $valid;
+		
+		return null;
 	}
 
 	/**

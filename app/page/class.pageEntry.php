@@ -45,14 +45,17 @@ class pageEntry extends propertyObject {
 			'title'=>_("Titolo"),
 			'slug'=>array(_("Slug"), _('utilizzato per creare un permalink alla risorsa')),
 			'image'=>_('Immagine'),
+			'url_image'=>array(_("Collegamento sull'immagine"), _("indirizzo URL")),
 			'text'=>_('Testo'),
 			'tags'=>_('Tag'),
-			'enable_comments'=>_('abilita commenti'),
-			'published'=>_('Pubblicato'),
+			'enable_comments'=>_('Abilita commenti'),
+			'published'=>_('Pubblicato'), 
+			'social'=>_('Condivisioni social'),
 			'private'=>array(_("Privata"), _("pagina visualizzabile dal gruppo 'utenti pagine private'")),
 			'users'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),  
 			'read'=>_('Visualizzazioni'), 
-			'tpl_code'=>array(_("Template"), _("sovrascrive il template di default")."<br />".page::explanationTemplate())
+			'tpl_code'=>array(_("Template pagina intera"), _("sovrascrive il template di default")."<br />".page::explanationTemplate()), 
+			'box_tpl_code'=>array(_("Template box"), _("sovrascrive il template di default"))
 		);
 
 		parent::__construct($id);
@@ -81,14 +84,11 @@ class pageEntry extends propertyObject {
 		
 		$structure = parent::structure($id);
 		
-		//$category = new category($this->_controller);
-
 		$structure['category_id'] = new foreignKeyField(array(
 			'name'=>'category_id', 
 			'required'=>true,
 			'label'=>$this->_fields_label['category_id'], 
 			'lenght'=>3, 
-			//'enum_data'=>$category->inputTreeArray(array('table'=>'page_category')), 
 			'fkey_table'=>pageCategory::$_tbl_item, 
 			'fkey_field'=>'name', 
 			'fkey_order'=>'name', 
@@ -104,6 +104,15 @@ class pageEntry extends propertyObject {
 			'default'=>0,
 			'value'=>$this->published, 
 			'table'=>$this->_tbl_data
+		));
+		
+		$structure['social'] = new booleanField(array(
+			'name'=>'social', 
+			'required'=>true,
+			'label'=>$this->_fields_label['social'], 
+			'enum'=>array(1 => _('si'), 0 => _('no')), 
+			'default'=>0,
+			'value'=>$this->social
 		));
 		
 		$structure['private'] = new booleanField(array(
@@ -446,7 +455,6 @@ class pageEntry extends propertyObject {
 
 		$query = "INSERT INTO ".self::$tbl_entry_tag." (entry, tag) VALUES ".implode(',', $inserts);
 		return $db->actionquery($query);
-
 	}
 
 	/**
@@ -465,7 +473,6 @@ class pageEntry extends propertyObject {
 		blogComment::deleteFromEntry($this->_controller, $this->id);
 
 		return parent::delete();
-
 	}
 
 	/**
