@@ -10,22 +10,29 @@
 
 /**
  * @brief Libreria per gestire una categorizzazione ad albero infinito
+ * @todo libreria in lavorazione, da rivedere
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
+ * UTILIZZO
+ * ---------------
  * Per poter utilizzare questa libreria occorre:
  * 1. includere la classe
- * 2. creare una tabella
+ * @code
+ * require_once(CLASSES_DIR.OS.'class.category.php');
+ * @endcode
+ * 
+ * 2. creare una tabella delle categorie
  * @code
  * CREATE TABLE IF NOT EXISTS `[RIFERIMENTO-TABELLA]_ctg` (
- * `id` int(11) NOT NULL AUTO_INCREMENT,
- * `instance` int(11) NOT NULL,
- * `name` varchar(200) NOT NULL,
- * `parent` int(11) NOT NULL,
- * `description` text NOT NULL,
- * PRIMARY KEY (`id`)
+ *   `id` int(11) NOT NULL AUTO_INCREMENT,
+ *   `instance` int(11) NOT NULL,
+ *   `name` varchar(200) NOT NULL,
+ *   `parent` int(11) NOT NULL,
+ *   `description` text NOT NULL,
+ *   PRIMARY KEY (`id`)
  * ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
  * @endcode
  */

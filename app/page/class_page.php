@@ -1,17 +1,35 @@
 <?php
 /**
- * \file class_page.php
- * Contiene la definizione ed implementazione della classe page.
+ * @file class_page.php
+ * @brief Contiene la definizione ed implementazione della classe page.
  * 
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
- * @authors Marco Guidotti guidottim@gmail.com
- * @authors abidibo abidibo@gmail.com
+ * @version 1.0
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
+require_once('class.pageCategory.php');
+require_once('class.pageEntry.php');
+require_once('class.pageComment.php');
+require_once('class.pageTag.php');
+
+/**
+ * @defgroup page
+ * Modulo di gestione delle pagine
+ * 
+ * Il modulo contiene anche dei css, javascript e file di configurazione.
  */
 
 /**
- * Caratteristiche, opzioni configurabili da backoffice ed output disponibili per i template e le voci di menu.
- *
+ * \ingroup page
+ * @brief Classe per la gestione delle pagine.
+ * 
+ * @version 1.0
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
  * CARATTERISTICHE
  * ---------------
  * Modulo di gestione pagine, con predisposizione contenuti per ricerca nel sito e newsletter
@@ -58,61 +76,30 @@
  * 
  * OPZIONI CONFIGURABILI
  * ---------------
- * - titolo ultime pagine pubblicate
- * - titolo archivio pagine
- * - titolo vetrina pagine
+ * - titolo ultime pagine pubblicate + numero + template singolo elemento
+ * - titolo pagine raggruppate per categoria o tag + numero + template singolo elemento
+ * - titolo vetrina pagine più lette + numero + template singolo elemento
  * - titolo tag cloud
- * - numero ultime pagine
- * - template singolo elemento ultime pagine
- * - numero pagine in vetrina
- * - template singolo elemento vetrina
- * - numero di elementi per pagina in archivio
- * - template singolo elemento archivio
  * - template pagina
  * - moderazione commenti
  * - notifica commenti
  *
  * OUTPUTS
  * ---------------
- * - ultime pagine pubblicate
- * - archivio pagine
- * - vetrina pagine
- * - tag cloud
- * - pagina
- * - feed RSS
- */
-
-require_once('class.adminTablePageCategory.php');
-require_once('class.pageCategory.php');
-require_once('class.pageEntry.php');
-require_once('class.pageComment.php');
-require_once('class.pageTag.php');
-
-/**
- * @defgroup page
- * Modulo di gestione delle pagine
- *
- * Il modulo contiene anche dei css, javascript e file di configurazione.
- *
- */
-
-/**
- * \ingroup page
- * Classe per la gestione delle pagine.
- *
- * Gli output disponibili sono:
- *
- * - ultime pagine
- * - elenco pagine per categoria
- * - vetrina pagine
+ * - lista ultime pagine pubblicate
+ * - elenco archivio pagine raggruppate per categoria (parametro @a id) o tag (parametro @a tag)
+ * - vetrina pagine (più lette)
  * - tag cloud
  * - pagina
  * - feed RSS
  * 
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
- * @authors Marco Guidotti guidottim@gmail.com
- * @authors abidibo abidibo@gmail.com
+ * DIRECTORY DEI CONTENUTI
+ * ---------------
+ * I contenuti non testuali delle pagine sono strutturati in directory secondo lo schema:
+ * - contents/
+ * - page/
+ * - page/
+ * - [page_id]/
  */
 class page extends AbstractEvtClass {
 
@@ -245,27 +232,30 @@ class page extends AbstractEvtClass {
 	 */
 	private $_group_3;
 
-	/*
-	 * Parametro action letto da url 
+	/**
+	 * Parametro action letto da url
+	 * 
+	 * @var string
 	 */
 	private $_action;
 
-	/*
-	 * Parametro block letto da url 
+	/**
+	 * Parametro block letto da url
+	 * 
+	 * @var string
 	 */
 	private $_block;
 
 	/**
 	 * Costruisce un'istanza di tipo pagina
 	 *
-	 * @param int $mdlId id dell'istanza di tipo pagina
+	 * @param integer $mdlId id dell'istanza di tipo pagina
 	 * @return istanza della pagina
 	 */
 	function __construct($mdlId=null) {
 
 		parent::__construct();
 
-		//$this->_instance = $mdlId;
 		$this->_instance = 0;
 		$this->_instanceName = $this->_className;
 
@@ -345,11 +335,11 @@ class page extends AbstractEvtClass {
 				'section_title'=>_('Titoli delle viste pubbliche')
 			),
 			"archive_title"=>array(
-				'label'=>_("Titolo archivio"),
+				'label'=>_("Titolo archivio pagine raggruppate per categoria o tag"),
 				'value'=>$this->_optionsValue['archive_title']
 			),
 			"showcase_title"=>array(
-				'label'=>_("Titolo vetrina"),
+				'label'=>_("Titolo vetrina pagine più lette"),
 				'value'=>$this->_optionsValue['showcase_title']
 			),
 			"cloud_title"=>array(
@@ -357,7 +347,7 @@ class page extends AbstractEvtClass {
 				'value'=>$this->_optionsValue['cloud_title']
 			),
 			"last_number"=>array(
-				'label'=>_("Numero ultime pagine"),
+				'label'=>_("Numero ultime pagine pubblicate"),
 				'value'=>$this->_optionsValue['last_number'],
 				'section'=>true, 
 				'section_title'=>_('Opzioni vista ultime pagine pubblicate'),
@@ -371,7 +361,7 @@ class page extends AbstractEvtClass {
 				'label'=>_("Numero elementi in vetrina"),
 				'value'=>$this->_optionsValue['showcase_number'],
 				'section'=>true, 
-				'section_title'=>_('Opzioni vista vetrina'),
+				'section_title'=>_('Opzioni vista vetrina pagine più lette'),
 				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
 			),
 			"showcase_auto_start"=>array(
@@ -383,31 +373,33 @@ class page extends AbstractEvtClass {
 				'value'=>$this->_optionsValue['showcase_auto_interval'],
 			),
 			"showcase_tpl_code"=>array(
-				'label'=>array(_("Template singolo elemento vista vetrina"), _("Vedi 'Template singolo elemento vista ultimi post' per le proprietà e filtri disponibili")), 
+				'label'=>array(_("Template singolo elemento vista vetrina"), _("Vedi 'Template singolo elemento vista ultime pagine' per le proprietà e filtri disponibili")), 
 				'value'=>$this->_optionsValue['showcase_tpl_code'],
 			), 
 			"archive_efp"=>array(
 				'label'=>_("Numero di elementi per pagina"),
 				'value'=>$this->_optionsValue['archive_efp'],
 				'section'=>true, 
-				'section_title'=>_('Opzioni vista archivio'),
-				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+				'section_title'=>_('Opzioni vista archivio pagine raggruppate per categoria o tag'),
+				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."<br />"._("Nell'indirizzo aggiungere i parametri 'id=id_categoria' e/o 'tag=nome_tag'")."</p>"
 			),
 			"archive_tpl_code"=>array(
-				'label'=>array(_("Template singolo elemento vista archivio"), _("Vedi 'Template singolo elemento vista ultimi post' per le proprietà e filtri disponibili")), 
+				'label'=>array(_("Template singolo elemento vista archivio"), _("Vedi 'Template singolo elemento vista ultime pagine' per le proprietà e filtri disponibili")), 
 				'value'=>$this->_optionsValue['archive_tpl_code'],
 			), 
 			"entry_tpl_code"=>array(
-				'label'=>array(_("Template vista dettaglio pagina"), _("Il template viene inserito all'interno di una <b>section</b><br />Vedi 'Template singolo elemento vista ultimi post' per le proprietà e filtri disponibili")), 
+				'label'=>array(_("Template vista dettaglio pagina"), _("Vedi 'Template singolo elemento vista ultime pagine' per le proprietà e filtri disponibili")), 
 				'value'=>$this->_optionsValue['entry_tpl_code'],
 				'section'=>true, 
-				'section_title'=>_('Opzioni vista pagina')
+				'section_title'=>_('Opzioni vista pagina'), 
+				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
 			), 
 			"box_tpl_code"=>array(
-				'label'=>array(_("Template vista dettaglio pagina"), _("Il template viene inserito all'interno di una <b>section</b><br />Vedi 'Template singolo elemento vista ultimi post' per le proprietà e filtri disponibili")), 
+				'label'=>array(_("Template vista dettaglio pagina"), _("Vedi 'Template singolo elemento vista ultime pagine' per le proprietà e filtri disponibili")), 
 				'value'=>$this->_optionsValue['box_tpl_code'],
 				'section'=>true, 
-				'section_title'=>_('Opzioni vista pagina inserita nel template')
+				'section_title'=>_('Opzioni vista pagina inserita nel template'), 
+				'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
 			), 
 			"comment_moderation"=>array(
 				'label'=>array(_("Moderazione commenti"), _('In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei \'pubblicatori\'. Tali utenti saranno notificati della presenza di un nuovo commento con una email')),
@@ -513,10 +505,10 @@ class page extends AbstractEvtClass {
 	public static function outputFunctions() {
 
 		$list = array(
-			"last" => array("label"=>_("Lista utime pagine"), "role"=>'1'),
-			"archive" => array("label"=>_("Elenco pagine categorizzate"), "role"=>'1'),
+			"last" => array("label"=>_("Elenco utime pagine pubblicate"), "role"=>'1'),
+			"archive" => array("label"=>_("Elenco pagine raggruppate per categoria o tag"), "role"=>'1'),
 			"showcase" => array("label"=>_("Vetrina (più letti)"), "role"=>'1'),
-			//"tagcloud" => array("label"=>_("Tag cloud"), "role"=>'1')
+			"tagcloud" => array("label"=>_("Tag cloud"), "role"=>'1')
 		);
 
 		return $list;
@@ -754,21 +746,21 @@ class page extends AbstractEvtClass {
 	}
 
 	/**
-	 * Front end archivio 
+	 * Front end archivio pagine raggruppate per categoria o tag
 	 * 
 	 * @access public
 	 * @return string
 	 * 
 	 * Parametri GET: \n
-	 *   - id (string), nome del tag
-	 *   - cid (integer), valore ID della categoria
+	 *   - tag (string), nome del tag
+	 *   - id (integer), valore ID della categoria
 	 */
 	public function archive() {
 
 		$this->setAccess($this->_access_base);
 
-		$category_id = cleanVar($_GET, 'cid', 'integer', '');
-		$tagname = cleanVar($_GET, 'id', 'string', '');
+		$category_id = cleanVar($_GET, 'id', 'integer', '');
+		$tagname = cleanVar($_GET, 'tag', 'string', '');
 
 		if($tagname) {
 			$tag = pageTag::getFromName($tagname, $this);
@@ -781,11 +773,12 @@ class page extends AbstractEvtClass {
 		$params = array();
 		if($category_id)
 		{
-			$params[] = "cid=$category_id";
+			$category_name = $this->_db->getFieldFromId(pageCategory::$_tbl_item, 'name', 'id', $category_id);
+			$params[] = "id='$category_id'";
 		}
 		if($tag_id)
 		{
-			$params[] = 'id='.$tag->name;
+			$params[] = "tag='".$tag->name."'";
 		}
 		$params = implode('&', $params);
 		
@@ -802,10 +795,12 @@ class page extends AbstractEvtClass {
 			'rel' => 'alternate',
 			'type' => 'application/rss+xml',
 			'title' => jsVar($title),
-			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS') 	
+			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS')
 		));
 		
-		$options_count = array('tag'=>$tag_id, 'published'=>true);
+		$options_count = array('published'=>true);
+		if($tag_id) $options_count['tag'] = $tag_id;
+		if($category_id) $options_count['category'] = $category_id;
 		$options_count = $this->defAccessPage($options_count);
 		
 		$entries_number = pageEntry::getCount($options_count);
@@ -813,7 +808,9 @@ class page extends AbstractEvtClass {
 		$pagination = new pagelist($this->_archive_efp, $entries_number, 'array');
 		$limit = array($pagination->start(), $this->_archive_efp);
 
-		$options = array('published'=>true, 'tag'=>$tag_id, 'category'=>$category_id, 'order'=>'creation_date DESC', 'limit'=>$limit);
+		$options = array('published'=>true, 'order'=>'creation_date DESC', 'limit'=>$limit);
+		if($tag_id) $options['tag'] = $tag_id;
+		if($category_id) $options['category'] = $category_id;
 		$options = $this->defAccessPage($options);
 		
 		$entries = pageEntry::get($this, $options);
@@ -823,11 +820,15 @@ class page extends AbstractEvtClass {
 		foreach($entries as $entry) {
 			$items[] = $this->parseTemplate($entry, $this->_archive_tpl_code, $matches);
 		}
+		
+		$title_page = $this->_archive_title;
+		if($category_id) $title_page .= " - "._("categoria")." '$category_name'";
+		if($tag_id) $title_page .= " - tag '$tagname'";
 
 		$view = new view($this->_view_dir);
 		$view->setViewTpl('archive');
 		$view->assign('section_id', 'archive_'.$this->_instanceName);
-		$view->assign('title', $this->_archive_title);
+		$view->assign('title', $title_page);
 		$view->assign('subtitle', $tag_id ? sprintf(_("Pubblicati in %s"), htmlChars($tag->name)) : '');
 		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instanceName, 'feedRSS')."\">".pub::icon('feed')."</a>");
 		$view->assign('items', $items);
@@ -841,7 +842,7 @@ class page extends AbstractEvtClass {
 	 * Front end tag cloud 
 	 * 
 	 * @access public
-	 * @return tag cloud
+	 * @return string
 	 */
 	public function tagcloud() {
 
@@ -850,7 +851,7 @@ class page extends AbstractEvtClass {
 		$registry = registry::instance();
 		$registry->addCss($this->_class_www."/page.css");
 
-		$tags_freq = pageEntry::getTagFrequency($this);	
+		$tags_freq = pageEntry::getTagFrequency();	
 
 		$items = array();
 		$max_f = 0;
@@ -858,7 +859,7 @@ class page extends AbstractEvtClass {
 			$tag = new pageTag($tid, $this);
 			$items[] = array(
 				"name"=>htmlChars($tag->name),
-				"url"=>$this->_plink->aLink($this->_instanceName, 'archive', array('id'=>$tag->name)),
+				"url"=>$this->_plink->aLink($this->_instanceName, 'archive', array('tag'=>$tag->name)),
 				"f"=>$f
 			);
 			$max_f = max($f, $max_f);
@@ -1260,7 +1261,7 @@ class page extends AbstractEvtClass {
 			$tagobjs = $obj->getTagObjects();
 			$tags = array();
 			foreach($tagobjs as $t) {
-				$tags[] = '<a href="'.$this->_plink->aLink($this->_instanceName, 'archive', array('id'=>$t->name)).'">'.htmlChars($t->name).'</a>';
+				$tags[] = '<a href="'.$this->_plink->aLink($this->_instanceName, 'archive', array('tag'=>$t->name)).'">'.htmlChars($t->name).'</a>';
 			}		
 			$pre_filter = implode(', ', $tags);
 		}
@@ -1414,7 +1415,7 @@ class page extends AbstractEvtClass {
 		$url = $this->_home."?pt[".$this->_instanceName."-checkSlug]";
 		$div_id = 'check_slug';
 		$availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
-		$availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";	// color:#ff0000;
+		$availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 		
 		$admin_table = new pageEntryAdminTable($this, array());
 		
@@ -1570,9 +1571,9 @@ class page extends AbstractEvtClass {
 			$valid = sizeof($a) > 0 ? false : true;
 		}
 		
-		if($valid && $speak)
+		if($valid && $string)
 			return _("valido");
-		elseif(!$valid && $speak)
+		elseif(!$valid && $string)
 			return _("non valido");
 		else
 			return $valid;
@@ -1627,6 +1628,7 @@ class page extends AbstractEvtClass {
     /**
      * Adattatore per la classe newsletter 
      * 
+     * @see pageEntry::get()
      * @access public
      * @return array di elementi esportabili nella newsletter
      */
@@ -1650,8 +1652,8 @@ class page extends AbstractEvtClass {
     /**
      * Contenuto di un post quanto inserito in una newsletter 
      * 
-     * @param int $id identificativo del post
      * @access public
+     * @param int $id identificativo del post
      * @return contenuto post
      */
     public function systemNewsletterRender($id) {
@@ -1667,6 +1669,7 @@ class page extends AbstractEvtClass {
 	/**
 	 * Genera un feed RSS standard che presenta gli ultimi 50 post pubblicati
 	 *
+	 * @see pageEntry::get()
 	 * @access public
 	 * @return string xml che definisce il feed RSS
 	 */

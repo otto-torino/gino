@@ -3,8 +3,8 @@
  * \file class.pageCategory.php
  * Contiene la definizione ed implementazione della classe pageCategory.
  * 
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,8 +13,8 @@
  * \ingroup page
  * Classe tipo model che rappresenta la categoria di una pagina.
  *
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -52,30 +52,6 @@ class pageCategory extends propertyObject {
 	function __toString() {
 		
 		return $this->_model_label;
-	}
-	
-	/**
-	 * Sovrascrive la struttura di default
-	 * 
-	 * @see propertyObject::structure()
-	 * @param integer $id
-	 * @return array
-	 */
-	public function structure($id) {
-		
-		$structure = parent::structure($id);
-
-		/*$structure['parent'] = new foreignKeyField(array(
-			'name'=>'parent', 
-			'required'=>false, 
-			'value'=>$this->parent, 
-			'label'=>$this->_fields_label['parent'], 
-			'fkey_table'=>$this->_tbl_data, 
-			'fkey_field'=>'name', 
-			'fkey_order'=>'name'
-		));*/
-
-		return $structure;
 	}
 }
 

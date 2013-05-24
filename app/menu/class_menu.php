@@ -761,10 +761,10 @@ class menu extends AbstractEvtClass {
 		
 		if(!empty($class)) {
 			
-			$query = "SELECT id, class as name, name as instance, label, role1 FROM ".$this->_tbl_module." WHERE label LIKE '$class%' AND type='class' AND masquerade='no' ORDER BY label";
+			$query = "SELECT id, class as name, name as instance, label, role1, '".$this->_tbl_module."' AS tbl FROM ".$this->_tbl_module." WHERE label LIKE '$class%' AND type='class' AND masquerade='no' ORDER BY label";
 			$a = $this->_db->selectquery($query);
 			
-			$query2 = "SELECT id, name, null as instance, label, role1 FROM ".$this->_tbl_module_app." WHERE label LIKE '$class%' AND type='class' AND masquerade='no' AND instance='no' ORDER BY label";
+			$query2 = "SELECT id, name, null as instance, label, role1, '".$this->_tbl_module_app."' AS tbl FROM ".$this->_tbl_module_app." WHERE label LIKE '$class%' AND type='class' AND masquerade='no' AND instance='no' ORDER BY label";
 			$a2 = $this->_db->selectquery($query2);
 			
 			$j = array_merge($a,$a2);
@@ -813,10 +813,10 @@ class menu extends AbstractEvtClass {
 				$GINO .= $this->printItemsPage($results_ordered);
 			}
 
-			$query = "SELECT id, class as name, name as instance, label, role1 FROM ".$this->_tbl_module." WHERE type='class' AND masquerade='no' ORDER BY label";
+			$query = "SELECT id, class as name, name as instance, label, role1, '".$this->_tbl_module."' AS tbl FROM ".$this->_tbl_module." WHERE type='class' AND masquerade='no' ORDER BY label";
 			$a = $this->_db->selectquery($query);
 			
-			$query2 = "SELECT id, name, name as instance, label, role1 FROM ".$this->_tbl_module_app." WHERE type='class' AND masquerade='no' AND instance='no' ORDER BY label";
+			$query2 = "SELECT id, name, name as instance, label, role1, '".$this->_tbl_module_app."' AS tbl FROM ".$this->_tbl_module_app." WHERE type='class' AND masquerade='no' AND instance='no' ORDER BY label";
 			$a2 = $this->_db->selectquery($query2);
 			
 			$j = array_merge($a,$a2);
@@ -830,7 +830,7 @@ class menu extends AbstractEvtClass {
 	}
 	
 	/**
-	 * Pagine
+	 * Elenco pagine che è possibile inserire come voce di menu
 	 * 
 	 * @see page::getUrlPage()
 	 * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
@@ -907,6 +907,7 @@ class menu extends AbstractEvtClass {
 			$class_name = htmlChars($value['name']);
 			$class_label = htmlChars($value['label']);
 			$instanceName = htmlChars($value['instance']);
+			$table = $value['tbl'];
 			
 			if(method_exists($class_name, 'outputFunctions'))
 			{
@@ -920,9 +921,12 @@ class menu extends AbstractEvtClass {
 					// Search function role
 					$field_role = 'role'.$desc_role;
 					
-					$query = !$instanceName 
-						? "SELECT $field_role FROM $this->_tbl_module_app WHERE name='$class_name'"
-						: "SELECT $field_role FROM $this->_tbl_module WHERE name='$instanceName' AND class='$class_name'";
+					if($table == $this->_tbl_module_app)
+						$where = "name='$class_name'";
+					elseif($table == $this->_tbl_module)
+						$where = "name='$instanceName' AND class='$class_name'";
+					
+					$query = "SELECT $field_role FROM $table WHERE $where";
 					$a = $this->_db->selectquery($query);
 					if(sizeof($a) > 0)
 					{

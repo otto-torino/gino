@@ -399,6 +399,7 @@ class layout extends AbstractEvtClass {
 	/**
 	 * Elenco dei moduli e delle pagine disponibili
 	 * 
+	 * @see page::getUrlPage()
 	 * @return string
 	 */
 	public function modulesList() {
@@ -427,8 +428,9 @@ class layout extends AbstractEvtClass {
 					$access_txt .= _("pagina limitata ad utenti selezionati");
 				
 				$code_full = "{module pageid=".$b['id']." func=full}";
+				$url = page::getUrlPage($b['id'], true);
 				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-box]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
+				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
 			}
 		}
 		/*

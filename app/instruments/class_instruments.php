@@ -9,7 +9,7 @@
  */
 
 /**
- * @brief Strumenti agguintivi di gino
+ * @brief Strumenti aggiuntivi di gino
  * 
  * Adesso sono disponibili l'elenco delle risorse disponibili (con i relativi link) e dei mime type. \n
  * Per aggiungere uno strumento è necessario: \n

@@ -3,8 +3,8 @@
  * @file class.pageTag.php
  * Contiene la definizione ed implementazione della classe pageTag.
  *
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,12 +13,8 @@
  * \ingroup page
  * Classe per la gestione di tag associati alle pagine.
  *
- * CAMPI  
- * - **id**
- * - **name**: nome tag
- *
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -31,6 +27,7 @@ class pageTag extends propertyObject {
 	 * Costruttore
 	 * 
 	 * @param integer $id valore ID del record
+	 * @param object $instance istanza del controller
 	 */
 	function __construct($id, $instance) {
 
@@ -60,16 +57,17 @@ class pageTag extends propertyObject {
 	 * Restituisce l'oggetto a aprtire dal nome del tag 
 	 * 
 	 * @param string $name nome del tag
+	 * @param object $instance istanza delle pagine
 	 * @return istanza di pageTag
 	 */
-	public static function getFromName($name) {
+	public static function getFromName($name, $instance) {
 
 		$db = db::instance();
 
 		$res = null;
 		$rows = $db->select(array('id'), self::$_tbl_tag, "name='".$name."'", null, null);
 		if($rows and count($rows)) {
-			$res = new pageTag($rows[0]['id']);
+			$res = new pageTag($rows[0]['id'], $instance);
 		}
 
 		return $res;
@@ -115,7 +113,7 @@ class pageTag extends propertyObject {
 		if($tag == '') return null;
 
 		$rows = $db->select('id', self::$_tbl_tag, "name='$tag'", null);
-		if(count($rows) and $rows) {
+		if(count($rows) && $rows) {
 			return $rows[0]['id'];
 		}
 		else {

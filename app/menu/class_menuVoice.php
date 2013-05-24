@@ -211,10 +211,10 @@ class menuVoice extends propertyObject {
 		$buffer .= "
 		<script type=\"text/javascript\">
 
-		var rolelist=document.gform.role1
-		var selrolelist=document.gform.role1
+		var rolelist=document.gform.role1;
+		var selrolelist=document.gform.role1;
 
-		var newrolelist=new Array()";
+		var newrolelist=new Array();";
 		
 		$buffer .= "newrolelist[0]=\"\"\n";
 		for ($i=1, $end=sizeof($a_role); $i<$end; $i++)

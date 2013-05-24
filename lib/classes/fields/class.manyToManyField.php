@@ -226,6 +226,7 @@ class manyToManyField extends field {
 	 *   - @b value_type (string): tipo di valore
 	 *   - @b method (array): metodo di recupero degli elementi del form
 	 *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
+	 *   - @b asforminput (boolean)
 	 * @return mixed
 	 */
 	public function clean($options=null) {
@@ -240,7 +241,8 @@ class manyToManyField extends field {
 			return $value;
 		}
 
-		return implode(',', $value);
+		if($value) $value = implode(',', $value);
+		return $value;
 	}
 
 	/**

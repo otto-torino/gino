@@ -3,8 +3,8 @@
  * \file class.pageEntry.php
  * Contiene la definizione ed implementazione della classe pageEntry.
  * 
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,8 +13,8 @@
  * \ingroup page
  * Classe tipo model che rappresenta una pagina.
  *
- * @version 0.1
- * @copyright 2012 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @version 1.0
+ * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -47,7 +47,7 @@ class pageEntry extends propertyObject {
 			'image'=>_('Immagine'),
 			'url_image'=>array(_("Collegamento sull'immagine"), _("indirizzo URL")),
 			'text'=>_('Testo'),
-			'tags'=>_('Tag'),
+			'tags'=>array(_('Tag'), _("elenco separato da virgola")),
 			'enable_comments'=>_('Abilita commenti'),
 			'published'=>_('Pubblicato'), 
 			'social'=>_('Condivisioni social'),
@@ -432,7 +432,7 @@ class pageEntry extends propertyObject {
 	}
 
 	/**
-	 * Salva i tag associati al post 
+	 * Salva i tag associati alla pagina 
 	 * 
 	 * @param mixed $tags array di id di tag
 	 * @return il risultato dell'operazione
@@ -470,7 +470,7 @@ class pageEntry extends propertyObject {
 
 		$db->actionquery($query);
 
-		blogComment::deleteFromEntry($this->_controller, $this->id);
+		pageComment::deleteFromEntry($this->_controller, $this->id);
 
 		return parent::delete();
 	}
