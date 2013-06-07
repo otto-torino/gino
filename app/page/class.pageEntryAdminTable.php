@@ -21,13 +21,6 @@
 class pageEntryAdminTable extends adminTable {
 	
 	/**
-	 * Parte dell'indirizzo di una pagina da anteporre allo slug
-	 * 
-	 * @var string
-	 */
-	private static $_page_link = "page/view/";
-	
-	/**
 	 * Metodo chiamato al salvataggio di una pagina 
 	 * 
 	 * @see pageTag::saveTag()
@@ -73,6 +66,7 @@ class pageEntryAdminTable extends adminTable {
 	
 	/**
 	 * @see adminTable::adminList()
+	 * @see page::getLinkPage()
 	 * 
 	 * In corrispondenza del campo @a slug mostra l'indirizzo completo della pagina
 	 */
@@ -227,7 +221,7 @@ class pageEntryAdminTable extends adminTable {
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
 					
-					if($field_name == 'slug') $record_value = self::$_page_link.$record_value;
+					if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;
 					
 					$row[] = $record_value;
 				}

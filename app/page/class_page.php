@@ -558,7 +558,9 @@ class page extends AbstractEvtClass {
 	}
 	
 	/**
-	 * Indirizzo di visualizzazione di una pagina
+	 * Indirizzo reale di una pagina
+	 * 
+	 * Viene utilizzato per le operazione interne a gino (ad es. menu e layout)
 	 * 
 	 * @param integer $id valore ID della pagina
 	 * @param boolean $box indirizzo per una pagina inserita nel template del layout
@@ -579,6 +581,24 @@ class page extends AbstractEvtClass {
 		
 		$link = "index.php?".$call."[page-$method]&id=$id";
 		return $link;
+	}
+	
+	/**
+	 * Indirizzo di visualizzazione di una pagina
+	 * 
+	 * @param integer $id valore ID della pagina
+	 * @return string
+	 */
+	public static function getLinkPage($id=null) {
+
+		if($id)
+		{
+			$db = db::instance();
+			$slug = $db->getFieldFromId(pageEntry::$tbl_entry, 'slug', 'id', $id);
+		}
+		else $slug = '';
+		
+		return "page/view/".$slug;
 	}
 
 	/**

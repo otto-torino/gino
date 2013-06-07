@@ -304,33 +304,42 @@ class instruments extends AbstractEvtClass {
 	/**
 	 * Strumento - mostra l'elenco delle risorse disponibili (con i relativi link)
 	 * 
+	 * @see page::getLinkPage()
 	 * @return string
 	 */
 	private function itemLink(){
 		
 		$GINO = '';
 		
-		$query = "SELECT p.item_id, m.role1 FROM ".$this->_tbl_page." AS p, ".$this->_tbl_module." AS m WHERE p.module=m.id AND m.masquerade='no' ORDER BY title";
-		$results_ordered = $this->_trd->listItemOrdered($query, 'item_id', $this->_tbl_page, 'title', 'asc');
-		if(sizeof($results_ordered) > 0)
+		$query = "SELECT id, title, private, users FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
+		$a = $this->_db->selectquery($query);
+		if(sizeof($a) > 0)
 		{
 			$GINO .= "<fieldset>";
 			$GINO .= "<legend><b>"._("Pagine")."</b></legend>";
 			
-			$odd = true;
-			foreach($results_ordered AS $key=>$value)
-			{
-				$class = ($odd)?"m_list_item_odd":"m_list_item_even";
-				$page_id = $key;
-				$page_title = htmlChars($value);
-				$path_link = $this->_plink->aLink('page', 'displayItem', "id=$page_id");
+			$GINO .= "<table class=\"generic\">";
+			$GINO .= "<tr><th>"._("Titolo")."</th><th>"._("Link")."</th><th>"._("Permessi")."</th></tr>";
+			foreach($a as $b) {
 				
-				$GINO .= "<div class=\"$class\" style=\"padding:5px;\">";
-				$GINO .= "<span style=\"font-weight:bold\">".$page_title."</span><br/>";
-				$GINO .= "<span>$path_link</span>";
-				$GINO .= "</div>";
-				$odd = !$odd;
+				$page_id = $b['id'];
+				$page_title = htmlChars($b['title']);
+				$page_private = htmlChars($b['private']);
+				$page_users = htmlChars($b['users']);
+				
+				$access_txt = '';
+				if($page_private)
+					$access_txt .= _("pagina privata")."<br />";
+				if($page_users)
+					$access_txt .= _("pagina limitata ad utenti selezionati");
+				
+				$link = page::getLinkPage($page_id);
+				
+				$GINO .= "<tr><td>".$page_title."</td>";
+				$GINO .= "<td>".$link."</td>";
+				$GINO .= "<td>".$access_txt."</td></tr>";
 			}
+			$GINO .= "</table>";
 			$GINO .= "</fieldset>";
 		}
 
