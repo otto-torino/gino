@@ -13,6 +13,7 @@ require_once('class.pageCategory.php');
 require_once('class.pageEntry.php');
 require_once('class.pageComment.php');
 require_once('class.pageTag.php');
+require_once('class.pageEntryAdminTable.php');
 
 /**
  * @defgroup page
@@ -1386,16 +1387,12 @@ class page extends AbstractEvtClass {
 		$registry->addJs($this->_class_www.'/MooComplete.js');
 		$registry->addCss($this->_class_www.'/MooComplete.css');
 
-		//$name_onblur = "onblur=\"var date = new Date(); $('slug').value = date.getFullYear() + (date.getMonth().toInt() < 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()) + (date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString()) + '-' + $(this).value.slugify()\"";
-
 		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)) {
 			$remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
 		}
 		else {
 			$remove_fields = array('author', 'read');
 		}
-
-		require_once('class.pageEntryAdminTable.php');
 
 		$tags = pageTag::getAllList($this->_instance, array('jsescape'=>true));
 		$js_tags_list = "['".implode("','", $tags)."']";
@@ -1437,7 +1434,7 @@ class page extends AbstractEvtClass {
 					'required'=>false
 				), 
 				'title'=>array(
-					//'js'=>$name_onblur
+					'js'=>"onblur=\"$('slug').value = $(this).value.slugify()\""
 				),
 				'slug'=>array(
 					'id'=>'slug', 

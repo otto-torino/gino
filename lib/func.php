@@ -312,6 +312,27 @@ function isNumeric($variable)
 }
 
 /**
+ * Calcola l'intervallo di tempo in secondi tra due valori datetime
+ * 
+ * @param string $firstTime datetime iniziale
+ * @param string $lastTime datetime finale
+ * @return integer
+ */
+function timeDiff($firstTime, $lastTime){
+	
+	if(!$lastTime)
+		return null;
+	
+	// converte in unix timestamp
+	$firstTime = strtotime($firstTime);
+	$lastTime = strtotime($lastTime);
+	
+	$timeDiff = $lastTime-$firstTime;
+	
+	return $timeDiff;
+}
+
+/**
  * Verifica se il valore della variabile è conforme al tipo di controllo indicato
  * 
  * @param string $type tipo di controllo da eseguire
