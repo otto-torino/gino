@@ -1604,7 +1604,7 @@ class Form {
     elseif($delete) $filename_sql = '';
     else $filename_sql = $old_file;
 
-    if($table && $field && $filename_sql && $idName && $id)
+    if($table && $field && $idName && $id)
     {
       $db = db::instance();
       $query = "UPDATE $table SET $field='$filename_sql' WHERE $idName='$id'";

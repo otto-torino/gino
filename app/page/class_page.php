@@ -85,7 +85,7 @@ require_once('class.pageEntryAdminTable.php');
  * - moderazione commenti
  * - notifica commenti
  *
- * OUTPUTS
+ * OUTPUT
  * ---------------
  * - lista ultime pagine pubblicate
  * - elenco archivio pagine raggruppate per categoria (parametro @a id) o tag (parametro @a tag)

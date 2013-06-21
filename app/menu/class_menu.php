@@ -492,11 +492,8 @@ class menu extends AbstractEvtClass {
 	
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni")));
 		
-		$GINO = "<p>"._("E' possibile inserire voci di menu con link interni o esterni al sito.")."</p>";
-		
-		$GINO .= "<p>"._("Il modulo di 'ricerca pagine e classi' permette di visualizzare i link interni.")."</p>";
-	
-		$GINO .= "<p>"._("Per ordinare le voci di menu trascinare l'elemento nella posizione desiderata.")."</p>";
+		$GINO = "<p>"._("E' possibile inserire voci di menu con link interni o esterni al sito. I link interni possono essere visualizzati direttamente nella 'Ricerca moduli'.")."</p>";
+		$GINO .= "<p>"._("Per ordinare le voci di menu trascinare l'elemento nella posizione desiderata. Le icone per l'ordinamento delle voci di un sottomenu vengono rese attive quando viene selezionata per la modifica la loro voce parent.")."</p>";
 
 		$GINO .= "<table class=\"menuInfo\">";
 		$GINO .= "<tr>";
