@@ -391,134 +391,147 @@ class Form {
     return $error;
   }
 
-  /**
-   * Test di controllo reCaptcha
-   * 
-   * @see reCaptcha()
-   * @see defaultCaptcha()
-   * @param array $options
-   *   array associativo di opzioni
-   *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
-   *   - @b text_add (string): testo che segue il controllo
-   * @return string
-   */
-  public function captcha($options=null) {
+	/**
+	 * Test di controllo captcha
+	 * 
+	 * Sono previsti due controlli captcha: \n
+	 * 1. con le librerie reCAPTCHA (attivo automaticamente se sono state inserite le chiavi pubbliche e private reCaptcha nelle 'Impostazioni di sistema')
+	 * 2. con la classe captcha di gino
+	 * 
+	 * @see reCaptcha()
+	 * @see defaultCaptcha()
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+	 *   - @b text_add (string): testo che segue il controllo
+	 * @return string
+	 */
+	public function captcha($options=null) {
+		
+		$public_key = pub::variable("captcha_public");
+		$private_key = pub::variable("captcha_private");
+		
+		if($public_key && $private_key) return $this->reCaptcha($public_key, $options);
+		else return $this->defaultCaptcha($options);
+ 	}
 
-    $public_key = pub::variable("captcha_public");
-    $private_key = pub::variable("captcha_private");
+	/**
+	 * Costruzione dell'immagine attraverso javascript
+	 * 
+	 * Nelle Impostazioni di sistema devono essere state inserite le chiavi pubbliche e private reCaptcha
+	 * 
+	 * @param string $public_key
+	 * @param array $options
+	 *   array associativo di opzioni
+	 * @return string
+	 */
+	private function reCaptcha($public_key, $options=null) {
 
-    if($public_key && $private_key) return $this->reCaptcha($public_key, $options);
-    else return $this->defaultCaptcha($options);
-  }
+		$options["required"] = true;
+		$this->setOptions($options);
+		$GFORM = "<tr>\n";
+		$GFORM .= "<td class=\"form_label\">".$this->label('captcha_input', _("Inserisci il codice di controllo"), $this->option('required'), $this->option('classLabel'))."</td>\n";
+		$GFORM .= "<td class=\"form_field\">\n";
+		$GFORM .= "<div id=\"".$this->_formId."_recaptcha\"></div>";
+		$GFORM .= "<script>
+			function createCaptcha() {
+				if(\$chk($('".$this->_formId."_recaptcha'))) {
+					Recaptcha.create('$public_key', '".$this->_formId."_recaptcha', {theme: 'red', callback: Recaptcha.focus_response_field});
+					clearInterval(window.captcha_int);
+				}
+			}
+			window.captcha_int = setInterval(createCaptcha, 50);
+		</script>";
+		if($this->option('text_add')) $GFORM .= $this->option('text_add');
+		$GFORM .= "</td>\n";
+		$GFORM .= "</tr>\n";
 
-  /**
-   * Costruzione dell'immagine attraverso javascript
-   * 
-   * Nelle Impostazioni di sistema devono essere state inserite le chiavi pubbliche e private reCaptcha
-   *  
-   * @param string $public_key
-   * @param array $options
-   *   array associativo di opzioni
-   * @return string
-   */
-  private function reCaptcha($public_key, $options=null) {
+		return $GFORM;
+	}
 
-    $options["required"] = true;
-    $this->setOptions($options);
-    $GFORM = "<tr>\n";
-    $GFORM .= "<td class=\"form_label\">".$this->label('captcha_input', _("Inserisci il codice di controllo"), $this->option('required'), $this->option('classLabel'))."</td>\n";
-    $GFORM .= "<td class=\"form_field\">\n";
-    $GFORM .= "<div id=\"".$this->_formId."_recaptcha\"></div>";
-    $GFORM .= "<script>
-    function createCaptcha() {
-      if(\$chk($('".$this->_formId."_recaptcha'))) {
-        Recaptcha.create('$public_key', '".$this->_formId."_recaptcha', {theme: 'red', callback: Recaptcha.focus_response_field});
-        clearInterval(window.captcha_int);
-      }
-    }
-    window.captcha_int = setInterval(createCaptcha, 50);
-    </script>";
-    if($this->option('text_add')) $GFORM .= $this->option('text_add');
-    $GFORM .= "</td>\n";
-    $GFORM .= "</tr>\n";
+	/**
+	 * Costruzione dell'immagine captcha attraverso la classe captcha
+	 * 
+	 * Include il file class.captcha.php
+	 * 
+	 * @see captcha::render()
+	 * @param array $options
+	 *   array associativo di opzioni
+	 * @return string
+	 */
+	private function defaultCaptcha($options) {
 
-    return $GFORM;
-  }
+		include(CLASSES_DIR.OS."class.captcha.php");
+		
+		$options["required"] = true;
+		$options["id"] = "captcha_input";
+		$options["size"] = "20";
+		$options["maxlength"] = "20";
+		$this->setOptions($options);
+		
+		$captcha = new captcha('captcha_input');
+		
+		$GFORM = "<tr>\n";
+		$GFORM .= "<td class=\"form_label\">".$this->label('captcha_input', _("Inserisci il codice dell'immagine"), $this->option('required'), $this->option('classLabel'))."</td>\n";
+		$GFORM .= "<td class=\"form_field\">\n";
+		$GFORM .= $captcha->render();
+		if($this->option('text_add')) $GFORM .= $this->option('text_add');
+		$GFORM .= "</td>\n";
+		$GFORM .= "</tr>\n";
 
-  /**
-   * Costruzione dell'immagine attravrso il file lib/captchaImage.php
-   * 
-   * @param array $options
-   *   array associativo di opzioni
-   * @return string
-   */
-  private function defaultCaptcha($options) {
+		return $GFORM;
+	}
 
-    $options["required"] = true;
-    $options["id"] = "captcha_input";
-    $options["size"] = "20";
-    $options["maxlength"] = "20";
-    $this->setOptions($options);
-    $GFORM = "<tr>\n";
-    $GFORM .= "<td class=\"form_label\">".$this->label('captcha_input', _("Inserisci il codice dell'immagine"), $this->option('required'), $this->option('classLabel'))."</td>\n";
-    $GFORM .= "<td class=\"form_field\">\n";
-    $GFORM .= "<img style=\"margin:2px 15px 2px 2px;vertical-align:middle;\" src=\"lib/captchaImage.php\" alt=\"captcha image\"/>";
-    $GFORM .= $this->input('captcha_input', 'text', '', $options);
-    if($this->option('text_add')) $GFORM .= $this->option('text_add');
-    $GFORM .= "</td>\n";
-    $GFORM .= "</tr>\n";
+	/**
+	 * Verifica del test captcha
+	 * 
+	 * @see checkReCaptcha()
+	 * @see checkDefaultCaptcha()
+	 * @return boolean
+	 */
+	public function checkCaptcha() {
 
-    return $GFORM;
-  }
+		$public_key = pub::variable("captcha_public");
+		$private_key = pub::variable("captcha_private");
 
-  /**
-   * Verifica del test reCaptcha
-   * 
-   * @see checkReCaptcha()
-   * @see checkDefaultCaptcha()
-   * @return boolean
-   */
-  public function checkCaptcha() {
+		if($public_key && $private_key) return $this->checkReCaptcha($public_key, $private_key);
+		else return $this->checkDefaultCaptcha();
+	}
 
-    $public_key = pub::variable("captcha_public");
-    $private_key = pub::variable("captcha_private");
+	/**
+	 * Verifica nel caso in cui siano state attivate le chiavi pubbliche e private reCaptcha
+	 * 
+	 * Include il file lib/recaptchalib.php
+	 * 
+	 * @param string $public_key
+	 * @param string $private_key
+	 * @return boolean
+	 */
+	private function checkReCaptcha($public_key, $private_key) {
 
-    if($public_key && $private_key) return $this->checkReCaptcha($public_key, $private_key);
-    else return $this->checkDefaultCaptcha();
-  }
+		require_once(LIB_DIR.OS.'recaptchalib.php');
+		$private_key = pub::variable("captcha_private");
+		$resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 
-  /**
-   * Verifica nel caso in cui siano state attivate le chiavi pubbliche e private reCaptcha
-   * 
-   * Include il file lib/recaptchalib.php
-   * 
-   * @param string $public_key
-   * @param string $private_key
-   * @return boolean
-   */
-  private function checkReCaptcha($public_key, $private_key) {
+		$captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
+		return $resp->is_valid ? true:false;
+	}
 
-    require_once(LIB_DIR.OS.'recaptchalib.php');
-    $private_key = pub::variable("captcha_private");
-    $resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+	/**
+	 * Verifica di default del test captcha
+	 * 
+	 * Include il file class.captcha.php
+	 * 
+	 * @see captcha::check()
+	 * @return boolean
+	 */
+	private function checkDefaultCaptcha() {
 
-    $captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
-    return $resp->is_valid ? true:false;
-  }
-
-  /**
-   * Verifica di default
-   * @return boolean
-   */
-  private function checkDefaultCaptcha() {
-
-    $captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
-
-    $result = $captcha == $this->session->pass ? true : false;
-    unset($this->session->pass);
-
-    return $result;
-  }
+		include(CLASSES_DIR.OS."class.captcha.php");
+		
+		$captcha = new captcha('captcha_input');
+		return $captcha->check();
+	}
 
   /**
    * Tabella senza Input Form

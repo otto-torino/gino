@@ -7,6 +7,7 @@
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * @date 2013
  */
 
 require_once('class.pageCategory.php');
@@ -30,10 +31,12 @@ require_once('class.pageEntryAdminTable.php');
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * @date 2013
  * 
  * CARATTERISTICHE
  * ---------------
- * Modulo di gestione pagine, con predisposizione contenuti per ricerca nel sito e newsletter
+ * Modulo di gestione pagine, con predisposizione contenuti per ricerca nel sito e newsletter. \n
+ * Per ogni singola pagina è possibile abilitare l'inserimento dei commenti (il form include un controllo captcha).
  * 
  * PERMESSI
  * ---------------

@@ -1257,7 +1257,7 @@ INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role
 (4, 'Menu principale', 'mainMenu', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu area amministrativa'),
 (6, 'Top Bar', 'topbar', 'phpModuleView', 'class', 5, 5, 5, NULL, 'no', 0, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto aall''amministrazione dei singoli moduli');
+(9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
 
 -- --------------------------------------------------------
 
