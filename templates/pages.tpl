@@ -10,25 +10,15 @@
 </div>
 <div class="null"></div>
 </div>
-<div id="block_3" style="width: 1000px; margin: auto;">
-<div id="nav_3_1_1" style="float:left;width:250px;">
+<div id="block_3" style="width: 960px; margin: auto;">
+<div id="nav_3_1_1" style="float:left;width:960px;">
 {module classid=4 func=blockList}
 </div>
-<div id="nav_3_1_2" style="float:left;width:250px;">
+<div class="null"></div>
+<div id="nav_3_2_1" style="float:left;width:960px;">
 {module id=0}
 </div>
-<div id="nav_3_1_3" style="float:left;width:250px;">
-</div>
-<div id="nav_3_1_4" style="float:left;width:250px;">
-</div>
-<div class="null"></div>
-<div id="nav_3_2_1" style="float:left;width:250px;">
-</div>
-<div id="nav_3_2_2" style="float:left;width:250px;">
-</div>
-<div id="nav_3_2_3" style="float:left;width:250px;">
-</div>
-<div id="nav_3_2_4" style="float:left;width:250px;">
+<div id="nav_3_2_2" style="float:left;width:500px;">
 </div>
 <div class="null"></div>
 </div>
@@ -38,7 +28,7 @@
 </div>
 <div class="null"></div>
 </div>
-<div id="block_5" style="width: 960px; margin-top: auto; margin-right: auto; margin-bottom: auto; margin-left: auto; ">
+<div id="block_5" style="width: 960px; margin: auto;">
 <div id="nav_5_1_1" style="float:left;width:790px;">
 </div>
 <div id="nav_5_1_2" style="float:left;width:170px;">

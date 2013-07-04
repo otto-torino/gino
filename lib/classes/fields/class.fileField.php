@@ -335,7 +335,7 @@ class fileField extends field {
 		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
 		$filename = $prefix.$filename;
 		
-		$files = scandir($this->_directory);
+		$files = is_dir($this->_directory) ? scandir($this->_directory) : array();
 		
 		if($add_index)
 		{

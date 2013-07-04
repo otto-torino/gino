@@ -88,11 +88,10 @@ class cache {
  */
 class outputCache extends cache {
 
-	function __construct(&$buffer, $enable = true) {
+	function __construct(&$buffer) {
 
 		parent::__construct();
 		$this->_buffer = &$buffer;
-		$this->_enabled = $enable;
 	}
 
 	public function start($grp, $id, $tc) {
@@ -136,11 +135,9 @@ class outputCache extends cache {
  */
 class dataCache extends cache {
 
-	function __construct($enable = true) {
+	function __construct() {
 
 		parent::__construct();
-		
-		$this->_enabled = $enable;
 	}
 
 	public function get($grp, $id, $tc) {

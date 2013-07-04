@@ -396,6 +396,12 @@ class layout extends AbstractEvtClass {
 		exit();
 	}
 
+	/**
+	 * Elenco dei moduli e delle pagine disponibili
+	 * 
+	 * @see page::getUrlPage()
+	 * @return string
+	 */
 	public function modulesList() {
 
 		$this->accessGroup('');
@@ -409,22 +415,22 @@ class layout extends AbstractEvtClass {
 		/*
 		 * Pages
 		 */
-		$query = "SELECT p.item_id as id, p.module as module, p.parent as parent, p.title as title, m.role1 as role1, m.role2 as role2, m.role3 as role3 
-			  FROM ".$this->_tbl_page." as p, ".$this->_tbl_module." as m 
-			  WHERE p.module=m.id
-			  ORDER BY p.title";
+		$query = "SELECT id, title, private, users FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Pagine")."</th></tr>";
 			$buffer .= "<tr><th colspan=\"2\">"._("Titolo")."</th><th>"._("Permessi")."</th></tr>";
 			foreach($a as $b) {
-				$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $b['role1']);
-				$code_block = "{module pageid=".$b['id']." func=block}";
+				$access_txt = '';
+				if($b['private'])
+					$access_txt .= _("pagina privata")."<br />";
+				if($b['users'])
+					$access_txt .= _("pagina limitata ad utenti selezionati");
+				
 				$code_full = "{module pageid=".$b['id']." func=full}";
-				$buffer .= "<tr><td class=\"mdlTitle\" rowspan=\"2\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-blockItem]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))." - "._("Blocco")."', '$code_block')\";>"._("Blocco personalizzabile attraverso le opzioni di pagina")."</td><td>$role_txt</td></tr>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[page-displayItem]&id=".$b['id']."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))." - "._("Completo")."', '$code_full')\";>"._("Pagina completa")."</td><td>$role_txt</td></tr>";
-
+				$url = page::getUrlPage($b['id'], true);
+				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
+				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
 			}
 		}
 		/*

@@ -132,9 +132,37 @@ function extension($filename, $extensions){
  * @param string $email indirizzo email
  * @return boolean
  */
-function email_control($email)
-{
+function email_control($email) {
+	
 	return !preg_match("#^[a-z0-9_-]+[a-z0-9_.-]*@[a-z0-9_-]+[a-z0-9_.-]*\.[a-z]{2,5}$#", $email) ? false : true;
+}
+
+/**
+ * Verifica la validità dell'indirizzo email
+ * 
+ * Di default verifica la corrispondenza dell'indirizzo email alle specifiche dello standard RFC-2822. 
+ * 
+ * @param string $value indirizzo email
+ * @param mixed $regexp se presente verifica la corrispondenza di un indirizzo con una espressione regolare
+ *   - tipo boolean, se vero attiva una espressione regolare restrittiva
+ *   - tipo string, espressione regolare personalizzata
+ * @return boolean
+ */
+function checkEmail($value, $regexp=null) {
+	
+	if(is_bool($regexp) && $regexp)
+	{
+		$check = preg_match("#^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*.[a-z]{2,4}$#", $value) ? true : false;
+	}
+	elseif(is_string($regexp))
+	{
+		$check = preg_match("#$regexp#", $value) ? true : false;
+	}
+	else
+	{
+		$check = filter_var($value, FILTER_VALIDATE_EMAIL);
+	}
+	return $check;
 }
 
 /**
@@ -281,6 +309,27 @@ function isNumeric($variable)
 	if(!ereg("^[0-9\,\.]+$", $variable)) return false;
 	
 	if(is_numeric(numberToDB($variable))) return true; else return false;
+}
+
+/**
+ * Calcola l'intervallo di tempo in secondi tra due valori datetime
+ * 
+ * @param string $firstTime datetime iniziale
+ * @param string $lastTime datetime finale
+ * @return integer
+ */
+function timeDiff($firstTime, $lastTime){
+	
+	if(!$lastTime)
+		return null;
+	
+	// converte in unix timestamp
+	$firstTime = strtotime($firstTime);
+	$lastTime = strtotime($lastTime);
+	
+	$timeDiff = $lastTime-$firstTime;
+	
+	return $timeDiff;
 }
 
 /**

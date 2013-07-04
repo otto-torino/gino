@@ -151,8 +151,13 @@ class error {
 	 */
 	public static function raise404() {
 
+		$site = (substr(SITE_WWW, -1) != '/' && SITE_WWW != '') ? SITE_WWW.'/' : SITE_WWW;
+		
+		if(substr($site, 0, 1) != '/')
+			$site = '/'.$site;
+		
 		$plink = new link();
-		header("Location: "."http://".$_SERVER['HTTP_HOST'].'/'.SITE_WWW.$plink->alink('sysfunc', 'page404'));
+		header("Location: "."http://".$_SERVER['HTTP_HOST'].$site.$plink->alink('sysfunc', 'page404'));
 		exit();
 	}
 

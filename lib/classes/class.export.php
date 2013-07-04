@@ -14,6 +14,26 @@
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * UTILIZZO
+ * ---------------
+ * L'utilizzo della libreria prevede l'inclusione del file
+ * @code
+ * require_once(CLASSES_DIR.OS.'class.export.php');
+ * @endcode
+ * 
+ * ESEMPIO
+ * ---------------
+ * @code
+ * $items = array(
+ *  array('value1', 'value2', 'value3'), 
+ *  array('value4', 'value5', 'value6')
+ * );
+ * 
+ * $obj_export = new export();
+ * $obj_export->setData($items);
+ * $obj_export->exportData('export.csv', 'csv');
+ * @endcode
  */
 class export {
 

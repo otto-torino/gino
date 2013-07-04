@@ -245,12 +245,12 @@ class options extends pub {
 				}
 				else ${$f->name} = cleanVar($_POST, $f->name, 'string', '');
 				if($action == $this->_act_insert) {
-					$par1_query .= ",".$f->name;
-					$par2_query .= ($f->type=='int')? ",".${$f->name} : ",'".${$f->name}."'";
+					$par1_query .= ", ".$f->name;
+					$par2_query .= ", '".${$f->name}."'";
 				}	
 				elseif($action == $this->_act_modify) {
 					$par_query .= ($par_query)?",".$f->name."=":$f->name."=";
-					$par_query .= ($f->type=='int')? ${$f->name}:"'".${$f->name}."'";
+					$par_query .= "'".${$f->name}."'";
 				}
 			}	
 		}

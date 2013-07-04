@@ -56,6 +56,7 @@ class Document {
 	/**
 	 * Crea il documento
 	 * 
+	 * @see renderNave()
 	 * @return string
 	 * 
 	 * Esempi di contenuti delle variabili $_SERVER:
@@ -197,14 +198,17 @@ class Document {
 		return $footline;
 	}
 
-	/*
-	 * method renderModule() 
-	 *
-	 * $matches[0] complete matching 
-	 * $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
-	 * $matches[3] match div id, es. nav_1_1
-	 * $matches[4] match div content, es. {mod id=20}
-	 * $matches[5] match close tag, es. </div>
+	/**
+	 * Gestisce gli elementi del layout ricavati dal file di template
+	 * 
+	 * @see renderModule()
+	 * @param array $matches
+	 *   - @b $matches[0] complete matching 
+	 *   - @b $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
+	 *   - @b $matches[3] match div id, es. nav_1_1
+	 *   - @b $matches[4] match div content, es. {module classid=20 func=blockList}
+	 *   - @b $matches[5] match close tag, es. </div>
+	 * @return string
 	 */
 	private function renderNave($matches) {
 
@@ -221,6 +225,16 @@ class Document {
 		return $navContent;
 	}
 
+	/**
+	 * Gestisce il tipo di elemento da richiamare 
+	 * 
+	 * @see modPage()
+	 * @see modClass()
+	 * @see modFunc()
+	 * @see modUrl()
+	 * @param string $mdlMarker
+	 * @return string
+	 */
 	private function renderModule($mdlMarker) {
 
 		preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
@@ -228,8 +242,7 @@ class Document {
 		$mdlId = (!empty($matches[2]))? $matches[2]:null;
 
 		if($mdlType=='page') {
-			$mdlFunc = $matches[4];
-			$mdlContent = $this->modPage($mdlId, $mdlFunc);
+			$mdlContent = $this->modPage($mdlId);
 		}
 		elseif($mdlType=='class' || $mdlType=='sysclass') {
 			$mdlFunc = $matches[4];
@@ -242,16 +255,21 @@ class Document {
 		return $mdlContent;
 	}
 	
-	private function modPage($mdlId, $mdlFunc){
+	/**
+	 * Elemento pagina
+	 * 
+	 * @see page::box()
+	 * @param integer $mdlId valore ID della pagina
+	 * @return string
+	 */
+	private function modPage($mdlId){
 
 		if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
 			$this->_instances['page'] = new page();
 
 		$page = $this->_instances['page'];
-
-		return ($page->checkReadPermission($mdlId))
-			? ($mdlFunc=='block'?$page->blockItem($mdlId):$page->displayItem($mdlId))
-			:"";
+		
+		return $page->box($mdlId);
 	}
 
 	private function modClass($mdlId, $mdlFunc, $mdlType){
@@ -294,7 +312,6 @@ class Document {
 			else return '';
 
 			$buffer = $classObj->$mdlFunc();
-
 		}
 
 		return $buffer;

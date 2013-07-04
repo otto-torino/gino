@@ -46,7 +46,7 @@ class enumField extends field {
 	
 	public function __toString() {
 
-		$value = count($this->_enum) ? $this->_enum[$this->_value] : $this->_value;
+		$value = (count($this->_enum) && $this->_value != '' && $this->_value != null) ? $this->_enum[$this->_value] : $this->_value;
 		return (string) $value;
 	}
 	

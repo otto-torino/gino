@@ -3,20 +3,27 @@
  * 
  * gino è sviluppato con tecnologia PHP e fornisce tutti gli strumenti necessari per creare un sito web e gestire i contenuti in modo semplice ed efficace.
  * 
- * Si consiglia di visitare il <a href="http://gino.otto.to.it">sito del progetto</a> per trovare ulteriori informazioni.   
- * 
+ * Si consiglia di visitare il <a href="http://gino.otto.to.it">sito del progetto</a> per trovare ulteriori informazioni. \n
  * I moduli e i plugin di gino sono disponibili su github nel <a href="http://www.github.com/otto-torino">repository otto-torino</a>.
  * 
- * @b REQUISITI
- *   - php >= 5.3   
- *   - mysql >= 5   
- *   - web server: apache (consigliato), nginx, lighttpd, o microsoft IIS
+ * REQUISITI
+ * ---------------
+ * - php >= 5.3
+ * - mysql >= 5
+ * - web server: apache (consigliato), nginx, lighttpd, o microsoft IIS
  * 
- * sul server web apache devono essere abilitati i seguenti moduli
- *   - deflate
- *   - expires
- *   - headers
- *   - rewrite
+ * ###Apache
+ * Sul server web apache devono essere abilitati i seguenti moduli:
+ * - deflate
+ * - expires
+ * - headers
+ * - rewrite
+ * 
+ * ###PHP
+ * A livello di php è richiesta l'abilitazione degli "short open tag" che si può impostare a livello del file @a php.ini oppure all'interno della configurazione del virtual host:
+ * @code
+ * php_admin_value short_open_tag "On"
+ * @endcode
  */
 
 /**

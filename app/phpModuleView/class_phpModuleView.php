@@ -163,12 +163,14 @@ class phpModuleView extends AbstractEvtClass {
 	public function viewList() {
 
 		$this->accessType($this->_access_base);
+		
+		$registry = registry::instance();
 
 		$phpMdl = new PhpModule($this->_instance, $this->_instanceName);
 		
 		$htmlsection = new htmlSection(array('id'=>"phpModuleView_".$this->_instanceName, 'class'=>'public', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerClass'=>($this->_title_visible ? '' : 'hidden')));
-		$GINO = $this->scriptAsset("phpModule_".$this->_instanceName.".css", "phpMdlCSS".$this->_instance, 'css');
-
+		$registry->addCss($this->_class_www."/phpModule_".$this->_instanceName.".css");
+		
 		$rexpf = array();
 		foreach($this->_blackList as $fc) {
 			$rexpf[] = $fc."\(.*?\)";
@@ -179,7 +181,7 @@ class phpModuleView extends AbstractEvtClass {
 		}
 		else eval($phpMdl->content);
 
-		$htmlsection->content = $GINO.$buffer;
+		$htmlsection->content = $buffer;
 
 		return $htmlsection->render();
 	}

@@ -58,24 +58,6 @@ class menuVoice extends propertyObject {
 		return true;
 	}
 
-	public function setLink($value) {
-		
-		if($this->_p['link']!=$value && !in_array('link', $this->_chgP)) $this->_chgP[] = 'link';
-		$this->_p['link'] = $value;
-	}
-
-	public function setInstance($value) {
-		
-		if($this->_p['instance']!=$value && !in_array('instance', $this->_chgP)) $this->_chgP[] = 'instance';
-		$this->_p['instance'] = $value;
-	}
-
-	public function setOrderList($value) {
-	
-		if($this->_p['orderList']!=$value && !in_array('orderList', $this->_chgP)) $this->_chgP[] = 'orderList';
-		$this->_p['orderList'] = $value;
-	}
-
 	public function initOrderList() {
 
 		$query = "SELECT max(orderList) AS last FROM ".self::$tbl_voices." WHERE instance='{$this->_p['instance']}' AND parent='{$this->_p['parent']}'";
@@ -149,12 +131,13 @@ class menuVoice extends propertyObject {
 		$link_delete = ($this->_p['id'])? "<a href=\"".$_SERVER['QUERY_STRING']."&action=delete\">".$pub->icon('delete', _("elimina voce"))."</a>":"";
 		
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title, 'headerLinks'=>array($link_delete)));
-		$required = 'label,type,role1,authView';
+		$required = 'label,type,voice';	// verifica su role1 e authView in actionMenuVoice()
 
 		$required = '';
 		$buffer = $gform->form($formaction, '', $required);
 		$buffer .= $gform->hidden('action', $action);
 		$buffer .= $gform->hidden('parent', $parent);
+		$buffer .= $gform->hidden('page_id', $this->_p['page_id'], array('id'=>'page_id'));
 		if($this->_p['id'])
 			$buffer .= $gform->hidden('id', $this->_p['id']);
 
@@ -164,11 +147,15 @@ class menuVoice extends propertyObject {
 
 		$buffer .= $gform->cradio('type', $gform->retvar('type', htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare il 'modulo di ricerca pagine e classi')"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
 
+		$buffer .= $gform->cradio('voice', $gform->retvar('voice', htmlInput($this->_p['voice'])), array('class'=>_("classe"), 'page'=>_("pagina")), 'class', _("Voce di menu"), array("required"=>true, "aspect"=>"v"));
+		
 		$buffer .= $gform->cinput('reference', 'text', $gform->retvar('reference', htmlInput($this->_p['reference'])), _("Nome pagina/classe"), array("size"=>40, "maxlength"=>100, "id"=>"reference"));
 
+		$buffer .= $gform->cell(_("Campi obbligatori per le voci relative a classi"), array('other'=>"style=\"padding:5px 0px;\""));
+		
 		$buffer .= $this->selectRole($this->_gform, $gform->retvar('role1', htmlInput($this->_p['role1'])));
 
-		$buffer .= $gform->cradio('authView', $gform->retvar('authView', $this->_p['authView']), array('1'=>_("si"), '0'=>_("no")), '1', _("Visibile se autenticati"), array("required"=>true));
+		$buffer .= $gform->cradio('authView', $gform->retvar('authView', $this->_p['authView']), array('1'=>_("si"), '0'=>_("no")), '1', _("Visibile se autenticati"), array("required"=>false));
 
 		$buffer .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$buffer .= $gform->cform();
@@ -208,7 +195,7 @@ class menuVoice extends propertyObject {
 		
 		$onchange = "updaterole(this.selectedIndex)";
 		$query = "SELECT role_id, name FROM ".self::$_tbl_user_role;
-		$buffer .= $gform->cselect('role1', $role1, $query, _("Permessi di visualizzazione"), array("required"=>true, "id"=>"role1"));
+		$buffer .= $gform->cselect('role1', $role1, $query, _("Permessi di visualizzazione"), array("required"=>false, "id"=>"role1"));
 		
 		// Roles
 		$a_role = array(); $a_role[] = '';
@@ -224,11 +211,10 @@ class menuVoice extends propertyObject {
 		$buffer .= "
 		<script type=\"text/javascript\">
 
-		var rolelist=document.gform.role1
-		var selrolelist=document.gform.role1
+		var rolelist=document.gform.role1;
+		var selrolelist=document.gform.role1;
 
-		var newrolelist=new Array()
-		";
+		var newrolelist=new Array();";
 		
 		$buffer .= "newrolelist[0]=\"\"\n";
 		for ($i=1, $end=sizeof($a_role); $i<$end; $i++)
