@@ -22,6 +22,27 @@
  * Fornisce le interfacce per la modifica dei file di frontend generali di gino: \n
  *   - file css presenti nella directory @a css
  *   - file delle viste presenti nella directory @a views
+ * 
+ * SCHEMA DEL LAYOUT A LIVELLO AMMINISTRATIVO
+ * ---------------
+ * A livello amministrativo lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
+ * @code
+ * <div id="nav_3_1_1" style="width:100%;">
+ * {module sysclassid=8 func=printFooterPublic}
+ * </div>
+ * @endcode
+ * passandole con la funzione preg_replace_callback() al metodo template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
+ * L'elenco dei moduli/pagine disponibili viene gestito dal metodo layout::modulesList().
+ * 
+ * TRADUZIONE DEL LAYOUT NELLA VISUALIZZAZIONE DI UNA PAGINA
+ * ---------------
+ * Per quanto riguarda la visualizzazione di una pagina, il layout viene gestito dal metodo document::render() che identifica il file del template, lo legge ed effettua un preg_replace_callback() col metodo document::renderNave(). \n
+ * Quando document::renderNave() identifica la stringa @a module richiama document::renderModule() che in base al tipo riconosciuto richiama un metodo tra:
+ *   - modPage()
+ *   - modClass()
+ *   - modFunc()
+ *   - modUrl()
+ * 
  */
 class layout extends AbstractEvtClass {
 
