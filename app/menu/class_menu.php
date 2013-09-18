@@ -573,8 +573,6 @@ class menu extends AbstractEvtClass {
 		$page_id = cleanVar($_POST, 'page_id', 'int', '');
 		$role1 = cleanVar($_POST, 'role1', 'int', '');
 		
-		$voice_id = ($parent) ? null : $id;
-
 		$link_params = "action=$this->_action";
 		if($id) $link_params .= "&id=$id";
 
@@ -586,7 +584,7 @@ class menu extends AbstractEvtClass {
 		if(($voice == 'class' && !$role1) || ($voice == 'page' && !$page_id))
 			exit(error::errorMessage(array('error'=>1), $link_error));
 		
-		$menu_voice = new menuVoice($voice_id);
+		$menu_voice = new menuVoice($id);
 
 		foreach($_POST as $k=>$v) {
 			$menu_voice->{$k} = cleanVar($_POST, $k, 'string', '');
