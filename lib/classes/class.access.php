@@ -51,18 +51,29 @@ class Access extends pub {
 		$this->_block_page = $this->_home."?evt[index-auth_page]";
 	}
 	
+	/**
+	 * Imposta il ruolo di default
+	 */
 	private function defaultRole(){
 
-		$query = "SELECT role_id FROM ".TBL_USER_ROLE." WHERE default_value='yes'";
-		$a = $this->_db->selectquery($query);
-		sizeof($a) > 0 ?$this->default_role = $a[0]['role_id']:exit(error::syserrorMessage("admin", "defaultRole", _("Ruolo di default non settato"), __LINE__));
+		$role_id = $this->_db->getFieldFromId(TBL_USER_ROLE, 'role_id', 'default_value', 'yes');
+		if($role_id) $this->default_role = $role_id;
+		else exit(error::syserrorMessage("admin", "defaultRole", _("Ruolo di default non settato"), __LINE__));
 	}
 	
+	/**
+	 * Controlla se il ruolo esiste
+	 * 
+	 * @param integer $role_id
+	 * @return boolean
+	 */
 	private function verifyRole($role_id){
 		
-		$query = "SELECT role_id FROM ".TBL_USER_ROLE." WHERE role_id='$role_id'";
-		$a = $this->_db->selectquery($query);
-		return (sizeof($a) > 0);
+		$check = $this->_db->getFieldFromId(TBL_USER_ROLE, 'role_id', 'role_id', $role_id);
+		if($check)
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -70,6 +81,8 @@ class Access extends pub {
 	 * 
 	 * Imposta le variabili di sessione userId, userName, userRole e richiama il metodo logAccess()
 	 * 
+	 * @see pub::cryptMethod()
+	 * @see verifyRole()
 	 * @see logAccess()
 	 * @param string $user
 	 * @param string $pwd
@@ -78,47 +91,43 @@ class Access extends pub {
 	private function AuthenticationMethod($user, $pwd){
 
 		$pwd = pub::cryptMethod($pwd, $this->_crypt);
-
-		$query = "SELECT user_id, firstname, lastname, role FROM ".TBL_USER."
-		WHERE username='$user' AND userpwd='$pwd' AND valid='yes'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) == 1)
+		
+		$records = $this->_db->select('user_id, firstname, lastname, role', TBL_USER, "username='$user' AND userpwd='$pwd' AND valid='yes'");
+		if(count($records) == 1)
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				if(!$this->verifyRole($b['role'])) return false;
+				$user_id = $r["user_id"];
+				$role = $r["role"];
 				
-				$user_id = $b["user_id"];
-				$role = $b["role"];
+				if(!$this->verifyRole($role)) return false;
 				
 				$this->session->userId = $user_id;
-				$this->session->userName = htmlChars($b["firstname"].' '.$b["lastname"]);
+				$this->session->userName = htmlChars($r["firstname"].' '.$r["lastname"]);
 				$this->session->userRole = $role;
 				
 				if($this->_log_access == 'yes') $this->logAccess($user_id);
 			}
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+		else return false;
 	}
 	
 	/**
-	 * Registra il log dell'accesso a gino
+	 * Registra il log dell'accesso all'applicazione
+	 * 
 	 * @param integer $userid
-	 * @return void
+	 * @return boolean
 	 */
 	private function logAccess($userid) {
 		
 		date_default_timezone_set('Europe/Rome');
 
 		$date = date("Y-m-d H:i:s");
-		$query = "INSERT INTO ".TBL_LOG_ACCESS." (user_id, date) VALUES ($userid, '$date')";
-		$result = $this->_db->actionquery($query);
 		
-		return $this;
+		$result = $this->_db->insert(array('user_id'=>$userid, 'date'=>$date), TBL_LOG_ACCESS);
+		
+		return $result;
 	}
 	
 	/**
@@ -142,15 +151,25 @@ class Access extends pub {
 	}
 	
 	/**
-	 * Autenticazione a gino
+	 * Autenticazione all'applicazione
+	 * 
 	 * @see AuthenticationMethod()
+	 * @see loginSuccess()
+	 * @see loginError()
 	 * @return void
+	 * 
+	 * Parametri POST: \n
+	 * - action (string)
+	 * - user (string)
+	 * - pwd (string)
 	 */
 	public function Authentication(){
+		
 		if((isset($_POST['action']) && $_POST['action']=='auth')) {
+			
 			$user = cleanVar($_POST, 'user', 'string', '');
 			$password = cleanVar($_POST, 'pwd', 'string', '');
-			$this->AuthenticationMethod($user, $password)? $this->loginSuccess():$this->loginError(_("autenticazione errata"));
+			$this->AuthenticationMethod($user, $password) ? $this->loginSuccess() : $this->loginError(_("autenticazione errata"));
 		}
 		elseif((isset($_GET['action']) && $_GET['action']=='logout')) {
 			
@@ -181,39 +200,63 @@ class Access extends pub {
 
 	/**
 	 * Restituisce l'ID del ruolo dell'utente
+	 * 
 	 * @return integer
 	 */
 	public function userRole(){
 
 		if(empty($this->_session_user)) 
+		{
 			$role = $this->default_role;
+		}
 		else
 		{
-			$query = "SELECT role FROM ".TBL_USER." WHERE user_id='".$this->_session_user."'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) == 1) $role = $a[0]['role'];
-			else
-				exit(error::syserrorMessage("access", "userRole", _("impossibile associare un ruolo all'utente id:").$this->_session_user, __LINE__));
+			$records = $this->_db->select('role', TBL_USER, "user_id='".$this->_session_user."'");
+			if(count($records) == 1)
+			{
+				foreach($records AS $r)
+				{
+					$role = $r['role'];
+				}
+			}
+			else exit(error::syserrorMessage("access", "userRole", _("impossibile associare un ruolo all'utente id:").$this->_session_user, __LINE__));
 		}
 
 		return $role;
 	}
 
+	/**
+	 * Ricava il valore ID di un ruolo di una classe
+	 * 
+	 * @param string $class_name
+	 * @param string $field
+	 * @param integer $instance
+	 * @return integer
+	 */
 	private function queryClassRole($class_name, $field, $instance){
 		
 		$value = '';
-		$query = $instance
-			? "SELECT $field FROM ".TBL_MODULE." WHERE id='$instance' AND class='$class_name'"
-			: "SELECT $field FROM ".TBL_MODULE_APP." WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0) $value = $a[0][$field];
-
+		
+		if($instance)
+			$records = $this->_db->select($field, TBL_MODULE, "id='$instance' AND class='$class_name'");
+		else
+			$records = $this->_db->select($field, TBL_MODULE_APP, "name='$class_name' AND type='class'");
+		
+		if(count($records))
+		{
+			foreach($records AS $r)
+			{
+				$value = $r[$field];
+			}
+		}
+		
 		return $value;
 	}
 	
 	/**
 	 * Restituisce l'ID del ruolo di una data classe
 	 * 
+	 * @see queryClassRole()
 	 * @param string $class_name nome della classe
 	 * @param integer $instance valore ID dell'istanza
 	 * @param string $role riferimento per la ricerca del ruolo (user, user2, user3)
@@ -279,19 +322,19 @@ class Access extends pub {
 	 * Verifica del ruolo utente per l'accesso a una pagina
 	 * 
 	 * Con una risposta negativa redirige a una pagina di errore. Viene verificato il campo role1.
-	 *
+	 * 
+	 * @see userRole()
 	 * @param integer $module_id valore ID del modulo
 	 * @return boolean o redirect
 	 */
 	public function AccessVerifyPage($module_id){
 
-		$query = "SELECT role1 FROM ".TBL_MODULE." WHERE id='$module_id' AND type='page'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('role1', TBL_MODULE, "id='$module_id' AND type='page'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$role = $b['role1'];
+				$role = $r['role1'];
 			}
 		}
 		
@@ -301,13 +344,11 @@ class Access extends pub {
 			exit();
 		}
 		
-		/*
-		if(!$role OR !$this->verifyRole($role))
+		/*if(!$role OR !$this->verifyRole($role))
 		{
 			header("Location:http://".$this->_url_path_login."&err=ERROR: no access 3");
 			exit();
-		}
-		*/
+		}*/
 		
 		if($role >= $this->userRole())
 		{
@@ -324,19 +365,19 @@ class Access extends pub {
 	 * Verifica del ruolo utente per l'accesso ai contenuti di una pagina
 	 * 
 	 * Con una risposta negativa non mostra i contenuti. Viene verificato il campo role1.
-	 *
+	 * 
+	 * @see userRole()
 	 * @param integer $module_id valore ID del modulo
 	 * @return boolean
 	 */
 	public function AccessVerifyPageIf($module_id){
 
-		$query = "SELECT role1 FROM ".TBL_MODULE." WHERE id='$module_id' AND type='page'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('role1', TBL_MODULE, "id='$module_id' AND type='page'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$role = $b['role1'];
+				$role = $r['role1'];
 			}
 		}
 		
@@ -352,22 +393,6 @@ class Access extends pub {
 	private function referenceTable($class_name){
 		
 		return TBL_MODULE_APP;
-		/*
-		$query = "SELECT id FROM sys_module WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			$table = 'sys_module';
-		}
-		else
-		{
-			$query = "SELECT id FROM sys_module_app WHERE name='$class_name' AND type='class'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-				$table = 'sys_module_app';
-		}
-		return $table;
-		 */
 	}
 	
 	private function blockUser($message, $redirect, $options) {
@@ -391,13 +416,12 @@ class Access extends pub {
 		
 		$table = $this->referenceTable($class_name);
 		
-		$query = "SELECT role_group FROM $table WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('role_group', $table, "name='$class_name' AND type='class'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$role_group = $b['role_group'];
+				$role_group = $r['role_group'];
 			}
 		}
 		else $role_group = '';
@@ -419,32 +443,29 @@ class Access extends pub {
 		$control = false;
 		$table = $this->referenceTable($class_name);
 		
-		$query = "SELECT role_group, tbl_name FROM $table WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('role_group, tbl_name', $table, "name='$class_name' AND type='class'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$tbl_group = $b['tbl_name'].'_grp';
-				$tbl_user = $b['tbl_name'].'_usr';
-				$role_group = $b['role_group'];
+				$tbl_group = $r['tbl_name'].'_grp';
+				$tbl_user = $r['tbl_name'].'_usr';
+				$role_group = $r['role_group'];
 			}
 		}
 		
 		if($this->_db->tableexists($tbl_group) AND $this->_db->tableexists($tbl_user))
 		{
-			$query = "SELECT user_id FROM $tbl_user WHERE group_id='$role_group' AND user_id='".$this->_session_user."' AND instance='$instance'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-			{
+			$records = $this->_db->select('user_id', $tbl_user, "group_id='$role_group' AND user_id='".$this->_session_user."' AND instance='$instance'");
+			if(count($records))
 				$control = true;
-			}
 		}
 		return $control;
 	}
 	
 	/**
 	 * Elenco dei gruppi di una classe
+	 * 
 	 * @param string $class_name nome della classe
 	 * @return array
 	 */
@@ -453,25 +474,23 @@ class Access extends pub {
 		$group = array();
 		$table = $this->referenceTable($class_name);
 		
-		$query = "SELECT tbl_name FROM $table WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('tbl_name', $table, "name='$class_name' AND type='class'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$tbl_group = $b['tbl_name'].'_grp';
+				$tbl_group = $r['tbl_name'].'_grp';
 			}
 		}
 		
 		if($this->_db->tableexists($tbl_group))
 		{
-			$query = "SELECT id FROM $tbl_group ORDER BY id ASC";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select('id', $tbl_group, '', 'id ASC');
+			if(count($records))
 			{
-				foreach ($a AS $b)
+				foreach($records AS $r)
 				{
-					$group[] = $b['id'];
+					$group[] = $r['id'];
 				}
 			}
 		}
@@ -483,7 +502,7 @@ class Access extends pub {
 	 *
 	 * @param string $class_name nome della classe
 	 * @param integer $instance valore ID dell'istanza
-	 * @param boolean $no_admin true -> gruppo che non ha funzionalità amministrative 
+	 * @param boolean $no_admin indica se il il gruppo ha funzionalità amministrative (true -> non ha funzionalità amministrative) 
 	 * @return array
 	 */
 	public function userGroup($class_name, $instance=null, $no_admin = true){
@@ -491,28 +510,28 @@ class Access extends pub {
 		$group = array();
 		$table = $this->referenceTable($class_name);
 		
-		$query = "SELECT tbl_name FROM $table WHERE name='$class_name'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('tbl_name', $table, "name='$class_name'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$tbl_group = $b['tbl_name'].'_grp';
-				$tbl_user = $b['tbl_name'].'_usr';
+				$tbl_group = $r['tbl_name'].'_grp';
+				$tbl_user = $r['tbl_name'].'_usr';
 			}
 		}
 		
 		if($this->_db->tableexists($tbl_group) AND $this->_db->tableexists($tbl_user))
 		{
-			$query = $no_admin
-				? "SELECT group_id FROM $tbl_user WHERE user_id='".$this->_session_user."' AND instance='$instance'"
-				: "SELECT group_id FROM $tbl_user AS u, $tbl_group AS g WHERE u.user_id='$this->_session_user' AND u.instance='$instance' AND u.group_id=g.id AND g.no_admin='no'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			if($no_admin)
+				$records = $this->_db->select('group_id', $tbl_user, "user_id='".$this->_session_user."' AND instance='$instance'");
+			else
+				$records = $this->_db->select('group_id', "$tbl_user AS u, $tbl_group AS g", "u.user_id='$this->_session_user' AND u.instance='$instance' AND u.group_id=g.id AND g.no_admin='no'");
+			
+			if(count($records))
 			{
-				foreach ($a AS $b)
+				foreach($records AS $r)
 				{
-					$group[] = $b['group_id'];
+					$group[] = $r['group_id'];
 				}
 			}
 		}
@@ -635,6 +654,7 @@ class Access extends pub {
 	
 	/**
 	 * Accesso all'area amministrativa
+	 * 
 	 * @return boolean
 	 */
 	public function getAccessAdmin() {
@@ -644,23 +664,22 @@ class Access extends pub {
 		
 		if($this->_session_role <= $this->_access_admin) return true;
 		
-		$query = "SELECT sm.tbl_name 
-			  FROM ".TBL_MODULE_APP." AS sm, ".TBL_MODULE." AS m
-			  WHERE sm.type='class' AND 
-			        ((sm.masquerade='no' AND sm.instance='no') OR (sm.masquerade='no' AND sm.instance='yes' AND m.class=sm.name AND m.masquerade='no'))";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select(
+			'sm.tbl_name', 
+			TBL_MODULE_APP." AS sm, ".TBL_MODULE." AS m", 
+			"sm.type='class' AND ((sm.masquerade='no' AND sm.instance='no') OR (sm.masquerade='no' AND sm.instance='yes' AND m.class=sm.name AND m.masquerade='no'))"
+		);
+		if(count($records))
 		{
-			foreach ($a AS $b)
+			foreach($records AS $r)
 			{
-				$tblusrname = $b['tbl_name']."_usr";
-				$tblgrp = $b['tbl_name']."_grp";
+				$tblusrname = $r['tbl_name']."_usr";
+				$tblgrp = $r['tbl_name']."_grp";
 				
 				if($this->_db->tableexists($tblgrp) AND $this->_db->tableexists($tblusrname)) {
-					$query2 = "SELECT u.group_id FROM ".$tblusrname." AS u, ".$tblgrp." AS g
-					WHERE u.user_id='".$this->_session_user."' AND u.group_id=g.id AND g.no_admin='no'";
-					$a2 = $this->_db->selectquery($query2);
-					if(is_array($a2) && sizeof($a2) > 0) return true;
+					
+					$items = $this->_db->select('u.group_id', "$tblusrname AS u, $tblgrp AS g", "u.user_id='".$this->_session_user."' AND u.group_id=g.id AND g.no_admin='no'");
+					if(count($items)) return true;
 				}
 			}
 		}
@@ -675,14 +694,13 @@ class Access extends pub {
 
 		$role_type = array(); $role_name = array();
 
-		$query = "SELECT role_id, name FROM ".TBL_USER_ROLE." ORDER BY role_id";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('role_id, name', TBL_USER_ROLE, '', 'role_id');
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$role_type[] = $b['role_id'];
-				$role_name[] = $b['name'];
+				$role_type[] = $r['role_id'];
+				$role_name[] = $r['name'];
 			}
 		}
 

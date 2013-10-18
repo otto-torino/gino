@@ -36,7 +36,7 @@ class pageEntry extends propertyObject {
 
 		$this->_controller = $instance;
 		$this->_tbl_data = self::$tbl_entry;
-
+ 
 		$this->_fields_label = array(
 			'category_id'=>_("Categoria"), 
 			'author'=>_('Autore'),
@@ -54,8 +54,8 @@ class pageEntry extends propertyObject {
 			'private'=>array(_("Privata"), _("pagina visualizzabile dal gruppo 'utenti pagine private'")),
 			'users'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),  
 			'read'=>_('Visualizzazioni'), 
-			'tpl_code'=>array(_("Template pagina intera"), _("sovrascrive il template di default")."<br />".page::explanationTemplate()), 
-			'box_tpl_code'=>array(_("Template box"), _("sovrascrive il template di default"))
+			'tpl_code'=>array(_("Template pagina intera"), _("richiamato da URL (sovrascrive il template di default)")."<br />".page::explanationTemplate()), 
+			'box_tpl_code'=>array(_("Template box"), _("richiamato nel template del layout (sovrascrive il template di default)"))
 		);
 
 		parent::__construct($id);

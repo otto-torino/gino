@@ -115,6 +115,9 @@ class account extends pub {
 	 * 
 	 * @param string $action azione da eseguire
 	 * @return string
+	 * 
+	 * Chiamate Ajax: \n
+	 * - actionCheckUsername()
 	 */
 	public function formAccount($action='') {
 
@@ -140,27 +143,26 @@ class account extends pub {
 		
 		if($action == $this->_act_modify)
 		{
-			$query = "SELECT firstname, lastname, company, phone, fax, email, username, address, cap, city, nation, text, photo, date FROM ".$this->_tbl_user." WHERE user_id='$user'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select('firstname, lastname, company, phone, fax, email, username, address, cap, city, nation, text, photo, date', $this->_tbl_user, "user_id='$user'");
+			if(count($records))
 			{
-				foreach($a AS $b)
+				foreach($records AS $r)
 				{
-					$firstname = htmlInput($b['firstname']);
-					$lastname = htmlInput($b['lastname']);
-					$company = htmlInput($b['company']);
-					$phone = htmlInput($b['phone']);
-					$fax = htmlInput($b['fax']);
-					$email = htmlInput($b['email']);
-					$address = htmlInput($b['address']);
-					$cap = htmlInput($b['cap']);
-					$city = htmlInput($b['city']);
-					$nation = htmlInput($b['nation']);
-					$text = htmlInput($b['text']);
-					$photo = htmlInput($b['photo']);
+					$firstname = htmlInput($r['firstname']);
+					$lastname = htmlInput($r['lastname']);
+					$company = htmlInput($r['company']);
+					$phone = htmlInput($r['phone']);
+					$fax = htmlInput($r['fax']);
+					$email = htmlInput($r['email']);
+					$address = htmlInput($r['address']);
+					$cap = htmlInput($r['cap']);
+					$city = htmlInput($r['city']);
+					$nation = htmlInput($r['nation']);
+					$text = htmlInput($r['text']);
+					$photo = htmlInput($r['photo']);
 					
-					$username = htmlChars($b['username']);
-					$date = htmlChars($b['date']);
+					$username = htmlChars($r['username']);
+					$date = htmlChars($r['date']);
 				}
 			}
 			
@@ -284,7 +286,7 @@ class account extends pub {
 		$GINO .= $gform->cinput('cap', 'text', $cap, _("Cap"), array("size"=>5, "maxlength"=>"5"));
 		$GINO .= $gform->cinput('city', 'text', $city, _("Città"), array("size"=>40, "maxlength"=>"50"));
 
-		$query = "SELECT id, ".$this->_lng_tbl_nation." FROM ".$this->_tbl_nation." ORDER BY ".$this->_lng_tbl_nation." ASC";
+		$query = $this->_db->query('id, '.$this->_lng_tbl_nation, $this->_tbl_nation, '', $this->_lng_tbl_nation." ASC");
 		$GINO .= $gform->cselect('nation', $nation, $query, _("Nazione"));
 
 		$GINO .= $gform->cinput('phone', 'text', $phone, _("Telefono"), array("size"=>30, "maxlength"=>"30"));
@@ -420,7 +422,7 @@ class account extends pub {
 				if($email != $email2)
 					exit(error::errorMessage(array('error'=>25), $link_error));
 				
-				$query = "SELECT email FROM ".$this->_tbl_user."";
+				$query = $this->_db->query('email', $this->_tbl_user);
 				if($this->valueExist($query, 'email', $email))
 					exit(error::errorMessage(array('error'=>20), $link_error));
 			}
@@ -435,15 +437,30 @@ class account extends pub {
 			if($this->_u_aut_validation) $valid = 'yes'; else $valid = 'no';
 			$publication = 'no';
 
-			$query = "INSERT INTO ".$this->_tbl_user." (
-			firstname, lastname, company, phone, fax, email, username, userpwd,
-			address, cap, city, nation, text, pub, role, date, valid, privacy
-			) VALUES (
-			'$firstname', '$lastname', '$company', '$phone', '$fax', '$email', '$username', '$password',
-			'$address', '$cap', '$city', '$nation', '$text', '$publication', '$role', '$date', '$valid', '$privacy'
-			)";
-			$result = $this->_db->actionquery($query);
-
+			$result = $this->_db->insert(
+				array(
+					'firstname'=>$firstname, 
+					'lastname'=>$lastname, 
+					'company'=>$company, 
+					'phone'=>$phone, 
+					'fax'=>$fax, 
+					'email'=>$email, 
+					'username'=>$username, 
+					'userpwd'=>$password, 
+					'address'=>$address, 
+					'cap'=>$cap, 
+					'city'=>$city, 
+					'nation'=>$nation, 
+					'text'=>$text, 
+					'pub'=>$publication, 
+					'role'=>$role, 
+					'date'=>$date, 
+					'valid'=>$valid, 
+					'privacy'=>$privacy
+				), 
+				$this->_tbl_user
+			);
+			
 			$rid = $this->_db->getlastid($this->_tbl_user);
 
 			if($result)
@@ -454,16 +471,31 @@ class account extends pub {
 				{
 					$user = new user();
 					
-					$query2 = "INSERT INTO ".$this->_tbl_user_add." VALUES ($user_id, '".$user->_other_field1."', '".$user->_other_field2."', '".$user->_other_field3."')";
-					$result2 = $this->_db->actionquery($query2);
+					$result2 = $this->_db->insert(
+						array(
+							'user_id'=>$user_id, 
+							'field1'=>$user->_other_field1, 
+							'field2'=>$user->_other_field2, 
+							'field3'=>$user->_other_field3
+						), 
+						$this->_tbl_user_add
+					);
 				}
 				
 				$this->service($user_id);
 				
 				// Invio mail
 				$session = session_id();
-				$query2 = "INSERT INTO ".$this->_tbl_user_reg." VALUES (null, $user_id, '$session')";
-				$result2 = $this->_db->actionquery($query2);
+				
+				$result2 = $this->_db->insert(
+					array(
+						'id'=>null, 
+						'user_id'=>$user_id, 
+						'session'=>$session
+					), 
+					$this->_tbl_user_reg
+				);
+				
 				$reg_id = $this->_db->getlastid($this->_tbl_user_reg);
 				$reg_link = "index.php?evt[user-confirmRegistration]&sid=".$session."&id=".$reg_id;
 					
@@ -490,19 +522,24 @@ class account extends pub {
 		}
 		elseif($action == $this->_act_modify AND !empty($user))
 		{
-			$rid = $user;
-			if(!empty($email))  $email_field = "email='$email',"; else $email_field = '';
+			$fields = array(
+				'firstname'=>$firstname, 
+				'lastname'=>$lastname, 
+				'company'=>$company, 
+				'phone'=>$phone, 
+				'fax'=>$fax, 
+				'address'=>$address, 
+				'cap'=>$cap, 
+				'city'=>$city, 
+				'nation'=>$nation, 
+				'text'=>$text
+			);
+			if(!empty($email)) $fields['email'] = $email;
 			
-			$query = "UPDATE ".$this->_tbl_user." SET
-			firstname='$firstname', lastname='$lastname', company='$company',
-			phone='$phone', fax='$fax', ".$email_field."
-			address='$address', cap='$cap', city='$city', nation='$nation',
-			text='$text'
-			WHERE user_id='$user'";
-			$result = $this->_db->actionquery($query);
+			$result = $this->_db->update($fields, $this->_tbl_user, "user_id='$user'");
 		}
 		
-		$gform->manageFile('photo', $old_file, true, $this->_extension_media, $directory, $link_error, $this->_tbl_user, 'photo', 'user_id', $rid,
+		$gform->manageFile('photo', $old_file, true, $this->_extension_media, $directory, $link_error, $this->_tbl_user, 'photo', 'user_id', $user,
 			array("prefix_file"=>user::$prefix_img, "prefix_thumb"=>user::$prefix_thumb, "width"=>user::$width_img, "thumb_width"=>user::$width_thumb));
 		
 		EvtHandler::HttpCall($this->_home, $redirect_true, $link);
@@ -614,8 +651,7 @@ class account extends pub {
 
 		$password = $this->cryptMethod($pwd, $this->_crypt);
 
-		$query = "UPDATE ".$this->_tbl_user." SET userpwd='$password' WHERE user_id='$user'";
-		$this->_db->actionquery($query);
+		$result = $this->_db->update(array('userpwd'=>$password), $this->_tbl_user, "user_id='$user'");
 
 		EvtHandler::HttpCall($this->_home, $redirect, $link);
 	}
@@ -638,8 +674,7 @@ class account extends pub {
 				
 				if(sizeof($tblname) > 0)
 				{
-					$query = "INSERT INTO ".$tblname[0]." (group_id, user_id) VALUES ('$group_id', $user_id)";
-					$result = $this->_db->selectquery($query);
+					$result = $this->_db->insert(array('group_id'=>$group_id, 'user_id'=>$user_id), $tblname[0]);
 				}
 			}
 		}
@@ -686,20 +721,16 @@ class account extends pub {
 
 		if(!empty($session) && !empty($id))
 		{
-			$query = "SELECT user_id FROM ".$this->_tbl_user_reg." WHERE id='$id' AND session='$session'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select('user_id', $this->_tbl_user_reg, "id='$id' AND session='$session'");
+			if(count($records))
 			{
-				foreach($a AS $b)
+				foreach($records AS $r)
 				{
-					$user_id = $b['user_id'];
+					$user_id = $r['user_id'];
 				}
-
-				$query2 = "UPDATE ".$this->_tbl_user." SET valid='yes' WHERE user_id='".$this->_db->getFieldFromId($this->_tbl_user_reg, 'user_id', 'id', $id)."'";
-				$result2 = $this->_db->actionquery($query2);
-
-				$query3 = "DELETE FROM ".$this->_tbl_user_reg." WHERE id='$id'";
-				$result3 = $this->_db->actionquery($query3);
+				
+				$result2 = $this->_db->update(array('valid'=>'yes'), $this->_tbl_user, "user_id='".$this->_db->getFieldFromId($this->_tbl_user_reg, 'user_id', 'id', $id)."'");
+				$result3 = $this->_db->delete($this->_tbl_user_reg, "id='$id'");
 
 				return true;
 			}

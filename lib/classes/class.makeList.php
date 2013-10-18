@@ -19,6 +19,16 @@
  * @code
  * require_once(CLASSES_DIR.OS.'class.makeList.php');
  * @endcode
+ * 
+ * I filtri di ricerca aggiuntivi devono essere implementati estendendo la classe e creando il o i metodi indicati nell'opzione @filter dell'opzione @a filter_add. \n
+ * I metodi hanno come proprietà il valore in arrivo dal campo di ricerca associato ed eventualmente un valore che funge da riferimento nella query di ricerca (opzione @a where_value dell'opzione @a filter_add). \n
+ * Se l'opzione @a where_value non è indicata, il suo valore viene impostato a null. \n
+ * Esempio:
+ * @code
+ * protected function filterWhereInscript($value, $where_value) {
+ *   //
+ * }
+ * @endcode
  */
 class makeList {
 
@@ -26,7 +36,21 @@ class makeList {
 	protected $_db, $session, $_form;
 	protected $_view;
 	
-	protected $_filter_fields, $_list_display, $_list_remove;
+	/**
+	 * Filtri per la ricerca relativi alla tabella principale (corrispondono ai nomi dei campi della tabella)
+	 * 
+	 * @var array
+	 */
+	protected $_filter_fields;
+	
+	/**
+	 * Filtri aggiuntivi associati ai campi della tabella principale (concorrono alla definizione delle loro condizioni)
+	 * 
+	 * @var array
+	 */
+	protected $_filter_add;
+	
+	protected $_list_display, $_list_remove;
 	protected $_ifp;
 	
 	/**
@@ -79,12 +103,40 @@ class makeList {
 	 * Lista dei record
 	 * 
 	 * @see setSessionSearch()
+	 * @see setSessionSearchAdd()
+	 * @see addTable()
 	 * @see addWhereClauses()
 	 * @see headsList()
+	 * @see condition()
 	 * @param object $model
 	 * @param array $options_view
 	 *   array associativo di opzioni
 	 *   - @b filter_fields (array): campi sui quali applicare il filtro per la ricerca automatica
+	 *   - @b filter_add (array): contiene le proprietà degli input form che vengono aggiunti come filtro per la ricerca automatica
+	 *     - @a field (string): nome del campo che precede l'input form aggiuntivo nel form di ricerca
+	 *     - @a name (string): nome dell'input
+	 *     - @a label (string): nome della label
+	 *     - @a data (array): elementi che compongono gli input form radio e select
+	 *     - @a input (string): tipo di input form, valori validi: radio (default), select
+	 *     - @a where_value (string)
+	 *     - @a table_add (mixed)
+	 *       string, elenco delle tabelle da aggiungere al FROM (separate da virgola), indipendentemente dai valori della ricerca
+	 *       array, elenco delle tabella nel formato: {nome_tabella}=>{valore della ricerca in riferimento al quale caricare la tabella nel FROM}
+	 *     - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estenda @a makeList() \n
+	 *     Esempio:
+	 *     @code
+	 *     'filter_add'=>array(
+	 *       array(
+	 *         'field'=>'description', 
+	 *         'label'=>_("Utenti iscritti"), 
+	 *         'name'=>'inscript', 
+	 *         'data'=>array('no'=>_("no"), 'yes'=>_("si")), 
+	 *         'where_value'=>$course_id, 
+	 *         'table_add'=>array('nome_tabella_da_aggiungere'=>'yes'), 
+	 *         'filter'=>'filterWhereInscript'
+	 *       )
+	 *     )
+	 *     @endcode
 	 *   - @b list_display (array): campi mostrati nella lista (se vuoto mostra tutti), nel formato field_name=>array(options_key=>options_value)
 	 *     - @a label (string): intestazione del campo
 	 *     - @a ordered (boolean): attivare l'ordinamento (default: true)
@@ -106,7 +158,7 @@ class makeList {
 	 *   - @b tr_class (string): classe css del tag TR utilizzato per evidenziare alcuni record
 	 * @return string
 	 * 
-	 * @example Per mettere in evidenza alcuni record con la classe di css 'tr_class' si può inserire nel ciclo: 
+	 * @example Per mettere in evidenza alcuni record con la classe di css @a tr_class si può inserire nel ciclo: 
 	 * @code
 	 * foreach($this->_list_display AS $key=>$options_field) { ... }
 	 * @endcode 
@@ -121,6 +173,7 @@ class makeList {
 	public function printList($options=array()) {
 		
 		$this->_filter_fields = gOpt('filter_fields', $options, array());
+		$this->_filter_add = gOpt('filter_add', $options, array());
 		$this->_list_display = gOpt('list_display', $options, array());
 		$this->_ifp = gOpt('items_for_page', $options, 20);
 		$list_title = gOpt('list_title', $options, '');
@@ -151,6 +204,11 @@ class makeList {
 		// filter form
 		$tot_ff = count($this->_filter_fields);
 		if($tot_ff) $this->setSessionSearch($this->_instance_name);
+		
+		$tot_ff_add = count($this->_filter_add);
+		if($tot_ff_add) $this->setSessionSearchAdd($this->_instance_name, $this->_filter_add);
+
+		$query_table = $this->addTable($query_table);
 
 		// filters
 		if($tot_ff) {
@@ -173,6 +231,10 @@ class makeList {
 		
 		if(count($records))
 		{
+			$form = $this->form($options);
+			$form_start = $form['start'];
+			$form_end = $form['end'];
+			
 			foreach($records as $r)
 			{
 				$row = array();
@@ -182,7 +244,14 @@ class makeList {
 				{
 					$field_view = array_key_exists('view', $options_field) ? $options_field['view'] : true;
 					if($field_view)
-						$row[] = htmlChars($r[$key]);
+					{
+						$value = $this->condition($key, $r[$key]);
+						
+						if(!is_null($value))
+							$row[] = $value;
+						else
+							$row[] = htmlChars($r[$key]);
+					}
 				}
 				
 				$links = array();
@@ -200,8 +269,15 @@ class makeList {
 				$rows[] = array_merge($row, $buttons);
 			}
 		}
+		else
+		{
+			$form_start = null;
+			$form_end = null;
+		}
 		
 		$this->_view->setViewTpl('table');
+		$this->_view->assign('form_start', $form_start);
+		$this->_view->assign('form_end', $form_end);
 		$this->_view->assign('class', 'generic');
 		$this->_view->assign('caption', '');
 		$this->_view->assign('tr_class', $tr_class);
@@ -222,6 +298,57 @@ class makeList {
 		$this->_view->assign('psummary', $pagelist->reassumedPrint());
 
 		return $this->_view->render();
+	}
+	
+	/**
+	 * Condizioni da verificare con le celle della tabella per (eventualmente) personalizzare l'output
+	 * 
+	 * Se il metodo ritorna un valore nullo, la cella di tabella mostrerà il valore come da database.
+	 * 
+	 * @param string $name nome del campo
+	 * @param string $value valore del campo
+	 * @return mixed
+	 * 
+	 * Esempio:
+	 * @code
+	 * if($name == 'valid')
+	 * {
+	 *   $print = $value ? _("si") : _("no");	// $value is boolean
+	 * }
+	 * else $print = null;
+	 * 
+	 * return $print;
+	 * @endcode
+	 */
+	protected function condition($name, $value) {
+		
+		return null;
+	}
+	
+	/**
+	 * Permette di gestire un form associato alla lista dei record
+	 * 
+	 * @param array $options array associativo di opzioni in arrivo dal metodo prinList()
+	 * @return array('start', 'end')
+	 * 
+	 * Per creare un form occorre istanziare la classe e sovrascrivere il metodo. \n
+	 * Esempio:
+	 * @code
+	 * $gform = new Form('name_form', 'post', false);
+	 * $form_start = $gform->form($form_action, false, '');
+	 * $form_start .= $gform->hidden('rid', $reference);
+	 * $form_start .= $gform->hidden('order', $order);
+	 * $form_start .= $gform->hidden('start', $pagelist->start());
+	 * 
+	 * $form_end = $gform->cinput('submit', 'submit', _("iscrivi"), '', array("classField"=>'submit'));
+	 * $form_end .= $gform->cform();
+	 * 
+	 * return array('start'=>$form_start, 'end'=>$form_end);
+	 * @endcode
+	 */
+	protected function form($options=array()) {
+		
+		return array('start'=>null, 'end'=>null);
 	}
 	
 	/**
@@ -255,7 +382,8 @@ class makeList {
 
 	/**
 	 * Setta le variabili di sessione usate per filtrare i record nella lista amministrativa
-	 *
+	 * 
+	 * @see clean()
 	 * @param string $instance_name
 	 * @return void
 	 */
@@ -282,14 +410,94 @@ class makeList {
 		}
 	}
 	
+	/**
+	 * Setta le variabili di sessione usate per filtrare i record nella lista amministrativa (riferimento a tabelle aggiuntive)
+	 * 
+	 * @see clean()
+	 * @param string $instance_name
+	 * @param array $filters elenco dei filtri
+	 * @return void
+	 */
+	protected function setSessionSearchAdd($instance_name, $filters) {
+
+		foreach($filters as $array) {
+
+			if(is_array($array) && array_key_exists('name', $array))
+			{
+				$fname = $array['name'];
+				
+				if(!isset($this->session->{$instance_name.'_'.$fname.'_filter'})) {
+					$this->session->{$instance_name.'_'.$fname.'_filter'} = null;
+				}
+			}
+		}
+
+		if(isset($_POST['ats_submit'])) {
+
+			foreach($filters as $array) {
+				
+				if(is_array($array) && array_key_exists('name', $array))
+				{
+					$fname = $array['name'];
+					
+					if(isset($_POST[$fname]) && $_POST[$fname] !== '') {
+						$this->session->{$instance_name.'_'.$fname.'_filter'} = $this->clean($fname, $array);
+					}
+					else {
+						$this->session->{$instance_name.'_'.$fname.'_filter'} = null;
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Permette di aggiungere tabelle all'elenco delle tabelle nel FROM della query
+	 * 
+	 * @param array $tables elenco tabelle presenti nell'opzione @a query_table (vedi printList())
+	 * @return array
+	 */
+	protected function addTable($tables) {
+		
+		foreach($this->_filter_add AS $array)
+		{
+			$ff_name = $array['name'];
+			
+			if(isset($this->session->{$this->_instance_name.'_'.$ff_name.'_filter'}))
+			{
+				$ff_value = $this->session->{$this->_instance_name.'_'.$ff_name.'_filter'};
+				
+				if(array_key_exists('table_add', $array) && !is_null($ff_value))
+				{
+					$table_add = $array['table_add'];
+					if(is_string($table_add))
+					{
+						$tables[] = $table_add;
+					}
+					elseif(is_array($table_add))
+					{
+						foreach ($table_add AS $key=>$value)
+						{
+							if($value == $ff_value)
+								$tables[] = $key;
+						}
+					}
+				}
+			}
+		}
+		
+		return $tables;
+	}
+	
 	protected function clean($name, $options=null) {
 		
 		return cleanVar($_POST, $name, 'string', null, $options);
 	}
-
+	
 	/**
 	 * Setta la condizione where usata per filtrare i record nell'elenco
-	 *
+	 * 
+	 * @see addWhereExtra()
 	 * @param array $query_where
 	 * @param string $instance_name
 	 * @param array $options
@@ -300,6 +508,8 @@ class makeList {
 	 *     - @a equal
 	 *     - @a like (default)
 	 * @return string (the where clause)
+	 * 
+	 * Le condizioni legate ai filtri aggiuntivi vengono caricate soltanto se risultano non nulle.
 	 */
 	protected function addWhereClauses(&$query_where, $instance_name, $options=array()) {
 
@@ -329,12 +539,80 @@ class makeList {
 				}
 			}
 		}
+
+		// Filtri aggiuntivi non associati ai campi "regolari"
+		if(count($this->_filter_add))
+		{
+			$where_add = $this->addWhereExtra($instance_name);
+			
+			if(count($where_add))
+			{
+				foreach($where_add AS $value)
+				{
+					if(!is_null($value)) $query_where[] = $value;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Definizione delle condizioni di ricerca aggiuntive a quelle sui campi della tabella di riferimento
+	 * 
+	 * @param string $instance_name nome dell'istanza
+	 * @return array
+	 * 
+	 * Esempio di filtro di ricerca da implementare:
+	 * @code
+	 * protected function filterWhereInscript($value, $where_value) {
+	 *   
+	 *   $where = null;
+	 *   
+	 *   if(!is_null($value))
+	 *   {
+	 *     if($value == 'yes')
+	 *     {
+	 *       $where = 'user.id=join_user.user_id AND join_user.ref_id='$where_value'";
+	 *     }
+	 *     elseif($value == 'no')
+	 *     {
+	 *       $where = "user.id NOT IN (SELECT user_id FROM join_user WHERE ref_id='$where_value')";
+	 *     }
+	 *   }
+	 *   return $where;
+	 * }
+	 * @endcode
+	 */
+	private function addWhereExtra($instance_name) {
+		
+		$where = array();
+		
+		foreach($this->_filter_add AS $array)
+		{
+			$ff_name = $array['name'];
+			
+			if(isset($this->session->{$instance_name.'_'.$ff_name.'_filter'}))
+			{
+				$ff_value = $this->session->{$instance_name.'_'.$ff_name.'_filter'};
+			}
+			else
+			{
+				$ff_value = null;
+			}
+			$ff_where_value = array_key_exists('where_value', $array) ? $array['where_value'] : null;
+			$ff_filter = $array['filter'];
+			
+			if($ff_filter) $where[] = $this->{$ff_filter}($ff_value, $ff_where_value);
+		}
+		
+		return $where;
 	}
 
 	/**
 	 * Form per filtraggio record
 	 * 
-	 * @param string $instance_name
+	 * @see editUrl()
+	 * @see formFiltersAdd()
+	 * @param string $instance_name nome dell'istanza
 	 * @return il form
 	 */
 	protected function formFilters($instance_name) {
@@ -349,8 +627,10 @@ class makeList {
 			$field_label = array_key_exists('label', $this->_list_display[$fname]) ? $this->_list_display[$fname]['label'] : ucfirst($fname);
 			
 			$form .= $gform->cinput($fname, 'text', $field_value, $field_label, array('required'=>false));
+			
+			$form .= $this->formFiltersAdd($this->_filter_add, $fname, $instance_name, $gform);
 		}
-
+		
 		$onclick = "onclick=\"$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {
 			if(el.get('type')==='text') el.value='';
 			else if(el.get('type')==='radio') el.removeProperty('checked');
@@ -361,6 +641,51 @@ class makeList {
 		$form .= $gform->cinput('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
 		$form .= $gform->cform();
 
+		return $form;
+	}
+	
+	/**
+	 * Input form dei filtri aggiuntivi
+	 * 
+	 * @param array $filters elenco dei filtri
+	 * @param string $fname nome del campo della tabella al quale far seguire gli eventuali filtri aggiuntivi
+	 * @param string $instance_name nome dell'istanza
+	 * @param object $gform
+	 * @return string
+	 */
+	private function formFiltersAdd($filters, $fname, $instance_name, $gform) {
+		
+		$form = '';
+		
+		if(count($filters))
+		{
+			foreach($filters AS $array)
+			{
+				$field = gOpt('field', $array, null);
+				
+				if(($field && $field == $fname))
+				{
+					$ff_name = $array['name'];
+					$ff_value = $this->session->{$instance_name.'_'.$ff_name.'_filter'};
+					$ff_label = gOpt('label', $array, '');
+					$ff_data = gOpt('data', $array, array());
+					$ff_input = gOpt('input', $array, 'radio');
+					
+					if($ff_input == 'radio')
+					{
+						$form .= $gform->cradio($ff_name, $ff_value, $ff_data, '', $ff_label, array('required'=>false));
+					}
+					elseif($ff_input == 'select')
+					{
+						$form .= $gform->cselect($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+					}
+					else
+					{
+						$form .= $gform->cinput($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
+					}
+				}
+			}
+		}
 		return $form;
 	}
 

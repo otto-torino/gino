@@ -1,7 +1,7 @@
 <?php
 /**
- * @file plugin.mysql.php
- * @brief Contiene la classe mysql
+ * @file plugin.mssql.php
+ * @brief Contiene la classe mssql
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class mysql implements DbManager {
+class mssql implements DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;
@@ -71,21 +71,21 @@ class mysql implements DbManager {
 	 */
 	public function openConnection() {
 
-		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
+		if($this->_dbconn = mssql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
 			
-			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR MYSQL: ".mysql_error());
+			@mssql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR MYSQL: ".mysql_error());
 			if($this->_db_charset=='utf-8') $this->setUtf8();
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify the parameters of connection");	// debug -> die("ERROR MYSQL: ".mysql_error());
+			die("ERROR DB: verify the parameters of connection");
 		}
 	}
 
 	private function setUtf8() {
-		$db_charset = mysql_query("SHOW VARIABLES LIKE 'character_set_database'");
-		$charset_row = mysql_fetch_assoc($db_charset);
-		mysql_query("SET NAMES '" . $charset_row['Value'] . "'");
+		$db_charset = mssql_query("SHOW VARIABLES LIKE 'character_set_database'");
+		$charset_row = mssql_fetch_assoc($db_charset);
+		mssql_query("SET NAMES '" . $charset_row['Value'] . "'");
 		unset($db_charset, $charset_row);
 	}
 
@@ -97,7 +97,7 @@ class mysql implements DbManager {
 	public function closeConnection() {
 
 		if($this->_connection){
-			mysql_close($this->_dbconn);
+			mssql_close($this->_dbconn);
 		}
 	}
 	
@@ -111,7 +111,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -129,7 +129,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -147,7 +147,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -164,7 +164,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 
 		return $this->_qry ? true:false;
 	}
@@ -174,11 +174,12 @@ class mysql implements DbManager {
 	 */
 	public function multiActionquery($qry) {
 	
-		$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		/*$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 		$this->setsql($qry);
 		$this->_qry = mysqli_multi_query($conn, $this->_sql);
 
-		return $this->_qry ? true:false;
+		return $this->_qry ? true:false;*/
+		return false;
 	}
 
 	/**
@@ -190,16 +191,16 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 		if(!$this->_qry) {
 			return false;
 		} else {
 			// initialize array results
 			$this->_dbresults = array();
 			
-			$this->setnumberrows(mysql_num_rows($this->_qry));
+			$this->setnumberrows(mssql_num_rows($this->_qry));
 			if($this->_numberrows > 0){
-				while($this->_rows=mysql_fetch_assoc($this->_qry))
+				while($this->_rows=mssql_fetch_assoc($this->_qry))
 				{
 					$this->_dbresults[]=$this->_rows;
 				}
@@ -214,7 +215,7 @@ class mysql implements DbManager {
 	 */
 	private function freeresult(){
 	
-		mysql_free_result($this->_qry);
+		mssql_free_result($this->_qry);
 	}
 	
 	/**
@@ -226,11 +227,11 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = mssql_query($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
-			$this->setnumberrows(mysql_num_rows($this->_qry));
+			$this->setnumberrows(mssql_num_rows($this->_qry));
 			return $this->_numberrows;
 		}
 	}
@@ -240,20 +241,23 @@ class mysql implements DbManager {
 	 */
 	public function affected() 
 	{ 
-		$this->_affected = mysql_affected_rows();
+		$this->_affected = mssql_rows_affected();
 		return $this->_affected;
 	}
 	
 	/**
-	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query
-	 * 
 	 * @see DbManager::getlastid()
 	 */
 	public function getlastid($table)
 	{ 
 		if($this->affected() > 0)
 		{
-			$this->_lastid = mysql_insert_id();
+			$id = 0;
+    		$res = mssql_query("SELECT SCOPE_IDENTITY() AS id"); 
+    		if($row = mssql_fetch_array($res, MSSQL_ASSOC)) { 
+        		$id = $row["id"]; 
+    		} 
+    		$this->_lastid = $id;
 		}
 		else
 		{
@@ -269,13 +273,13 @@ class mysql implements DbManager {
 	 */
 	public function autoIncValue($table){
 
-		$query = "SHOW TABLE STATUS LIKE '$table'";
+		$res = mssql_query("SELECT IDENT_CURRENT('$table') AS NextId");
 		$a = $this->selectquery($query);
 		if(sizeof($a) > 0)
 		{
 			foreach ($a AS $b)
 			{
-				$auto_increment = $b['Auto_increment'];
+				$auto_increment = $b['NextId'];
 			}
 		}
 		else $auto_increment = 0;
@@ -306,14 +310,12 @@ class mysql implements DbManager {
 	 */
 	public function tableexists($table){
 		
-		$query = "SHOW TABLES FROM `".$this->_db_name."`";
-		$result = mysql_query($query);
-		$data = mysql_num_rows($result);
-
-		for ($i=0; $i<$data; $i++) {
-			if(mysql_tablename($result, $i) == $table) return true;
-		}
-		return false;
+		$query = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".DB_SCHEMA."' AND TABLE_TYPE='BASE TABLE' AND TABLE_NAME='$table'";
+		$a = $this->selectquery($query);
+		if($a)
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -324,18 +326,17 @@ class mysql implements DbManager {
 		if($this->_connection) {
 			$this->openConnection();
 		}
-		$this->setsql("SELECT * FROM ".$table." LIMIT 0,1");
-		$this->_qry = mysql_query($this->_sql);
-		
+		$this->setsql("SELECT TOP 1 * FROM ".$table);
+		$this->_qry = mssql_query($this->_sql);
 		if(!$this->_qry) {
 			return false;
 		} else {
 			// initialize array results
 			$meta = array();
 			$i = 0;
-			while($i < mysql_num_fields($this->_qry)) {
-				$meta[$i] = mysql_fetch_field($this->_qry, $i);
-				$meta[$i]->length = mysql_field_len($this->_qry, $i);
+			while($i < mssql_num_fields($this->_qry)) {
+				$meta[$i] = mssql_fetch_field($this->_qry, $i);
+				$meta[$i]->length = mssql_field_length($this->_qry, $i);
 				$i++;
 			}
 			$this->freeresult();
@@ -348,7 +349,15 @@ class mysql implements DbManager {
 	 */
 	public function limit($range, $offset){
 		
-		$limit = "LIMIT $offset, $range";
+		// SELECT TOP 20 * ...
+		// BETWEEN @offset+1 AND @offset+@count;
+		
+		if(!$offset)
+			$limit = "TOP $range";
+		else
+			$limit = "";
+		
+		//$limit = "BETWEEN $offset AND $range";
 		return $limit;
 	}
 	
@@ -361,8 +370,18 @@ class mysql implements DbManager {
 		{
 			if(sizeof($sequence) > 1)
 			{
-				$string = implode(',', $sequence);
-				$concat = "CONCAT($string)";
+				/*$sequence2 = array();
+				foreach($sequence AS $value)
+				{
+					if(is_int($value))
+					{
+						$len = strlen($value);
+						$value = "CAST($value AS VARCHAR($len))";
+					}
+					
+					$sequence2[] = $value;
+				}*/
+				$concat = implode(' + ', $sequence);
 			}
 			else $concat = $sequence[0];
 		}
@@ -416,31 +435,97 @@ class mysql implements DbManager {
 		$structure = array("primary_key"=>null, "keys"=>array());
 		$fields = array();
 
-		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = mysql_query($query);
+		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='".$this->_db_name."' AND TABLE_NAME='$table'";
+		$res = mssql_query($query);
 
 		while($row = mysql_fetch_array($res)) {
 			
-			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
-			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
+			$query_key = "SELECT CONSTRAINT_NAME, UNIQUE_CONSTRAINT_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS";
+			$a = $this->selectquery($query_key);
+			if(sizeof($a) > 0)
+			{
+				foreach($a AS $b)
+				{
+					$fk = $b['CONSTRAINT_NAME'];
+					$uq = $b['UNIQUE_CONSTRAINT_NAME'];
+				}
+			}
+/*
+CONSTRAINT_NAME  UNIQUE_CONSTRAINT_NAME
+---------------  ----------------------------
+FK_UQ            UQ
+*/
+					
+			//preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
+			//preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
 			$fields[$row['COLUMN_NAME']] = array(
 				"order"=>$row['ORDINAL_POSITION'],
 				"default"=>$row['COLUMN_DEFAULT'],
 				"null"=>$row['IS_NULLABLE'],
 				"type"=>$row['DATA_TYPE'],
 				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
-				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
-				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
+				//"n_int"=>isset($matches[2]) ? $matches[2] : 0,
+				//"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
+				"n_int"=>$row['NUMERIC_PRECISION'],
+				"n_precision"=>$row['NUMERIC_PRECISION_RADIX'],
 				"key"=>$row['COLUMN_KEY'],
 				"extra"=>$row['EXTRA'] ,
-				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
+				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null	/////
 			);
-			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
-			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
+			
+			$primary = $this->getInformationKey($row['COLUMN_NAME'], $table);
+			$keys = $this->getInformationKey($row['COLUMN_NAME'], $table, 'foreign');
+			
+			if($primary) $structure['primary_key'] = $primary;
+			if($keys) $structure['keys'][] = $keys;
 		}
 		$structure['fields'] = $fields;
 
 		return $structure;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param string $column
+	 * @param string $table
+	 * @param string $key nome della chiave da ricercare (primary, foreign, unique)
+	 * @return mixed
+	 */
+	private function getInformationKey($column, $table, $key=null) {
+		
+		if($key == 'foreign')
+			$key_name = 'FOREIGN KEY';
+		elseif($key == 'unique')
+			$key_name = 'UNIQUE KEY';
+		else
+			$key_name = 'PRIMARY KEY';
+		
+		$array = array();
+		$query = "
+			SELECT K.COLUMN_NAME, K.CONSTRAINT_NAME
+			FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C
+			JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K
+			ON C.TABLE_NAME = K.TABLE_NAME
+			AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG
+			AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA
+			AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME
+			WHERE C.CONSTRAINT_TYPE = '$key_name'
+			AND K.COLUMN_NAME = '$column'
+			AND K.TABLE_NAME = '$table'";
+		$a = $this->selectquery($query);
+		if(sizeof($a) > 0)
+		{
+			foreach($a AS $b)
+			{
+				$array[] = $b['COLUMN_NAME'];
+			}
+		}
+		
+		if($key == 'primary')
+			return $array[0];
+		else
+			return $array;
 	}
 
 	/**
@@ -449,13 +534,17 @@ class mysql implements DbManager {
 	public function getFieldsName($table) {
 
 		$fields = array();
-		$query = "SHOW COLUMNS FROM ".$table;
-
-		$res = mysql_query($query);
-		while($row = mysql_fetch_assoc($res)) {
+		
+		$query = "SELECT COLUMN_NAME AS Field
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '".DB_SCHEMA."'
+		AND TABLE_NAME = '$table'";
+		
+		$res = mssql_query($query);
+		while($row = mssql_fetch_assoc($res)) {
 			$results[] = $row;
 		}
-		mysql_free_result($res);
+		mssql_free_result($res);
 
 		foreach($results as $r) {
 			$fields[] = $r['Field'];
@@ -631,16 +720,10 @@ class mysql implements DbManager {
 	 */
 	public function escapeString($string) {
 		
-		return mysql_real_escape_string($string);
+		$string = str_replace("'", "''", $string);
+		$string = str_replace("\0", "[NULL]", $string);
+		return $string;
 	}
-	
-	/**
-	MSSQL {
-	$string = str_replace("'", "''", $string);
-	$string = str_replace("\0", "[NULL]", $string);
-	return $string;
-	}
-	 */
 }
 
 ?>

@@ -132,24 +132,23 @@
 	
 		if($this->_p['id']) { 
 			if(!sizeof($this->_chgP)) return true;
-			$query = "UPDATE $this->_tbl_data SET ";
-			$sets = array();
-			foreach($this->_chgP as $pName) $sets[] = "`$pName`='{$this->_p[$pName]}'";
-			$query .= implode(',',$sets)." WHERE id='{$this->_p['id']}'";
+			
+			$fields = array();
+			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+			
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
 		}
 		else {
 			if(!sizeof($this->_chgP)) return true;
-			$chgf = "`".implode('`,`',$this->_chgP)."`";
-			$chgv = array();
-			foreach($this->_chgP as $pName) $chgv[] = "'{$this->_p[$pName]}'";
-			$query = "INSERT INTO $this->_tbl_data ($chgf) VALUES (".implode(",",$chgv).")";
+			
+			$fields = array();
+			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+			
+			$result = $this->_db->insert($fields, $this->_tbl_data);
 		}
 		
-		if($query) {
-			$result = $this->_db->actionquery($query);
-			if(!$result) {
-				return array('error'=>9);
-			}
+		if(!$result) {
+			return array('error'=>9);
 		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
@@ -165,8 +164,10 @@
 	public function deleteDbData() {
 	
 		language::deleteTranslations($this->_tbl_data, $this->_p['id']);
-		$query = "DELETE FROM $this->_tbl_data WHERE id='{$this->_p['id']}'";
-		return $this->_db->actionquery($query);
+		
+		$result = $this->_db->delete($this->_tbl_data, "id='{$this->_p['id']}'");
+		
+		return $result;
 	}
 	
 	/**
@@ -283,9 +284,9 @@
 
  		if($id)
 		{
-			$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a)>0) $this->_p = $a[0];
+			$records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
+			if(count($records))
+				$this->_p = $records[0];
 		}
  		
  		$cache = new dataCache();

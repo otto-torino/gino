@@ -290,11 +290,11 @@ class Document {
 
 		if($mdlType=='sysclass') {
 
-			$query = "SELECT name, $field FROM $this->_tbl_module_app WHERE id='$mdlId'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0) {
-				$name = htmlChars($a[0]['name']);
-				$role = htmlChars($a[0][$field]);
+			$records = $this->_db->select("name, $field", $this->_tbl_module_app, "id='$mdlId'");
+			if(count($records))
+			{
+				$name = htmlChars($records[0]['name']);
+				$role = htmlChars($records[0][$field]);
 				if(!($this->_session_role <= $role)) return '';
 			}
 			else return '';
@@ -302,11 +302,12 @@ class Document {
 			$buffer = $classObj->$mdlFunc();
 		}
 		elseif($mdlType=='class') {
-			$query = "SELECT class, $field FROM $this->_tbl_module WHERE id='$mdlId'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0) {
-				$class = htmlChars($a[0]['class']);
-				$role = htmlChars($a[0][$field]);
+			
+			$records = $this->_db->select("class, $field", $this->_tbl_module, "id='$mdlId'");
+			if(count($records))
+			{
+				$class = htmlChars($records[0]['class']);
+				$role = htmlChars($records[0][$field]);
 				if(!($this->_session_role <= $role)) return '';
 			}
 			else return '';
@@ -321,14 +322,13 @@ class Document {
 
 		$GINO = '';
 		
-		$query = "SELECT name, role1 FROM ".$this->_tbl_module." WHERE id='$id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('name, role1', $this->_tbl_module, "id='$id'");
+		if(count($records))
 		{
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$name = htmlChars($b['name']);
-				$role = htmlChars($b['role1']);
+				$name = htmlChars($r['name']);
+				$role = htmlChars($r['role1']);
 			}
 		}
 		

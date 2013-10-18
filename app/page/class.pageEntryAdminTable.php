@@ -71,7 +71,7 @@ class pageEntryAdminTable extends adminTable {
 	 * In corrispondenza del campo @a slug mostra l'indirizzo completo della pagina
 	 */
 	public function adminList($model, $options_view=array()) {
-
+		
 		// $this->permission($options_view);
 		
 		$db = db::instance();
@@ -81,6 +81,8 @@ class pageEntryAdminTable extends adminTable {
 
 		// some options
 		$this->_filter_fields = gOpt('filter_fields', $options_view, array());
+		$this->_filter_join = gOpt('filter_join', $options_view, array());
+		$this->_filter_add = gOpt('filter_add', $options_view, array());
 		$this->_list_display = gOpt('list_display', $options_view, array());
 		$this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
 		$this->_ifp = gOpt('items_for_page', $options_view, 20);
@@ -116,7 +118,13 @@ class pageEntryAdminTable extends adminTable {
 
 		// filter form
 		$tot_ff = count($this->_filter_fields);
-		if($tot_ff) $this->setSessionSearch($model);	
+		if($tot_ff) $this->setSessionSearch($model);
+		
+		$tot_ff_join = count($this->_filter_join);
+		if($tot_ff_join) $this->setSessionSearchAdd($model, $this->_filter_join);
+		
+		$tot_ff_add = count($this->_filter_add);
+		if($tot_ff_add) $this->setSessionSearchAdd($model, $this->_filter_add);
 
 		// managing instance
 		$query_where = array();
@@ -130,7 +138,7 @@ class pageEntryAdminTable extends adminTable {
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
-		$query_where_no_filters = implode(' AND ', $query_where);
+    	$query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
@@ -138,8 +146,8 @@ class pageEntryAdminTable extends adminTable {
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-		$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
-		$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
+    	$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+    	$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
 		$tot_records = $tot_records_result[0]['tot'];
@@ -159,8 +167,6 @@ class pageEntryAdminTable extends adminTable {
 			{
 				$model_label = $model_structure[$field_name]->getLabel();
 				$label = is_array($model_label) ? $model_label[0] : $model_label;
-				
-				if($field_name == 'slug') $label = _("Indirizzo");
 
 				if($field_obj->canBeOrdered()) {
 
@@ -218,10 +224,10 @@ class pageEntryAdminTable extends adminTable {
 						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
 						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
 						
+						if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;	// NEW
+						
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
-					
-					if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;
 					
 					$row[] = $record_value;
 				}

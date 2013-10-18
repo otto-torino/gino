@@ -245,32 +245,16 @@ class pub extends EvtHandler{
 	
 	private function setLngDftName(){
 		
-		$query = "SELECT language FROM ".$this->_tbl_language." WHERE code='".$this->_lng_dft."'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach($a AS $b)
-			{
-				$language = htmlChars($b['language']);
-			}
-		}
-		else $language = '';
+		$language = $this->_db->getFieldFromId($this->_tbl_language, 'language', 'code', $this->_lng_dft);
+		if($language) $language = htmlChars($language);
 		
 		$this->_lng_dft_name = $language;
 	}
 	
 	private function setLngNavName(){
 		
-		$query = "SELECT language FROM ".$this->_tbl_language." WHERE code='".$this->_lng_nav."'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach($a AS $b)
-			{
-				$language = htmlChars($b['language']);
-			}
-		}
-		else $language = '';
+		$language = $this->_db->getFieldFromId($this->_tbl_language, 'language', 'code', $this->_lng_nav);
+		if($language) $language = htmlChars($language);
 		
 		$this->_lng_nav_name = $language;
 	}
@@ -378,19 +362,19 @@ class pub extends EvtHandler{
 
 		$instance = (isset($this->_instance))?$this->_instance:0; // 0 means the class cannot have multi instances
 		
-		$query = "SELECT id, $option FROM ".$tbl_name." WHERE instance='".$instance."'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b)
+		$records = $this->_db->select("id, $option", $tbl_name, "instance='".$instance."'");
+		if(count($records))
+		{
+			foreach($records AS $r)
 			{
 				if(is_bool($options)) $trsl = $options;	// for compatibility with old version
 				elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
 				else $trsl = false;
 				
 				if($trsl && $this->_multi_language=='yes')
-					$value = $this->_trd->selectTXT($tbl_name, $option, $b['id']);
+					$value = $this->_trd->selectTXT($tbl_name, $option, $r['id']);
 				else
-					$value = $b[$option];
+					$value = $r[$option];
 			}
 		}
 		else
@@ -419,11 +403,12 @@ class pub extends EvtHandler{
 	
 	private function userOption($option){
 		
-		$query = "SELECT id, $option FROM user_opt WHERE instance=0";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				$value = $b[$option];
+		$records = $this->_db->select("id, $option", 'user_opt', "instance=0");
+		if(count($records))
+		{
+			foreach($records AS $r)
+			{
+				$value = $r[$option];
 			}
 			return $value;
 		}
@@ -435,7 +420,9 @@ class pub extends EvtHandler{
 	 * @return string
 	 */
 	public static function getMultiLanguage() {
+		
 		$db = db::instance();
+		
 		$query = "SELECT multi_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['multi_language'];
@@ -446,7 +433,9 @@ class pub extends EvtHandler{
 	 * @return string
 	 */
 	public static function getDftLanguage() {
+		
 		$db = db::instance();
+		
 		$query = "SELECT dft_language FROM ".TBL_SYS_CONF." WHERE id=1";
 		$a = $db->selectquery($query);
 		return $a[0]['dft_language'];

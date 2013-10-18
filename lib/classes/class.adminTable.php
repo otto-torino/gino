@@ -691,7 +691,7 @@ class adminTable {
 	 *     inoltre contiene le opzioni da passare al metodo clean
 	 *     - @a value_type (string): tipo di dato (default string)
 	 *     - @a method (array): default $_POST
-	 *     - @a escape (boolean): default true
+	 *     - @a escape (boolean): default true \n
 	 *     Esempio:
 	 *     @code
 	 *     array(
@@ -712,7 +712,7 @@ class adminTable {
 	 *     inoltre contiene le opzioni da passare al metodo clean
 	 *     - @a value_type (string): tipo di dato (default string)
 	 *     - @a method (array): default $_POST
-	 *     - @a escape (boolean): default true
+	 *     - @a escape (boolean): default true \n
 	 *     Esempio:
 	 *     @code
 	 *     array(
@@ -816,7 +816,7 @@ class adminTable {
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
-    $query_where_no_filters = implode(' AND ', $query_where);
+    	$query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
@@ -824,8 +824,8 @@ class adminTable {
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-    $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
-    $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
+    	$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+    	$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
 		$tot_records = $tot_records_result[0]['tot'];

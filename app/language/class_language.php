@@ -899,10 +899,12 @@ class language extends AbstractEvtClass{
 			$GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>$width, "rows"=>4, "id"=>'trnsl_'.$field));
 	 	}
 	 	elseif($type == $this->_fckeditor_field) {
-			$onclick = "ajaxRequest('post', '".$url."', 'type=$type&tbl=$tbl&field=$field&id_value=$id_value&text='+escape(CKEDITOR.instances['trnsl_".$field."'].getData())+'&lng_code=$lng_code&action=$action', '".$tbl.$field."', {'script':true})";
+			$onclick = "ajaxRequest('post', '".$url."', 'type=$type&tbl=$tbl&field=$field&id_value=$id_value&text='+encodeURIComponent(CKEDITOR.instances['trnsl_".$field."'].getData())+'&lng_code=$lng_code&action=$action', '".$tbl.$field."', {'script':true})";
+			
 			$GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>40, "rows"=>4, "id"=>'trnsl_'.$field));
 	 	}
 	 	$onclick = "onclick=\"$onclick\"";
+	 	
 		$GINO .= "<p>".$myform->input('submit', 'button', _("applica"), array("classField"=>"submit", "js"=>$onclick))."</p>";
 
 		$GINO .= "</div>";
@@ -920,13 +922,17 @@ class language extends AbstractEvtClass{
 	 	
 	 	$this->accessType($this->_access_2);
 	 	
-		$action = cleanVar($_POST, 'action', 'string', '');
+	 	$action = cleanVar($_POST, 'action', 'string', '');
 		$type = cleanVar($_POST, 'type', 'string', '');
-		if($type == $this->_input_field || $type == $this->_textarea_field) $text = cleanVar($_POST, 'text', 'string', '');
+		if($type == $this->_input_field || $type == $this->_textarea_field) {
+			$text = cleanVar($_POST, 'text', 'string', '');
+		}
 		elseif($type == $this->_fckeditor_field) {
+			
 			$text = cleanVarEditor($_POST, 'text', '');
-			$text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($text));
-			$text = html_entity_decode($text,null,'UTF-8');
+			
+			// Verificare (old version) -> combinata con ...&text='+escape(CKEDITOR.instances... (riga 902)
+			//$text = utf8_urldecode($text);
 		}
 	 	$lng_code = cleanVar($_POST, 'lng_code', 'string', '');
 	 	$tbl = cleanVar($_POST, 'tbl', 'string', '');

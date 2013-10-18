@@ -208,7 +208,7 @@ class sysconf extends AbstractEvtClass{
 			$GINO .= "<tr><td class=\"confLabel_tooltipfull\" title=\""._("Descrizione del sito::Descrizione che compare nei meta tag e letta dai motori di ricerca.")."\">$t_head_description</td>";
 			$GINO .= "<td class=\"confValue\">".$head_description."</td></tr>";
 
-			$GINO .= "<tr><td class=\"confLabel_tooltipfull\" title=\""._("Parole chiave::Parole chiave che rappresentano i contenuti del sito, lette dai mtori di ricerca.")."\">$t_head_keywords</td>";
+			$GINO .= "<tr><td class=\"confLabel_tooltipfull\" title=\""._("Parole chiave::Parole chiave che rappresentano i contenuti del sito, lette dai motori di ricerca.")."\">$t_head_keywords</td>";
 			$GINO .= "<td class=\"confValue\">".$head_keywords."</td></tr>";
 
 			$GINO .= "<tr><td class=\"confLabel_tooltipfull\" title=\""._("Titolo sito::Titolo del sito visualizzato nella finestra/scheda dei Browser")."\">$t_head_title</td>";

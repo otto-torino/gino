@@ -9,6 +9,9 @@
  * @copyright 2005 Otto srl [MIT License](http://www.opensource.org/licenses/mit-license.php)
  */
 
+/**
+ * Alcune costanti generali
+ */
 include_once(LIB_DIR.OS."const.php");
 
 include_once(CLASSES_DIR.OS."cache.php");

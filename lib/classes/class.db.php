@@ -251,9 +251,23 @@ interface DbManager {
 	public function getNumRecords($table, $where, $field);
 	
 	/**
-	 * Costruisce ed esegue una query
+	 * Costruisce una query di selezione
 	 * 
 	 * @see limit()
+	 * @param mixed $fields elenco dei campi
+	 * @param mixed $tables elenco delle tabelle
+	 * @param string $where condizione della query
+	 * @param string $order ordinamento
+	 * @param array $limit valori per il range di selezione (array(offset, range))
+	 * @param boolean $debug se vero stampa a video la query
+	 * @return boolean
+	 */
+	public function query($fields, $tables, $where, $order, $limit, $debug);
+	
+	/**
+	 * Costruisce ed esegue una query di selezione
+	 * 
+	 * @see query()
 	 * @see selectquery()
 	 * @param mixed $fields elenco dei campi
 	 * @param mixed $tables elenco delle tabelle
@@ -264,6 +278,40 @@ interface DbManager {
 	 * @return boolean
 	 */
 	public function select($fields, $tables, $where, $order, $limit, $debug);
+	
+	/**
+	 * Costruisce ed esegue una query di inserimento
+	 * 
+	 * @see actionquery()
+	 * @param array $fields elenco dei campi con i loro valori, nel formato array(field1=>value1, field2=>value2)
+	 * @param string $table nome della tabella
+	 * @param boolean $debug se vero stampa a video la query
+	 * @return boolean
+	 */
+	public function insert($fields, $table, $debug);
+	
+	/**
+	 * Costruisce ed esegue una query di aggiornamento
+	 * 
+	 * @see actionquery()
+	 * @param array $fields elenco dei campi con i loro valori, nel formato array(field1=>value1, field2=>value2)
+	 * @param string $table nome della tabella
+	 * @param string $where condizione della query
+	 * @param boolean $debug se vero stampa a video la query
+	 * @return boolean
+	 */
+	public function update($fields, $table, $where, $debug);
+	
+	/**
+	 * Costruisce ed esegue una query di eliminazione
+	 * 
+	 * @see actionquery()
+	 * @param string $table nome della tabella
+	 * @param string $where condizione della query
+	 * @param boolean $debug se vero stampa a video la query
+	 * @return boolean
+	 */
+	public function delete($table, $where, $debug);
 	
 	/**
 	 * Restore di un file (ad es. di un backup)
@@ -294,6 +342,14 @@ interface DbManager {
 	 * @return string (nome del file di dump)
 	 */
 	public function dump($table, $filename, $options=array());
+	
+	/**
+	 * Aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL, tenendo conto dell'attuale set di caratteri della connessione
+	 * 
+	 * @param mixed $string 
+	 * @return mixed
+	 */
+	public function escapeString($string);
 }
 
 /**

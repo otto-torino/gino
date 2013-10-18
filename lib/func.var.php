@@ -9,22 +9,6 @@
  */
 
 /**
- * Funzione di sostituzione per Microsoft SQL Server
- * 
- * @todo verificare se serve
- * 
- * @param string $string_to_escape
- * @return string
- */
-function mssql_escape_string($string_to_escape)
-{
-	$replaced_string = str_replace("'","''",$string_to_escape);
-	$replaced_string = str_replace("\0","[NULL]",$replaced_string);
-	
-	return $replaced_string;
-}
-
-/**
  * Funzione di sostituzione per i caratteri "strani" di word
  * 
  * @param string $text
@@ -51,7 +35,7 @@ function replaceChar($text)
  * @param boolean $strip_attributes rimuove alcuni attributi html
  * @return string
  */
-function strip_tags_attributes($text, $strip_js, $strip_attributes)
+function strip_tags_attributes($text, $strip_js, $strip_attributes)	///////////
 {
 	if($strip_js)
 	{
@@ -289,7 +273,10 @@ function clean_sequence($text, $strip_tags, $options){
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
 	
 	if($escape)
-		$text = mysql_real_escape_string($text);
+	{
+		$db = db::instance();
+		$text = $db->escapeString($text);
+	}
 	
 	return $text;
 }
@@ -321,7 +308,9 @@ function cleanVarEditor($method, $name, $strip_tags)
 
 		$value = replaceChar($value);
 		$value = stripAll($value);
-		$value = mysql_real_escape_string($value);
+		
+		$db = db::instance();
+		$value = $db->escapeString($value);
 	}
 	else
 	{
@@ -331,15 +320,34 @@ function cleanVarEditor($method, $name, $strip_tags)
 }
 
 /**
+ * Conversione dei dati Unicode $_GET/$_POST, generati dalla funzione javascript escape(), in UTF8 per il processo server-side
+ * 
+ * @param string $str
+ * @return string
+ */
+function utf8_urldecode($str) {
+	
+	$str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;", urldecode($str));
+	$str = html_entity_decode($str, null, 'UTF-8');
+	
+	return $str;
+}
+
+/**
  * Prepara il testo da inserire nel database senza rimuovere il codice html
  * 
  * @param string $text testo
  * @return string
  */
-function codeDb($text) {
+function codeDb($text) {	
+	
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
-	return mysql_real_escape_string($text);
+	
+	$db = db::instance();
+	$text = $db->escapeString($text);
+	
+	return $text;
 }
 
 /**

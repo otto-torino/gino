@@ -317,7 +317,7 @@ class module extends AbstractEvtClass{
 		if(empty($class)) return '';
 
 		$GINO = $gform->startTable();
-		$GINO .= $gform->cinput('name', 'text', $gform->retvar('name', ''), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caretteri alfnumerici o underscore")));
+		$GINO .= $gform->cinput('name', 'text', $gform->retvar('name', ''), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfnumerici o underscore")));
 		$GINO .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
 		$GINO .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
 		if(method_exists($class, 'outputFunctions')) {

@@ -147,14 +147,7 @@ class Main{
 		{
 			if(!$this->session->lngDft)
 			{
-				$query = "SELECT code FROM ".$this->_tbl_language." WHERE main='yes'";
-				$result = mysql_query($query);
-				if(mysql_num_rows($result) > 0)
-				{
-					while ($row = mysql_fetch_assoc($result)) {
-						$this->session->lngDft = $row['code'];
-					}
-				}
+				$this->session->lngDft = $this->_db->getFieldFromId($this->_tbl_language, 'code', 'main', 'yes');
 			}
 
 			// language
@@ -207,21 +200,19 @@ class Main{
 				{
 					$country = strtoupper($array[1]);
 					$language = $lang.'_'.$country;
-
-					$query = "SELECT code FROM ".$this->_tbl_language." WHERE code='$language'";
-					$result = mysql_query($query);
-					if(mysql_num_rows($result) > 0) return $language;
+					
+					$search_code = $this->_db->getFieldFromId($this->_tbl_language, 'code', 'code', $language);
+					if($search_code) return $language;
 				}
 				elseif(sizeof($array) == 1)
 				{
-					$query = "SELECT code, main FROM ".$this->_tbl_language." WHERE active='yes'";
-					$result = mysql_query($query);
-					if(mysql_num_rows($result) > 0)
+					$records = $this->_db->select('code, main', $this->_tbl_language, "active='yes'");
+					if(count($records))
 					{
-						while ($row = mysql_fetch_assoc($result)) {
-
-							$lang_from_db = explode('_', $row['code']);
-							if($lang == $lang_from_db) return $row['code'];
+						foreach($records AS $r)
+						{
+							$lang_from_db = explode('_', $r['code']);
+							if($lang == $lang_from_db) return $r['code'];
 						}
 					}
 				}

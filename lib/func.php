@@ -285,7 +285,7 @@ function dbNumberToNumber($number, $decimals=2)
 }
 
 /**
- * Formatta un numero per il database. Con MySQL il separatore dei decimali è il '.'
+ * Formatta un numero per il database (il separatore decimale è il punto)
  * 
  * @param string $number numero
  * @return float

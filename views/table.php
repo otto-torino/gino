@@ -8,6 +8,8 @@
  * @author abidibo abidibo@gmail.com
  * 
  * Available variables:
+ * - @b form_start: (string) form header (if there exists)
+ * - @b form_end: (string) form closes (if there exists)
  * - @b class: table css class
  * - @b caption: (optional) table caption
  * - @b tr_class: (string) css class of the highlighted item
@@ -15,6 +17,7 @@
  *   - @b class: css class of the th element 
  *   - @b text: header text 
  * - @b rows: array of table rows. Each row is an array of cells. Each cell may be a string (cell text) or an array:
+ *   - @b evidence: (bool) the table row uses the class tr_class
  *   - @b header: (bool) is the cell an header? 
  *   - @b colspan: (int) cell colspan attribute 
  *   - @b title: title attribute of the cell 
@@ -24,6 +27,7 @@
  * 
  */
 ?>
+<? if(isset($form_start)) echo $form_start; ?>
 <table class="<?= $class ?>">
 <? if(isset($caption)): ?>
 <caption><?= $caption ?></caption>
@@ -70,3 +74,4 @@
 		</tr>
 	</tfoot>
 </table>
+<? if(isset($form_end)) echo $form_end; ?>

@@ -104,6 +104,16 @@ require_once('class.pageEntryAdminTable.php');
  * - page/
  * - page/
  * - [page_id]/
+ * 
+ * TEMPLATE
+ * ---------------
+ * Quando una pagina viene richiamata da URL viene chiamato il metodo view(). \n
+ * In questo caso il template di default è quello che corrisponde al campo @a entry_tpl_code della tabella delle opzioni ('Template vista dettaglio pagina' nelle opzioni vista pagina). \n
+ * Questo template può essere sovrascritto compilando il campo "Template pagina intera" (@tpl_code) nel form della pagina.
+ * 
+ * Quando una pagina viene richiamata nel template del layout viene chiamato il metodo box(). \n
+ * In questo caso il template di default è quello che corrisponde al campo @a box_tpl_code della tabella delle opzioni ('Template vista dettaglio pagina' nelle opzioni vista pagina inserita nel template). \n
+ * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  */
 class page extends AbstractEvtClass {
 
