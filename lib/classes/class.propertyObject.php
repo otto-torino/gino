@@ -15,13 +15,31 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe.
- * Le proprietà su DB possono essere impostate attraverso il metodo __set, che di default legge le proprietà dall'array POST come valore stringa.
+ * Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe. \n
+ * Le proprietà su DB possono essere impostate attraverso il metodo __set, che di default legge le proprietà dall'array POST come valore stringa. \n
  * Di conseguenza può essere necessario impostare puntualmente una proprietà assegnandole un valore oppure, se il tipo di valore è diverso da stringa, implementare uno specifico metodo __set che viene chiamato prima.
  * 
  * La classe figlia che costruisce la classe le passa il valore ID del record dell'oggetto direttamente nel costruttore:
  * @code
  * parent::__construct($i);
+ * @endcode
+ * 
+ * ###Criteri di costruzione di una tabella per la definizione della struttura
+ * Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a adminTable. \n
+ * I modelli delle tabelle estendono la classe @a propertyObject che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
+ *   - i campi obbligatori devono essere 'not null'
+ *   - un campo auto-increment viene gestito automaticamente come input di tipo hidden
+ *   - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
+ * 
+ * ###Ulteriori elementi che contribuiscono alla definizione della struttura
+ * Le label dei campi devono essere definite nel modello nella proprietà @a $_fields_label. Una label non definita prende il nome del campo. \n
+ * Esempio:
+ * @code
+ * $this->_fields_label = array(
+ *   'ctg'=>_("Categoria"),
+ *   'name'=>_("Titolo"),
+ *   'private'=>array(_("Tipologia"), _("privato: visibile solo dal relativo gruppo"))
+ * );
  * @endcode
  */
  abstract class propertyObject {
@@ -36,6 +54,15 @@
 	 * @var array
 	 */
 	protected $_structure;
+	
+	/**
+	 * Oggetto della localizzazione
+	 * 
+	 * @var object
+	 */
+	protected $_locale;
+	
+	//protected $_main_class;
 	
 	/**
 	 * Intestazioni dei campi del database nel form
@@ -61,7 +88,9 @@
 		$this->_p['instance'] = null;
 		
 		$session = session::instance();
-	
+		
+		//$this->_locale = locale::instance_to_class($this->_main_class);
+		
 		$this->_lng_dft = $session->lngDft;
 		$this->_lng_nav = $session->lng;
 		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
@@ -229,22 +258,6 @@
 	 * @param integer $id valore ID del record di riferimento
 	 * @return array
 	 * 
-	 * La tabella del database deve essere costruita seguendo specifici criteri:
-	 * - i campi obbligatori devono essere 'not null'
-	 * - un campo auto_increment viene gestito automaticamente come input di tipo hidden
-	 * - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
-	 * 
-	 * Ulteriori elementi che contribuiscono alla definizione della struttura
-	 * - le label dei campi devono essere definite nella proprietà @a $_fields_label \n
-	 *   Una label non definita prende il nome del campo. Esempio:
-	 *   @code
-	 *   $this->_fields_label = array(
-	 *     'ctg'=>_("Categoria"),
-	 *     'name'=>_("Titolo"),
-	 *     'private'=>array(_("Tipologia"), _("privato: visibile solo dal relativo gruppo"))
-	 *   );
-	 *   @endcode
-	 * 
 	 * Esempio di riscrittura del metodo structure():
 	 * @code
 	 * public function structure($id) {
@@ -369,7 +382,7 @@
 	
 	private function dataType($type) {
 		
-		if($type == 'tinyint' || $type == 'smallint'  || $type == 'mediumint' || $type == 'int')
+		if($type == 'tinyint' || $type == 'smallint'  || $type == 'mediumint' || $type == 'int' || $type == 'bigint')
 			$dataType = 'integer';
 		elseif($type == 'float' || $type == 'double' || $type == 'decimal')
 			$dataType = 'float';

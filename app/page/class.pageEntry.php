@@ -25,6 +25,8 @@ class pageEntry extends propertyObject {
 	protected static $_extension_img = array('jpg', 'jpeg', 'png');
 	public static $tbl_entry = 'page_entry';
 	public static $tbl_entry_tag = 'page_entry_tag';
+	
+	protected $_main_class;
 
 	/**
 	 * Costruttore
@@ -36,7 +38,7 @@ class pageEntry extends propertyObject {
 
 		$this->_controller = $instance;
 		$this->_tbl_data = self::$tbl_entry;
- 
+		
 		$this->_fields_label = array(
 			'category_id'=>_("Categoria"), 
 			'author'=>_('Autore'),
@@ -201,7 +203,7 @@ class pageEntry extends propertyObject {
 		}
 		else
 		{
-			$rows = $db->select('id', self::$tbl_entry, "slug='$slug'", null, array(0, 1));
+			$rows = $db->select('id', self::$tbl_entry, "slug='$slug'", array('limit'=>array(0, 1)));
 			if(count($rows)) {
 				$res = new pageEntry($rows[0]['id'], $controller);
 			}
@@ -220,7 +222,7 @@ class pageEntry extends propertyObject {
 		$res = array();
 
 		$db = db::instance();
-		$rows = $db->select('tag', self::$tbl_entry_tag, "entry IN (SELECT id FROM ".self::$tbl_entry." WHERE published='1')", null, null);
+		$rows = $db->select('tag', self::$tbl_entry_tag, "entry IN (SELECT id FROM ".self::$tbl_entry." WHERE published='1')");
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$res[] = $row['tag'];
@@ -260,7 +262,7 @@ class pageEntry extends propertyObject {
 		
 		$res = array();
 		$db = db::instance();
-		$rows = $db->select('tag', self::$tbl_entry_tag, "entry='".$this->id."'", 'tag', null);
+		$rows = $db->select('tag', self::$tbl_entry_tag, "entry='".$this->id."'", array('order'=>'tag'));
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new pageTag($row['tag'], $this->_controller);
@@ -368,7 +370,7 @@ class pageEntry extends propertyObject {
 		elseif(!$where && $where_add)
 			$where = $where_add;
 		
-		$rows = $db->select($selection, $table, $where, $order, $limit, false);
+		$rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
 		if(count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new pageEntry($row['id'], $controller);
@@ -423,7 +425,7 @@ class pageEntry extends propertyObject {
 		elseif(!$where && $where_add)
 			$where = $where_add;
 
-		$rows = $db->select($selection, $table, $where, null, null);
+		$rows = $db->select($selection, $table, $where);
 		if($rows and count($rows)) {
 			$res = $rows[0]['tot'];
 		}

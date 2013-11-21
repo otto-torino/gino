@@ -23,12 +23,12 @@
  * La procedura di selezione degli elementi necessita della creazione di una tabella degli elementi selezionati:
  * @code
  * CREATE TABLE main_selection (
- * id int(11) NOT NULL AUTO_INCREMENT,
- * instance int(11) NOT NULL,
- * reference int(11) NOT NULL,
- * aggregator int(11) NOT NULL,
- * priority smallint(2) NOT NULL,
- * PRIMARY KEY (id)
+ *   id int(11) NOT NULL AUTO_INCREMENT,
+ *   instance int(11) NOT NULL,
+ *   reference int(11) NOT NULL,
+ *   aggregator int(11) NOT NULL,
+ *   priority smallint(2) NOT NULL,
+ *   PRIMARY KEY (id)
  * ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
  * @endcode
  * 
@@ -37,24 +37,34 @@
  * $gform = new Form('gform', 'post', true, array('tblLayout'=>false));
  * @endcode
  *
- * -- UTILIZZO TIPO NEWSLETTER, ovvero scelta di eventi (reference) di una newsletter (aggregator)
+ * UTILIZZO TIPO NEWSLETTER
+ * ---------------
+ * Ovvero scelta di eventi (reference) di una newsletter (aggregator)
  * 
- *   - reference:	id del record che è stato selezionato (es. un evento o una news)
- *   - aggregator:	id del contenitore (es. una newsletter)
+ *   - reference: id del record che è stato selezionato (es. un evento o una news)
+ *   - aggregator: id del contenitore (es. una newsletter)
  *
- * -- UTILIZZO CLASSICO, ovvero scelta di file (reference) associati o meno a un documento (aggregator)
+ * UTILIZZO CLASSICO
+ * ---------------
+ * Ovvero scelta di file (reference) associati o meno a un documento (aggregator)
  * 
- *   - reference: 	id di un file
- *   - aggregator:	id di qualcosa cui è collegato il file (ad es. un progetto)
+ *   - reference: id di un file
+ *   - aggregator: id di qualcosa cui è collegato il file (ad es. un progetto)
  *
- * Esempio 1 (Form)
+ * Esempio 1
+ * ---------------
+ * Form
+ * 
  * @code
  * $sels = new selection(0, $id, $this->_instance, $this->_tbl_selection, array('input_name'=>'s_check'));
  * $check = $sels->fCheck($gform, array('where'=>"aggregator='$reference'"));					
  * $itemContent .= $htmlListFile->item($name.$date, array($check), '', false, '', '', 'checkbox');
  * @endcode
  * 
- * Esempio 2 (Action)
+ * Esempio 2
+ * ---------------
+ * Action
+ * 
  * @code
  * // Lista non paginata
  * $sels = new selection(0, 0, $this->_instance, $this->_tbl_selection, array('aggregator'=>$reference, 'input_name'=>'s_check'));
@@ -63,7 +73,10 @@
  * $sels->updateListDbData();
  * @endcode
  * 
- * Esempio 3 (Visualizzare gli elementi selezionati)
+ * Esempio 3
+ * ---------------
+ * Visualizzare gli elementi selezionati
+ * 
  * @code
  * $sels = new selection(0, 0, $this->_instance, eventItem::$_tbl_selection);
  * $events = $sels->getListItems(array('class'=>'eventItem'));
@@ -96,7 +109,7 @@ class selection extends propertyObject {
 	
 		$this->_tbl_data = $table;
 		
-		parent::__construct($this->initP($id));
+		parent::__construct($id);
 		
 		$this->_aggregator = (isset($options['aggregator']) AND $options['aggregator'] != 0) ? $options['aggregator'] : 0;
 		$this->_input_name = (isset($options['input_name']) AND $options['input_name'] != '') ? $options['input_name'] : 'check';
@@ -105,42 +118,23 @@ class selection extends propertyObject {
 		$this->_instance = $instance;
 	}
 	
-	private function initP($id) {
-	
-		$db = db::instance();
-		$query = "SELECT * FROM ".$this->_tbl_data." WHERE id='$id'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) return $a[0];
-		else return array('id'=>null, 'instance'=>null, 'reference'=>null, 'aggregator'=>null, 'priority'=>null);
-	}
-	
-	/**
-	 * Imposta il valore dell'istanza
-	 * @param integer $value valore dell'istanza
-	 * @return boolean
-	 */
-	public function setInstance($value) {
-		
-		if($this->_p['instance']!=$value && !in_array('instance', $this->_chgP)) $this->_chgP[] = 'instance';
-		$this->_p['instance'] = $value;
-		return true;
-	}
-	
 	/**
 	 * Imposta il valore della priorità
+	 * 
 	 * @param integer $postLabel nome dell'input priorità
 	 * @return boolean
 	 */
 	public function setPriority($postLabel) {
 		
-		$value = cleanVar($_POST, $postLabel, 'int', '');
 		if($this->_p['priority']!=$value && !in_array('priority', $this->_chgP)) $this->_chgP[] = 'priority';
 		$this->_p['priority'] = $value;
+		
 		return true;
 	}
 	
 	/**
 	 * Imposta il valore di inizio ordinamento
+	 * 
 	 * @param integer $value valore di inizio ordinamento
 	 * @return boolean
 	 */
@@ -217,8 +211,7 @@ class selection extends propertyObject {
 		{
 			foreach ($oldcheck AS $value)
 			{
-				$query = "DELETE FROM ".$this->_tbl_data." WHERE reference='$value' AND instance='".$this->_instance."'";
-				$this->_db->actionquery($query);
+				$this->_db->delete($this->_tbl_data, "reference='$value' AND instance='".$this->_instance."'");
 			}
 		}
 		
@@ -226,9 +219,16 @@ class selection extends propertyObject {
 		{
 			foreach ($check AS $value)
 			{
-				$query = "INSERT INTO ".$this->_tbl_data." (instance, reference, aggregator, priority) 
-				VALUES (".$this->_p['instance'].", $value, ".$this->_aggregator.", $count)";
-				$this->_db->actionquery($query);
+				$this->_db->insert(
+					array(
+						'instance'=>$this->_p['instance'], 
+						'reference'=>$value, 
+						'aggregator'=>$this->_aggregator, 
+						'priority'=>$count
+					),
+					$this->_tbl_data
+				);
+				
 				$count = $this->updateCount($count);
 			}
 		}
@@ -238,7 +238,9 @@ class selection extends propertyObject {
 	
 	/**
 	 * Modifica di una lista paginata in cui occorra confrontare il prima e il dopo
+	 * 
 	 * @see propertyObject::updateDbData()
+	 * @see updateCount()
 	 * @return boolean
 	 */
 	public function updateDbData() {
@@ -256,9 +258,16 @@ class selection extends propertyObject {
 				{
 					if(!in_array($value, $oldcheck))	// aggiungere nuovi elementi
 					{
-						$query = "INSERT INTO ".$this->_tbl_data." (instance, reference, aggregator, priority) 
-						VALUES (".$this->_p['instance'].", $value, ".$this->_aggregator.", $count)";
-						$this->_db->actionquery($query);
+						$this->_db->insert(
+							array(
+								'instance'=>$this->_p['instance'], 
+								'reference'=>$value, 
+								'aggregator'=>$this->_aggregator, 
+								'priority'=>$count
+							),
+							$this->_tbl_data
+						);
+						
 						$count = $this->updateCount($count);
 					}
 				}
@@ -267,16 +276,14 @@ class selection extends propertyObject {
 				$diff = array_diff($oldcheck, $check);
 				foreach($diff AS $value)
 				{
-					$query = "DELETE FROM ".$this->_tbl_data." WHERE reference='$value' AND instance='".$this->_instance."'";
-					$this->_db->actionquery($query);
+					$this->_db->delete($this->_tbl_data, "reference='$value' AND instance='".$this->_instance."'");
 				}
 			}
 			else	// elimino tutti gli elementi perché non ne esisteranno
 			{
 				foreach ($oldcheck AS $value)
 				{
-					$query = "DELETE FROM ".$this->_tbl_data." WHERE reference='$value' AND instance='".$this->_instance."'";
-					$this->_db->actionquery($query);
+					$this->_db->delete($this->_tbl_data, "reference='$value' AND instance='".$this->_instance."'");
 				}
 			}
 			return true;
@@ -285,9 +292,16 @@ class selection extends propertyObject {
 		{
 			foreach($check AS $value)
 			{
-				$query = "INSERT INTO ".$this->_tbl_data." (instance, reference, aggregator, priority) 
-				VALUES (".$this->_p['instance'].", $value, ".$this->_aggregator.", $count)";
-				$this->_db->actionquery($query);
+				$this->_db->insert(
+					array(
+						'instance'=>$this->_p['instance'], 
+						'reference'=>$value, 
+						'aggregator'=>$this->_aggregator, 
+						'priority'=>$count
+					),
+					$this->_tbl_data
+				);
+				
 				$count = $this->updateCount($count);
 			}
 			return true;
@@ -307,7 +321,7 @@ class selection extends propertyObject {
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b sort (boolean): ordinamento (priority)
-	 *   - @b class (string): nome della classe da istanziare per recuperare i valori di 'reference'
+	 *   - @b class (string): nome della classe da istanziare per recuperare i valori di @a reference; se non viene definita viene richiamato il metodo referenceClass()
 	 *   - @b method (string): nome di metodo di 'class' da richiamare:
 	 *      1. per richiamare una porzione di testo (ex. 'printForNewsletter')
 	 *      2. per recuperare i valori dei record collegati a @a reference; in questo caso ogni elemento dell'array di ritorno deve essere un array dei valori dell'elemento.
@@ -326,16 +340,19 @@ class selection extends propertyObject {
 		if(!$class)
 			$class = $this->referenceClass($this->_instance);
 		
-		$where = $this->_aggregator ? "AND aggregator='".$this->_aggregator."'" : '';
-		if($sort) $order = "ORDER BY priority ASC"; else $order = '';
+		$where = "instance='{$this->_instance}'";
+		if($this->_aggregator)
+			$where .= "AND aggregator='".$this->_aggregator."'";
+		
+		$order = $sort ? "priority ASC" : null;
 		
 		$items = array();
 		$db = db::instance();
-		$query = "SELECT reference FROM ".$this->_tbl_data." WHERE instance='{$this->_instance}' $where $order";
-		$a = $db->selectquery($query);
-		if(sizeof($a))
+		
+		$records = $db->select('reference', $this->_tbl_data, $where, array('order'=>$order));
+		if(count($records))
 		{
-			foreach($a as $b)
+			foreach($records as $b)
 			{
 				/*
 				 * ex: class -> news, method -> getData

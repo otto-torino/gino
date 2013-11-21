@@ -20,7 +20,10 @@
  * require_once(CLASSES_DIR.OS.'class.sort.php');
  * @endcode
  * 
- * Esempio 1 (Form)
+ * Esempio 1
+ * ---------------
+ * Form
+ * 
  * @code
  * $sort = new sort(array('table'=>$table, 'instance'=>$this->_instance));
  * $htmlList = new htmlList(array("numItems"=>count($items), "separator"=>false, "id"=>'priorityList'));
@@ -31,7 +34,10 @@
  * $GINO .= $sort->jsLib($this->_home."?pt[{$this->_instanceName}-actionUpdateOrder]");
  * @endcode
  *
- * Esempio 2 (Action)
+ * Esempio 2
+ * ---------------
+ * Action
+ * 
  * @code
  * public function actionUpdateOrder() {
  *   $this->accessGroup('');
@@ -151,6 +157,7 @@ class sort {
 	
 	/**
 	 * Mostra il DIV da utilizzare per l'ordinamento
+	 * 
 	 * @return string
 	 */
 	public function link() {
@@ -182,8 +189,7 @@ class sort {
 							return element.getProperty('id').replace('id', '');
 						}).join(',');
 						ajaxRequest('post', '$path_action', 'order='+order+'$reference&tbl={$this->_p['table']}', null, {'callback':message});
-       					}
-
+       				}
 			})";
 			$GINO .= "</script>";
 		return $GINO;

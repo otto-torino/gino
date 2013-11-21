@@ -62,29 +62,25 @@ class options extends pub {
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
 	}
 
-	private function field_class($field, $class_name){
+	/**
+	 * Ricava il valore di un campo della tabella sys_module_app
+	 * 
+	 * @param string $field nome del campo
+	 * @param string $class_name nome della classe
+	 * @return string
+	 */
+	private function field_class($field, $class_name) {
 		
-		$query = "SELECT $field FROM ".$this->_tbl_module_app." WHERE name='$class_name' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select($field, $this->_tbl_module_app, "name='$class_name' AND type='class'");
+		if(count($records))
 		{
-			foreach ($a AS $b)
+			foreach($records AS $r)
 			{
-				$value = $b[$field];
+				$value = $r[$field];
 			}
 		}
-		else
-		{
-			$query = "SELECT $field FROM ".$this->_tbl_module_app." WHERE name='$class_name' AND type='class'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-			{
-				foreach ($a AS $b)
-				{
-					$value = $b[$field];
-				}
-			}
-		}
+		else $value = '';
+		
 		return $value;
 	}
 
@@ -95,7 +91,13 @@ class options extends pub {
 	/**
 	 * Interfaccia per la gestione delle opzioni di una istanza/modulo (Form)
 	 * 
+	 * @see db::fieldInformations()
 	 * @return string
+	 * 
+	 * Come informazioni sui campi sono necessarie: \n
+	 *   - @b name (string): nome del campo
+	 *   - @b type (string): tipo di campo
+	 *   - @b length (integer): numero massimo di caratteri
 	 */
 	public function manageDoc(){
 
@@ -193,10 +195,10 @@ class options extends pub {
 					$field_required = true;
 				}
 				
-				if($f->type == 'string') {
+				if($f->type == 'char') {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
-				elseif($f->type == 'blob') {
+				elseif($f->type == 'text') {
 					$GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'96%', "rows"=>4, "required"=>$field_required, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
 				elseif($f->type == 'int' && $f->length>1) {

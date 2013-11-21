@@ -23,9 +23,14 @@
  */
 define('SITE_ROOT', realpath(dirname(__FILE__)));
 
+
 $siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT) ? preg_replace("#\\\#", "/", SITE_ROOT) : SITE_ROOT;
-// Rispetto a Linux, in Windows $_SERVER['DOCUMENT_ROOT'] termina con '/'
-$docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SERVER['DOCUMENT_ROOT'], '', -1) : $_SERVER['DOCUMENT_ROOT'];
+
+// Per compatibilità con l'ambiente Windows (-> $_SERVER['DOCUMENT_ROOT'] termina con '/')
+$docroot = preg_match("#^[a-zA-Z][:\\\]+#", $_SERVER['DOCUMENT_ROOT']) ? preg_replace("#\\\#", "/", $_SERVER['DOCUMENT_ROOT']) : $_SERVER['DOCUMENT_ROOT'];
+$docroot = (substr($docroot, -1) == '\\') ? substr_replace($docroot, '', -1) : $docroot;
+
+//$docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SERVER['DOCUMENT_ROOT'], '', -1) : $_SERVER['DOCUMENT_ROOT'];	// only MySQL
 
 /**
  * Percorso relativo dell'applicazione a partire dalla root directory

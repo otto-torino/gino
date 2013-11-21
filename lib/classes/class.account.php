@@ -286,7 +286,7 @@ class account extends pub {
 		$GINO .= $gform->cinput('cap', 'text', $cap, _("Cap"), array("size"=>5, "maxlength"=>"5"));
 		$GINO .= $gform->cinput('city', 'text', $city, _("Città"), array("size"=>40, "maxlength"=>"50"));
 
-		$query = $this->_db->query('id, '.$this->_lng_tbl_nation, $this->_tbl_nation, '', $this->_lng_tbl_nation." ASC");
+		$query = $this->_db->query('id, '.$this->_lng_tbl_nation, $this->_tbl_nation, '', array('order'=>$this->_lng_tbl_nation." ASC"));
 		$GINO .= $gform->cselect('nation', $nation, $query, _("Nazione"));
 
 		$GINO .= $gform->cinput('phone', 'text', $phone, _("Telefono"), array("size"=>30, "maxlength"=>"30"));

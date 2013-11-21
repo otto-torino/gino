@@ -614,7 +614,7 @@ class menu extends AbstractEvtClass {
 	/**
 	 * Eliminazione di una voce di menu
 	 * 
-	 * @see $_group_1
+	 * @access $_group_1
 	 */
 	public function actionDelMenuVoice() {
 		

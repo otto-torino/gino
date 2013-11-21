@@ -103,7 +103,7 @@ class PhpModule extends propertyObject {
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
-		$content = mysql_real_escape_string(htmlspecialchars_decode($_POST['content']));
+		$content = $this->_db->escapeString(htmlspecialchars_decode($_POST['content']));
 		
 		$link_error = $this->_home."?evt[$this->_interface-manageDoc]&action=modify";
 

@@ -17,7 +17,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * Esempio 1 (Query)
+ * ###Esempio 1 (Query)
  * @code
  * $queryTotElements = "SELECT id FROM tbl_doc WHERE ...";
  * $this->_list = new PageList($doc_for_page, $queryTotElements);
@@ -29,7 +29,7 @@
  * }
  * @endcode
  * 
- * Esempio 2 (Array)
+ * ###Esempio 2 (Array)
  * @code
  * $tot_items = eventItem::getTotItems($this->_instance, $options);
  * $list = new PageList($this->_doc_for_page, $tot_items, 'array');

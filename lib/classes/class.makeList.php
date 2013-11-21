@@ -217,13 +217,13 @@ class makeList {
 		// order
 		$query_order = $table.$field_order." ".$order_dir;
 		
-		$tot_records_result = $this->_db->select($query_selection_tot, $query_table, implode(' AND ', $query_where), null);
+		$tot_records_result = $this->_db->select($query_selection_tot, $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
 		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 		
-		$records = $this->_db->select($query_selection, $query_table, implode(' AND ', $query_where), $query_order, $limit);
+		$records = $this->_db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 		
 		$heads = $this->headsList($this->_list_display, $order, $add_params_url, $input_first);

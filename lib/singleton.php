@@ -38,8 +38,26 @@ abstract class singleton {
 		}
 		
 		return self::$_instances[$class];
-   }
+	}
+	
+	/**
+	 * Metodo principale singleton per le istanze definite in riferimento a una classe passata come proprietà
+	 * 
+	 * Ritorna sempre la stessa istanza
+	 * 
+	 * @param string $main_class nome della classe che definisce l'istanza (ovvero la classe che istanzia la classe che richiama il metodo)
+	 * @return object
+	 */
+	public static function instance_to_class($main_class) {
 
+		$class = get_called_class().'_'.$main_class;
+		if(array_key_exists($class, self::$_instances) === false) {
+			self::$_instances[$class] = new static($main_class);
+		}
+		
+		return self::$_instances[$class];
+	}
+	
 	public function __clone() {
 		Error::syserrorMessage('singleton', '__clone', __("CannotCloneSingleton"), __LINE__);
 	}

@@ -8,8 +8,20 @@
  * @author abidibo abidibo@gmail.com
  */
 
-// Include il file di connessione al database plugin.mysql.php
+/**
+ * Include il file di connessione al database plugin.mysql.php
+ */
 include_once(PLUGIN_DIR.OS."plugin.mysql.php");
+
+/**
+ * Include il file di connessione al database plugin.mssql.php
+ */
+include_once(PLUGIN_DIR.OS."plugin.mssql.php");
+
+/**
+ * Include il file di connessione al database plugin.sqlsrv.php
+ */
+include_once(PLUGIN_DIR.OS."plugin.sqlsrv.php");
 
 /**
  * @brief Interfaccia per le librerie di connessione al database
@@ -82,6 +94,14 @@ interface DbManager {
 	public function selectquery($query);
 	
 	/**
+	 * Libera tutta la memoria utilizzata dal Result Set
+	 * 
+	 * @param array $result risultato della query
+	 * @return boolean
+	 */
+	public function freeresult($result);
+	
+	/**
 	 * Numero di record risultanti da una istruzione SELECT
 	 * 
 	 * @param string $query	query
@@ -136,26 +156,39 @@ interface DbManager {
 	 * 
 	 * @param string $table nome della tabella
 	 * @return array
+	 * 
+	 * Utilizzato dalla classe options per costruire il form delle opzioni di una classe. \n
+	 * Il tipo di dato di un campo deve essere uniformato, e occorre che sia uno dei seguenti:
+	 *   - @a char, input form
+	 *   - @a text, textarea form
+	 *   - @a int, input form (se length>1) o radio button (length==1)
+	 *   - @a date, input form di tipo data
 	 */
 	public function fieldInformations($table);
 	
 	/**
 	 * Istruzione per limitare i risultati di una query (LIMIT)
 	 *
-	 * @param integer $range
-	 * @param integer $offset
-	 * @return string
+	 * @param integer $range numero di elementi da mostrare
+	 * @param integer $offset record di partenza (key)
+	 * @return string (condizione limit)
 	 * 
+	 * Esempio
 	 * @code
 	 * $this->_db->limit(1, 0);
 	 * @endcode
-	 * 
-	 * sintassi SQL con PostgreSQL:
-	 * @code
-	 * $string = "LIMIT $range OFFSET $offset";
-	 * @endcode
 	 */
 	public function limit($range, $offset);
+	
+	/**
+	 * Distinct keyword
+	 *
+	 * @param string $fields nome/nomi dei campi separati da virgola
+	 * @param array $options array associativo di opzioni
+	 *   - @b alias (string)
+	 * @return string
+	 */
+	public function distinct($fields, $options);
 	
 	/**
 	 * Istruzione per concatenare i campi
@@ -163,22 +196,10 @@ interface DbManager {
 	 * @param mixed $sequence elenco di campi da concatenare
 	 * @return string
 	 * 
+	 * Esempi:
 	 * @code
 	 * $this->_db->concat(array("label", "' ('", "server", "')'"));
-	 * @endcode
-	 * 
-	 * sintassi SQL con MySQL:
-	 * @code
-	 * concat(array("lastname", "' '", "firstname"))
-	 * @endcode
-	 * sintassi SQL con PostgreSQL:
-	 * @code
-	 * $string = implode(' || ', $sequence);
-	 * @endcode
-	 * sintassi SQL con SQL Server:
-	 * @code
-	 * $string = implode(' + ', $sequence);
-	 * $concat = $string;
+	 * $this->_db->concat(array("lastname", "' '", "firstname"))
 	 * @endcode
 	 */
 	public function concat($sequence);
@@ -197,38 +218,33 @@ interface DbManager {
 	 * @param string $table nome della tabella
 	 * @return array
 	 * 
-	 * In MySQL l'array è nella forma \n
+	 * L'array deve essere così strutturato: \n
 	 * @code
-	 * array(
-	 *   'primary_key'=>'primary_key_name', 
-	 *   'keys'=>array('keyname1', 'keyname2'), 
-	 *   'fields'=>array(
-	 *     'fieldname1'=>array(
-	 *       'property1" => "value1', 
-	 *       'property2" => "value2', 
-	 *       [...]
-	 *     ), 
-	 *     'fieldname2'=>array(
-	 *       'property1" => "value1', 
-	 *       'property2" => "value2', 
-	 *       [...]
-	 *     ), 
-	 *     [...]
-	 *   )
-	 * )
+	 * 'primary_key' => string 'primary_key_name'
+	 * 'keys' => 
+	 *   array (key_name[, ...])
+	 * 'fields' => 
+	 *   array (field_1=>array (size=10), field_2=>array (size=10)[, ...])
 	 * @endcode
 	 * 
-	 * Per ogni campo si recuperano le seguenti proprietà:
-	 * - @b order: the ordinal position
-	 * - @b deafult: the default value
-	 * - @b null: whether the field is nullable or not
-	 * - @b type: the field type (varchar, int, text, ...)
-	 * - @b max_length: the field max length
-	 * - @b n_int: the number of int digits
-	 * - @b n_precision: the number of decimal digits
-	 * - @b key: the field key if set
-	 * - @b extra: extra information
-	 * - @b enum: valori di un campo enumerazione
+	 * Per ogni campo vengono definite le chiavi:
+	 *   - @b order (string): the ordinal position
+	 *   - @b deafult (null or mixed): the default value
+	 *   - @b null (string): whether the field is nullable or not ('NO' or 'YES')
+	 *   - @b type (string): the field type (varchar, int, text, ...); deve ritornare un valore compatibile con quelli definiti in propertyObject::dataType()
+	 *   - @b max_length (null or string): the field max length (es. '200' in un campo varchar)
+	 *   - @b n_int (string): the number of int digits
+	 *   - @b n_precision (integer): the number of decimal digits
+	 *   - @b key (string): the field key if set (ex. 'PRI' for primary key, 'UNI' for unique key)
+	 *   - @b extra (string): extra information (ex. auto_increment for an auto-increment field)
+	 *   - @b enum (null or string): valori di un campo enumerazione (es. ''yes','no'')
+	 * 
+	 * In MySQL:
+	 * @code
+	 * field_float			'n_int' => int 0		'n_precision' => int 0
+	 * field_float(10,2)	'n_int' => string '10'	'n_precision' => string '2'
+	 * field_decimal(10,2)	'n_int' => string '10'	'n_precision' => string '2'
+	 * @endcode
 	 */
 	public function getTableStructure($table);
 	
@@ -257,12 +273,16 @@ interface DbManager {
 	 * @param mixed $fields elenco dei campi
 	 * @param mixed $tables elenco delle tabelle
 	 * @param string $where condizione della query
-	 * @param string $order ordinamento
-	 * @param array $limit valori per il range di selezione (array(offset, range))
-	 * @param boolean $debug se vero stampa a video la query
-	 * @return boolean
+	 * @param array $options array associativo di opzioni
+	 *   - @b order (string): ordinamento
+	 *   - @b distinct (string): nome/nomi dei campisui quali quali applicare la keyword DISTINCT
+	 *   - @b limit (mixed): limitazione degli elementi
+	 *     - string, condizione di limitazione degli elementi
+	 *     - array, valori per il range di limitazione (array(offset, range))
+	 *   - @b debug (boolean): se vero stampa a video la query
+	 * @return string
 	 */
-	public function query($fields, $tables, $where, $order, $limit, $debug);
+	public function query($fields, $tables, $where, $options);
 	
 	/**
 	 * Costruisce ed esegue una query di selezione
@@ -272,18 +292,24 @@ interface DbManager {
 	 * @param mixed $fields elenco dei campi
 	 * @param mixed $tables elenco delle tabelle
 	 * @param string $where condizione della query
-	 * @param string $order ordinamento
-	 * @param array $limit valori per il range di selezione (array(offset, range))
-	 * @param boolean $debug se vero stampa a video la query
-	 * @return boolean
+	 * @param array $options array associativo di opzioni (vedi le opzioni del metodo query())
+	 * @return array
 	 */
-	public function select($fields, $tables, $where, $order, $limit, $debug);
+	public function select($fields, $tables, $where, $options);
 	
 	/**
 	 * Costruisce ed esegue una query di inserimento
 	 * 
 	 * @see actionquery()
-	 * @param array $fields elenco dei campi con i loro valori, nel formato array(field1=>value1, field2=>value2)
+	 * @param array $fields elenco dei campi con i loro valori; se il valore di un campo è un array, con la chiave @a sql è possibile passare una istruzione SQL
+	 *   - array(field1=>value1, field2=>value2), esempio:
+	 *     @code
+	 *     array('name'=>$name, 'description'=>$description, 'room'=>$room)
+	 *     @endcode
+	 *   - array(field1=>array('sql'=>sql_command), field2=>value2), esempio:
+	 *     @code
+	 *     array('label'=>$label, 'orderList'=>array('sql'=>"orderList-1"))
+	 *     @endcode
 	 * @param string $table nome della tabella
 	 * @param boolean $debug se vero stampa a video la query
 	 * @return boolean
@@ -294,7 +320,15 @@ interface DbManager {
 	 * Costruisce ed esegue una query di aggiornamento
 	 * 
 	 * @see actionquery()
-	 * @param array $fields elenco dei campi con i loro valori, nel formato array(field1=>value1, field2=>value2)
+	 * @param array $fields elenco dei campi con i loro valori; se il valore di un campo è un array, con la chiave @a sql è possibile passare una istruzione SQL
+	 *   - array(field1=>value1, field2=>value2), esempio:
+	 *     @code
+	 *     array('name'=>$name, 'description'=>$description, 'room'=>$room)
+	 *     @endcode
+	 *   - array(field1=>array('sql'=>sql_command), field2=>value2), esempio:
+	 *     @code
+	 *     array('label'=>$label, 'orderList'=>array('sql'=>"orderList-1"))
+	 *     @endcode
 	 * @param string $table nome della tabella
 	 * @param string $where condizione della query
 	 * @param boolean $debug se vero stampa a video la query
@@ -312,6 +346,39 @@ interface DbManager {
 	 * @return boolean
 	 */
 	public function delete($table, $where, $debug);
+	
+	/**
+	 * Definizione delle Join
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $condition condizione della join
+	 * @param string $option opzione della join
+	 *   - left
+	 *   - right
+	 *   - outer
+	 *   - inner
+	 *   - left outer
+	 *   - right outer
+	 * @return string
+	 */
+	public function join($table, $condition, $option);
+	
+	/**
+	 * Permette di combinare delle istruzioni SELECT
+	 * 
+	 * @see selectquery()
+	 * @param array $queries query da unire (viene seguito l'ordine nell'array)
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b debug (boolean):  se vero stampa a video la query
+	 *   - @b instruction (string): istruzione (default UNION)
+	 * @return array
+	 * 
+	 * Le regole di base per la combinazione dei set di risultati di più query tramite l'istruzione UNION: \n
+	 * - Tutte le query devono includere lo stesso numero di colonne nello stesso ordine. \n
+	 * - I tipi di dati devono essere compatibili.
+	 */
+	public function union($queries, $options=array());
 	
 	/**
 	 * Restore di un file (ad es. di un backup)
@@ -384,6 +451,30 @@ abstract class db extends singleton {
 
 			if(DBMS=='mysql') {
 				self::$_instances[$class] = new mysql(
+					array(
+					"connect"=>true,
+					"host"=>self::$_db_host,
+					"user"=>self::$_db_user,
+					"password"=>self::$_db_pass,
+					"db_name"=>self::$_db_dbname,
+					"charset"=>self::$_db_charset
+					)
+				);
+			}
+			elseif(DBMS=='mssql') {
+				self::$_instances[$class] = new mssql(
+					array(
+					"connect"=>true,
+					"host"=>self::$_db_host,
+					"user"=>self::$_db_user,
+					"password"=>self::$_db_pass,
+					"db_name"=>self::$_db_dbname,
+					"charset"=>self::$_db_charset
+					)
+				);
+			}
+			elseif(DBMS=='sqlsrv') {
+				self::$_instances[$class] = new sqlsrv(
 					array(
 					"connect"=>true,
 					"host"=>self::$_db_host,

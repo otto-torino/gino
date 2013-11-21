@@ -177,7 +177,7 @@ class phpModuleView extends AbstractEvtClass {
 		}
 		$rexp = "#".implode("|", $rexpf)."#";
 		if(preg_match($rexp, $phpMdl->content)) {
-			$buffer = '';	
+			$buffer = '';
 		}
 		else eval($phpMdl->content);
 

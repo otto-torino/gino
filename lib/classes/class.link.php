@@ -18,17 +18,30 @@
 class Link {
 	
 	private $_permalinks;
-	private $_compressed_form, $_field_id;
+	
+	/**
+	 * Nell'indirizzo non mostra il nome del campo ID ma direttamente il valore, ad esempio page/displayItem/3
+	 * 
+	 * @var boolean (default @a true)
+	 */
+	private $_compressed_form;
+	
+	/**
+	 * Nome della chiave del campo ID
+	 * 
+	 * @var string (default @a id)
+	 */
+	private $_field_id;
 	
 	function __construct(){
 		
 		$db = db::instance();
-		$query = "SELECT permalinks FROM ".TBL_SYS_CONF." WHERE id=1";
-		$a = $db->selectquery($query);
-		$this->_permalinks = $a[0]['permalinks'] == 'yes' ? true : false;
 		
-		$this->_compressed_form = true;	// non mostra il nome del campo ID ma direttamente il valore: page/displayItem/3
-		$this->_field_id = 'id';		// nome della chiave del campo ID
+		$permalinks = $db->getFieldFromId(TBL_SYS_CONF, 'permalinks', 'id', 1);
+		$this->_permalinks = $permalinks == 'yes' ? true : false;
+		
+		$this->_compressed_form = true;
+		$this->_field_id = 'id';
 	}
 	
 	/**

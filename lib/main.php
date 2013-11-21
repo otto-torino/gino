@@ -24,9 +24,14 @@ include_once(CLASSES_DIR.OS."class.link.php");
 include_once(CLASSES_DIR.OS."class.pub.php");
 
 /**
+ * Include la classe locale
+ */
+include_once(CLASSES_DIR.OS."class.locale.php");
+
+/**
  * @brief Imposta l'header, le lingue di riferimento, ed effettua il detection del mobile
  * 
- * Inoltre:
+ * Inoltre: \n
  *   - effettua quelle operazioni che devono essere portate a termine prima di proseguire con la costruzione della pagina (vedi l'autenticazione)
  *   - include il file lib/include.php
  * 
@@ -536,7 +541,9 @@ class EvtHandler extends Main{
 }
 
 /**
- * @brief Rende disponibili i metodi per gestire l'accesso alle funzionalità di una classe
+ * @brief Classe che viene estesa dalle classi "applicative" e che fornisce loro metodi e proprietà comuni 
+ * 
+ * In particolare fornisce metodi e proprietà per gestire l'accesso alle funzionalità di una classe.
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -578,14 +585,22 @@ class AbstractEvtClass extends pub{
 	 * Nome dell'istanza
 	 */
 	protected $_instanceName;
-
+	
+	/**
+	 * Oggetto della localizzazione
+	 * 
+	 * @var object
+	 */
+	protected $_locale;
+	
 	/**
 	 * Costruttore
 	 */
 	function __construct(){
 
 		parent::__construct();
-
+		
+		$this->_locale = locale::instance_to_class($this->_className);
 	}
 	
 	/**
@@ -617,6 +632,16 @@ class AbstractEvtClass extends pub{
 	public function getInstance() {
 
 		return $this->_instance;
+	}
+	
+	/**
+	 * Espone il nome della classe
+	 * 
+	 * @return string
+	 */
+	public function getClassName() {
+
+		return $this->_className;
 	}
 	
 	/**

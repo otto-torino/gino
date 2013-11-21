@@ -15,14 +15,15 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * --REQUISITI--
- * 
- * 1. Questo file deve essere incluso nel file che lo richiama
- * 
+ * REQUISITI
+ * ---------------
+ * ###Includere il file
+ * @code
  * require_once(CLASSES_DIR.OS."class.mFile.php");
+ * @endcode
  * 
- * 2. Schema della tabella dei file
- * 
+ * ###Creare una tabella per la gestione dei file
+ * Per consuetudine si utilizza come nome della tabella '[riferimento_tbl_classe]_file'.
  * @code
  * CREATE TABLE `base_file` (
  * `id` int(11) NOT NULL auto_increment,
@@ -33,11 +34,10 @@
  * ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=1 ;
  * @endcode
  * 
- * Per consuetudine si chiede di utilizzare come nome '[riferimento_tbl_classe]_file'
  * 
- * --OPERAZIONI--
- * 
- * 1. Visualizzare i file
+ * OPERAZIONI
+ * ---------------
+ * ###Visualizzare i file
  * 
  * @code
  * $mfile = new mFile();
@@ -45,7 +45,7 @@
  * $buffer .= $mfile->mfileList([reference id], [table file], [instance name], [download method], [options]);
  * @endcode
  * 
- * 2. Form
+ * ###Form
  * 
  * @code
  * $mfile = new mFile(array('jsfuncname'=>'fileUpload', 'formname'=>'gform', 'directory'=>$dir, 'div'=>'m_', 'text'=>true));
@@ -63,7 +63,7 @@
  * $buffer .= $gform->cell($mfile->mfileDelList($this->id, $this->_tbl_data."_file", $obj->getInstanceName(), array('view_desc'=>true)));
  * @endcode
  * 
- * ALTERNATIVE
+ * ####ALTERNATIVE
  * 
  * al posto di:
  * @code
@@ -78,7 +78,7 @@
  * $buffer .= "<div id=\"$result_div\">".$mfile->mFormFromInput($refid, $action, $this->_tbl_base_file, $options, $options1, $options2)."</div>\n";
  * @endcode
  * 
- * PER VISUALIZZARE L'ELENCO DEI FILE PRESENTI CON LA POSSIBILITA' DI ELIMINARLI
+ * ####PER VISUALIZZARE L'ELENCO DEI FILE PRESENTI CON LA POSSIBILITA' DI ELIMINARLI
  * 
  * mfileDelList([id], [table file], [instance name], [opzioni[,[,])
  * 
@@ -96,7 +96,7 @@
  * 
  * mfileDelAction() rimanda a 'mfileDeleteAttached'
  * 
- * 3. Action
+ * ###Action
  * 
  * @code
  * $mfile = new mFile(array('text'=>true));
@@ -105,7 +105,7 @@
  * $mfile->dbUploadAction($upload, [reference id], [table file]);
  * @endcode
  * 
- * ALTERNATIVA
+ * ####ALTERNATIVA
  * 
  * @code
  * $mfile = new mFile();
@@ -128,8 +128,8 @@
  * ...
  * @endcode
  * 
- * --SCHEMA METODI--
- * 
+ * SCHEMA METODI
+ * ---------------
  * jsInputLib()		-> [default] mFormFromInput()
  * mFormFromInput()	-> mForm()
  * mfileDelList()	-> [default] mfileDelAction()
@@ -137,8 +137,9 @@
  * 
  * Per modificare il metodo di default indicare nel metodo che lo richiama il nome del metodo ad hoc e della classe relativa
  * 
- * --ESEMPIO AJAX per richiamare il form--
- * 
+ * ESEMPIO AJAX
+ * ---------------
+ * In modo specifico quesrto esempio serve per richiamare il form
  * @code
  * $GINO .= $this->jsLib();
  * $GINO .= "<div id=\"f_attach\"></div>\n";	// style=\"display:none;\" (utilizzando nel js showHide($(result)))
@@ -213,9 +214,7 @@ class mFile {
 		$this->_base_result = 'file_list';	// div elenco file
 		
 		$this->_max_file_size = MAX_FILE_SIZE;
-		$this->_extension_denied = array(
-		'php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin'
-		);
+		$this->_extension_denied = array('php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin');
 
 		$this->_act_delete = 'delete';
 	}

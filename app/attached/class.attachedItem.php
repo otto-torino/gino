@@ -191,7 +191,7 @@ class attachedItem extends propertyObject {
     $selection = 'id';
     $table = self::$tbl_item;
 
-    $rows = $db->select($selection, $table, $where, $order, $limit);
+    $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         $res[] = new attachedItem($row['id'], $controller);
@@ -217,52 +217,53 @@ class attachedItem extends propertyObject {
         $item->delete();
       }
     }
-
   }
 
-  /**
-   * @brief Percorso dell'allegato
-   * @param string $type tipo di percorso:
-   *               - abs: assoluto
-   *               - rel: relativo alla DOCUMENT ROOT
-   *               - view: realtivo alla ROOT
-   *               - url: url assoluto
-   *               - download: url relativo per il download
-   * @return string il percorso dell'allegato
-   */
-  public function path($type) {
+	/**
+	 * @brief Percorso dell'allegato
+	 * 
+	 * @param string $type tipo di percorso:
+	 *   - abs: assoluto
+	 *   - rel: relativo alla DOCUMENT ROOT
+	 *   - view: realtivo alla ROOT
+	 *   - url: url assoluto
+	 *   - download: url relativo per il download
+	 * @return string il percorso dell'allegato
+	 */
+	public function path($type) {
 
-    if($type == 'download') {
-      $link = new link();
-      return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
-    }
-    else {
-      $ctg = new attachedCtg($this->category, $this->_controller);
+		if($type == 'download') {
+			$link = new link();
+			return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
+		}
+		else {
+			
+			$ctg = new attachedCtg($this->category, $this->_controller);
+			return $ctg->path($type).$this->file;
+		}
+	}
 
-      return $ctg->path($type).$this->file;
-    }
+	/**
+	 * @brief Link al preview dell'allegato
+	 * 
+	 * @description lightbox per le immagini e dowload per altri tipi di file
+	 * 
+	 * @see path()
+	 * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
+	 */
+	public function previewLink($label = 'filename') {
 
-  }
+		$alabel = $label == 'path' ? $this->path('view') : $this->file;
 
-  /**
-   * @brief Link al preview dell'allegato
-   * @description lightbox per le immagini e dowload per altri tipi di file
-   * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
-   */
-  public function previewLink($label = 'filename') {
-
-    $alabel = $label == 'path' ? $this->path('view') : $this->file;
-
-    if($this->type() === 'img') {
-      $onclick = "Slimbox.open('".$this->path('view')."')";
-      return "<span class=\"link\" onclick=\"$onclick\">".$alabel."</span>";
-    }
-    else {
-      $link = new link();
-      return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
-    }
-
-  }
+		if($this->type() === 'img') {
+			$onclick = "Slimbox.open('".$this->path('view')."')";
+			return "<span class=\"link\" onclick=\"$onclick\">".$alabel."</span>";
+		}
+		else {
+			$link = new link();
+			return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
+	 	}
+	}
 
 }
 

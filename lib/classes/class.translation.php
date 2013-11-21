@@ -61,13 +61,12 @@ class translation
 		if($this->_lng == $this->_lngDft) return $dft_text;
 		else
 		{
-			$query = "SELECT text FROM ".$this->_tbl_translation." WHERE tbl='$table' AND field='$field' AND tbl_id_value='$reference' AND language='".$this->_lng."'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select('text', $this->_tbl_translation, "tbl='$table' AND field='$field' AND tbl_id_value='$reference' AND language='".$this->_lng."'");
+			if(count($records))
 			{
-				foreach($a AS $b)
+				foreach($records AS $r)
 				{
-					$text = $b['text'];
+					$text = $r['text'];
 				}
 				if(!empty($text)) return $text;
 			}		

@@ -1,205 +1,183 @@
--- phpMyAdmin SQL Dump
--- version 3.3.8
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generato il: 01 mar, 2013 at 11:49 AM
--- Versione MySQL: 5.1.48
--- Versione PHP: 5.3.15
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
 
 --
--- Database: `dbgino`
+-- Database: dbgino
 --
+
+USE dbgino
+GO
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached`
+-- Table structure for table attached
 --
 
-CREATE TABLE IF NOT EXISTS `attached` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category` int(11) NOT NULL,
-  `file` varchar(100) NOT NULL,
-  `notes` text,
-  `insertion_date` datetime NOT NULL,
-  `last_edit_date` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+CREATE TABLE attached (
+  id			int IDENTITY(1, 1),
+  category		int NOT NULL,
+  [file]			nvarchar(100) NOT NULL,
+  notes			nvarchar(max),
+  insertion_date datetime NOT NULL,
+  last_edit_date datetime NOT NULL,
+  PRIMARY KEY (id)
+)
+GO
 
---
--- Dumping data for table `attached`
---
+SET IDENTITY_INSERT attached ON
 
-INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
+INSERT INTO attached ([id], [category], [file], [notes], [insertion_date], [last_edit_date]) VALUES
 (1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (3, 1, 'github.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (4, 1, 'plugin.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37');
 
+SET IDENTITY_INSERT attached OFF
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_ctg`
+-- Table structure for table attached_ctg
 --
 
-CREATE TABLE IF NOT EXISTS `attached_ctg` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `directory` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE attached_ctg (
+  id			int IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  directory nvarchar(20) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dumping data for table `attached_ctg`
---
+SET IDENTITY_INSERT attached_ctg ON
 
-INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
+INSERT INTO attached_ctg (id, name, directory) VALUES
 (1, 'various', 'c1');
 
+SET IDENTITY_INSERT attached_ctg OFF
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_grp`
+-- Table structure for table attached_grp
 --
 
-CREATE TABLE IF NOT EXISTS `attached_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE attached_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_attached_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dumping data for table `attached_grp`
---
+SET IDENTITY_INSERT attached_grp ON
 
-INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO attached_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
 (2, 'assistenti', 'Gestiscono gli allegati.', 'no');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `attached_usr`
---
-
-CREATE TABLE IF NOT EXISTS `attached_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
+SET IDENTITY_INSERT attached_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments`
+-- Table structure for table attached_usr
 --
 
-CREATE TABLE IF NOT EXISTS `instruments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` text NOT NULL,
-  `order_list` smallint(2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE attached_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `instruments`
+-- Struttura della tabella instruments
 --
 
-INSERT INTO `instruments` (`id`, `name`, `description`, `order_list`) VALUES
+CREATE TABLE instruments (
+  id			int IDENTITY(1, 1),
+  name nvarchar(200) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  order_list smallint NOT NULL,
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT instruments ON
+
+INSERT INTO instruments (id, name, description, order_list) VALUES
 (1, 'Collegamenti', 'Elenco interfacce e pagine disponibili', 1),
 (2, 'Mime-Type', 'Elenco dei mime type con le estensioni di riferimento', 2);
 
+SET IDENTITY_INSERT instruments OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments_grp`
+-- Struttura della tabella instruments_grp
 --
 
-CREATE TABLE IF NOT EXISTS `instruments_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE instruments_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_instruments_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `instruments_grp`
---
+SET IDENTITY_INSERT instruments_grp ON
 
-INSERT INTO `instruments_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO instruments_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
 (2, 'utilizzatori', 'Visualizzano gli strumenti', 'no');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `instruments_opt`
---
-
-CREATE TABLE IF NOT EXISTS `instruments_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `instruments_opt`
---
-
+SET IDENTITY_INSERT instruments_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments_usr`
+-- Struttura della tabella instruments_opt
 --
 
-CREATE TABLE IF NOT EXISTS `instruments_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `instruments_usr`
---
-
+CREATE TABLE instruments_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  PRIMARY KEY (id)
+)
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `language`
+-- Struttura della tabella instruments_usr
 --
 
-CREATE TABLE IF NOT EXISTS `language` (
-  `label` varchar(10) NOT NULL,
-  `language` varchar(50) NOT NULL DEFAULT '',
-  `code` varchar(5) NOT NULL DEFAULT '',
-  `main` enum('no','yes') NOT NULL DEFAULT 'no',
-  `active` enum('no','yes') NOT NULL DEFAULT 'yes',
-  `flag` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE TABLE instruments_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `language`
+-- Struttura della tabella language
 --
 
-INSERT INTO `language` (`label`, `language`, `code`, `main`, `active`, `flag`) VALUES
+CREATE TABLE language (
+  label nvarchar(10) NOT NULL,
+  language nvarchar(50) NOT NULL DEFAULT '',
+  code nvarchar(5) NOT NULL DEFAULT '',
+  main nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_language_main CHECK (main IN('no','yes')) DEFAULT 'no',
+  active nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_language_active CHECK (active IN('no','yes')) DEFAULT 'yes',
+  flag nvarchar(20) DEFAULT NULL,
+  PRIMARY KEY (code)
+)
+
+INSERT INTO language (label, language, code, main, active, flag) VALUES
 ('ITA', 'italiano', 'it_IT', 'yes', 'yes', NULL),
 ('ENG', 'english', 'en_US', 'no', 'yes', NULL),
 ('ESP', 'espanol', 'es_ES', 'no', 'yes', NULL),
@@ -208,43 +186,39 @@ INSERT INTO `language` (`label`, `language`, `code`, `main`, `active`, `flag`) V
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `language_opt`
+-- Struttura della tabella language_opt
 --
 
-CREATE TABLE IF NOT EXISTS `language_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `opt_flag` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE language_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  opt_flag tinyint NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `language_opt`
---
+SET IDENTITY_INSERT language_opt ON
 
-INSERT INTO `language_opt` (`id`, `instance`, `title`, `opt_flag`) VALUES
+INSERT INTO language_opt (id, instance, title, opt_flag) VALUES
 (1, 0, 'Lingue', 0);
+
+SET IDENTITY_INSERT language_opt OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `language_translation`
+-- Struttura della tabella language_translation
 --
 
-CREATE TABLE IF NOT EXISTS `language_translation` (
-  `tbl_id_value` int(11) DEFAULT NULL,
-  `tbl` varchar(200) DEFAULT NULL,
-  `field` varchar(200) DEFAULT NULL,
-  `language` varchar(5) DEFAULT NULL,
-  `text` text
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE TABLE language_translation (
+  tbl_id_value int DEFAULT NULL,
+  tbl nvarchar(200) DEFAULT NULL,
+  field nvarchar(200) DEFAULT NULL,
+  language nvarchar(5) DEFAULT NULL,
+  text nvarchar(max)
+)
 
---
--- Dump dei dati per la tabella `language_translation`
---
-
-INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, `text`) VALUES
+INSERT INTO language_translation (tbl_id_value, tbl, field, language, text) VALUES
 (1, 'page_layout', 'name', 'en_US', 'visual editor'),
 (2, 'page_layout', 'name', 'en_US', 'media (image/video)'),
 (3, 'page_layout', 'name', 'en_US', 'media left - editor right'),
@@ -256,23 +230,21 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `nation`
+-- Struttura della tabella nation
 --
 
-CREATE TABLE IF NOT EXISTS `nation` (
-  `id` smallint(4) NOT NULL AUTO_INCREMENT,
-  `it_IT` varchar(100) NOT NULL,
-  `en_US` varchar(100) NOT NULL,
-  `fr_FR` varchar(100) NOT NULL,
-  `onu` date NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=193 ;
+CREATE TABLE nation (
+  id			smallint IDENTITY(1, 1),
+  it_IT nvarchar(100) NOT NULL,
+  en_US nvarchar(100) NOT NULL,
+  fr_FR nvarchar(100) NOT NULL,
+  onu date NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `nation`
---
+SET IDENTITY_INSERT nation ON
 
-INSERT INTO `nation` (`id`, `it_IT`, `en_US`, `fr_FR`, `onu`) VALUES
+INSERT INTO nation (id, it_IT, en_US, fr_FR, onu) VALUES
 (1, 'Afghanistan', 'Afghanistan', 'Afghanistan', '1946-11-19'),
 (2, 'Albania', 'Albania', 'Albanie', '1955-12-14'),
 (3, 'Algeria', 'Algeria', 'Algérie', '1962-10-08'),
@@ -466,362 +438,334 @@ INSERT INTO `nation` (`id`, `it_IT`, `en_US`, `fr_FR`, `onu`) VALUES
 (191, 'Zambia', 'Zambia', 'Zambie', '1964-12-01'),
 (192, 'Zimbabwe', 'Zimbabwe', 'Zimbabwe', '1980-08-25');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `page_category`
---
-
-CREATE TABLE IF NOT EXISTS `page_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) NOT NULL,
-  `description` text,
-  `date` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_category`
---
-
+SET IDENTITY_INSERT nation OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_comment`
+-- Struttura della tabella page_category
 --
 
-CREATE TABLE IF NOT EXISTS `page_comment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `entry` int(11) NOT NULL,
-  `datetime` datetime NOT NULL,
-  `author` varchar(200) NOT NULL,
-  `email` varchar(200) NOT NULL,
-  `web` varchar(200) DEFAULT NULL,
-  `text` text NOT NULL,
-  `notification` int(1) NOT NULL,
-  `reply` int(11) DEFAULT NULL,
-  `published` int(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_comment`
---
-
+CREATE TABLE page_category (
+  id			int IDENTITY(1, 1),
+  name nvarchar(60) NOT NULL,
+  description nvarchar(max),
+  date datetime NOT NULL,
+  PRIMARY KEY (id)
+)
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_entry`
+-- Struttura della tabella page_comment
 --
 
-CREATE TABLE IF NOT EXISTS `page_entry` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category_id` int(11) NOT NULL,
-  `author` int(11) NOT NULL,
-  `creation_date` datetime NOT NULL,
-  `last_edit_date` datetime NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `slug` varchar(200) NOT NULL,
-  `image` varchar(200) DEFAULT NULL,
-  `url_image` varchar(200) DEFAULT NULL,
-  `text` text NOT NULL,
-  `tags` varchar(255) DEFAULT NULL,
-  `enable_comments` tinyint(1) NOT NULL,
-  `published` tinyint(1) NOT NULL,
-  `social` tinyint(1) NOT NULL,
-  `private` tinyint(1) NOT NULL,
-  `users` varchar(255) NOT NULL,
-  `read` int(11) NOT NULL,
-  `tpl_code` text,
-  `box_tpl_code` text,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
+CREATE TABLE page_comment (
+  id			int IDENTITY(1, 1),
+  entry int NOT NULL,
+  datetime datetime NOT NULL,
+  author nvarchar(200) NOT NULL,
+  email nvarchar(200) NOT NULL,
+  web nvarchar(200) DEFAULT NULL,
+  text nvarchar(max) NOT NULL,
+  notification tinyint NOT NULL,
+  reply int DEFAULT NULL,
+  published tinyint NOT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `page_entry`
+-- Struttura della tabella page_entry
 --
 
-INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_edit_date`, `title`, `slug`, `image`, `url_image`, `text`, `tags`, `enable_comments`, `published`, `social`, `private`, `users`, `read`, `tpl_code`, `box_tpl_code`) VALUES
-(4, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
+CREATE TABLE page_entry (
+  id			int IDENTITY(1, 1),
+  category_id int NOT NULL,
+  author int NOT NULL,
+  creation_date datetime NOT NULL,
+  last_edit_date datetime NOT NULL,
+  title nvarchar(200) NOT NULL,
+  slug nvarchar(200) NOT NULL UNIQUE,
+  image nvarchar(200) DEFAULT NULL,
+  url_image nvarchar(200) DEFAULT NULL,
+  text nvarchar(max) NOT NULL,
+  tags nvarchar(255) DEFAULT NULL,
+  enable_comments tinyint NOT NULL,
+  published tinyint NOT NULL,
+  social tinyint NOT NULL,
+  private tinyint NOT NULL,
+  users nvarchar(255) NOT NULL,
+  [read] int NOT NULL,
+  tpl_code nvarchar(max),
+  box_tpl_code nvarchar(max),
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT page_entry ON
+
+INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, [read], tpl_code, box_tpl_code) VALUES
+(4, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>\r\ngino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (5, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (7, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (8, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (9, 0, 1, '2011-11-08 14:05:57', '2013-01-09 12:48:07', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p><img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p><p>Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL);
 
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `page_entry_tag`
---
-
-CREATE TABLE IF NOT EXISTS `page_entry_tag` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `entry` int(11) NOT NULL,
-  `tag` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_entry_tag`
---
+SET IDENTITY_INSERT page_entry OFF
 
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_grp`
+-- Struttura della tabella page_entry_tag
 --
 
-CREATE TABLE IF NOT EXISTS `page_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+CREATE TABLE page_entry_tag (
+  id			int IDENTITY(1, 1),
+  entry int NOT NULL,
+  tag int NOT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `page_grp`
+-- Struttura della tabella page_grp
 --
 
-INSERT INTO `page_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+CREATE TABLE page_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_page_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT page_grp ON
+
+INSERT INTO page_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
 (2, 'pubblicatori', 'Gestiscono la pubblicazione di pagine e commenti e la redazione', 'no'),
 (3, 'redattori', 'Gestiscono la redazione', 'no'),
 (4, 'utenti pagine private', 'Accedono alle pagine che sono state salvate come private', 'no');
 
+SET IDENTITY_INSERT page_grp OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_opt`
+-- Struttura della tabella page_opt
 --
 
-CREATE TABLE IF NOT EXISTS `page_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `last_title` varchar(200) NOT NULL,
-  `archive_title` varchar(200) NOT NULL,
-  `showcase_title` varchar(200) NOT NULL,
-  `cloud_title` varchar(200) NOT NULL,
-  `last_number` smallint(2) NOT NULL,
-  `last_tpl_code` text NOT NULL,
-  `showcase_number` smallint(3) NOT NULL,
-  `showcase_auto_start` tinyint(1) NOT NULL,
-  `showcase_auto_interval` int(5) NOT NULL,
-  `showcase_tpl_code` text NOT NULL,
-  `archive_efp` int(11) NOT NULL,
-  `archive_tpl_code` text NOT NULL,
-  `entry_tpl_code` text NOT NULL,
-  `box_tpl_code` text NOT NULL,
-  `comment_moderation` tinyint(1) NOT NULL,
-  `comment_notification` tinyint(1) NOT NULL,
-  `newsletter_entries_number` smallint(2) NOT NULL,
-  `newsletter_tpl_code` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE page_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  last_title nvarchar(200) NOT NULL,
+  archive_title nvarchar(200) NOT NULL,
+  showcase_title nvarchar(200) NOT NULL,
+  cloud_title nvarchar(200) NOT NULL,
+  last_number smallint NOT NULL,
+  last_tpl_code nvarchar(max) NOT NULL,
+  showcase_number smallint NOT NULL,
+  showcase_auto_start tinyint NOT NULL,
+  showcase_auto_interval int NOT NULL,
+  showcase_tpl_code nvarchar(max) NOT NULL,
+  archive_efp int NOT NULL,
+  archive_tpl_code nvarchar(max) NOT NULL,
+  entry_tpl_code nvarchar(max) NOT NULL,
+  box_tpl_code nvarchar(max) NOT NULL,
+  comment_moderation tinyint NOT NULL,
+  comment_notification tinyint NOT NULL,
+  newsletter_entries_number smallint NOT NULL,
+  newsletter_tpl_code nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `page_opt`
---
+SET IDENTITY_INSERT page_opt ON
 
-INSERT INTO `page_opt` (`id`, `instance`, `last_title`, `archive_title`, `showcase_title`, `cloud_title`, `last_number`, `last_tpl_code`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `archive_efp`, `archive_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
+INSERT INTO page_opt (id, instance, last_title, archive_title, showcase_title, cloud_title, last_number, last_tpl_code, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, archive_efp, archive_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
 (1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n{{ social}}\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', '<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n{{ social}}\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>', '<div class="left" style="padding-left:4px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n</div>\r\n<div class="null"></div>', 0, 1, 5, '');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `page_tag`
---
-
-CREATE TABLE IF NOT EXISTS `page_tag` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_tag`
---
-
+SET IDENTITY_INSERT page_opt OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_usr`
+-- Struttura della tabella page_tag
 --
 
-CREATE TABLE IF NOT EXISTS `page_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE TABLE page_tag (
+  id			int IDENTITY(1, 1),
+  name nvarchar(128) NOT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `page_usr`
+-- Struttura della tabella page_usr
+--
+
+CREATE TABLE page_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+--
+-- Dump dei dati per la tabella page_usr
 --
 
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module`
+-- Struttura della tabella php_module
 --
 
-CREATE TABLE IF NOT EXISTS `php_module` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `content` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE php_module (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  content nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `php_module`
---
+SET IDENTITY_INSERT php_module ON
 
-INSERT INTO `php_module` (`id`, `instance`, `content`) VALUES
+INSERT INTO php_module (id, instance, content) VALUES
 (1, 6, '$lng = (isset($_SESSION[''lng''])) ? $_SESSION[''lng'']:''it_IT'';\r\n$access = new access();\r\n \r\n$buffer = "<div class=\\"topBar\\">";\r\n$buffer .= "<div class=\\"left\\">";\r\nif(pub::variable(''multi_language'')==''yes'') {\r\n  $query = "SELECT label, code, main FROM language WHERE active=''yes'' ORDER BY main DESC";\r\n  $a = $this->_db->selectquery($query);\r\n  $lng_buffer = array();\r\n  foreach($a as $b) {\r\n    if(isset($_SESSION[''lng''])) {\r\n      $selected = $_SESSION[''lng''] == $b[''code''] ? true : false;\r\n    }\r\n    else\r\n      $selected = $b[''main''] == ''yes'' ? true : false;\r\n    \r\n    if(!$selected) \r\n      $lng_buffer[]  =  "<a href=\\"index.php?lng=".$b[''code'']."\\">".htmlChars($b[''label''])."</a>";\r\n    else \r\n      $lng_buffer[]  =  "<a class=\\"selected\\">".htmlChars($b[''label''])."</a>";\r\n  }\r\n  \r\n  $buffer .= implode("", $lng_buffer); \r\n}\r\n$buffer .= "</div>";\r\nif(!isset($_SESSION[''userId''])) {\r\n    $buffer .= "<span class=\\"link\\" onclick=\\"login_toggle.toggle();\\">"._("Area riservata")."</span>";\r\n    $buffer .= "<div id=\\"login_registered\\" style=\\"display:none;\\">";\r\n    $buffer .= "<div>";\r\n    $buffer .= "<form method=\\"post\\" action=\\"index.php\\" style=\\"float:right\\">";\r\n    $buffer .= "<input type=\\"hidden\\" name=\\"action\\" value=\\"auth\\" />";\r\n    $buffer .= "<table class=\\"flt\\">";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\">User</td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"text\\" name=\\"user\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\">Password</td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"password\\" name=\\"pwd\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\"></td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"submit\\" class=\\"generic\\" value=\\"login\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "</table>";\r\n    $buffer .= "</form>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<script>var login_toggle = new Fx.Reveal(''login_registered'');</script>";\r\n}\r\nelse {\r\n    $admin_link = false;\r\n    if($access->getAccessAdmin()) {\r\n        $buffer .= "<a class=\\"aTopBar no_border\\" href=\\"admin.php\\">"._("Amministrazione")."</a>";\r\n        $admin_link = true;\r\n    }\r\n    $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''userId'']."''";\r\n    $a = $this->_db->selectquery($query);\r\n    $username = $a>0 ? $a[0][''name'']:null;\r\n    $buffer .= "<a class=\\"aTopBar".($admin_link ? "" : " no_border")."\\" href=\\"index.php?evt[user-userCard]\\"><span title=\\""._("Profilo utente")."\\" class=\\"tooltip\\">".$username."</span></a>";\r\n    $buffer .= "<a class=\\"aTopBar\\" href=\\"index.php?action=logout\\">"._("Logout")."</a>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n}\r\n$buffer .= "</div>";'),
 (2, 9, '$buffer = "<div class=\\"topBar\\">";\r\n\r\n$index = new index();\r\n\r\n$sysMdls = $index->sysModulesManageArray();\r\n$mdls = $index->modulesManageArray();\r\n \r\nif(count($sysMdls)) {	\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''sysmdl_menu'' onchange=\\"$onchange\\">";\r\n  $buffer .= "<option value=\\"\\">"._("Sistema")."</option>";\r\n  foreach($sysMdls as $sm) { \r\n    $buffer .= "<option value=\\"".$sm[''name'']."-manage".ucfirst($sm[''name''])."\\">".htmlChars($sm[''label''])."</option>";\r\n  }\r\n  $buffer .= "</select> ";\r\n}\r\n				\r\nif(count($mdls)) {\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''mdl_menu'' onchange=\\"$onchange\\">";	\r\n  $buffer .= "<option value=\\"\\">"._("Moduli")."</option>";\r\n  foreach($mdls as $m) {\r\n    $buffer .= "<option value=\\"".$m[''name'']."-manageDoc\\">".htmlChars($m[''label''])."</option>";\r\n  }	\r\n  $buffer .= "</select>";\r\n}\r\n\r\n$buffer .= "</div>";');
 
+SET IDENTITY_INSERT php_module OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module_grp`
+-- Struttura della tabella php_module_grp
 --
 
-CREATE TABLE IF NOT EXISTS `php_module_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE php_module_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_php_module_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `php_module_grp`
---
+SET IDENTITY_INSERT php_module_grp ON
 
-INSERT INTO `php_module_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO php_module_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
 (2, 'assistenti', 'Gestiscono i moduli php.', 'no');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `php_module_opt`
---
-
-CREATE TABLE IF NOT EXISTS `php_module_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `title_vis` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `php_module_opt`
---
-
+SET IDENTITY_INSERT php_module_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module_usr`
+-- Struttura della tabella php_module_opt
 --
 
-CREATE TABLE IF NOT EXISTS `php_module_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `php_module_usr`
---
-
+CREATE TABLE php_module_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  title_vis tinyint NOT NULL,
+  PRIMARY KEY (id)
+)
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `search_site_opt`
+-- Struttura della tabella php_module_usr
 --
 
-CREATE TABLE IF NOT EXISTS `search_site_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `template` text NOT NULL,
-  `sys_mdl` varchar(256) NOT NULL,
-  `inst_mdl` varchar(256) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `search_site_opt`
---
-
+CREATE TABLE php_module_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_conf`
+-- Struttura della tabella search_site_opt
 --
 
-CREATE TABLE IF NOT EXISTS `sys_conf` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `user_role` tinyint(1) NOT NULL,
-  `admin_role` tinyint(1) NOT NULL,
-  `multi_language` enum('yes','no') NOT NULL DEFAULT 'no',
-  `dft_language` varchar(5) NOT NULL,
-  `precharge_mdl_url` enum('yes','no') NOT NULL,
-  `log_access` enum('yes','no') NOT NULL DEFAULT 'no',
-  `head_description` varchar(255) NOT NULL,
-  `head_keywords` varchar(255) NOT NULL,
-  `head_title` varchar(255) NOT NULL,
-  `google_analytics` varchar(20) NOT NULL,
-  `captcha_public` varchar(64) DEFAULT NULL,
-  `captcha_private` varchar(64) DEFAULT NULL,
-  `email_name` varchar(100) DEFAULT NULL,
-  `email_from_app` varchar(100) DEFAULT NULL,
-  `mobile` enum('yes','no') NOT NULL DEFAULT 'no',
-  `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
-  `email_admin` varchar(100) DEFAULT NULL,
-  `enable_cache` tinyint(1) NOT NULL,
-  `permalinks` enum('yes','no') NOT NULL DEFAULT 'yes',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE search_site_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  template nvarchar(max) NOT NULL,
+  sys_mdl nvarchar(256) NOT NULL,
+  inst_mdl nvarchar(256) NOT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_conf`
+-- Struttura della tabella sys_conf
 --
 
-INSERT INTO `sys_conf` (`id`, `user_role`, `admin_role`, `multi_language`, `dft_language`, `precharge_mdl_url`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_name`, `email_from_app`, `mobile`, `password_crypt`, `email_admin`, `enable_cache`, `permalinks`) VALUES
+CREATE TABLE sys_conf (
+  id			smallint IDENTITY(1, 1),
+  user_role tinyint NOT NULL,
+  admin_role tinyint NOT NULL,
+  multi_language nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_multi_language CHECK (multi_language IN('yes','no')) DEFAULT 'no',
+  dft_language nvarchar(5) NOT NULL,
+  precharge_mdl_url nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_precharge_mdl_url CHECK (precharge_mdl_url IN('yes','no')),
+  log_access nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_log_access CHECK (log_access IN('yes','no')) DEFAULT 'no',
+  head_description nvarchar(255) NOT NULL,
+  head_keywords nvarchar(255) NOT NULL,
+  head_title nvarchar(255) NOT NULL,
+  google_analytics nvarchar(20) NOT NULL,
+  captcha_public nvarchar(64) DEFAULT NULL,
+  captcha_private nvarchar(64) DEFAULT NULL,
+  email_name nvarchar(100) DEFAULT NULL,
+  email_from_app nvarchar(100) DEFAULT NULL,
+  mobile nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_mobile CHECK (mobile IN('yes','no')) DEFAULT 'no',
+  password_crypt nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
+  email_admin nvarchar(100) DEFAULT NULL,
+  enable_cache tinyint NOT NULL,
+  permalinks nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_conf_permalinks CHECK (permalinks IN('yes','no')) DEFAULT 'yes',
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_conf ON
+
+INSERT INTO sys_conf (id, user_role, admin_role, multi_language, dft_language, precharge_mdl_url, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_name, email_from_app, mobile, password_crypt, email_admin, enable_cache, permalinks) VALUES
 (1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'gino CMS', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
 
+SET IDENTITY_INSERT sys_conf OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_graphics`
+-- Struttura della tabella sys_graphics
 --
 
-CREATE TABLE IF NOT EXISTS `sys_graphics` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `type` tinyint(1) NOT NULL DEFAULT '1',
-  `image` varchar(128) NOT NULL,
-  `html` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=11 ;
+CREATE TABLE sys_graphics (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(50) NOT NULL,
+  description nvarchar(100) NOT NULL,
+  type tinyint NOT NULL DEFAULT '1',
+  image nvarchar(128) NOT NULL,
+  html nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_graphics`
---
+SET IDENTITY_INSERT sys_graphics ON
 
-INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`) VALUES
+INSERT INTO sys_graphics (id, name, description, type, image, html) VALUES
 (1, 'header_public', 'Header pagine pubbliche', 1, 'header.jpg', ''),
 (2, 'header_private', 'Header pagine private', 2, '', '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="840" height="160" id="header" align="middle">\r\n	<param name="allowScriptAccess" value="sameDomain" />\r\n	<param name="allowFullScreen" value="false" />\r\n        <param name="wmode" value="transparent">\r\n	<param name="movie" value="_GRAPHICS_/header.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" /><embed src="_GRAPHICS_/header.swf" quality="high" bgcolor="#ffffff" width="840" height="160" wmode="transparent" name="header" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />\r\n	</object>'),
 (3, 'header_admin', 'Header amministrazione', 1, 'header_admin.jpg', 'HEADER'),
@@ -833,200 +777,189 @@ INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`
 (9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', ''),
 (10, 'footer_adhoc', 'Footer ad hoc', 1, '', 'FOOTER ADHOC');
 
+SET IDENTITY_INSERT sys_graphics OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_graphics_grp`
+-- Struttura della tabella sys_graphics_grp
 --
 
-CREATE TABLE IF NOT EXISTS `sys_graphics_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE sys_graphics_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_graphics_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_graphics_grp`
---
+SET IDENTITY_INSERT sys_graphics_grp ON
 
-INSERT INTO `sys_graphics_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO sys_graphics_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
 (2, 'assistenti', 'Personalizzano l''header e il footer del sito.', 'no');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_graphics_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_graphics_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_graphics_usr`
---
-
+SET IDENTITY_INSERT sys_graphics_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_image`
+-- Struttura della tabella sys_graphics_usr
 --
 
-CREATE TABLE IF NOT EXISTS `sys_image` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `sys_image`
---
-
+CREATE TABLE sys_graphics_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_image_grp`
+-- Struttura della tabella sys_image
 --
 
-CREATE TABLE IF NOT EXISTS `sys_image_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE sys_image (
+  id			int IDENTITY(1, 1),
+  name nvarchar(200) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_image_grp`
+-- Struttura della tabella sys_image_grp
 --
 
-INSERT INTO `sys_image_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+CREATE TABLE sys_image_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_image_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_image_grp ON
+
+INSERT INTO sys_image_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_image_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_image_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_image_usr`
---
-
+SET IDENTITY_INSERT sys_image_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_css`
+-- Struttura della tabella sys_image_usr
 --
 
-CREATE TABLE IF NOT EXISTS `sys_layout_css` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `filename` varchar(200) NOT NULL,
-  `label` varchar(200) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+CREATE TABLE sys_image_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_layout_css`
+-- Struttura della tabella sys_layout_css
 --
 
-INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
+CREATE TABLE sys_layout_css (
+  id			int IDENTITY(1, 1),
+  filename nvarchar(200) NOT NULL,
+  label nvarchar(200) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_layout_css ON
+
+INSERT INTO sys_layout_css (id, filename, label, description) VALUES
 (1, 'mobile.css', 'Css per la visione mobile', ''),
 (2, 'admin.css', 'Css area amministrativa', ''),
 (3, 'home.css', 'Css gino base', 'Personalizza homepage e pagine di gino base');
 
+SET IDENTITY_INSERT sys_layout_css OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_grp`
+-- Struttura della tabella sys_layout_grp
 --
 
-CREATE TABLE IF NOT EXISTS `sys_layout_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE sys_layout_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_layout_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_layout_grp`
---
+SET IDENTITY_INSERT sys_layout_grp ON
 
-INSERT INTO `sys_layout_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO sys_layout_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_layout_skin`
---
-
-CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(200) NOT NULL,
-  `session` varchar(128) DEFAULT NULL,
-  `rexp` varchar(200) DEFAULT NULL,
-  `urls` varchar(200) DEFAULT NULL,
-  `template` varchar(200) NOT NULL,
-  `css` int(11) NOT NULL,
-  `priority` int(11) NOT NULL,
-  `auth` enum('yes','no','') NOT NULL,
-  `cache` bigint(16) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
-
---
--- Dump dei dati per la tabella `sys_layout_skin`
---
-
-INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
-(1, 'Home Pubblica', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '2', 3, 8, 'no', 0),
-(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 6, 'no', 0),
-(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '5', 2, 5, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '6', 2, 4, 'yes', 0),
-(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
-(6, 'Default', NULL, '#^.*$#', NULL, '1', 0, 10, '', 0),
-(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 7, 'yes', 0),
-(8, 'Home Privata', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '2', 3, 9, 'yes', 0),
-(9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'mobile=1', NULL, 'index.php?mobile=1', '7', 1, 1, '', 0);
+SET IDENTITY_INSERT sys_layout_grp OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_tpl`
+-- Struttura della tabella sys_layout_skin
 --
 
-CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `filename` varchar(200) NOT NULL,
-  `label` varchar(200) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+CREATE TABLE sys_layout_skin (
+  id			int IDENTITY(1, 1),
+  label nvarchar(200) NOT NULL,
+  session nvarchar(128) NOT NULL,
+  rexp nvarchar(200) NOT NULL,
+  urls nvarchar(200) NOT NULL,
+  template nvarchar(200) NOT NULL,
+  css int NOT NULL,
+  priority int NOT NULL,
+  auth nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_layout_skin_auth CHECK (auth IN('yes','no','')),
+  cache bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_layout_skin ON
+
+INSERT INTO sys_layout_skin (id, label, session, rexp, urls, template, css, priority, auth, cache) VALUES
+(1, 'Home Pubblica', '', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 8, 'no', 0),
+(2, 'Pagine Pubbliche', '', '#evt\\[(?!index)#', '', '3', 3, 6, 'no', 0),
+(3, 'Home Amministrazione', '', '', 'index.php?evt[index-admin_page]', '5', 2, 5, 'yes', 0),
+(4, 'Pagine Amministrazione', '', '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', '', '6', 2, 4, 'yes', 0),
+(5, 'Pagina Autenticazione', '', '', 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
+(6, 'Default', '', '#^.*$#', '', '1', 0, 10, '', 0),
+(7, 'Pagine Private', '', '#evt\\[(?!index)#', '', '3', 3, 7, 'yes', 0),
+(8, 'Home Privata', '', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 9, 'yes', 0),
+(9, 'Pagine Mobile', 'mobile=1', '#.*#', '', '8', 1, 2, '', 0),
+(10, 'Home Mobile', 'mobile=1', '', 'index.php?mobile=1', '7', 1, 1, '', 0);
+
+SET IDENTITY_INSERT sys_layout_skin OFF
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_layout_tpl`
+-- Struttura della tabella sys_layout_tpl
 --
 
-INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`) VALUES
+CREATE TABLE sys_layout_tpl (
+  id			int IDENTITY(1, 1),
+  filename nvarchar(200) NOT NULL,
+  label nvarchar(200) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_layout_tpl ON
+
+INSERT INTO sys_layout_tpl (id, filename, label, description) VALUES
 (1, 'default.tpl', 'Default', ''),
 (2, 'home.tpl', 'Home', ''),
 (3, 'pages.tpl', 'Pagine', ''),
@@ -1036,29 +969,29 @@ INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`) VALUES
 (7, 'home_mobile.tpl', 'Home Mobile', ''),
 (8, 'mobile_pages.tpl', 'Pagine Mobile', '');
 
+SET IDENTITY_INSERT sys_layout_tpl OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_tpl_block`
+-- Struttura della tabella sys_layout_tpl_block
 --
 
-CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tpl` int(4) NOT NULL,
-  `position` smallint(2) NOT NULL,
-  `width` int(4) NOT NULL,
-  `um` tinyint(1) NOT NULL,
-  `align` tinyint(1) NOT NULL,
-  `rows` smallint(2) NOT NULL,
-  `cols` smallint(2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=62 ;
+CREATE TABLE sys_layout_tpl_block (
+  id			int IDENTITY(1, 1),
+  tpl int NOT NULL,
+  position smallint NOT NULL,
+  width int NOT NULL,
+  um tinyint NOT NULL,
+  align tinyint NOT NULL,
+  rows smallint NOT NULL,
+  cols smallint NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_layout_tpl_block`
---
+SET IDENTITY_INSERT sys_layout_tpl_block ON
 
-INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `align`, `rows`, `cols`) VALUES
+INSERT INTO sys_layout_tpl_block (id, tpl, position, width, um, align, rows, cols) VALUES
 (52, 1, 2, 0, 0, 0, 1, 1),
 (51, 1, 1, 0, 0, 0, 1, 1),
 (50, 7, 1, 480, 1, 2, 1, 1),
@@ -1091,166 +1024,158 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (59, 4, 3, 960, 1, 2, 1, 4),
 (60, 4, 4, 0, 0, 0, 1, 1),
 (61, 4, 5, 960, 1, 2, 1, 2);
--- --------------------------------------------------------
 
---
--- Struttura della tabella `sys_layout_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_layout_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_layout_usr`
---
-
+SET IDENTITY_INSERT sys_layout_tpl_block OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_log_access`
+-- Struttura della tabella sys_layout_usr
 --
 
-CREATE TABLE IF NOT EXISTS `sys_log_access` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE sys_layout_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_log_access`
+-- Struttura della tabella sys_log_access
 --
 
-INSERT INTO `sys_log_access` (`id`, `user_id`, `date`) VALUES
+CREATE TABLE sys_log_access (
+  id			int IDENTITY(1, 1),
+  user_id int DEFAULT NULL,
+  date datetime DEFAULT NULL,
+  PRIMARY KEY (id)
+)
+
+SET IDENTITY_INSERT sys_log_access ON
+
+INSERT INTO sys_log_access (id, user_id, date) VALUES
 (1, 1, '2012-07-30 14:46:56');
 
+SET IDENTITY_INSERT sys_log_access OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_grp`
+-- Struttura della tabella sys_menu_grp
 --
 
-CREATE TABLE IF NOT EXISTS `sys_menu_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE sys_menu_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_menu_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_menu_grp`
---
+SET IDENTITY_INSERT sys_menu_grp ON
 
-INSERT INTO `sys_menu_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO sys_menu_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
 (2, 'assistenti', 'Gestiscono le voci di menu.', 'no');
 
+SET IDENTITY_INSERT sys_menu_grp OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_opt`
+-- Struttura della tabella sys_menu_opt
 --
 
-CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `vis_title` tinyint(1) NOT NULL,
-  `home_voice` varchar(50) NOT NULL,
-  `admin_voice` varchar(50) NOT NULL,
-  `logout_voice` varchar(50) NOT NULL,
-  `horizontal` tinyint(1) NOT NULL,
-  `click_event` tinyint(1) NOT NULL,
-  `initShowIcon` tinyint(1) NOT NULL,
-  `path_to_sel` tinyint(1) NOT NULL,
-  `cache` bigint(16) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+CREATE TABLE sys_menu_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  vis_title tinyint NOT NULL,
+  home_voice nvarchar(50) NOT NULL,
+  admin_voice nvarchar(50) NOT NULL,
+  logout_voice nvarchar(50) NOT NULL,
+  horizontal tinyint NOT NULL,
+  click_event tinyint NOT NULL,
+  initShowIcon tinyint NOT NULL,
+  path_to_sel tinyint NOT NULL,
+  cache bigint DEFAULT '0',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_menu_opt`
---
+SET IDENTITY_INSERT sys_menu_opt ON
 
-INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `vis_title`, `home_voice`, `admin_voice`, `logout_voice`, `horizontal`, `click_event`, `initShowIcon`, `path_to_sel`, `cache`) VALUES
+INSERT INTO sys_menu_opt (id, instance, title, vis_title, home_voice, admin_voice, logout_voice, horizontal, click_event, initShowIcon, path_to_sel, cache) VALUES
 (6, 4, 'Menu principale', 0, 'Home', 'Amministrazione', 'Logout', 1, 0, 0, 0, 0),
 (7, 5, 'Menu amministrazione', 0, 'Home', 'Amministrazione', 'Logout', 1, 0, 0, 0, 0);
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_menu_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_menu_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_menu_usr`
---
-
+SET IDENTITY_INSERT sys_menu_opt OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_voices`
+-- Struttura della tabella sys_menu_usr
 --
 
-CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `parent` int(11) NOT NULL,
-  `label` varchar(200) NOT NULL,
-  `link` varchar(200) NOT NULL,
-  `type` enum('int','ext') NOT NULL,
-  `role1` tinyint(1) NOT NULL,
-  `orderList` smallint(3) NOT NULL,
-  `authView` tinyint(1) NOT NULL,
-  `reference` varchar(200) NOT NULL,
-  `voice` enum('class','page') NOT NULL DEFAULT 'page',
-  `page_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+CREATE TABLE sys_menu_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `sys_menu_voices`
+-- Struttura della tabella sys_menu_voices
 --
+
+CREATE TABLE sys_menu_voices (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  parent int NOT NULL,
+  label nvarchar(200) NOT NULL,
+  link nvarchar(200) NOT NULL,
+  type nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_menu_voices_type CHECK (type IN('int','ext')),
+  role1 tinyint NOT NULL,
+  orderList smallint NOT NULL,
+  authView tinyint NOT NULL,
+  reference nvarchar(200) NOT NULL,
+  voice nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_menu_voices_voice CHECK (voice IN('class','page')) DEFAULT 'page',
+  page_id int NOT NULL,
+  PRIMARY KEY (id)
+)
 
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_module`
+-- Struttura della tabella sys_module
 --
 
-CREATE TABLE IF NOT EXISTS `sys_module` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `class` varchar(200) NOT NULL,
-  `type` enum('class','func') NOT NULL DEFAULT 'class',
-  `role1` smallint(2) NOT NULL,
-  `role2` smallint(2) NOT NULL,
-  `role3` smallint(2) NOT NULL,
-  `directory` varchar(200) DEFAULT NULL,
-  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `role_group` smallint(2) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
+CREATE TABLE sys_module (
+  id			int IDENTITY(1, 1),
+  label nvarchar(100) NOT NULL,
+  name nvarchar(100) NOT NULL,
+  class nvarchar(200) NOT NULL,
+  type nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_type CHECK (type IN('class','func')) DEFAULT 'class',
+  role1 smallint NOT NULL,
+  role2 smallint NOT NULL,
+  role3 smallint NOT NULL,
+  directory nvarchar(200) DEFAULT NULL,
+  masquerade nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_masquerade CHECK (masquerade IN('yes','no')) DEFAULT 'yes',
+  role_group smallint NOT NULL,
+  description nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_module`
---
+SET IDENTITY_INSERT sys_module ON
 
-INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role2`, `role3`, `directory`, `masquerade`, `role_group`, `description`) VALUES
+INSERT INTO sys_module (id, label, name, class, type, role1, role2, role3, directory, masquerade, role_group, description) VALUES
 (1, 'Autenticazione formato tabella', 'tableLogin', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Boxino di autenticazione in formato tabella'),
 (2, 'Autenticazione', 'Autenticazione', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Boxino di autenticazione'),
 (3, 'Credits', 'credits', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Credits'),
@@ -1259,36 +1184,40 @@ INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role
 (6, 'Top Bar', 'topbar', 'phpModuleView', 'class', 5, 5, 5, NULL, 'no', 0, 'Barra superiore con scelta lingua ed autenticazione'),
 (9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
 
+SET IDENTITY_INSERT sys_module OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_module_app`
+-- Struttura della tabella sys_module_app
 --
 
-CREATE TABLE IF NOT EXISTS `sys_module_app` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `type` enum('class','func') NOT NULL,
-  `role1` smallint(2) NOT NULL,
-  `role2` smallint(2) NOT NULL,
-  `role3` smallint(2) NOT NULL,
-  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `role_group` smallint(2) NOT NULL,
-  `tbl_name` varchar(30) NOT NULL,
-  `order_list` smallint(2) NOT NULL,
-  `instance` enum('yes','no') NOT NULL DEFAULT 'no',
-  `description` text NOT NULL,
-  `removable` enum('yes','no') NOT NULL,
-  `class_version` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+CREATE TABLE sys_module_app (
+  id			int IDENTITY(1, 1),
+  label nvarchar(100) NOT NULL,
+  name nvarchar(100) NOT NULL,
+  type nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_app_type CHECK (type IN('class','func')),
+  role1 smallint NOT NULL,
+  role2 smallint NOT NULL,
+  role3 smallint NOT NULL,
+  masquerade nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_app_masquerade CHECK (masquerade IN('yes','no')) DEFAULT 'yes',
+  role_group smallint NOT NULL,
+  tbl_name nvarchar(30) NOT NULL,
+  order_list smallint NOT NULL,
+  instance nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_app_instance CHECK (instance IN('yes','no')) DEFAULT 'no',
+  description nvarchar(max) NOT NULL,
+  removable nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_sys_module_app_removable CHECK (removable IN('yes','no')),
+  class_version nvarchar(200) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_module_app`
---
+SET IDENTITY_INSERT sys_module_app ON
 
-INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `role3`, `masquerade`, `role_group`, `tbl_name`, `order_list`, `instance`, `description`, `removable`, `class_version`) VALUES
+INSERT INTO sys_module_app (id, label, name, type, role1, role2, role3, masquerade, role_group, tbl_name, order_list, instance, description, removable, class_version) VALUES
 (1, 'Impostazioni', 'sysconf', 'class', 2, 2, 2, 'no', 0, 'sys_conf', 1, 'no', 'Principali impostazioni di sistema', 'no', '1.0'),
 (2, 'Lingue', 'language', 'class', 5, 2, 2, 'no', 0, 'language', 2, 'no', 'Gestione delle lingue disponibili per le traduzioni', 'no', '1.0'),
 (3, 'Moduli di sistema', 'sysClass', 'class', 2, 2, 2, 'no', 0, 'sys_class', 3, 'no', 'Modifica, installazione e rimozione dei moduli di sistema', 'no', '1.0'),
@@ -1306,217 +1235,211 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `
 (15, 'phpModuleView', 'phpModuleView', 'class', 0, 0, 0, 'no', 1, 'php_module', 15, 'yes', 'Generatore di moduli contenenti codice php', 'yes', '1.0'),
 (16, 'Strumenti', 'instruments', 'class', 4, 4, 4, 'no', 1, 'instruments', 16, 'no', 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 'no', '1.0');
 
+SET IDENTITY_INSERT sys_module_app OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_stat_opt`
+-- Struttura della tabella sys_stat_opt
 --
 
-CREATE TABLE IF NOT EXISTS `sys_stat_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE sys_stat_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `sys_stat_opt`
---
+SET IDENTITY_INSERT sys_stat_opt ON
 
-INSERT INTO `sys_stat_opt` (`id`, `instance`, `title`) VALUES
+INSERT INTO sys_stat_opt (id, instance, title) VALUES
 (1, 0, 'Statistiche');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_add`
---
-
-CREATE TABLE IF NOT EXISTS `user_add` (
-  `user_id` int(11) NOT NULL,
-  `field1` enum('yes','no') NOT NULL DEFAULT 'no',
-  `field2` enum('yes','no') NOT NULL DEFAULT 'no',
-  `field3` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `user_add`
---
-
+SET IDENTITY_INSERT sys_stat_opt OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_app`
+-- Struttura della tabella user_add
 --
 
-CREATE TABLE IF NOT EXISTS `user_app` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `firstname` varchar(50) NOT NULL DEFAULT '',
-  `lastname` varchar(50) NOT NULL DEFAULT '',
-  `company` varchar(100) DEFAULT NULL,
-  `phone` varchar(30) DEFAULT NULL,
-  `fax` varchar(30) DEFAULT NULL,
-  `email` varchar(100) NOT NULL DEFAULT '',
-  `username` varchar(50) NOT NULL,
-  `userpwd` varchar(100) NOT NULL,
-  `address` varchar(200) DEFAULT NULL,
-  `cap` int(5) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `nation` smallint(4) DEFAULT NULL,
-  `text` text,
-  `photo` varchar(50) DEFAULT NULL,
-  `pub` enum('no','yes') NOT NULL DEFAULT 'no',
-  `role` smallint(2) NOT NULL DEFAULT '0',
-  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `valid` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `privacy` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE user_add (
+  user_id int NOT NULL,
+  field1 nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_add_field1 CHECK (field1 IN('yes','no')) DEFAULT 'no',
+  field2 nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_add_field2 CHECK (field2 IN('yes','no')) DEFAULT 'no',
+  field3 nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_add_field3 CHECK (field3 IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (user_id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `user_app`
+-- Struttura della tabella user_app
 --
 
-INSERT INTO `user_app` (`user_id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `pub`, `role`, `date`, `valid`, `privacy`) VALUES
+CREATE TABLE user_app (
+  user_id			int IDENTITY(1, 1),
+  firstname nvarchar(50) NOT NULL DEFAULT '',
+  lastname nvarchar(50) NOT NULL DEFAULT '',
+  company nvarchar(100) DEFAULT NULL,
+  phone nvarchar(30) DEFAULT NULL,
+  fax nvarchar(30) DEFAULT NULL,
+  email nvarchar(100) NOT NULL DEFAULT '',
+  username nvarchar(50) NOT NULL,
+  userpwd nvarchar(100) NOT NULL,
+  address nvarchar(200) DEFAULT NULL,
+  cap int DEFAULT NULL,
+  city nvarchar(50) DEFAULT NULL,
+  nation smallint DEFAULT NULL,
+  text nvarchar(max),
+  photo nvarchar(50) DEFAULT NULL,
+  pub nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_app_pub CHECK (pub IN('no','yes')) DEFAULT 'no',
+  role smallint NOT NULL DEFAULT '0',
+  date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  valid nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_app_valid CHECK (valid IN('yes','no')) DEFAULT 'yes',
+  privacy nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_app_privacy CHECK (privacy IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (user_id)
+)
+
+SET IDENTITY_INSERT user_app ON
+
+INSERT INTO user_app (user_id, firstname, lastname, company, phone, fax, email, username, userpwd, address, cap, city, nation, text, photo, pub, role, date, valid, privacy) VALUES
 (1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 'via Mazzini 37', 10123, 'Torino', 83, '', '', 'yes', 1, '2011-10-10 01:00:00', 'yes', 'no');
 
+SET IDENTITY_INSERT user_app OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_email`
+-- Struttura della tabella user_email
 --
 
-CREATE TABLE IF NOT EXISTS `user_email` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ref_function` smallint(2) NOT NULL,
-  `description` varchar(255) NOT NULL,
-  `subject` varchar(200) NOT NULL,
-  `text` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ref_function` (`ref_function`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE user_email (
+  id			int IDENTITY(1, 1),
+  ref_function smallint NOT NULL UNIQUE,
+  description nvarchar(255) NOT NULL,
+  subject nvarchar(200) NOT NULL,
+  text nvarchar(max) NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `user_email`
---
+SET IDENTITY_INSERT user_email ON
 
-INSERT INTO `user_email` (`id`, `ref_function`, `description`, `subject`, `text`) VALUES
+INSERT INTO user_email (id, ref_function, description, subject, text) VALUES
 (1, 1, 'email inviata a un utente quando si registra autonomamente e viene automaticamente attivato', '', ''),
 (2, 2, 'email inviata a un utente quando si registra autonomamente e non viene automaticamente attivato', '', '');
 
+SET IDENTITY_INSERT user_email OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_grp`
+-- Struttura della tabella user_grp
 --
 
-CREATE TABLE IF NOT EXISTS `user_grp` (
-  `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+CREATE TABLE user_grp (
+  id			smallint IDENTITY(1, 1),
+  name nvarchar(100) NOT NULL,
+  description nvarchar(max) NOT NULL,
+  no_admin nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `user_grp`
---
+SET IDENTITY_INSERT user_grp ON
 
-INSERT INTO `user_grp` (`id`, `name`, `description`, `no_admin`) VALUES
+INSERT INTO user_grp (id, name, description, no_admin) VALUES
 (1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
 (2, 'assistenti', 'Gestiscono gli utenti. Possono inserire e modificare utenti. Hanno restrizioni sulla modifica dei livelli di accesso e delle password. Non possono eliminare nessun utente.', 'no');
 
+SET IDENTITY_INSERT user_grp OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_opt`
+-- Struttura della tabella user_opt
 --
 
-CREATE TABLE IF NOT EXISTS `user_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `more_info` tinyint(1) NOT NULL,
-  `media_info` tinyint(1) NOT NULL,
-  `user_card_view` tinyint(1) NOT NULL,
-  `aut_valid` tinyint(1) NOT NULL,
-  `users_for_page` smallint(3) NOT NULL,
-  `aut_registration` tinyint(1) NOT NULL,
-  `mod_email` tinyint(1) NOT NULL,
-  `username_email` tinyint(1) NOT NULL,
-  `aut_pwd` tinyint(1) NOT NULL,
-  `pwd_length` smallint(2) NOT NULL,
-  `pwd_min_length` smallint(2) NOT NULL,
-  `pwd_max_length` smallint(2) NOT NULL,
-  `pwd_number` int(10) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+CREATE TABLE user_opt (
+  id			int IDENTITY(1, 1),
+  instance int NOT NULL,
+  title nvarchar(200) NOT NULL,
+  more_info tinyint NOT NULL,
+  media_info tinyint NOT NULL,
+  user_card_view tinyint NOT NULL,
+  aut_valid tinyint NOT NULL,
+  users_for_page smallint NOT NULL,
+  aut_registration tinyint NOT NULL,
+  mod_email tinyint NOT NULL,
+  username_email tinyint NOT NULL,
+  aut_pwd tinyint NOT NULL,
+  pwd_length smallint NOT NULL,
+  pwd_min_length smallint NOT NULL,
+  pwd_max_length smallint NOT NULL,
+  pwd_number int NOT NULL,
+  PRIMARY KEY (id)
+)
 
---
--- Dump dei dati per la tabella `user_opt`
---
+SET IDENTITY_INSERT user_opt ON
 
-INSERT INTO `user_opt` (`id`, `instance`, `title`, `more_info`, `media_info`, `user_card_view`, `aut_valid`, `users_for_page`, `aut_registration`, `mod_email`, `username_email`, `aut_pwd`, `pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_number`) VALUES
+INSERT INTO user_opt (id, instance, title, more_info, media_info, user_card_view, aut_valid, users_for_page, aut_registration, mod_email, username_email, aut_pwd, pwd_length, pwd_min_length, pwd_max_length, pwd_number) VALUES
 (1, 0, 'Utenti', 0, 1, 1, 1, 10, 0, 1, 0, 0, 10, 6, 14, 2);
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_registration`
---
-
-CREATE TABLE IF NOT EXISTS `user_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `session` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `user_registration`
---
-
+SET IDENTITY_INSERT user_opt OFF
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_role`
+-- Struttura della tabella user_registration
 --
 
-CREATE TABLE IF NOT EXISTS `user_role` (
-  `role_id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '',
-  `identifier` varchar(10) NOT NULL DEFAULT '',
-  `default_value` enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`role_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+CREATE TABLE user_registration (
+  id			int IDENTITY(1, 1),
+  user_id int DEFAULT NULL,
+  session nvarchar(50) DEFAULT NULL,
+  PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
 
 --
--- Dump dei dati per la tabella `user_role`
+-- Struttura della tabella user_role
 --
 
-INSERT INTO `user_role` (`role_id`, `name`, `identifier`, `default_value`) VALUES
+CREATE TABLE user_role (
+  role_id			smallint IDENTITY(1, 1),
+  name nvarchar(20) NOT NULL DEFAULT '',
+  identifier nvarchar(10) NOT NULL DEFAULT '',
+  default_value nvarchar(5) NOT NULL 
+  	CONSTRAINT CK_user_role_default_value CHECK (default_value IN('no','yes')) DEFAULT 'no',
+  PRIMARY KEY (role_id)
+)
+
+SET IDENTITY_INSERT user_role ON
+
+INSERT INTO user_role (role_id, name, identifier, default_value) VALUES
 (1, 'system administrator', 'sysadmin', 'no'),
 (2, 'administrator', 'admin', 'no'),
 (3, 'poweruser', 'power', 'no'),
 (4, 'user', 'user', 'no'),
 (5, 'free access', 'free', 'yes');
 
+SET IDENTITY_INSERT user_role OFF
+
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_usr`
+-- Struttura della tabella user_usr
 --
 
-CREATE TABLE IF NOT EXISTS `user_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` smallint(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `user_usr`
---
-
+CREATE TABLE user_usr (
+  instance int NOT NULL,
+  group_id smallint NOT NULL,
+  user_id int NOT NULL
+)

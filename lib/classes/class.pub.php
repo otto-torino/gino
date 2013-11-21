@@ -28,7 +28,21 @@ class pub extends EvtHandler{
 	 */
 	protected $_className;
 	
-	protected $_access, $_db, $session, $_trd, $_list, $_plink;
+	/**
+	 * Oggetto della classe per la gestione degli accessi
+	 * 
+	 * @var object
+	 */
+	protected $_access;
+	
+	/**
+	 * Oggetto del database
+	 * 
+	 * @var object
+	 */
+	protected $_db;
+	
+	protected $session, $_trd, $_list, $_plink;
 	protected $_session_user, $_session_user_name, $_session_role, $_access_admin, $_access_user;
 	protected $_module_type, $_module_text;
 	protected $_crypt;
@@ -231,6 +245,7 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Imposta le variabili del linguaggio
+	 * 
 	 * @return void
 	 */
 	private function setLanguage(){
@@ -601,18 +616,18 @@ class pub extends EvtHandler{
 		
 		$array = array();
 		
-		$query = "SELECT tbl_name FROM ".$this->_tbl_module." WHERE name='$classname' AND type='class'
-		UNION SELECT tbl_name FROM ".$this->_tbl_module_app." WHERE name='$classname' AND type='class'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$query1 = $this->_db->query('tbl_name', $this->_tbl_module, "name='$classname' AND type='class'");
+		$query2 = $this->_db->query('tbl_name', $this->_tbl_module_app, "name='$classname' AND type='class'");
+		
+		$records = $this->_db->union(array($query1, $query2));
+		if(count($records))
 		{
-			foreach ($a AS $b)
+			foreach($records AS $r)
 			{
-				$array[] = $b['tbl_name']."_usr";
-				$array[] = $b['tbl_name']."_grp";
+				$array[] = $r['tbl_name']."_usr";
+				$array[] = $r['tbl_name']."_grp";
 			}
 		}
-		
 		return $array;
 	}
 
@@ -926,7 +941,8 @@ class pub extends EvtHandler{
 	
 	/**
 	 * Elimina il file indicato
-	 * Metodo pubblico perché viene richiamato dalla classe mFile
+	 * 
+	 * Viene richiamato dalla classe mFile.
 	 *
 	 * @param string $path_to_file percorso assoluto al file
 	 * @param string $home (proprietà @a _home)
@@ -1187,15 +1203,14 @@ class pub extends EvtHandler{
 		if(empty($table)) $table = $this->_tbl_user;
 		if(empty($field_id)) $field_id = 'user_id';
 		
-		$query = "SELECT firstname, lastname, company FROM $table WHERE $field_id='$user_id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select('firstname, lastname, company', $table, "$field_id='$user_id'");
+		if(count($records))
 		{
-			foreach ($a AS $b)
+			foreach ($records AS $r)
 			{
-				$firstname = htmlChars($b['firstname']);
-				$lastname = htmlChars($b['lastname']);
-				$company = htmlChars($b['company']);
+				$firstname = htmlChars($r['firstname']);
+				$lastname = htmlChars($r['lastname']);
+				$company = htmlChars($r['company']);
 				
 				if($field_first == 'firstname')
 				{

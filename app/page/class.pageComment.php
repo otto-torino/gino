@@ -140,7 +140,7 @@ class pageComment extends propertyObject {
 		
 		$res = 0;
 		$db = db::instance();
-		$rows = $db->select('COUNT(id) AS tot', self::$tbl_comment, "entry='".$entry_id."' AND published='1'", null, null);
+		$rows = $db->select('COUNT(id) AS tot', self::$tbl_comment, "entry='".$entry_id."' AND published='1'");
 		if($rows and count($rows)) {
 			$res = $rows[0]['tot'];
 		}
@@ -177,7 +177,7 @@ class pageComment extends propertyObject {
 		}
 		$where = implode(' AND ', $where_arr);
 
-		$rows = $db->select($selection, $table, $where, $order, $limit);
+		$rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
 		if(count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new pageComment($row['id'], $controller);
@@ -205,7 +205,7 @@ class pageComment extends propertyObject {
 			$reply_q = "reply='".$reply."'";
 		}
 
-		$child_rows = $db->select("id", self::$tbl_comment, "$reply_q AND published='1' AND entry='".$entry_id."'", "datetime DESC", null);
+		$child_rows = $db->select("id", self::$tbl_comment, "$reply_q AND published='1' AND entry='".$entry_id."'", array('order'=>"datetime DESC"));
 
 		foreach($child_rows as $row) {
 			$tree[] = array(
@@ -298,7 +298,7 @@ class pageComment extends propertyObject {
 		$link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$plink->aLink($this->_controller->getInstanceName(), 'view', array("id"=>$entry->slug)).'#comment'.$this->id;
 
 		// notify other commentors
-		$rows = $db->select('DISTINCT(email), author, id', self::$tbl_comment, "entry='".$this->entry."' AND published='1' AND notification='1'", null, null);
+		$rows = $db->select('DISTINCT(email), author, id', self::$tbl_comment, "entry='".$this->entry."' AND published='1' AND notification='1'");
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$email = $row['email'];
@@ -315,8 +315,9 @@ class pageComment extends propertyObject {
 		// notify author
 		if($this->_controller->commentNotification()) {
 			
+			$concat = $db->concat(array("firstname", "' '", "lastname"));
 			$author_email = $db->getFieldFromId('user_app', 'email', 'user_id', $entry->author);
-			$author_name = $db->getFieldFromId('user_app', 'CONCAT(firstname, \' \', lastname)', 'user_id', $entry->author);
+			$author_name = $db->getFieldFromId('user_app', $concat, 'user_id', $entry->author);
 			if($author_email) {
 				$subject = sprintf(_("Nuovo commento al post \"%s\""), $entry->title);
 				$object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $author_name, $this->author, $link);

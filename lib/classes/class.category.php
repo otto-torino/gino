@@ -85,13 +85,13 @@ class category extends adminTable {
 			$this->addWhereClauses($query_where, $model);
 		}
 		
-		$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+		$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
 		$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
-		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
+		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		//$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), null, null, true);
+		//$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where));
 		//if(!$records) $records = array();
 		
 		$tree = $this->printTree($model, null, $options_view);
@@ -143,7 +143,7 @@ class category extends adminTable {
 		
 		$buffer = '';
 		
-		$records = $this->_db->select("id", $this->_tbl_data, "parent='$parent' AND instance='".$this->_controller->getInstance()."'", $order);
+		$records = $this->_db->select("id", $this->_tbl_data, "parent='$parent' AND instance='".$this->_controller->getInstance()."'", array('order'=>$order));
 		$tot_records = count($records);
 		
 		if(count($tot_records) > 0)

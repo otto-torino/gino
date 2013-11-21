@@ -47,13 +47,20 @@ class mysql implements DbManager {
 		$this->_db_password = $params["password"];
 		$this->_db_charset = $params["charset"];
 		
+		$this->_range = null;
+		$this->_offset = null;
+		
 		$this->setnumberrows(0);
 		$this->setconnection(false);
 		
 		if($params["connect"]===true) $this->openConnection();
 	}
 	
-	// query string
+	/**
+	 * Imposta la query come proprietà
+	 * 
+	 * @param string $sql_query query
+	 */
 	private function setsql($sql_query) {
 		$this->_sql = $sql_query;
 	}
@@ -67,13 +74,27 @@ class mysql implements DbManager {
 	}
 	
 	/**
+	 * Esegue la query
+	 * 
+	 * @param string $query
+	 * @return array
+	 */
+	private function execQuery($query=null) {
+		
+		if(!$query) $query = $this->_sql;
+		
+		$exec = mysql_query($query);
+		return $exec;
+	}
+	
+	/**
 	 * @see DbManager::openConnection()
 	 */
 	public function openConnection() {
 
 		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
 			
-			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR MYSQL: ".mysql_error());
+			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mysql_error());
 			if($this->_db_charset=='utf-8') $this->setUtf8();
 			$this->setconnection(true);
 			return true;
@@ -208,13 +229,14 @@ class mysql implements DbManager {
 			return $this->_dbresults;
 		}
 	}
-		
-	/**
-	 * Libera tutta la memoria utilizzata dal Result Set 
-	 */
-	private function freeresult(){
 	
-		mysql_free_result($this->_qry);
+	/**
+	 * @see DbManager::freeresult()
+	 */
+	public function freeresult($res=null){
+	
+		if(is_null($res)) $res = $this->_qry;
+		mysql_free_result($res);
 	}
 	
 	/**
@@ -318,6 +340,8 @@ class mysql implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
+	 * 
+	 * Come tipo di dato di un campo, MySQL ritorna: int, blob, string, date
 	 */
 	public function fieldInformations($table) {
 	
@@ -336,6 +360,12 @@ class mysql implements DbManager {
 			while($i < mysql_num_fields($this->_qry)) {
 				$meta[$i] = mysql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mysql_field_len($this->_qry, $i);
+				
+				if($meta[$i]->type == 'string')
+					$meta[$i]->type = 'char';
+				elseif($meta[$i]->type == 'blob')
+					$meta[$i]->type = 'text';
+				
 				$i++;
 			}
 			$this->freeresult();
@@ -346,16 +376,31 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::limit()
 	 */
-	public function limit($range, $offset){
+	public function limit($range, $offset) {
 		
 		$limit = "LIMIT $offset, $range";
 		return $limit;
 	}
 	
 	/**
+	 * @see DbManager::distinct()
+	 */
+	public function distinct($fields, $options=array()) {
+		
+		$alias = gOpt('alias', $options, null);
+		
+		if(!$fields) return null;
+		
+		$data = "DISTINCT($fields)";
+		if($alias) $data .= " AS $alias";
+		
+		return $data;
+	}
+	
+	/**
 	 * @see DbManager::concat()
 	 */
-	public function concat($sequence){
+	public function concat($sequence) {
 		
 		if(is_array($sequence))
 		{
@@ -439,12 +484,13 @@ class mysql implements DbManager {
 			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
 		}
 		$structure['fields'] = $fields;
-
+		
 		return $structure;
 	}
 
 	/**
 	 * @see DbManager::getFieldsName()
+	 * @see freeresult()
 	 */
 	public function getFieldsName($table) {
 
@@ -455,7 +501,7 @@ class mysql implements DbManager {
 		while($row = mysql_fetch_assoc($res)) {
 			$results[] = $row;
 		}
-		mysql_free_result($res);
+		$this->freeresult($res);
 
 		foreach($results as $r) {
 			$fields[] = $r['Field'];
@@ -484,29 +530,43 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::query()
 	 */
-	public function query($fields, $tables, $where=null, $order=null, $limit=null, $debug=false) {
+	public function query($fields, $tables, $where=null, $options=array()) {
 
-		$qfields = is_array($fields) ? implode(",", $fields):$fields;
-		$qtables = is_array($tables) ? implode(",", $tables):$tables;
+		$order = gOpt('order', $options, null);
+		$distinct = gOpt('distinct', $options, null);
+		$limit = gOpt('limit', $options, null);
+		$debug = gOpt('debug', $options, false);
+		
+		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
+		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
 		$qorder = $order ? "ORDER BY $order" : "";
-		$qlimit = count($limit) ? $this->limit($limit[1],$limit[0]) : "";
-
+		
+		if($distinct) $qfields = $distinct.", ".$qfields;
+		
+		if(is_array($limit) && count($limit))
+		{
+			$qlimit = $this->limit($limit[1],$limit[0]);
+		}
+		elseif(is_string($limit))
+		{
+			$qlimit = $limit;
+		}
+		else $qlimit = '';
+		
 		$query = "SELECT $qfields FROM $qtables $qwhere $qorder $qlimit";
 		
 		if($debug) echo $query;
 		
 		return $query;
 	}
-
+	
 	/**
 	 * @see DbManager::select()
 	 */
-	public function select($fields, $tables, $where=null, $order=null, $limit=null, $debug=false) {
-
-		$query = $this->query($fields, $tables, $where, $order, $limit, $debug);
+	public function select($fields, $tables, $where=null, $options=array()) {
 		
-		if($debug) echo $query;
+		$query = $this->query($fields, $tables, $where, $options);
 		
 		return $this->selectquery($query);
 	}
@@ -524,7 +584,16 @@ class mysql implements DbManager {
 			foreach($fields AS $field=>$value)
 			{
 				$a_fields[] = $field;
-				$a_values[] = ($value !== null) ? "'$value'" : null;	/////// VERIFICARE
+				
+				if(is_array($value))
+				{
+					if(array_key_exists('sql', $value))
+						$a_fields[] = "`$field`=".$value['sql'];
+				}
+				else
+				{
+					$a_values[] = ($value !== null) ? "'$value'" : null;	/////// VERIFICARE
+				}
 			}
 			
 			$s_fields = "`".implode('`,`', $a_fields)."`";
@@ -550,8 +619,16 @@ class mysql implements DbManager {
 			
 			foreach($fields AS $field=>$value)
 			{
-				//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-				$a_fields[] = "`$field`='$value'";
+				if(is_array($value))
+				{
+					if(array_key_exists('sql', $value))
+						$a_fields[] = "`$field`=".$value['sql'];
+				}
+				else
+				{
+					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
+					$a_fields[] = "`$field`='$value'";
+				}
 			}
 			
 			$s_fields = implode(",", $a_fields);
@@ -580,6 +657,37 @@ class mysql implements DbManager {
 		if($debug) echo $query;
 		
 		return $this->actionquery($query);
+	}
+	
+	/**
+	 * @see DbManager::join()
+	 */
+	public function join($table, $condition, $option) {
+		
+		$join = $table;
+		if($condition) $join .= ' ON '.$condition;
+		if($option) $join = strtoupper($option).' '.$join;
+		
+		return $join;
+	}
+	
+	/**
+	 * @see DbManager::union()
+	 */
+	public function union($queries, $options=array()) {
+		
+		$debug = gOpt('debug', $options, false);
+		$instruction = gOpt('instruction', $options, 'UNION');
+		
+		if(count($queries))
+		{
+			$query = implode(" $instruction ", $queries);
+			
+			if($debug) echo $query;
+			
+			return $this->selectquery($query);
+		}
+		return array();
 	}
 	
 	/**
@@ -633,14 +741,6 @@ class mysql implements DbManager {
 		
 		return mysql_real_escape_string($string);
 	}
-	
-	/**
-	MSSQL {
-	$string = str_replace("'", "''", $string);
-	$string = str_replace("\0", "[NULL]", $string);
-	return $string;
-	}
-	 */
 }
 
 ?>

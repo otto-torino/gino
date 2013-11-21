@@ -13,18 +13,20 @@
  */
 class attachedItemAdminTable extends adminTable {
 
-  /**
-   * @brief Costruttore
-   * @see adminTable::__construct
-   */
-  function __construct($instance, $opts = array()) {
-    parent::__construct($instance, $opts);
-  }
+	/**
+	 * @brief Costruttore
+	 * @see adminTable::__construct
+	*/
+	function __construct($instance, $opts = array()) {
+		parent::__construct($instance, $opts);
+	}
 
-  /**
-   * @brief rispetto al parent aggiunge la visualizzazione del path al file ed i link per il preview
-   * @see adminTable::modelAction
-   */
+	/**
+	 * @brief rispetto al parent aggiunge la visualizzazione del path al file ed i link per il preview
+	 * 
+	 * @see adminTable::modelAction
+	 * @see model::previewLink()
+	 */
 	public function adminList($model, $options_view=array()) {
 
 		// $this->permission($options_view);
@@ -93,17 +95,17 @@ class attachedItemAdminTable extends adminTable {
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-    $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
-    $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
+		$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
+		$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
-		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
+		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
 		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
-		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), $query_order, $limit);
+		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 
 		$heads = array();
@@ -147,8 +149,8 @@ class attachedItemAdminTable extends adminTable {
 				}
 			}
 		}
-    $heads[] = _('URL relativo');
-    $heads[] = _('URL download');
+		$heads[] = _('URL relativo');
+		$heads[] = _('URL download');
 		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
 
 		$rows = array();
@@ -176,16 +178,16 @@ class attachedItemAdminTable extends adminTable {
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
 
-          if($field_name == 'file') {
-            $record_value = $record_model->previewLink();
-          }
+					if($field_name == 'file') {
+						$record_value = $record_model->previewLink();
+					}
 					
 					$row[] = $record_value;
 				}
 			}
 
-      $row[] = $record_model->path('view');
-      $row[] = $record_model->path('download');
+			$row[] = $record_model->path('view');
+			$row[] = $record_model->path('download');
 
 			$links = array();
 			
@@ -230,14 +232,14 @@ class attachedItemAdminTable extends adminTable {
 			); 
 
 			$rows[] = array_merge($row, $buttons);
-    }
+		}
 
-    if($tot_ff) {
-      $caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
-    }
-    else {
-      $caption = '';
-    }
+		if($tot_ff) {
+			$caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
+		}
+		else {
+			$caption = '';
+		}
 
 		$this->_view->setViewTpl('table');
 		$this->_view->assign('class', 'generic');

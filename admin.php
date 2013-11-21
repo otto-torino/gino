@@ -9,7 +9,14 @@
  */
 
 define('SITE_ROOT', realpath(dirname(__FILE__)));
-define('SITE_WWW', preg_replace("#".preg_quote($_SERVER['DOCUMENT_ROOT'])."?#", "", SITE_ROOT));
+
+// Per compatibilità con l'ambiente Windows (-> $_SERVER['DOCUMENT_ROOT'] termina con '/')
+$siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT) ? preg_replace("#\\\#", "/", SITE_ROOT) : SITE_ROOT;
+$docroot = preg_match("#^[a-zA-Z][:\\\]+#", $_SERVER['DOCUMENT_ROOT']) ? preg_replace("#\\\#", "/", $_SERVER['DOCUMENT_ROOT']) : $_SERVER['DOCUMENT_ROOT'];
+$docroot = (substr($docroot, -1) == '\\') ? substr_replace($docroot, '', -1) : $docroot;
+define('SITE_WWW', preg_replace("#".preg_quote($docroot)."?#", "", $siteroot));
+
+//define('SITE_WWW', preg_replace("#".preg_quote($_SERVER['DOCUMENT_ROOT'])."?#", "", SITE_ROOT));	// only MySQL
 
 include('settings.php');
 header("Location:http://".$_SERVER['HTTP_HOST'].SITE_WWW."/index.php?evt[index-admin_page]");

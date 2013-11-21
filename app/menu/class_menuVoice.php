@@ -77,8 +77,8 @@ class menuVoice extends propertyObject {
 	 */
 	public function updateOrderList() {
 
-		$query = "UPDATE ".self::$tbl_voices." SET orderList=orderList-1 WHERE orderList>'".$this->orderList."' AND parent='".$this->parent."'";		
-		$result = $this->_db->actionquery($query);
+		$result = $this->_db->update(array('orderList'=>array('sql'=>"orderList-1")), self::$tbl_voices, "orderList>'".$this->orderList."' AND parent='".$this->parent."'", true);
+		return $result;
 	}
 
 	/**

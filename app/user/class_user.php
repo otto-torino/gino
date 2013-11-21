@@ -240,18 +240,16 @@ class user extends AbstractEvtClass{
 
 		$htmlsection = new htmlSection(array('class'=>'public', 'headerTag'=>'header', 'headerLabel'=>$this->_title));
 
-		$query = "SELECT user_id, firstname, lastname FROM ".$this->_tbl_user." WHERE pub='yes'
-		ORDER BY lastname ASC, firstname ASC";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->db->select("user_id, firstname, lastname", $this->_tbl_user, "pub='yes'", array('order'=>"lastname ASC, firstname ASC"));
+		if(count($records))
 		{
-			$htmlList = new htmlList(array("numItems"=>sizeof($a), "separator"=>true));
+			$htmlList = new htmlList(array("numItems"=>sizeof($records), "separator"=>true));
 			$list = $htmlList->start();
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$user_id = htmlChars($b['user_id']);
-				$firstname = htmlChars($b['firstname']);
-				$lastname = htmlChars($b['lastname']);
+				$user_id = htmlChars($r['user_id']);
+				$firstname = htmlChars($r['firstname']);
+				$lastname = htmlChars($r['lastname']);
 
 				$selected = $id==$user_id?true:false;
 				$item_label = "<a href=\"".$this->_home."?evt[".$this->_className."-viewList]&amp;id=$user_id\">$firstname $lastname</a>\n";
@@ -286,18 +284,17 @@ class user extends AbstractEvtClass{
 
 	private function cardUser($id){
 
-		$query = "SELECT firstname, lastname, text, photo FROM ".$this->_tbl_user." WHERE user_id=$id AND pub='yes'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->db->select('firstname, lastname, text, photo', $this->_tbl_user, "user_id=$id AND pub='yes'");
+		if(count($records))
 		{
 			$htmlsection = new htmlSection(array('class'=>'public', 'headerTag'=>'header'));
 
-			foreach($a AS $b)
+			foreach($records AS $r)
 			{
-				$firstname = htmlChars($b['firstname']);
-				$lastname = htmlChars($b['lastname']);
-				$text = htmlChars($b['text']);
-				$photo = htmlChars($b['photo']);
+				$firstname = htmlChars($r['firstname']);
+				$lastname = htmlChars($r['lastname']);
+				$text = htmlChars($r['text']);
+				$photo = htmlChars($r['photo']);
 				$htmlsection->headerLabel = "$firstname $lastname";
 
 				$GINO = '';
@@ -456,6 +453,9 @@ class user extends AbstractEvtClass{
 	 * Elenco utenti di sistema
 	 * 
 	 * @return string
+	 * 
+	 * Chiamate Ajax: \n
+	 * - changeValid()
 	 */
 	private function listUser(){
 		
@@ -471,27 +471,27 @@ class user extends AbstractEvtClass{
 		if(empty($search) OR $search == 1)
 		{
 			$order = "name ASC";
-			$where = !empty($char) ? "WHERE lastname LIKE '$char%'" : '';
+			$where = !empty($char) ? "lastname LIKE '$char%'" : '';
 		}
 		elseif($search == 2)
 		{
 			$order = "company ASC, name ASC";
-			$where = !empty($char) ? "WHERE company LIKE '$char%' AND company!=''" : "WHERE company!=''";
+			$where = !empty($char) ? "company LIKE '$char%' AND company!=''" : "company!=''";
 		}
 		// End
 		
 		$GINO = $this->textNewUser();
 		$GINO .= $this->selectBar()."\n";
 
-		$queryTotUsers = "SELECT user_id FROM ".$this->_tbl_user." $where";
+		$queryTotUsers = $this->_db->query('user_id', $this->_tbl_user, $where);
+		
 		$this->_list = new PageList($this->_user_for_page, $queryTotUsers, 'query');
 
 		$concat = $this->_db->concat(array("lastname", "' '", "firstname"));
-		$limit = $this->_db->limit($this->_list->rangeNumber, $this->_list->start());
-		$query = "SELECT user_id, $concat AS name, company, email, phone, pub, role, valid
-		FROM ".$this->_tbl_user." $where ORDER BY $order $limit";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$limit = array($this->_list->start(), $this->_list->rangeNumber);
+		
+		$records = $this->_db->select("user_id, $concat AS name, company, email, phone, pub, role, valid", $this->_tbl_user, $where, array('order'=>$order, 'limit'=>$limit));
+		if(count($records))
 		{
 			$href_search = $this->_home."?evt[".$this->_className."-manageUser]&amp;";
 			
@@ -511,7 +511,7 @@ class user extends AbstractEvtClass{
 			$GINO .= "<th>"._('Email')."</th>\n";
 			
 			if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', ''))
-			$GINO .= "<th scope=\"col\">"._('Ruolo')."</th>\n";
+				$GINO .= "<th scope=\"col\">"._('Ruolo')."</th>\n";
 			
 			if($this->_user_other)
 			{
@@ -530,18 +530,19 @@ class user extends AbstractEvtClass{
 			$GINO .= "<th class=\"noBorder\" scope=\"col\"></th>\n";
 			$GINO .= "</tr>\n";
 			$odd = true;
-			foreach($a AS $b)
+			
+			foreach($records AS $r)
 			{
-				$user = $b['user_id'];
-				$name = htmlChars($b['name']);
-				$company = htmlChars($b['company']);
-				$email = htmlChars($b['email']);
-				$role = htmlChars($b['role']);
-				$phone = htmlChars($b['phone']);
-				$public = htmlChars($b['pub']);
-				$valid = htmlInput($b['valid']);
+				$user = $r['user_id'];
+				$name = htmlChars($r['name']);
+				$company = htmlChars($r['company']);
+				$email = htmlChars($r['email']);
+				$role = htmlChars($r['role']);
+				$phone = htmlChars($r['phone']);
+				$public = htmlChars($r['pub']);
+				$valid = htmlInput($r['valid']);
 
-				$tr_class = ($odd)? "trOdd":"trEven";
+				$tr_class = ($odd) ? "trOdd":"trEven";
 				
 				$GINO .= "<tr class=\"$tr_class\">\n";
 				
@@ -552,7 +553,7 @@ class user extends AbstractEvtClass{
 				$GINO .= "<td>$email</td>\n";
 				
 				if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', ''))
-				$GINO .= "<td>".$this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role)."</td>\n";
+					$GINO .= "<td>".$this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role)."</td>\n";
 								
 				if($this->_user_other)
 				{
@@ -676,6 +677,9 @@ class user extends AbstractEvtClass{
 	 * @param integer $user valore ID dell'utente
 	 * @param string $action azione da eseguire
 	 * @return string
+	 * 
+	 * Chiamate Ajax: \n
+	 * - actionCheckUsername()
 	 */
 	private function formUser($user, $action){
 
@@ -688,11 +692,10 @@ class user extends AbstractEvtClass{
 
 		if(!empty($user) AND $action == $this->_act_modify)
 		{
-			$query = "SELECT firstname, lastname, company, phone, fax, email, username, address, cap, city, nation, text, photo, pub, role, date, valid FROM ".$this->_tbl_user." WHERE user_id='$user'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select("firstname, lastname, company, phone, fax, email, username, address, cap, city, nation, text, photo, pub, role, date, valid", $this->_tbl_user, "user_id='$user'");
+			if(count($records))
 			{
-				foreach($a AS $b)
+				foreach($records AS $b)
 					foreach($b as $k=>$v) $$k = htmlInput($v);
 
 				$submit = _("modifica");
@@ -722,8 +725,7 @@ class user extends AbstractEvtClass{
 		if(empty($cap)) $cap = '';
 		
 		// Required
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1) AND
-		$this->_session_role < $role)
+		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1) AND $this->_session_role < $role)
 		{
 			$req_role = ',role';
 		}
@@ -1037,15 +1039,29 @@ class user extends AbstractEvtClass{
 			$validation = ($this->_aut_validation)? "yes":"no";
 			$publication= ($this->_aut_publication)? "yes":"no";
 
-			$query = "INSERT INTO ".$this->_tbl_user." (
-			firstname, lastname, company, phone, fax, email, username, userpwd,
-			address, cap, city, nation, text, pub, role, date, valid, privacy
-			) VALUES (
-			'$firstname', '$lastname', '$company', '$phone', '$fax', '$email', '$username', '$password',
-			'$address', '$cap', '$city', '$nation', '$text',
-			'".$publication."', '$role', '$date', '".$validation."', 'yes'
-			)";
-			$result = $this->_db->actionquery($query);
+			$result = $this->_db->insert(
+				array(
+					'firstname'=>$firstname, 
+					'lastname'=>$lastname, 
+					'company'=>$company, 
+					'phone'=>$phone, 
+					'fax'=>$fax, 
+					'email'=>$email, 
+					'username'=>$username, 
+					'userpwd'=>$password, 
+					'address'=>$address, 
+					'cap'=>$cap, 
+					'city'=>$city, 
+					'nation'=>$nation, 
+					'text'=>$text, 
+					'pub'=>$publication, 
+					'role'=>$role, 
+					'date'=>$date, 
+					'valid'=>$validation, 
+					'privacy'=>'yes'
+				), 
+				$this->_tbl_user
+			);
 
 			if($result)
 			{
@@ -1062,16 +1078,22 @@ class user extends AbstractEvtClass{
 		}
 		elseif($action == $this->_act_modify AND !empty($user))
 		{
-			if(!empty($email))  $email_field = "email='$email',"; else $email_field = '';
-			if(empty($role)) $role_field = ''; else $role_field = ", role='$role'";
-
-			$query = "UPDATE ".$this->_tbl_user." SET
-			firstname='$firstname', lastname='$lastname', company='$company',
-			phone='$phone', fax='$fax', ".$email_field."
-			address='$address', cap='$cap', city='$city', nation='$nation',
-			text='$text'".$role_field."
-			WHERE user_id='$user'";
-			$result = $this->_db->actionquery($query);
+			$fields = array(
+				'firstname'=>$firstname, 
+				'lastname'=>$lastname, 
+				'company'=>$company, 
+				'phone'=>$phone, 
+				'fax'=>$fax, 
+				'address'=>$address, 
+				'cap'=>$cap, 
+				'city'=>$city, 
+				'nation'=>$nation, 
+				'text'=>$text
+			);
+			if(!empty($email)) $fields['email'] = $email;
+			if(!empty($role)) $fields['role'] = $role;
+			
+			$result = $this->_db->update($fields, $this->_tbl_user, "user_id='$user'");
 		}
 		
 		$userid = ($action==$this->_act_insert)? $this->_db->getlastid($this->_tbl_user):$user;
@@ -1667,16 +1689,23 @@ class user extends AbstractEvtClass{
 			
 			$output .= ",$name1,$name2,$name3\r\n";
 			
-			$query = "SELECT DISTINCT(u.user_id), u.firstname, u.lastname, u.company, u.phone, u.fax, u.email, u.address, u.cap, u.city, u.nation, u.valid, a.field1, a.field2, a.field3
-			FROM ".$this->_tbl_user." AS u, ".$this->_tbl_user_add." AS a
-			WHERE u.user_id=a.user_id ORDER BY u.lastname ASC, u.firstname ASC";
+			$query = $this->_db->query(
+				"DISTINCT(u.user_id), u.firstname, u.lastname, u.company, u.phone, u.fax, u.email, u.address, u.cap, u.city, u.nation, u.valid, a.field1, a.field2, a.field3", 
+				$this->_tbl_user." AS u, ".$this->_tbl_user_add." AS a", 
+				"u.user_id=a.user_id", 
+				array('order'=>"u.lastname ASC, u.firstname ASC")
+			);
 		}
 		else
 		{
 			$output .= "\r\n";
 			
-			$query = "SELECT DISTINCT(user_id), firstname, lastname, company, phone, fax, email, address, cap, city, nation, valid
-			FROM ".$this->_tbl_user." ORDER BY lastname ASC, firstname ASC";
+			$query = $this->_db->query(
+				"DISTINCT(user_id), firstname, lastname, company, phone, fax, email, address, cap, city, nation, valid", 
+				$this->_tbl_user, 
+				'', 
+				array('order'=>"lastname ASC, firstname ASC")
+			);
 		}
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)

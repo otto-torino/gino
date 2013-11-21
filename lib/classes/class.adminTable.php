@@ -811,7 +811,7 @@ class adminTable {
 		}
 		
 		//prepare query
-		$query_selection = "DISTINCT(".$model_table.".id)";
+		$query_selection = $db->distinct($model_table.".id");
 		$query_table = array($model_table);
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
@@ -824,17 +824,17 @@ class adminTable {
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-    	$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
+    	$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
     	$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
-		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
+		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
 		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
-		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), $query_order, $limit);
+		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 
 		$heads = array();
@@ -952,14 +952,14 @@ class adminTable {
 			); 
 
 			$rows[] = array_merge($row, $buttons);
-    }
+		}
 
-    if($tot_ff) {
-      $caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
-    }
-    else {
-      $caption = '';
-    }
+		if($tot_ff) {
+			$caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
+		}
+		else {
+			$caption = '';
+		}
 
 		$this->_view->setViewTpl('table');
 		$this->_view->assign('class', 'generic');

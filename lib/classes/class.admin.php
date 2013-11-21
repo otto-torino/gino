@@ -59,30 +59,36 @@ class admin extends pub {
 
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
 	}
-
+	
+	/**
+	 * Ricava il valore di un campo della tabella sys_module_app
+	 * 
+	 * @param string $field nome del campo
+	 * @param string $class_name nome della classe
+	 * @return string
+	 */
 	private function field_class($field, $class_name){
 		
-		$query = "SELECT ma.$field FROM ".$this->_tbl_module_app." AS ma, ".$this->_tbl_module." AS m WHERE m.class='$class_name' AND m.type='class' AND m.class=ma.name";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+		$records = $this->_db->select("ma.$field", $this->_tbl_module_app." AS ma, ".$this->_tbl_module." AS m", "m.class='$class_name' AND m.type='class' AND m.class=ma.name");
+		if(count($records))
 		{
-			foreach ($a AS $b)
+			foreach($records AS $r)
 			{
-				$value = $b[$field];
+				$value = $r[$field];
 			}
 		}
 		else
 		{
-			$query = "SELECT $field FROM ".$this->_tbl_module_app." WHERE name='$class_name' AND type='class'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
+			$records = $this->_db->select($field, $this->_tbl_module_app, "name='$class_name' AND type='class'");
+			if(count($records))
 			{
-				foreach ($a AS $b)
+				foreach($records AS $r)
 				{
-					$value = $b[$field];
+					$value = $r[$field];
 				}
 			}
 		}
+		
 		return $value;
 	}
 	
@@ -225,10 +231,9 @@ class admin extends pub {
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
 		
 		$GINO = '';
+		
 		$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
-		$query = "SELECT user_id, $concat AS name FROM ".$this->_tbl_user."
-		WHERE role<='".$this->_access_admin."' AND valid='yes'
-		ORDER BY lastname ASC, firstname ASC";
+		$query = $this->_db->query("user_id, $concat AS name", $this->_tbl_user, "role<='".$this->_access_admin."' AND valid='yes'", array('order'=>"lastname ASC, firstname ASC"));
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
@@ -255,8 +260,7 @@ class admin extends pub {
 		if($guser_q) $where_gusr = " AND user_id IN ($guser_q)";
 		else $where_gusr = '';
 
-		$query = "SELECT user_id, $concat AS name FROM ".$this->_tbl_user."
-		WHERE role<='".$this->_access_user."' AND role>'".$this->_access_admin."' AND valid='yes' $where_gusr ORDER BY lastname ASC, firstname ASC";
+		$query = $this->_db->query("user_id, $concat AS name", $this->_tbl_user, "role<='".$this->_access_user."' AND role>'".$this->_access_admin."' AND valid='yes' $where_gusr", array('order'=>"lastname ASC, firstname ASC"));
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0 && $guser_q)
 		{
@@ -296,15 +300,13 @@ class admin extends pub {
 		if(!$guser_q) $guser_q = cleanVar($_POST, 'guser_q', 'string', '');
 		$username = cleanVar($_POST, 'username', 'string', '');
 
-		if($username) $where_usr = " AND (firstname LIKE '%$username%' OR lastname LIKE '%$username%')";
-		else $where_usr = '';
+		$where_usr = $username ? " AND (firstname LIKE '%$username%' OR lastname LIKE '%$username%')" : '';
 
 		$guser = explode(',',$guser_q);
 		if($guser_q) $where_gusr = " AND user_id NOT IN ($guser_q)"; else $where_gusr = '';
 		$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
 		
-		$query = "SELECT user_id, $concat AS name FROM ".$this->_tbl_user."
-		WHERE role<='".$this->_access_user."' AND role>'".$this->_access_admin."' AND valid='yes' $where_usr $where_gusr ORDER BY lastname ASC, firstname ASC";
+		$query = $this->_db->query("user_id, $concat AS name", $this->_tbl_user, "role<='".$this->_access_user."' AND role>'".$this->_access_admin."' AND valid='yes' $where_usr $where_gusr", array('order'=>"lastname ASC, firstname ASC"));
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a) > 0)
 		{
@@ -319,6 +321,9 @@ class admin extends pub {
 
 	/**
 	 * Associazione degli utenti ai gruppi
+	 * 
+	 * @see listUserGroup()
+	 * @see sqlcode::admin_actionUser()
 	 */
 	public function actionUser(){
 
@@ -342,7 +347,13 @@ class admin extends pub {
 		$control = 0;
 
 		if($submit_remove) {
-			$query_delete = "DELETE FROM gu USING ".$this->_tbl_guser." AS gu INNER JOIN ".$this->_tbl_user." AS u WHERE gu.group_id='$id' AND u.user_id=gu.user_id AND u.role<='".$this->_access_user."' AND u.role>'".$this->_access_admin."' AND gu.instance='$this->_instance'";
+			
+			include_once(LIB_DIR.OS."sqlcode.php");
+			$obj = new sqlcode();
+			$call = get_class().'_actionUser';
+			$query_delete = $obj->$call($this->_tbl_guser, $this->_tbl_user, $id, $this->_access_user, $this->_access_admin, $this->_instance);
+			
+			//$query_delete = "DELETE FROM gu USING ".$this->_tbl_guser." AS gu INNER JOIN ".$this->_tbl_user." AS u WHERE gu.group_id='$id' AND u.user_id=gu.user_id AND u.role<='".$this->_access_user."' AND u.role>'".$this->_access_admin."' AND gu.instance='$this->_instance'";
 			$result_delete = $this->_db->actionquery($query_delete);
 
 			if($result_delete) {

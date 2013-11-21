@@ -485,7 +485,7 @@ class Access extends pub {
 		
 		if($this->_db->tableexists($tbl_group))
 		{
-			$records = $this->_db->select('id', $tbl_group, '', 'id ASC');
+			$records = $this->_db->select('id', $tbl_group, '', array('order'=>'id ASC'));
 			if(count($records))
 			{
 				foreach($records AS $r)
@@ -694,7 +694,7 @@ class Access extends pub {
 
 		$role_type = array(); $role_name = array();
 
-		$records = $this->_db->select('role_id, name', TBL_USER_ROLE, '', 'role_id');
+		$records = $this->_db->select('role_id, name', TBL_USER_ROLE, '', array('order'=>'role_id'));
 		if(count($records))
 		{
 			foreach($records AS $r)

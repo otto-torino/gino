@@ -92,7 +92,7 @@ class attachedCtg extends propertyObject {
     $selection = 'id';
     $table = self::$tbl_ctg;
 
-    $rows = $db->select($selection, $table, $where, $order, $limit);
+    $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         $res[] = new attachedCtg($row['id'], $controller);
@@ -122,7 +122,7 @@ class attachedCtg extends propertyObject {
     $selection = 'id, name';
     $table = self::$tbl_ctg;
 
-    $rows = $db->select($selection, $table, $where, $order, $limit);
+    $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         $res[$row['id']] = htmlChars($row['name']);
@@ -134,35 +134,35 @@ class attachedCtg extends propertyObject {
   }
 
 
-  /**
-   * @brief Percorso alla directory
-   * @param string $type tipo di percorso:
-   *               - abs: assoluto
-   *               - rel: relativo alla DOCUMENT ROOT
-   *               - view: realtivo alla ROOT
-   *               - url: url assoluto
-   */
-  public function path($type) {
+	/**
+	 * @brief Percorso alla directory
+	 * 
+	 * @param string $type tipo di percorso:
+	 *   - abs: assoluto
+	 *   - rel: relativo alla DOCUMENT ROOT
+	 *   - view: realtivo alla ROOT
+	 *   - url: url assoluto
+	 * @return string
+	 */
+	public function path($type) {
 
-    $directory = '';
+		$directory = '';
 
-    if($type == 'abs') {
-      $directory = $this->_controller->getDataDir().OS.$this->directory.OS;
-    }
-    elseif($type == 'rel') {
-      $directory = $this->_controller->getDataWWW().'/'.$this->directory.'/';
-    }
-    elseif($type == 'view') {
-      $directory = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->_controller->getDataWWW().'/'.$this->directory.'/');
-    }
-    elseif($type == 'url') {
-      $directory = 'http://'.$_SERVER['HTTP_HOST'].SITE_WWW.$this->_controller->getDataWWW().'/'.$this->directory.'/';
-    }
+		if($type == 'abs') {
+			$directory = $this->_controller->getDataDir().OS.$this->directory.OS;
+		}
+		elseif($type == 'rel') {
+			$directory = $this->_controller->getDataWWW().'/'.$this->directory.'/';
+		}
+		elseif($type == 'view') {
+			$directory = preg_replace("#^".preg_quote(SITE_WWW)."/#", "", $this->_controller->getDataWWW().'/'.$this->directory.'/');
+		}
+		elseif($type == 'url') {
+			$directory = 'http://'.$_SERVER['HTTP_HOST'].SITE_WWW.$this->_controller->getDataWWW().'/'.$this->directory.'/';
+		}
 
-    return '/'.$directory;
-
-  }
-
+		return $directory;
+	}
 }
 
 ?>

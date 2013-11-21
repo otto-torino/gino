@@ -1269,8 +1269,9 @@ class page extends AbstractEvtClass {
 			$pre_filter = $image;	
 		}
 		elseif($property == 'author_img') {
-    		$user_image = $this->_db->getFieldFromId($this->_tbl_user, 'photo', 'user_id', $obj->author);
-    		$user_name = $this->_db->getFieldFromId($this->_tbl_user, "CONCAT(firstname, ' ', lastname)", 'user_id', $obj->author);
+    		$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
+			$user_image = $this->_db->getFieldFromId($this->_tbl_user, 'photo', 'user_id', $obj->author);
+    		$user_name = $this->_db->getFieldFromId($this->_tbl_user, $concat, 'user_id', $obj->author);
 			if(!$user_image) {
 				return '';
 			}
@@ -1289,8 +1290,9 @@ class page extends AbstractEvtClass {
 			$pre_filter = $obj->read;
 		}
 		elseif($property == 'author') {
-			$pre_filter = $this->_db->getFieldFromId($this->_tbl_user, "CONCAT(firstname, ' ', lastname)", 'user_id', $obj->author);
-		}	
+			$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
+			$pre_filter = $this->_db->getFieldFromId($this->_tbl_user, $concat, 'user_id', $obj->author);
+		}
 		elseif($property == 'tags') {
 			$tagobjs = $obj->getTagObjects();
 			$tags = array();

@@ -99,48 +99,52 @@ class attached extends AbstractEvtClass {
     $this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
   }
 
-  /**
-   *  @bries Percorso assoluto alla directory dei contenuti
-   *  @return percorso assoluto alla directory dei contenuti
-   */
-  public function getDataDir() {
-    return $this->_data_dir;
-  }
+	/**
+	 *  @bries Percorso assoluto alla directory dei contenuti
+	 *  
+	 *  @return percorso assoluto alla directory dei contenuti
+	 */
+	public function getDataDir() {
+		
+		return $this->_data_dir;
+	}
+	
+	/**
+	 *  @bries Percorso relativo alla directory dei contenuti
+	 *  
+	 *  @return percorso relativo alla directory dei contenuti
+	 */
+	public function getDataWWW() {
+		
+		return $this->_data_www;
+	}
 
-  /**
-   *  @bries Percorso relativo alla directory dei contenuti
-   *  @return percorso relativo alla directory dei contenuti
-   */
-  public function getDataWWW() {
-    return $this->_data_www;
-  }
+	/**
+	 * @brief Avvia il downolad il un allegato
+	 *
+	 * @return void
+	 */
+	public function downloader(){
 
-  /**
-   * @brief Avvia il downolad il un allegato
-   *
-   * @return void
-   */
-  public function downloader(){
+		$doc_id = cleanVar($_GET, 'id', 'int', '');
+		$db = db::instance();
 
-    $doc_id = cleanVar($_GET, 'id', 'int', '');
-    $db = db::instance();
+		if($doc_id) {
 
-    if($doc_id) {
+			$rows = $db->select('category, file', attachedItem::$tbl_item, "id='$doc_id'", array('limit'=>array(0, 1)));
+			if($rows and count($rows)) {
+				$category = $rows[0]['category'];
+				$ctg = new attachedCtg($category, $this);
+				$filename = $rows[0]['file'];
+				$full_path = $ctg->path('abs').$filename;
 
-      $rows = $db->select('category, file', attachedItem::$tbl_item, "id='$doc_id'", null, array(0, 1));
-      if($rows and count($rows)) {
-        $category = $rows[0]['category'];
-        $ctg = new attachedCtg($category, $this);
-        $filename = $rows[0]['file'];
-        $full_path = $ctg->path('abs').$filename;
+				download($full_path);
+				exit();
+			}
+		}
 
-        download($full_path);
-        exit();
-      }
-    }
-
-    exit();
-  }
+		exit();
+	}
 
   /**
    * @brief interfaccia backoffice del modulo
@@ -219,32 +223,32 @@ class attached extends AbstractEvtClass {
 
   }
 
-  /**
-   * @brief Interfaccia di amministrazione dei file
-   * @return backoffice file
-   */
-  private function manageItem() {
+	/**
+	 * @brief Interfaccia di amministrazione dei file
+	 * 
+	 * @see attachedItemAdminTable::backOffice()
+	 * @return backoffice file
+	*/
+	private function manageItem() {
 
-    require_once('class.attachedItemAdminTable.php');
+		require_once('class.attachedItemAdminTable.php');
 
-    $admin_table = new attachedItemAdminTable($this, array());
+		$admin_table = new attachedItemAdminTable($this, array());
 
-    $buffer = $admin_table->backOffice(
-      'attachedItem', 
-      array(
-        'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date'),
-        'list_title' => _("Elenco files"), 
-        'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne efettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
-        'filter_fields' => array('category', 'notes')
-      ),
-      array(
-      ),
-      array()
-    );
+		$buffer = $admin_table->backOffice(
+			'attachedItem', 
+			array(
+				'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date'),
+				'list_title' => _("Elenco files"), 
+				'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne efettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
+				'filter_fields' => array('category', 'notes')
+			),
+			array(),
+			array()
+		);
 
-    return $buffer;
-
-  }
+		return $buffer;
+	}
 
   /**
    * @brief Interfaccia per l'inserimento di allegati all'interno dell'edito CKEDITOR

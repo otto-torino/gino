@@ -9,6 +9,35 @@
  */
 
 /**
+ * Converte l'encoding di un valore preso da un campo di un database (non UTF-8) nella codifica UTF-8
+ * 
+ * @param string $value valore da convertire
+ * @return string
+ */
+function convertToHtml($value)
+{
+	$value = mb_detect_encoding($value, mb_detect_order(), true) === 'UTF-8' ? $value : mb_convert_encoding($value, 'UTF-8');
+	
+	return $value;
+}
+
+/**
+ * Converte l'encoding di un valore da html (es UTF-8) a un encoding valido per il database 
+ * 
+ * @param string $value valore da convertire
+ * @param string $character_set set di caratteri del database
+ *   - @a CP1252, per SQL Server
+ * @return string
+ */
+function convertToDatabase($value, $character_set=null)
+{
+	if(!is_null($character_set))
+		$value = mb_convert_encoding($value, $character_set, mb_detect_encoding($value, mb_detect_order(), true));
+	
+	return $value;
+}
+
+/**
  * Funzione di sostituzione per i caratteri "strani" di word
  * 
  * @param string $text
@@ -261,6 +290,8 @@ function clean_sequence($text, $strip_tags, $options){
 	
 	$escape = gOpt('escape', $options, true);
 	
+	$text = convertToDatabase($text);
+	
 	$text = trim($text);
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
 	
@@ -294,6 +325,8 @@ function cleanVarEditor($method, $name, $strip_tags)
 	if(isset($method[$name]) AND !empty($method[$name]))
 	{
 		$value = $method[$name];
+		
+		$value = convertToDatabase($value);
 		
 		settype($value, 'string');
 		
@@ -398,6 +431,8 @@ function codeToDB($method, $name, $options=array()){
 function htmlChars($string, $id='', $options=array())
 {
 	$newline = array_key_exists('newline', $options) ? $options['newline'] : false;
+	
+	$string = convertToHtml($string);
 	
 	$string = trim($string);
 	$string = stripslashes($string);
@@ -540,6 +575,8 @@ function slimboxReplace($string, $id) {
  */
 function htmlCharsText($string)
 {
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	// CSS2
 	$string = str_replace ('&', '&amp;', $string);
@@ -564,6 +601,8 @@ function htmlInput($string)
 	if(is_null($string))
 		return null;
 	
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = replaceChar($string);
@@ -581,6 +620,8 @@ function htmlInput($string)
  */
 function htmlInputEditor($string)
 {
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = str_replace ('rel="external"', 'target="_blank"', $string);

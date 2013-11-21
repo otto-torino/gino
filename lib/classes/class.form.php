@@ -877,22 +877,30 @@ class Form {
     return $GFORM;
   }
 
-  private function imagePreviewer() {
+	/**
+	 * Visualizza i file disponibili in allegati
+	 * 
+	 * @return string
+	 * 
+	 * Chiamata Ajax: \n
+	 * - attached::editorList()
+	 */
+	private function imagePreviewer() {
 
-    $onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
-      window.att_win = new layerWindow({
-        'title': '"._('Allegati')."',
-        'width': 800,
-        'overlay': false,
-        'maxHeight': 600,
-        'url': '".HOME_FILE."?pt[attached-editorList]'
-      });
-      window.att_win.display();
-    }";
-    $GFORM = "<p><span class=\"link\" onclick=\"$onclick\">"._("Visualizza file disponibili in allegati")."</span></p>";
+		$onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
+			window.att_win = new layerWindow({
+			'title': '"._('Allegati')."',
+			'width': 800,
+			'overlay': false,
+			'maxHeight': 600,
+			'url': '".HOME_FILE."?pt[attached-editorList]'
+			});
+			window.att_win.display();
+		}";
+		$GFORM = "<p><span class=\"link\" onclick=\"$onclick\">"._("Visualizza file disponibili in allegati")."</span></p>";
 
-    return $GFORM;
-  }
+		return $GFORM;
+	}
 
   /**
    * Tag input radio in celle di tabella
@@ -1073,13 +1081,18 @@ class Form {
 		$odd = true;
 		if(is_string($data))
 		{
-			$result = mysql_query($data);
-			if(mysql_num_rows($result) > 0)
+			$db = db::instance();
+			$a = $db->selectquery($data);
+			if(sizeof($a) > 0)
 			{
 				$GFORM .= "<table style=\"width:100%;\">\n";
-				while ($row = mysql_fetch_array($result))
+				
+				foreach($a AS $b)
 				{
-					list($val1, $val2) = $row;
+					$b = array_values($b);
+					$val1 = $b[0];
+					$val2 = $b[1];
+					
 					if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
 
 					if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
@@ -1096,8 +1109,6 @@ class Form {
 					$field = $this->option('field');
 					if(is_array($field) && count($field))
 					{
-						$db = db::instance();
-						
 						if(sizeof($field) > 1)
 						{
 							$array = array();
@@ -1113,7 +1124,6 @@ class Form {
 						else $fields = $field[0];
 						
 						$record = $db->select($fields." AS v", $this->option('table'), $this->option('idName')."='$val1'");
-						
 						if(!$record)
 							$value_name = '';
 						else 
@@ -1142,6 +1152,7 @@ class Form {
 
 					$odd = !$odd;
 				}
+				
 				$GFORM .= "</table>\n";
 			}
 			else $GFORM .= _("non risultano scelte disponibili");
@@ -1222,67 +1233,76 @@ class Form {
 		return $GFORM;
 	}
 
-  /**
-   * Tag select
-   * 
-   * @param string $name nome input
-   * @param mixed $selected elemento selezionato
-   * @param mixed $data elementi del select (query-> recupera due campi, array-> key=>value)
-   * @param array $options
-   *   array associativo di opzioni (aggiungere quelle del metodo select())
-   *   - @b id (string): ID del tag select
-   *   - @b classField (string): nome della classe del tag select
-   *   - @b size (integer)
-   *   - @b multiple (boolean): scelta multipla di elementi
-   *   - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
-   *   - @b other (string): altro da inserire nel tag select
-   *   - @b noFirst (boolean): false-> mostra la prima voce vuota
-   *   - @b firstVoice (string): testo del primo elemento
-   *   - @b firstValue (mixed): valore del primo elemento
-   *   - @b maxChars (integer): numero massimo di caratteri del testo
-   *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri
-   * @return string
-   */
-  public function select($name, $selected, $data, $options) {
+	/**
+	 * Tag select
+	 * 
+	 * @param string $name nome input
+	 * @param mixed $selected elemento selezionato
+	 * @param mixed $data elementi del select (query-> recupera due campi, array-> key=>value)
+	 * @param array $options
+	 *   array associativo di opzioni (aggiungere quelle del metodo select())
+	 *   - @b id (string): ID del tag select
+	 *   - @b classField (string): nome della classe del tag select
+	 *   - @b size (integer)
+	 *   - @b multiple (boolean): scelta multipla di elementi
+	 *   - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
+	 *   - @b other (string): altro da inserire nel tag select
+	 *   - @b noFirst (boolean): false-> mostra la prima voce vuota
+	 *   - @b firstVoice (string): testo del primo elemento
+	 *   - @b firstValue (mixed): valore del primo elemento
+	 *   - @b maxChars (integer): numero massimo di caratteri del testo
+	 *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri
+	 * @return string
+	 */
+	public function select($name, $selected, $data, $options) {
 
-    $this->setOptions($options);
-    $GFORM = "<select name=\"$name\" ";
-    $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-    $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-    $GFORM .= $this->option('size')?"size=\"{$this->option('size')}\" ":"";
-    $GFORM .= $this->option('multiple')?"multiple=\"multiple\" ":"";
-    $GFORM .= $this->option('js')?$this->option('js')." ":"";
-    $GFORM .= $this->option('other')?$this->option('other')." ":"";
-    $GFORM .= ">\n";
+		$this->setOptions($options);
+		$GFORM = "<select name=\"$name\" ";
+		$GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
+		$GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
+		$GFORM .= $this->option('size')?"size=\"{$this->option('size')}\" ":"";
+		$GFORM .= $this->option('multiple')?"multiple=\"multiple\" ":"";
+		$GFORM .= $this->option('js')?$this->option('js')." ":"";
+		$GFORM .= $this->option('other')?$this->option('other')." ":"";
+		$GFORM .= ">\n";
 
-    if(!$this->option('noFirst')) $GFORM .= "<option value=\"\"></option>\n";
-    elseif($this->option('firstVoice')) $GFORM .= "<option value=\"".$this->option('firstValue')."\">".$this->option("firstVoice")."</option>";
+		if(!$this->option('noFirst')) $GFORM .= "<option value=\"\"></option>\n";
+		elseif($this->option('firstVoice')) $GFORM .= "<option value=\"".$this->option('firstValue')."\">".$this->option("firstVoice")."</option>";
 
-    if(is_array($data)) {
-      if(sizeof($data) > 0) {
-        foreach ($data as $key=>$value) {
-          if($this->option('maxChars')) $value = cutHtmlText($value, $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
-          $GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
-        }
-      }
-      //else return _("non risultano opzioni disponibili");
-    }
-    elseif(is_string($data)) {
-      $result = mysql_query($data);
-      if(mysql_num_rows($result) > 0) {
-        while ($row = mysql_fetch_array($result)) {
-          if($this->option('maxChars')) $value = cutHtmlText($row[1], $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
-          else $value = $row[1];
-          $GFORM .= "<option value=\"".htmlInput($row[0])."\" ".($row[0]==$selected?"selected=\"selected\"":"").">".htmlChars($value)."</option>\n";
-        }
-      }
-      //else return _("non risultano opzioni disponibili");
-    }
+		if(is_array($data)) {
+			if(sizeof($data) > 0) {
+				foreach ($data as $key=>$value) {
+					if($this->option('maxChars')) $value = cutHtmlText($value, $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
+						$GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
+				}
+			}
+			//else return _("non risultano opzioni disponibili");
+		}
+		elseif(is_string($data)) {
+			
+			$db = db::instance();
+			
+			$a = $db->selectquery($data);
+			if(sizeof($a) > 0)
+			{
+				foreach($a AS $b)
+				{
+					$b = array_values($b);
+					$val1 = $b[0];
+					$val2 = $b[1];
+					
+					if($this->option('maxChars')) $value = cutHtmlText($val2, $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
+					else $value = $val2;
+					$GFORM .= "<option value=\"".htmlInput($val1)."\" ".($val1==$selected?"selected=\"selected\"":"").">".htmlChars($value)."</option>\n";
+				}
+			}
+			//else return _("non risultano opzioni disponibili");
+		}
 
-    $GFORM .= "</select>\n";
+    	$GFORM .= "</select>\n";
 
-    return $GFORM;
-  }
+    	return $GFORM;
+	}
 
   /**
    * Tag input file (proprietà @a type con valore @a file)
@@ -1408,47 +1428,47 @@ class Form {
     return $count;
   }
 
-  private function upload($file_tmp, $file_name, $uploaddir){
+	private function upload($file_tmp, $file_name, $uploaddir){
 
-    $uploadfile = $uploaddir.$file_name;
-    if(move_uploaded_file($file_tmp, $uploadfile)) return true;
-    else return false;
-  }
+		$uploadfile = $uploaddir.$file_name;
+		if(move_uploaded_file($file_tmp, $uploadfile)) return true;
+		else return false;
+	}
 
-  /**
-   * Imposta il carattere '/' come ultimo carattere della directory
-   *
-   * @param string $directory nome della directory
-   * @return string
-   */
-  private function dirUpload($directory){
+	/**
+	 * Imposta il carattere '/' come ultimo carattere della directory
+	 *
+	 * @param string $directory nome della directory
+	 * @return string
+	 */
+	private function dirUpload($directory){
 
-    $directory = (substr($directory, -1) != '/' && $directory != '') ? $directory.'/' : $directory;
-    return $directory;
-  }
+		$directory = (substr($directory, -1) != '/' && $directory != '') ? $directory.'/' : $directory;
+		return $directory;
+	}
 
-  /**
-   * Sostituisce nel nome di un file i caratteri diversi da [a-zA-Z0-9_.-] con il carattere underscore (_)
-   * 
-   * @param string $filename nome del file
-   * @param string $prefix prefisso da aggiungere al nome del file
-   * @return string
-   */
-  private function checkFilename($filename, $prefix) {
+	/**
+	 * Sostituisce nel nome di un file i caratteri diversi da [a-zA-Z0-9_.-] con il carattere underscore (_)
+	 * 
+	 * @param string $filename nome del file
+	 * @param string $prefix prefisso da aggiungere al nome del file
+	 * @return string
+	 */
+	private function checkFilename($filename, $prefix) {
 
-    $filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
-    return $prefix.$filename;
-  }
+		$filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
+		return $prefix.$filename;
+	}
 
-  private function linkModify($string){
+	private function linkModify($string){
 
-    $string = trim($string);
+		$string = trim($string);
 
-    if(!empty($string) AND $string{strlen($string)-1} != '&')  // substr($string, -1, 1)
-    $string = $string.'&';
+		if(!empty($string) AND $string{strlen($string)-1} != '&')  // substr($string, -1, 1)
+		$string = $string.'&';
 
-    return $string;
-  }
+		return $string;
+	}
 
   /**
    * Gestisce l'upload di un file
@@ -1486,158 +1506,158 @@ class Form {
    *   - @b errorQuery (string): query di elimnazione del record qualora non vada a buon fine l'upload del file (INSERT)
    * @return boolean
    */
-  public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
+	public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
 
-    $this->setOptions($options);
-    $directory = $this->dirUpload($directory);
-    if(!is_dir($directory)) mkdir($directory, 0755, true);
+		$db = db::instance();
+    
+		$this->setOptions($options);
+		$directory = $this->dirUpload($directory);
+		if(!is_dir($directory)) mkdir($directory, 0755, true);
 
-    $check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : true;
-    $types_allowed = $this->option('types_allowed') ? $this->option('types_allowed') : 
-    array(
-      "text/plain",
-      "text/html",
-      "text/xml",
-      "image/jpeg",
-      "image/gif",
-      "image/png",
-      "video/mpeg",
-      "audio/midi",
-      "application/pdf",
-      "application/x-compressed",
-      "application/x-zip-compressed",
-      "application/zip",
-      "multipart/x-zip",
-      "application/vnd.ms-excel",
-      "application/x-msdos-program",
-      "application/octet-stream"
-    );
+		$check_type = !is_null($this->option('check_type')) ? $this->option('check_type') : true;
+		$types_allowed = $this->option('types_allowed') ? $this->option('types_allowed') : 
+		array(
+			"text/plain",
+			"text/html",
+			"text/xml",
+			"image/jpeg",
+			"image/gif",
+			"image/png",
+			"video/mpeg",
+			"audio/midi",
+			"application/pdf",
+			"application/x-compressed",
+			"application/x-zip-compressed",
+			"application/zip",
+			"multipart/x-zip",
+			"application/vnd.ms-excel",
+			"application/x-msdos-program",
+			"application/octet-stream"
+		);
 
-    $prefix = !is_null($this->option('prefix')) ? $this->option('prefix') : '';
-    $thumb = !is_null($this->option('thumb')) ? $this->option('thumb') : true;
-    $prefix_file = !is_null($this->option('prefix_file')) ? $this->option('prefix_file') : '';
-    $prefix_thumb = $this->option('prefix_thumb') ? $this->option('prefix_thumb') : $this->_prefix_thumb;
-    $max_file_size = $this->option('max_file_size') ? $this->option('max_file_size') : $this->_max_file_size;
+		$prefix = !is_null($this->option('prefix')) ? $this->option('prefix') : '';
+		$thumb = !is_null($this->option('thumb')) ? $this->option('thumb') : true;
+		$prefix_file = !is_null($this->option('prefix_file')) ? $this->option('prefix_file') : '';
+		$prefix_thumb = $this->option('prefix_thumb') ? $this->option('prefix_thumb') : $this->_prefix_thumb;
+		$max_file_size = $this->option('max_file_size') ? $this->option('max_file_size') : $this->_max_file_size;
 
-    if(isset($_FILES[$name]['name']) AND $_FILES[$name]['name'] != '') {
-      $new_file = $_FILES[$name]['name'];
-      $new_file_size = $_FILES[$name]['size'];
-      $tmp_file = $_FILES[$name]['tmp_name'];
+		if(isset($_FILES[$name]['name']) AND $_FILES[$name]['name'] != '') {
+			$new_file = $_FILES[$name]['name'];
+			$new_file_size = $_FILES[$name]['size'];
+			$tmp_file = $_FILES[$name]['tmp_name'];
 
-      if($resize) {
-        // Verifico la corrispondenza dei prefissi con il nome del file
-        if(preg_match("#^($prefix_thumb).+$#", $new_file, $matches))
-          $new_file = substr_replace($new_file, '', 0, strlen($prefix_thumb));
+			if($resize) {
+				// Verifico la corrispondenza dei prefissi con il nome del file
+				if(preg_match("#^($prefix_thumb).+$#", $new_file, $matches))
+				$new_file = substr_replace($new_file, '', 0, strlen($prefix_thumb));
 
-        if(preg_match("#^($prefix_file).+$#", $new_file, $matches))
-          $new_file = substr_replace($new_file, '', 0, strlen($prefix_file));
-      }
+				if(preg_match("#^($prefix_file).+$#", $new_file, $matches))
+				$new_file = substr_replace($new_file, '', 0, strlen($prefix_file));
+			}
+			
+			$new_file = $this->checkFilename($new_file, $prefix);
 
-      $new_file = $this->checkFilename($new_file, $prefix);
+			if($new_file_size > $max_file_size && !$this->option('ftp')) {
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>33), $link_error));
+			}
 
-      if($new_file_size > $max_file_size && !$this->option('ftp')) {
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>33), $link_error));
-      }
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = finfo_file($finfo, $tmp_file);
+			finfo_close($finfo);
+			if(
+			!extension($new_file, $valid_extension) ||
+			preg_match('#%00#', $new_file) ||
+			(($check_type || $check_type == 1) && !in_array($mime, $types_allowed))
+			) {
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>03), $link_error));
+			}
 
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mime = finfo_file($finfo, $tmp_file);
-      finfo_close($finfo);
-      if(
-        !extension($new_file, $valid_extension) ||
-        preg_match('#%00#', $new_file) ||
-        (($check_type || $check_type == 1) && !in_array($mime, $types_allowed))
-      ) {
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>03), $link_error));
-      }
+			$count = $this->countEqualName($new_file, $old_file, $resize, $prefix_file, $prefix_thumb, $directory);
+			if($count > 0) {
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>04), $link_error));
+			}
+		}
+		else {$new_file = '';$new_file_tmp = '';}
 
-      $count = $this->countEqualName($new_file, $old_file, $resize, $prefix_file, $prefix_thumb, $directory);
-      if($count > 0) {
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>04), $link_error));
-      }
-    }
-    else {$new_file = '';$new_file_tmp = '';}
+		$del_file = (isset($this->_requestVar["check_del_$name"]) && $this->_requestVar["check_del_$name"]=='ok');
+		$upload = $delete = false;
+		$upload = !empty($new_file);
+		$delete = (!empty($new_file) && !empty($old_file)) || $del_file; 
 
-    $del_file = (isset($this->_requestVar["check_del_$name"]) && $this->_requestVar["check_del_$name"]=='ok');
-    $upload = $delete = false;
-    $upload = !empty($new_file);
-    $delete = (!empty($new_file) && !empty($old_file)) || $del_file; 
+		if($delete && $resize)
+		{
+			if(is_file($directory.$prefix_file.$old_file)) 
+				if(!@unlink($directory.$prefix_file.$old_file)) {
+					if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+					exit(error::errorMessage(array('error'=>17), $link_error));
+				}
 
-    if($delete && $resize)
-    {
-      if(is_file($directory.$prefix_file.$old_file)) 
-        if(!@unlink($directory.$prefix_file.$old_file)) {
-          if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-          exit(error::errorMessage(array('error'=>17), $link_error));
-      }
+			if($thumb && !empty($prefix_thumb)) {
+				if(is_file($directory.$prefix_thumb.$old_file))
+					if(!@unlink($directory.$prefix_thumb.$old_file)) {
+						if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+						exit(error::errorMessage(array('error'=>17), $link_error));
+					}
+			}
+		}
+		elseif($delete && !$resize)
+		{
+			if(is_file($directory.$old_file)) 
+				if(!@unlink($directory.$old_file)) {
+					if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+					exit(error::errorMessage(array('error'=>17), $link_error));
+				}
+		}
 
-      if($thumb && !empty($prefix_thumb)) {
-        if(is_file($directory.$prefix_thumb.$old_file))
-          if(!@unlink($directory.$prefix_thumb.$old_file)) {
-            if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-            exit(error::errorMessage(array('error'=>17), $link_error));
-          }
-      }
-    }
-    elseif($delete && !$resize)
-    {
-      if(is_file($directory.$old_file)) 
-        if(!@unlink($directory.$old_file)) {
-          if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-          exit(error::errorMessage(array('error'=>17), $link_error));
-        }
-    }
+		if($upload) {
+			if(!$this->upload($tmp_file, $new_file, $directory)) { 
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>16), $link_error));
+			}
+			else $result = true;
+		}
+		else $result = false;
 
-    if($upload) {
-      if(!$this->upload($tmp_file, $new_file, $directory)) { 
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>16), $link_error));
-      }
-      else $result = true;
-    }
-    else $result = false;
+		if($result AND $resize) {
+			$new_width = $this->option('width') ? $this->option('width') : 800;
+			$new_height = $this->option('height') ? $this->option('height') : '';
+			$thumb_width = $this->option('thumb_width') ? $this->option('thumb_width') : 200;
+			$thumb_height = $this->option('thumb_height') ? $this->option('thumb_height') : '';
 
-    if($result AND $resize) {
-      $new_width = $this->option('width') ? $this->option('width') : 800;
-      $new_height = $this->option('height') ? $this->option('height') : '';
-      $thumb_width = $this->option('thumb_width') ? $this->option('thumb_width') : 200;
-      $thumb_height = $this->option('thumb_height') ? $this->option('thumb_height') : '';
+			if(!$thumb) { $thumb_width = $thumb_height = null; }
 
-      if(!$thumb) { $thumb_width = $thumb_height = null; }
+			if(!$this->saveImage($new_file, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height)) {
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>18), $link_error));
+			}
+		}
 
-      if(!$this->saveImage($new_file, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height)) {
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>18), $link_error));
-      }
-    }
+		if($upload) $filename_sql = $new_file;
+		elseif($delete) $filename_sql = '';
+		else $filename_sql = $old_file;
 
-    if($upload) $filename_sql = $new_file;
-    elseif($delete) $filename_sql = '';
-    else $filename_sql = $old_file;
+		if($table && $field && $idName && $id)
+		{
+			$result = $db->update(array($field=>$filename_sql), $table, "$idName='$id'");
 
-    if($table && $field && $idName && $id)
-    {
-      $db = db::instance();
-      $query = "UPDATE $table SET $field='$filename_sql' WHERE $idName='$id'";
-      $result = $db->actionquery($query);
+			if(!$result) {
+				if($upload && !$resize) {
+					@unlink($directory.$new_file);
+				}
+				elseif($upload && $resize) {
+					@unlink($directory.$prefix_file.$new_file);
+					@unlink($directory.$prefix_thumb.$new_file);
+				}
+				if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
+				exit(error::errorMessage(array('error'=>16), $link_error));
+			}
+		}
 
-      if(!$result) {
-        if($upload && !$resize) {
-          @unlink($directory.$new_file);
-        }
-        elseif($upload && $resize) {
-          @unlink($directory.$prefix_file.$new_file);
-          @unlink($directory.$prefix_thumb.$new_file);
-        }
-        if($this->option("errorQuery")) mysql_query($this->option("errorQuery"));
-        exit(error::errorMessage(array('error'=>16), $link_error));
-      }
-    }
-
-    return true;
-  }
+		return true;
+	}
 
   /**
    * Calcola le dimensioni alle quali deve essere ridimensionata una immagine
