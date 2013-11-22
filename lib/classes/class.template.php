@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.template.php
- * @brief Contiene la classe template
+ * @brief Contiene la classe Template
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class template extends propertyObject {
+class Template extends Model {
 	
 	protected $_tbl_data;
 	private static $_tbl_tpl = 'sys_layout_tpl';

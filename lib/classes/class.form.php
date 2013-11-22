@@ -23,6 +23,7 @@ class Form {
   const _IMAGE_JPG_ = 2;
   const _IMAGE_PNG_ = 3;
 
+  private $_registry;
   private $_method, $_requestVar;
   private $_validation;
   private $_form_name;
@@ -67,7 +68,8 @@ class Form {
    */
   function __construct($formId, $method, $validation, $options=null){
 
-    $this->session = session::instance();
+    $this->_registry = registry::instance();
+    $this->session = $this->_registry->session;
 
     $this->_formId = $formId;
     $this->setMethod($method);
@@ -83,7 +85,7 @@ class Form {
     $this->_max_file_size = MAX_FILE_SIZE;
 
     $this->_lng_trl = new language;
-    $this->_multi_language = pub::getMultiLanguage();
+    $this->_multi_language = $this->_registry->multi_language;
     $this->_show_trnsl = SHOW_TRNSL;
     $this->_trd = new translation($this->session->lng, $this->session->lngDft);
 
@@ -408,8 +410,8 @@ class Form {
 	 */
 	public function captcha($options=null) {
 		
-		$public_key = pub::variable("captcha_public");
-		$private_key = pub::variable("captcha_private");
+		$public_key = pub::getConf("captcha_public");
+		$private_key = pub::getConf("captcha_private");
 		
 		if($public_key && $private_key) return $this->reCaptcha($public_key, $options);
 		else return $this->defaultCaptcha($options);
@@ -491,8 +493,8 @@ class Form {
 	 */
 	public function checkCaptcha() {
 
-		$public_key = pub::variable("captcha_public");
-		$private_key = pub::variable("captcha_private");
+		$public_key = pub::getConf("captcha_public");
+		$private_key = pub::getConf("captcha_private");
 
 		if($public_key && $private_key) return $this->checkReCaptcha($public_key, $private_key);
 		else return $this->checkDefaultCaptcha();
@@ -510,7 +512,7 @@ class Form {
 	private function checkReCaptcha($public_key, $private_key) {
 
 		require_once(LIB_DIR.OS.'recaptchalib.php');
-		$private_key = pub::variable("captcha_private");
+		$private_key = pub::getConf("captcha_private");
 		$resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 
 		$captcha = cleanVar($_REQUEST, 'captcha_input', 'string', '');
@@ -1335,7 +1337,7 @@ class Form {
     $text_add = $this->option('text_add') ? $this->option('text_add') : '';
     $valid_extension = $this->option('extensions');
 
-    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0)? "[".pub::allowedFile($valid_extension)."]":"";
+    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0)? "[".(count($extension) ? implode(', '. $extensions) : _("non risultano formati permessi."))."]":"";
     $finLabel = array();
     $finLabel['label'] = is_array($label) ? $label[0]:$label;
     $finLabel['description'] = (is_array($label) && $label[1]) ? $text."<br/>".$label[1]:$text;

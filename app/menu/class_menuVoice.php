@@ -1,15 +1,12 @@
 <?php
 /**
  * @file class_menuVoice.php
- * @brief Contiene la classe menuVoice
+ * @brief Contiene la classe MenuVoice
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-
-// Include la classe propertyObject
-require_once(CLASSES_DIR.OS.'class.propertyObject.php');
 
 /**
  * @brief Fornisce gli strumenti alla classe menu per la gestione amministrativa
@@ -18,7 +15,7 @@ require_once(CLASSES_DIR.OS.'class.propertyObject.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class menuVoice extends propertyObject {
+class MenuVoice extends Model {
 	
 	public static $tbl_voices = "sys_menu_voices";
 	private static $_tbl_user_role = "user_role";

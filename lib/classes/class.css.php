@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.css.php
- * @brief Contiene la classe css
+ * @brief Contiene la classe Css
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class css extends propertyObject {
+class Css extends Model {
 
 	private static $_tbl_css = 'sys_layout_css';
 	protected $_tbl_data;

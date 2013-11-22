@@ -12,12 +12,17 @@
 /**
  * Alcune costanti generali
  */
-include_once(LIB_DIR.OS."const.php");
-
-include_once(CLASSES_DIR.OS."cache.php");
+include_once(CLASSES_DIR.OS."class.locale.php");
+include_once(CLASSES_DIR.OS."class.db.php");
+include_once(CLASSES_DIR.OS."class.registry.php");
+include_once(CLASSES_DIR.OS."class.translation.php");
+include_once(CLASSES_DIR.OS."class.pub.php");
+include_once(CLASSES_DIR.OS."class.cache.php");
 include_once(CLASSES_DIR.OS."class.error.php");
-include_once(CLASSES_DIR.OS."class.propertyObject.php");
+include_once(CLASSES_DIR.OS."class.model.php");
 include_once(CLASSES_DIR.OS."class.view.php");
+include_once(CLASSES_DIR.OS."class.controller.php");
+include_once(CLASSES_DIR.OS."class.link.php");
 include_once(CLASSES_DIR.OS."class.html.php");
 include_once(CLASSES_DIR.OS."class.htmlSection.php");
 include_once(CLASSES_DIR.OS."class.htmlArticle.php");
@@ -33,9 +38,8 @@ include_once(CLASSES_DIR.OS."class.document.php");
 include_once(LIB_DIR.OS."autoInclude.php");
 include_once(LIB_DIR.OS."func.php");
 
-include_once(CLASSES_DIR.OS."class.access.php");
+include_once(CLASSES_DIR.OS."class.auth.php");
 include_once(CLASSES_DIR.OS."class.pagelist.php");
-include_once(CLASSES_DIR.OS."class.translation.php");
 include_once(CLASSES_DIR.OS."class.form.php");
 include_once(CLASSES_DIR.OS."class.admin.php");
 include_once(CLASSES_DIR.OS."class.options.php");

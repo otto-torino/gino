@@ -20,9 +20,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class graphics extends AbstractEvtClass{
-
-	protected $_instance, $_instanceName;
+class graphics extends Controller{
 
 	private $_title;
 	
@@ -42,13 +40,11 @@ class graphics extends AbstractEvtClass{
 	function __construct(){
 		
 		parent::__construct();
-		
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
+
 		$this->_title = _("Layout - header/footer");
 		
-		$this->setAccess();
-		$this->setGroups();
+		//$this->setAccess();
+		//$this->setGroups();
 		
 		$this->_fck_toolbar = 'Basic';
 		$this->_fck_width = '95%';
@@ -112,7 +108,7 @@ class graphics extends AbstractEvtClass{
 		$language = $lng->choiceLanguage(true);
 		
 		$array = array(
-			'_GRAPHICS_'	=>	$this->_graphics_www,
+			'_GRAPHICS_'	=>	SITE_GRAPHICS,
 			'_HOMEPAGE_'	=>	$this->_home,
 			'_HOME_'		=>	$this->_site_www,
 			'_LANGUAGE_'	=>	$language
@@ -147,7 +143,7 @@ class graphics extends AbstractEvtClass{
 	 */
 	public function printHeaderPublic() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render(1);
 	}
@@ -212,7 +208,7 @@ class graphics extends AbstractEvtClass{
 	 */
 	public function printFooterPublic() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render('6');
 	}
@@ -295,7 +291,7 @@ class graphics extends AbstractEvtClass{
 
 		if($type==1 && $image) 
 		{
-			$src = $this->_graphics_www."/$image";
+			$src = SITE_GRAPHICS."/$image";
 			if($this->isHeader($id))
 			{
 				$buffer .= "<a href=\"".$this->_home."\"><img src=\"$src\" alt=\""._("header")."\" /></a>\n";
@@ -517,7 +513,7 @@ class graphics extends AbstractEvtClass{
 		$GINO = $gform->startTable();
 
 		if($type==1) {
-			$GINO .= $gform->cfile('image', $image, _("Immagine"), array("extensions"=>$this->_extension_img, "del_check"=>true, "preview"=>true, "previewSrc"=>$this->_graphics_www."/".$image));
+			$GINO .= $gform->cfile('image', $image, _("Immagine"), array("extensions"=>$this->_extension_img, "del_check"=>true, "preview"=>true, "previewSrc"=>SITE_GRAPHICS."/".$image));
 		}
 		else {
 			$substitution = $this->setReplaceHtml();

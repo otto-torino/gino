@@ -17,7 +17,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class admin extends pub {
+class admin {
 
 	private $_title;
 	private $_class, $_class_prefix, $instance;

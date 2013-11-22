@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.attachedCtg.php
- * @brief Contiene la definizione ed implementazione della classe attachedCtg.
+ * @brief Contiene la definizione ed implementazione della classe AttachedCtg.
  * 
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class attachedCtg extends propertyObject {
+class AttachedCtg extends Model {
 
   private $_controller;
 

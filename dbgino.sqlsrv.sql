@@ -56,25 +56,25 @@ SET IDENTITY_INSERT attached_ctg OFF
 -- --------------------------------------------------------
 
 --
--- Table structure for table attached_grp
+-- Table structure for table attached_perm
 --
 
-CREATE TABLE attached_grp (
+CREATE TABLE attached_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_attached_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_attached_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT attached_grp ON
+SET IDENTITY_INSERT attached_perm ON
 
-INSERT INTO attached_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono gli allegati.', 'no');
+INSERT INTO attached_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'gestione allegati', 'inserimento modificazione ed eliminazione degli allegati', 'no');
 
-SET IDENTITY_INSERT attached_grp OFF
+SET IDENTITY_INSERT attached_perm OFF
 
 -- --------------------------------------------------------
 
@@ -114,25 +114,25 @@ SET IDENTITY_INSERT instruments OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella instruments_grp
+-- Struttura della tabella instruments_perm
 --
 
-CREATE TABLE instruments_grp (
+CREATE TABLE instruments_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_instruments_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_instruments_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT instruments_grp ON
+SET IDENTITY_INSERT instruments_perm ON
 
-INSERT INTO instruments_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'utilizzatori', 'Visualizzano gli strumenti', 'no');
+INSERT INTO instruments_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'visualizzazione', 'visualizzazione degli strumenti', 'no');
 
-SET IDENTITY_INSERT instruments_grp OFF
+SET IDENTITY_INSERT instruments_perm OFF
 
 -- --------------------------------------------------------
 
@@ -531,27 +531,27 @@ CREATE TABLE page_entry_tag (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella page_grp
+-- Struttura della tabella page_perm
 --
 
-CREATE TABLE page_grp (
+CREATE TABLE page_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_page_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_page_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT page_grp ON
+SET IDENTITY_INSERT page_perm ON
 
-INSERT INTO page_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'pubblicatori', 'Gestiscono la pubblicazione di pagine e commenti e la redazione', 'no'),
-(3, 'redattori', 'Gestiscono la redazione', 'no'),
-(4, 'utenti pagine private', 'Accedono alle pagine che sono state salvate come private', 'no');
+INSERT INTO page_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'pubblicazione', 'Pubblicazione di pagine e commenti e redazione contenuti', 'no'),
+(3, 'redazione', 'Redazione dei contenuti', 'no'),
+(4, 'visualizzazione pagine private', 'Visualizzazione di pagine che sono state salvate come private', 'no');
 
-SET IDENTITY_INSERT page_grp OFF
+SET IDENTITY_INSERT page_perm OFF
 
 -- --------------------------------------------------------
 
@@ -643,25 +643,25 @@ SET IDENTITY_INSERT php_module OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella php_module_grp
+-- Struttura della tabella php_module_perm
 --
 
-CREATE TABLE php_module_grp (
+CREATE TABLE php_module_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_php_module_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_php_module_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT php_module_grp ON
+SET IDENTITY_INSERT php_module_perm ON
 
-INSERT INTO php_module_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono i moduli php.', 'no');
+INSERT INTO php_module_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'redazione', 'Gestione dei contenuti dei moduli php.', 'no');
 
-SET IDENTITY_INSERT php_module_grp OFF
+SET IDENTITY_INSERT php_module_perm OFF
 
 -- --------------------------------------------------------
 
@@ -782,25 +782,25 @@ SET IDENTITY_INSERT sys_graphics OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella sys_graphics_grp
+-- Struttura della tabella sys_graphics_perm
 --
 
-CREATE TABLE sys_graphics_grp (
+CREATE TABLE sys_graphics_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_graphics_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_sys_graphics_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT sys_graphics_grp ON
+SET IDENTITY_INSERT sys_graphics_perm ON
 
-INSERT INTO sys_graphics_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Personalizzano l''header e il footer del sito.', 'no');
+INSERT INTO sys_graphics_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'readazione', 'Inserimento, modifica ed eliminazione  dell''header e del footer del sito.', 'no');
 
-SET IDENTITY_INSERT sys_graphics_grp OFF
+SET IDENTITY_INSERT sys_graphics_perm OFF
 
 -- --------------------------------------------------------
 
@@ -830,24 +830,24 @@ CREATE TABLE sys_image (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella sys_image_grp
+-- Struttura della tabella sys_image_perm
 --
 
-CREATE TABLE sys_image_grp (
+CREATE TABLE sys_image_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_image_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_sys_image_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT sys_image_grp ON
+SET IDENTITY_INSERT sys_image_perm ON
 
-INSERT INTO sys_image_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
+INSERT INTO sys_image_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no');
 
-SET IDENTITY_INSERT sys_image_grp OFF
+SET IDENTITY_INSERT sys_image_perm OFF
 
 -- --------------------------------------------------------
 
@@ -887,24 +887,24 @@ SET IDENTITY_INSERT sys_layout_css OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella sys_layout_grp
+-- Struttura della tabella sys_layout_perm
 --
 
-CREATE TABLE sys_layout_grp (
+CREATE TABLE sys_layout_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_layout_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_sys_layout_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT sys_layout_grp ON
+SET IDENTITY_INSERT sys_layout_perm ON
 
-INSERT INTO sys_layout_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
+INSERT INTO sys_layout_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no');
 
-SET IDENTITY_INSERT sys_layout_grp OFF
+SET IDENTITY_INSERT sys_layout_perm OFF
 
 -- --------------------------------------------------------
 
@@ -1062,25 +1062,25 @@ SET IDENTITY_INSERT sys_log_access OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella sys_menu_grp
+-- Struttura della tabella sys_menu_perm
 --
 
-CREATE TABLE sys_menu_grp (
+CREATE TABLE sys_menu_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_menu_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_sys_menu_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT sys_menu_grp ON
+SET IDENTITY_INSERT sys_menu_perm ON
 
-INSERT INTO sys_menu_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono le voci di menu.', 'no');
+INSERT INTO sys_menu_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'redazione', 'Inserimento modifica ed eliminazione di voci di menu.', 'no');
 
-SET IDENTITY_INSERT sys_menu_grp OFF
+SET IDENTITY_INSERT sys_menu_perm OFF
 
 -- --------------------------------------------------------
 
@@ -1340,25 +1340,25 @@ SET IDENTITY_INSERT user_email OFF
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella user_grp
+-- Struttura della tabella user_perm
 --
 
-CREATE TABLE user_grp (
+CREATE TABLE user_perm (
   id			smallint IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   description nvarchar(max) NOT NULL,
   no_admin nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_user_grp_no_admin CHECK (no_admin IN('yes','no')) DEFAULT 'no',
+  	CONSTRAINT CK_user_perm CHECK (no_admin IN('yes','no')) DEFAULT 'no',
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT user_grp ON
+SET IDENTITY_INSERT user_perm ON
 
-INSERT INTO user_grp (id, name, description, no_admin) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'assistenti', 'Gestiscono gli utenti. Possono inserire e modificare utenti. Hanno restrizioni sulla modifica dei livelli di accesso e delle password. Non possono eliminare nessun utente.', 'no');
+INSERT INTO user_perm (id, name, description, no_admin) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'gestione', 'gestione gli utenti. Inserimento e modifica di utenti. Restrizioni sulla modifica dei livelli di accesso e delle password. Impossibilità di eliminare utenti.', 'no');
 
-SET IDENTITY_INSERT user_grp OFF
+SET IDENTITY_INSERT user_perm OFF
 
 -- --------------------------------------------------------
 

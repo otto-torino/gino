@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class index extends AbstractEvtClass{
+class index extends Controller{
 
 	private $_page;
 	
@@ -69,7 +69,7 @@ class index extends AbstractEvtClass{
 	 */
 	public function admin_page(){
 
-		if(!$this->_access->getAccessAdmin()) {
+		if(!$this->_auth->getAccessAdmin()) {
 			$this->session->auth_redirect = "$this->_home?evt[".$this->_className."-admin_page]";
 			EvtHandler::HttpCall($this->_home, $this->_className.'-auth_page', '');
 		}
@@ -120,16 +120,16 @@ class index extends AbstractEvtClass{
 	 */
 	public function sysModulesManageArray() {
 
-		if(!$this->_access->getAccessAdmin()) {
+		if(!$this->_auth->getAccessAdmin()) {
 			return array();
 		}
 
 		$list = array();
-		$query = "SELECT id, label, name, description FROM ".$this->_tbl_module_app." WHERE masquerade='no' AND instance='no' ORDER BY order_list";
+		$query = "SELECT id, label, name, description FROM ".TBL_MODULE_APP." WHERE masquerade='no' AND instance='no' ORDER BY order_list";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			foreach($a as $b) {
-				if($this->_access->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
+				if($this->_auth->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
 					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'label', $b['id']), "name"=>$b['name'], "description"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'description', $b['id']));
 			}
 		}
@@ -144,7 +144,7 @@ class index extends AbstractEvtClass{
 	 */
 	public function modulesManageArray() {
 
-		if(!$this->_access->getAccessAdmin()) {
+		if(!$this->_auth->getAccessAdmin()) {
 			return array();
 		}
 
@@ -153,7 +153,7 @@ class index extends AbstractEvtClass{
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			foreach($a as $b) {
-				if($this->_access->AccessVerifyGroupIf($b['class'], $b['id'], '', 'ALL') && method_exists($b['class'], 'manageDoc'))
+				if($this->_auth->AccessVerifyGroupIf($b['class'], $b['id'], '', 'ALL') && method_exists($b['class'], 'manageDoc'))
 					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE, 'label', $b['id']), "name"=>$b['name'], "class"=>$b['class'], "description"=>$this->_trd->selectTXT(TBL_MODULE, 'description', $b['id']));
 			}
 		}

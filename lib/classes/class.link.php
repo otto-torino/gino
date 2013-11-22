@@ -522,5 +522,29 @@ class Link {
 		$string = $control == $char ? substr($string, 1) : $string;
 		return $string;
 	}
+
+  /**
+	 * Costruisce l'indirizzo di un redirect e lo effettua
+	 * @param string $file indirizzo del redirect, corrispondente al nome del file base dell'applicazione (ad es. la proprietà @a _home)
+	 * @param string $EVT parte dell'indirizzo formata da nome istanza/classe e nome metodo (nel formato @a nomeistanza-nomemetodo)
+	 * @param string $params parametri aggiuntivi della request (ad es. var1=val1&var2=val2)
+	 * @return void
+	 */
+	protected function HttpCall($file, $EVT, $params){
+
+		if(!empty($params))
+		{
+			if(!empty($EVT)) $sign = '&'; else $sign = '?';
+
+			$params = $sign.$params;
+		}
+
+		if(!empty($EVT)) $event = "?evt[$EVT]";
+		else $event = '';
+
+		header("Location:http://".$_SERVER['HTTP_HOST'].$file.$event.$params);
+		exit();
+	}
+
 }
 ?>

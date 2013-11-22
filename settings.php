@@ -62,9 +62,6 @@ define('CONTENT_WWW', SITE_WWW.'/contents');
 define('DOC_WWW', CONTENT_WWW.'/documents');
 
 define('EVT_NAME', 'evt');
-define('EVT_CONTROLLER', LIB_DIR.OS.'evt.php');
-define('CORE', LIB_DIR.OS.'core.php');
-define('METHOD_POINTER', LIB_DIR.OS.'methodPointer.php');
 define('CLASS_PREFIX', 'class_');
 define('INSTANCE_PREFIX', '_instance_');
 

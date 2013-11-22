@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class sysfunc extends AbstractEvtClass{
+class sysfunc extends Controller {
 
 	function __construct(){
 
@@ -252,9 +252,9 @@ class sysfunc extends AbstractEvtClass{
 	 */
 	public static function managePermissions($mdl, $class) {
 	
-		$admin = new admin($class, $mdl);
+		$class_auth = new admin($class, $mdl);
 
-		return $admin->manageDoc();
+		return $class_auth->manageDoc();
 	}
 }
 ?>

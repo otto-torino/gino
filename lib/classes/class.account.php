@@ -17,7 +17,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class account extends pub {
+class account {
 	
 	private $_call_name;
 	

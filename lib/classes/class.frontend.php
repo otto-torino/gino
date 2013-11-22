@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.frontend.php
- * @brief Contiene la classe frontend
+ * @brief Contiene la classe Frontend
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -19,7 +19,7 @@
  *   - i file css definiti nel metodo getClassElements() della classe del modulo
  *   - i file delle viste presenti nella directory @a views presente nella directory dell'applicazione 
  */
-class frontend extends propertyObject {
+class Frontend extends Model {
 
 	private $_class, $_module, $_name, $_label, $_css_list;
 	private $_view_list;

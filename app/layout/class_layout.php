@@ -44,9 +44,8 @@
  *   - modUrl()
  * 
  */
-class layout extends AbstractEvtClass {
+class layout extends Controller {
 
-	protected $_instance, $_instanceName;
 	private $_tbl_skin, $_tbl_css;
 	private $_relativeUrl;
 	private $_template;
@@ -57,9 +56,6 @@ class layout extends AbstractEvtClass {
 	function __construct($queryString=null) {
 
 		parent::__construct();
-
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
 
 		$this->setAccess();
 

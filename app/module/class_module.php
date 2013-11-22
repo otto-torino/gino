@@ -17,9 +17,8 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class module extends AbstractEvtClass{
+class module extends Controller{
 
-	protected $_instance, $_instanceName;
 	private $_title;
 	private $_action;
 	private $_mdlTypes;
@@ -28,10 +27,7 @@ class module extends AbstractEvtClass{
 
 		parent::__construct();
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
+		//$this->setAccess();
 
 		$this->_title = _("Gestione moduli");
 

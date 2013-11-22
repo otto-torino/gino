@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class PhpModule extends propertyObject {
+class PhpModule extends Model {
 
 	protected $_tbl_data;
 	public static $_tbl_php_mdl = 'php_module';

@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.propertyObject.php
- * @brief Contiene la classe propertyObject
+ * @file class.model.php
+ * @brief Contiene la classe Model
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -26,7 +26,7 @@
  * 
  * ###Criteri di costruzione di una tabella per la definizione della struttura
  * Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a adminTable. \n
- * I modelli delle tabelle estendono la classe @a propertyObject che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
+ * I modelli delle tabelle estendono la classe @a model che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
  *   - i campi obbligatori devono essere 'not null'
  *   - un campo auto-increment viene gestito automaticamente come input di tipo hidden
  *   - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
@@ -42,7 +42,7 @@
  * );
  * @endcode
  */
- abstract class propertyObject {
+ abstract class Model {
 
 	protected $_db;
 	protected $_tbl_data;
@@ -246,7 +246,7 @@
 	/**
 	 * Definisce la struttura dei campi di una tabella del database
 	 * 
-	 * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende propertyObject. \n
+	 * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende model. \n
 	 * 
 	 * Ogni elemento viene associato a una classe del tipo di dato e le vengono passate le specifiche del campo. \n
 	 * Esistono classi che corrispondono al tipo di dato e classi specifiche, per poter associare le quali è necessario sovrascrivere il campo nel metodo structure(). \n
@@ -372,7 +372,7 @@
 				);
 				
 				if(!class_exists($dataType))
-					error::syserrorMessage('propertyObject', 'structure', sprintf(_("Il tipo di dato del campo %s non è riconoscibile automaticamente"), $key));
+					error::syserrorMessage('Model', 'structure', sprintf(_("Il tipo di dato del campo %s non è riconoscibile automaticamente"), $key));
 				
 				$structure[$key] = new $dataType($options_field);
 			}

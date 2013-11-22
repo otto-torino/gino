@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.skin.php
- * @brief Contiene la classe skin
+ * @brief Contiene la classe Skin
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class skin extends propertyObject {
+class Skin extends Model {
 
 	protected $_tbl_data;
 	private static $_tbl_skin = 'sys_layout_skin';

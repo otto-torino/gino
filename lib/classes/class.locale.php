@@ -128,5 +128,378 @@ class locale extends singleton {
 			return $key;
 		}
 	}
+	/**
+	 * Setta la lingua del client e inizializza le gettext
+	 * 
+	 * @return boolean true
+	 */
+  public static function init() {
+
+    $registry = registry::instance();
+    $registry->multi_language = pub::getConf('multi_language');
+
+    self::setLanguage();
+    self::setGettext();
+
+    $registry->trd = new translation($registry->session->lng, $registry->session->lngDft);
+
+    return true;
+  }
+
+  private static function setLanguage(){
+
+    $registry = registry::instance();
+    $session = $registry->session;
+    $db = $registry->db;
+
+    $dft_language = $registry->pub->getConf('dft_language');
+    $tbl_language = 'language';
+
+		/* default */
+		if($registry->multi_language == 'yes')
+		{
+			if(!$session->lngDft)
+			{
+				$session->lngDft = $db->getFieldFromId($tbl_language, 'code', 'main', 'yes');
+			}
+
+			// language
+			if(!$session->lng)
+			{
+				// Language User Agent
+				$user_language = self::userLanguage();
+				$session->lng = $user_language ? $user_language : '';
+			}
+
+			if(isset($_GET["lng"]))
+			{
+				$session->lng = $_GET["lng"];
+			}
+			elseif($session->lng == '')
+			{
+				$session->lng = $session->lngDft;
+			}
+		}
+		else
+		{
+			$session->lng = $dft_language;
+			$session->lngDft = $dft_language;
+		}
+	}
+
+	/**
+	 * Lingua dello User Agent
+	 * 
+	 * Ritorna FALSE se non trova la lingua
+	 * 
+	 * @see get_languages()
+	 * @return string
+	 */
+	private static function userLanguage(){
+
+    $db = db::instance();
+
+		$code = self::get_languages();
+
+		if(is_array($code[0]) AND sizeof($code[0]) > 0)
+		{
+			$full_code = $code[0][0];
+			//$primary_code = $code[0][1];
+
+			if(!empty($full_code))
+			{
+				$array = explode('-', $full_code);
+				$lang = $array[0];
+
+				if(sizeof($array) == 2)
+				{
+					$country = strtoupper($array[1]);
+					$language = $lang.'_'.$country;
+					
+					$search_code = $db->getFieldFromId($this->_tbl_language, 'code', 'code', $language);
+					if($search_code) return $language;
+				}
+				elseif(sizeof($array) == 1)
+				{
+					$records = $db->select('code, main', $this->_tbl_language, "active='yes'");
+					if(count($records))
+					{
+						foreach($records AS $r)
+						{
+							$lang_from_db = explode('_', $r['code']);
+							if($lang == $lang_from_db) return $r['code'];
+						}
+					}
+				}
+			}
+			return false;
+		}
+	}
+
+	/**
+	
+	*/
+	
+	/**
+	 * Lingua
+	 * 
+	 * @see detectCodes()
+	 * @return array
+	 * 
+	 * Returns an array of the following 4 item array for each language the os supports:
+	 * 1. full language abbreviation, like en-ca
+	 * 2. primary language, like en
+	 * 3. full language string, like English (Canada)
+	 * 4. primary language string, like English
+	 * 
+	 * Esempio
+	 * @code
+	 * $_SERVER["HTTP_ACCEPT_LANGUAGE"]:
+	 * en-gb,en;q=0.5 [Firefox]
+	 * it-it,it;q=0.8,en-us;q=0.5,en;q=0.3 [Firefox]
+	 * it [IE7]
+	 * @endcode
+	 */
+	private static function get_languages()
+	{
+		$a_languages = self::detectCodes();
+		$found = false;
+		$user_languages = array();
+
+		if(isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+		{
+			$languages = strtolower($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+			$languages = str_replace( ' ', '', $languages );
+			$languages = explode( ",", $languages );
+
+			foreach($languages as $language_list)
+			{
+				$temp_array = array();
+				// slice out the part before ; on first step, the part before - on second, place into array
+				$temp_array[0] = substr($language_list, 0, strcspn($language_list, ';'));	// full language
+				// strcspn — Find length of initial segment not matching mask (in this case ';')
+				$temp_array[1] = substr($language_list, 0, 2);	// cut out primary language
+				$user_languages[] = $temp_array;
+			}
+
+			//start going through each one
+			for($i = 0, $limit=count($user_languages); $i < $limit; $i++)
+			{
+				foreach($a_languages as $key => $value)
+				{
+					if($key == $user_languages[$i][0])
+					{
+						// complete language, like english (canada)
+						$user_languages[$i][2] = $value;
+						// extract working language, like english
+						$user_languages[$i][3] = substr($value, 0, strcspn( $value, ' (' ));
+					}
+				}
+			}
+		}
+		else
+		{
+			$user_languages[0] = array('','','','');
+		}
+
+		return $user_languages;
+
+  }
+
+	/**
+	 * Elenco dei codici lingua associati alle nazioni
+	 * 
+	 * @return array codice_stato=>nome_stato
+	 */
+	private static function detectCodes(){
+
+		return array(
+		'af' => 'Afrikaans',
+		'sq' => 'Albanian',
+		'ar-dz' => 'Arabic (Algeria)',
+		'ar-bh' => 'Arabic (Bahrain)',
+		'ar-eg' => 'Arabic (Egypt)',
+		'ar-iq' => 'Arabic (Iraq)',
+		'ar-jo' => 'Arabic (Jordan)',
+		'ar-kw' => 'Arabic (Kuwait)',
+		'ar-lb' => 'Arabic (Lebanon)',
+		'ar-ly' => 'Arabic (libya)',
+		'ar-ma' => 'Arabic (Morocco)',
+		'ar-om' => 'Arabic (Oman)',
+		'ar-qa' => 'Arabic (Qatar)',
+		'ar-sa' => 'Arabic (Saudi Arabia)',
+		'ar-sy' => 'Arabic (Syria)',
+		'ar-tn' => 'Arabic (Tunisia)',
+		'ar-ae' => 'Arabic (U.A.E.)',
+		'ar-ye' => 'Arabic (Yemen)',
+		'ar' => 'Arabic',
+		'hy' => 'Armenian',
+		'as' => 'Assamese',
+		'az' => 'Azeri',
+		'eu' => 'Basque',
+		'be' => 'Belarusian',
+		'bn' => 'Bengali',
+		'bg' => 'Bulgarian',
+		'ca' => 'Catalan',
+		'zh-cn' => 'Chinese (China)',
+		'zh-hk' => 'Chinese (Hong Kong SAR)',
+		'zh-mo' => 'Chinese (Macau SAR)',
+		'zh-sg' => 'Chinese (Singapore)',
+		'zh-tw' => 'Chinese (Taiwan)',
+		'zh' => 'Chinese',
+		'hr' => 'Croatian',
+		'cs' => 'Czech',
+		'da' => 'Danish',
+		'div' => 'Divehi',
+		'nl-be' => 'Dutch (Belgium)',
+		'nl' => 'Dutch (Netherlands)',
+		'en-au' => 'English (Australia)',
+		'en-bz' => 'English (Belize)',
+		'en-ca' => 'English (Canada)',
+		'en-ie' => 'English (Ireland)',
+		'en-jm' => 'English (Jamaica)',
+		'en-nz' => 'English (New Zealand)',
+		'en-ph' => 'English (Philippines)',
+		'en-za' => 'English (South Africa)',
+		'en-tt' => 'English (Trinidad)',
+		'en-gb' => 'English (United Kingdom)',
+		'en-us' => 'English (United States)',
+		'en-zw' => 'English (Zimbabwe)',
+		'en' => 'English',
+		'us' => 'English (United States)',
+		'et' => 'Estonian',
+		'fo' => 'Faeroese',
+		'fa' => 'Farsi',
+		'fi' => 'Finnish',
+		'fr-be' => 'French (Belgium)',
+		'fr-ca' => 'French (Canada)',
+		'fr-lu' => 'French (Luxembourg)',
+		'fr-mc' => 'French (Monaco)',
+		'fr-ch' => 'French (Switzerland)',
+		'fr' => 'French (France)',
+		'mk' => 'FYRO Macedonian',
+		'gd' => 'Gaelic',
+		'ka' => 'Georgian',
+		'de-at' => 'German (Austria)',
+		'de-li' => 'German (Liechtenstein)',
+		'de-lu' => 'German (Luxembourg)',
+		'de-ch' => 'German (Switzerland)',
+		'de' => 'German (Germany)',
+		'el' => 'Greek',
+		'gu' => 'Gujarati',
+		'he' => 'Hebrew',
+		'hi' => 'Hindi',
+		'hu' => 'Hungarian',
+		'is' => 'Icelandic',
+		'id' => 'Indonesian',
+		'it-ch' => 'Italian (Switzerland)',
+		'it' => 'Italian (Italy)',
+		'ja' => 'Japanese',
+		'kn' => 'Kannada',
+		'kk' => 'Kazakh',
+		'kok' => 'Konkani',
+		'ko' => 'Korean',
+		'kz' => 'Kyrgyz',
+		'lv' => 'Latvian',
+		'lt' => 'Lithuanian',
+		'ms' => 'Malay',
+		'ml' => 'Malayalam',
+		'mt' => 'Maltese',
+		'mr' => 'Marathi',
+		'mn' => 'Mongolian (Cyrillic)',
+		'ne' => 'Nepali (India)',
+		'nb-no' => 'Norwegian (Bokmal)',
+		'nn-no' => 'Norwegian (Nynorsk)',
+		'no' => 'Norwegian (Bokmal)',
+		'or' => 'Oriya',
+		'pl' => 'Polish',
+		'pt-br' => 'Portuguese (Brazil)',
+		'pt' => 'Portuguese (Portugal)',
+		'pa' => 'Punjabi',
+		'rm' => 'Rhaeto-Romanic',
+		'ro-md' => 'Romanian (Moldova)',
+		'ro' => 'Romanian',
+		'ru-md' => 'Russian (Moldova)',
+		'ru' => 'Russian',
+		'sa' => 'Sanskrit',
+		'sr' => 'Serbian',
+		'sk' => 'Slovak',
+		'ls' => 'Slovenian',
+		'sb' => 'Sorbian',
+		'es-ar' => 'Spanish (Argentina)',
+		'es-bo' => 'Spanish (Bolivia)',
+		'es-cl' => 'Spanish (Chile)',
+		'es-co' => 'Spanish (Colombia)',
+		'es-cr' => 'Spanish (Costa Rica)',
+		'es-do' => 'Spanish (Dominican Republic)',
+		'es-ec' => 'Spanish (Ecuador)',
+		'es-sv' => 'Spanish (El Salvador)',
+		'es-gt' => 'Spanish (Guatemala)',
+		'es-hn' => 'Spanish (Honduras)',
+		'es-mx' => 'Spanish (Mexico)',
+		'es-ni' => 'Spanish (Nicaragua)',
+		'es-pa' => 'Spanish (Panama)',
+		'es-py' => 'Spanish (Paraguay)',
+		'es-pe' => 'Spanish (Peru)',
+		'es-pr' => 'Spanish (Puerto Rico)',
+		'es-us' => 'Spanish (United States)',
+		'es-uy' => 'Spanish (Uruguay)',
+		'es-ve' => 'Spanish (Venezuela)',
+		'es' => 'Spanish (Traditional Sort)',
+		'sx' => 'Sutu',
+		'sw' => 'Swahili',
+		'sv-fi' => 'Swedish (Finland)',
+		'sv' => 'Swedish',
+		'syr' => 'Syriac',
+		'ta' => 'Tamil',
+		'tt' => 'Tatar',
+		'te' => 'Telugu',
+		'th' => 'Thai',
+		'ts' => 'Tsonga',
+		'tn' => 'Tswana',
+		'tr' => 'Turkish',
+		'uk' => 'Ukrainian',
+		'ur' => 'Urdu',
+		'uz' => 'Uzbek',
+		'vi' => 'Vietnamese',
+		'xh' => 'Xhosa',
+		'yi' => 'Yiddish',
+		'zu' => 'Zulu' );
+	}
+
+  private static function setGettext(){
+
+    $session = session::instance();
+
+		if(isset($session->lng))
+		{
+			$language = explode('_', $session->lng);
+			$lang = $language[0];
+			
+			if(!ini_get('safe_mode'))
+				putenv("LC_ALL=".$session->lng);
+			
+			setlocale(LC_ALL, $session->lng.'.utf8');
+		}
+		else $lang = '';
+		
+		define('LANG', $lang);	// class document
+		
+		if(!extension_loaded('gettext'))
+		{
+			function _($str){
+				return $str;
+			}
+		}
+		else	// Gettext Functions
+		{
+			$domain='messages';
+			bindtextdomain($domain, "./languages");
+			bind_textdomain_codeset($domain, 'UTF-8');
+			textdomain($domain);	// choose domain
+		}
+	}
+
+
 }
 ?>

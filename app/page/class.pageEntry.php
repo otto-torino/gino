@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.pageEntry.php
- * Contiene la definizione ed implementazione della classe pageEntry.
+ * Contiene la definizione ed implementazione della classe PageEntry.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageEntry extends propertyObject {
+class PageEntry extends Model {
 
 	private $_controller;
 

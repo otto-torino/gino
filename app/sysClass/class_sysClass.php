@@ -15,9 +15,8 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class sysClass extends abstractEvtClass {
+class sysClass extends Controller {
 
-	protected $_instance, $_instanceName;
 	private $_title;
 	private $_action;
 	private $_archive_extensions;
@@ -25,9 +24,6 @@ class sysClass extends abstractEvtClass {
 	function __construct(){
 
 		parent::__construct();
-
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
 
 		$this->_title = _("Gestione classi di sistema");
 

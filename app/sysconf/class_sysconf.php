@@ -36,7 +36,7 @@
  *   - Contenuto file robots.txt
  *   - Permalink
  */
-class sysconf extends AbstractEvtClass{
+class sysconf extends Controller {
 
 	private $_title;
 	
@@ -48,7 +48,21 @@ class sysconf extends AbstractEvtClass{
 		$this->_instanceName = $this->_className;
 
 		$this->_title = _("Impostazioni");
-	}
+  }
+
+  public static function multiLanguage() {
+
+    $res = false;
+
+    $db = db::instance();
+    $rows = $db->select('multi_language', TBL_SYS_CONF, "id='1'");
+    if($rows and count($rows)) {
+      $res = $rows[0]['multilanguage'] == 'yes' ? true : false;
+    }
+
+    return $res;
+  
+  }
 	
 	/**
 	 * Interfaccia per la gestione delle impostazioni
@@ -319,5 +333,26 @@ class sysconf extends AbstractEvtClass{
 		
 		EvtHandler::HttpCall($this->_home, $this->_className.'-manageSysconf', $link);
 	}
+
+  public static function getConf() {
+
+    $res = array();
+
+    $db = db::instance();
+    $rows = $db->select('*', TBL_SYS_CONF, "id='1'");
+    if($rows and count($rows)) {
+      foreach($rows[0] as $field=>$value) {
+        if(in_array($field, array('head_title', 'head_description', 'head_keywords'))) {
+          $res[$field] = $trd->selectTXT(TBL_SYS_CONF, $field, 1);
+        }
+        else {
+          $res[$field] = $value;
+        }
+      }
+    }
+
+    return $res;
+
+  }
 }
 ?>

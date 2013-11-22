@@ -658,6 +658,14 @@ class mysql implements DbManager {
 		
 		return $this->actionquery($query);
 	}
+
+	/**
+	 * @see DbManager::columnHasValue()
+	 */
+  public function columnHasValue($table, $field, $value) {
+    $rows = $this->select($field, $table, $field."='$value'");
+    return $rows and count($rows) ? true : false;
+  }
 	
 	/**
 	 * @see DbManager::join()

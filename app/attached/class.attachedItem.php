@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.attachedItem.php
- * @brief Contiene la definizione ed implementazione della classe attachedItem.
+ * @brief Contiene la definizione ed implementazione della classe AttachedItem.
  *
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class attachedItem extends propertyObject {
+class AttachedItem extends Model {
 
   /**
    * @brief istanza del controller

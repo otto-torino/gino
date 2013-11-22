@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.pageTag.php
- * Contiene la definizione ed implementazione della classe pageTag.
+ * Contiene la definizione ed implementazione della classe PageTag.
  *
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageTag extends propertyObject {
+class PageTag extends Model {
 
 	private $_controller;
 	public static $_tbl_tag = "page_tag";

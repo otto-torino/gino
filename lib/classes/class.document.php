@@ -46,10 +46,10 @@ class Document {
 		$this->_tbl_module_app = 'sys_module_app';
 		$this->_tbl_module = 'sys_module';
 
-		$this->_precharge_mdl_url = htmlChars(pub::variable('precharge_mdl_url'));
+		$this->_precharge_mdl_url = htmlChars(pub::getConf('precharge_mdl_url'));
 
-		$access = new access();
-		$this->_session_role = $access->userRole();
+		$auth = new Auth();
+		$this->_session_role = $auth->userRole();
 		$this->_auth = isset($this->session->userId) ? true : false;
 	}
 
@@ -68,7 +68,7 @@ class Document {
 	 */
 	public function render() {
 
-		if(pub::variable('permalinks') == 'yes')
+		if(pub::getConf('permalinks') == 'yes')
 		{
 			$query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
 			
@@ -127,9 +127,9 @@ class Document {
 	 */
 	private function initHeadVariables($skinObj) {
 
-		$this->_registry->title = htmlChars(pub::variable('head_title'));
-		$this->_registry->description = htmlChars(pub::variable('head_description'));
-		$this->_registry->keywords = htmlChars(pub::variable('head_keywords'));
+		$this->_registry->title = htmlChars(pub::getConf('head_title'));
+		$this->_registry->description = htmlChars(pub::getConf('head_description'));
+		$this->_registry->keywords = htmlChars(pub::getConf('head_keywords'));
 		$this->_registry->favicon = SITE_WWW."/favicon.ico";
 		
 		$this->_registry->addCss(CSS_WWW."/main.css");
@@ -144,7 +144,7 @@ class Document {
 		$this->_registry->addJs(SITE_JS."/mootools-1.4.0-yc.js");
 		$this->_registry->addJs(SITE_JS."/gino-min.js");
 		
-		if(pub::variable("captcha_public") && pub::variable("captcha_private"))
+		if(pub::getConf("captcha_public") && pub::getConf("captcha_private"))
 			$this->_registry->addJs("http://api.recaptcha.net/js/recaptcha_ajax.js");
 	}
 
@@ -153,7 +153,7 @@ class Document {
 		$evt = $this->getEvent();
 		$instance = is_null($evt) ? null : $evt[1];
 
-		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) { 
+		if(pub::getConf('mobile')=='yes' && isset($this->session->L_mobile)) { 
 			$headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
 		}
 		else {
@@ -163,13 +163,13 @@ class Document {
 		$headline .= "<head>\n";
 		$headline .= "<meta charset=\"utf-8\" />\n";
 		$pub = new pub();
-		$headline .= "<base href=\"".$pub->getUrl('root').SITE_WWW."/\" />\n";
+		$headline .= "<base href=\"".$this->_registry->pub->getRootUrl()."/\" />\n";
 		
 		$headline .= $this->_registry->variables('meta');
 		
 		if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
 		if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-		if(pub::variable('mobile')=='yes' && isset($this->session->L_mobile)) {
+		if(pub::getConf('mobile')=='yes' && isset($this->session->L_mobile)) {
 			$headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
 		}
 		$headline .= $this->_registry->variables('head_links');
@@ -181,7 +181,7 @@ class Document {
 		
 		$headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
 		
-		if(pub::variable('google_analytics')) $headline .= $this->google_analytics();
+		if(pub::getConf('google_analytics')) $headline .= $this->google_analytics();
 		$headline .= "</head>\n";
 		$headline .= "<body>\n";
 		
@@ -407,7 +407,7 @@ class Document {
 
 	private function google_analytics(){
 		
-		$code = pub::variable('google_analytics');
+		$code = pub::getConf('google_analytics');
 		$buffer = "<script type=\"text/javascript\">";
   		$buffer .= "var _gaq = _gaq || [];";
 		$buffer .= "_gaq.push(['_setAccount', '".$code."']);";

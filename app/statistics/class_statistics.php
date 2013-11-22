@@ -15,9 +15,8 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class statistics extends AbstractEvtClass {
+class statistics extends Controller {
 	
-	protected $_instance, $_instanceName;
 	private $_title;
 	
 	private $_options;
@@ -34,9 +33,6 @@ class statistics extends AbstractEvtClass {
 	function __construct() {
 		
 		parent::__construct();
-
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
 
 		// options
 		$this->_title = htmlChars($this->setOption('title', true));

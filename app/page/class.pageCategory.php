@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.pageCategory.php
- * Contiene la definizione ed implementazione della classe pageCategory.
+ * Contiene la definizione ed implementazione della classe PageCategory.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageCategory extends propertyObject {
+class PageCategory extends Model {
 
 	private $_controller;
 	public static $_tbl_item = "page_category";

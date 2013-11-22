@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.access.php
- * @brief Contiene la classe Access
+ * @file class.auth.php
+ * @brief Contiene la classe Auth
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 
 /**
- * @brief Classe per la gestione degli accessi
+ * @brief Classe per la gestione dell'autenticazione ed accesso alla funzionalità
  * 
  * La classe gestisce il processo di autenticazione e l'accesso al sito e alle sue funzionalità
  * 
@@ -17,7 +17,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class Access extends pub {
+class Auth {
 	
 	public $default_role;
 	
@@ -38,15 +38,15 @@ class Access extends pub {
 		$this->session = session::instance();
 
 		$this->_home = HOME_FILE;
-		$this->_crypt = pub::variable('password_crypt');
+		$this->_crypt = pub::getConf('password_crypt');
 		
-		$this->_log_access = pub::variable('log_access');
+		$this->_log_access = pub::getConf('log_access');
 		
 		$this->defaultRole();
 
-		if(isset($this->session->userId)) $this->_session_user = $this->session->userId; else $this->_session_user = 0;
+		if(isset($this->session->user_id)) $this->_session_user = $this->session->user_id; else $this->_session_user = 0;
 		$this->_session_role = $this->userRole();
-		$this->_access_admin = pub::variable('admin_role');
+		$this->_access_admin = pub::getConf('admin_role');
 
 		$this->_block_page = $this->_home."?evt[index-auth_page]";
 	}
@@ -79,7 +79,7 @@ class Access extends pub {
 	/**
 	 * Verifica utente/password
 	 * 
-	 * Imposta le variabili di sessione userId, userName, userRole e richiama il metodo logAccess()
+	 * Imposta le variabili di sessione user_id, userName, userRole e richiama il metodo logAccess()
 	 * 
 	 * @see pub::cryptMethod()
 	 * @see verifyRole()
@@ -90,7 +90,9 @@ class Access extends pub {
 	 */
 	private function AuthenticationMethod($user, $pwd){
 
-		$pwd = pub::cryptMethod($pwd, $this->_crypt);
+    $registry = registry::instance();
+    $crypt_method = $registry->pub->getConf('password_crypt');
+		$pwd = $crypt_method ? $registry->pub->cryptMethod($pwd, $crypt_method) : $pwd;
 		
 		$records = $this->_db->select('user_id, firstname, lastname, role', TBL_USER, "username='$user' AND userpwd='$pwd' AND valid='yes'");
 		if(count($records) == 1)
@@ -102,7 +104,7 @@ class Access extends pub {
 				
 				if(!$this->verifyRole($role)) return false;
 				
-				$this->session->userId = $user_id;
+				$this->session->user_id = $user_id;
 				$this->session->userName = htmlChars($r["firstname"].' '.$r["lastname"]);
 				$this->session->userRole = $role;
 				
@@ -219,7 +221,7 @@ class Access extends pub {
 					$role = $r['role'];
 				}
 			}
-			else exit(error::syserrorMessage("access", "userRole", _("impossibile associare un ruolo all'utente id:").$this->_session_user, __LINE__));
+			else exit(error::syserrorMessage("Auth", "userRole", _("impossibile associare un ruolo all'utente id:").$this->_session_user, __LINE__));
 		}
 
 		return $role;
@@ -273,7 +275,7 @@ class Access extends pub {
 		}
 		
 		if(empty($value))
-			exit(error::syserrorMessage("access", "classRole", _("impossibile leggere i privilegi di accesso per la classe ").$class_name._(" istanza ").$instance, __LINE__));
+			exit(error::syserrorMessage("Auth", "classRole", _("impossibile leggere i privilegi di accesso per la classe ").$class_name._(" istanza ").$instance, __LINE__));
 		
 		return $value;
 	}

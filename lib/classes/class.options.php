@@ -24,8 +24,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class options extends pub {
+class options {
 
+  private $_db;
 	private $_class, $_class_prefix;
 	private $_tbl_options;
 	private $_instance;
@@ -35,31 +36,32 @@ class options extends pub {
 	
 	function __construct($class, $instance){
 		
-		parent::__construct();
+    $this->_db = db::instance();
 
 		$this->_title = _("Opzioni");
 
 		$this->setData($instance, $class);
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
+
 	}
 	
 	private function setData($instance, $class) {
 		
 		$this->_instance = $instance;
-		$this->_instanceName = $this->_db->getFieldFromId($this->_tbl_module, 'name', 'id', $instance);
+		$this->_instance_name = $this->_db->getFieldFromId(TBL_MODULE, 'name', 'id', $instance);
 
-		if($this->_instance && empty($this->_instanceName)) exit(error::syserrorMessage("options", "setData", "Istanza di ".$class." non trovata", __LINE__));
+		if($this->_instance && empty($this->_instance_name)) exit(error::syserrorMessage("options", "setData", "Istanza di ".$class." non trovata", __LINE__));
 
 		if($class) $this->_class = $class;
 		else exit(error::syserrorMessage("options", "setData", "Classe ".$class." inesistente", __LINE__));
 
-		if(!$this->_instance) $this->_instanceName = $this->_class; 		
+		if(!$this->_instance) $this->_instance_name = $this->_class; 		
 		
 		$this->_class_prefix = $this->field_class('tbl_name', $this->_class);
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
-		$this->_return_link = method_exists($class, "manageDoc")? $this->_instanceName."-manageDoc": $this->_instanceName."-manage".ucfirst($class);
+		$this->_return_link = method_exists($class, "manageDoc")? $this->_instance_name."-manageDoc": $this->_instance_name."-manage".ucfirst($class);
 	}
 
 	/**
@@ -71,7 +73,7 @@ class options extends pub {
 	 */
 	private function field_class($field, $class_name) {
 		
-		$records = $this->_db->select($field, $this->_tbl_module_app, "name='$class_name' AND type='class'");
+		$records = $this->_db->select($field, TBL_MODULE_APP, "name='$class_name' AND type='class'");
 		if(count($records))
 		{
 			foreach($records AS $r)
@@ -164,7 +166,7 @@ class options extends pub {
 		else $function = 'manage'.ucfirst($this->_class);
 
 		if($required) $required = substr($required, 0, strlen($required)-1);
-		$GINO = $gform->form($this->_home."?evt[".$this->_instanceName."-$function]&block=options", '', $required);
+		$GINO = $gform->form($this->_home."?evt[".$this->_instance_name."-$function]&block=options", '', $required);
 		$GINO .= $gform->hidden('func', 'actionOptions');
 		$GINO .= $gform->hidden('action', $action);
 

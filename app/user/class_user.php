@@ -21,9 +21,8 @@ require_once(CLASSES_DIR.OS."class.email.php");
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class user extends AbstractEvtClass{
+class user extends Controller{
 
-	protected $_instance, $_instanceName;
 	private $_account;
 	
 	private $_title;
@@ -58,11 +57,8 @@ class user extends AbstractEvtClass{
 
 		parent::__construct();
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
-		$this->setGroups();
+		//$this->setAccess();
+		//$this->setGroups();
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
@@ -999,8 +995,7 @@ class user extends AbstractEvtClass{
 			if($this->_username_email AND $email != $email2)
 				exit(error::errorMessage(array('error'=>25), $link_error));
 
-			$query = "SELECT email FROM ".$this->_tbl_user."";
-			if($this->valueExist($query, 'email', $email))
+			if($this->_registry->db->columnHasValue($this->_tbl_user, 'email', $email))
 				exit(error::errorMessage(array('error'=>20), $link_error));
 		}
 
@@ -1029,8 +1024,7 @@ class user extends AbstractEvtClass{
 			}
 			else
 			{
-				$query = "SELECT username FROM ".$this->_tbl_user."";
-				if($this->valueExist($query, 'username', $username))
+				if($this->_registry->db->columnHasValue($this->_tbl_user, 'username', $username))
 					exit(error::errorMessage(array('error'=>8), $link_error));
 			}
 

@@ -43,17 +43,36 @@ define('SITE_WWW', preg_replace("#".preg_quote($docroot)."?#", "", $siteroot));
 include('settings.php');
 
 /**
+ * Include le costanti utilizzate da tutto il sistema
+ */
+include_once(LIB_DIR.OS."const.php");
+
+/**
  * Include la classe singleton
  */
-include(LIB_DIR.OS."singleton.php");
+include(CLASSES_DIR.OS."class.singleton.php");
 
 /**
  * Include la classe session
  */
-include(LIB_DIR.OS."session.php");
+include(CLASSES_DIR.OS."class.session.php");
 
 /**
- * Include il file definito nella variabile CORE
+ * Include la classe core
  */
-include(CORE);
-?>
+include(CLASSES_DIR.OS."class.core.php");
+
+/**
+ * Include le classi di sistema ed i metodi per il filtro degli input
+ */
+include_once(LIB_DIR.OS."include.php");
+
+$core = new core();
+
+/**
+ * Include la libreria per la cattura di chiamate ajax
+ */
+include(LIB_DIR.OS.'methodPointer.php');
+
+// print document
+$core->renderApp();

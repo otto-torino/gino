@@ -68,10 +68,10 @@ INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_grp`
+-- Table structure for table `attached_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `attached_grp` (
+CREATE TABLE IF NOT EXISTS `attached_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -80,12 +80,12 @@ CREATE TABLE IF NOT EXISTS `attached_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `attached_grp`
+-- Dumping data for table `attached_perm`
 --
 
-INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono gli allegati.', 'no');
+INSERT INTO `attached_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'gestione allegati', 'inserimento modificazione ed eliminazione degli allegati', 'no');
 
 -- --------------------------------------------------------
 
@@ -125,10 +125,10 @@ INSERT INTO `instruments` (`id`, `name`, `description`, `order_list`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments_grp`
+-- Struttura della tabella `instruments_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `instruments_grp` (
+CREATE TABLE IF NOT EXISTS `instruments_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -137,12 +137,12 @@ CREATE TABLE IF NOT EXISTS `instruments_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `instruments_grp`
+-- Dump dei dati per la tabella `instruments_perm`
 --
 
-INSERT INTO `instruments_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'utilizzatori', 'Visualizzano gli strumenti', 'no');
+INSERT INTO `instruments_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'visualizzazione', 'visualizzazione degli strumenti', 'no');
 
 -- --------------------------------------------------------
 
@@ -573,10 +573,10 @@ CREATE TABLE IF NOT EXISTS `page_entry_tag` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_grp`
+-- Struttura della tabella `page_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `page_grp` (
+CREATE TABLE IF NOT EXISTS `page_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -585,14 +585,14 @@ CREATE TABLE IF NOT EXISTS `page_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
--- Dump dei dati per la tabella `page_grp`
+-- Dump dei dati per la tabella `page_perm`
 --
 
-INSERT INTO `page_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'pubblicatori', 'Gestiscono la pubblicazione di pagine e commenti e la redazione', 'no'),
-(3, 'redattori', 'Gestiscono la redazione', 'no'),
-(4, 'utenti pagine private', 'Accedono alle pagine che sono state salvate come private', 'no');
+INSERT INTO `page_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'pubblicazione', 'Pubblicazione di pagine e commenti e redazione contenuti', 'no'),
+(3, 'redazione', 'Redazione dei contenuti', 'no'),
+(4, 'visualizzazione pagine private', 'Visualizzazione di pagine che sono state salvate come private', 'no');
 
 -- --------------------------------------------------------
 
@@ -689,10 +689,10 @@ INSERT INTO `php_module` (`id`, `instance`, `content`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module_grp`
+-- Struttura della tabella `php_module_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `php_module_grp` (
+CREATE TABLE IF NOT EXISTS `php_module_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -701,12 +701,12 @@ CREATE TABLE IF NOT EXISTS `php_module_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `php_module_grp`
+-- Dump dei dati per la tabella `php_module_perm`
 --
 
-INSERT INTO `php_module_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono i moduli php.', 'no');
+INSERT INTO `php_module_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'redazione', 'Gestione dei contenuti dei moduli php.', 'no');
 
 -- --------------------------------------------------------
 
@@ -836,10 +836,10 @@ INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_graphics_grp`
+-- Struttura della tabella `sys_graphics_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `sys_graphics_grp` (
+CREATE TABLE IF NOT EXISTS `sys_graphics_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -848,12 +848,12 @@ CREATE TABLE IF NOT EXISTS `sys_graphics_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `sys_graphics_grp`
+-- Dump dei dati per la tabella `sys_graphics_perm`
 --
 
-INSERT INTO `sys_graphics_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Personalizzano l''header e il footer del sito.', 'no');
+INSERT INTO `sys_graphics_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'readazione', 'Inserimento, modifica ed eliminazione  dell''header e del footer del sito.', 'no');
 
 -- --------------------------------------------------------
 
@@ -893,10 +893,10 @@ CREATE TABLE IF NOT EXISTS `sys_image` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_image_grp`
+-- Struttura della tabella `sys_image_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `sys_image_grp` (
+CREATE TABLE IF NOT EXISTS `sys_image_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -905,11 +905,11 @@ CREATE TABLE IF NOT EXISTS `sys_image_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `sys_image_grp`
+-- Dump dei dati per la tabella `sys_image_perm`
 --
 
-INSERT INTO `sys_image_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
+INSERT INTO `sys_image_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no');
 
 -- --------------------------------------------------------
 
@@ -954,10 +954,10 @@ INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_grp`
+-- Struttura della tabella `sys_layout_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `sys_layout_grp` (
+CREATE TABLE IF NOT EXISTS `sys_layout_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -966,11 +966,11 @@ CREATE TABLE IF NOT EXISTS `sys_layout_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `sys_layout_grp`
+-- Dump dei dati per la tabella `sys_layout_perm`
 --
 
-INSERT INTO `sys_layout_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
+INSERT INTO `sys_layout_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no');
 
 -- --------------------------------------------------------
 
@@ -1131,10 +1131,10 @@ INSERT INTO `sys_log_access` (`id`, `user_id`, `date`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_grp`
+-- Struttura della tabella `sys_menu_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `sys_menu_grp` (
+CREATE TABLE IF NOT EXISTS `sys_menu_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -1143,12 +1143,12 @@ CREATE TABLE IF NOT EXISTS `sys_menu_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `sys_menu_grp`
+-- Dump dei dati per la tabella `sys_menu_perm`
 --
 
-INSERT INTO `sys_menu_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono le voci di menu.', 'no');
+INSERT INTO `sys_menu_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'redazione', 'Inserimento modifica ed eliminazione di voci di menu.', 'no');
 
 -- --------------------------------------------------------
 
@@ -1409,10 +1409,10 @@ INSERT INTO `user_email` (`id`, `ref_function`, `description`, `subject`, `text`
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `user_grp`
+-- Struttura della tabella `user_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `user_grp` (
+CREATE TABLE IF NOT EXISTS `user_perm` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
@@ -1421,12 +1421,12 @@ CREATE TABLE IF NOT EXISTS `user_grp` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `user_grp`
+-- Dump dei dati per la tabella `user_perm`
 --
 
-INSERT INTO `user_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'assistenti', 'Gestiscono gli utenti. Possono inserire e modificare utenti. Hanno restrizioni sulla modifica dei livelli di accesso e delle password. Non possono eliminare nessun utente.', 'no');
+INSERT INTO `user_perm` (`id`, `name`, `description`, `no_admin`) VALUES
+(1, 'amministrazione', 'amministrazione completa del modulo', 'no'),
+(2, 'gestione', 'gestione gli utenti. Inserimento e modifica di utenti. Restrizioni sulla modifica dei livelli di accesso e delle password. Impossibilità di eliminare utenti.', 'no');
 
 -- --------------------------------------------------------
 

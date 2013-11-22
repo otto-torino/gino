@@ -22,9 +22,9 @@
  * 
  * The public view privilege and the administrative privilege are setted in the DB, and editable by the user in the sysClass class administration
  */
-class language extends AbstractEvtClass{
+class language extends Controller {
 
-	protected $_instance, $_instanceName;
+	protected $_instance, $_instance_name;
 
 	private $_options;
 	public $_optionsLabels;
@@ -44,16 +44,16 @@ class language extends AbstractEvtClass{
 		parent::__construct();
 
 		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
+		$this->_instance_name = $this->_class_name;
 
-		$this->setAccess();
+		//$this->setAccess();
 
 		$this->_title = htmlChars($this->setOption('title', true));
 		$this->_flag_language = $this->setOption('opt_flag');
 		$this->_flag_prefix = "flag_";
 		$this->_flag_suffix = ".gif";
 
-		$this->_options = new options($this->_className, $this->_instance);
+		$this->_options = new options($this->_class_name, $this->_instance);
 		$this->_optionsLabels = array("title"=>_("Titolo"), "opt_flag"=>_("Bandiere come etichette"));
 		
 		$this->_input_field = 'input';
@@ -578,7 +578,7 @@ class language extends AbstractEvtClass{
 	 */
 	private function listLanguage($code){
 
-		$link_insert = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova lingua"))."</a>";
+		$link_insert = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova lingua"))."</a>";
 
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerLinks'=>$link_insert));
 		
@@ -598,7 +598,7 @@ class language extends AbstractEvtClass{
 				$language = htmlChars($b['language']);
 				$code_lng = $b['code'];
 				
-				$link_modify = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]&amp;code=$b[code]&amp;action=".$this->_act_modify."\">".pub::icon('modify')."</a>";
+				$link_modify = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]&amp;code=$b[code]&amp;action=".$this->_act_modify."\">".pub::icon('modify')."</a>";
 			
 				$selected = ($code==$code_lng)?true:false;				
 
@@ -625,12 +625,12 @@ class language extends AbstractEvtClass{
 		$block = cleanVar($_GET, 'block', 'string', '');
 
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_className-manageLanguage]&block=options\">"._("Opzioni")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLanguage]\">"._("Gestione")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageLanguage]&block=options\">"._("Opzioni")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]\">"._("Gestione")."</a>";
 		$sel_link = $link_dft;
 
 		if($block=='options') {
-			$GINO = sysfunc::manageOptions(null, $this->_className);
+			$GINO = sysfunc::manageOptions(null, $this->_class_name);
 			$sel_link = $link_options;
 		}
 		else {
@@ -725,7 +725,7 @@ class language extends AbstractEvtClass{
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
 
 		$required = '';
-		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionLanguage]", '', $required);
+		$GINO = $gform->form($this->_home."?evt[".$this->_class_name."-actionLanguage]", '', $required);
 		$GINO .= $gform->hidden('main2', 'main2');
 		$GINO .= $gform->hidden('code', $code);
 
@@ -765,7 +765,7 @@ class language extends AbstractEvtClass{
 		$main2 = cleanVar($_POST, 'main2', 'string', '');
 		$active = cleanVar($_POST, 'active', 'string', '');
 		
-		$link_error = $this->_home."?evt[$this->_className-manageLanguage]&code=$code";
+		$link_error = $this->_home."?evt[$this->_class_name-manageLanguage]&code=$code";
 
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
@@ -804,7 +804,7 @@ class language extends AbstractEvtClass{
 			$this->_db->actionquery($query);
 		}
 		
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageLanguage', '');
+		EvtHandler::HttpCall($this->_home, $this->_class_name.'-manageLanguage', '');
 	}
 	
 	/**
@@ -889,7 +889,7 @@ class language extends AbstractEvtClass{
 	 	
 	 	$GINO = "<div style=\"margin-top:10px;\">";
 	 	
-		$url = $this->_home."?evt[".$this->_className."-actionTranslation]";
+		$url = $this->_home."?evt[".$this->_class_name."-actionTranslation]";
 		$onclick = "ajaxRequest('post', '".$url."', 'type=$type&tbl=$tbl&field=$field&id_value=$id_value&text='+$('trnsl_".$field."').getProperty('value')+'&lng_code=$lng_code&action=$action', '".$tbl.$field."', {'script':true})";
 	 	
 	 	if($type == $this->_input_field) {

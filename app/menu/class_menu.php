@@ -18,12 +18,10 @@ require_once('class_menuVoice.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class menu extends AbstractEvtClass {
+class menu extends Controller {
 
 	private static $_menu_functions_list = 'menuFunctionsList';
 	private $_group_1;
-	private $_registry;
-	protected $_instance, $_instanceName;
 
 	private $_tbl_opt;
 	
@@ -39,13 +37,8 @@ class menu extends AbstractEvtClass {
 
 		parent::__construct();
 
-		$this->_registry = registry::instance();
-		
-		$this->_instance = $instance;
-		$this->_instanceName = $this->_db->getFieldFromId($this->_tbl_module, 'name', 'id', $this->_instance);
-		
-		$this->setAccess();
-		$this->setGroups();
+		//$this->setAccess();
+		//$this->setGroups();
 
 		$this->_tbl_opt = "sys_menu_opt";
 
@@ -72,7 +65,7 @@ class menu extends AbstractEvtClass {
 		$this->_cache = $this->setOption('cache', array("value"=>0));
 
 		// the second paramether will be the class instance
-		$this->_options = new options($this->_className, $this->_instance);
+		$this->_options = new options($this->_class_name, $this->_instance);
 		$this->_optionsLabels = array(
 			"title"=>_("Titolo"),
 			"vis_title"=>_("Titolo visibile"),
@@ -133,7 +126,7 @@ class menu extends AbstractEvtClass {
 		 */
 		$classElements = $this->getClassElements();
 		foreach($classElements['css'] as $css) {
-			unlink(APP_DIR.OS.$this->_className.OS.baseFileName($css)."_".$this->_instanceName.".css");
+			unlink(APP_DIR.OS.$this->_class_name.OS.baseFileName($css)."_".$this->_instance_name.".css");
 		}
 
 		return $result;
@@ -174,14 +167,14 @@ class menu extends AbstractEvtClass {
 	 */
 	public function blockList() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_auth_base);
 
 		$sel_voice = menuVoice::getSelectedVoice($this->_instance);
 
 		$buffer  = '';
 
 		$cache = new outputCache($buffer, $this->_cache ? true : false);
-		if($cache->start($this->_instanceName, "view".$sel_voice.$this->_lng_nav, $this->_cache)) {
+		if($cache->start($this->_instance_name, "view".$sel_voice.$this->_registry->session->lng, $this->_cache)) {
 			
 			$options = "{";
 			$options .= "fmode: ".(($this->_opt_horizontal)?"'horizontal'":"'vertical'").",";
@@ -190,15 +183,15 @@ class menu extends AbstractEvtClass {
 			$options .= "selectVoiceSnake: ".(($this->_path_to_sel)?"false":"true");
 			$options .= "}";
 			
-			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
 			
-			$GINO = "<nav id=\"menu_$this->_instanceName\">";
+			$GINO = "<nav id=\"menu_$this->_instance_name\">";
 			if($this->_title_visible) $GINO .= "<div class=\"section_title\">$this->_title</div>";
 
 			if($this->_opt_horizontal)
-				$this->_registry->addCss($this->_class_www."/menuH_".$this->_instanceName.".css");
+				$this->_registry->addCss($this->_class_www."/menuH_".$this->_instance_name.".css");
 			else
-				$this->_registry->addCss($this->_class_www."/menuV_".$this->_instanceName.".css");
+				$this->_registry->addCss($this->_class_www."/menuV_".$this->_instance_name.".css");
 
 			if($this->_path_to_sel) {
 				if($this->_opt_horizontal) $GINO .= "<div class=\"pathToSelVoice\">".$this->pathToSelectedVoice()."</div>";
@@ -207,7 +200,7 @@ class menu extends AbstractEvtClass {
 					$GINO .= "var content = '".jsVar($this->pathToSelectedVoice())."';
 						  divPTSV = new Element('div', {'class':'pathToSelVoice', 'id':'pathToSelVoice'});
 						  divPTSV.set('html', content);
-						  divPTSV.inject($('menu_$this->_instanceName'), 'top')";
+						  divPTSV.inject($('menu_$this->_instance_name'), 'top')";
 					$GINO .= "</script>";
 				}
 			}
@@ -237,16 +230,16 @@ class menu extends AbstractEvtClass {
 	 */
 	public function breadCrumbs() {
 		
-		$this->accessType($this->_access_base);
+		$this->accessType($this->_auth_base);
 		
 		$sel_voice = menuVoice::getSelectedVoice($this->_instance);
 		$GINO = '';
 
 		$cache = new outputCache($GINO, $this->_cache ? true : false);
-		if($cache->start($this->_instanceName, "breadcrumbs".$sel_voice.$this->_lng_nav, $this->_cache)) {
-			$htmlsection = new htmlSection(array('id'=>"pathmenu_".$this->_instanceName,'class'=>'public'));
+		if($cache->start($this->_instance_name, "breadcrumbs".$sel_voice.$this->_lng_nav, $this->_cache)) {
+			$htmlsection = new htmlSection(array('id'=>"pathmenu_".$this->_instance_name,'class'=>'public'));
 			
-			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
 			
 			$buffer = $this->pathToSelectedVoice();
 
@@ -278,8 +271,8 @@ class menu extends AbstractEvtClass {
 		
 		$auth_class = array();
 		$auth_class[] = "voice='class'";
-		$auth_class[] = "role1>=$this->_session_role";
-		if($this->_session_user) $auth_class[] = "authView='1'";
+		//$auth_class[] = "role1>=$this->_session_role";
+		if($this->_registry->session->user_id) $auth_class[] = "authView='1'";
 		$auth_where_class = '('.implode(' AND ', $auth_class).')';
 		
 		$query = "SELECT id FROM ".menuVoice::$tbl_voices." WHERE instance='$this->_instance' AND parent='$parent' AND ($auth_where_class OR $auth_where_page) ORDER BY orderList";
@@ -310,8 +303,8 @@ class menu extends AbstractEvtClass {
 					$GINO .= "</li>\n";
 				}
 			}
-			$GINO .= ($parent==0 && $this->_opt_admin && $this->_access->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
-			$GINO .= ($parent==0 && $this->_opt_logout && $this->_access->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
+			$GINO .= ($parent==0 && $this->_opt_admin && $this->_auth->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
+			$GINO .= ($parent==0 && $this->_opt_logout && $this->_auth->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
 
 			$GINO .= "</ul>\n"; 
 		}
@@ -319,11 +312,11 @@ class menu extends AbstractEvtClass {
 		{
 			if($parent==0)
 			{
-				if($this->_opt_home || ($this->_opt_admin && $this->_access->getAccessAdmin()) || ($this->_opt_logout && $this->_access->AccessVerifyIf())) {
+				if($this->_opt_home || ($this->_opt_admin && $this->_auth->getAccessAdmin()) || ($this->_opt_logout && $this->_auth->AccessVerifyIf())) {
 					$GINO .= "<ul id=\"menu_".$this->_instance."\" class=\"mainmenu\">\n";
 					$GINO .= ($this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
-					$GINO .= ($this->_opt_admin && $this->_access->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
-					$GINO .= ($this->_opt_logout && $this->_access->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
+					$GINO .= ($this->_opt_admin && $this->_auth->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
+					$GINO .= ($this->_opt_logout && $this->_auth->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
 
 					$GINO .= "</ul>";
 				}
@@ -360,22 +353,22 @@ class menu extends AbstractEvtClass {
 		$this->accessGroup('ALL');
 
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instanceName-manageDoc]&block=permissions\">"._("Permessi")."</a>";
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_instanceName-manageDoc]&block=options\">"._("Opzioni")."</a>";
-		$link_css = "<a href=\"".$this->_home."?evt[$this->_instanceName-manageDoc]&block=css\">"._("CSS")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instanceName."-manageDoc]\">"._("Gestione")."</a>";
+		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=permissions\">"._("Permessi")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
+		$link_css = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=css\">"._("CSS")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Gestione")."</a>";
 		$sel_link = $link_dft;
 		
 		if($this->_block == 'css') {
-			$GINO = sysfunc::manageCss($this->_instance, $this->_className);		
+			$GINO = sysfunc::manageCss($this->_instance, $this->_class_name);		
 			$sel_link = $link_css;
 		}
-		elseif($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$GINO = sysfunc::managePermissions($this->_instance, $this->_className);		
+		elseif($this->_block == 'permissions' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
+			$GINO = sysfunc::managePermissions($this->_instance, $this->_class_name);		
 			$sel_link = $link_admin;
 		}
 		elseif($this->_block == 'options') {
-			$GINO = sysfunc::manageOptions($this->_instance, $this->_className);		
+			$GINO = sysfunc::manageOptions($this->_instance, $this->_class_name);		
 			$sel_link = $link_options;
 		}
 		else {
@@ -390,7 +383,7 @@ class menu extends AbstractEvtClass {
 			elseif($voice) $form = $this->formMenuVoice($menuVoice, $menuVoice->parent);
 			else $form = $this->info();
 
-			$this->_registry->addCss($this->_class_www."/menu_".$this->_instanceName.".css");
+			$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
 			
 			$GINO = '';
 
@@ -405,7 +398,7 @@ class menu extends AbstractEvtClass {
 			$GINO .= "<div class=\"null\"></div>";
 		}
 		
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', ''))
+		if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', ''))
 			$links_array = array($link_admin, $link_css, $link_options, $link_dft);
 		else
 			$links_array = array($link_css, $link_options, $link_dft);
@@ -418,7 +411,7 @@ class menu extends AbstractEvtClass {
 
 	private function listMenu($id) {
 		
-		$link_insert = "<a href=\"$this->_home?evt[$this->_instanceName-manageDoc]&amp;action=$this->_act_insert\">".$this->icon('insert', _("nuova voce"))."</a>";
+		$link_insert = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&amp;action=$this->_act_insert\">".$this->icon('insert', _("nuova voce"))."</a>";
 		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Menu"), 'headerLinks'=>$link_insert));
 		
 		$htmlsection->content = $this->renderMenuAdmin(0, $id);
@@ -449,8 +442,8 @@ class menu extends AbstractEvtClass {
 			$GINO .= $htmlList->start();
 			foreach($a as $b) {
 				$voice = new menuVoice($b['id']);
-				$link_modify = "<a href=\"$this->_home?evt[$this->_instanceName-manageDoc]&id={$voice->id}\">".pub::icon('modify')."</a>";
-				$link_subvoice = "<a href=\"$this->_home?evt[$this->_instanceName-manageDoc]&id={$voice->id}&action={$this->_act_insert}&parent={$voice->id}\">".pub::icon('insert', _("nuova sottovoce"))."</a>";
+				$link_modify = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}\">".pub::icon('modify')."</a>";
+				$link_subvoice = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action={$this->_act_insert}&parent={$voice->id}\">".pub::icon('insert', _("nuova sottovoce"))."</a>";
 				$selected = ($s==$voice->id)?true:false;
 				$handle = ($sort)?"<div class=\"sortHandler\" title=\""._("ordina")."\"></div> ":"";
 				$links = ($sort)? array($handle):array();
@@ -545,7 +538,7 @@ class menu extends AbstractEvtClass {
 
 	private function formMenuVoice($voice, $parent) {
 		
-		$buffer =  $voice->formVoice($this->_home."?evt[$this->_instanceName-actionMenuVoice]", $parent);
+		$buffer =  $voice->formVoice($this->_home."?evt[$this->_instance_name-actionMenuVoice]", $parent);
 		$buffer .=  $this->searchModules();
 
 		return $buffer;
@@ -576,7 +569,7 @@ class menu extends AbstractEvtClass {
 		$link_params = "action=$this->_action";
 		if($id) $link_params .= "&id=$id";
 
-		$link_error = $this->_home."?evt[$this->_instanceName-manageDoc]&$link_params";
+		$link_error = $this->_home."?evt[$this->_instance_name-manageDoc]&$link_params";
 
 		if($req_error > 0) 
 			exit(error::errorMessage(array('error'=>1), $link_error));
@@ -601,12 +594,12 @@ class menu extends AbstractEvtClass {
 
 		$menu_voice->updateDbData();
 
-		EvtHandler::HttpCall($this->_home, $this->_instanceName.'-manageDoc', '');
+		EvtHandler::HttpCall($this->_home, $this->_instance_name.'-manageDoc', '');
 	}
 	
 	private function formDelMenuVoice($voice) {
 		
-		$buffer =  $voice->formDelVoice($this->_home."?evt[$this->_instanceName-actionDelMenuVoice]");
+		$buffer =  $voice->formDelVoice($this->_home."?evt[$this->_instance_name-actionDelMenuVoice]");
 
 		return $buffer;
 	}
@@ -626,7 +619,7 @@ class menu extends AbstractEvtClass {
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 
-		$link_error = $this->_home."?evt[$this->_instanceName-manageDoc]";
+		$link_error = $this->_home."?evt[$this->_instance_name-manageDoc]";
 		if($req_error > 0 OR !$id)
 			exit(error::errorMessage(array('error'=>9), $link_error));
 
@@ -634,7 +627,7 @@ class menu extends AbstractEvtClass {
 		$voice->deleteVoice();
 		$voice->updateOrderList();
 
-		EvtHandler::HttpCall($this->_home, $this->_instanceName.'-manageDoc', '');
+		EvtHandler::HttpCall($this->_home, $this->_instance_name.'-manageDoc', '');
 	}
 
 	/**
@@ -688,7 +681,7 @@ class menu extends AbstractEvtClass {
 						var order = this.serialize(1, function(element, index) {
 							return element.getProperty('id').replace('id', '');
 						}).join(',');
-						ajaxRequest('post', '$this->_home?pt[$this->_instanceName-actionUpdateOrder]', 'order='+order, null, {'callback':message});
+						ajaxRequest('post', '$this->_home?pt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':message});
        					}
 				});
 			})
@@ -712,7 +705,7 @@ class menu extends AbstractEvtClass {
 		$buffer .= "window.addEvent('load', function() {
 					
 					var myclass, mypage, all, active, other;
-					var url = '".$this->_home."?pt[".$this->_instanceName."-printItemsList]';
+					var url = '".$this->_home."?pt[".$this->_instance_name."-printItemsList]';
 					$$('#s_class', '#s_page').each(function(el) {
 						el.addEvent('keyup', function(e) {
 							active = el.getProperty('id');

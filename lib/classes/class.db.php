@@ -346,6 +346,16 @@ interface DbManager {
 	 * @return boolean
 	 */
 	public function delete($table, $where, $debug);
+
+	/**
+	 * Controlla che il valore del campo non sia gia presente in tabella
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $field campo da cercare
+	 * @param string $value valore da confrontare
+	 * @return boolean
+	 */
+  public function columnHasValue($table, $field, $value);
 	
 	/**
 	 * Definizione delle Join

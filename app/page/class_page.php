@@ -115,7 +115,7 @@ require_once('class.pageEntryAdminTable.php');
  * In questo caso il template di default è quello che corrisponde al campo @a box_tpl_code della tabella delle opzioni ('Template vista dettaglio pagina' nelle opzioni vista pagina inserita nel template). \n
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  */
-class page extends AbstractEvtClass {
+class page extends Controller {
 
 	/**
 	 * Titolo vista ultimi post
@@ -266,21 +266,15 @@ class page extends AbstractEvtClass {
 	 * @param integer $mdlId id dell'istanza di tipo pagina
 	 * @return istanza della pagina
 	 */
-	function __construct($mdlId=null) {
+	function __construct() {
 
 		parent::__construct();
-
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->_data_dir = $this->_data_dir.$this->_os.$this->_instanceName;
-		$this->_data_www = $this->_data_www."/".$this->_instanceName;
 
 		$this->_tbl_opt = 'page_opt';
 		$this->_tbl_usr = 'page_usr';
 
-		$this->setAccess();
-		$this->setGroups();
+		//$this->setAccess();
+		//$this->setGroups();
 
 		$this->_view_dir = dirname(__FILE__).OS.'view';
 
@@ -332,7 +326,7 @@ class page extends AbstractEvtClass {
 		$this->_newsletter_entries_number = $this->setOption('newsletter_entries_number', array('value'=>$this->_optionsValue['newsletter_entries_number']));
 		$this->_newsletter_tpl_code = $this->setOption('newsletter_tpl_code', array('value'=>$this->_optionsValue['newsletter_tpl_code'], 'translation'=>true));
 
-		$res_newsletter = $this->_db->getFieldFromId($this->_tbl_module_app, 'id', 'name', 'newsletter');
+		$res_newsletter = $this->_db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', 'newsletter');
 		if($res_newsletter) {
 			$newsletter_module = true;
 		}
@@ -340,7 +334,7 @@ class page extends AbstractEvtClass {
 			$newsletter_module = false;
 		}
 
-		$this->_options = new options($this->_className, $this->_instance);
+		$this->_options = new options($this->_class_name, $this->_instance);
 		$this->_optionsLabels = array(
 			"last_title"=>array(
 				'label'=>_("Titolo ultime pagine pubblicate"), 
@@ -535,7 +529,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function getInstanceName() {
 
-		return $this->_instanceName;
+		return $this->_instance_name;
 	}
 	
 	/**
@@ -637,7 +631,7 @@ class page extends AbstractEvtClass {
 		$directory = '';
 		
 		if($path == 'abs')
-			$directory = $this->_data_dir.$this->_os;
+			$directory = $this->_data_dir.OS;
 		elseif($path == 'rel')
 			$directory = $this->_data_www.'/';
 		
@@ -655,7 +649,7 @@ class page extends AbstractEvtClass {
 		if(!$id)
 			$id = $this->_db->autoIncValue(pageEntry::$tbl_entry);
 		
-		$directory = $id.$this->_os;
+		$directory = $id.OS;
 		
 		return $directory;
 	}
@@ -694,8 +688,8 @@ class page extends AbstractEvtClass {
 		}
 		else return false;
 		
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
-			return true;
+		//if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_2))
+			//return true;
 		
 		if($p_users)
 		{
@@ -704,7 +698,7 @@ class page extends AbstractEvtClass {
 				return false;
 		}
 		
-		if($p_private && !$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3))
+		if($p_private && !$this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_3))
 			return false;
 		
 		return true;
@@ -720,10 +714,10 @@ class page extends AbstractEvtClass {
 	 */
 	private function defAccessPage($conditions=array()) {
 		
-		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_2))
+		if(!$this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_2))
 		{
 			$conditions['access_user'] = $this->_session_user;
-			$conditions['access_private'] = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_3);
+			$conditions['access_private'] = $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_3);
 		}
 		
 		return $conditions;
@@ -739,19 +733,19 @@ class page extends AbstractEvtClass {
 	 */
 	public function last() {
 
-		$this->setAccess($this->_access_base);
+		$this->setAccess($this->_auth_base);
 
 		$title_site = pub::variable('head_title');
 		$title = $title_site.($this->_last_title ? " - ".$this->_last_title : "");
 
 		$registry = registry::instance();
-		$registry->addCss($this->_class_www."/last_".$this->_instanceName.".css");
+		$registry->addCss($this->_class_www."/last_".$this->_instance_name.".css");
 		$registry->title = jsVar($title);
 		$registry->addHeadLink(array(
 			'rel' => 'alternate',
 			'type' => 'application/rss+xml',
 			'title' => jsVar($title),
-			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS') 	
+			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'feedRSS') 	
 		));
 
 		$options = array('published'=>true, 'order'=>'creation_date DESC', 'limit'=>array(0, $this->_last_number));
@@ -765,14 +759,14 @@ class page extends AbstractEvtClass {
 			$items[] = $this->parseTemplate($entry, $this->_last_tpl_code, $matches);
 		}
 
-		$archive = "<a href=\"".$this->_plink->aLink($this->_instanceName, 'archive')."\">"._('archivio')."</a>";
+		$archive = "<a href=\"".$this->_plink->aLink($this->_instance_name, 'archive')."\">"._('archivio')."</a>";
 
 		$view = new view($this->_view_dir);
 
 		$view->setViewTpl('last');
-		$view->assign('section_id', 'last_'.$this->_instanceName);
+		$view->assign('section_id', 'last_'.$this->_instance_name);
 		$view->assign('title', $this->_last_title);
-		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instanceName, 'feedRSS')."\">".pub::icon('feed')."</a>");
+		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".pub::icon('feed')."</a>");
 		$view->assign('items', $items);
 		$view->assign('archive', $archive);
 
@@ -791,7 +785,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function archive() {
 
-		$this->setAccess($this->_access_base);
+		$this->setAccess($this->_auth_base);
 
 		$category_id = cleanVar($_GET, 'id', 'integer', '');
 		$tagname = cleanVar($_GET, 'tag', 'string', '');
@@ -829,7 +823,7 @@ class page extends AbstractEvtClass {
 			'rel' => 'alternate',
 			'type' => 'application/rss+xml',
 			'title' => jsVar($title),
-			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'feedRSS')
+			'href' => $this->_url_root.SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'feedRSS')
 		));
 		
 		$options_count = array('published'=>true);
@@ -861,13 +855,13 @@ class page extends AbstractEvtClass {
 
 		$view = new view($this->_view_dir);
 		$view->setViewTpl('archive');
-		$view->assign('section_id', 'archive_'.$this->_instanceName);
+		$view->assign('section_id', 'archive_'.$this->_instance_name);
 		$view->assign('title', $title_page);
 		$view->assign('subtitle', $tag_id ? sprintf(_("Pubblicati in %s"), htmlChars($tag->name)) : '');
-		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instanceName, 'feedRSS')."\">".pub::icon('feed')."</a>");
+		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".pub::icon('feed')."</a>");
 		$view->assign('items', $items);
 		$view->assign('pagination_summary', $pagination->reassumedPrint());
-		$view->assign('pagination_navigation', $pagination->listReferenceGINO($this->_plink->aLink($this->_instanceName, 'archive', $params, '', array("basename"=>false))));
+		$view->assign('pagination_navigation', $pagination->listReferenceGINO($this->_plink->aLink($this->_instance_name, 'archive', $params, '', array("basename"=>false))));
 
 		return $view->render();
 	}
@@ -880,7 +874,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function tagcloud() {
 
-		$this->setAccess($this->_access_base);
+		$this->setAccess($this->_auth_base);
 
 		$registry = registry::instance();
 		$registry->addCss($this->_class_www."/page.css");
@@ -893,7 +887,7 @@ class page extends AbstractEvtClass {
 			$tag = new pageTag($tid, $this);
 			$items[] = array(
 				"name"=>htmlChars($tag->name),
-				"url"=>$this->_plink->aLink($this->_instanceName, 'archive', array('tag'=>$tag->name)),
+				"url"=>$this->_plink->aLink($this->_instance_name, 'archive', array('tag'=>$tag->name)),
 				"f"=>$f
 			);
 			$max_f = max($f, $max_f);
@@ -901,7 +895,7 @@ class page extends AbstractEvtClass {
 
 		$view = new view($this->_view_dir);
 		$view->setViewTpl('cloud');
-		$view->assign('section_id', 'cloud_'.$this->_instanceName);
+		$view->assign('section_id', 'cloud_'.$this->_instance_name);
 		$view->assign('title', $this->_cloud_title);
 		$view->assign('items', $items);
 		$view->assign('max_f', $max_f);
@@ -919,7 +913,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function showcase() {
 		
-		$this->setAccess($this->_access_base);
+		$this->setAccess($this->_auth_base);
 
 		$registry = registry::instance();
 		$registry->addCss($this->_class_www."/page.css");
@@ -956,11 +950,11 @@ class page extends AbstractEvtClass {
 		$view = new view($this->_view_dir);
 
 		$view->setViewTpl('showcase');
-		$view->assign('section_id', 'showcase_'.$this->_instanceName);
-		$view->assign('wrapper_id', 'showcase_items_'.$this->_instanceName);
+		$view->assign('section_id', 'showcase_'.$this->_instance_name);
+		$view->assign('wrapper_id', 'showcase_items_'.$this->_instance_name);
 		$view->assign('ctrl_begin', 'sym_'.$this->_instance.'_');
 		$view->assign('title', $this->_showcase_title);
-		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instanceName, 'feedRSS')."\">".pub::icon('feed')."</a>");
+		$view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".pub::icon('feed')."</a>");
 		$view->assign('items', $items);
 		$view->assign('ctrls', $ctrls);
 		$view->assign('options', $options);
@@ -988,7 +982,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function box($id=null) {
 
-		$this->setAccess($this->_access_base);
+		//$this->setAccess($this->_auth_base);
 
 		$registry = registry::instance();
 		$registry->addCss($this->_class_www."/prettify.css");
@@ -1015,7 +1009,7 @@ class page extends AbstractEvtClass {
 		$view = new view($this->_view_dir);
 
 		$view->setViewTpl('box');
-		$view->assign('section_id', 'view_'.$this->_instanceName.$id);
+		$view->assign('section_id', 'view_'.$this->_instance_name.$id);
 		$view->assign('tpl', $tpl);
 
 		return $view->render();
@@ -1036,7 +1030,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function view() {
 
-		$this->setAccess($this->_access_base);
+		//$this->setAccess($this->_auth_base);
 
 		/*
 <div class="left" style="width: 100px;">
@@ -1102,7 +1096,7 @@ class page extends AbstractEvtClass {
 				);
 			}
 		}
-    	if(!$this->_session_user) {
+    	if(!$this->_registry->session->user_id) {
     		$item->read = $item->read + 1;
     		$item->updateDbData();
     	}
@@ -1110,12 +1104,12 @@ class page extends AbstractEvtClass {
 		$view = new view($this->_view_dir);
 
 		$view->setViewTpl('view');
-		$view->assign('section_id', 'view_'.$this->_instanceName);
+		$view->assign('section_id', 'view_'.$this->_instance_name);
 		$view->assign('tpl', $tpl);
 		$view->assign('enable_comments', $item->enable_comments);
 		$view->assign('form_comment', $form_comment);
 		$view->assign('comments', $comments);
-		$view->assign('url', $this->_plink->aLink($this->_instanceName, 'view', array('id'=>$item->slug)));
+		$view->assign('url', $this->_plink->aLink($this->_instance_name, 'view', array('id'=>$item->slug)));
 
 		return $view->render();
 	}
@@ -1131,7 +1125,7 @@ class page extends AbstractEvtClass {
 			$buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
 		}
 
-		$buffer .= $myform->form($this->_plink->aLink($this->_instanceName, 'actionComment'), false, 'author,email', null);
+		$buffer .= $myform->form($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', null);
 		$buffer .= $myform->hidden('entry', $entry->id);
 		$buffer .= $myform->hidden('form_reply', 0, array('id'=>'form_reply'));
 		$buffer .= $myform->cinput('author', 'text', htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
@@ -1165,7 +1159,7 @@ class page extends AbstractEvtClass {
 			error::raise404();
 		}
 
-		$link_error = SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$entry->slug)).'#comments';
+		$link_error = SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$entry->slug)).'#comments';
 		
 		if($req_error > 0) { 
 			exit(error::errorMessage(array('error'=>1), $link_error));
@@ -1194,7 +1188,7 @@ class page extends AbstractEvtClass {
 		// send mail to publishers
 		if(!$published) {
 
-			$link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'view', array("id"=>$entry->slug)).'#comment'.$comment->id;
+			$link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'view', array("id"=>$entry->slug)).'#comment'.$comment->id;
 
 			$admin = new admin('page', $this->_instance);
 			$user_ids = $admin->listUserGroup($this->_list_group[1]);
@@ -1211,7 +1205,7 @@ class page extends AbstractEvtClass {
 			}
 		}
 
-		header('Location: '.SITE_WWW.'/'.$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$entry->slug)).'#comments');
+		header('Location: '.SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$entry->slug)).'#comments');
 		exit();
 	}
 
@@ -1270,8 +1264,8 @@ class page extends AbstractEvtClass {
 		}
 		elseif($property == 'author_img') {
     		$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
-			$user_image = $this->_db->getFieldFromId($this->_tbl_user, 'photo', 'user_id', $obj->author);
-    		$user_name = $this->_db->getFieldFromId($this->_tbl_user, $concat, 'user_id', $obj->author);
+			$user_image = $this->_db->getFieldFromId(TBL_USER, 'photo', 'user_id', $obj->author);
+    		$user_name = $this->_db->getFieldFromId(TBL_USER, $concat, 'user_id', $obj->author);
 			if(!$user_image) {
 				return '';
 			}
@@ -1291,13 +1285,13 @@ class page extends AbstractEvtClass {
 		}
 		elseif($property == 'author') {
 			$concat = $this->_db->concat(array("firstname", "' '", "lastname"));
-			$pre_filter = $this->_db->getFieldFromId($this->_tbl_user, $concat, 'user_id', $obj->author);
+			$pre_filter = $this->_db->getFieldFromId(TBL_USER, $concat, 'user_id', $obj->author);
 		}
 		elseif($property == 'tags') {
 			$tagobjs = $obj->getTagObjects();
 			$tags = array();
 			foreach($tagobjs as $t) {
-				$tags[] = '<a href="'.$this->_plink->aLink($this->_instanceName, 'archive', array('tag'=>$t->name)).'">'.htmlChars($t->name).'</a>';
+				$tags[] = '<a href="'.$this->_plink->aLink($this->_instance_name, 'archive', array('tag'=>$t->name)).'">'.htmlChars($t->name).'</a>';
 			}		
 			$pre_filter = implode(', ', $tags);
 		}
@@ -1305,14 +1299,14 @@ class page extends AbstractEvtClass {
 			if(!$obj->social) {
 				return '';
 			}
-			$pre_filter = shareAll('all', $this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
+			$pre_filter = shareAll('all', $this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
 		}
 		elseif($property == 'comments') {
 			if(!$obj->enable_comments) {
 				return _('disabilitati');
 			}
 			$comments_num = pageComment::getCountFromEntry($obj->id);
-			$pre_filter = '<a href="'.$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$obj->slug)).'#comments">'.$comments_num.'</a>';
+			$pre_filter = '<a href="'.$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)).'#comments">'.$comments_num.'</a>';
 		}
 		else {
 			return '';
@@ -1323,7 +1317,7 @@ class page extends AbstractEvtClass {
 		}
 
 		if($filter == 'link') {
-			return "<a href=\"".$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$obj->slug))."\">".$pre_filter."</a>";
+			return "<a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug))."\">".$pre_filter."</a>";
 		}
 		elseif(preg_match("#chars:(\d+)#", $filter, $matches)) {
 			return cutHtmlText($pre_filter, $matches[1], '...', false, false, true, array('endingPosition'=>'in'));
@@ -1351,26 +1345,26 @@ class page extends AbstractEvtClass {
 		$method = 'managePage';
 
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Pagine")));
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=permissions\">"._("Permessi")."</a>";
-		$link_css = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=css\">"._("CSS")."</a>";
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=options\">"._("Opzioni")."</a>";
-		$link_comment = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=comment\">"._("Commenti")."</a>";
-		$link_tag = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=tag\">"._("Tag")."</a>";
-		$link_ctg = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=ctg\">"._("Categorie")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instanceName."-$method]\">"._("Contenuti")."</a>";
+		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=permissions\">"._("Permessi")."</a>";
+		$link_css = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=css\">"._("CSS")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=options\">"._("Opzioni")."</a>";
+		$link_comment = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=comment\">"._("Commenti")."</a>";
+		$link_tag = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=tag\">"._("Tag")."</a>";
+		$link_ctg = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=ctg\">"._("Categorie")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-$method]\">"._("Contenuti")."</a>";
 
 		$sel_link = $link_dft;
 
 		if($this->_block == 'css') {
-			$buffer = sysfunc::manageCss($this->_instance, $this->_className);		
+			$buffer = sysfunc::manageCss($this->_instance, $this->_class_name);		
 			$sel_link = $link_css;
 		}
-		elseif($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$buffer = sysfunc::managePermissions($this->_instance, $this->_className);		
+		elseif($this->_block == 'permissions' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
+			$buffer = sysfunc::managePermissions($this->_instance, $this->_class_name);		
 			$sel_link = $link_admin;
 		}
-		elseif($this->_block == 'options' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$buffer = sysfunc::manageOptions($this->_instance, $this->_className);		
+		elseif($this->_block == 'options' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
+			$buffer = sysfunc::manageOptions($this->_instance, $this->_class_name);		
 			$sel_link = $link_options;
 		}
 		elseif($this->_block == 'tag') {
@@ -1390,10 +1384,10 @@ class page extends AbstractEvtClass {
 		}
 
 		// groups privileges
-		if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
+		if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
 			$links_array = array($link_admin, $link_css, $link_options, $link_comment, $link_tag, $link_ctg, $link_dft);
 		}
-		elseif($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)) {
+		elseif($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_1)) {
 			$links_array = array($link_comment, $link_tag, $link_dft);
 		}
 		else $links_array = array($link_dft);
@@ -1422,7 +1416,7 @@ class page extends AbstractEvtClass {
 		$registry->addJs($this->_class_www.'/MooComplete.js');
 		$registry->addCss($this->_class_www.'/MooComplete.css');
 
-		if(!$this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, $this->_user_group, $this->_group_1)) {
+		if(!$this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_1)) {
 			$remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
 		}
 		else {
@@ -1444,7 +1438,7 @@ class page extends AbstractEvtClass {
 		$buffer .= "</script>";
 		
 		// Controllo unicità slug
-		$url = $this->_home."?pt[".$this->_instanceName."-checkSlug]";
+		$url = $this->_home."?pt[".$this->_instance_name."-checkSlug]";
 		$div_id = 'check_slug';
 		$availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
 		$availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
@@ -1643,7 +1637,7 @@ class page extends AbstractEvtClass {
 	
 		$obj = new pageEntry($results['id'], $this);
 
-		$buffer = "<div>".dbDatetimeToDate($results['creation_date'], "/")." <a href=\"".$this->_plink->aLink($this->_instanceName, 'view', array('id'=>$results['slug']))."\">";
+		$buffer = "<div>".dbDatetimeToDate($results['creation_date'], "/")." <a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
 		$buffer .= $results['title'] ? htmlChars($results['title']) : htmlChars($obj->ml('title'));
 		$buffer .= "</a></div>";
 
@@ -1707,7 +1701,7 @@ class page extends AbstractEvtClass {
 	 */
 	public function feedRSS() {
 
-		$this->accessType($this->_access_base);
+		$this->accessType($this->_auth_base);
 
 		header("Content-type: text/xml; charset=utf-8");
 
@@ -1719,7 +1713,7 @@ class page extends AbstractEvtClass {
 		$header = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 		$header .= "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
 		$header .= "<channel>\n";
-		$header .= "<atom:link href=\"".$this->_url_root.$this->_home."?pt%5B$this->_instanceName-".$function."%5D\" rel=\"self\" type=\"application/rss+xml\" />\n";
+		$header .= "<atom:link href=\"".$this->_url_root.$this->_home."?pt%5B$this->_instance_name-".$function."%5D\" rel=\"self\" type=\"application/rss+xml\" />\n";
 		$header .= "<title>".$title."</title>\n";
 		$header .= "<link>".$this->_url_root.$this->_home."</link>\n";
 		$header .= "<description>".$description."</description>\n";
@@ -1742,13 +1736,13 @@ class page extends AbstractEvtClass {
 
 				echo "<item>\n";
 				echo "<title>".$date.". ".$title."</title>\n";
-				echo "<link>".$this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instanceName, 'view', array("id"=>$entry->slug))."</link>\n";
+				echo "<link>".$this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array("id"=>$entry->slug))."</link>\n";
 				echo "<description>\n";
 				echo "<![CDATA[\n";
 				echo $text;
 				echo "]]>\n";
 				echo "</description>\n";
-				echo "<guid>".$this->_url_root.SITE_WWW.$this->_plink->aLink($this->_instanceName, 'view', array("id"=>$entry->slug))."</guid>\n";
+				echo "<guid>".$this->_url_root.SITE_WWW.$this->_plink->aLink($this->_instance_name, 'view', array("id"=>$entry->slug))."</guid>\n";
 				echo "</item>\n";
 			}
 		}

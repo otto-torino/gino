@@ -26,7 +26,7 @@ class cache {
 		$this->_ds = OS;
 		$this->_fld = CACHE_DIR;
 		$this->_prefix = 'cache_';
-		$this->_enabled = pub::variable('enable_cache');
+		$this->_enabled = pub::getConf('enable_cache');
 	}
 
 	protected function write($data) {
