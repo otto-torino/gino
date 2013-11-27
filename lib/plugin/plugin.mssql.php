@@ -280,12 +280,9 @@ class mssql implements DbManager {
 
 		$query = mssql_query("SELECT IDENT_CURRENT('$table') AS NextId");
 		$a = $this->selectquery($query);
-		if(sizeof($a) > 0)
+		if($a && isset($a[0]))
 		{
-			foreach ($a AS $b)
-			{
-				$auto_increment = $b['NextId'];
-			}
+			$auto_increment = $a[0]['NextId'];
 		}
 		else $auto_increment = 0;
 		
@@ -482,6 +479,9 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	
 	/**
 	 * @see DbManager::getTableStructure()
+	 * @see getConstraintType()
+	 * @see getCheckConstraint()
+	 * @see getInformationKey()
 	 */
 	public function getTableStructure($table) {
 
@@ -493,7 +493,9 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 
 		while($row = mssql_fetch_array($res)) {
 			
-			$constraint_type = $this->getConstraintType($row['COLUMN_NAME'], $table);
+			$column_name = $row['COLUMN_NAME'];
+			
+			$constraint_type = $this->getConstraintType($column_name, $table);
 			$key = !is_null($constraint_type['key']) ? $constraint_type['key'] : '';
 			
 			$data_type = $row['DATA_TYPE'];
@@ -502,10 +504,16 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 			elseif($data_type == 'nchar' || $data_type == 'nvarchar' || $data_type == 'varchar')
 				$data_type = 'char';
 			
-			$extra = $row['COLUMN_NAME'] == 'id' ? 'auto_increment' : null;
-			$enum = $this->getCheckConstraint($row['COLUMN_NAME'], $table);
+			//$extra = $column_name == 'id' ? 'auto_increment' : null;
 			
-			$fields[$row['COLUMN_NAME']] = array(
+			if($column_name == 'id' or (preg_match("#^[a-zA-Z0-9]+(_id)$#", $column_name) && $row['ORDINAL_POSITION'] == 1))
+				$extra = 'auto_increment';
+			else
+				$extra = null;
+			
+			$enum = $this->getCheckConstraint($column_name, $table);
+			
+			$fields[$column_name] = array(
 				"order"=>$row['ORDINAL_POSITION'],
 				"default"=>$row['COLUMN_DEFAULT'],
 				"null"=>$row['IS_NULLABLE'],
@@ -523,7 +531,7 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 				"enum"=>$enum
 			);
 			
-			$primary = $this->getInformationKey($row['COLUMN_NAME'], $table);
+			$primary = $this->getInformationKey($column_name, $table);
 			
 			if($primary) $structure['primary_key'] = $primary;
 			if($key) $structure['keys'][] = $key;
