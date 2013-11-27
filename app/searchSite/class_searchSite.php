@@ -18,7 +18,7 @@ require_once(CLASSES_DIR.OS."class.search.php");
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class searchSite extends AbstractEvtClass {
+class searchSite extends Controller {
 
 	private $_optionsValue;
 	private $_options;
@@ -32,10 +32,7 @@ class searchSite extends AbstractEvtClass {
 	
 		parent::__construct();
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
+		//$this->setAccess();
 
 		$this->_template = htmlChars($this->setOption('template', true));
 		$this->_sys_mdl = $this->setOption('sys_mdl') ? $this->setOption('sys_mdl') : '';

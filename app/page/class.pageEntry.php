@@ -83,10 +83,10 @@ class PageEntry extends Model {
 	 * @return array
 	 */
 	public function structure($id) {
-		
+
 		$structure = parent::structure($id);
 		
-		$structure['category_id'] = new foreignKeyField(array(
+		$structure['category_id'] = new ForeignKeyField(array(
 			'name'=>'category_id', 
 			'required'=>true,
 			'label'=>$this->_fields_label['category_id'], 
@@ -98,7 +98,7 @@ class PageEntry extends Model {
 			'table'=>$this->_tbl_data
 		));
 		
-		$structure['published'] = new booleanField(array(
+		$structure['published'] = new BooleanField(array(
 			'name'=>'published', 
 			'required'=>true,
 			'label'=>$this->_fields_label['published'], 
@@ -108,7 +108,7 @@ class PageEntry extends Model {
 			'table'=>$this->_tbl_data
 		));
 		
-		$structure['social'] = new booleanField(array(
+		$structure['social'] = new BooleanField(array(
 			'name'=>'social', 
 			'required'=>true,
 			'label'=>$this->_fields_label['social'], 
@@ -117,7 +117,7 @@ class PageEntry extends Model {
 			'value'=>$this->social
 		));
 		
-		$structure['private'] = new booleanField(array(
+		$structure['private'] = new BooleanField(array(
 			'name'=>'private', 
 			'required'=>true,
 			'label'=>$this->_fields_label['private'], 
@@ -127,7 +127,7 @@ class PageEntry extends Model {
 			'table'=>$this->_tbl_data
 		));
 		
-		$structure['users'] = new manyToManyField(array(
+		$structure['users'] = new ManyToManyField(array(
 			'name'=>'users', 
 			'label'=>$this->_fields_label['users'], 
 			'fkey_table'=>'user_app', 
@@ -138,7 +138,7 @@ class PageEntry extends Model {
 			'value'=>$this->users
 		));
 
-		$structure['enable_comments'] = new booleanField(array(
+		$structure['enable_comments'] = new BooleanField(array(
 			'name'=>'enable_comments', 
 			'required'=>true,
 			'label'=>$this->_fields_label['enable_comments'], 
@@ -148,7 +148,7 @@ class PageEntry extends Model {
 			'table'=>$this->_tbl_data
 		));
 
-		$structure['creation_date'] = new datetimeField(array(
+		$structure['creation_date'] = new DatetimeField(array(
 			'name'=>'creation_date', 
 			'required'=>true,
 			'label'=>$this->_fields_label['creation_date'], 
@@ -157,7 +157,7 @@ class PageEntry extends Model {
 			'value'=>$this->creation_date 
 		));
 
-		$structure['last_edit_date'] = new datetimeField(array(
+		$structure['last_edit_date'] = new DatetimeField(array(
 			'name'=>'last_edit_date', 
 			'required'=>true,
 			'label'=>$this->_fields_label['last_edit_date'], 
@@ -169,7 +169,7 @@ class PageEntry extends Model {
 		$base_path = $this->_controller->getBasePath();
 		$add_path = $this->_controller->getAddPath($this->id);
 
-		$structure['image'] = new imageField(array(
+		$structure['image'] = new ImageField(array(
 			'name'=>'image', 
 			'value'=>$this->image, 
 			'label'=>$this->_fields_label['image'], 

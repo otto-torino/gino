@@ -18,7 +18,7 @@ require_once('class.attachedCtg.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class attached extends AbstractEvtClass {
+class attached extends Controller {
 
   /**
    * @brief titolo del modulo
@@ -68,11 +68,8 @@ class attached extends AbstractEvtClass {
 
     parent::__construct();
 
-    $this->_instance = 0;
-    $this->_instanceName = $this->_className;
-
-    $this->setAccess();
-    $this->setGroups();
+    //$this->setAccess();
+    //$this->setGroups();
 
     $this->_title = _('Allegati');
     $this->_items_for_page = 30;

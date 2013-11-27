@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageEntryAdminTable extends adminTable {
+class pageEntryAdminTable extends AdminTable {
 	
 	/**
 	 * Metodo chiamato al salvataggio di una pagina 

@@ -15,7 +15,6 @@
 {module classid=4 func=blockList}
 </div>
 <div id="nav_3_1_2" style="float:left;width:240px;">
-{module funcid=1}
 </div>
 <div id="nav_3_1_3" style="float:left;width:240px;">
 </div>
@@ -33,7 +32,6 @@
 <div id="nav_5_1_1" style="float:left;width:790px;">
 </div>
 <div id="nav_5_1_2" style="float:left;width:170px;">
-{module funcid=3}
 </div>
 <div class="null"></div>
 </div>

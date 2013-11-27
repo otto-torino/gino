@@ -1,0 +1,118 @@
+form {
+  margin: 10px 0;
+  .form-row {
+    padding: 10px 0;
+    * {
+      vertical-align: top;
+    }
+    &:nth-child(even) {
+    }
+    &:last-child {
+    }
+    .fa-question-circle {
+      color: #1EB6E7;
+      margin-left: 10px;
+    }
+  }
+  fieldset {
+    .form-row {
+      padding: 10px 0;
+      * {
+        vertical-align: top;
+      }
+      &:nth-child(even) {
+      }
+    }
+  }
+  .form-trnsl, #trnsl-container {
+    margin: 10px 0 0 (@label-width + 5px);
+    .trnsl-lng {
+      .btn;
+      .btn-xs;
+      .btn-info
+    }
+    .trnsl-lng-sel {
+      .btn-success;
+    }
+  };
+  #trnsl-container {
+    background: #eee;
+    padding: 10px;
+  }
+}
+
+label {
+  font-weight: normal;
+  text-align: right;
+  padding-right: 15px;
+  width: @label-width;
+  height: 25px;
+}
+.label-tooltipfull {
+  margin-top: 3px;
+}
+
+label.req {
+  font-weight: bold;
+}
+
+input, textarea {
+  border: 1px solid #aaa;
+  .box-shadow(0px 0px 3px #ccc);
+  .box-shadow(0 10px 15px #eee inset);
+  border-radius: 2px;
+  padding-right: 30px;
+  .transition(padding .25s);
+  &:focus {
+    background: #fff;
+    border:1px solid #555;
+    .box-shadow(0 0 3px #aaa);
+    padding-right:70px;
+  }
+  &:required {
+    background: #fff url(../img/red_asterisk.png) no-repeat 98% center;
+  }
+  &:valid {
+    background: #fff url(../img/valid.png) no-repeat 98% center;
+  }
+  &:focus:invalid {
+    background: #fff url(../img/invalid.png) no-repeat 98% center;
+  }
+}
+input[type=file] {
+  display: inline-block;
+}
+
+select {
+  border: 1px solid #aaa;
+  .box-shadow(0px 0px 3px #ccc);
+  .box-shadow(0 10px 15px #eee inset);
+  border-radius: 2px;
+  &:focus:invalid {
+    .box-shadow(0px 0px 3px #ccc);
+    .box-shadow(0 10px 15px lighten(#ff82a0, 10%) inset);
+  }
+  &:focus {
+    background: #fff;
+    border:1px solid #555;
+    .box-shadow(0 0 3px #aaa);
+  }
+}
+
+input[type=submit], input[type=button] {
+  cursor: pointer;
+  background-color: #68b12f;
+  #gradient > .vertical(#68b12f, #50911e);
+  border: 1px solid #509111;
+  border-bottom: 1px solid #5b992b;
+  border-radius: 3px;
+  .box-shadow(inset 0 1px 0 0 #9fd574);
+  color: white;
+  font-weight: bold;
+  padding: 6px 20px;
+  text-align: center;
+  text-shadow: 0 -1px 0 #396715;
+  &:hover {
+    .opacity(0.8);
+  }
+}

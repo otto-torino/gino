@@ -46,33 +46,25 @@ include('settings.php');
  * Include le costanti utilizzate da tutto il sistema
  */
 include_once(LIB_DIR.OS."const.php");
+/**
+ * Include funzioni utilizzate da tutto il sistema
+ */
+include_once(LIB_DIR.OS."func.php");
 
 /**
- * Include la classe singleton
+ * Include la classe utilizzata per caricare classi di sistema e modelli. I controller sono caricati in maniera automatica
  */
-include(CLASSES_DIR.OS."class.singleton.php");
+include(CLASSES_DIR.OS."class.Loader.php");
 
 /**
- * Include la classe session
+ * core dell'applicazione
  */
-include(CLASSES_DIR.OS."class.session.php");
-
-/**
- * Include la classe core
- */
-include(CLASSES_DIR.OS."class.core.php");
-
-/**
- * Include le classi di sistema ed i metodi per il filtro degli input
- */
-include_once(LIB_DIR.OS."include.php");
-
-$core = new core();
+$core = loader::load('Core');
 
 /**
  * Include la libreria per la cattura di chiamate ajax
  */
 include(LIB_DIR.OS.'methodPointer.php');
 
-// print document
+// renderizza il documento
 $core->renderApp();

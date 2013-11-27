@@ -61,7 +61,7 @@ class phpModuleView extends Controller {
     $this->_title_visible = htmlChars($this->setOption('title_vis'));
 
     // the second paramether will be the class instance
-    $this->_options = new options($this->_class_name, $this->_instance);
+    $this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
     $this->_optionsLabels = array(
     "title"=>_("Titolo"),
     "title_vis"=>_("Titolo visibile")
@@ -168,10 +168,8 @@ class phpModuleView extends Controller {
     $registry = registry::instance();
 
     $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
-    
-    $htmlsection = new htmlSection(array('id'=>"phpModuleView_".$this->_instance_name, 'class'=>'public', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerClass'=>($this->_title_visible ? '' : 'hidden')));
     $registry->addCss($this->_class_www."/phpModule_".$this->_instance_name.".css");
-    
+
     $rexpf = array();
     foreach($this->_blackList as $fc) {
       $rexpf[] = $fc."\(.*?\)";
@@ -182,9 +180,15 @@ class phpModuleView extends Controller {
     }
     else eval($phpMdl->content);
 
-    $htmlsection->content = $buffer;
+    $view = new View();
+    $view->setViewTpl('section');
+    $view->assign('id', 'phpModuleView_'.$this->_instance_name);
+    $view->assign('class', 'public');
+    $view->assign('header', $this->_title);
+    $view->assign('header_class', $this->_title_visible ? '' : 'hidden');
+    $view->assign('content', $buffer);
 
-    return $htmlsection->render();
+    return $view->render();
   }
 
   /**

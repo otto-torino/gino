@@ -31,9 +31,9 @@ class sysfunc extends Controller {
 	public static function outputFunctions() {
 
 		$list = array(
-			"Autenticazione" => array("label"=>_("Boxino di login"), "role"=>'1'),
-			"tableLogin" => array("label"=>_("Boxino di login a tabella"), "role"=>'1'),
-			"credits" => array("label"=>_("Credits"), "role"=>'1')
+			"Autenticazione" => array("label"=>_("Boxino di login"), "permissions"=>''),
+			"tableLogin" => array("label"=>_("Boxino di login a tabella"), "permissions"=>''),
+			"credits" => array("label"=>_("Credits"), "permissions"=>'')
 		);
 
 		return $list;
@@ -142,6 +142,33 @@ class sysfunc extends Controller {
 		$view = new view();
 
 		$view->setViewTpl('404');
+		$view->assign('title', $title);
+		$view->assign('message', $message);
+
+		return $view->render();
+	}
+
+  /**
+   *  Pagina di errore contenuto forbidden 
+	 * 
+	 * @param string $title titolo della pagina 
+	 * @param string $message messaggio mostrato
+	 * @access public
+	 * @return pagina di errore
+	 */
+	public function page403($title = '', $message = '') {
+
+		if(!$title) {
+			$title = _("403 Autorizzazione negata");
+		}
+
+		if(!$message) {
+			$message = _("Non sei autorizzato a visualizzare il contenuto richiesto.");
+		}
+
+		$view = new view();
+
+		$view->setViewTpl('403');
 		$view->assign('title', $title);
 		$view->assign('message', $message);
 

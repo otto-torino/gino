@@ -21,7 +21,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class instruments extends AbstractEvtClass {
+class instruments extends Controller {
 
 	private $_optionsValue;
 	private $_options;
@@ -35,10 +35,7 @@ class instruments extends AbstractEvtClass {
 	
 		parent::__construct();
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
+		//$this->setAccess();
 
 		// Valori di default
 		$this->_optionsValue = array(

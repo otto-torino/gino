@@ -45,7 +45,6 @@
 <div id="nav_5_1_1" style="float:left;width:790px;">
 </div>
 <div id="nav_5_1_2" style="float:left;width:170px;">
-{module funcid=3}
 </div>
 <div class="null"></div>
 </div>

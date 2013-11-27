@@ -14,11 +14,6 @@
 include(LIB_DIR.OS.'func.var.php');
 
 /**
- * Include la libreria per l'identificazione di un dispositivo mobile
- */
-include(LIB_DIR.OS.'Mobile_Detect.php');
-
-/**
  * Ricava il percorso relativo a partire da un percorso assoluto
  * 
  * @param string $abspath percorso assoluto

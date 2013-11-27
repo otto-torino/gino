@@ -9,7 +9,7 @@
  */
 
 // Include il file class_menuVoice.php
-require_once('class_menuVoice.php');
+require_once('class.MenuVoice.php');
 
 /**
  * @brief Libreria per la gestione dei menu
@@ -35,7 +35,7 @@ class menu extends Controller {
 
 	function __construct($instance) {
 
-		parent::__construct();
+		parent::__construct($instance);
 
 		//$this->setAccess();
 		//$this->setGroups();
@@ -167,7 +167,7 @@ class menu extends Controller {
 	 */
 	public function blockList() {
 
-		//$this->accessType($this->_auth_base);
+		//$this->accessType($this->_access_base);
 
 		$sel_voice = menuVoice::getSelectedVoice($this->_instance);
 
@@ -230,7 +230,7 @@ class menu extends Controller {
 	 */
 	public function breadCrumbs() {
 		
-		$this->accessType($this->_auth_base);
+		$this->accessType($this->_access_base);
 		
 		$sel_voice = menuVoice::getSelectedVoice($this->_instance);
 		$GINO = '';
@@ -303,8 +303,8 @@ class menu extends Controller {
 					$GINO .= "</li>\n";
 				}
 			}
-			$GINO .= ($parent==0 && $this->_opt_admin && $this->_auth->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
-			$GINO .= ($parent==0 && $this->_opt_logout && $this->_auth->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
+			$GINO .= ($parent==0 && $this->_opt_admin && $this->_access->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
+			$GINO .= ($parent==0 && $this->_opt_logout && $this->_access->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
 
 			$GINO .= "</ul>\n"; 
 		}
@@ -312,11 +312,11 @@ class menu extends Controller {
 		{
 			if($parent==0)
 			{
-				if($this->_opt_home || ($this->_opt_admin && $this->_auth->getAccessAdmin()) || ($this->_opt_logout && $this->_auth->AccessVerifyIf())) {
+				if($this->_opt_home || ($this->_opt_admin && $this->_access->getAccessAdmin()) || ($this->_opt_logout && $this->_access->AccessVerifyIf())) {
 					$GINO .= "<ul id=\"menu_".$this->_instance."\" class=\"mainmenu\">\n";
 					$GINO .= ($this->_opt_home)? "<li class=\"".(($s=='home')?"selectedVoice":"")."\"><a href=\"$this->_home\">$this->_opt_home</a></li>\n":"";
-					$GINO .= ($this->_opt_admin && $this->_auth->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
-					$GINO .= ($this->_opt_logout && $this->_auth->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
+					$GINO .= ($this->_opt_admin && $this->_access->getAccessAdmin())? "<li class=\"".(($s=='admin')?"selectedVoice":"")."\"><a href=\"$this->_home?evt[index-admin_page]\">$this->_opt_admin</a></li>\n":"";
+					$GINO .= ($this->_opt_logout && $this->_access->AccessVerifyIf())? "<li><a href=\"$this->_home?action=logout\">$this->_opt_logout</a></li>\n":"";
 
 					$GINO .= "</ul>";
 				}
@@ -363,7 +363,7 @@ class menu extends Controller {
 			$GINO = sysfunc::manageCss($this->_instance, $this->_class_name);		
 			$sel_link = $link_css;
 		}
-		elseif($this->_block == 'permissions' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
+		elseif($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
 			$GINO = sysfunc::managePermissions($this->_instance, $this->_class_name);		
 			$sel_link = $link_admin;
 		}
@@ -398,7 +398,7 @@ class menu extends Controller {
 			$GINO .= "<div class=\"null\"></div>";
 		}
 		
-		if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', ''))
+		if($this->_access->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', ''))
 			$links_array = array($link_admin, $link_css, $link_options, $link_dft);
 		else
 			$links_array = array($link_css, $link_options, $link_dft);

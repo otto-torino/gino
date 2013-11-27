@@ -14,7 +14,6 @@ require_once('class.pageCategory.php');
 require_once('class.pageEntry.php');
 require_once('class.pageComment.php');
 require_once('class.pageTag.php');
-require_once('class.pageEntryAdminTable.php');
 
 /**
  * @defgroup page
@@ -334,7 +333,7 @@ class page extends Controller {
 			$newsletter_module = false;
 		}
 
-		$this->_options = new options($this->_class_name, $this->_instance);
+		$this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
 		$this->_optionsLabels = array(
 			"last_title"=>array(
 				'label'=>_("Titolo ultime pagine pubblicate"), 
@@ -513,10 +512,10 @@ class page extends Controller {
 	public static function outputFunctions() {
 
 		$list = array(
-			"last" => array("label"=>_("Elenco utime pagine pubblicate"), "role"=>'1'),
-			"archive" => array("label"=>_("Elenco pagine raggruppate per categoria o tag"), "role"=>'1'),
-			"showcase" => array("label"=>_("Vetrina (più letti)"), "role"=>'1'),
-			"tagcloud" => array("label"=>_("Tag cloud"), "role"=>'1')
+			"last" => array("label"=>_("Elenco utime pagine pubblicate"), "permissions"=>''),
+			"archive" => array("label"=>_("Elenco pagine raggruppate per categoria o tag"), "permissions"=>''),
+			"showcase" => array("label"=>_("Vetrina (più letti)"), "permissions"=>''),
+			"tagcloud" => array("label"=>_("Tag cloud"), "permissions"=>'')
 		);
 
 		return $list;
@@ -1116,7 +1115,7 @@ class page extends Controller {
 
 	private function formComment($entry) {
 
-		$myform = new form('form_comment', 'post', true, null);
+		$myform = loader::load('Form', array('form_comment', 'post', true, null));
 		$myform->load('dataform');
 
 		$buffer = '';
@@ -1340,6 +1339,8 @@ class page extends Controller {
 	 */
 	public function managePage() {
 
+    loader::import('class', 'AdminTable');
+
 		$this->accessGroup($this->_group_2);
 		
 		$method = 'managePage';
@@ -1410,6 +1411,8 @@ class page extends Controller {
 	 *   - checkSlug()
 	 */
 	private function manageEntry() {
+
+    loader::import('page', 'pageEntryAdminTable');
 		
 		$registry = registry::instance();
 		$registry->addJs($this->_class_www.'/page.js');

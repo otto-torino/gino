@@ -3,7 +3,6 @@
 {module classid=6 func=viewList}
 {module sysclassid=8 func=printHeaderMobile}
 {module classid=4 func=blockList}
-{module id=0}
 {module sysclassid=8 func=printFooterMobile}
 </div>
 <div class="null"></div>

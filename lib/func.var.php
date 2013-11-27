@@ -686,6 +686,23 @@ function jsVar($string, $newline=false)
 }
 
 /**
+ * Da utilizzare per il testo che deve essere racchiuso in attributi html
+ * 
+ * @param string $string
+ * @return string
+ */
+function attributeVar($string)
+{
+  $string = str_replace("\n",'',$string);
+  $string = str_replace("\r",'',$string);
+  $string = str_replace("\t",'',$string);
+  $string = str_replace("&#039;",'\\\'',$string);
+  $string = str_replace("\"","\'",$string);
+
+  return $string;
+}
+
+/**
  * Converte le entities HTML, ma non i tag
  * 
  * @param string $string

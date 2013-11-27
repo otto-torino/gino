@@ -17,148 +17,155 @@
  */
 class index extends Controller{
 
-	private $_page;
-	
-	function __construct(){
+  private $_page;
+  
+  function __construct(){
 
-		parent::__construct();
+    parent::__construct();
 
-	}
-	
-	/**
-	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
-	 * 
-	 * @return array
-	 */
-	public static function outputFunctions() {
+  }
+  
+  /**
+   * Elenco dei metodi che possono essere richiamati dal menu e dal template
+   * 
+   * @return array
+   */
+  public static function outputFunctions() {
 
-		$list = array(
-			"admin_page" => array("label"=>_("Home page amministrazione"), "role"=>'2')
-		);
+    $list = array(
+      "admin_page" => array("label"=>_("Home page amministrazione"), "role"=>'2')
+    );
 
-		return $list;
-	}
+    return $list;
+  }
 
-	/**
-	 * Pagina di autenticazione
-	 * 
-	 * @see sysfunc::tableLogin()
-	 * @return string
-	 */
-	public function auth_page(){
+  /**
+   * Pagina di autenticazione
+   * 
+   * @see sysfunc::tableLogin()
+   * @return string
+   */
+  public function auth_page(){
 
-		$registration = cleanVar($_GET, 'reg', 'int', '');
-		
-		if($registration == 1) $control = true; else $control = false;
-		
-		$GINO = "<div id=\"section_indexAuth\" class=\"section\">";
+    $registration = cleanVar($_GET, 'reg', 'int', '');
+    
+    if($registration == 1) $control = true; else $control = false;
+    
+    $GINO = "<div id=\"section_indexAuth\" class=\"section\">";
 
-		$GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
-		
-		$func = new sysfunc();
-		$GINO .= $func->tableLogin($control, $this->_className);
-		$GINO .= "</div>";
-		
-		return $GINO;
-	}
+    $GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
+    
+    $func = new sysfunc();
+    $GINO .= $func->tableLogin($control, $this->_class_name);
+    $GINO .= "</div>";
+    
+    return $GINO;
+  }
 
-	/**
-	 * Home page amministrazione
-	 * 
-	 * @return string
-	 */
-	public function admin_page(){
+  /**
+   * Home page amministrazione
+   * 
+   * @return string
+   */
+  public function admin_page(){
 
-		if(!$this->_auth->getAccessAdmin()) {
-			$this->session->auth_redirect = "$this->_home?evt[".$this->_className."-admin_page]";
-			EvtHandler::HttpCall($this->_home, $this->_className.'-auth_page', '');
-		}
+    if(!$this->_access->getAccessAdmin()) {
+      $this->session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
+      Link::HttpCall($this->_home, $this->_class_name.'-auth_page', '');
+    }
 
-		$buffer = '';
-		$sysMdls = $this->sysModulesManageArray();
-		$mdls = $this->modulesManageArray();
-		if(count($sysMdls)) {
-		
-			$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Amministrazione sistema")));
-		
-			$GINO = "<table class=\"sysMdlList\">";
-			foreach($sysMdls as $sm) {
-				$GINO .= "<tr>";
-				$GINO .= "<td class=\"mdlLabel\"><a href=\"$this->_home?evt[".$sm['name']."-manage".ucfirst($sm['name'])."]\">".htmlChars($sm['label'])."</a></td>";
-				$GINO .= "<td class=\"mdlDescription\">".htmlChars($sm['description'])."</td>";
-				$GINO .= "</tr>";
-			}
-			$GINO .= "</table>\n";
-			$htmlsection->content = $GINO;
-		
-			$buffer = $htmlsection->render();
-		}	
-		if(count($mdls)) {
-		
-			$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Amministrazione moduli")));
+    $buffer = '';
+    $sysMdls = $this->sysModulesManageArray();
+    $mdls = $this->modulesManageArray();
+    if(count($sysMdls)) {
+      $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
+      foreach($sysMdls as $sm) {
+        $GINO .= "<tr>";
+        $GINO .= "<th><a href=\"$this->_home?evt[".$sm['name']."-manage".ucfirst($sm['name'])."]\">".htmlChars($sm['label'])."</a></th>";
+        $GINO .= "<td class=\"mdlDescription\">".htmlChars($sm['description'])."</td>";
+        $GINO .= "</tr>";
+      }
+      $GINO .= "</table>\n";
 
-			$GINO = "<table class=\"sysMdlList\">";
-			foreach($mdls as $m) {
-				$GINO .= "<tr>";
-				$GINO .= "<td class=\"mdlLabel\"><a href=\"$this->_home?evt[".$m['name']."-manageDoc]\">".htmlChars($m['label'])."</a></td>";
-				$GINO .= "<td class=\"mdlDescription\">".htmlChars($m['description'])."</td>";
-				$GINO .= "</tr>";
-			}
-			$GINO .= "</table>\n";
-			$htmlsection->content = $GINO;
+      $view = new View();
+      $view->setViewTpl('section');
+      $view->assign('class', 'admin');
+      $view->assign('title', _("Amministrazione sistema"));
+      $view->assign('content', $GINO);
 
-			$buffer .= $htmlsection->render();
+      $buffer .= $view->render();
+    }
+    if(count($mdls)) {
+    
+      $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
+      foreach($mdls as $m) {
+        $GINO .= "<tr>";
+        $GINO .= "<th><a href=\"$this->_home?evt[".$m['name']."-manageDoc]\">".htmlChars($m['label'])."</a></th>";
+        $GINO .= "<td>".htmlChars($m['description'])."</td>";
+        $GINO .= "</tr>";
+      }
+      $GINO .= "</table>\n";
 
-		}
-		return $buffer;
-	}
+      $view = new View();
+      $view->setViewTpl('section');
+      $view->assign('class', 'admin');
+      $view->assign('title', _("Amministrazione moduli"));
+      $view->assign('content', $GINO);
 
-	/**
-	 * Elenco dei moduli di sistema visualizzabili nell'area amministrativa
-	 * 
-	 * @return array
-	 */
-	public function sysModulesManageArray() {
+      $buffer .= $view->render();
 
-		if(!$this->_auth->getAccessAdmin()) {
-			return array();
-		}
+    }
+    return $buffer;
+  }
 
-		$list = array();
-		$query = "SELECT id, label, name, description FROM ".TBL_MODULE_APP." WHERE masquerade='no' AND instance='no' ORDER BY order_list";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				if($this->_auth->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
-					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'label', $b['id']), "name"=>$b['name'], "description"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'description', $b['id']));
-			}
-		}
+  /**
+   * Elenco dei moduli di sistema visualizzabili nell'area amministrativa
+   * 
+   * @return array
+   */
+  public function sysModulesManageArray() {
 
-		return $list;
-	}
-	
-	/**
-	 * Elenco dei moduli non di sistema visualizzabili nell'area amministrativa
-	 * 
-	 * @return array
-	 */
-	public function modulesManageArray() {
+    if(!$this->_access->getAccessAdmin()) {
+      return array();
+    }
 
-		if(!$this->_auth->getAccessAdmin()) {
-			return array();
-		}
+    // @todo write sysClass as model
+    $list = array();
+    $rows = $this->_db->select('id, label, name, description', TBL_MODULE_APP, " masquerade='no' AND instance='no'", "order_list");
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        if($this->_registry->user->hasAdminPerm($row['name']) and method_exists($row['name'], 'manage'.ucfirst($row['name']))) {
+          //if($this->_access->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
+          $list[$row['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'label', $row['id']), "name"=>$row['name'], "description"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'description', $row['id']));
+        }
+      }
+    }
 
-		$list = array();
-		$query = "SELECT id, label, name, class, description FROM ".TBL_MODULE." WHERE masquerade='no' AND type='class' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				if($this->_auth->AccessVerifyGroupIf($b['class'], $b['id'], '', 'ALL') && method_exists($b['class'], 'manageDoc'))
-					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE, 'label', $b['id']), "name"=>$b['name'], "class"=>$b['class'], "description"=>$this->_trd->selectTXT(TBL_MODULE, 'description', $b['id']));
-			}
-		}
+    return $list;
+  }
+  
+  /**
+   * Elenco dei moduli non di sistema visualizzabili nell'area amministrativa
+   * 
+   * @return array
+   */
+  public function modulesManageArray() {
 
-		return $list;
-	}
+    if(!$this->_access->getAccessAdmin()) {
+      return array();
+    }
+
+    $list = array();
+    $rows = $this->_db->select('id, label, name, class, description', TBL_MODULE, " masquerade='no' AND type='class'", "label");
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        if($this->_registry->user->hasAdminPerm($row['class'], $row['id']) and method_exists($row['class'], 'manageDoc')) {
+          $list[$row['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE, 'label', $row['id']), "name"=>$row['name'], "class"=>$row['class'], "description"=>$this->_trd->selectTXT(TBL_MODULE, 'description', $row['id']));
+        }
+      }
+    }
+
+    return $list;
+  }
 }
 ?>
