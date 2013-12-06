@@ -396,8 +396,6 @@ class layout extends Controller {
     $buffer .= "</div>";
     $buffer .= $view_table->render();
 
-    $buffer .= $view_table->render();
-
     $view = new view();
     $view->setViewTpl('section');
     $dict = array(

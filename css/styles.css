@@ -7337,12 +7337,7 @@ td.visible-print {
 }
 body {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
-  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#7e7e7e), to(#cdcdcd));
-  background-image: -webkit-linear-gradient(top, #7e7e7e 0%, #cdcdcd 100%);
-  background-image: -moz-linear-gradient(top, #7e7e7e 0%, #cdcdcd 100%);
-  background-image: linear-gradient(to bottom, #7e7e7e 0%, #cdcdcd 100%);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff7e7e7e', endColorstr='#ffcdcdcd', GradientType=0);
+  background: #fff3dd;
   color: #444;
 }
 /* links */
@@ -7439,6 +7434,7 @@ div.tab-ext {
   background-image: url('../img/tab_ext_left.png');
   background-position: top right;
   background-repeat: no-repeat;
+  font-size: 16px;
 }
 div.tab-int {
   background-image: url('../img/tab_int_left.png');
@@ -8022,26 +8018,6 @@ input[type=button]:hover {
 }
 #filter_form_layer h2 {
   margin-top: 0;
-}
-.navbar-brand {
-  font-family: 'Chicken';
-  font-size: 40px;
-  background: url(../img/abidibo.png) no-repeat left center;
-  padding: 17px 0 10px 60px;
-  margin-left: 20px;
-}
-@media (min-width: 992px) {
-  .navbar-brand {
-    font-size: 60px;
-    line-height: 60px;
-  }
-}
-.navbar-inverse {
-  box-shadow: 0 3px 3px #fff;
-}
-.navbar-inverse .navbar-nav > .active > a {
-  background: none;
-  text-shadow: 1px 1px 1px #000;
 }
 #phpModuleView_topbar {
   padding: 0;

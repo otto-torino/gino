@@ -228,10 +228,8 @@ class graphics extends Controller {
       $sel_link = $link_views;
     }
     else {
-      $info = "<div class=\"backoffice-info\">";
-      $info .= "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+      $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
       $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
-      $info .= "</div>";
 
       $opts = array(
         'list_display' => array('id', 'description', 'type', 'image'),

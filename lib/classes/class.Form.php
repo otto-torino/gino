@@ -330,7 +330,7 @@ class Form {
 
     if(!empty($required))
       foreach(explode(",", $required) as $fieldname)
-        if($_REQUEST[$fieldname] == '') $error++;
+        if($_REQUEST[$fieldname] == '' AND $_FILES[$fieldname] == '') $error++;
     return $error;
   }
 

@@ -87,6 +87,17 @@ class options {
 	 */
 	public function manageDoc(){
 
+    $registry = registry::instance();
+		$trnsl = cleanVar($_GET, 'trnsl', 'int', '');
+    if($trnsl) {
+      if(isset($_GET['save']) and $_GET['save'] == '1') {
+        $registry->trd->actionTranslation();
+      }
+      else {
+        $registry->trd->formTranslation();
+      }
+    }
+
 		if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
 
 		$gform = loader::load('Form', array('gform', 'post', true));

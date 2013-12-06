@@ -201,7 +201,7 @@ class translation
 	 	$tbl = cleanVar($_POST, 'tbl', 'string', '');
 	 	$field = cleanVar($_POST, 'field', 'string', '');
 	 	$id_value = cleanVar($_POST, 'id_value', 'int', '');
-	 	
+
 	 	if($action == 'insert') {
       $res = $this->_registry->db->insert(array(
         'tbl_id_value' => $id_value,

@@ -262,7 +262,7 @@ class locale extends singleton {
 				{
 					$country = strtoupper($array[1]);
 					
-          $langs = Language::get(array(
+          $langs = Lang::get(array(
             'where' => "language_code='$lang' AND country_code='$country'"
           ));
           if(count($langs)) {
