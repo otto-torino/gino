@@ -33,6 +33,7 @@ define('TPL_DIR', SITE_ROOT.OS.'templates');
 define('VIEWS_DIR', SITE_ROOT.OS.'views');
 define('GRAPHICS_DIR', SITE_ROOT.OS.'graphics');
 define('CONTENT_DIR', SITE_ROOT.OS.'contents');
+define('FONTS_DIR', SITE_ROOT.OS.'fonts');
 define('DOC_DIR', CONTENT_DIR.OS.'documents');
 define('TMP_DIR', '/tmp');
 define('TMP_SITE_DIR', SITE_ROOT.OS.'tmp');

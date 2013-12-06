@@ -32,9 +32,6 @@ require_once('class.PhpModule.php');
  */
 class phpModuleView extends Controller {
 
-  private $_administration_perm,
-          $_edit_perm;
-
   private $_tbl_opt, $_tbl_usr;
   private $_blackList;
 
@@ -50,8 +47,6 @@ class phpModuleView extends Controller {
   function __construct($mdlId){
 
     parent::__construct($mdlId);
-
-    $this->setPermissions();
 
     $this->_tbl_opt = "php_module_opt";
     $this->_tbl_usr = "php_module_usr";
@@ -73,19 +68,15 @@ class phpModuleView extends Controller {
     $this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
   }
 
-  private function setPermissions() {
-    $this->_administration_perm = 1;
-    $this->_edit_perm = 2;
-  }
-  
   /**
    * Fornisce i riferimenti della classe, da utilizzare nel processo di creazione e di eliminazione di una istanza 
    * 
    * @return array
    */
-  public function getClassElements() {
+  public static function getClassElements() {
 
-    return array("tables"=>array('php_module', 'php_module_opt', 'php_module_grp', 'php_module_usr'),
+    return array(
+      "tables"=>array('php_module', 'php_module_opt'),
       "css"=>array('phpModule.css'),
       "folderStructure"=>array(
         CONTENT_DIR.OS.'phpModule'=> null
@@ -100,7 +91,7 @@ class phpModuleView extends Controller {
    */
   public function deleteInstance() {
 
-    $this->accessGroup('');
+    $this->requirePerm('can_admin');
 
     $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
     $phpMdl->deleteDbData();
@@ -109,7 +100,7 @@ class phpModuleView extends Controller {
      * delete record and translation from table php_module_opt
      */
     $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
-    language::deleteTranslations($this->_tbl_opt, $opt_id);
+    $this->_trd->deleteTranslations($this->_tbl_opt, $opt_id);
     
     $query = "DELETE FROM ".$this->_tbl_opt." WHERE instance='$this->_instance'";	
     $result = $this->_db->actionquery($query);
@@ -131,14 +122,10 @@ class phpModuleView extends Controller {
     return $result;
   }
 
-  /**
-   * Gruppi per accedere alle funzionalità del modulo
-   * 
-   * @b _group_1: assistenti
-   */
-  private function setGroups(){
-    
-    $this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
+  public function permissions() {
+    return array(
+      'can_admin' => 'amministrazione completa modulo'
+    );
   }
   
   /**
@@ -149,7 +136,7 @@ class phpModuleView extends Controller {
   public static function outputFunctions() {
 
     $list = array(
-      "viewList" => array("label"=>_("Visualizzazione modulo"), "role"=>'1')
+      "viewList" => array("label"=>_("Visualizzazione modulo"), "permissions"=>array())
     );
 
     return $list;
@@ -163,8 +150,6 @@ class phpModuleView extends Controller {
    */
   public function viewList() {
 
-    //$this->accessType($this->_access_base);
-    
     $registry = registry::instance();
 
     $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
@@ -198,34 +183,24 @@ class phpModuleView extends Controller {
    */
   public function manageDoc() {
 
-    $this->accessGroup('ALL');
+    $this->requirePerm('can_admin');
 
     $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
 
-    $htmltab = new htmlTab(array("title"=>$this->_instanceLabel, "linkPosition"=>'right'));	
-    $link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=permissions\">"._("Permessi")."</a>";
-    $link_css = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=css\">"._("CSS")."</a>";
+    $link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
     $link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
-    $link_edit = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]&amp;action=".$this->_act_modify."\">"._("Contenuto")."</a>";
+    $link_edit = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]&amp;action=modify\">"._("Contenuto")."</a>";
     $link_info = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Informazioni")."</a>";
     $sel_link = $link_info;
     
-    if($this->_access->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', ''))
-      $links_array = array($link_admin, $link_css, $link_options, $link_edit, $link_info);
-    else $links_array = array($link_css, $link_options, $link_edit, $link_info);
+    $links_array = array($link_frontend, $link_options, $link_edit, $link_info);
 
-    $htmltab->navigationLinks = $links_array;
-
-    if($this->_block == 'css') {
-      $GINO = sysfunc::manageCss($this->_instance, $this->_class_name);		
-      $sel_link = $link_css;
-    }
-    elseif($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
-      $GINO = sysfunc::managePermissions($this->_instance, $this->_class_name);		
-      $sel_link = $link_admin;
+    if($this->_block == 'frontend') {
+      $GINO = $this->manageFrontend();
+      $sel_link = $link_frontend;
     }
     elseif($this->_block == 'options') {
-      $GINO = sysfunc::manageOptions($this->_instance, $this->_class_name);		
+      $GINO = $this->manageOptions();		
       $sel_link = $link_options;
     }
     else {
@@ -234,7 +209,7 @@ class phpModuleView extends Controller {
         $phpMdl->actionPhpModule();
         exit;
       }
-      if($this->_action == $this->_act_modify) {
+      if($this->_action == 'modify') {
         $sel_link = $link_edit;
         $form = $phpMdl->formPhpModule();
       }
@@ -244,21 +219,30 @@ class phpModuleView extends Controller {
       $GINO = $form;
     }
 
-    $htmltab->selectedLink = $sel_link;
-    $htmltab->htmlContent = $GINO;
-    return $htmltab->render();
+    $dict = array(
+      'title' => $this->_instance_label,
+      'links' => $links_array,
+      'selected_link' => $sel_link,
+      'content' => $GINO
+    );
+
+    $view = new View(null, 'tab');
+    return $view->render($dict);
   }
 
   private function info(){
 
-    $htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni")));
     $buffer = "<p>"._("Il modulo permette di eseguire codice php completamente personalizzabile, e di visualizzare l'output prodotto. Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate. Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.")."</p>\n";
     $buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
     $buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
     
-    $htmlsection->content = $buffer;
-
-    return $htmlsection->render();
+    $view =   new View(null, 'section');
+    $dict = array(
+      'title' => _('Informazioni'),
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    return $view->render($dict);
   }
 }
 ?>

@@ -14,20 +14,6 @@ authors:
 ...
  */
 
-(function()
- {
- String.implement(
-	 {
-slugify: function( replace )
-{
-if( !replace ) replace = '-';
-var str = this.toString().tidy().standardize().replace(/[\s\.]+/g,replace).toLowerCase().replace(new RegExp('[^a-z0-9'+replace+']','g'),replace).replace(new RegExp(replace+'+','g'),replace);
-if( str.charAt(str.length-1) == replace ) str = str.substring(0,str.length-1);
-return str;
-}
-});
- })();
-
 // prettify
 window.addEvent('load', function() {
 	if(typeof prettyPrint == 'function') 

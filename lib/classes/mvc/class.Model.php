@@ -44,6 +44,7 @@
  */
  abstract class Model {
 
+	protected $_registry;
 	protected $_db;
 	protected $_tbl_data;
 	protected $_model_label;
@@ -83,7 +84,8 @@
 	 */
 	function __construct($id) {
 
-		$this->_db = db::instance();
+    $this->_registry = registry::instance();
+		$this->_db = $this->_registry->db;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
 		
@@ -138,6 +140,14 @@
 			$this->_p[$pName] = $pValue;
 		}
 	}
+
+  public static function getSelectOptionsFromObjects($objects) {
+    $res = array();
+    foreach($objects as $obj) {
+      $res[$obj->id] = (string) $obj;
+    }
+    return $res;
+  }
 
 	/**
 	 * Recupera le proprietà con la traduzione
@@ -198,7 +208,7 @@
 	 */
 	public function deleteDbData() {
 	
-		language::deleteTranslations($this->_tbl_data, $this->_p['id']);
+		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->_p['id']);
 		
 		$result = $this->_db->delete($this->_tbl_data, "id='{$this->_p['id']}'");
 		

@@ -37,8 +37,7 @@ class Link {
 		
 		$db = db::instance();
 		
-		$permalinks = $db->getFieldFromId(TBL_SYS_CONF, 'permalinks', 'id', 1);
-		$this->_permalinks = $permalinks == 'yes' ? true : false;
+		$this->_permalinks = true;
 		
 		$this->_compressed_form = true;
 		$this->_field_id = 'id';
@@ -243,8 +242,12 @@ class Link {
 	 * @return string
 	 */
 	public function alternativeLink($link){
+
+    if($link == '') {
+      return "url='/'";
+    }
 		
-		$where = "link LIKE '%$0%'";
+		$where = "url LIKE '%$0%'";
 		$string = '';
 		
 		$array = array();

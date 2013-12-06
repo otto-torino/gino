@@ -20,6 +20,8 @@
  */
 class User extends Model {
 
+  public static $table = TBL_USER;
+
   /**
    * Costruttore
    * 
@@ -48,11 +50,30 @@ class User extends Model {
     $crypt_method = $registry->pub->getConf('password_crypt');
     $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $pwd;
 
-    $rows = $db->select('id', TBL_USER, "username='$username' AND userpwd='$password' AND valid='yes'");
+    $rows = $db->select('id', TBL_USER, "username='$username' AND userpwd='$password' AND active='1'");
     if($rows and count($rows) == 1) {
       $user = new User($rows[0]['id']);
     }
     return $user;
+
+  }
+
+  public static function get($options = array()) {
+
+    $where = gOpt('where', $options, null);
+    $order = gOpt('order', $options, null);
+
+    $res = array();
+
+    $db = db::instance();
+    $rows = $db->select('id', self::$table, $where, array('order' => $order));
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        $res[] = new User($row['id']);
+      }
+    }
+
+    return $res;
 
   }
 
@@ -81,6 +102,7 @@ class User extends Model {
       $rows = $this->_db->select(TBL_USER_PERMISSION.'.perm_id', array(TBL_USER_PERMISSION, TBL_PERMISSION), array(
         TBL_USER_PERMISSION.'.perm_id' => TBL_PERMISSION.'.id',
         TBL_USER_PERMISSION.'.user_id' => $this->id,
+        TBL_USER_PERMISSION.'.instance' => $instance,
         TBL_PERMISSION.'.code' => $perm_code
       ));
       if($rows and count($rows)) {

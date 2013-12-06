@@ -8,6 +8,8 @@
  * @author abidibo abidibo@gmail.com
  */
 
+require_once('class.GraphicsItem.php');
+
 /**
  * @brief Gestione personalizzata degli header e footer del sistema
  * 
@@ -20,21 +22,10 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class graphics extends Controller{
+class graphics extends Controller {
 
 	private $_title;
-	
-	private $_group_1;
-	
-	private $_fck_toolbar, $_fck_width, $fck_height;
-
-	private $_extension_img;
-	
-	private $_num_methods;
-
 	private $_tbl_graphics;
-	private $_header_function, $_footer_function;
-
 	private $_block;
 	
 	function __construct(){
@@ -42,32 +33,18 @@ class graphics extends Controller{
 		parent::__construct();
 
 		$this->_title = _("Layout - header/footer");
-		
-		//$this->setAccess();
-		//$this->setGroups();
-		
-		$this->_fck_toolbar = 'Basic';
-		$this->_fck_width = '95%';
-		$this->_fck_height = '300';
-
-		$this->_extension_img = array("jpg", "png", "gif");
-		
 		$this->_tbl_graphics = 'sys_graphics';
-
-		$this->_num_methods = 10;
 		
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
-	
-	/**
-	 * Gruppi per accedere alle funzionalità del modulo
-	 * 
-	 * @b _group_1: assistenti
-	 */
-	private function setGroups(){
-		
-		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
-	}
+
+  public static function getClassElements() {
+    return array(
+      'views' => array(
+        'render.php' => _('Stampa l\'header o il footer')
+      )
+    );
+  }
 	
 	/**
 	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
@@ -77,16 +54,16 @@ class graphics extends Controller{
 	public static function outputFunctions() {
 
 		$list = array(
-			"printHeaderPublic" => array("label"=>_("Header Pubblico"), "role"=>'1'),
-			"printHeaderPrivate" => array("label"=>_("Header Privato"), "role"=>'1'),
-			"printHeaderAdmin" => array("label"=>_("Header Amministrazione"), "role"=>'1'),
-			"printHeaderMobile" => array("label"=>_("Header Dispositivo Mobile"), "role"=>'1'),
-			"printHeaderAdhoc" => array("label"=>_("Header Adhoc"), "role"=>'1'),
-			"printFooterPublic" => array("label"=>_("Footer Pubblico"), "role"=>'1'),
-			"printFooterPrivate" => array("label"=>_("Footer Privato"), "role"=>'1'),
-			"printFooterAdmin" => array("label"=>_("Footer Amministrazione"), "role"=>'1'),
-			"printFooterMobile" => array("label"=>_("Footer Dispositivo Mobile"), "role"=>'1'),
-			"printFooterAdhoc" => array("label"=>_("Footer Adhoc"), "role"=>'1')
+			"printHeaderPublic" => array("label"=>_("Header Pubblico"), "permissions"=>array()),
+			"printHeaderPrivate" => array("label"=>_("Header Privato"), "permissions"=>array()),
+			"printHeaderAdmin" => array("label"=>_("Header Amministrazione"), "permissions"=>array()),
+			"printHeaderMobile" => array("label"=>_("Header Dispositivo Mobile"), "permissions"=>array()),
+			"printHeaderAdhoc" => array("label"=>_("Header Adhoc"), "permissions"=>array()),
+			"printFooterPublic" => array("label"=>_("Footer Pubblico"), "permissions"=>array()),
+			"printFooterPrivate" => array("label"=>_("Footer Privato"), "permissions"=>array()),
+			"printFooterAdmin" => array("label"=>_("Footer Amministrazione"), "permissions"=>array()),
+			"printFooterMobile" => array("label"=>_("Footer Dispositivo Mobile"), "permissions"=>array()),
+			"printFooterAdhoc" => array("label"=>_("Footer Adhoc"), "permissions"=>array())
 		);
 
 		return $list;
@@ -94,47 +71,9 @@ class graphics extends Controller{
 
 	private function isHeader($id) {
 		
-		return $id<6 ? true : false;
+		return $id < 6 ? true : false;
 	}
 
-	/**
-	 * Imposta dei codici di sostituzione da utilizzare con un header/footer di tipo @a codice
-	 * 
-	 * @return array
-	 */
-	private function setReplaceHtml(){
-		
-		$lng = new language();
-		$language = $lng->choiceLanguage(true);
-		
-		$array = array(
-			'_GRAPHICS_'	=>	SITE_GRAPHICS,
-			'_HOMEPAGE_'	=>	$this->_home,
-			'_HOME_'		=>	$this->_site_www,
-			'_LANGUAGE_'	=>	$language
-		);
-		
-		return $array;
-	}
-	
-	private function replaceHtml($html){
-		
-		if(!empty($html))
-		{
-			$substitution = $this->setReplaceHtml();
-			
-			if(sizeof($substitution) > 0)
-			{
-				foreach ($substitution AS $key=>$value)
-				{
-					$html = preg_replace("/$key/", $value, $html);
-				}
-			}
-		}
-		
-		return $html;
-	}
-	
 	/**
 	 * Interfaccia all'header con valore ID 1
 	 * 
@@ -142,9 +81,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printHeaderPublic() {
-
-		//$this->accessType($this->_access_base);
-
 		return $this->render(1);
 	}
 	
@@ -155,9 +91,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printHeaderPrivate() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render(2);
 	}
 	
@@ -168,9 +101,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printHeaderAdmin() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render(3);
 	}
 	
@@ -181,9 +111,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printHeaderMobile() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render(4);
 	}
 
@@ -194,9 +121,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printHeaderAdhoc() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render(5);
 	}
 
@@ -207,9 +131,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printFooterPublic() {
-
-		//$this->accessType($this->_access_base);
-
 		return $this->render('6');
 	}
 	
@@ -220,9 +141,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printFooterPrivate() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render('7');
 	}
 	
@@ -233,9 +151,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printFooterAdmin() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render('8');
 	}
 
@@ -246,9 +161,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printFooterMobile() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render('9');
 	}
 
@@ -259,9 +171,6 @@ class graphics extends Controller{
 	 * @return string
 	 */
 	public function printFooterAdhoc() {
-
-		$this->accessType($this->_access_base);
-
 		return $this->render('10');
 	}
 
@@ -274,326 +183,88 @@ class graphics extends Controller{
 	private function render($id) {
 	
 		if(!$id) return '';
-		$buffer = "<div id=\"site_".($this->isHeader($id) ? "header" : "footer")."\" class=\"public\">\n";
 		
-		$query = "SELECT type, html, image FROM ".$this->_tbl_graphics." WHERE id='$id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
+    $graphics_item = new GraphicsItem($id);
+
+		if($graphics_item->type==1 && $graphics_item->image) 
 		{
-			foreach ($a AS $b)
-			{
-				$type = $b['type'];
-				$html = $b['html'];
-				$html = $this->replaceHtml($html);
-				$image = $b['image'];
+			$src = SITE_GRAPHICS."/$graphics_item->image";
+			if($this->isHeader($id)) {
+				$buffer = "<a href=\"".$this->_home."\"><img src=\"$src\" alt=\""._("header")."\" /></a>\n";
+			}
+			else{
+				$buffer = "<img src=\"$src\" alt=\""._("footer")."\" />\n";
 			}
 		}
+		elseif($graphics_item->type==2) {
+			$buffer = $graphics_item->html;
+    }
 
-		if($type==1 && $image) 
-		{
-			$src = SITE_GRAPHICS."/$image";
-			if($this->isHeader($id))
-			{
-				$buffer .= "<a href=\"".$this->_home."\"><img src=\"$src\" alt=\""._("header")."\" /></a>\n";
-			}
-			else
-			{
-				$buffer .= "<img src=\"$src\" alt=\""._("footer")."\" />\n";
-			}
-		}
-		elseif($type==2) 
-			$buffer .= $html;
+    $view = new view($this->_view_dir);
+    $view->setViewTpl('render');
+    $dict = array(
+      'id' => "site_".($this->isHeader($id) ? "header" : "footer"),
+      'content' => $buffer,
+      'type' => $graphics_item->type,
+      'header' => $this->isHeader($id),
+      'img_path' => $graphics_item->image ? SITE_GRAPHICS."/$graphics_item->image" : null,
+      'code' => $graphics_item->html
+    );
 
-		$buffer .= "</div>";
+    return $view->render($dict);
 
-		return $buffer;
-	}
+  }
+
+  public function manageGraphics() {
+
+    $this->requirePerm('can_admin');
+
+    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]\">"._("Gestione")."</a>";
+    $link_views = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]&block=frontend\">"._("Frontend")."</a>";
+    $sel_link = $link_dft;
+
+    if($this->_block == 'frontend') {
+      $buffer = $this->manageFrontend();
+      $sel_link = $link_views;
+    }
+    else {
+      $info = "<div class=\"backoffice-info\">";
+      $info .= "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+      $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
+      $info .= "</div>";
+
+      $opts = array(
+        'list_display' => array('id', 'description', 'type', 'image'),
+        'list_description' => $info
+      );
+
+      $opts_form = array(
+        'removeFields' => array('name')
+      );
+
+      $admin_table = loader::load('AdminTable', array(
+        $this,
+        array(
+          'allow_insertion' => false,
+          'delete_deny' => 'all',
+        )
+      ));
+
+      $buffer = $admin_table->backoffice('GraphicsItem', $opts, $opts_form);
+    }
+
+    $dict = array(
+      'title' => _('Header & Footer'),
+      'links' => array($link_views, $link_dft),
+      'selected_link' => $sel_link,
+      'content' => $buffer
+    );
+
+    $view = new view();
+    $view->setViewTpl('tab');
+
+    return $view->render($dict);
+
+  }
 	
-	/**
-	 * Interfaccia amministrativa per la gestione di header e footer
-	 * 
-	 * @return string
-	 */
-	public function manageGraphics(){
-
-		$this->accessGroup('ALL');
-		
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-		$link_admin = "<a href=\"".$this->_home."?evt[".$this->_className."-manageGraphics]&block=permissions\">"._("Permessi")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageGraphics]\">"._("Gestione")."</a>";
-		$sel_link = $link_dft;
-
-		if($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$GINO = sysfunc::managePermissions(null, $this->_className); 
-			$sel_link = $link_admin;
-		}
-		else {
-			// Variables
-			$id = cleanVar($_GET, 'id', 'int', '');
-			$action = cleanVar($_GET, 'action', 'string', '');
-			// end
-
-			if($action == $this->_act_modify OR $action == $this->_act_insert)
-				$form = $this->formDoc($id, $action);
-			else
-				$form = $this->infoDoc();
-
-			$GINO = "<div class=\"vertical_1\">\n";
-			$GINO .= $this->listDoc($id);
-			$GINO .= "</div>\n";
-
-			$GINO .= "<div class=\"vertical_2\">\n";
-			$GINO .= $form;
-			$GINO .= "</div>\n";
-
-			$GINO .= "<div class=\"null\"></div>";
-		}
-
-		$htmltab->navigationLinks = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')
-			? array($link_admin, $link_dft)
-			: array($link_dft);
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $GINO;
-		return $htmltab->render();
-	}
-	
-	private function infoDoc(){
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni")));
-		$GINO = "<p>"._("Sono disponibili 5 header e 5 footer completamente personalizzabili ed utilizzabili nella composizione del layout. Ciascuno di essi può essere di tipo grafico, cioè un'immagine (jpg, png o gif) oppure generato attraverso del codice html.")."</p>";
-		
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Preview dell'header/footer
-	 * 
-	 * @return string
-	 */
-	public function preview(){
-
-		$this->accessGroup('ALL');
-
-		$id = cleanVar($_GET, 'id', 'int', '');
-
-		$GINO = $this->render($id);
-
-		return $GINO;
-	}
-	
-	private function listDoc($select_doc){
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$this->_title));
-
-		$htmlList = new htmlList(array("numItems"=>$this->_num_methods, "separator"=>true));
-		$GINO = $htmlList->start();
-
-		for($i=1; $i<$this->_num_methods+1; $i++) {
-				
-			$query = "SELECT id, name, description, type FROM ".$this->_tbl_graphics." WHERE id='$i'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-			{
-				foreach($a AS $b)
-				{
-					$id = $b['id'];
-					$method = htmlChars($b['name']);
-					$description = htmlChars($this->_trd->selectTXT($this->_tbl_graphics, 'description', $id));
-					$type = htmlChars($b['type']);
-				
-					$link_edit = "<a href=\"".$this->_home."?evt[".$this->_className."-manageGraphics]&amp;id=$id&amp;action=".$this->_act_modify."\">".$this->icon('modify', '')."</a>";
-					$url = "$this->_home?pt[".$this->_className."-preview]&amp;id=$id";
-					$onclick = "window.myWin = new layerWindow({'title':'"._("Preview")."', 'url':'$url', 'bodyId':'prev', 'width':900});window.myWin.display();";
-					$link_preview = "<span class=\"link\" onclick=\"$onclick\">".$this->icon('view', '')."</span>";
-					
-				
-					$selected = ($id == $select_doc)?true:false;
-					
-					if($type == '1') $default_text = _("grafica");
-					else $default_text = _("codice");
-					
-					$GINO .= $htmlList->item("$description<br/><span class=\"little\">$default_text</span>", array($link_preview, $link_edit), $selected, true);
-				}
-			}
-		}
-
-		$GINO .= $htmlList->end();
-		
-		$htmlsection->content = $GINO;
-		
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Form di modifica header/footer
-	 * 
-	 * @param integer $id valore ID del record
-	 * @param string $action azione da eseguire
-	 * @return string
-	 */
-	private function formDoc($id, $action){
-	
-		$gform = new Form('gform', 'post', true);
-		$gform->load('dataform');
-		
-		if(!empty($id) AND $action == $this->_act_modify)
-		{
-			$query = "SELECT description, type, html, image FROM ".$this->_tbl_graphics." WHERE id='$id'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a) > 0)
-			{
-				foreach($a AS $b)
-				{
-					$description = htmlInput($b['description']);
-					$type = htmlInput($b['type']);
-				}
-
-				$title_form = _("Modifica")." '$description'";
-				$submit = _("modifica");
-				$required = 'description,type';
-			}
-		}
-		else
-		{
-			exit();
-		}
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title_form));
-		
-		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionDoc]", true, $required);
-		$GINO .= $gform->hidden('id', $id, array("id"=>"id"));
-		$GINO .= $gform->hidden('action', $action, array("id"=>"action"));
-		$GINO .= $gform->cinput('description', 'text', $description, _("Descrizione"), array("required"=>true, "size"=>40, "maxlength"=>100, "trnsl"=>true, "trnsl_table"=>$this->_tbl_graphics, "field"=>"description", "trnsl_id"=>$id));
-		$GINO .= $gform->cradio('type', $type, array("1"=>_("grafica"),"2"=>_("codice")), 1, _("Tipologia"), array("id"=>"type", "required"=>true, "js"=>"onchange=\"ajaxRequest('post', '$this->_home?pt[$this->_className-formType]', 'id=$id&type='+$(this).value, 'type_form', {'load':'type_form'})\""));
-
-		$GINO .= $gform->cell($this->formType($id), array("id"=>"type_form"));
-
-		$GINO .= $gform->cform();
-		
-		$htmlsection->content = $GINO;
-		
-		return $htmlsection->render();
-	}
-
-	/**
-	 * Nel form di modifica di header/footer, in base alla tipologia scelta, mostra un input file o un textarea per il codice html
-	 * 
-	 * @see $_group_1
-	 * @param integer $id valore ID del record
-	 * @return string
-	 */
-	public function formType($id=null) {
-	
-		$this->accessGroup($this->_group_1);
-
-		if(is_null($id)) {
-			$id = cleanVar($_POST, 'id', 'int', '');
-			$type = cleanVar($_POST, 'type', 'int', '');
-		}
-		else {
-			$type = $this->_db->getFieldFromId($this->_tbl_graphics, 'type', 'id', $id);
-		}
-		
-		$query = "SELECT html, image FROM ".$this->_tbl_graphics." WHERE id='$id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach($a AS $b)
-			{
-				$html = htmlInput($b['html']);
-				$image = htmlInput($b['image']);
-			}
-		}
-
-		$gform = new Form('gform', 'post', true);
-		$gform->load('dataform');
-
-		$GINO = $gform->startTable();
-
-		if($type==1) {
-			$GINO .= $gform->cfile('image', $image, _("Immagine"), array("extensions"=>$this->_extension_img, "del_check"=>true, "preview"=>true, "previewSrc"=>SITE_GRAPHICS."/".$image));
-		}
-		else {
-			$substitution = $this->setReplaceHtml();
-			$text_sub = '';
-			if(sizeof($substitution) > 0)
-			{
-				foreach ($substitution AS $key=>$value)
-				{
-					if(!empty($value))
-					{
-						if($key == '_LANGUAGE_') $value = _("scelta lingua");
-						$text_sub .= "'$key': ".$value."<br />";
-					}
-				}
-			}
-			else
-			{
-				$text_sub = _("non presenti");
-			}
-
-			$GINO .= $gform->ctextarea('html', $html, _("Codice html"), array("cols"=>40, "rows"=>15));
-			$GINO .= $gform->noinput(_("Codici di sostituzione"), $text_sub);
-		}
-
-		$GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
-
-		$GINO .= $gform->endTable();
-
-		return $GINO;
-	}
-	
-	/**
-	 * Modifica header/footer
-	 * 
-	 * @see $_group_1
-	 */
-	public function actionDoc(){
-	
-		$this->accessGroup($this->_group_1);
-		
-		$gform = new Form('gform', 'post', false);
-		$gform->save('dataform');
-		$req_error = $gform->arequired();
-		
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$action = cleanVar($_POST, 'action', 'string', '');
-		$description = cleanVar($_POST, 'description', 'string', '');
-		$type = cleanVar($_POST, 'type', 'string', '');
-		$html = cleanVarEditor($_POST, 'html', '');
-		$old_image = cleanVar($_POST, 'old_image', 'string', '');
-		
-		if(isset($_POST['html']) AND !empty($_POST['html'])) $html = $_POST['html'];
-		else $html = '';
-		
-		if(!empty($id)) $link = "id=$id&action=$action";
-		else $link = "action=$action";
-
-		$redirect = $this->_className.'-manageGraphics';
-		$link_error = $this->_home."?evt[$redirect]&$link"; 
-		
-		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
-		
-		if($type == 2 AND empty($html))
-			exit(error::errorMessage(array('error'=>1), $link_error));
-		
-		if(empty($id) OR $action != $this->_act_modify)
-			exit(error::errorMessage(array('error'=>9), $link_error));
-		
-		if($type == 1) {
-			$query = "UPDATE ".$this->_tbl_graphics." SET description='$description', type='$type' WHERE id='$id'";
-			$result = $this->_db->actionquery($query);
-			$gform->manageFile('image', $old_image, false, $this->_extension_img, GRAPHICS_DIR, $link_error, $this->_tbl_graphics, 'image', 'id', $id);
-		}
-		else {
-			$query = "UPDATE ".$this->_tbl_graphics." SET description='$description', type='$type', html='$html' WHERE id='$id'";
-			$result = $this->_db->actionquery($query);
-		}
-		
-		EvtHandler::HttpCall($this->_home, $redirect, $link);
-	}
 }
-?>

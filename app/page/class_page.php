@@ -11,7 +11,7 @@
  */
 
 require_once('class.pageCategory.php');
-require_once('class.pageEntry.php');
+require_once('class.PageEntry.php');
 require_once('class.pageComment.php');
 require_once('class.pageTag.php');
 
@@ -217,11 +217,6 @@ class page extends Controller {
 	private $_tbl_usr;
 
 	/**
-	 * Percorso assoluto alla directory contenente le viste 
-	 */
-	private $_view_dir;
-	
-	/**
 	 * Contiene gli id dei gruppi abilitati alla pubblicazione e redazione
 	 * 
 	 * @var array 
@@ -271,11 +266,6 @@ class page extends Controller {
 
 		$this->_tbl_opt = 'page_opt';
 		$this->_tbl_usr = 'page_usr';
-
-		//$this->setAccess();
-		//$this->setGroups();
-
-		$this->_view_dir = dirname(__FILE__).OS.'view';
 
 		$last_tpl_code = "";
 		$showcase_tpl_code = "";
@@ -437,6 +427,12 @@ class page extends Controller {
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
+  public function permissions() {
+    return array(
+      'can_view_private' => 'Visualizzazione pagine private'
+    );
+  }
+
 	/**
 	 * Restituisce alcune proprietà della classe
 	 *
@@ -459,29 +455,18 @@ class page extends Controller {
 			"css"=>array(
 				'page.css'
 			),
+      'views' => array(
+        'archive.php' => _('Archivio delle pagine'),
+        'box.php' => _('Template per l\'inserimento della pagine nel layout'),
+        'cloud.php' => _('Nuovola di tag'),
+        'last.php' => _('Ultime pagine'),
+        'showcase.php' => _('Vetrina pagine'),
+        'view.php' => _('Dettaglio pagina')
+      ),
 			"folderStructure"=>array (
 				CONTENT_DIR.OS.'page'=> null
 			)
 		);
-	}
-
-	/**
-	 * Setter per le proprietà group
-	 *
-	 * Definizione dei gruppi che gestiscono l'accesso alle funzionalità amministrative e non
-	 *
-	 * @return void
-	 */
-	private function setGroups(){
-		
-		// Pubblicazione
-		$this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
-		
-		// Redazione
-		$this->_group_2 = array($this->_list_group[0], $this->_list_group[1], $this->_list_group[2]);
-		
-		// Accesso alle pagine private
-		$this->_group_3 = array($this->_list_group[0], $this->_list_group[1], $this->_list_group[2], $this->_list_group[3]);
 	}
 
 	/**
@@ -590,24 +575,6 @@ class page extends Controller {
 	}
 	
 	/**
-	 * Indirizzo di visualizzazione di una pagina
-	 * 
-	 * @param integer $id valore ID della pagina
-	 * @return string
-	 */
-	public static function getLinkPage($id=null) {
-
-		if($id)
-		{
-			$db = db::instance();
-			$slug = $db->getFieldFromId(pageEntry::$tbl_entry, 'slug', 'id', $id);
-		}
-		else $slug = '';
-		
-		return "page/view/".$slug;
-	}
-
-	/**
 	 * Getter dell'opzione comment_notification 
 	 * 
 	 * @return proprietà comment_notification
@@ -687,9 +654,6 @@ class page extends Controller {
 		}
 		else return false;
 		
-		//if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_2))
-			//return true;
-		
 		if($p_users)
 		{
 			$users = explode(',', $p_users);
@@ -697,7 +661,7 @@ class page extends Controller {
 				return false;
 		}
 		
-		if($p_private && !$this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_3))
+		if($p_private && !$this->userHasPerm('can_view_private'))
 			return false;
 		
 		return true;
@@ -1004,7 +968,6 @@ class page extends Controller {
 		
 		preg_match_all("#{{[^}]+}}#", $tpl_item, $matches);
 		$tpl = $this->parseTemplate($item, $tpl_item, $matches);
-
 		$view = new view($this->_view_dir);
 
 		$view->setViewTpl('box');
@@ -1124,7 +1087,7 @@ class page extends Controller {
 			$buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
 		}
 
-		$buffer .= $myform->form($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', null);
+		$buffer .= $myform->open($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', null);
 		$buffer .= $myform->hidden('entry', $entry->id);
 		$buffer .= $myform->hidden('form_reply', 0, array('id'=>'form_reply'));
 		$buffer .= $myform->cinput('author', 'text', htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
@@ -1135,7 +1098,7 @@ class page extends Controller {
 		$buffer .= $myform->captcha();
 		$buffer .= $myform->cinput('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
 
-		$buffer .= $myform->cform();
+		$buffer .= $myform->close();
 
 		return $buffer;
 	}
@@ -1341,13 +1304,11 @@ class page extends Controller {
 
     loader::import('class', 'AdminTable');
 
-		$this->accessGroup($this->_group_2);
+		$this->requirePerm(array('can_admin', 'can_publish', 'can_edit'));
 		
 		$method = 'managePage';
 
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Pagine")));
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=permissions\">"._("Permessi")."</a>";
-		$link_css = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=css\">"._("CSS")."</a>";
+		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=frontend\">"._("Frontend")."</a>";
 		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=options\">"._("Opzioni")."</a>";
 		$link_comment = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=comment\">"._("Commenti")."</a>";
 		$link_tag = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=tag\">"._("Tag")."</a>";
@@ -1356,16 +1317,12 @@ class page extends Controller {
 
 		$sel_link = $link_dft;
 
-		if($this->_block == 'css') {
-			$buffer = sysfunc::manageCss($this->_instance, $this->_class_name);		
-			$sel_link = $link_css;
+		if($this->_block == 'frontend') {
+			$buffer = $this->manageFrontend();
+			$sel_link = $link_frontend;
 		}
-		elseif($this->_block == 'permissions' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
-			$buffer = sysfunc::managePermissions($this->_instance, $this->_class_name);		
-			$sel_link = $link_admin;
-		}
-		elseif($this->_block == 'options' && $this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
-			$buffer = sysfunc::manageOptions($this->_instance, $this->_class_name);		
+		elseif($this->_block == 'options' && $this->userHasPerm('can_admin')) {
+			$buffer = $this->manageOptions();		
 			$sel_link = $link_options;
 		}
 		elseif($this->_block == 'tag') {
@@ -1384,20 +1341,25 @@ class page extends Controller {
 			$buffer = $this->manageEntry();
 		}
 
-		// groups privileges
-		if($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, '', '')) {
-			$links_array = array($link_admin, $link_css, $link_options, $link_comment, $link_tag, $link_ctg, $link_dft);
-		}
-		elseif($this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_1)) {
-			$links_array = array($link_comment, $link_tag, $link_dft);
-		}
-		else $links_array = array($link_dft);
+    $links_array = array($link_dft);
+    if($this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
+      $links_array = array_merge(array($link_comment, $link_tag), $links_array);
+    }
+    if($this->_registry->user->hasPerm(get_class($this), array('can_admin'))) {
+      $links_array = array_merge(array($link_frontend, $link_options, $link_ctg), $links_array);
+    }
 
-		$htmltab->navigationLinks = $links_array;
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $buffer;
+    $dict = array(
+      'title' => _('Pagine'),
+      'links' => $links_array,
+      'selected_link' => $sel_link,
+      'content' => $buffer
+    );
 
-		return $htmltab->render();
+    $view = new view();
+    $view->setViewTpl('tab');
+
+    return $view->render($dict);
 	}
 
 	/**
@@ -1419,10 +1381,12 @@ class page extends Controller {
 		$registry->addJs($this->_class_www.'/MooComplete.js');
 		$registry->addCss($this->_class_www.'/MooComplete.css');
 
-		if(!$this->_auth->AccessVerifyGroupIf($this->_class_name, $this->_instance, $this->_user_group, $this->_group_1)) {
+		if(!$this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
+      $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
 			$remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
 		}
 		else {
+      $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'private', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
 			$remove_fields = array('author', 'read');
 		}
 
@@ -1443,7 +1407,7 @@ class page extends Controller {
 		// Controllo unicità slug
 		$url = $this->_home."?pt[".$this->_instance_name."-checkSlug]";
 		$div_id = 'check_slug';
-		$availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
+		$availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
 		$availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 		
 		$admin_table = new pageEntryAdminTable($this, array());
@@ -1451,13 +1415,13 @@ class page extends Controller {
 		$buffer .= $admin_table->backOffice(
 			'pageEntry', 
 			array(
-				'list_display' => array('id', 'creation_date', 'title', 'slug', 'category_id', 'published', 'private'),
+				'list_display' => $list_display,
 				'list_title'=>_("Elenco pagine"), 
 				'filter_fields'=>array('title', 'category_id', 'tags', 'published')
-				),
-			array(
-				'removeFields' => $remove_fields
-				), 
+      ),
+      array(
+        'removeFields' => $remove_fields
+      ),
 			array(
 				'id'=>array(
 					'id'=>'id'

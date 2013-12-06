@@ -52,6 +52,11 @@ class DatetimeField extends field {
 		
 		$this->_value_type = 'string';
 	}
+
+  function __toString() {
+    $dt = new Datetime($this->_value);
+    return $dt->format('d/m/Y H:i:s');
+  }
 	
 	public function getAutoNow() {
 		

@@ -1,5 +1,5 @@
 @charset "utf-8";
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 5px; }
 html {
 	background: -moz-linear-gradient(center top , #7E7E7E, #CDCDCD) no-repeat scroll 0 0 #CDCDCD;
 	background-image: -webkit-linear-gradient(#7E7E7E, #CDCDCD);
@@ -464,9 +464,9 @@ div.abiWin {
 	padding: 5px;
 	background-color: #e7e7e7;
   background: linear-gradient(to bottom, #ddd, #eee);
-	border: 1px solid #000;
+	border: 1px solid #aaa;
 	z-index: 10000;
-  box-shadow: 0px 0px 10px #333;
+  box-shadow: 0px 0px 10px #999;
 }
 
 div.abiWin header.abiHeader {

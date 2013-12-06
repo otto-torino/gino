@@ -28,7 +28,7 @@
  */
 ?>
 <? if(isset($form_start)) echo $form_start; ?>
-<table class="<?= $class ?>">
+<table class="<?= $class ?>"<?= isset($id) ? " id=\"".$id."\"" : '' ?>>
 <? if(isset($caption)): ?>
 <caption><?= $caption ?></caption>
 <? endif ?>
@@ -56,10 +56,11 @@
 				foreach($row as $cell) {
 					$cell_tag = (is_array($cell) && isset($cell['header']) && $cell['header']) ? "th" : "td";
 					$cell_colspan = (is_array($cell) && isset($cell['colspan']) && $cell['colspan']) ? " colspan=\"".$cell['colspan']."\"" : "";
+					$cell_rowspan = (is_array($cell) && isset($cell['rowspan']) && $cell['rowspan']) ? " rowspan=\"".$cell['rowspan']."\"" : "";
 					$title = (is_array($cell) && isset($cell['title'])) ? " title=\"".$cell['title']."\"" : '';
 					$text = (is_array($cell) && isset($cell['text'])) ? $cell['text'] : $cell;
-					if(is_array($cell) && isset($cell['class'])) echo "<$cell_tag$cell_colspan$title class=\"".$cell['class']."\">".$text."</$cell_tag>\n";
-					else echo "<$cell_tag>$text</$cell_tag>\n";
+					if(is_array($cell) && isset($cell['class'])) echo "<$cell_tag$cell_rowspan$cell_colspan$title class=\"".$cell['class']."\">".$text."</$cell_tag>\n";
+					else echo "<$cell_tag$cell_rowspan$cell_colspan$title>$text</$cell_tag>\n";
 				}
 				echo "</tr>\n";
 			}

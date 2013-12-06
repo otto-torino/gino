@@ -101,7 +101,7 @@ class attachedItemAdminTable extends adminTable {
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
+		$pagelist = Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
@@ -151,7 +151,7 @@ class attachedItemAdminTable extends adminTable {
 		}
 		$heads[] = _('URL relativo');
 		$heads[] = _('URL download');
-		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
+		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
 		$rows = array();
 		foreach($records as $r) {
@@ -228,7 +228,7 @@ class attachedItemAdminTable extends adminTable {
 				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
 			}
 			$buttons = array(
-				array('text' => implode(' ', $links), 'class' => 'no_border no_bkg')
+				array('text' => implode(' ', $links), 'class' => 'nowrap')
 			); 
 
 			$rows[] = array_merge($row, $buttons);
@@ -242,7 +242,7 @@ class attachedItemAdminTable extends adminTable {
 		}
 
 		$this->_view->setViewTpl('table');
-		$this->_view->assign('class', 'generic');
+		$this->_view->assign('class', 'table table-striped table-hover');
 		$this->_view->assign('caption', $caption);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
@@ -250,7 +250,7 @@ class attachedItemAdminTable extends adminTable {
 		$table = $this->_view->render();
 
 		if($this->_allow_insertion) {
-			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert')."</a>";
+			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert', array('scale' => 2))."</a>";
 		}
 		else {
 			$link_insert = "";
@@ -260,7 +260,7 @@ class attachedItemAdminTable extends adminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
-		$this->_view->assign('search_icon', pub::icon('search'));
+		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

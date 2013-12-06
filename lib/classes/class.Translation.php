@@ -133,7 +133,7 @@ class translation
 	 	$width = cleanVar($_POST, 'width', 'string', '');
 	 	$fck_toolbar = cleanVar($_POST, 'fck_toolbar', 'string', '');
 	 	
-	 	$myform = new Form('gform', 'post', true);
+	 	$myform = loader::load('Form', array('gform', 'post', true));
 	 	
     $rows = $this->_registry->db->select('text', TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
 	 	if($rows and count($rows))
@@ -235,12 +235,11 @@ class translation
 	public function deleteTranslations($tbl, $tbl_id) {
 	 	
 		$db = db::instance();
-		$query = $tbl_id == 'all'
-			? "DELETE FROM ".$this->_tbl_translation." WHERE tbl='$tbl'"
-			: "DELETE FROM ".$this->_tbl_translation." WHERE tbl='$tbl' AND tbl_id_value='$tbl_id'";
-		$result = $db->actionquery($query);
-	 	if($result) return true;
-	 	else return false;
+    $result = $tbl_id == 'all'
+      ? $db->delete($this->_tbl_translation, "tbl='".$tbl."'")
+      : $db->delete($this->_tbl_translation, "tbl='".$tbl."' AND tbl_id_value='".$tbl_id."'");
+
+    return $result;
   }
 
 }

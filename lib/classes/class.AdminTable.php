@@ -80,7 +80,7 @@
 class adminTable {
 
 	protected $_controller;
-	protected $_db, $session, $_form;
+	protected $_registry, $_db, $session, $_form;
 	protected $_view, $_hidden;
 	
 	protected $_allow_insertion, $_edit_deny, $_delete_deny;
@@ -128,9 +128,10 @@ class adminTable {
 
     loader::import('class', array('Form', 'InputForm'));
 
+    $this->_registry = registry::instance();
 		$this->_controller = $instance;
-		$this->_db = db::instance();
-		$this->session = session::instance();
+		$this->_db = $this->_registry->db;
+		$this->session = $this->_registry->session;
 		
 		$view_folder = gOpt('view_folder', $opts, null);
 		
@@ -581,8 +582,17 @@ class adminTable {
 		$insert = cleanVar($_GET, 'insert', 'int', '');
 		$edit = cleanVar($_GET, 'edit', 'int', '');
 		$delete = cleanVar($_GET, 'delete', 'int', '');
+		$trnsl = cleanVar($_GET, 'trnsl', 'int', '');
 
-		if($insert) {
+    if($trnsl) {
+      if(isset($_GET['save']) and $_GET['save'] == '1') {
+        $this->_registry->trd->actionTranslation();
+      }
+      else {
+        $this->_registry->trd->formTranslation();
+      }
+    }
+    elseif($insert) {
 			$buffer = $this->adminForm($model_obj, $options_form, $inputs);
 		}
 		elseif($edit) {
@@ -795,7 +805,15 @@ class adminTable {
 		$fields_loop = array();
 		if($this->_list_display) {
 			foreach($this->_list_display as $fname) {
-				$fields_loop[$fname] = $model_structure[$fname];
+        if(is_array($fname)) {
+          $fields_loop[$fname['member']] = array(
+            'member' => $fname['member'],
+            'label' => $fname['label']
+          );
+        }
+        else {
+          $fields_loop[$fname] = $model_structure[$fname];
+        }
 			}
 		}
 		else {
@@ -863,10 +881,14 @@ class adminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-				$model_label = $model_structure[$field_name]->getLabel();
-				$label = is_array($model_label) ? $model_label[0] : $model_label;
-
-				if($field_obj->canBeOrdered()) {
+        if(is_array($field_obj)) {
+         $label = $field_obj['label'];
+        }
+        else {
+          $model_label = $model_structure[$field_name]->getLabel();
+          $label = is_array($model_label) ? $model_label[0] : $model_label;
+        }
+				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
 					if($order == $field_name." ASC") {
@@ -898,7 +920,7 @@ class adminTable {
 				}
 			}
 		}
-		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
+		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
 		$rows = array();
 		foreach($records as $r) {
@@ -910,8 +932,13 @@ class adminTable {
 			foreach($fields_loop as $field_name=>$field_obj) {
 				
 				if($this->permission($options_view, $field_name))
-				{
-					$record_value = (string) $record_model_structure[$field_name];
+        {
+          if(is_array($field_obj)) {
+            $record_value = $record_model->$field_obj['member']();
+          }
+          else {
+					  $record_value = (string) $record_model_structure[$field_name];
+          }
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
@@ -968,7 +995,7 @@ class adminTable {
 				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
 			}
 			$buttons = array(
-				array('text' => implode(' &#160; ', $links), 'class' => 'no_border no_bkg')
+				array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
 			); 
 
 			$rows[] = array_merge($row, $buttons);
@@ -1220,7 +1247,7 @@ class adminTable {
 
 		$gform = new Form('atbl_filter_form', 'post', false);
 
-		$form = $gform->form($this->editUrl(array(), array('start')), false, '');
+		$form = $gform->open($this->editUrl(array(), array('start')), false, '');
 
 		foreach($this->_filter_fields as $fname) {
 			
@@ -1247,7 +1274,7 @@ class adminTable {
 
 		$input_reset = $gform->input('ats_reset', 'button', _("tutti"), array("classField"=>"generic", "js"=>$onclick));
 		$form .= $gform->cinput('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
-		$form .= $gform->cform();
+		$form .= $gform->close();
 
 		return $form;
 	}

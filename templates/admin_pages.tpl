@@ -12,7 +12,7 @@
 </div>
 <div id="block_3" style="width: 960px; margin: auto;">
 <div id="nav_3_1_1" style="width:960px;">
-{module classid=5 func=blockList}
+{module classid=5 func=render}
 {module id=0}
 </div>
 <div class="null"></div>

@@ -72,6 +72,16 @@ abstract class Controller {
   }
 
   /**
+   * Definizione dei permessi del modulo
+   * Comprende sia i permessi mappati su db, sia permessi particolari la cui descrizione deve comparire
+   * quando si importa il modulo nel layout o nel menu, es. 'utenti dello staff'.
+   * Ciascuna classe figlia sovrascrive all'occorrenza questo metodo per definire i propri permessi.
+   */
+  public function permissions() {
+    return array();
+  }
+
+  /**
    *  Setta i percorsi di base dell'app
    */
   protected function setPaths() {
@@ -80,6 +90,17 @@ abstract class Controller {
     $this->_home = HOME_FILE; // @todo vedere se eliminare
     $this->_data_dir = CONTENT_DIR.OS.$this->_class_name;
     $this->_data_www = CONTENT_WWW.'/'.$this->_class_name;
+    $this->_view_dir = APP_DIR.OS.$this->_class_name.OS.'views';
+  }
+
+  /**
+   * Restituisce alcune proprietà della classe
+   * @description Le informazioni vengono utilizzate per creare o eliminare istanze. Questo metodo dev'essere sovrascritto da tutte le classi figlie.
+   * @static
+   * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+   */
+  public static function getClassElements() {
+    return array();
   }
 
   /**
@@ -108,6 +129,14 @@ abstract class Controller {
    */
   public function requirePerm($perm) {
     $this->_access->requirePerm($this->_class_name, $perm, $this->_instance);
+  }
+
+  /**
+   * Richiama il metodo ononimo di User passando in automatico classe e istanza
+   * @see User:hasPerm
+   */
+  public function userHasPerm($perm) {
+    return $this->_registry->user->hasPerm($this->_class_name, $perm, $this->_instance);
   }
 
   /**
@@ -162,5 +191,22 @@ abstract class Controller {
 
 		return $options->manageDoc();
 	}
+
+  public function manageFrontend() {
+
+		$frontend = Loader::load('Frontend', array(array("class"=>$this->_class_name, "module_id"=>$this->_instance)));
+
+		return $frontend->manageFrontend();
+
+  }
+
+  /**
+   * Eliminazione istanza del modulo
+   * @description Questo metodo deve essere sovrascritto dalle classi istanziabili per permettere l'eliminazione delle istanze.
+   *              Se non sovrascritto viene chiamato e restituisce un errore
+   */
+  public function deleteInstance() {
+    exit(error::syserrorMessage('Controller', 'deleteInstance', sprintf(_('La classe %s non implementa il metodo deleteInstance'), get_class($this)), __LINE__));
+  }
 
 }

@@ -158,8 +158,9 @@ class ImageField extends FileField {
 	 */
 	public function formElement($form, $options) {
 		
-		if(isset($options['preview']) && $options['preview'] && $this->_value != '')
+		if($this->_value != '' and (!isset($options['preview']) or $options['preview']))
 		{
+			$options['preview'] = true;
 			$options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true));
 		}
 		

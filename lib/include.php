@@ -12,7 +12,7 @@
 /**
  * Alcune costanti generali
  */
-include_once(CLASSES_DIR.OS."class.locale.php");
+/*include_once(CLASSES_DIR.OS."class.locale.php");
 include_once(CLASSES_DIR.OS."class.db.php");
 include_once(CLASSES_DIR.OS."class.registry.php");
 include_once(CLASSES_DIR.OS."class.translation.php");
@@ -66,6 +66,7 @@ include_once(FIELDS_DIR.OS.'class.imageField.php');
 include_once(FIELDS_DIR.OS.'class.integerField.php');
 include_once(FIELDS_DIR.OS.'class.textField.php');
 include_once(FIELDS_DIR.OS.'class.timeField.php');
-include_once(FIELDS_DIR.OS.'class.yearField.php');
+include_once(FIELDS_DIR.OS.'class.yearField.php');*/
+
 
 ?>

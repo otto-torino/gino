@@ -347,6 +347,14 @@ interface DbManager {
 	 */
 	public function delete($table, $where, $debug);
 
+  /**
+	 * Eliminazione di una tabella
+	 * 
+	 * @param string $table nome della tabella
+	 * @return boolean
+	 */
+	public function drop($table);
+
 	/**
 	 * Controlla che il valore del campo non sia gia presente in tabella
 	 * 

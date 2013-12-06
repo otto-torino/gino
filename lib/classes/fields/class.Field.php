@@ -225,7 +225,7 @@ class Field {
 	 * @return string
 	 */
 	private function formElementWidget($form, $options) {
-		
+
 		$inputForm = new inputForm($form);
 		
 		$buffer = '';

@@ -45,7 +45,7 @@ class Javascript {
 	 * @param object $skinObj skin associata alla pagina
 	 * @return string
 	 */
-	public static function onLoadFunction($skinObj) {
+	public static function onLoadFunction($skinObj = null) {
 
 		$buffer = "<script type=\"text/javascript\">\n";
 		

@@ -66,7 +66,7 @@ class language extends Controller {
 	public static function outputFunctions() {
 
 		$list = array(
-			"choiceLanguage" => array("label"=>_("Scelta lingua"), "permissions"=>''),
+			"choiceLanguage" => array("label"=>_("Scelta lingua"), "permissions"=>array()),
 		);
 
 		return $list;
@@ -125,48 +125,6 @@ class language extends Controller {
 		}
 	}
 	
-	/**
-	 * Elenco delle lingue dell'applicazione
-	 * 
-	 * @param string $code codice lingua
-	 * @return string
-	 */
-	private function listLanguage($code){
-
-		$link_insert = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]&amp;action=".$this->_act_insert."\">".$this->icon('insert', _("nuova lingua"))."</a>";
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$this->_title, 'headerLinks'=>$link_insert));
-		
-		$query = "SELECT label, language, code, main, active FROM ".$this->_tbl_language." ORDER BY language";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			$htmlList = new htmlList(array("numItems"=>sizeof($a), "separator"=>true));
-			$GINO  = $htmlList->start();
-			
-			foreach($a AS $b)
-			{
-				if($b['main'] == 'yes') $main = _(" (principale)"); else $main = '';
-				if($b['active'] == 'no') $active = _("(non attiva)"); else $active = '';
-				
-				$label = htmlChars($b['label']);
-				$language = htmlChars($b['language']);
-				$code_lng = $b['code'];
-				
-				$link_modify = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]&amp;code=$b[code]&amp;action=".$this->_act_modify."\">".pub::icon('modify')."</a>";
-			
-				$selected = ($code==$code_lng)?true:false;				
-
-				$GINO .= $htmlList->item($language.' - '.$code_lng.$main." ".$active, $link_modify, $selected, true);
-			}
-			$GINO .= $htmlList->end();
-		}
-		
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-  }
-
   public function manageLanguage() {
 
     $this->requirePerm('can_admin');

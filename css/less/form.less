@@ -24,7 +24,7 @@ form {
       }
     }
   }
-  .form-trnsl, #trnsl-container {
+  .form-trnsl, #trnsl-container, .form-file-check {
     margin: 10px 0 0 (@label-width + 5px);
     .trnsl-lng {
       .btn;
@@ -35,9 +35,20 @@ form {
       .btn-success;
     }
   };
+  .form-multicheck, .form-radio-group {
+    display: inline-block;
+  }
+  .form-multicheck {
+    max-height: 250px;
+    overflow: auto;
+  }
   #trnsl-container {
     background: #eee;
     padding: 10px;
+  }
+  .form-textadd {
+    display: inline-block;
+    margin-left: 10px;
   }
 }
 
@@ -46,7 +57,6 @@ label {
   text-align: right;
   padding-right: 15px;
   width: @label-width;
-  height: 25px;
 }
 .label-tooltipfull {
   margin-top: 3px;
@@ -77,6 +87,18 @@ input, textarea {
   }
   &:focus:invalid {
     background: #fff url(../img/invalid.png) no-repeat 98% center;
+  }
+}
+.form-no-check {
+  padding: 0px;
+  &:required {
+    background: #fff;
+  }
+  &:valid {
+    background: #fff;
+  }
+  &:focus:invalid {
+    background: #fff;
   }
 }
 input[type=file] {
@@ -114,5 +136,26 @@ input[type=submit], input[type=button] {
   text-shadow: 0 -1px 0 #396715;
   &:hover {
     .opacity(0.8);
+  }
+}
+
+/* admin table filter forms */
+#filter_form_container {
+  position: relative;
+}
+#filter_form_layer {
+  position: absolute;
+  visibility: hidden;
+  top:0px;
+  right: 24px;
+  overflow: hidden;
+  .opacity(0);
+  background: #fff;
+  .box-sizing(border-box);
+  padding: 10px 20px 20px;
+  border: 1px solid #aaa;
+  margin-top: 5px;
+  h2 {
+    margin-top: 0;
   }
 }

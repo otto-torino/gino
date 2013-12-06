@@ -1,36 +1,36 @@
-/* fron-end */
-img.ico_more_menu {
-	margin-bottom:3px;
-#	margin-bottom:2px;
-	margin-left:5px;
+#menu_mainMenu ul {
+  padding: 0;
+  margin: 0;
+}
+#menu_mainMenu li {
+  list-style-type: none;
+  float: left;
+  position: relative;
+  padding: 0 20px;
+  background: #aaa;
+}
+#menu_mainMenu ul ul {
+  background: #eee;
+  position: absolute;
+  display: none;
+  top: 20px;
+  left: 0;
+  width: 200px;
+}
+#menu_mainMenu li:hover > ul {
+  display: block;
+}
+#menu_mainMenu ul ul li {
+  float: none;
+}
+#menu_mainMenu .selected {
+  background: #fff;
 }
 
-/* back office */
-.sortHandler {
-	cursor:move;
-	float:left;
-	background-image: url('img/ico_sort.gif');
-	background-position: center center;
-	background-repeat: no-repeat;
-	width:20px;
-	height:20px;
-	margin-right:3px;
+/* backoffice */
+.menu-admin ul {
+  margin-top: 15px;
 }
-
-table.menuInfo {
-	width:100%;
-	border-collapse: separate;
-	background-color:#000;
-}
-table.menuInfo th {
-	color:#fff;
-}
-table.menuInfo tr {
-}
-table.menuInfo tr td {
-	background-color: #fff;
-	padding: 5px;
-}
-table.menuInfo tr td:first-child {
-	background-color: #eee;
+.sort_handler {
+  cursor: move !important;
 }

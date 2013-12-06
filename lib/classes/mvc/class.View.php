@@ -47,12 +47,16 @@ class view {
 	 *
 	 * @return istanza di view
 	 */
-	function __construct($view_folder=null) {
+	function __construct($view_folder=null, $tpl = null) {
 
 		$this->_data = new stdClass();
 		$this->_registry = registry::instance();
 		$this->_view_folder = $view_folder;
 		$this->_dft_view_folder = VIEWS_DIR;
+
+    if($tpl) {
+      $this->setViewTpl($tpl);
+    }
 	}
 
 	/**

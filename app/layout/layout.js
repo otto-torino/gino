@@ -231,12 +231,13 @@ var Nave = new Class({
 
 		var url = 'index.php?pt[layout-modulesList]&nav_id='+this.nav.id+'&refillable_id='+refillable.id+'&fill_id='+refillable.id.replace("refillable", "fill");
 
-		window.myWin = new layerWindow({
+		window.myWin = new gino.layerWindow({
 				'title':$('selMdlTitle').value, 'url':url, 'bodyId':'selMdl', 
 				'width':800, 'height':500, 'destroyOnClose':true, 
 				'closeCallback':this.unselectMdlContainer, 'closeCallbackParam':refillable});
 
-		window.myWin.display(this.nav, {'left':getViewport().cX-350, 'top':getViewport().cY-250});
+    var viewport = gino.getViewport();
+		window.myWin.display(this.nav, {'left':viewport.cX-350, 'top':viewport.cY-250});
    
 	},
 	unselectMdlContainer: function(refillable) {

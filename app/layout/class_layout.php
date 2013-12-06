@@ -53,11 +53,9 @@ class layout extends Controller {
 
 	private $_action, $_block;
 
-	function __construct($queryString=null) {
+	function __construct() {
 
 		parent::__construct();
-
-		$this->setAccess();
 
 		$this->_tbl_skin = 'sys_layout_skin';
 		$this->_tbl_css = 'sys_layout_css';
@@ -77,275 +75,416 @@ class layout extends Controller {
 	 */
 	public function manageLayout() {
 
-		$this->accessGroup('ALL');
+		$this->requirePerm('can_admin');
 
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Layout")));	
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=permissions\">"._("Permessi")."</a>";
-		$link_style = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=style\">"._("Fogli di stile")."</a>";
-		$link_views = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=views\">"._("Viste")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLayout]\">"._("Gestione")."</a>";
-		$sel_link = $link_dft;
+    $block = cleanVar($_GET, 'block', 'string', null);
 
-		if($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$buffer = sysfunc::managePermissions(null, $this->_className); 
-			$sel_link = $link_admin;
-		}
-		elseif($this->_block == 'style') {
-			$buffer = $this->manageItems('css');
-			$sel_link = $link_style;
-		}
-		elseif($this->_block == 'views') {
-			$buffer = $this->manageItems('view');
-			$sel_link = $link_views;
-		}
-		else {
-			// Azioni sul template
-			if($this->_block=='template' && $this->_action=='mngtpl') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$css = cleanVar($_POST, 'css', 'int', '');
-				$tplObj = new template($id);
-				$cssObj = new css('layout', array('id'=>$css));
-				return $tplObj->manageTemplate($cssObj, $id);
-			}
-			elseif($this->_block=='template' && $this->_action=='mngblocks') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$tplObj = new template($id);
-				return $tplObj->tplBlockForm(); 
-			}
-			elseif($this->_block=='template' && $this->_action=='addblocks') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$tplObj = new template($id);
-				return $tplObj->addBlockForm(); 
-			}
-			elseif($this->_block=='template' && $this->_action=='copytpl') {
-				$tplObj = new template(null);
-				return $tplObj->actionCopyTemplate();
-			}
-			// End
+    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]\">"._("Informazioni")."</a>";
+    $link_tpl = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=template\">"._("Template")."</a>";
+    $link_skin = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=skin\">"._("Skin")."</a>";
+    $link_css = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=css\">"._("CSS")."</a>";
+    $link_view = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=view\">"._("Viste")."</a>";
+    $sel_link = $link_dft;
 
-			$buffer = "<div class=\"vertical_1\">";
-			$buffer .= $this->layoutList();
-			$buffer .= "</div>";
+    if($block == 'template') {
+      $GINO = $this->manageTemplate();
+      $sel_link = $link_tpl;
+    }
+    elseif($block == 'skin') {
+      $GINO = $this->manageSkin();
+      $sel_link = $link_skin;
+    }
+    elseif($block == 'css') {
+      $GINO = $this->manageCss();
+      $sel_link = $link_css;
+    }
+    elseif($block == 'view') {
+      $GINO = $this->manageView();
+      $sel_link = $link_view;
+    }
+    else {
+      $GINO = $this->info();
+    }
 
-			$buffer .= "<div class=\"vertical_2\">\n";
-			if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) $buffer .= $this->formBlock();
-			elseif($this->_action == 'outline') $buffer .= $this->formOutline();
-			elseif($this->_action == $this->_act_copy) $buffer .= $this->formCopyBlock();
-			elseif($this->_action == $this->_act_delete) $buffer .= $this->formDelBlock();
-			else $buffer .= $this->info();
-			$buffer .= "</div>\n";
+    $view = new view();
+    $view->setViewTpl('tab');
+    $dict = array(
+      'title' => _('Layout'),
+      'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
+      'selected_link' => $sel_link,
+      'content' => $GINO
+    );
+    return $view->render($dict);
 
-			$buffer .= "<div class=\"null\"></div>\n";
-		}
-		
-		$htmltab->navigationLinks = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')
-			? array($link_admin, $link_style, $link_views, $link_dft)
-			: array($link_style, $link_views, $link_dft);
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $buffer;
-		return $htmltab->render();
 	}
 
-	/**
-	 * Elenchi dei css, template, skin
-	 * 
-	 *  @see skinList()
-	 *  @see templateList()
-	 *  @see cssList()
-	 *  @return string
-	 */
-	private function layoutList() {
+  private function manageTemplate() {
 
-		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=$this->_block&action=$this->_act_insert\">".pub::icon('insert')."</a>";
+    $id = cleanVar($_REQUEST, 'id', 'int', '');
+    $tpl = Loader::load('Template', array($id));
 
-		$class_sel = "class=\"selected\"";
-		$title = "[ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css\" ".(($this->_block=='css')?$class_sel:"").">css</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template\" ".(($this->_block=='template')?$class_sel:"").">template</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin\" ".(($this->_block=='skin')?$class_sel:"").">skin</a> ]";
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title, 'headerLinks'=>$link_insert));
+    if($this->_action == 'mngblocks') {
+      echo $tpl->tplBlockForm(); 
+      exit();
+    }
+    elseif($this->_action == 'mngtpl') {
+        $css_id = cleanVar($_POST, 'css', 'int', '');
+        $css = Loader::load('Css', array('layout', array('id'=>$css_id)));
+        echo $tpl->manageTemplate($css, $id);
+        exit();
+    }
+    elseif($this->_action == 'insert' || $this->_action == 'modify') {
+      $free = cleanVar($_GET, 'free', 'int', null);
+      if($free) {
+        $buffer = $tpl->formFreeTemplate();
+      }
+      else {
+        $buffer = $tpl->formTemplate();
+      }
+    }
+    elseif($this->_action == 'delete') {
+      $buffer = $tpl->formDelTemplate();
+    }
+    elseif($this->_action == 'outline') {
+      $buffer = $tpl->formOutline();
+    }
+    elseif($this->_action=='addblocks') {
+      echo $tpl->addBlockForm();
+      exit();
+    }
+    elseif($this->_action=='copy') {
+      $buffer = $tpl->formCopyTemplate();
+    }
+    elseif($this->_action=='copytpl') {
+      return $tpl->this->_actionCopyTemplate();
+    }
+    else {
+      $buffer = $this->templateList();
+    }
 
-		if($this->_block == 'skin') $buffer = $this->skinList();
-		elseif($this->_block == 'template') $buffer = $this->templateList();
-		elseif($this->_block == 'css') $buffer = $this->cssList();
-		
-		$htmlsection->content = $buffer;
+    return $buffer;
 
-		return $htmlsection->render();
-	}
+  }
+
+  private function manageSkin() {
+
+    $id = cleanVar($_REQUEST, 'id', 'int', '');
+    $skin = Loader::load('Skin', array($id));
+
+    if($this->_action == 'insert' || $this->_action == 'modify') {
+      $buffer = $skin->formSkin();
+    }
+    elseif($this->_action == 'sortup') {
+      $skin->sortUp();
+      Link::HttpCall($this->_home, $this->_class_name.'-manageLayout', "block=skin");
+    }
+    elseif($this->_action == 'delete') {
+      $buffer = $skin->formDelSkin();
+    }
+    else {
+      $buffer = $this->skinList();
+    }
+
+    return $buffer;
+
+  }
+
+  private function manageCss() {
+
+    $id = cleanVar($_REQUEST, 'id', 'int', '');
+    $css = Loader::load('Css', array('layout', array('id' => $id)));
+
+    if($this->_action == 'insert' || $this->_action == 'modify') {
+      $buffer = $css->formCssLayout();
+    }
+    elseif($this->_action == 'delete') {
+      $buffer = $css->formDelCssLayout();
+    }
+    elseif($this->_action == 'edit') {
+      $fname = cleanVar($_GET, 'fname', 'string', null);
+      $buffer = $this->formFiles($fname, 'css');
+    }
+    else {
+      $buffer = $this->cssList();
+    }
+
+    return $buffer;
+
+  }
+
+  private function manageView() {
+
+    if($this->_action == 'edit') {
+      $fname = cleanVar($_GET, 'fname', 'string', null);
+      $buffer = $this->formFiles($fname, 'view');
+    }
+    else {
+      $buffer = $this->viewList();
+    }
+
+    return $buffer;
+
+  }
 
 	private function skinList() {
-	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
+
+    Loader::import('class', 'Template');
+    Loader::import('class', 'Css');
+
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&action=insert\">".pub::icon('insert', array('text' => _("nuova skin"), 'scale'=>2))."</a>";
+
 		$skin_list = skin::getAll();
 		if(count($skin_list)) {
-			$htmlList = new htmlList(array("numItems"=>sizeof($skin_list), "separator"=>false, "id"=>'priorityList'));
-			$buffer = $htmlList->start();
-			foreach($skin_list as $skin) {
-				$selected = ($skin->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin&id={$skin->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin&id={$skin->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$link_sort = "<div class=\"orderPriority\" style=\"float:left;width:20px;height:20px;background:url('img/ico_sort.gif');cursor:move;margin-right:3px;\"></div>";
-				$buffer .= $htmlList->item(htmlChars($skin->ml('label')), array($link_sort, $link_delete, $link_modify), $selected, true, null, "id$skin->id", "sortable");
-			}	
-			$buffer .= $htmlList->end();
-			$buffer .= "<script>";
-			$buffer .= "function message() { alert('"._("Ordinamento effettuato con successo")."')}";
-			$buffer .= "var prioritySortables = new Sortables($('priorityList'), {
-						constrain: false,
-						clone: true,
-						handle: '.orderPriority',
-						onComplete: function() {
-							var order = this.serialize(1, function(element, index) {
-								return element.getProperty('id').replace('id', '');
-							}).join(',');
-							ajaxRequest('post', '$this->_home?pt[$this->_className-actionUpdateSkinOrder]', 'order='+order, null, {'callback':message});
-       						}
+      $view_table = new view();
+      $view_table->setViewTpl('table');
+      $view_table->assign('heads', array(
+        _('etichetta'),
+        _('template'),
+        _('css'),
+        _('autenticazione'),
+        _('cache'),
+        ''
+      ));
+      $tbl_rows = array();
 
-			})";
-			$buffer .= "</script>";
+      $i = 0;
+			foreach($skin_list as $skin) {
+				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=modify\">".pub::icon('modify')."</a>";
+				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=delete\">".pub::icon('delete')."</a>";
+        $link_sort = $i ? "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=sortup\">".pub::icon('sort-up')."</a>" : '';
+        $tpl = new Template($skin->template);
+        $css = new Css('layout', array('id' => $skin->css));
+        $tbl_rows[] = array(
+          $skin->ml('label'),
+          $tpl->ml('label'),
+          $css->label, // @TODO use css object
+          $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
+          $skin->cache ? _('si') : _('no'),
+          array('text' => implode(' &#160; ', array($link_delete, $link_modify, $link_sort)), 'class' => 'nowrap')
+        );
+        $i++;
+			}	
+      $view_table->assign('class', 'table table-striped', 'table-hover');
+      $view_table->assign('rows', $tbl_rows);
+      $buffer = "<p class=\"backoffice-info\">"._('Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull\'icona a forma di freccia.')."</p>";
+      $buffer .= $view_table->render();
 		}
 		else {
 			$buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
 		}
 
-		return $buffer;
+		$view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Elenco skin'),
+      'class' => 'admin',
+      'header_links' => $link_insert,
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
+
 	}
 	
 	private function templateList() {
+
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert\">".pub::icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2))."</a>";
+		$link_insert_free = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert&free=1\">".pub::icon('code', array('text' => _("nuovo template libero"), 'scale'=>2))."</a>";
 	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
 		$tpl_list = template::getAll();
 		if(count($tpl_list)) {
-			$htmlList = new htmlList(array("numItems"=>count($tpl_list), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($tpl_list as $tpl) {
-				$selected = ($tpl->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_modify\">".pub::icon('modify', _("modifica il template"))."</a>";
-				$link_outline = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=outline\">".pub::icon('layout', _("modifica lo schema"))."</a>";
-				$link_copy = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_copy\">".pub::icon('duplicate', _("crea una copia"))."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_copy, $link_modify, $link_outline), $selected, true, '('.$tpl->filename.')');
-			}
-			$buffer .= $htmlList->end();
+      $view_table = new view();
+      $view_table->setViewTpl('table');
+      $view_table->assign('heads', array(
+        _('etichetta'),
+        _('file'),
+        _('descrizione'),
+        ''
+      ));
+      $tbl_rows = array();
+      foreach($tpl_list as $tpl) {
+				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=modify&free=".$tpl->free."\">".pub::icon('modify', array('text' => _("modifica il template")))."</a>";
+				$link_outline = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=outline\">".pub::icon('layout', array('text' => _("modifica lo schema")))."</a>";
+				$link_copy = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=copy\">".pub::icon('copy', array('text' => _("crea una copia")))."</a>";
+				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=delete\">".pub::icon('delete')."</a>";
+        $links = $tpl->free 
+          ? array($link_delete, $link_modify)
+          : array($link_delete, $link_copy, $link_modify, $link_outline);
+        $tbl_rows[] = array(
+          $tpl->ml('label'),
+          $tpl->filename,
+          $tpl->ml('description'),
+          implode(' &#160; ', $links)
+        );
+      }
+      $view_table->assign('class', 'table table-striped', 'table-hover');
+      $view_table->assign('rows', $tbl_rows);
+      $buffer = $view_table->render();
 		}
 		else {
 			$buffer = "<p>"._("Non risultano template registrati")."</p>\n";
 		}
 
-		return $buffer;
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Elenco template'),
+      'class' => 'admin',
+      'header_links' => array($link_insert, $link_insert_free),
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
+
 	}
 
 	private function cssList() {
 	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
-		$css_list = css::getAll();
-		if(count($css_list)) {
-			$htmlList = new htmlList(array("numItems"=>count($css_list), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($css_list as $css) {
-				$selected = ($css->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css&id={$css->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css&id={$css->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($css->ml('label')), array($link_delete, $link_modify), $selected, true);
-			}	
-			$buffer .= $htmlList->end();
-		}
-		else {
-			$buffer = "<p>"._("Non risultano css registrati")."</p>\n";
-		}
-		
-		return $buffer;
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&action=insert\">".pub::icon('insert', array('text' => _("nuovo file css"), 'scale'=>2))."</a>";
+
+    $view_table = new view();
+    $view_table->setViewTpl('table');
+    $view_table->assign('heads', array(
+      _('etichetta'),
+      _('file'),
+      _('descrizione'),
+      ''
+    ));
+    $tbl_rows = array();
+
+    $dir = CSS_DIR;
+    $files = array();
+    if(is_dir($dir)) {
+      if($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+          if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.css$#', $file)) {
+            $files[] = $file;
+          }
+        }
+        closedir($dh);
+      }
+    }
+
+    foreach($files as $file) {
+      $css = Css::getFromFilename($file);
+      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&fname=$file&action=edit\">".pub::icon('write', array('text' => _('modifica file')))."</a>";
+      if($css and $css->id) {
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=modify\">".pub::icon('modify')."</a>";
+        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=delete\">".pub::icon('delete')."</a>";
+        $tbl_rows[] = array(
+          htmlChars($css->ml('label')),
+          $file,
+          htmlChars($css->ml('description')),
+          implode(' &#160; ', array($link_edit, $link_modify, $link_delete))
+        );
+      }
+      else {
+        $tbl_rows[] = array(
+          _('CSS di sistema'),
+          $file,
+          '',
+          $link_edit
+        );
+      }
+    }
+
+    $view_table->assign('class', 'table table-striped', 'table-hover');
+    $view_table->assign('rows', $tbl_rows);
+
+    $buffer = "<div class=\"backoffice-info\">";
+    $buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di Gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
+    $buffer .= "</div>";
+    $buffer .= $view_table->render();
+
+    $buffer .= $view_table->render();
+
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Elenco fogli di stile'),
+      'class' => 'admin',
+      'header_links' => $link_insert,
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
 	}
 
-	private function formBlock() {
+  private function viewList() {
 	
-		$id = cleanVar($_GET, 'id', 'int', '');
+    $view_table = new view();
+    $view_table->setViewTpl('table');
+    $view_table->assign('heads', array(
+      _('file'),
+      ''
+    ));
+    $tbl_rows = array();
 
-		if($this->_block=='skin') {
-			$skinObj = new skin($id);
-			return $skinObj->formSkin();
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formTemplate();
-		}
-		elseif($this->_block=='css') {
-			$cssObj = new css('layout', array('id'=>$id));
-			return $cssObj->formCssLayout();
-		}
-	}
-	
-	private function formOutline() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
+    $dir = VIEWS_DIR;
+    $files = array();
+    if(is_dir($dir)) {
+      if($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+          if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.php$#', $file)) {
+            $files[] = $file;
+          }
+        }
+        closedir($dh);
+      }
+    }
 
-		if($this->_block=='skin') {
-			return null;
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formOutline();
-		}
-		elseif($this->_block=='css') {
-			return null;
-		}
-	}
-	
-	private function formCopyBlock() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
-		
-		if($this->_block=='skin') {
-			return null;
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formCopyTemplate();
-		}
-		elseif($this->_block=='css') {
-			return null;
-		}
-	}
-	
-	private function formDelBlock() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
+    foreach($files as $file) {
+      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=view&fname=$file&action=edit\">".pub::icon('write', array('text' => _('modifica file')))."</a>";
+      $tbl_rows[] = array(
+          $file,
+          $link_edit
+      );
+    }
 
-		if($this->_block=='css') {
-			$cssObj = new css('layout', array('id'=>$id));
-			return $cssObj->formDelCssLayout();
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formDelTemplate();
-		}
-		elseif($this->_block=='skin') {
-			$tplObj = new skin($id);
-			return $tplObj->formDelSkin();
-		}
+    $view_table->assign('class', 'table table-striped', 'table-hover');
+    $view_table->assign('rows', $tbl_rows);
+
+    $buffer = "<div class=\"backoffice-info\">";
+    $buffer .= "<p>"._('Queste sono le viste generali utilizzate da tutto il sistema e da molti moduli, pertanto eventuali modifiche si ripercuoteranno sulla visualizzazione di molte parti del sito.')."</p>";
+    $buffer .= "<p>"._('Per modificare la visualizzazione di viste appartenenti a singoli moduli accedere all\'apposita interfaccia nella sezione di amministrazione del modulo.')."</p>";
+    $buffer .= "</div>";
+    $buffer .= $view_table->render();
+
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Elenco viste generali di sistema'),
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
 	}
 
 	private function info() {
 
-		if($this->_block == 'skin') return skin::layoutInfo();
-		elseif($this->_block == 'template') return template::layoutInfo();
-		elseif($this->_block == 'css') return css::layoutInfo();
+    $GINO = '';
+    $GINO .= Skin::layoutInfo();
+		$GINO .= Template::layoutInfo();
+		$GINO .= css::layoutInfo();
+
+    return $GINO;
 	}
 	
 	public function actionSkin() {
 		
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
-		$skinObj = new skin($id);
-		$skinObj->actionSkin();
+		$skin = new skin($id);
+		$skin->actionSkin();
 
 		exit();
 	}
 	
 	public function actionDelSkin() {
 		
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$skin = new skin($id);
@@ -354,24 +493,9 @@ class layout extends Controller {
 		exit();
 	}
 	
-	public function actionUpdateSkinOrder() {
-	
-		$this->accessGroup('');
-
-		$order = cleanVar($_POST, 'order', 'string', '');
-		$items = explode(",", $order);
-		$i=1;
-		foreach($items as $item) {
-			$skin = new skin($item);
-			$skin->priority = $i;
-			$skin->updateDbData();
-			$i++;	
-		}
-	}
-
 	public function actionCss() {
 		
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$css = new css('layout', array('id'=>$id));
@@ -382,7 +506,7 @@ class layout extends Controller {
 	
 	public function actionDelCss() {
 		
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$css = new css('layout', array('id'=>$id));
@@ -393,18 +517,24 @@ class layout extends Controller {
 	
 	public function actionTemplate() {
 
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
-		$tplObj = new template($id);
-		$tplObj->actionTemplate();
+		$free = cleanVar($_POST, 'free', 'int', '');
+    $tpl = new template($id);
+    if($free) {
+      $tpl->actionFreeTemplate();
+    }
+    else {
+      $tpl->actionTemplate();
+    }
 
 		exit();
 	}
 
 	public function actionDelTemplate() {
 		
-		$this->accessGroup('');
+		$this->requirePerm('can_admin');
 
 		$id = cleanVar($_POST, 'id', 'int', '');
 		$tpl = new template($id);
@@ -412,6 +542,189 @@ class layout extends Controller {
 
 		exit();
 	}
+
+  /**
+	 * Elenco dei moduli e delle pagine disponibili
+	 * 
+	 * @see page::getUrlPage()
+	 * @return string
+	 */
+	public function modulesCodeList() {
+
+    $this->requirePerm('can_admin');
+
+    Loader::import('page', 'PageEntry');
+    Loader::import('auth', 'Permission');
+    Loader::import('module', 'ModuleInstance');
+    Loader::import('sysClass', 'ModuleApp');
+
+    $view_table = new view();
+    $view_table->setViewTpl('table');
+    $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+    $tbl_rows = array();
+
+		/*
+		 * Pages
+		 */
+    $tbl_rows[] = array(
+      array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('titolo'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true),
+      array('text' =>_('codice'), 'header' => true)
+    );
+
+    $pages = PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
+		if(count($pages)) {
+			foreach($pages as $page) {
+				$access_txt = '';
+				if($page->private)
+					$access_txt .= $page->getController()->permissions()['can_view_private']."<br />";
+				if($page->users)
+					$access_txt .= _("pagina limitata ad utenti selezionati");
+        if(!$page->private and !$page->users) 
+          $access_txt .= _('pubblica');
+				
+				$code_full = "{module pageid=".$page->id." func=full}";
+        $url = $page->getIdUrl(true);
+        $tbl_rows[] = array(
+          htmlChars($page->ml('title')),
+          _("Pagina completa"),
+          $access_txt,
+          $code_full
+        );
+			}
+		}
+    
+		/*
+		 * Modules sys_module
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Istanze di moduli'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true),
+      array('text' =>_('codice'), 'header' => true)
+    );
+
+    $modules = ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
+		if(count($modules)) {
+			foreach($modules as $module) {
+        $class = $module->className();
+        $output_functions = method_exists($class, 'outputFunctions') 
+          ? call_user_func(array($class, 'outputFunctions'))
+          : array();
+				if(count($output_functions)) {
+          $first = true;
+					foreach($output_functions as $func=>$data) {
+            $permissions_code = $data['permissions'];
+            $permissions = array();
+            if($permissions_code and count($permissions_code)) {
+              foreach($permissions_code as $permission_code) {
+                $p = Permission::getFromFullCode($permission_code);
+                $permissions[] = $p->label;
+              }
+            }
+						$code = "{module classid=".$module->id." func=".$func."}";
+            $row = array(
+              $data['label'],
+              count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+              $code
+            );
+            if($first) {
+              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+              $first = false;
+            }
+            else {
+              $tbl_rows[] = $row;
+            }
+					}	
+        }
+      }
+    }
+
+		/*
+		 * Modules sys_module_app
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true),
+      array('text' =>_('codice'), 'header' => true)
+    );
+
+    $modules_app = ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+		if(count($modules_app)) {
+			foreach($modules_app as $module_app) {
+        $class = $module_app->className();
+        $output_functions = method_exists($class, 'outputFunctions') 
+          ? call_user_func(array($class, 'outputFunctions'))
+          : array();
+				if(count($output_functions)) {
+          $first = true;
+					foreach($output_functions as $func=>$data) {
+            $permissions_code = $data['permissions'];
+            $permissions = array();
+            if($permissions_code and count($permissions_code)) {
+              foreach($permissions_code as $permission_code) {
+                $p = Permission::getFromFullCode($permission_code);
+                $permissions[] = $p->label;
+              }
+            }
+						$code = "{module sysclassid=".$module_app->id." func=".$func."}";
+            $row = array(
+              $data['label'],
+              count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+              $code
+            );
+            if($first) {
+              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+              $first = false;
+            }
+            else {
+              $tbl_rows[] = $row;
+            }
+					}	
+        }
+      }
+    }
+
+		/*
+		 * Url module
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
+      array('text' =>_('permessi'), 'header' => true),
+      array('text' =>_('codice'), 'header' => true)
+    );
+		$code = "{module id=0}";
+    $tbl_rows[] = array(
+      array(
+        'text' => _("Modulo da url"),
+        'colspan' => 2
+      ),
+      _("Prende i permessi del modulo chiamato"),
+      $code
+    );
+
+    $buffer = "<div>";
+    $view_table->assign('rows', $tbl_rows);
+    $buffer .= $view_table->render();
+		$buffer .= "</div>";
+
+		return $buffer;
+	}
+
 
 	/**
 	 * Elenco dei moduli e delle pagine disponibili
@@ -421,261 +734,264 @@ class layout extends Controller {
 	 */
 	public function modulesList() {
 
-		$this->accessGroup('');
+    $this->requirePerm('can_admin');
+
+    Loader::import('page', 'PageEntry');
+    Loader::import('auth', 'Permission');
+    Loader::import('module', 'ModuleInstance');
+    Loader::import('sysClass', 'ModuleApp');
 
 		$nav_id = cleanVar($_GET, 'nav_id', 'string', '');
 		$refillable_id = cleanVar($_GET, 'refillable_id', 'string', '');
 		$fill_id = cleanVar($_GET, 'fill_id', 'string', '');
 
-		$buffer = "<div>";
-		$buffer .= "<table class=\"layout_mdlList\">";
+    $view_table = new view();
+    $view_table->setViewTpl('table');
+    $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+    $tbl_rows = array();
+
 		/*
 		 * Pages
 		 */
-		$query = "SELECT id, title, private, users FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Pagine")."</th></tr>";
-			$buffer .= "<tr><th colspan=\"2\">"._("Titolo")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
+    $tbl_rows[] = array(
+      array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('titolo'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true)
+    );
+
+    $pages = PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
+		if(count($pages)) {
+			foreach($pages as $page) {
 				$access_txt = '';
-				if($b['private'])
-					$access_txt .= _("pagina privata")."<br />";
-				if($b['users'])
+				if($page->private)
+					$access_txt .= $page->getController()->permissions()['can_view_private']."<br />";
+				if($page->users)
 					$access_txt .= _("pagina limitata ad utenti selezionati");
+        if(!$page->private and !$page->users) 
+          $access_txt .= _('pubblica');
 				
-				$code_full = "{module pageid=".$b['id']." func=full}";
-				$url = page::getUrlPage($b['id'], true);
-				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
+				$code_full = "{module pageid=".$page->id." func=full}";
+        $url = $page->getIdUrl(true);
+        $tbl_rows[] = array(
+          htmlChars($page->ml('title')),
+          "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
+          $access_txt
+        );
 			}
 		}
+    
 		/*
 		 * Modules sys_module
-		 */
-		$query = "SELECT id, label, name, class, role1, role2, role3 FROM ".$this->_tbl_module." WHERE type='class' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli")."</th></tr>";
-			$buffer .= "<tr><th>"._("Nome")."</th><th>"._("Funzione")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists($b['class'], 'outputFunctions'))? call_user_func(array($b['class'], 'outputFunctions')):array();
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Istanze di moduli'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true)
+    );
+
+    $modules = ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
+		if(count($modules)) {
+			foreach($modules as $module) {
+        $class = $module->className();
+        $output_functions = method_exists($class, 'outputFunctions') 
+          ? call_user_func(array($class, 'outputFunctions'))
+          : array();
 				if(count($output_functions)) {
-					$buffer .= "<tr><td class=\"mdlTitle\" rowspan=\"".count($output_functions)."\">".htmlChars($b['label'])."</td>";
+          $first = true;
 					foreach($output_functions as $func=>$data) {
-						$role = $b['role'.$data['role']];
-						$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-						$code = "{module classid=".$b['id']." func=".$func."}";
-						$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[".$b['name']."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</td><td>$role_txt</td></tr>";
+            $permissions_code = $data['permissions'];
+            $permissions = array();
+            if($permissions_code and count($permissions_code)) {
+              foreach($permissions_code as $permission_code) {
+                $p = Permission::getFromFullCode($permission_code);
+                $permissions[] = $p->label;
+              }
+            }
+						$code = "{module classid=".$module->id." func=".$func."}";
+            $row = array(
+              "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($module->label)." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+              count($permissions) ? implode(', ', $permissions) : _('pubblico')
+            );
+            if($first) {
+              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+              $first = false;
+            }
+            else {
+              $tbl_rows[] = $row;
+            }
 					}	
-				}	
-			}
-		}
+        }
+      }
+    }
+
 		/*
 		 * Modules sys_module_app
-		 */
-		$query = "SELECT id, label, name, role1, role2, role3 FROM ".$this->_tbl_module_app." WHERE type='class' AND instance='no' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli di sistema")."</th></tr>";
-			$buffer .= "<tr><th>"._("Nome")."</th><th>"._("Funzione")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists($b['name'], 'outputFunctions'))? call_user_func(array($b['name'], 'outputFunctions')):array();
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'header' => true),
+      array('text' =>_('vista'), 'header' => true),
+      array('text' =>_('permessi'), 'header' => true)
+    );
+
+    $modules_app = ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+		if(count($modules_app)) {
+			foreach($modules_app as $module_app) {
+        $class = $module_app->className();
+        $output_functions = method_exists($class, 'outputFunctions') 
+          ? call_user_func(array($class, 'outputFunctions'))
+          : array();
 				if(count($output_functions)) {
-					$buffer .= "<tr><td class=\"mdlTitle\" rowspan=\"".count($output_functions)."\">".htmlChars($b['label'])."</td>";
+          $first = true;
 					foreach($output_functions as $func=>$data) {
-						$role = $b['role'.$data['role']];
-						$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-						$code = "{module sysclassid=".$b['id']." func=".$func."}";
-						$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[".$b['name']."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])." - ".$data['label']."', '$code')\";>{$data['label']}</td><td>$role_txt</td></tr>";
+            $permissions_code = $data['permissions'];
+            $permissions = array();
+            if($permissions_code and count($permissions_code)) {
+              foreach($permissions_code as $permission_code) {
+                $p = Permission::getFromFullCode($permission_code);
+                $permissions[] = $p->label;
+              }
+            }
+						$code = "{module sysclassid=".$module_app->id." func=".$func."}";
+            $row = array(
+              "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($module_app->label)." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+              count($permissions) ? implode(', ', $permissions) : _('pubblico')
+            );
+            if($first) {
+              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+              $first = false;
+            }
+            else {
+              $tbl_rows[] = $row;
+            }
 					}	
-				}	
-			}
-		}
-		/*
-		 * Functions
-		 */
-		$query = "SELECT id, label, name, role1, role2, role3 FROM ".$this->_tbl_module." WHERE type='func' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli funzione")."</th></tr>";
-			$buffer .= "<tr><th colspan=\"2\">"._("Nome")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists('sysfunc', 'outputFunctions'))? call_user_func(array('sysfunc', 'outputFunctions')):array();
-				if(count($output_functions)) {
-					$buffer .= "<tr>";
-					$role = $b['role'.$output_functions[$b['name']]['role']];
-					$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-					$code = "{module funcid=".$b['id']."}";
-					$buffer .= "<td class=\"link mdlTitle\" onclick=\"ajaxRequest('post', '$this->_home?pt[sysfunc-".$b['name']."]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])."', '$code')\";>".$b['label']."</td><td>".$output_functions[$b['name']]['label']."</td><td>$role_txt</td></tr>";
-				}	
-			}
-		}
+        }
+      }
+    }
+
 		/*
 		 * Url module
-		 */
+     */
+    $tbl_rows[] = array(
+      array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+    );
+    $tbl_rows[] = array(
+      array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
+      array('text' =>_('permessi'), 'header' => true)
+    );
 		$code = "{module id=0}";
-		$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli segnaposto")."</th></tr>";
-		$buffer .= "<tr><th colspan=\"2\">"._("Nome")."</th><th>"._("Permessi")."</th></tr>";
-		$buffer .= "<tr>";
-		$buffer .= "<td colspan=\"2\" class=\"link mdlTitle\" onclick=\"closeAll('$nav_id', '$refillable_id', '"._("Modulo da url")."', '$code')\";>"._("Modulo da url")."</td><td>"._("Prende i permessi del modulo chiamato")."</td></tr>";
-		$buffer .= "</tr>";
+    $tbl_rows[] = array(
+      array(
+        'text' => "<span class=\"link mdlTitle\" onclick=\"closeAll('$nav_id', '$refillable_id', '"._("Modulo da url")."', '$code')\";>"._("Modulo da url")."</span>",
+        'colspan' => 2
+      ),
+      _("Prende i permessi del modulo chiamato")
+    );
 
-		$buffer .= "</table>";
+    $buffer = "<div>";
+    $view_table->assign('rows', $tbl_rows);
+    $buffer .= $view_table->render();
 		$buffer .= "</div>";
 
 		return $buffer;
 	}
 	
-	/**
-	 * Interfaccia per la gestione degli elementi del frontend di gino
-	 * 
-	 * E' possibile modificare i fogli di stile (CSS) presenti nella directory @a css e le viste presenti nella directory @a views
-	 * 
-	 * @param string $code valore del tipo di frontend
-	 * @return string
-	 */
-	private function manageItems($code) {
-		
-		$fname = cleanVar($_GET, 'fname', 'string', '');
-		
-		$GINO = "<div class=\"vertical_1\">";
-		$GINO .= $this->listItems($fname, $code);
-		$GINO .= "</div>";
-		$GINO .= "<div class=\"vertical_2\">";
-		if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) {
-			$GINO .= $this->formItems($fname, $code);
-		}
-		else $GINO .= $this->infoItems($code);
-		$GINO .= "</div>";
-		$GINO .= "<div class=\"null\"></div>";
+	private function formFiles($filename, $code) {
 
-	    return $GINO;
-	}
-	
-	private function infoItems($code) {
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Informazioni")));
+		$this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
+		$this->_registry->addCss(CSS_WWW."/codemirror.css");
 		
 		if($code == 'css')
 		{
-			$buffer = "<p>".sprintf(_("In questa sezione è possibile modificare i fogli di stile (CSS) presenti nella directory '%s'"), CSS_WWW)."</p>";
-		}
-		elseif($code == 'view')
-		{
-			$buffer = "<p>".sprintf(_("In questa sezione è possibile modificare le viste presenti nella directory '%s'"), SITE_WWW."/views")."</p>";
-		}
-		$buffer .= "<p>"._("Attenzione, le modifiche possono compromettere la buona visualizzazione del sito.")."</p>";
-		
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
-	}
-	
-	private function listItems($sel, $code) {
-		
-		if($code == 'css')
-		{
-			$title = _("File CSS");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+			$title = sprintf(_("Modifica il foglio di stile \"%s\""), $filename);
 			$dir = CSS_DIR;
-			$ext = 'css';
-			$block = "style";
+			$block = "css";
+      $options = "{
+        lineNumbers: true,
+        matchBrackets: true,
+        indentUnit: 4,
+        indentWithTabs: true,
+        enterMode: \"keep\",
+        tabMode: \"shift\"
+      }";
 		}
 		elseif($code == 'view')
 		{
-			$title = _("Viste");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
+		  $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
+			$title = sprintf(_("Modifica la vista \"%s\""), $filename);
 			$dir = VIEWS_DIR;
-			$ext = 'php';
-			$block = "views";
+      $block = "view";
+      $options = "{
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: \"application/x-httpd-php\",
+        indentUnit: 4,
+        indentWithTabs: true,
+        enterMode: \"keep\",
+        tabMode: \"shift\"
+      }";
 		}
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
-
-		$array = array();
-		$buffer = '';
-		
-		if(is_dir($dir))
-		{
-			if($dh = opendir($dir)) {
-				while (($file = readdir($dh)) !== false) {
-					if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.'.$ext.'$#', $file))
-					{
-						$array[] = $file;
-					}
-				}
-				closedir($dh);
-			}
-		}
-		
-		if(sizeof($array) > 0)
-		{
-			$htmlList = new htmlList(array("numItems"=>sizeof($array), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($array as $value)
-			{
-				$selected = ($value == $sel) ? true : false;
-				$link = $this->_plink->aLink($this->_className, 'manageLayout', '', array('fname'=>$value, 'block'=>$block, 'action'=>$this->_act_modify));
-				$link_modify = "<a href=\"$link\">".pub::icon('modify', _("modifica il file"))."</a>";
-				
-				$buffer .= $htmlList->item(htmlChars($value), array($link_modify), $selected, true);
-			}
-			$buffer .= $htmlList->end();
-		}
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
-	}
-	
-	private function formItems($filename, $code) {
-		
-		if($code == 'css')
-		{
-			$title = _("Modifica il file CSS");
-			$dir = CSS_DIR;
-			$block = "style";
-		}
-		elseif($code == 'view')
-		{
-			$title = _("Modifica la vista");
-			$dir = VIEWS_DIR;
-			$block = "views";
-		}
-		
-		$title = $title. " ($filename)";
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
 		
 		$buffer = '';
 		$pathToFile = $dir.OS.$filename;
-		$action = $this->_act_modify;
-		$link_return = $this->_home."?evt[$this->_className-manageLayout]&block=$block";
+		$action = 'modify';
+		$link_return = $this->_home."?evt[$this->_class_name-manageLayout]&block=$block";
 		
 		if(is_file($pathToFile))
 		{
-			$gform = new Form('gform', 'post', true, array("tblLayout"=>false));
+			$gform = Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
 			$gform->load('dataform');
-			$buffer = $gform->form($this->_home."?evt[$this->_className-actionItems]", '', '');
+			$buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '');
 			$buffer .= $gform->hidden('fname', $filename);
 			$buffer .= $gform->hidden('code', $code);
 			$buffer .= $gform->hidden('action', $action);
 
 			$contents = file_get_contents($pathToFile);
-			$buffer .= "<textarea name=\"file_content\" style=\"width:98%;height:300px;overflow:auto;border:2px solid #000;\">".$contents."</textarea>\n";
-			
-			$buffer .= "<p>".$gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-			$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""))."</p>";
+      $buffer .= "<div class=\"form-row\">";
+			$buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
+      $buffer .= "</div>";
 
-			$buffer .= $gform->cform();
+      $buffer .= "<div class=\"form-row\">";
+			$buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+			$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
+      $buffer .= "</div>";
+
+      $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+
+			$buffer .= $gform->close();
 		}
 		
-		$htmlsection->content = $buffer;
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => $title,
+      'class' => 'admin',
+      'content' => $buffer
+    );
 
-		return $htmlsection->render();
+    return $view->render($dict);
 	}
 	
 	/**
 	 * Salva il file del frontend
 	 */
-	public function actionItems() {
+	public function actionFiles() {
+
+    $this->requirePerm('can_admin');
 	
 		$action = cleanVar($_POST, 'action', 'string', '');
 		$filename = cleanVar($_POST, 'fname', 'string', '');
@@ -684,12 +1000,12 @@ class layout extends Controller {
 		if($code == 'css')
 		{
 			$dir = CSS_DIR;
-			$block = "style";
+			$block = "css";
 		}
 		elseif($code == 'view')
 		{
 			$dir = VIEWS_DIR;
-			$block = "views";
+			$block = "view";
 		}
 		
 		if(is_file($dir.OS.$filename))
@@ -702,7 +1018,7 @@ class layout extends Controller {
 			}
 		}
 
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageLayout', "block=$block");
+		Link::HttpCall($this->_home, $this->_class_name.'-manageLayout', "block=$block");
 	}
 }
 ?>

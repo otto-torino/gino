@@ -22,7 +22,7 @@ class Access {
   public $default_role;
   
   protected $_home;
-  protected $_log_access, $_username_email;
+  protected $_username_email;
   protected $_crypt;
   protected $_db, $session;
   protected $_session_user, $_session_role, $_access_admin;
@@ -39,8 +39,6 @@ class Access {
 
     $this->_home = HOME_FILE;
     $this->_crypt = pub::getConf('password_crypt');
-    
-    $this->_log_access = pub::getConf('log_access');
     
     $this->_block_page = $this->_home."?evt[index-auth_page]";
   }
@@ -68,9 +66,8 @@ class Access {
       $this->AuthenticationMethod($user, $password) ? $this->loginSuccess() : $this->loginError(_("autenticazione errata"));
     }
     elseif((isset($_GET['action']) && $_GET['action']=='logout')) {
-      
       $this->session->destroy();
-      header("Location: ".$this->_home."?logout");
+      header("Location: ".$this->_home);
     }
     else {
       $registry = registry::instance();
@@ -117,11 +114,13 @@ class Access {
    */
   private function AuthenticationMethod($user, $pwd){
 
+    $registry = registry::instance();
+
     $user = User::getFromUserPwd($user, $pwd);
     if($user) {
       $this->session->user_id = $user->id;
       $this->session->user_name = htmlChars($user->firstname.' '.$user->lastname);
-      if($this->_log_access == 'yes') {
+      if($registry->sysconf->log_access) {
         $this->logAccess($user->id);
       }
       return true;
@@ -138,31 +137,16 @@ class Access {
    * @return boolean
    */
   private function logAccess($userid) {
-    
+
+    Loader::import('statistics', 'LogAccess');
+
     date_default_timezone_set('Europe/Rome');
 
-    $date = date("Y-m-d H:i:s");
-    
-    $result = $this->_db->insert(array('user_id'=>$userid, 'date'=>$date), TBL_LOG_ACCESS);
-    
-    return $result;
-  }
+    $log_access = new LogAccess(null);
+    $log_access->user_id = $userid;
+    $log_access->date = date("Y-m-d H:i:s");
 
-
-  /**
-   * Accesso all'area amministrativa
-   * 
-   * @return boolean
-   */
-  public function getAccessAdmin() {
-
-    $registry = registry::instance();
-    // no logged user
-    if(!$registry->user->id) {
-      return false;
-    }
-
-    return $registry->user->is_admin or $registry->user->is_staff;
+    return $log_access->updateDbData();
 
   }
 

@@ -31,11 +31,6 @@ class attached extends Controller {
   private $_items_for_page;
 
   /**
-   * @brief gruppo degli assistenti
-   */
-  private $_group_1;
-
-  /**
    * @brief estensioni associate a icone immagini
    */
   private $_img_extension;
@@ -68,9 +63,6 @@ class attached extends Controller {
 
     parent::__construct();
 
-    //$this->setAccess();
-    //$this->setGroups();
-
     $this->_title = _('Allegati');
     $this->_items_for_page = 30;
 
@@ -83,17 +75,6 @@ class attached extends Controller {
     $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
     $this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 
-  }
-
-  /**
-   * Gruppi per accedere alle funzionalità del modulo
-   *
-   * @b _group_1: assistenti
-   */
-  private function setGroups(){
-
-    // Gestione file
-    $this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
   }
 
 	/**
@@ -149,14 +130,13 @@ class attached extends Controller {
    */
   public function manageAttached() {
 
-    $this->accessGroup('ALL');
+    $this->requirePerm('can_admin');
+
+    Loader::import('class', 'AdminTable');
 
     $method = 'manageAttached';
-    $htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-    $link_admin = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=permissions\">"._("Permessi")."</a>";
-    $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=ctg\">"._("Categorie")."</a>";
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instanceName."-$method]\">"._("File")."</a>";
-
+    $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=ctg\">"._("Categorie")."</a>";
+    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-$method]\">"._("File")."</a>";
     $sel_link = $link_dft;
 
     // Variables
@@ -164,11 +144,7 @@ class attached extends Controller {
     $start = cleanVar($_GET, 'start', 'int', '');
     // end
 
-    if($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-      $buffer = sysfunc::managePermissions($this->_instance, $this->_className);
-      $sel_link = $link_admin;
-    }
-    elseif($this->_block == 'ctg') {
+    if($this->_block == 'ctg') {
       $buffer = $this->manageCategory();
       $sel_link = $link_ctg;
     }
@@ -176,19 +152,15 @@ class attached extends Controller {
       $buffer = $this->manageItem();
     }
 
-    // groups privileges
-    if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-      $links_array = array($link_admin, $link_ctg, $link_dft);
-    }
-    else {
-      $links_array = array($link_ctg, $link_dft);
-    }
+    $dict = array(
+      'title' => $this->_title,
+      'links' => array($link_ctg, $link_dft),
+      'selected_link' => $sel_link,
+      'content' => $buffer
+    );
 
-    $htmltab->navigationLinks = $links_array;
-    $htmltab->selectedLink = $sel_link;
-    $htmltab->htmlContent = $buffer;
-
-    return $htmltab->render();
+    $view = new view(null, 'tab');
+    return $view->render($dict);
 
   }
 
@@ -253,13 +225,12 @@ class attached extends Controller {
    */
   public function editorList() {
 
-    $buffer = "";
-    $myform = new form('attached_list', 'post', false, array('tblLayout'=>false));
+    $myform = Loader::load('Form', array('attached_list', 'post', false, array('tblLayout'=>false)));
 
     $ctgs = attachedCtg::getForSelect($this);
 
-    $onchange = "ajaxRequest('post', '".$this->_home."?pt[".$this->_className."-editorAttachedList]', 'ctg_id='+$(this).value, 'attached_table', {'load': 'attached_table'})";
-    $buffer .= "
+    $onchange = "gino.ajaxRequest('post', '".$this->_home."?pt[".$this->_class_name."-editorAttachedList]', 'ctg_id='+$(this).value, 'attached_table', {'load': 'attached_table'})";
+    $buffer = "
       <p class=\"attached-filter-ctg\">
         <label for=\"attached_ctg\">"._('Seleziona la categoria ')."</label>
         ".$myform->select('attached_ctg', '', $ctgs, array(
@@ -269,7 +240,7 @@ class attached extends Controller {
           'firstVoice' => _('tutte le categorie'),
           'firstValue' => 0
         ))."
-        <span class=\"right link\" onclick=\"$('attached-list-help').toggleClass('hidden')\">".pub::icon('help', _('Informazioni'))."</span>
+        <span class=\"right link\" onclick=\"$('attached-list-help').toggleClass('hidden')\">".pub::icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
       </p>";
 
     $buffer .= "<div id=\"attached-list-help\" class=\"hidden\">";
@@ -308,7 +279,7 @@ class attached extends Controller {
     $items = attachedItem::get($this, array('where' => $where));
 
     $buffer = "
-      <table class=\"generic\">
+      <table class=\"table table-striped table-bordered\">
         <tr>
           <th>"._('Categoria')."</th>
           <th>"._('File')."</th>

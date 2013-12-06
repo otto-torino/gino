@@ -60,8 +60,8 @@ class AttachedItem extends Model {
     $this->_tbl_data = self::$tbl_item;
 
     $this->_fields_label = array(
-      'insertion_date'=>_('Data inserimento'),
-      'last_edit_date'=>_('Data ultima modifica'),
+      'insertion_date'=>_('Inserimento'),
+      'last_edit_date'=>_('Ultima modifica'),
       'category'=>_('Categoria'),
       'file'=>_("File"),
       'notes'=>_("Note")
@@ -161,6 +161,7 @@ class AttachedItem extends Model {
 
     $structure['file'] = new fileField(array(
       'name'=>'file',
+      'required'=>true,
       'value'=>$this->file,
       'label'=>$this->_fields_label['file'],
       'extensions'=>array(),

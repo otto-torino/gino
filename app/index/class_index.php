@@ -24,7 +24,7 @@ class index extends Controller{
     parent::__construct();
 
   }
-  
+
   /**
    * Elenco dei metodi che possono essere richiamati dal menu e dal template
    * 
@@ -33,7 +33,7 @@ class index extends Controller{
   public static function outputFunctions() {
 
     $list = array(
-      "admin_page" => array("label"=>_("Home page amministrazione"), "role"=>'2')
+      "admin_page" => array("label"=>_("Home page amministrazione"), "permissions"=>array('core.is_staff'))
     );
 
     return $list;
@@ -69,7 +69,7 @@ class index extends Controller{
    */
   public function admin_page(){
 
-    if(!$this->_access->getAccessAdmin()) {
+    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       $this->session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
       Link::HttpCall($this->_home, $this->_class_name.'-auth_page', '');
     }
@@ -109,7 +109,7 @@ class index extends Controller{
       $view = new View();
       $view->setViewTpl('section');
       $view->assign('class', 'admin');
-      $view->assign('title', _("Amministrazione moduli"));
+      $view->assign('title', _("Amministrazione moduli istanziabili"));
       $view->assign('content', $GINO);
 
       $buffer .= $view->render();
@@ -125,18 +125,18 @@ class index extends Controller{
    */
   public function sysModulesManageArray() {
 
-    if(!$this->_access->getAccessAdmin()) {
+    loader::import('sysClass', 'ModuleApp');
+
+    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
-    // @todo write sysClass as model
     $list = array();
-    $rows = $this->_db->select('id, label, name, description', TBL_MODULE_APP, " masquerade='no' AND instance='no'", "order_list");
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        if($this->_registry->user->hasAdminPerm($row['name']) and method_exists($row['name'], 'manage'.ucfirst($row['name']))) {
-          //if($this->_access->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
-          $list[$row['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'label', $row['id']), "name"=>$row['name'], "description"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'description', $row['id']));
+    $modules_app = ModuleApp::get(array('where' => "active='1'"));
+    if(count($modules_app)) {
+      foreach($modules_app as $module_app) {
+        if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->name, 'manage'.ucfirst($module_app->name))) {
+          $list[$module_app->id] = array("label"=>$module_app->ml('label'), "name"=>$module_app->name, "description"=>$module_app->ml('description'));
         }
       }
     }
@@ -151,16 +151,18 @@ class index extends Controller{
    */
   public function modulesManageArray() {
 
-    if(!$this->_access->getAccessAdmin()) {
+    loader::import('module', 'ModuleInstance');
+
+    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
     $list = array();
-    $rows = $this->_db->select('id, label, name, class, description', TBL_MODULE, " masquerade='no' AND type='class'", "label");
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        if($this->_registry->user->hasAdminPerm($row['class'], $row['id']) and method_exists($row['class'], 'manageDoc')) {
-          $list[$row['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE, 'label', $row['id']), "name"=>$row['name'], "class"=>$row['class'], "description"=>$this->_trd->selectTXT(TBL_MODULE, 'description', $row['id']));
+    $modules = ModuleInstance::get(array('where' => "active='1'"));
+    if(count($modules)) {
+      foreach($modules as $module) {
+        if($this->_registry->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->className(), 'manageDoc')) {
+          $list[$module->id] = array("label"=>$module->ml('label'), "name"=>$module->name, "class"=>$module->className(), "description"=>$module->ml('description'), $module->id);
         }
       }
     }

@@ -32,19 +32,21 @@ class Document {
   private $_tbl_module_app, $_tbl_module;
   private $_instances;
 
-  private $_precharge_mdl_url, $_mdl_url_content;
+  private $_mdl_url_content;
 
   function __construct() {
   
     $this->_registry = registry::instance();
     $this->_db = db::instance();
     $this->session = session::instance();
+
+    loader::import('sysClass', 'ModuleApp');
+    loader::import('module', 'ModuleInstance');
     
     $this->_plink = new link();
     $this->_tbl_module_app = 'sys_module_app';
     $this->_tbl_module = 'sys_module';
 
-    $this->_precharge_mdl_url = htmlChars(pub::getConf('precharge_mdl_url'));
   }
 
   /**
@@ -62,19 +64,19 @@ class Document {
    */
   public function render() {
 
-    loader::import('class', 'Skin');
+    loader::import('class', 
+      array(
+        'Skin',
+        'Template',
+        'Css',
+        'Javascript'
+      )
+    );
 
-    if(pub::getConf('permalinks') == 'yes')
-    {
-      $query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
-      
-      $script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
-      $query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
-    }
-    else
-    {
-      $query_string = $_SERVER['QUERY_STRING'];
-    }
+    $query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
+    
+    $script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
+    $query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
     $relativeUrl = preg_replace("#".preg_quote(SITE_WWW.'/')."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");	//index.php?evt[index-admin_page]
     
     $skinObj = skin::getSkin(urldecode($relativeUrl));
@@ -82,7 +84,7 @@ class Document {
     
     $this->initHeadVariables($skinObj);
     
-    $this->_mdl_url_content = $this->_precharge_mdl_url!='no'? $this->modUrl():null;
+    $this->_mdl_url_content = $this->modUrl();
 
     $buffer = '';
 
@@ -92,18 +94,54 @@ class Document {
       $tplObj = loader::load('Template', array($skinObj->template));
       $template = TPL_DIR.OS.$tplObj->filename;
 
-      $tplContent = file_get_contents($template);
-      $regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
-      $content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
-      if($content === null) exit("PCRE Error! Subject too large or complex.");
+      if($tplObj->free) {
+        // parse modules and write parsed template in a tmp file
+        $tplContent = file_get_contents($template);
+        $regexp = "#{module(.*?)}#";
+        $tmp_handle = tmpfile();
+        fwrite($tmp_handle, preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent));
+        $meta_datas = stream_get_meta_data($tmp_handle);
+        $tmp_file = $meta_datas['uri'];
+        $registry = $this->_registry;
+        ob_start();
+        include($tmp_file);
+        $buffer = ob_get_contents();
+        ob_clean();
+        fclose($tmp_handle); // this removes the file
+      }
+      else {
+        $tplContent = file_get_contents($template);
+        $regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
+        $content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
+        if($content === null) exit("PCRE Error! Subject too large or complex.");
 
-      $headline = $this->headLine($skinObj);
-      $footline = $this->footLine();
+        $headline = $this->headLine($skinObj);
+        $footline = $this->footLine();
 
-      $cache->stop($headline.$content.$footline);
+        $cache->stop($headline.$content.$footline);
+      }
     }
 
     echo $buffer;
+  }
+
+  private function parseModules($m) {
+    $mdlMarker = $m[0];
+    preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
+    $mdlType = (!empty($matches[1]))? $matches[1]:null;
+    $mdlId = (!empty($matches[2]))? $matches[2]:null;
+
+    if($mdlType=='page') {
+      $mdlContent = $this->modPage($mdlId);
+    }
+    elseif($mdlType=='class' || $mdlType=='sysclass') {
+      $mdlFunc = $matches[4];
+      $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
+    }
+    elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_mdl_url_content;
+    else return $matches[0];
+
+    return $mdlContent;
   }
 
   private function errorMessages() {
@@ -161,7 +199,7 @@ class Document {
     $headline .= "<head>\n";
     $headline .= "<meta charset=\"utf-8\" />\n";
     $pub = new pub();
-    $headline .= "<base href=\"".$this->_registry->pub->getRootUrl()."/\" />\n";
+    $headline .= "<base href=\"".$this->_registry->pub->getRootUrl()."\" />\n";
     
     $headline .= $this->_registry->variables('meta');
     
@@ -246,7 +284,7 @@ class Document {
       $mdlFunc = $matches[4];
       $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
     }
-    elseif($mdlType==null && $mdlId==null) $mdlContent = ($this->_precharge_mdl_url!='no')? $this->_mdl_url_content:$this->modUrl();
+    elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_mdl_url_content;
     else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
 
     return $mdlContent;
@@ -271,9 +309,10 @@ class Document {
 
   private function modClass($mdlId, $mdlFunc, $mdlType){
 
-    $class_name = $mdlType=='sysclass'
-      ? $this->_db->getFieldFromId(TBL_MODULE_APP, 'name', 'id', $mdlId)
-      : $this->_db->getFieldFromId(TBL_MODULE, 'class', 'id', $mdlId);
+    $obj = $mdlType=='sysclass'
+      ? new ModuleApp($mdlId)
+      : new ModuleInstance($mdlId);
+    $class_name = $obj->className();
 
     if(!isset($this->_instances[$class_name."_".$mdlId]) || !is_object($this->_instances[$class_name."_".$mdlId])) {
       $this->_instances[$class_name."_".$mdlId] = new $class_name($mdlId);
@@ -289,7 +328,7 @@ class Document {
       if(count($rows))
       {
         $name = htmlChars($rows[0]['name']);
-        if($ofp and !$this->_access->hasPerm($class_name, $ofp, 0)) {
+        if($ofp and !$this->_registry->user->hasPerm($class_name, $ofp, 0)) {
           return '';
         }
       }
@@ -303,7 +342,7 @@ class Document {
       if(count($rows))
       {
         $class = htmlChars($rows[0]['class']);
-        if($ofp and !$this->_access->hasPerm($class, $ofp, $mdlId)) {
+        if($ofp and !$this->_registry->user->hasPerm($class, $ofp, $mdlId)) {
           return '';
         }
       }
@@ -332,25 +371,37 @@ class Document {
 
   private function getEvent() {
 
-    $evtKey = isset($_GET[EVT_NAME])? is_array($_GET[EVT_NAME])? key($_GET[EVT_NAME]):false:false;
+    Loader::import('sysClass', 'ModuleApp');
+    Loader::import('module', 'ModuleInstance');
+
+    $evtKey = isset($_GET[EVT_NAME])
+      ? is_array($_GET[EVT_NAME])
+        ? key($_GET[EVT_NAME])
+        : false
+      : false;
     
     if(!$evtKey) return null;
+
     if(preg_match('#^[^a-zA-Z0-9_-]+?#', $evtKey)) return null;
     
     list($mdl, $function) = explode("-", $evtKey);
-    if(is_dir(APP_DIR.OS.$mdl) && class_exists($mdl) && $this->_db->getFieldFromId($this->_tbl_module_app, 'instance', 'name', $mdl)!='yes') {
+
+    $module_app = ModuleApp::getFromName($mdl);
+    $module = ModuleInstance::getFromName($mdl);
+
+    if(is_dir(APP_DIR.OS.$mdl) && class_exists($mdl) && $module_app && !$module_app->instantiable) {
       
-      $mdlId = $this->_db->getFieldFromId($this->_tbl_module_app, 'id','name',$mdl);
-      $class = $mdl;
+      $mdlId = $module_app->id;
+      $class = $module_app->className();
 
       if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
         $this->_instances[$class."_".$mdlId] = new $class($mdlId);
 
       $instance = $this->_instances[$class."_".$mdlId];
     }
-    elseif(class_exists($this->_db->getFieldFromId($this->_tbl_module, 'class', 'name', $mdl))) {
-      $mdlId = $this->_db->getFieldFromId($this->_tbl_module, 'id','name',$mdl);
-      $class = $this->_db->getFieldFromId($this->_tbl_module, 'class', 'name', $mdl);
+    elseif(class_exists($module->className())) {
+      $mdlId = $module->id;
+      $class = $module->className();
       
       if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
         $this->_instances[$class."_".$mdlId] = new $class($mdlId);
@@ -360,17 +411,6 @@ class Document {
     else { $class=null; $instance=null; }
 
     return array($class, $instance, $function);
-  }
-
-  private function proxy() {
-  
-    if($this->session->userId == 1) {
-      $_SERVER['REQUEST_URI'] = '/index.php?evt[realtime-map]';
-      $_SERVER['QUERY_STRING'] = 'evt[realtime-map]';
-      $_SERVER['SCRIPT_FILENAME'] = dirname(__FILE__).'index.php';
-      $_SERVER['SCRIPT_NAME'] = 'index.php';
-      $_SERVER['PHP_SELF'] = '/index.php';
-    }
   }
 
   private function google_analytics(){

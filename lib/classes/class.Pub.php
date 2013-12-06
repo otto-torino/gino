@@ -91,6 +91,7 @@ class pub {
    * Valore di un campo delle impostazioni di sistema
    * @param string $field nome del campo della tabella sys_conf
    * @return mixed
+   * @TODO provare ad eliminarlo usando solo registry->sysconf
    */
   public static function getConf($field){
     
@@ -328,6 +329,10 @@ class pub {
         $icon = 'ico_check.gif';
         $title = _("check");
         break;
+      case 'code':
+        $class = 'fa fa-code';
+        $title = _("codice");
+        break;
       case 'close':
         $icon = 'ico_close.gif';
         $title = _("chiudi");
@@ -340,8 +345,9 @@ class pub {
         $icon = 'ico_content.gif';
         $title = _("contenuti");
         break;
-      case 'duplicate':
+      case 'copy':
         $icon = 'ico_duplicate.gif';
+        $class = 'fa-copy';
         $title = _("duplica");
         break;
       case 'css':
@@ -367,6 +373,7 @@ class pub {
         break;
       case 'export':
         $icon = 'ico_export.gif';
+        $class = 'fa-save';
         $title = _("esporta");
         break;
       case 'feed':
@@ -379,6 +386,7 @@ class pub {
         break;
       case 'help':
         $icon = 'ico_help.gif';
+        $class = 'fa-question';
         $title = _("help in linea");
         break;
       case 'home':
@@ -400,6 +408,7 @@ class pub {
         break;
       case 'layout':
         $icon = 'ico_layout.gif';
+        $class = 'fa-th';
         $title = _("layout");
         break;
       case 'link':
@@ -457,11 +466,21 @@ class pub {
         break;
       case 'search':
         $icon = 'ico_search.gif';
+        $class = 'fa-search';
         $title = _("ricerca");
         break;
       case 'sort':
         $icon = 'ico_sort.gif';
+        $class = 'fa-sort';
         $title = _("ordina");
+        break;
+      case 'sort-up':
+        $class = 'fa-sort-up';
+        $title = _("sposta in alto");
+        break;
+      case 'write':
+        $class = 'fa-file-text-o';
+        $title = _("scrivi");
         break;
       case 'view':
         $icon = 'ico_view.gif';
@@ -633,32 +652,7 @@ class pub {
 
     return $crypt_string;
   }
-  
-  /**
-   * Versione del browser (libreria browscap)
-   * 
-   * @param string $field se non indicato viene preso il valore @a Parent; un altro valore valido è @a Platform. Esempio @a Parent: "IE 6.0", "Firefox 1.5", esempio @a Platform: Win2000, Linux, MacPPC
-   * @return string
-   */
-  public function detectBrowser($field=false){
-    
-    if(!$field) $field = 'Parent';
-    
-    if(ini_get("browscap")) {	// If available, use PHP native function
-      $current_browser = get_browser(null, true);
-    }
-    else {
-      $browscap_dir = LIB_DIR.OS.'browscap';
-      require_once($browscap_dir.OS.'php-local-browscap.php');
-      $current_browser = get_browser_local(null, false, LIB_DIR.OS.'browscap'.OS.'./browscap.ini');
-    }
-    
-    if(is_array($current_browser) && array_key_exists($field, $current_browser))
-      $value = $current_browser[$field]; else $value = '';
-    
-    return $value;
-  }
-  
+
   /**
    * Invio email
    * 

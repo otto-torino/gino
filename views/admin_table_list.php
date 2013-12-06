@@ -2,7 +2,7 @@
   <header>
     <h1 class="left"><?= $title ?></h1>
     <?php if($form_filters): ?>
-      <div class="right"><span id="search_icon" class="link"><?= $search_icon ?></span></div>
+      <div class="right"> &#160; <span id="search_icon" class="link"><?= $search_icon ?></span></div>
       <div id="filter_form_container">
         <div id="filter_form_layer">
           <h2><?= $form_filters_title ?></h2>
@@ -15,9 +15,11 @@
     <?php endif ?> 
     <div class="null"></div>
   </header>
-  <div>
-    <?= $description ?>
-  </div>
+  <? if($description): ?>
+    <div class="backoffice-info">
+      <?= $description ?>
+    </div>
+  <? endif ?>
   <?= $table ?>
   <?php if(!$tot_records): ?>
     <p><?= _("Non sono stati trovati elementi") ?></p>
@@ -49,16 +51,18 @@
         if(closed) {
           layer.style.visibility = 'visible';
           myFx.start({
-            width: [0, fw],
-            height: [0, fh]
+            width: [0, fw + 50],
+            height: [0, fh],
+            opacity: [0, 1]
           })
-          layer.setStyle('box-shadow', '0px 0px 5px #000');
+          layer.setStyle('box-shadow', '0px 0px 2px #aaa');
           closed = false;
         }
         else {
           myFx.start({
-            width: [fw, 0],
-            height: [fh, 0]
+            width: [fw + 50, 0],
+            height: [fh, 0],
+            opacity: [1, 0]
           }).chain(function() {
             layer.style.visibility = 'hidden';
           })

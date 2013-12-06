@@ -97,7 +97,15 @@ class pageEntryAdminTable extends AdminTable {
 		$fields_loop = array();
 		if($this->_list_display) {
 			foreach($this->_list_display as $fname) {
-				$fields_loop[$fname] = $model_structure[$fname];
+        if(is_array($fname)) {
+          $fields_loop[$fname['member']] = array(
+            'member' => $fname['member'],
+            'label' => $fname['label']
+          );
+        }
+        else {
+          $fields_loop[$fname] = $model_structure[$fname];
+        }
 			}
 		}
 		else {
@@ -152,7 +160,7 @@ class pageEntryAdminTable extends AdminTable {
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
+		$pagelist = Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
@@ -165,10 +173,15 @@ class pageEntryAdminTable extends AdminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-				$model_label = $model_structure[$field_name]->getLabel();
-				$label = is_array($model_label) ? $model_label[0] : $model_label;
+        if(is_array($field_obj)) {
+         $label = $field_obj['label'];
+        }
+        else {
+          $model_label = $model_structure[$field_name]->getLabel();
+          $label = is_array($model_label) ? $model_label[0] : $model_label;
+        }
 
-				if($field_obj->canBeOrdered()) {
+				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
 					if($order == $field_name." ASC") {
@@ -213,7 +226,12 @@ class pageEntryAdminTable extends AdminTable {
 				
 				if($this->permission($options_view, $field_name))
 				{
-					$record_value = (string) $record_model_structure[$field_name];
+          if(is_array($field_obj)) {
+            $record_value = $record_model->$field_obj['member']();
+          }
+          else {
+					  $record_value = (string) $record_model_structure[$field_name];
+          }
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
@@ -272,7 +290,7 @@ class pageEntryAdminTable extends AdminTable {
 				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
 			}
 			$buttons = array(
-				array('text' => implode(' ', $links), 'class' => 'no_border no_bkg')
+				array('text' => implode(' ', $links), 'class' => 'nowrap')
 			); 
 
 			$rows[] = array_merge($row, $buttons);
@@ -286,7 +304,7 @@ class pageEntryAdminTable extends AdminTable {
 		}
 
 		$this->_view->setViewTpl('table');
-		$this->_view->assign('class', 'generic');
+		$this->_view->assign('class', 'table table-striped table-hover');
 		$this->_view->assign('caption', $caption);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
@@ -294,7 +312,7 @@ class pageEntryAdminTable extends AdminTable {
 		$table = $this->_view->render();
 
 		if($this->_allow_insertion) {
-			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert')."</a>";
+			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert', array('scale' => 2))."</a>";
 		}
 		else {
 			$link_insert = "";
@@ -304,7 +322,7 @@ class pageEntryAdminTable extends AdminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
-		$this->_view->assign('search_icon', pub::icon('search'));
+		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

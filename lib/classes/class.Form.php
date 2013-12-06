@@ -399,17 +399,15 @@ class Form {
 	 */
 	private function defaultCaptcha($options) {
 
-		include(CLASSES_DIR.OS."class.captcha.php");
-		
 		$options["required"] = true;
 		$options["id"] = "captcha_input";
 		$options["size"] = "20";
 		$options["maxlength"] = "20";
 		$this->setOptions($options);
 		
-		$captcha = new captcha('captcha_input');
+		$captcha = Loader::load('Captcha', array('captcha_input'));
 		
-		$GFORM .= $this->label('captcha_input', _("Inserisci il codice dell'immagine"), $this->option('required'), $this->option('classLabel'))."\n";
+		$GFORM = $this->label('captcha_input', _("Inserisci il codice dell'immagine"), $this->option('required'), $this->option('classLabel'))."\n";
 		$GFORM .= $captcha->render();
 		if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
 
@@ -785,9 +783,10 @@ class Form {
     }
 
     $GFORM = "<div class=\"form-row\">";
-    $GFORM = "<div class=\"form-ckeditor\">\n";
+    $GFORM .= "<div class=\"form-ckeditor\">\n";
     $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
     if($text_note) $GFORM .= "<div>".$text_note."</div>";
+    if($this->option('img_preview')) $GFORM .= $this->imagePreviewer();
     $GFORM .= $this->editorHtml($name, $value, $this->option('fck_toolbar'), $this->option('fck_width'), $this->option('fck_height'));
 
     if($this->option('trnsl') AND $this->_multi_language == 'yes') {
@@ -796,8 +795,6 @@ class Form {
     }
 
     if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-
-    if($this->option('img_preview')) $GFORM .= $this->imagePreviewer();
     $GFORM .= "</div>\n";
     $GFORM .= "</div>\n";
 
@@ -815,7 +812,7 @@ class Form {
 	private function imagePreviewer() {
 
 		$onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
-			window.att_win = new layerWindow({
+			window.att_win = new gino.layerWindow({
 			'title': '"._('Allegati')."',
 			'width': 800,
 			'overlay': false,
@@ -883,7 +880,11 @@ class Form {
     $GFORM = '';
     $comparison = is_null($value)? $default:$value;
     $space = $this->option('aspect')=='v'? "<br />":"&nbsp;";
+    $container = $this->option('aspect')=='v'? true : false;
 
+    if($container) {
+      $GFORM .= "<div class=\"form-radio-group\">";
+    }
     if(is_array($data)) {
       $i=0;
       foreach($data AS $k => $v) {
@@ -900,6 +901,9 @@ class Form {
       $title = $options['helptext']['title'];
       $text = $options['helptext']['text'];
       $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    }
+    if($container) {
+      $GFORM .= "</div>";
     }
 
     return $GFORM;
@@ -1004,19 +1008,25 @@ class Form {
 		}
 		
 		$this->setOptions($options);
+    $GFORM = "<div class=\"form-row\">";
 		$GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
 
-    $GFORM = "<div class=\"form-row\">";
+    if(is_array($label)) {
+      $options['helptext'] = array(
+        'title' => isset($label['label']) ? $label['label'] : $label[0],
+        'text' => isset($label['description']) ? $label['description'] : $label[1]
+      );
+    }
+
 		$GFORM .= "<div class=\"form-multicheck\">\n";
 
-		$odd = true;
 		if(is_string($data))
 		{
 			$db = db::instance();
 			$a = $db->selectquery($data);
 			if(sizeof($a) > 0)
 			{
-				$GFORM .= "<table style=\"width:100%;\">\n";
+				$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
 				
 				foreach($a AS $b)
 				{
@@ -1026,8 +1036,7 @@ class Form {
 					
 					if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
 
-					if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
-					$GFORM .= "<tr class=\"$class\">\n";
+					$GFORM .= "<tr>\n";
 
 					$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$val1\" $check";
 					$checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
@@ -1081,7 +1090,6 @@ class Form {
 					}
 					$GFORM .= "</tr>\n";
 
-					$odd = !$odd;
 				}
 				
 				$GFORM .= "</table>\n";
@@ -1093,13 +1101,12 @@ class Form {
 			$i = 0;
 			if(sizeof($data)>0)
 			{
-				$GFORM .= "<table style=\"width:100%;\">\n";
+				$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
 				foreach($data as $k=>$v)
 				{
 					$check = in_array($k, $checked)? "checked=\"checked\"": "";
 
-					if($odd) $class = "mc_form_tr1"; else $class = "mc_form_tr2";
-					$GFORM .= "<tr class=\"$class\">\n";
+					$GFORM .= "<tr>\n";
 
 					$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$k\" $check";
 					$checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
@@ -1120,7 +1127,6 @@ class Form {
 
 					$GFORM .= "</tr>\n";
 
-					$odd = !$odd;
 					$i++;
 				}
 				$GFORM .= "</table>\n";
@@ -1129,6 +1135,11 @@ class Form {
 		}
 
 		$GFORM .= "</div>\n";
+    if(isset($options['helptext'])) {
+      $title = $options['helptext']['title'];
+      $text = $options['helptext']['text'];
+      $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    }
     $GFORM .= "</div>\n";
 
 		return $GFORM;
@@ -1261,12 +1272,11 @@ class Form {
    *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
    *   - @b preview (boolean): mostra l'anteprima di una immagine
    *   - @b previewSrc (string): percorso relativo dell'immagine
-   *   - @b del_check (boolean): mostra il check di eliminazione del file
    *   - @b text_add (string): testo da aggiungere in coda al tag input
    * @return string
    * 
    * @code
-   * $obj->cfile('image', $filename, _("testo label"), array("extensions"=>array('jpg', ...), "del_check"=>true, "preview"=>true, "previewSrc"=>/path/to/image);
+   * $obj->cfile('image', $filename, _("testo label"), array("extensions"=>array('jpg', ...), "preview"=>true, "previewSrc"=>/path/to/image);
    * @endcode
    */
   public function cfile($name, $value, $label, $options){
@@ -1276,7 +1286,7 @@ class Form {
     $text_add = $this->option('text_add') ? $this->option('text_add') : '';
     $valid_extension = $this->option('extensions');
 
-    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0)? "[".(count($valid_extension) ? implode(', '. $valid_extension) : _("non risultano formati permessi."))."]":"";
+    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0)? "[".(count($valid_extension) ? implode(', ', $valid_extension) : _("non risultano formati permessi."))."]":"";
     $finLabel = array();
     $finLabel['label'] = is_array($label) ? $label[0]:$label;
     $finLabel['description'] = (is_array($label) && $label[1]) ? $text."<br/>".$label[1]:$text;
@@ -1286,18 +1296,18 @@ class Form {
     if(!empty($value)) {
       $value_link = ($this->option('preview') && $this->option('previewSrc'))
         ? "<span onclick=\"Slimbox.open('".$this->option('previewSrc')."')\" class=\"link\">$value</span>"
-        :$value;
-      $GFORM .= "<div>";
-      if($this->option('del_check')) {
+        : $value;
+      $required = $options['required'];
+      $options['required'] = false;
+      $GFORM .= $this->input($name, 'file', $value, $options);
+      $GFORM .= "<div class=\"form-file-check\">";
+      if(!$required) {
         $GFORM .= "<input type=\"checkbox\" name=\"check_del_$name\" value=\"ok\" />";
         $GFORM .= " "._("elimina")." ";
       }
       $GFORM .= _("file caricato").": <b>$value_link</b>";
       $GFORM .= "</div>";
-      $GFORM .= "<div style=\"margin-top:10px;\">";
-      $GFORM .= $this->input($name, 'file', $value, $options);
       $GFORM .= $text_add;
-      $GFORM .= "</div>";
     }
     else
     {
@@ -1939,7 +1949,7 @@ class Form {
 			foreach($langs AS $lang) {
 				$label = htmlChars($lang->label);
 				$code = $lang->language_code.'_'.$lang->country_code;
-				$GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->pub->getPtUrl()."&action=trnsl')\">".$label."</span> &#160;";
+				$GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->pub->getPtUrl()."&trnsl=1')\">".$label."</span> &#160;";
 				$first = false; 
 			}	
 			$GINO .= " &nbsp; <span id=\"".$tbl.$field."\"></span>\n";

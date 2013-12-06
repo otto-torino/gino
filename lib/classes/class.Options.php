@@ -27,7 +27,7 @@
 class options {
 
   private $_db;
-	private $_class, $_class_prefix;
+	private $_class, $_module_app, $_class_prefix;
 	private $_tbl_options;
 	private $_instance;
 	private $_title;
@@ -35,7 +35,9 @@ class options {
 
 	private $_action;
 	
-	function __construct($class, $instance){
+  function __construct($class, $instance){
+
+    loader::import('sysClass', 'ModuleApp');
 		
     $this->_db = db::instance();
 
@@ -61,32 +63,11 @@ class options {
 
 		if(!$this->_instance) $this->_instance_name = $this->_class; 		
 		
-		$this->_class_prefix = $this->field_class('tbl_name', $this->_class);
+    $this->_module_app = ModuleApp::getFromName($this->_class);
+		$this->_class_prefix = $this->_module_app->tbl_name;
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
 		$this->_return_link = method_exists($class, "manageDoc")? $this->_instance_name."-manageDoc": $this->_instance_name."-manage".ucfirst($class);
-	}
-
-	/**
-	 * Ricava il valore di un campo della tabella sys_module_app
-	 * 
-	 * @param string $field nome del campo
-	 * @param string $class_name nome della classe
-	 * @return string
-	 */
-	private function field_class($field, $class_name) {
-		
-		$records = $this->_db->select($field, TBL_MODULE_APP, "name='$class_name' AND type='class'");
-		if(count($records))
-		{
-			foreach($records AS $r)
-			{
-				$value = $r[$field];
-			}
-		}
-		else $value = '';
-		
-		return $value;
 	}
 
 	private function editableField($field) {
@@ -158,11 +139,11 @@ class options {
 					else $required .= $f->name.",";
 				}
 			}
-			$action = $this->_act_insert;
+			$action = 'insert';
 			$submit = _("inserisci");
 		}
 	
-		$label = $this->field_class('label', $this->_class);
+		$label = $this->_module_app->ml('label');
 
 		if(method_exists($this->_class, 'manageDoc')) $function = 'manageDoc';
 		else $function = 'manage'.ucfirst($this->_class);
@@ -181,11 +162,11 @@ class options {
 				if(is_array($field_option) && array_key_exists('section', $field_option) && $field_option['section'])
 				{
 					$section_title = array_key_exists('section_title', $field_option) ? $field_option['section_title'] : '';
-					$section_title = "<p class=\"subtitle\">$section_title</p>";
+					$section_title = "<h2>$section_title</h2>";
 					if($section_description = gOpt('section_description', $field_option, null)) {
 						$section_title .= "<div>$section_description</div>";
 					}
-					$GINO .= $gform->cell($section_title);
+					$GINO .= $section_title;
 				}
 				
 				if(is_array($field_option) AND array_key_exists('label', $field_option))
@@ -203,7 +184,7 @@ class options {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
 				elseif($f->type == 'text') {
-					$GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'96%', "rows"=>4, "required"=>$field_required, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
+					$GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
 				elseif($f->type == 'int' && $f->length>1) {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));

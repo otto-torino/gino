@@ -196,12 +196,23 @@ class Css extends Model {
 
 		$db = db::instance();
 		$res = array();
-		$query = "SELECT id, label, filename, description FROM ".self::$_tbl_css." ORDER BY $order";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				$res[] = new css('layout', array('id'=>$b['id']));
+    $rows = $db->select('id', self::$_tbl_css, null, array('order' => $order));
+		if($rows and count($rows)) {
+			foreach($rows as $row) {
+				$res[] = new css('layout', array('id'=>$row['id']));
 			}
+		}
+
+		return $res;
+	}
+
+  public static function getFromFilename($filename) {
+
+		$db = db::instance();
+    $res = null;
+    $rows = $db->select('id', self::$_tbl_css, "filename='$filename'");
+		if($rows and count($rows)) {
+			$res = new css('layout', array('id'=>$rows[0]['id']));
 		}
 
 		return $res;
@@ -214,15 +225,14 @@ class Css extends Model {
 	 */
 	public function formCssLayout() {
 	
-		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
+		$gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
 		$gform->load('dataform');
 
-		$action = ($this->id)?'modify':'insert';
-		$title = ($this->id)?_("Modifica ").htmlChars($this->label):_("Nuovo css");
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title));
+		$action = $this->id ? 'modify':'insert';
+		$title = $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile");
 
 		$required = 'label';
-		$buffer = $gform->form($this->_home."?evt[layout-actionCss]", true, $required);
+		$buffer = $gform->open($this->_home."?evt[layout-actionCss]", true, $required);
 		$buffer .= $gform->hidden('id', $this->id);
 		$buffer .= $gform->hidden('old_filename', $this->filename);
 		
@@ -231,11 +241,17 @@ class Css extends Model {
 		$buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
 
 		$buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
-		$buffer .= $gform->cform();
+		$buffer .= $gform->close();
 
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => $title,
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
 	}
 
 	/**
@@ -243,11 +259,11 @@ class Css extends Model {
 	 */
 	public function actionCssLayout() {
 		
-		$gform = new Form('gform', 'post', true);
+		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
-		$action = ($this->id)?'modify':'insert';
+		$action = $this->id ? 'modify' : 'insert';
 		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=css&id=$this->id&action=$action";
 
 		if($req_error > 0) 
@@ -259,7 +275,7 @@ class Css extends Model {
 		$directory = CSS_DIR.OS;
 		$redirect = $this->_interface.'-manageLayout';
 		$link = "block=css";
-		$link .= ($this->id)?"&action=modify&id=$this->id":"&action=insert";
+		$link .= $this->id ? "&action=modify&id=$this->id" : "&action=insert";
 		
 		foreach($_POST as $k=>$v) {
 			$this->{$k} = cleanVar($_POST, $k, 'string', '');
@@ -268,7 +284,8 @@ class Css extends Model {
 
 		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css", "text/x-c", "text/plain")));
 
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+    header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+    exit();
 	}
 	
 	/**
@@ -278,22 +295,27 @@ class Css extends Model {
 	 */
 	public function formDelCssLayout() {
 	
-		$gform = new Form('gform', 'post', true);
+		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
-		$id = cleanVar($_GET, 'id', 'int', '');
+    $title = sprintf(_('Elimina foglio di stile "%s"'), $this->label);
 
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Elimina css")));
-
+    $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione determina l\'eliminazione del file css dalle skin che lo contengono!')."</p>";
 		$required = '';
-		$buffer = $gform->form($this->_home."?evt[layout-actionDelCss]", '', $required);
+		$buffer .= $gform->open($this->_home."?evt[layout-actionDelCss]", '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
-		$buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), array(_("Attenzione!"), _("l'eliminazione determina l'eliminazione del file css dalle skin che lo contengono!")), array("classField"=>"submit"));
-		$buffer .= $gform->cform();
+		$buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+		$buffer .= $gform->close();
 
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => $title,
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
 	}
 	
 	/**
@@ -305,10 +327,11 @@ class Css extends Model {
 
 		skin::removeCss($this->id);
 
-		language::deleteTranslations($this->_tbl_data, $this->id);
+		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
 		$this->deleteDbData();
 
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+    header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+    exit();
 	}
 
 	/**
@@ -318,13 +341,18 @@ class Css extends Model {
 	 */
 	public static function layoutInfo() {
 		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni css")));
-		$buffer = "<p><b>"._("Indicazioni")."</b></p>\n";
+		$buffer = "<h2>"._("Indicazioni")."</h2>\n";
 		$buffer .= "<p>"._("Upload di fogli di stile da associare eventualmente ad una skin. Il css viene accodato ai file di default di Gino CMS, pertanto è possibile definire nuovi stili o sovrascrivere quelli già presenti.")."</p>\n";
 		
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Css'),
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    
+    return $view->render($dict);
 	}
 }
 ?>

@@ -841,6 +841,18 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		return $this->actionquery($query);
 	}
 
+	/**
+	 * @see DbManager::drop()
+	 */
+	public function drop($table) {
+
+		if(!$table) return false;
+		
+		$query = "DROP $table";
+		
+		return $this->actionquery($query);
+	}
+
   /**
 	 * @see DbManager::columnHasValue()
 	 */

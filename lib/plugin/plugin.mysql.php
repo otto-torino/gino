@@ -583,16 +583,17 @@ class mysql implements DbManager {
 			
 			foreach($fields AS $field=>$value)
 			{
-				$a_fields[] = $field;
-				
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "`$field`=".$value['sql'];
+						$a_fields[] = "`$field`=".$value['sql']; //@TODO VERIFICARE
 				}
 				else
 				{
-					$a_values[] = ($value !== null) ? "'$value'" : null;	/////// VERIFICARE
+          if($value !== null) {
+				    $a_fields[] = $field;
+					  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+          }
 				}
 			}
 			
@@ -655,6 +656,18 @@ class mysql implements DbManager {
 		$query = "DELETE FROM $table".$s_where;
 		
 		if($debug) echo $query;
+		
+		return $this->actionquery($query);
+	}
+
+	/**
+	 * @see DbManager::drop()
+	 */
+	public function drop($table) {
+
+		if(!$table) return false;
+		
+		$query = "DROP $table";
 		
 		return $this->actionquery($query);
 	}

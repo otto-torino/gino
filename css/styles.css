@@ -7365,6 +7365,15 @@ section {
 section.admin {
   padding: 10px 20px;
 }
+/* tables */
+caption {
+  padding: 10px;
+  font-style: italic;
+}
+/* text */
+.nowrap {
+  white-space: nowrap;
+}
 /* float */
 .left {
   float: left !important;
@@ -7418,6 +7427,9 @@ div.tab-content {
 div.tab-content h1 {
   font-size: 34px;
   margin-top: 0;
+}
+div.tab-content h2 {
+  font-size: 28px;
 }
 div.tab-content header a.selected {
   background: transparent;
@@ -7480,14 +7492,21 @@ div.tab-int-selected a:visited {
   max-width: 200px;
   z-index: 10;
 }
+.tipsfull {
+  max-width: 600px;
+  -webkit-box-shadow: 0 0 5px #999999;
+  box-shadow: 0 0 5px #999999;
+  border: 1px solid #999;
+  border-radius: 5px;
+}
 .tipsfull .tip-top {
-  background: url('../img/tip-top.png') no-repeat top left;
-  width: 271px;
+  background: #fff;
+  border-radius: 5px;
+  border-bottom-width: 0;
   height: 8px;
 }
 .tipsfull .tip {
-  background: url('../img/tip-text.png') top left;
-  width: 271px;
+  background: #fff;
   text-align: left;
 }
 .tipsfull .tip-title {
@@ -7505,8 +7524,8 @@ div.tab-int-selected a:visited {
   padding-bottom: 10px;
 }
 .tipsfull .tip-bottom {
-  background: url('../img/tip-bottom.png') top left;
-  width: 271px;
+  background: #fff;
+  border-radius: 5px;
   height: 17px;
 }
 /* backoffice */
@@ -7515,6 +7534,90 @@ div.tab-int-selected a:visited {
   border-left: 5px solid #ccc;
   padding: 10px;
   margin: 10px 0;
+}
+/*
+ * Javascript layerWindow styles
+ */
+div.abiWinOverlay {
+  position: absolute;
+  background: #000;
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+.abiWin {
+  position: absolute;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #e7e7e7;
+  background: linear-gradient(to bottom, #dddddd, #eeeeee);
+  border: 1px solid #999;
+  z-index: 10000;
+  box-shadow: 0px 0px 10px #aaa;
+}
+.abiWin .abiHeader {
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+}
+.abiWin .abiHeader h1 {
+  font-size: 18px;
+  margin: 5px;
+}
+.abiWin div.body {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  clear: both;
+  text-align: left;
+  padding: 8px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  overflow: auto;
+  border-radius: 5px;
+}
+.abiWin span.close {
+  background-color: #fff;
+  border: 1px solid #000;
+  cursor: pointer;
+  padding: 2px;
+  position: absolute;
+  right: 5px;
+  top: 4px;
+}
+.abiWin span.close_img {
+  cursor: pointer;
+  padding: 2px;
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  width: 13px;
+  height: 13px;
+  background: url('../img/ico_close2.gif') no-repeat center center;
+}
+.abiWin img.close {
+  cursor: pointer;
+  padding: 2px;
+  position: absolute;
+  right: 5px;
+  top: 4px;
+}
+.abiWin footer {
+  text-align: center;
+  margin: 0px 0px;
+}
+/*
+ * ATTACHED LIST 
+ */
+.drag-attached-view img {
+  height: 30px;
+}
+.attached-filter-ctg {
+  padding: 10px;
+  background: #eee;
+  border: 1px solid #bbb;
 }
 form {
   margin: 10px 0;
@@ -7536,11 +7639,13 @@ form fieldset .form-row * {
   vertical-align: top;
 }
 form .form-trnsl,
-form #trnsl-container {
+form #trnsl-container,
+form .form-file-check {
   margin: 10px 0 0 205px;
 }
 form .form-trnsl .trnsl-lng,
-form #trnsl-container .trnsl-lng {
+form #trnsl-container .trnsl-lng,
+form .form-file-check .trnsl-lng {
   display: inline-block;
   margin-bottom: 0;
   font-weight: normal;
@@ -7569,22 +7674,27 @@ form #trnsl-container .trnsl-lng {
   border-color: #46b8da;
 }
 form .form-trnsl .trnsl-lng:focus,
-form #trnsl-container .trnsl-lng:focus {
+form #trnsl-container .trnsl-lng:focus,
+form .form-file-check .trnsl-lng:focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
 form .form-trnsl .trnsl-lng:hover,
 form #trnsl-container .trnsl-lng:hover,
+form .form-file-check .trnsl-lng:hover,
 form .form-trnsl .trnsl-lng:focus,
-form #trnsl-container .trnsl-lng:focus {
+form #trnsl-container .trnsl-lng:focus,
+form .form-file-check .trnsl-lng:focus {
   color: #333333;
   text-decoration: none;
 }
 form .form-trnsl .trnsl-lng:active,
 form #trnsl-container .trnsl-lng:active,
+form .form-file-check .trnsl-lng:active,
 form .form-trnsl .trnsl-lng.active,
-form #trnsl-container .trnsl-lng.active {
+form #trnsl-container .trnsl-lng.active,
+form .form-file-check .trnsl-lng.active {
   outline: 0;
   background-image: none;
   -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
@@ -7592,10 +7702,13 @@ form #trnsl-container .trnsl-lng.active {
 }
 form .form-trnsl .trnsl-lng.disabled,
 form #trnsl-container .trnsl-lng.disabled,
+form .form-file-check .trnsl-lng.disabled,
 form .form-trnsl .trnsl-lng[disabled],
 form #trnsl-container .trnsl-lng[disabled],
+form .form-file-check .trnsl-lng[disabled],
 fieldset[disabled] form .form-trnsl .trnsl-lng,
-fieldset[disabled] form #trnsl-container .trnsl-lng {
+fieldset[disabled] form #trnsl-container .trnsl-lng,
+fieldset[disabled] form .form-file-check .trnsl-lng {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.65;
@@ -7605,130 +7718,188 @@ fieldset[disabled] form #trnsl-container .trnsl-lng {
 }
 form .form-trnsl .trnsl-lng:hover,
 form #trnsl-container .trnsl-lng:hover,
+form .form-file-check .trnsl-lng:hover,
 form .form-trnsl .trnsl-lng:focus,
 form #trnsl-container .trnsl-lng:focus,
+form .form-file-check .trnsl-lng:focus,
 form .form-trnsl .trnsl-lng:active,
 form #trnsl-container .trnsl-lng:active,
+form .form-file-check .trnsl-lng:active,
 form .form-trnsl .trnsl-lng.active,
 form #trnsl-container .trnsl-lng.active,
+form .form-file-check .trnsl-lng.active,
 .open .dropdown-toggleform .form-trnsl .trnsl-lng,
-.open .dropdown-toggleform #trnsl-container .trnsl-lng {
+.open .dropdown-toggleform #trnsl-container .trnsl-lng,
+.open .dropdown-toggleform .form-file-check .trnsl-lng {
   color: #ffffff;
   background-color: #39b3d7;
   border-color: #269abc;
 }
 form .form-trnsl .trnsl-lng:active,
 form #trnsl-container .trnsl-lng:active,
+form .form-file-check .trnsl-lng:active,
 form .form-trnsl .trnsl-lng.active,
 form #trnsl-container .trnsl-lng.active,
+form .form-file-check .trnsl-lng.active,
 .open .dropdown-toggleform .form-trnsl .trnsl-lng,
-.open .dropdown-toggleform #trnsl-container .trnsl-lng {
+.open .dropdown-toggleform #trnsl-container .trnsl-lng,
+.open .dropdown-toggleform .form-file-check .trnsl-lng {
   background-image: none;
 }
 form .form-trnsl .trnsl-lng.disabled,
 form #trnsl-container .trnsl-lng.disabled,
+form .form-file-check .trnsl-lng.disabled,
 form .form-trnsl .trnsl-lng[disabled],
 form #trnsl-container .trnsl-lng[disabled],
+form .form-file-check .trnsl-lng[disabled],
 fieldset[disabled] form .form-trnsl .trnsl-lng,
 fieldset[disabled] form #trnsl-container .trnsl-lng,
+fieldset[disabled] form .form-file-check .trnsl-lng,
 form .form-trnsl .trnsl-lng.disabled:hover,
 form #trnsl-container .trnsl-lng.disabled:hover,
+form .form-file-check .trnsl-lng.disabled:hover,
 form .form-trnsl .trnsl-lng[disabled]:hover,
 form #trnsl-container .trnsl-lng[disabled]:hover,
+form .form-file-check .trnsl-lng[disabled]:hover,
 fieldset[disabled] form .form-trnsl .trnsl-lng:hover,
 fieldset[disabled] form #trnsl-container .trnsl-lng:hover,
+fieldset[disabled] form .form-file-check .trnsl-lng:hover,
 form .form-trnsl .trnsl-lng.disabled:focus,
 form #trnsl-container .trnsl-lng.disabled:focus,
+form .form-file-check .trnsl-lng.disabled:focus,
 form .form-trnsl .trnsl-lng[disabled]:focus,
 form #trnsl-container .trnsl-lng[disabled]:focus,
+form .form-file-check .trnsl-lng[disabled]:focus,
 fieldset[disabled] form .form-trnsl .trnsl-lng:focus,
 fieldset[disabled] form #trnsl-container .trnsl-lng:focus,
+fieldset[disabled] form .form-file-check .trnsl-lng:focus,
 form .form-trnsl .trnsl-lng.disabled:active,
 form #trnsl-container .trnsl-lng.disabled:active,
+form .form-file-check .trnsl-lng.disabled:active,
 form .form-trnsl .trnsl-lng[disabled]:active,
 form #trnsl-container .trnsl-lng[disabled]:active,
+form .form-file-check .trnsl-lng[disabled]:active,
 fieldset[disabled] form .form-trnsl .trnsl-lng:active,
 fieldset[disabled] form #trnsl-container .trnsl-lng:active,
+fieldset[disabled] form .form-file-check .trnsl-lng:active,
 form .form-trnsl .trnsl-lng.disabled.active,
 form #trnsl-container .trnsl-lng.disabled.active,
+form .form-file-check .trnsl-lng.disabled.active,
 form .form-trnsl .trnsl-lng[disabled].active,
 form #trnsl-container .trnsl-lng[disabled].active,
+form .form-file-check .trnsl-lng[disabled].active,
 fieldset[disabled] form .form-trnsl .trnsl-lng.active,
-fieldset[disabled] form #trnsl-container .trnsl-lng.active {
+fieldset[disabled] form #trnsl-container .trnsl-lng.active,
+fieldset[disabled] form .form-file-check .trnsl-lng.active {
   background-color: #5bc0de;
   border-color: #46b8da;
 }
 form .form-trnsl .trnsl-lng-sel,
-form #trnsl-container .trnsl-lng-sel {
+form #trnsl-container .trnsl-lng-sel,
+form .form-file-check .trnsl-lng-sel {
   color: #ffffff;
   background-color: #5cb85c;
   border-color: #4cae4c;
 }
 form .form-trnsl .trnsl-lng-sel:hover,
 form #trnsl-container .trnsl-lng-sel:hover,
+form .form-file-check .trnsl-lng-sel:hover,
 form .form-trnsl .trnsl-lng-sel:focus,
 form #trnsl-container .trnsl-lng-sel:focus,
+form .form-file-check .trnsl-lng-sel:focus,
 form .form-trnsl .trnsl-lng-sel:active,
 form #trnsl-container .trnsl-lng-sel:active,
+form .form-file-check .trnsl-lng-sel:active,
 form .form-trnsl .trnsl-lng-sel.active,
 form #trnsl-container .trnsl-lng-sel.active,
+form .form-file-check .trnsl-lng-sel.active,
 .open .dropdown-toggleform .form-trnsl .trnsl-lng-sel,
-.open .dropdown-toggleform #trnsl-container .trnsl-lng-sel {
+.open .dropdown-toggleform #trnsl-container .trnsl-lng-sel,
+.open .dropdown-toggleform .form-file-check .trnsl-lng-sel {
   color: #ffffff;
   background-color: #47a447;
   border-color: #398439;
 }
 form .form-trnsl .trnsl-lng-sel:active,
 form #trnsl-container .trnsl-lng-sel:active,
+form .form-file-check .trnsl-lng-sel:active,
 form .form-trnsl .trnsl-lng-sel.active,
 form #trnsl-container .trnsl-lng-sel.active,
+form .form-file-check .trnsl-lng-sel.active,
 .open .dropdown-toggleform .form-trnsl .trnsl-lng-sel,
-.open .dropdown-toggleform #trnsl-container .trnsl-lng-sel {
+.open .dropdown-toggleform #trnsl-container .trnsl-lng-sel,
+.open .dropdown-toggleform .form-file-check .trnsl-lng-sel {
   background-image: none;
 }
 form .form-trnsl .trnsl-lng-sel.disabled,
 form #trnsl-container .trnsl-lng-sel.disabled,
+form .form-file-check .trnsl-lng-sel.disabled,
 form .form-trnsl .trnsl-lng-sel[disabled],
 form #trnsl-container .trnsl-lng-sel[disabled],
+form .form-file-check .trnsl-lng-sel[disabled],
 fieldset[disabled] form .form-trnsl .trnsl-lng-sel,
 fieldset[disabled] form #trnsl-container .trnsl-lng-sel,
+fieldset[disabled] form .form-file-check .trnsl-lng-sel,
 form .form-trnsl .trnsl-lng-sel.disabled:hover,
 form #trnsl-container .trnsl-lng-sel.disabled:hover,
+form .form-file-check .trnsl-lng-sel.disabled:hover,
 form .form-trnsl .trnsl-lng-sel[disabled]:hover,
 form #trnsl-container .trnsl-lng-sel[disabled]:hover,
+form .form-file-check .trnsl-lng-sel[disabled]:hover,
 fieldset[disabled] form .form-trnsl .trnsl-lng-sel:hover,
 fieldset[disabled] form #trnsl-container .trnsl-lng-sel:hover,
+fieldset[disabled] form .form-file-check .trnsl-lng-sel:hover,
 form .form-trnsl .trnsl-lng-sel.disabled:focus,
 form #trnsl-container .trnsl-lng-sel.disabled:focus,
+form .form-file-check .trnsl-lng-sel.disabled:focus,
 form .form-trnsl .trnsl-lng-sel[disabled]:focus,
 form #trnsl-container .trnsl-lng-sel[disabled]:focus,
+form .form-file-check .trnsl-lng-sel[disabled]:focus,
 fieldset[disabled] form .form-trnsl .trnsl-lng-sel:focus,
 fieldset[disabled] form #trnsl-container .trnsl-lng-sel:focus,
+fieldset[disabled] form .form-file-check .trnsl-lng-sel:focus,
 form .form-trnsl .trnsl-lng-sel.disabled:active,
 form #trnsl-container .trnsl-lng-sel.disabled:active,
+form .form-file-check .trnsl-lng-sel.disabled:active,
 form .form-trnsl .trnsl-lng-sel[disabled]:active,
 form #trnsl-container .trnsl-lng-sel[disabled]:active,
+form .form-file-check .trnsl-lng-sel[disabled]:active,
 fieldset[disabled] form .form-trnsl .trnsl-lng-sel:active,
 fieldset[disabled] form #trnsl-container .trnsl-lng-sel:active,
+fieldset[disabled] form .form-file-check .trnsl-lng-sel:active,
 form .form-trnsl .trnsl-lng-sel.disabled.active,
 form #trnsl-container .trnsl-lng-sel.disabled.active,
+form .form-file-check .trnsl-lng-sel.disabled.active,
 form .form-trnsl .trnsl-lng-sel[disabled].active,
 form #trnsl-container .trnsl-lng-sel[disabled].active,
+form .form-file-check .trnsl-lng-sel[disabled].active,
 fieldset[disabled] form .form-trnsl .trnsl-lng-sel.active,
-fieldset[disabled] form #trnsl-container .trnsl-lng-sel.active {
+fieldset[disabled] form #trnsl-container .trnsl-lng-sel.active,
+fieldset[disabled] form .form-file-check .trnsl-lng-sel.active {
   background-color: #5cb85c;
   border-color: #4cae4c;
+}
+form .form-multicheck,
+form .form-radio-group {
+  display: inline-block;
+}
+form .form-multicheck {
+  max-height: 250px;
+  overflow: auto;
 }
 form #trnsl-container {
   background: #eee;
   padding: 10px;
+}
+form .form-textadd {
+  display: inline-block;
+  margin-left: 10px;
 }
 label {
   font-weight: normal;
   text-align: right;
   padding-right: 15px;
   width: 200px;
-  height: 25px;
 }
 .label-tooltipfull {
   margin-top: 3px;
@@ -7767,6 +7938,18 @@ textarea:valid {
 input:focus:invalid,
 textarea:focus:invalid {
   background: #ffffff url(../img/invalid.png) no-repeat 98% center;
+}
+.form-no-check {
+  padding: 0px;
+}
+.form-no-check:required {
+  background: #fff;
+}
+.form-no-check:valid {
+  background: #fff;
+}
+.form-no-check:focus:invalid {
+  background: #fff;
 }
 input[type=file] {
   display: inline-block;
@@ -7816,6 +7999,29 @@ input[type=submit]:hover,
 input[type=button]:hover {
   opacity: 0.8;
   filter: alpha(opacity=80);
+}
+/* admin table filter forms */
+#filter_form_container {
+  position: relative;
+}
+#filter_form_layer {
+  position: absolute;
+  visibility: hidden;
+  top: 0px;
+  right: 24px;
+  overflow: hidden;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  background: #fff;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px 20px 20px;
+  border: 1px solid #aaa;
+  margin-top: 5px;
+}
+#filter_form_layer h2 {
+  margin-top: 0;
 }
 .navbar-brand {
   font-family: 'Chicken';

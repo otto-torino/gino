@@ -4,7 +4,7 @@
   <? endif ?>
   <? if(isset($pre_header)): ?><?= $pre_header ?><? endif ?>
   <? if(isset($header_links)): ?>
-    <h1 class="headerInside left<?= isset($header_class) ? ' '.$header_class : '' ?>"><?= $header ?></h1>
+    <h1 class="headerInside left<?= isset($header_class) ? ' '.$header_class : '' ?>"><?= $title ?></h1>
     <div class="headerInside right"><?= (is_array($header_links)) ?implode(" ", $header_links) : $header_links ?></div>
     <div class="clear"></div>
   <? else: ?>

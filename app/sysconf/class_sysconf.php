@@ -83,7 +83,7 @@ class sysconf extends Controller {
       }
       $this->_registry->plink->redirect($this->_class_name, 'manageSysconf');
     }
-    elseif(isset($_GET['action']) and $_GET['action'] == 'trnsl') {
+    elseif(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
       if(isset($_GET['save']) and $_GET['save'] == '1') {
         $this->_trd->actionTranslation();
       }

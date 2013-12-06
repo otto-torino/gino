@@ -215,7 +215,7 @@ class sysfunc extends Controller {
 	 * @param string $class nome della classe
 	 * @return string
 	 */
-	public static function manageFrontend($mdl, $class) {
+	public function manageFrontend($mdl, $class) {
 
 		$db = db::instance();
 
@@ -247,7 +247,7 @@ class sysfunc extends Controller {
 	 * @param string $class nome della classe
 	 * @return string
 	 */
-	public static function manageOptions($mdl, $class) {
+	public function manageOptions($mdl, $class) {
 	
 		$options = new options($class, $mdl);
 

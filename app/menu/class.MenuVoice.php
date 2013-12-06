@@ -57,14 +57,14 @@ class MenuVoice extends Model {
 
 	public function initOrderList() {
 
-		$query = "SELECT max(orderList) AS last FROM ".self::$tbl_voices." WHERE instance='{$this->_p['instance']}' AND parent='{$this->_p['parent']}'";
+		$query = "SELECT max(order_list) AS last FROM ".self::$tbl_voices." WHERE instance='{$this->_p['instance']}' AND parent='{$this->_p['parent']}'";
 		$a = $this->_db->selectquery($query);
 		if(sizeof($a)>0) {
 			$last = $a[0]['last'];
 		}
 		else $last = 0;
 
-		$this->orderList = $last+1;
+		$this->order_list = $last+1;
 	}
 
 	/**
@@ -74,7 +74,7 @@ class MenuVoice extends Model {
 	 */
 	public function updateOrderList() {
 
-		$result = $this->_db->update(array('orderList'=>array('sql'=>"orderList-1")), self::$tbl_voices, "orderList>'".$this->orderList."' AND parent='".$this->parent."'", true);
+		$result = $this->_db->update(array('order_list'=>array('sql'=>"order_list-1")), self::$tbl_voices, "order_list>'".$this->order_list."' AND parent='".$this->parent."'", true);
 		return $result;
 	}
 
@@ -91,16 +91,48 @@ class MenuVoice extends Model {
 
 		$children = array();
 
-		$query = "SELECT id FROM ".self::$tbl_voices." WHERE parent='{$this->_p['id']}' ORDER BY orderList";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				$children[$b['id']] = new menuVoice($b['id']);
+    $rows = $this->_db->select('id', self::$tbl_voices, "parent='{$this->_p['id']}'", array('order' => "order_list"));
+		if($rows and count($rows)) {
+			foreach($rows as $row) {
+				$children[$row['id']] = new MenuVoice($row['id']);
 			}
 		}
 
 		return $children;
 	}
+
+  public static function get($opts) {
+    $res = array();
+    $where = gOpt('where', $opts, null);
+    $order = gOpt('where', $opts, null);
+    $db = db::instance();
+    $rows = $db->select('id', self::$tbl_voices, $where, array('order' => $order));
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        $res[] = new MenuVoice($row['id']);
+      }
+    }
+    return $res;
+  }
+
+  public function userCanSee() {
+
+    if(!$this->perms) {
+      return true;
+    }
+    Loader::import('auth', 'Permission');
+
+    foreach(explode(';', $this->perms) as $p) {
+      $values = explode(',', $p);
+      $perm = new Permission($values[0]);
+      $instance = $values[1];
+      if($this->_registry->user->hasPerm($perm->class, $perm->code, $instance)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
 	/**
 	 * Form di inserimento e modifica di una voce di menu
@@ -110,8 +142,10 @@ class MenuVoice extends Model {
 	 * @return string
 	 */
 	public function formVoice($formaction, $parent) {
+
+    Loader::import('auth', array('Permission'));
 	
-		$gform = new Form('gform', 'post', true);
+		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
 		$parentVoice = new menuVoice($parent);
@@ -122,122 +156,38 @@ class MenuVoice extends Model {
 			$submit = _("inserisci");
 			$action='insert';
 		}
-		$title = "<a name=\"top\">$title</a>";
+		$title = $title."<a name=\"top\"> </a>";
 
 		$pub = new pub;
-		$link_delete = ($this->_p['id'])? "<a href=\"".$_SERVER['QUERY_STRING']."&action=delete\">".$pub->icon('delete', _("elimina voce"))."</a>":"";
 		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>$title, 'headerLinks'=>array($link_delete)));
-		$required = 'label,type,voice';	// verifica su role1 e authView in actionMenuVoice()
+		$required = 'label,type,voice';	
 
 		$required = '';
-		$buffer = $gform->form($formaction, '', $required);
+		$buffer = $gform->open($formaction, '', $required);
 		$buffer .= $gform->hidden('action', $action);
 		$buffer .= $gform->hidden('parent', $parent);
-		$buffer .= $gform->hidden('page_id', $this->_p['page_id'], array('id'=>'page_id'));
 		if($this->_p['id'])
 			$buffer .= $gform->hidden('id', $this->_p['id']);
 
 		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->_p['label'])), _("Voce"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>self::$tbl_voices, "field"=>"label", "trnsl_id"=>$this->_p['id']));
 
-		$buffer .= $gform->cinput('link', 'text', $gform->retvar('link', htmlInput($this->_p['link'])), _("Link"), array("size"=>40, "maxlength"=>200, "id"=>"link"));
+		$buffer .= $gform->cinput('url', 'text', $gform->retvar('url', htmlInput($this->_p['url'])), _("url"), array("size"=>40, "maxlength"=>200, "id"=>"url"));
 
-		$buffer .= $gform->cradio('type', $gform->retvar('type', htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare il 'modulo di ricerca pagine e classi')"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
+		$buffer .= $gform->cradio('type', $gform->retvar('type', htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare la ricerca viste)"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
 
-		$buffer .= $gform->cradio('voice', $gform->retvar('voice', htmlInput($this->_p['voice'])), array('class'=>_("classe"), 'page'=>_("pagina")), 'class', _("Voce di menu"), array("required"=>true, "aspect"=>"v"));
-		
-		$buffer .= $gform->cinput('reference', 'text', $gform->retvar('reference', htmlInput($this->_p['reference'])), _("Nome pagina/classe"), array("size"=>40, "maxlength"=>100, "id"=>"reference"));
-
-		$buffer .= $gform->cell(_("Campi obbligatori per le voci relative a classi"), array('other'=>"style=\"padding:5px 0px;\""));
-		
-		$buffer .= $this->selectRole($this->_gform, $gform->retvar('role1', htmlInput($this->_p['role1'])));
-
-		$buffer .= $gform->cradio('authView', $gform->retvar('authView', $this->_p['authView']), array('1'=>_("si"), '0'=>_("no")), '1', _("Visibile se autenticati"), array("required"=>false));
+    $buffer .= $gform->multipleCheckbox('perm[]', explode(';', $this->perms), Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
 
 		$buffer .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
-		$buffer .= $gform->cform();
+		$buffer .= $gform->close();
 
-		$htmlsection->content = $buffer;
+    $view = new View(null, 'section');
+    $dict = array(
+      'title' => $title,
+      'class' => 'admin',
+      'content' => $buffer
+    );
 
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Form di eliminazione di una voce di menu
-	 * 
-	 * @param string $formaction indirizzo dell'azione
-	 * @return string
-	 */
-	public function formDelVoice($formaction) {
-	
-		$gform = new Form('gform', 'post', false);
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Eliminazione voce di menu ")."'{$this->_p['label']}'"));
-
-		$required = 'id';
-		$buffer = $gform->form($formaction, '', $required);
-		$buffer .= $gform->hidden('id', $this->_p['id']);
-		$buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), array(_("Attenzione!"), _("l'eliminazione è definitiva e comporta l'eliminazione delle eventuali sottovoci")), array("classField"=>"submit"));
-		$buffer .= $gform->cform();
-
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
-	}
-
-	private function selectRole($object, $role1){
-		
-		$gform = new Form('gform', 'post', true);
-		$GINO = '';
-		$buffer = '';
-		
-		$onchange = "updaterole(this.selectedIndex)";
-		$query = "SELECT role_id, name FROM ".self::$_tbl_user_role;
-		$buffer .= $gform->cselect('role1', $role1, $query, _("Permessi di visualizzazione"), array("required"=>false, "id"=>"role1"));
-		
-		// Roles
-		$a_role = array(); $a_role[] = '';
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach ($a AS $b)
-			{
-				$a_role[] = htmlChars($b['name']).'|'.$b['role_id'];
-			}
-		}
-		
-		$buffer .= "
-		<script type=\"text/javascript\">
-
-		var rolelist=document.gform.role1;
-		var selrolelist=document.gform.role1;
-
-		var newrolelist=new Array();";
-		
-		$buffer .= "newrolelist[0]=\"\"\n";
-		for ($i=1, $end=sizeof($a_role); $i<$end; $i++)
-		{
-			$buffer .= "newrolelist[$i]=\"".$a_role[$i]."\"\n";
-		}
-
-		$buffer .= "
-		function updaterole(selectedrolegroup){
-			selrolelist.options.length=0
-			if (selectedrolegroup>0)
-			{
-				for (i=0; i<=selectedrolegroup; i++)
-				{
-					// selrolelist.options.length => end of select
-					selrolelist.options[i]=new Option(newrolelist[i].split(\"|\")[0], newrolelist[i].split(\"|\")[1])
-
-					if(selectedrolegroup==i){
-						selrolelist.options[i].selected=true
-					}
-				}
-			}
-		}
-		</script>";
-		
-		return $buffer;
+    return $view->render($dict);
 	}
 	
 	/**
@@ -248,27 +198,26 @@ class MenuVoice extends Model {
 	 */
 	public static function getSelectedVoice($instance) {
 	
+    $db = db::instance();
 		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5" 
-		
-		if(!preg_match("/\[(.+)\]/is", $query_string, $matches)) return 'home';	//  home		
-		if($matches[0] == "[index-index_page]") return 'home';			// home
-		if($matches[0] == "[index-admin_page]") return 'admin';			// admin home
+    $result_link = null;
+    $result = null;
 
-		$db = db::instance();
-		
-		$result = '';
-		$result_link = '';
-		$query = "SELECT id, link FROM ".self::$tbl_voices." WHERE link LIKE '%".$matches[0]."%' AND instance='$instance'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				if(preg_match("#".self::regExpText(stristr($b['link'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($b['link']) )
-				{
-					$result = $b['id'];
-					$result_link=$b['link'];
-				}
-			}
-		}
+    if(preg_match("/\[(.+)\]/is", $query_string, $matches)) {
+      
+      $result = '';
+      $result_link = '';
+      $rows = $db->select('id, url', self::$tbl_voices, "url LIKE '%".$matches[0]."%' AND instance='$instance'");
+      if($rows and count($rows)) {
+        foreach($rows as $row) {
+          if(preg_match("#".preg_quote(stristr($row['url'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($row['url']) )
+          {
+            $result = $row['id'];
+            $result_link=$row['url'];
+          }
+        }
+      }
+    }
 		else
 		{
 			/*
@@ -281,15 +230,15 @@ class MenuVoice extends Model {
 			$plink = $obj->convertLink($query_string);	// => page/displayItem/5
 			$search_link = $obj->alternativeLink($plink);
 			
-			$query = "SELECT id, link FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
+			$query = "SELECT id, url FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
 			$a = $db->selectquery($query);
 			if(sizeof($a)>0) {
 				foreach($a as $b) {
 					
-					$mlink = $b['link'];
+					$mlink = $b['url'];
 					$mlink = $obj->convertLink($mlink, array('pToLink'=>true));	// => evt[page-displayItem]&id=5
 					
-					if(preg_match("#".self::regExpText(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
+					if(preg_match("#".preg_quote(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
 					&& strlen($result_link)<strlen($mlink))
 					{
 						$result = $b['id'];
@@ -301,12 +250,5 @@ class MenuVoice extends Model {
 		return $result;
 	}
 
-	private static function regExpText($string) {
-		$find = array("\\", ".", "[", "]", "$", "(", ")", "|", "*", "+", "?", "{", "}");
-		$replace = array("\\\\", "\.", "\[", "\]", "\$", "\(", "\)", "\|", "\*", "\+", "\?", "\{", "\}");
-		$string = str_replace($find, $replace, $string);
-
-		return $string;
-	}
 }
 ?>
