@@ -129,7 +129,7 @@ class sysClass extends Controller {
     $view_table = new view();
     $view_table->setViewTpl('table');
 
-    $rows = $this->_registry->db->select("id, label, name, masquerade, removable, class_version", TBL_MODULE_APP, null, "order_list");		
+    $rows = $this->_registry->db->select("id, label, name, masquerade, removable, class_version", TBL_MODULE_APP, null, array('order'=>"order_list ASC"));		
     if($rows and count($rows)) {
 
       $GINO = "<p>"._('Di seguito l\'elenco di tutti i moduli installati sul sistema. Alcuni moduli non sono rimuovibili in quanto necessari al corretto funzionamento del sistema. In caso di eliminazione di un modulo istanziabile verranno eliminate anche tutte le sue istanze.')."</p>";

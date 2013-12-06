@@ -353,9 +353,12 @@ interface DbManager {
 	 * @param string $table nome della tabella
 	 * @param string $field campo da cercare
 	 * @param string $value valore da confrontare
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - except_id (integer): valore ID del record per il quale non effettuare il controllo
 	 * @return boolean
 	 */
-  public function columnHasValue($table, $field, $value);
+  public function columnHasValue($table, $field, $value, $options=array());
 	
 	/**
 	 * Definizione delle Join

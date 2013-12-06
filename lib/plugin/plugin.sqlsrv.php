@@ -842,13 +842,19 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		return $this->actionquery($query);
 	}
 
-  /**
+	/**
 	 * @see DbManager::columnHasValue()
 	 */
-  public function columnHasValue($table, $field, $value) {
-    $rows = $this->select($field, $table, $field."='$value'");
-    return $rows and count($rows) ? true : false;
-  }
+	public function columnHasValue($table, $field, $value, $options=array()) {
+		
+		$except_id = gOpt('except_id', $options, null);
+		
+		$where = $field."='$value'";
+		if($except_id) $where .= " AND id!='$except_id'";
+		
+		$rows = $this->select($field, $table, $where);
+		return $rows and count($rows) ? true : false;
+	}
 	
 	/**
 	 * @see DbManager::join()

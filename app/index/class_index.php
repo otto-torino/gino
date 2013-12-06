@@ -131,7 +131,7 @@ class index extends Controller{
 
     // @todo write sysClass as model
     $list = array();
-    $rows = $this->_db->select('id, label, name, description', TBL_MODULE_APP, " masquerade='no' AND instance='no'", "order_list");
+    $rows = $this->_db->select('id, label, name, description', TBL_MODULE_APP, " masquerade='no' AND instance='no'", array('order'=>"order_list ASC"));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         if($this->_registry->user->hasAdminPerm($row['name']) and method_exists($row['name'], 'manage'.ucfirst($row['name']))) {
@@ -156,7 +156,7 @@ class index extends Controller{
     }
 
     $list = array();
-    $rows = $this->_db->select('id, label, name, class, description', TBL_MODULE, " masquerade='no' AND type='class'", "label");
+    $rows = $this->_db->select('id, label, name, class, description', TBL_MODULE, " masquerade='no' AND type='class'", array('order'=>"label ASC"));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         if($this->_registry->user->hasAdminPerm($row['class'], $row['id']) and method_exists($row['class'], 'manageDoc')) {

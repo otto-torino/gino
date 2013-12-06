@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.adminTable.php
- * @brief Contiene la classe adminTable
+ * @file class.AdminTable.php
+ * @brief Contiene la classe AdminTable
  *
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -77,7 +77,7 @@
  * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
  */
-class adminTable {
+class AdminTable {
 
 	protected $_controller;
 	protected $_db, $session, $_form;
@@ -200,7 +200,19 @@ class adminTable {
 	 *   - opzioni per modificare la struttura del form
 	 *     - @b removeFields (array): elenco dei campi da non mostrare nel form
 	 *     - @b viewFields (array): elenco dei campi da mostrare nel form
-	 *     - @b addCell (array): elementi html da mostrare in aggiunta nel form
+	 *     - @b addCell (array): elementi html da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
+	 *     Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
+	 *       - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
+	 *       - @a field, codice da aggiungere
+	 *     Riassumento, la struttura di addCell è la seguente:
+	 *     @code
+	 *     array(
+	 *       'field_table'=>array(
+	 *         'name'=>'name_item_add', 
+	 *         'field'=>'content_item_add'
+	 *       )
+	 *     )
+	 *     @endcode
 	 *   - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
 	 * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
 	 *   opzioni valide
@@ -315,7 +327,7 @@ class adminTable {
 		
 		$structure = array();
 		$form_upload = false;
-    $form_required = array();
+    	$form_required = array();
 		foreach($model->structure($model->id) as $field=>$object) {
 			
 			if($addCell)
@@ -437,7 +449,7 @@ class adminTable {
 	 * Gestisce l'azione del form
 	 * 
 	 * @see readFile()
-	 * @see propertyObject::updateDbData()
+	 * @see Model::updateDbData()
 	 * @see field::clean()
 	 * @param object $model
 	 * @param array $options
@@ -1398,4 +1410,3 @@ class adminTable {
 		return $db->dump($table, $filename, $options);
 	}
 }
-?>

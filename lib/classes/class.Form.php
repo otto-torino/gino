@@ -1275,8 +1275,8 @@ class Form {
 
     $text_add = $this->option('text_add') ? $this->option('text_add') : '';
     $valid_extension = $this->option('extensions');
-
-    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0)? "[".(count($valid_extension) ? implode(', '. $valid_extension) : _("non risultano formati permessi."))."]":"";
+    
+    $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0) ? "[".(count($valid_extension) ? implode(', ', $valid_extension) : _("non risultano formati permessi."))."]":"";
     $finLabel = array();
     $finLabel['label'] = is_array($label) ? $label[0]:$label;
     $finLabel['description'] = (is_array($label) && $label[1]) ? $text."<br/>".$label[1]:$text;
@@ -1924,15 +1924,15 @@ class Form {
 	 */
 	private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
 
-    loader::import('language', 'Lang');
+		loader::import('language', 'Lang');
 
-    $GINO = '';
-	 	
-	 	if(empty($id_name)) $id_name = 'id';
+		$GINO = '';
 
-    $langs = Lang::get(array(
-      'where' => "main='0' AND active='1'"
-    ));
+		if(empty($id_name)) $id_name = 'id';
+
+		$langs = Lang::get(array(
+			'where' => "main='0' AND active='1'"
+		));
 		if($langs)
 		{
 			$first = true;
@@ -1940,7 +1940,7 @@ class Form {
 				$label = htmlChars($lang->label);
 				$code = $lang->language_code.'_'.$lang->country_code;
 				$GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->pub->getPtUrl()."&action=trnsl')\">".$label."</span> &#160;";
-				$first = false; 
+				$first = false;
 			}	
 			$GINO .= " &nbsp; <span id=\"".$tbl.$field."\"></span>\n";
 		}

@@ -110,7 +110,7 @@ class graphics extends Controller{
 		$array = array(
 			'_GRAPHICS_'	=>	SITE_GRAPHICS,
 			'_HOMEPAGE_'	=>	$this->_home,
-			'_HOME_'		=>	$this->_site_www,
+			'_HOME_'		=>	SITE_WWW,
 			'_LANGUAGE_'	=>	$language
 		);
 		
@@ -169,7 +169,7 @@ class graphics extends Controller{
 	 */
 	public function printHeaderAdmin() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render(3);
 	}
@@ -221,7 +221,7 @@ class graphics extends Controller{
 	 */
 	public function printFooterPrivate() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render('7');
 	}
@@ -234,7 +234,7 @@ class graphics extends Controller{
 	 */
 	public function printFooterAdmin() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render('8');
 	}
@@ -247,7 +247,7 @@ class graphics extends Controller{
 	 */
 	public function printFooterMobile() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render('9');
 	}
@@ -260,7 +260,7 @@ class graphics extends Controller{
 	 */
 	public function printFooterAdhoc() {
 
-		$this->accessType($this->_access_base);
+		//$this->accessType($this->_access_base);
 
 		return $this->render('10');
 	}
@@ -316,7 +316,7 @@ class graphics extends Controller{
 	 */
 	public function manageGraphics(){
 
-		$this->accessGroup('ALL');
+		//$this->accessGroup('ALL');
 		
 		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
 		$link_admin = "<a href=\"".$this->_home."?evt[".$this->_className."-manageGraphics]&block=permissions\">"._("Permessi")."</a>";
@@ -374,7 +374,7 @@ class graphics extends Controller{
 	 */
 	public function preview(){
 
-		$this->accessGroup('ALL');
+		//$this->accessGroup('ALL');
 
 		$id = cleanVar($_GET, 'id', 'int', '');
 
@@ -486,7 +486,7 @@ class graphics extends Controller{
 	 */
 	public function formType($id=null) {
 	
-		$this->accessGroup($this->_group_1);
+		//$this->accessGroup($this->_group_1);
 
 		if(is_null($id)) {
 			$id = cleanVar($_POST, 'id', 'int', '');
@@ -552,7 +552,7 @@ class graphics extends Controller{
 	 */
 	public function actionDoc(){
 	
-		$this->accessGroup($this->_group_1);
+		//$this->accessGroup($this->_group_1);
 		
 		$gform = new Form('gform', 'post', false);
 		$gform->save('dataform');

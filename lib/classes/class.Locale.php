@@ -129,21 +129,60 @@ class locale extends singleton {
 		}
 	}
 	/**
-	 * Setta la lingua del client e inizializza le gettext
+	 * Setta la lingua del client
 	 * 
 	 * @return boolean true
 	 */
-  public static function init() {
+	public static function init() {
 
-    $registry = registry::instance();
+		$registry = registry::instance();
 
-    self::setLanguage();
-    self::setGettext();
+		self::setLanguage();
 
-    $registry->trd = new translation($registry->session->lng, $registry->session->lngDft);
+		$registry->trd = new translation($registry->session->lng, $registry->session->lngDft);
 
-    return true;
-  }
+		return true;
+	}
+  
+	/**
+	 * Inizializza le librerie getttext
+	 * 
+	 * @return boolean true
+	 */
+	public static function initGettext() {
+		
+		$session = session::instance();
+
+		if(isset($session->lng))
+		{
+			$language = explode('_', $session->lng);
+			$lang = $language[0];
+			
+			if(!ini_get('safe_mode'))
+				putenv("LC_ALL=".$session->lng);
+			
+			setlocale(LC_ALL, $session->lng.'.utf8');
+		}
+		else $lang = '';
+		
+		define('LANG', $lang);
+
+		if(!extension_loaded('gettext'))
+		{
+			function _($str){
+				return $str;
+			}
+		}
+		else
+		{
+			$domain='messages';
+			bindtextdomain($domain, "./languages");
+			bind_textdomain_codeset($domain, 'UTF-8');
+			textdomain($domain);
+		}
+		
+		return true;
+	}
 
   private static function setLanguage(){
 
@@ -464,40 +503,5 @@ class locale extends singleton {
 		'yi' => 'Yiddish',
 		'zu' => 'Zulu' );
 	}
-
-  private static function setGettext(){
-
-    $session = session::instance();
-
-		if(isset($session->lng))
-		{
-			$language = explode('_', $session->lng);
-			$lang = $language[0];
-			
-			if(!ini_get('safe_mode'))
-				putenv("LC_ALL=".$session->lng);
-			
-			setlocale(LC_ALL, $session->lng.'.utf8');
-		}
-		else $lang = '';
-		
-		define('LANG', $lang);	// class document
-		
-		if(!extension_loaded('gettext'))
-		{
-			function _($str){
-				return $str;
-			}
-		}
-		else	// Gettext Functions
-		{
-			$domain='messages';
-			bindtextdomain($domain, "./languages");
-			bind_textdomain_codeset($domain, 'UTF-8');
-			textdomain($domain);	// choose domain
-		}
-	}
-
-
 }
 ?>

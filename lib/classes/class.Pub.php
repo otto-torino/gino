@@ -375,7 +375,8 @@ class pub {
         break;
       case 'group':
         $icon = 'ico_group.gif';
-        $title = _("utenti");
+        $class = 'fa-group';
+        $title = _("gruppi");
         break;
       case 'help':
         $icon = 'ico_help.gif';
@@ -433,6 +434,7 @@ class pub {
         break;
       case 'password':
         $icon = 'ico_password.gif';
+        $class = 'fa-key';
         $title = _("password");
         break;
       case 'pdf':
@@ -441,6 +443,7 @@ class pub {
         break;
       case 'permission':
         $icon = 'ico_permission.gif';
+        $class = 'fa-gears';
         $title = _("permessi");
         break;
       case 'print':

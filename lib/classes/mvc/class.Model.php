@@ -101,11 +101,10 @@
 		return $this->id;
 	}
 
-  public function fieldLabel($field) {
+	public function fieldLabel($field) {
 
-    return $this->_fields_label[$field];
-
-  }
+		return $this->_fields_label[$field];
+	}
 	
 	/**
 	 * Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto
@@ -280,8 +279,8 @@
 	 *     'fkey_order'=>'name'
 	 *   ));
 	 *   
-	 *   $base_path = $this->_controller->getBasePath('abs'); // ritorna /contents/events/eventsInterface/
-	 *   $add_path_image = $this->id ? $this->_controller->getAddPath($this->id, 'image') : '';	// id/img/
+	 *   $base_path = $this->_controller->getBasePath(); // example -> /contents/events/eventsInterface/
+	 *   $add_path_image = $this->id ? $this->_controller->getAddPath($this->id, 'image') : '';	// example -> id/img/
 	 *   
 	 *   $structure['image'] = new imageField(array(
 	 *     'name'=>'image', 
@@ -382,11 +381,11 @@
 					'table'=>$this->_tbl_data
 				);
 				
-        $structure[$key] = loader::load('fields/'.$dataType, array($options_field));
+				$structure[$key] = loader::load('fields/'.$dataType, array($options_field));
 				/*if(!class_exists($dataType))
 					error::syserrorMessage('Model', 'structure', sprintf(_("Il tipo di dato del campo %s non è riconoscibile automaticamente"), $key));
 				
-        $structure[$key] = new $dataType($options_field);*/
+				$structure[$key] = new $dataType($options_field);*/
 			}
 		}
 		return $structure;
