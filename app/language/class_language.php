@@ -72,7 +72,6 @@ class language extends Controller {
 		return $list;
 	}
 
-	
 	/**
 	 * Box di scelta lingua
 	 * 
@@ -81,9 +80,9 @@ class language extends Controller {
 	 */
 	public function choiceLanguage($p=true){
 
-		$GINO = $this->scriptAsset("language.css", "languageCSS", 'css');
+		$GINO = $this->_registry->pub->scriptAsset("language.css", "languageCSS", 'css');
 		
-		if($this->_multi_language == 'yes') {
+		if($this->_registry->sysconf->multi_language == 'yes') {
 			if($p) {
 				$GINO .= "<section id=\"section_language\">\n";
 				$GINO .= '<h1 class="hidden">' . $this->_title . '</h1>';

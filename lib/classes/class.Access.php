@@ -173,20 +173,6 @@ class Access {
     }
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
   /**
    * Controlla se il ruolo esiste
@@ -223,8 +209,6 @@ class Access {
     
     return $GINO;
   }
-  
-
 
   /**
    * Ricava il valore ID di un ruolo di una classe

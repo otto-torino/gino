@@ -3,7 +3,7 @@
  * @file class.controller.php
  * @brief Contiene la classe Controller
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -11,7 +11,7 @@
 /**
  * @brief Classe astratta primitiva Controller, dalla quale tutti i controller delle singole app discendono
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -55,6 +55,16 @@ abstract class Controller {
 
     $this->setPaths();
 
+  }
+  
+  /**
+   * Definizione dei permessi del modulo
+   * Comprende sia i permessi mappati su db, sia permessi particolari la cui descrizione deve comparire
+   * quando si importa il modulo nel layout o nel menu, es. 'utenti dello staff'.
+   * Ciascuna classe figlia sovrascrive all'occorrenza questo metodo per definire i propri permessi.
+   */
+  public function permissions() {
+    return array();
   }
 
   private function setInstanceProperties($instance_id) {

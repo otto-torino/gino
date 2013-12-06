@@ -135,7 +135,7 @@ class translation
 	 	
 	 	$myform = loader::load('Form', array('gform', 'post', true));
 	 	
-    $rows = $this->_registry->db->select('text', TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
+    	$rows = $this->_registry->db->select('text', TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
 	 	if($rows and count($rows))
 		{
 			foreach($rows AS $row) {
@@ -150,7 +150,7 @@ class translation
 		}
 	 	
 	 	$GINO = "<div style=\"margin-top:10px;\">";
-    $GINO .= "<p>";
+    	$GINO .= "<p>";
 	 	
 		$url = $this->_registry->pub->getPtUrl().'&save=1';
 		$onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', false, '$lng_code', '$action')";
@@ -168,7 +168,7 @@ class translation
 	 	}
 	 	$onclick = "onclick=\"$onclick\"";
 
-    $GINO .= "</p>";
+    	$GINO .= "</p>";
 	 	
 		$GINO .= "<p>".$myform->input('submit', 'button', _("applica"), array("classField"=>"submit", "js"=>$onclick))."</p>";
 

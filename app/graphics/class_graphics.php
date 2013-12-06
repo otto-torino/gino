@@ -266,5 +266,5 @@ class graphics extends Controller {
     return $view->render($dict);
 
   }
-	
+
 }

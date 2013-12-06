@@ -1434,7 +1434,8 @@ class page extends Controller {
 				),
 				'slug'=>array(
 					'id'=>'slug', 
-					'text_add'=>$availability
+					'text_add'=>$availability, 
+					'trnsl'=>false
 				),
 				'tags'=>array(
 					'id'=>'tags'
@@ -1450,7 +1451,8 @@ class page extends Controller {
 					'del_check'=>true
 				),
 				'url_image'=>array(
-					'size'=>40
+					'size'=>40, 
+					'trnsl'=>false
 				),
 				'tpl_code'=>array(
 					'cols'=>40,

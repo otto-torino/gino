@@ -29,7 +29,8 @@ class core {
       'Db', 
       'Locale', 
       'Translation', 
-      'Error'
+      'Error', 
+      'Session'
     ));
 
     loader::import('class/mvc', array(
@@ -60,6 +61,8 @@ class core {
       'YearField'
     ));
 
+    // gettext
+    locale::initGettext();
     // registro di sistema
     $this->initRegistry();
     // locale

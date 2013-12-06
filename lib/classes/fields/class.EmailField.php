@@ -35,20 +35,24 @@ class emailField extends field {
 	}
 	
 	/**
-	 * @see field::validate()
+	 * @see Field::clean()
 	 */
 	public function clean($options=array()) {
 		
 		$method = isset($options['method']) ? $options['method'] : $_POST;
 		return filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
-  }
+	}
 
-  public function validate($value) {
-    $result = checkEmail($value, true);
-    if(!$result) {
-      $result['error'] = _('formato dell\'email non valido');
-    }
-    return $result;
-  }
+	/**
+	 * @see Field::validate()
+	 */
+	public function validate($value) {
+		
+		$result = checkEmail($value, true);
+		if(!$result) {
+			$result['error'] = _('formato dell\'email non valido');
+		}
+		return $result;
+	}
 }
 ?>

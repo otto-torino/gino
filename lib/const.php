@@ -25,6 +25,8 @@ define("TBL_USER_PERMISSION", 'auth_user_perm');
 // language
 define("TBL_LANGUAGE", 'language');
 define("TBL_TRANSLATION", 'language_translation');
+// other
+define("TBL_NATION", 'nation');
 
 	/*private function setSysTable(){
 		
