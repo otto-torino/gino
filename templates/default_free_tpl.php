@@ -15,6 +15,7 @@
     <?=  $registry->variables('css') ?>
     <!-- system js -->
     <?=  $registry->variables('js') ?>
+    <?= Document::errorMessages() ?>
     <link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
     <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->

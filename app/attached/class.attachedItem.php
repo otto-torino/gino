@@ -138,7 +138,8 @@ class AttachedItem extends Model {
       'label'=>$this->_fields_label['insertion_date'],
       'auto_now'=>false,
       'auto_now_add'=>true,
-      'value'=>$this->insertion_date 
+      'value'=>$this->insertion_date,
+      'table'=>$this->_tbl_data
     ));
 
     $structure['last_edit_date'] = new datetimeField(array(
@@ -147,7 +148,8 @@ class AttachedItem extends Model {
       'label'=>$this->_fields_label['last_edit_date'],
       'auto_now'=>true,
       'auto_now_add'=>true,
-      'value'=>$this->last_edit_date
+      'value'=>$this->last_edit_date,
+      'table'=>$this->_tbl_data
     ));
 
     // se esiste l'id costruisce il path, in inserimento lo costruisce la subclass di adminTable
@@ -166,7 +168,8 @@ class AttachedItem extends Model {
       'label'=>$this->_fields_label['file'],
       'extensions'=>array(),
       'path'=>$base_path,
-      'check_type'=>false
+      'check_type'=>false,
+      'table'=>$this->_tbl_data
     ));
 
     return $structure;

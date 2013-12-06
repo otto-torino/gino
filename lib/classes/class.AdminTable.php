@@ -673,7 +673,6 @@ class AdminTable {
 		if(count($_POST)) {
 	 		$link_error = $this->editUrl(null, null);
 			$options_form['link_error'] = $link_error ;
-
 			$action_result = $this->modelAction($model_obj, $options_form, $inputs);
 			
 			if($action_result === true) {

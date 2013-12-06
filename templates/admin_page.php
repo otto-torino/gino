@@ -46,7 +46,7 @@
 
 
     <div class="container">
-      {module sysclassid=12 func=admin_page}
-    </div>
+      {module id=0}
+  </div>
   </body>
 </html>

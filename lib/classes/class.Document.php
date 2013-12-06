@@ -31,6 +31,7 @@ class Document {
   private $_registry, $_db, $session, $_plink;
   private $_tbl_module_app, $_tbl_module;
   private $_instances;
+  private $_outputs;
 
   private $_mdl_url_content;
 
@@ -95,19 +96,17 @@ class Document {
       $template = TPL_DIR.OS.$tplObj->filename;
 
       if($tplObj->free) {
-        // parse modules and write parsed template in a tmp file
+        // parse modules first time to update registry
         $tplContent = file_get_contents($template);
         $regexp = "#{module(.*?)}#";
-        $tmp_handle = tmpfile();
-        fwrite($tmp_handle, preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent));
-        $meta_datas = stream_get_meta_data($tmp_handle);
-        $tmp_file = $meta_datas['uri'];
+        preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent);
         $registry = $this->_registry;
         ob_start();
-        include($tmp_file);
-        $buffer = ob_get_contents();
+        include($template);
+        $tplContent = ob_get_contents();
         ob_clean();
-        fclose($tmp_handle); // this removes the file
+        // parse second time to replace codes
+        $buffer = preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent);
       }
       else {
         $tplContent = file_get_contents($template);
@@ -299,15 +298,24 @@ class Document {
    */
   private function modPage($mdlId){
 
+    if(isset($this->_outputs['page-'.$mdlId])) {
+      return $this->_outputs['page-'.$mdlId];
+    }
+
     if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
       $this->_instances['page'] = new page();
 
     $page = $this->_instances['page'];
-    
-    return $page->box($mdlId);
+    $this->_outputs['page-'.$mdlId] = $page->box($mdlId);
+    return $this->_outputs['page-'.$mdlId];
+
   }
 
   private function modClass($mdlId, $mdlFunc, $mdlType){
+    
+    if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
+      return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
+    }
 
     $obj = $mdlType=='sysclass'
       ? new ModuleApp($mdlId)
@@ -350,6 +358,8 @@ class Document {
 
       $buffer = $classObj->$mdlFunc();
     }
+    
+    $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc] = $buffer;
 
     return $buffer;
   }

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 06, 2013 at 02:04 PM
+-- Generation Time: Dec 06, 2013 at 05:32 PM
 -- Server version: 5.5.34-0ubuntu0.13.04.1
 -- PHP Version: 5.4.9-4ubuntu2.3
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `attached` (
 INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
 (1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
-(3, 1, 'github.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
+(3, 1, 'brightness_controller.png', '', '2013-04-03 16:20:37', '2013-12-06 16:51:55'),
 (4, 1, 'plugin.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37');
 
 -- --------------------------------------------------------
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `attached_ctg` (
 --
 
 INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
-(1, 'various m', 'c1');
+(1, 'various m a', 'c1');
 
 -- --------------------------------------------------------
 
@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
 -- Dumping data for table `auth_user`
 --
 
-INSERT INTO `auth_user` (`id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `is_admin`, `is_staff`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `publication`, `date`, `active`) VALUES
+INSERT INTO `auth_user` (`id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `is_admin`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `publication`, `date`, `active`) VALUES
 (1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'via Mazzini 37', 10123, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1);
 
 -- --------------------------------------------------------
@@ -350,14 +350,17 @@ CREATE TABLE IF NOT EXISTS `language_opt` (
   `title` varchar(200) NOT NULL,
   `opt_flag` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
 -- Dumping data for table `language_opt`
 --
 
 INSERT INTO `language_opt` (`id`, `instance`, `title`, `opt_flag`) VALUES
-(1, 0, 'Lingue', 0);
+(1, 0, 'Lingue', 0),
+(2, 0, 'Lingue', 0),
+(3, 0, 'Lingue', 0),
+(4, 0, 'Lingue', 0);
 
 -- --------------------------------------------------------
 
@@ -392,7 +395,9 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 (4, 'sys_module', 'label', 'en_US', 'Main menu'),
 (10, 'sys_graphics', 'description', 'en_US', 'footer engli'),
 (10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f');
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
+(4, 'language_opt', 'title', 'en_US', 'Languages'),
+(4, 'language_opt', 'title', 'es_ES', 'Idiomas');
 
 -- --------------------------------------------------------
 
@@ -687,7 +692,7 @@ INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_
 (5, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 1, 1, 0, 0, '', 1, NULL, NULL),
 (7, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (8, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
-(9, 0, 0, '2011-11-08 14:05:57', '2013-12-04 12:00:17', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 1, 1, 0, 1, '', 0, NULL, NULL);
+(9, 0, 0, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino m', 'estendere-gino-m', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 1, 1, 0, 1, '', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -916,7 +921,7 @@ INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `templa
 (1, 'Home Pubblica', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '2', 3, 8, 'no', 0),
 (2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 6, 'no', 0),
 (3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '25', 0, 5, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '6', 2, 4, 'yes', 0),
+(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '26', 2, 4, 'yes', 0),
 (5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
 (6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 10, '', 0),
 (7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 7, 'yes', 0),
@@ -937,7 +942,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
   `description` text NOT NULL,
   `free` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=26 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=27 ;
 
 --
 -- Dumping data for table `sys_layout_tpl`
@@ -948,8 +953,7 @@ INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`, `free`) 
 (2, 'home.tpl', 'Home', '', 0),
 (3, 'pages.tpl', 'Pagine', '', 0),
 (4, 'auth_page.tpl', 'Pagina Autenticazione', '', 0),
-(5, 'home_admin.tpl', 'Home Area Amministrativa', '', 0),
-(6, 'admin_pages.tpl', 'Pagine Area Amministrativa', '', 0),
+(26, 'admin_page.php', 'Pagine admin', '', 1),
 (7, 'home_mobile.tpl', 'Home Mobile', '', 0),
 (8, 'mobile_pages.tpl', 'Pagine Mobile', '', 0),
 (23, 'test2.tpl', 'test copy', '', 0),
@@ -983,10 +987,6 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (52, 1, 2, 0, 0, 0, 1, 1),
 (51, 1, 1, 0, 0, 0, 1, 1),
 (50, 7, 1, 480, 1, 2, 1, 1),
-(48, 6, 4, 0, 0, 0, 1, 1),
-(47, 6, 3, 960, 1, 2, 1, 1),
-(46, 6, 2, 0, 0, 0, 1, 1),
-(45, 6, 1, 0, 0, 0, 1, 1),
 (30, 2, 1, 0, 0, 0, 1, 1),
 (31, 2, 2, 0, 0, 0, 1, 1),
 (32, 2, 3, 960, 1, 2, 3, 3),
@@ -997,12 +997,6 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (37, 3, 3, 960, 1, 2, 2, 2),
 (38, 3, 4, 0, 0, 0, 1, 1),
 (39, 3, 5, 960, 1, 2, 1, 2),
-(40, 5, 1, 0, 0, 0, 1, 1),
-(41, 5, 2, 0, 0, 0, 1, 1),
-(42, 5, 3, 960, 1, 2, 1, 1),
-(43, 5, 4, 0, 0, 0, 1, 1),
-(44, 5, 5, 960, 1, 2, 1, 2),
-(49, 6, 5, 960, 1, 2, 1, 2),
 (53, 1, 3, 960, 1, 2, 1, 2),
 (54, 1, 4, 0, 0, 0, 1, 1),
 (55, 1, 5, 960, 1, 2, 1, 2),
@@ -1111,7 +1105,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
   `order_list` smallint(3) NOT NULL,
   `perms` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
 -- Dumping data for table `sys_menu_voices`
@@ -1119,9 +1113,11 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
 
 INSERT INTO `sys_menu_voices` (`id`, `instance`, `parent`, `label`, `url`, `type`, `order_list`, `perms`) VALUES
 (2, 4, 0, 'Home', '/', 'int', 1, ''),
+(7, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
 (3, 4, 2, 'le pippe', 'page/view/gino-CMS', 'int', 1, '10,0'),
 (4, 4, 2, 'la puppa', 'graphics/printHeaderMobile', 'int', 2, ''),
-(6, 4, 0, 'voce 2', 'page/view/licenza', 'int', 2, '10,0');
+(6, 4, 0, 'voce 2', 'page/view/licenza', 'int', 2, '10,0'),
+(8, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
 
 -- --------------------------------------------------------
 

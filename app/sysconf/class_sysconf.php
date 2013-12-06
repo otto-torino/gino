@@ -92,7 +92,7 @@ class sysconf extends Controller {
       }
     }
     else {
-      $content = "<p class=\"backoffice-info\">"._("Configuarazione del sistema.")."</p>";
+      $content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
       $content .= $admin_table->modelForm($conf, array(
         'addCell' => array(
           'google_analytics' => array(

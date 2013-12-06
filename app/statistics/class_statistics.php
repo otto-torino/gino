@@ -104,7 +104,7 @@ class statistics extends Controller {
     $view = new view();
     $view->setViewTpl('section');
     $dict = array(
-      'title' => _('log accesso utenti registrati'),
+      'title' => _('Log accesso utenti registrati'),
       'class' => 'admin',
       'header_links' => $link_export,
       'content' => $table
