@@ -244,7 +244,7 @@ class locale extends singleton {
 	 */
 	private static function userLanguage(){
 
-    $db = db::instance();
+    	$db = db::instance();
 
 		$code = self::get_languages();
 
@@ -262,12 +262,12 @@ class locale extends singleton {
 				{
 					$country = strtoupper($array[1]);
 					
-          $langs = Language::get(array(
-            'where' => "language_code='$lang' AND country_code='$country'"
-          ));
-          if(count($langs)) {
-            return $langs[0]->code();
-          }
+          			$langs = Lang::get(array(
+           				'where' => "language_code='$lang' AND country_code='$country'"
+          			));
+          			if(count($langs)) {
+            			return $langs[0]->code();
+          			}
 				}
 				elseif(sizeof($array) == 1)
 				{

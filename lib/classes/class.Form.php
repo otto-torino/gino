@@ -976,7 +976,7 @@ class Form {
 	 * @param array $checked valori degli elementi selezionati
 	 * @param mixed $data
 	 *   - string, query
-	 *   - array, elementi del checkbox
+	 *   - array, elementi del checkbox (value_check=>text)
 	 * @param string $label testo <label>
 	 * @param array $options
 	 *   array associativo di opzioni
@@ -1008,15 +1008,15 @@ class Form {
 		}
 		
 		$this->setOptions($options);
-    $GFORM = "<div class=\"form-row\">";
+    	$GFORM = "<div class=\"form-row\">";
 		$GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
 
-    if(is_array($label)) {
-      $options['helptext'] = array(
-        'title' => isset($label['label']) ? $label['label'] : $label[0],
-        'text' => isset($label['description']) ? $label['description'] : $label[1]
-      );
-    }
+		if(is_array($label)) {
+			$options['helptext'] = array(
+				'title' => isset($label['label']) ? $label['label'] : $label[0],
+				'text' => isset($label['description']) ? $label['description'] : $label[1]
+			);
+		}
 
 		$GFORM .= "<div class=\"form-multicheck\">\n";
 

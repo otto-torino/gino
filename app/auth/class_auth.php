@@ -161,6 +161,7 @@ class auth extends Controller {
 		$this->requirePerm('can_admin');
 
 		$block = cleanVar($_GET, 'block', 'string', null);
+		$op = cleanVar($_GET, 'op', 'string', null);
 
 		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=options\">"._("Opzioni")."</a>";
 		$link_group = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=group\">"._("Gruppi")."</a>";
@@ -173,7 +174,12 @@ class auth extends Controller {
 			$sel_link = $link_options;
 		}
 		elseif($block=='group') {
-			$content = $this->manageGroup();
+			
+			if($op == 'jgp')
+				$content = $this->joinGroupPermission();
+			else
+				$content = $this->manageGroup();
+			
 			$sel_link = $link_group;
 		}
 		elseif($block=='perm') {
@@ -181,7 +187,13 @@ class auth extends Controller {
 			$sel_link = $link_perm;
 		}
 		else {
-			$content = $this->manageUser();
+			
+			if($op == 'jug')
+				$content = $this->joinUserGroup();
+			elseif($op == 'jup')
+				$content = $this->joinUserPermission();
+			else
+				$content = $this->manageUser();
 		}
 
 		$dict = array(
@@ -207,13 +219,14 @@ class auth extends Controller {
 		//Loader::import('class', 'AdminTable');
 		
 		$info = _("Elenco degli utenti del sistema.");
+		$link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=user";
 		
 		$opts = array(
 			'list_display' => array('id', 'firstname', 'lastname', 'email', 'active'),
 			'list_description' => $info, 
 			'add_buttons' => array(
-				array('label'=>pub::icon('group', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-joinUserGroup]", 'param_id'=>'ref'), 
-				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-joinUserPermission]", 'param_id'=>'ref'), 
+				array('label'=>pub::icon('group', array('scale' => 1)), 'link'=>$link_button."&op=jug", 'param_id'=>'ref'), 
+				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
 				array('label'=>pub::icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-changePassword]", 'param_id'=>'ref')
 			)
 		);
@@ -421,12 +434,13 @@ class auth extends Controller {
 	private function manageGroup() {
 		
 		$info = _("Elenco dei gruppi del sistema.");
+		$link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=group";
 		
 		$opts = array(
 			'list_display' => array('id', 'name', 'description'),
 			'list_description' => $info, 
 			'add_buttons' => array(
-				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-joinGroupPermission]", 'param_id'=>'ref')
+				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jgp", 'param_id'=>'ref')
 			)
 		);
 		
@@ -460,7 +474,7 @@ class auth extends Controller {
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID dell'utente
 	 */
-	public function joinUserPermission() {
+	private function joinUserPermission() {
 		
 		// PERM ??
 		
@@ -472,7 +486,7 @@ class auth extends Controller {
 		
 		$content = $gform->open('', false, '');
 		$content .= $gform->hidden('id', $obj_user->id);
-		$content .= $this->formPermission();
+		$content .= $this->formPermission($gform);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -495,7 +509,7 @@ class auth extends Controller {
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID del gruppo
 	 */
-	public function joinGroupPermission() {
+	private function joinGroupPermission() {
 		
 		// PERM ??
 		
@@ -507,7 +521,7 @@ class auth extends Controller {
 		
 		$content = $gform->open('', false, '');
 		$content .= $gform->hidden('id', $obj_group->id);
-		$content .= $this->formPermission();
+		$content .= $this->formPermission($gform);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -524,96 +538,13 @@ class auth extends Controller {
 		return $view->render($dict);
 	}
 	
-	// SPOSTARE IN class.User.php ?????
-	private function formPermission($checked=array()) {
-		
-		$perm = Permission::getList();
-		
-		$content = '';
-		
-		if(count($perm))
-		{
-			$content .= "<table>";
-			
-			$content .= "<tr>";
-			$content .= "<th>"._("Nome classe")."</th>";
-			$content .= "<th>"._("Codice permesso")."</th>";
-			$content .= "<th>"._("Label")."</th>";
-			$content .= "<th>"._("Nome istanza")."</th>";
-			$content .= "<th>"._("Label istanza")."</th>";
-			$content .= "</tr>";
-			
-			foreach($perm AS $p)
-			{
-				$p_id = $p['perm_id'];
-				$p_class = $p['class'];
-				$p_code = $p['code'];
-				$p_label = $p['label'];
-				$p_inst_id = $p['instance_id'];
-				$p_inst_name = $p['instance_name'];
-				$p_inst_label = $p['instance_label'];
-				
-				$p_inst_id = (int) $p_inst_id;
-				$value = $p_id.'_'.$p_inst_id;
-				
-				$checkbox = "<input type=\"checkbox\" name=\"perm[]\" value=\"$value\" />";
-				
-				$content .= "<tr>";
-				$content .= "<td>$checkbox $p_class</td>";
-				$content .= "<td>$p_code</td>";
-				$content .= "<td>$p_label</td>";
-				$content .= "<td>$p_inst_name</td>";
-				$content .= "<td>$p_inst_label</td>";
-				$content .= "</tr>";
-			}
-			$content .= "</table>";
-		}
-		
-		return $content;
-	}
-	
-	// SPOSTARE IN class.Group.php ?????
-	private function formGroup($checked=array()) {
-		
-		$group = Group::getList();
-		
-		$content = '';
-		
-		if(count($group))
-		{
-			$content .= "<table>";
-			
-			$content .= "<tr>";
-			$content .= "<th>"._("Nome gruppo")."</th>";
-			$content .= "<th>"._("Descrizione")."</th>";
-			$content .= "</tr>";
-			
-			foreach($group AS $g)
-			{
-				$g_id = $g['id'];
-				$g_name = $g['name'];
-				$g_description = $g['description'];
-				
-				$checkbox = "<input type=\"checkbox\" name=\"group[]\" value=\"$g_id\" />";
-				
-				$content .= "<tr>";
-				$content .= "<td>$checkbox $g_name</td>";
-				$content .= "<td>$g_description</td>";
-				$content .= "</tr>";
-			}
-			$content .= "</table>";
-		}
-		
-		return $content;
-	}
-	
 	/**
 	 * Associazione utente-gruppi
 	 * 
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID dell'utente
 	 */
-	public function joinUserGroup() {
+	private function joinUserGroup() {
 		
 		// PERM ??
 		
@@ -627,7 +558,7 @@ class auth extends Controller {
 		
 		$content = $gform->open($this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]', false, '');
 		$content .= $gform->hidden('id', $obj_user->id);
-		$content .= $this->formGroup();
+		$content .= $this->formGroup($gform);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -642,6 +573,69 @@ class auth extends Controller {
 		$view->setViewTpl('section');
 
 		return $view->render($dict);
+	}
+	
+	private function formPermission($obj_form, $checked=array()) {
+		
+		$perm = Permission::getList();
+		
+		$content = '';
+		
+		if(count($perm))
+		{
+			$items = array();
+			
+			foreach ($perm AS $p)
+			{
+				$perm_id = $p['perm_id'];
+				$perm_label = $p['perm_label'];
+				$perm_descr = $p['perm_descr'];
+				$mod_name = $p['mod_name'];
+				$mod_label = $p['mod_label'];
+				$inst_id = (int) $p['inst_id'];
+				
+				$key = $perm_id.'_'.$inst_id;
+				
+				$description = _("Modulo").": $mod_name";
+				if($mod_label) $description .= " ($mod_label)";
+				
+				$description .= "<br />$perm_label ($perm_descr)";
+				
+				$items[$key] = $description;
+			}
+		}
+		
+		$content = $obj_form->multipleCheckbox('perm[]', $checked, $items, '', null);
+		
+		return $content;
+	}
+	
+	private function formGroup($obj_form, $checked=array()) {
+		
+		$group = Group::getList();
+		
+		$content = '';
+		
+		if(count($group))
+		{
+			$items = array();
+			
+			foreach($group AS $g)
+			{
+				$g_id = $g['id'];
+				$g_name = $g['name'];
+				$g_description = $g['description'];
+				
+				$description = $g_name;
+				if($g_description) $description .= " ($g_description)";
+				
+				$items[$g_id] = $description;
+			}
+		}
+		
+		$content = $obj_form->multipleCheckbox('group[]', $checked, $items, '', null);
+		
+		return $content;
 	}
 	
 	/**

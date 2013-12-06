@@ -194,7 +194,6 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
   `username` varchar(50) NOT NULL,
   `userpwd` varchar(100) NOT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
-  `is_staff` tinyint(1) NOT NULL DEFAULT '0',
   `address` varchar(200) DEFAULT NULL,
   `cap` int(5) DEFAULT NULL,
   `city` varchar(50) DEFAULT NULL,
@@ -212,7 +211,7 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `is_admin`, `is_staff`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `publication`, `date`, `active`) VALUES
-(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 1, 'via Mazzini 37', 10123, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1);
+(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'via Mazzini 37', 10123, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1);
 
 -- --------------------------------------------------------
 
