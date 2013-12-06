@@ -165,7 +165,7 @@ class auth extends Controller {
 		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=options\">"._("Opzioni")."</a>";
 		$link_group = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=group\">"._("Gruppi")."</a>";
 		$link_perm = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=perm\">"._("Permessi")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageAuth]\">"._("Gestione")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageAuth]\">"._("Utenti")."</a>";
 		$sel_link = $link_dft;
 
 		if($block=='options') {
@@ -206,10 +206,7 @@ class auth extends Controller {
 		
 		//Loader::import('class', 'AdminTable');
 		
-		$info = "<div class=\"backoffice-info\">";
-		$info .= "<p>"._("Elenco degli utenti del sistema.")."</p>";
-		$info .= "</div>";
-		
+		$info = _("Elenco degli utenti del sistema.");
 		
 		$opts = array(
 			'list_display' => array('id', 'firstname', 'lastname', 'email', 'active'),
@@ -295,7 +292,7 @@ class auth extends Controller {
 			), 
 			'userpwd' => array(
 				'text_add'=>$this->passwordRules($id)
-			)
+      )
 		);
 
 		/*$admin_table = loader::load('AdminTable', array(
@@ -423,10 +420,7 @@ class auth extends Controller {
 	
 	private function manageGroup() {
 		
-		$info = "<div class=\"backoffice-info\">";
-		$info .= "<p>"._("Elenco dei gruppi del sistema.</p>");
-		$info .= "</div>";
-		
+		$info = _("Elenco dei gruppi del sistema.");
 		
 		$opts = array(
 			'list_display' => array('id', 'name', 'description'),
@@ -445,9 +439,7 @@ class auth extends Controller {
 	
 	private function managePermission() {
 		
-		$info = "<div class=\"backoffice-info\">";
-		$info .= "<p>"._("Elenco dei permessi.</p>");
-		$info .= "</div>";
+		$info = _("Elenco dei permessi.");
 		
 		
 		$opts = array(

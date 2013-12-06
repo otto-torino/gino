@@ -28,6 +28,10 @@ class Lang extends Model {
       return _('lingua');
   }
 
+  public function code() {
+    return $this->language_code.'_'.$this->country_code;
+  }
+
   /*
    * Sovrascrive la struttura di default
    * 
@@ -96,7 +100,7 @@ class Lang extends Model {
     $res = array();
 
     $db = db::instance();
-    $rows = $db->select('id', self::$table, $where, $order);
+    $rows = $db->select('id', self::$table, $where, array('order' => $order));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         $res[] = new Lang($row['id']);
@@ -105,6 +109,17 @@ class Lang extends Model {
 
     return $res;
 
+  }
+
+  public static function getMainLang() {
+    $langs = self::get(array(
+      'where' => "main='1'"
+    ));
+    if(count($langs)) {
+      return $langs[0];
+    }
+
+    return null;
   }
 
 

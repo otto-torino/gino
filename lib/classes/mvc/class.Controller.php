@@ -56,16 +56,6 @@ abstract class Controller {
     $this->setPaths();
 
   }
-  
-  /**
-   * Definizione dei permessi del modulo
-   * Comprende sia i permessi mappati su db, sia permessi particolari la cui descrizione deve comparire
-   * quando si importa il modulo nel layout o nel menu, es. 'utenti dello staff'.
-   * Ciascuna classe figlia sovrascrive all'occorrenza questo metodo per definire i propri permessi.
-   */
-  public function permissions() {
-    return array();
-  }
 
   private function setInstanceProperties($instance_id) {
 
@@ -79,16 +69,6 @@ abstract class Controller {
       $this->_instance_name = $this->_db->getFieldFromId(TBL_MODULE, 'name', 'id', $this->_instance);
       $this->_instance_label = $this->_db->getFieldFromId(TBL_MODULE, 'label', 'id', $this->_instance);
     }
-  }
-
-  /**
-   * Definizione dei permessi del modulo
-   * Comprende sia i permessi mappati su db, sia permessi particolari la cui descrizione deve comparire
-   * quando si importa il modulo nel layout o nel menu, es. 'utenti dello staff'.
-   * Ciascuna classe figlia sovrascrive all'occorrenza questo metodo per definire i propri permessi.
-   */
-  public function permissions() {
-    return array();
   }
 
   /**

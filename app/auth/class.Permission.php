@@ -194,11 +194,12 @@ class Permission extends Model {
 				$p_label = $p['label'];
 				
 				// la classe è istanziabile?
-				$class_instance = $db->getFieldFromId(TBL_MODULE_APP, 'instance', 'name', $p_class);
+				$class_instance = $db->getFieldFromId(TBL_MODULE_APP, 'instantiable', 'name', $p_class);
+				$class_id = $db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', $p_class);
 				
-				if($class_instance == 'yes')
+				if($class_instance)
 				{
-					$list_instance = $db->select('id, label, name', TBL_MODULE, "class='$p_class'", array('order'=>'label ASC'));
+          $list_instance = $db->select('id, label, name', TBL_MODULE, "module_app='$class_id'", array('order'=>'label ASC'));
 					if($list_instance && count($list_instance))
 					{
 						foreach($list_instance AS $i)

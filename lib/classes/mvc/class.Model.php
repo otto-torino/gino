@@ -85,17 +85,16 @@
 	function __construct($id) {
 
     $this->_registry = registry::instance();
-		$this->_db = $this->_registry->db;
+    $session = $this->_registry->session;
+	  $this->_db = $this->_registry->db;
+		$this->_lng_dft = $session->lngDft;
+		$this->_lng_nav = $session->lng;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
 		
-		$session = session::instance();
-		
 		//$this->_locale = locale::instance_to_class($this->_main_class);
 		
-		$this->_lng_dft = $session->lngDft;
-		$this->_lng_nav = $session->lng;
-		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+    $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
  	public function __toString() {

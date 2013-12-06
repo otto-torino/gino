@@ -54,7 +54,9 @@ class ModuleInstance extends Model {
     $db = db::instance();
     $rows = $db->select('id', self::$table, "module_app='$module_app_id'");
     if($rows and count($rows)) {
-      $res[] = new ModuleInstance($rows[0]['id']);
+      foreach($rows as $row) {
+        $res[] = new ModuleInstance($row['id']);
+      }
     }
 
     return $res;

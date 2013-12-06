@@ -136,7 +136,7 @@ class User extends Model {
 			'value'=>$this->is_staff, 
 			'table'=>$this->_tbl_data
 		));
-		
+
 		$structure['nation'] = new foreignKeyField(array(
 			'name'=>'nation', 
 			'value'=>$this->nation, 

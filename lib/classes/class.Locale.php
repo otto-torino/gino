@@ -190,6 +190,8 @@ class locale extends singleton {
     $session = $registry->session;
     $db = $registry->db;
 
+    Loader::import('language', 'Lang');
+
     $dft_language = $registry->pub->getConf('dft_language');
     $tbl_language = 'language';
 
@@ -198,7 +200,13 @@ class locale extends singleton {
 		{
 			if(!$session->lngDft)
 			{
-				$session->lngDft = $db->getFieldFromId($tbl_language, 'code', 'main', 'yes');
+        $main_lang = Lang::getMainLang();
+        if($main_lang) {
+          $session->lngDft = $main_lang->code();
+        }
+        else {
+          $session->lngDft = '';
+        }
 			}
 
 			// language
@@ -223,6 +231,7 @@ class locale extends singleton {
 			$session->lng = $dft_language;
 			$session->lngDft = $dft_language;
 		}
+
 	}
 
 	/**
@@ -252,14 +261,17 @@ class locale extends singleton {
 				if(sizeof($array) == 2)
 				{
 					$country = strtoupper($array[1]);
-					$language = $lang.'_'.$country;
 					
-					$search_code = $db->getFieldFromId(TBL_LANGUAGE, 'code', 'code', $language);
-					if($search_code) return $language;
+          $langs = Language::get(array(
+            'where' => "language_code='$lang' AND country_code='$country'"
+          ));
+          if(count($langs)) {
+            return $langs[0]->code();
+          }
 				}
 				elseif(sizeof($array) == 1)
 				{
-					$records = $db->select('language_code, country_code, main', TBL_LANGUAGE, "active='yes'");
+					$records = $db->select('language_code, country_code, main', TBL_LANGUAGE, "active='1'");
 					if(count($records))
 					{
 						foreach($records AS $r)
