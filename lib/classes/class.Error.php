@@ -114,9 +114,12 @@ class error {
   /**
    * Gestione dell'errore con reindirizzamento a un indirizzo indicato
    * 
-   * @param mixed $message
-   *   - @a string: testo personalizzato dell'errore
-   *   - @a array: codice di errore
+   * @param array $message
+   *   array associativo di opzioni
+   *   - @b error (mixed)
+   *     - @a string: testo personalizzato dell'errore
+   *     - @a integer: codice di errore
+   *   - @b hint (string): testo dei suggerimenti
    * @param string $link collegamento al quale reindirizzare a seguito dell'errore
    * @return redirect
    * 

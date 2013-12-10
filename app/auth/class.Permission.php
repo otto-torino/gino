@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.Permission.php
- * Contiene la definizione ed implementazione della classe User.
+ * Contiene la definizione ed implementazione della classe Permission.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -44,6 +44,7 @@
 class Permission extends Model {
 
   public static $table = TBL_PERMISSION;
+  public static $table_perm_user = TBL_USER_PERMISSION;
 
   function __construct($id) {
 

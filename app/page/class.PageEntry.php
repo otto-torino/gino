@@ -65,9 +65,9 @@ class PageEntry extends Model {
 		$this->_model_label = $this->id ? $this->title : '';
 	}
 
-  public function getController() {
-    return $this->_controller;
-  }
+	public function getController() {
+		return $this->_controller;
+	}
 
 	/**
 	 * Rappresentazione testuale del modello 

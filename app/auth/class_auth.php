@@ -88,21 +88,6 @@ class auth extends Controller {
 		);
 	}
 	
-	/*
-	$obj = new $class($module->id);
-            if($permissions_code and count($permissions_code)) {
-              foreach($permissions_code as $permission_code) {
-                $permissions[] = $obj->permissions()[$permission_code];
-              }
-            }
-            */
-	public function permissions() {
-		
-		return array(
-			'can_admin' => _('utenti amministratori del modulo')
-		);
-	}
-	
 	/**
 	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
 	 * 
@@ -111,6 +96,7 @@ class auth extends Controller {
 	public static function outputFunctions() {
 
 		$list = array(
+			'login' => array('label'=>_("Box di login"), 'permissions'=>array())
 			/*"blockList" => array("label"=>_("Elenco utenti"), "role"=>'1'),
 			"viewList" => array("label"=>_("Elenco utenti e schede informazioni"), "role"=>'1'),
 			"userCard" => array("label"=>_("Scheda utente connesso"), "role"=>'3'),
@@ -156,6 +142,13 @@ class auth extends Controller {
 		return $directory;
 	}
 	
+	/**
+	 * 
+	 * 
+	 * Parametri GET: \n
+	 *   - block (string): tab
+	 *   - op (string): opzione nel tab
+	 */
 	public function manageAuth() {
 
 		$this->requirePerm('can_admin');
@@ -298,14 +291,36 @@ class auth extends Controller {
 		
 		$opts_input = array(
 			'email' => array(
-				'size'=>40
+				'size'=>40, 
+				'trnsl'=>false
 			), 
 			'username' => array(
 				'id'=>'username'
 			), 
 			'userpwd' => array(
 				'text_add'=>$this->passwordRules($id)
-      )
+			), 
+			'firstname' => array(
+				'trnsl'=>false
+			), 
+			'lastname' => array(
+				'trnsl'=>false
+			), 
+			'company' => array(
+				'trnsl'=>false
+			), 
+			'phone' => array(
+				'trnsl'=>false
+			), 
+			'fax' => array(
+				'trnsl'=>false
+			), 
+			'address' => array(
+				'trnsl'=>false
+			), 
+			'city' => array(
+				'trnsl'=>false
+			)
 		);
 
 		/*$admin_table = loader::load('AdminTable', array(
@@ -469,24 +484,48 @@ class auth extends Controller {
 	}
 	
 	/**
+	 * Reindirizza le operazione di join tra utenti/gruppi/permessi
+	 * 
+	 * @param string $block
+	 * @param string $option
+	 * @param integer $ref_id valore ID del riferimento (utente o gruppo)
+	 * @return redirect
+	 */
+	private function returnJoinLink($block, $option, $ref_id) {
+		
+		$link_interface = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=$block&op=$option&ref=$ref_id";
+		
+		header("Location: "."http://".$_SERVER['HTTP_HOST'].$link_interface);
+		exit();
+	}
+	
+	/**
 	 * Associazione utente-permessi
+	 * 
+	 * @see User::getPermissions()
+	 * @see formPermission()
+	 * @return string
 	 * 
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID dell'utente
 	 */
 	private function joinUserPermission() {
 		
-		// PERM ??
+		// PERM
 		
 		$id = cleanVar($_GET, 'ref', 'int', '');
+		if(!$id) return null;
 		
 		$obj_user = new User($id);
+		$checked = $obj_user->getPermissions();
 		
 		$gform = loader::load('Form', array('j_userperm', 'post', false));
 		
-		$content = $gform->open('', false, '');
+		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserPermission]';
+		
+		$content = $gform->open($form_action, false, '');
 		$content .= $gform->hidden('id', $obj_user->id);
-		$content .= $this->formPermission($gform);
+		$content .= $this->formPermission($gform, $checked);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -504,24 +543,96 @@ class auth extends Controller {
 	}
 	
 	/**
+	 * Gestisce l'action dell'associazione degli utenti ai permessi
+	 * 
+	 * @see User::getPermissions()
+	 * @see User::getMergeValue()
+	 * @see returnJoinLink()
+	 * @return redirect
+	 * 
+	 * Parametri POST: \n
+	 *   - id (integer), valore ID dell'utente
+	 *   - perm (array), permessi selezionati
+	 */
+	public function actionJoinUserPermission() {
+		
+		// PERM
+		
+		$id = cleanVar($_POST, 'id', 'integer', '');
+		if(!$id) return null;
+		
+		$perm = $_POST['perm'];
+		
+		$obj_user = new User($id);
+		$existing_perms = $obj_user->getPermissions();
+		
+		if(is_array($perm) && count($perm))
+		{
+			$array_delete = array_diff($existing_perms, $perm);
+			
+			// Valori da eliminare
+			if(count($array_delete))
+			{
+				foreach($array_delete AS $value)
+				{
+					$split = User::getMergeValue($value);
+					
+					$permission_id = $split[0];
+					$instance_id = $split[1];
+					
+					$this->_db->delete(Permission::$table_perm_user, "user_id='$id' AND instance='$instance_id' AND perm_id='$permission_id'");
+				}
+			}
+			
+			// Valori da aggiungere
+			foreach($perm AS $value)
+			{
+				if(!in_array($value, $existing_perms))
+				{
+					$split = User::getMergeValue($value);
+					
+					$permission_id = $split[0];
+					$instance_id = $split[1];
+					
+					$this->_db->insert(array('instance'=>$instance_id, 'user_id'=>$id, 'perm_id'=>$permission_id), Permission::$table_perm_user);
+				}
+			}
+		}
+		else	// elimina tutto
+		{
+			$this->_db->delete(Permission::$table_perm_user, "user_id='$id'");
+		}
+		
+		$this->returnJoinLink('user', 'jup', $id);
+	}
+	
+	/**
 	 * Associazione gruppo-permessi
+	 * 
+	 * @see Group::getPermissions()
+	 * @see formPermission()
+	 * @return string
 	 * 
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID del gruppo
 	 */
 	private function joinGroupPermission() {
 		
-		// PERM ??
+		// PERM
 		
 		$id = cleanVar($_GET, 'ref', 'int', '');
+		if(!$id) return null;
 		
 		$obj_group = new Group($id);
+		$checked = $obj_group->getPermissions();
 		
 		$gform = loader::load('Form', array('j_groupperm', 'post', false));
 		
-		$content = $gform->open('', false, '');
+		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinGroupPermission]';
+		
+		$content = $gform->open($form_action, false, '');
 		$content .= $gform->hidden('id', $obj_group->id);
-		$content .= $this->formPermission($gform);
+		$content .= $this->formPermission($gform, $checked);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -539,26 +650,96 @@ class auth extends Controller {
 	}
 	
 	/**
+	 * Gestisce l'action dell'associazione dei gruppi ai permessi
+	 * 
+	 * @see Group::getPermissions()
+	 * @see Group::getMergeValue()
+	 * @see returnJoinLink()
+	 * @return redirect
+	 * 
+	 * Parametri POST: \n
+	 *   - id (integer), valore ID del gruppo
+	 *   - perm (array), permessi selezionati
+	 */
+	public function actionJoinGroupPermission() {
+		
+		// PERM
+		
+		$id = cleanVar($_POST, 'id', 'integer', '');
+		if(!$id) return null;
+		
+		$perm = $_POST['perm'];
+		
+		$obj_group = new Group($id);
+		$existing_perms = $obj_group->getPermissions();
+		
+		if(is_array($perm) && count($perm))
+		{
+			$array_delete = array_diff($existing_perms, $perm);
+			
+			// Valori da eliminare
+			if(count($array_delete))
+			{
+				foreach($array_delete AS $value)
+				{
+					$split = Group::getMergeValue($value);
+					
+					$permission_id = $split[0];
+					$instance_id = $split[1];
+					
+					$this->_db->delete(Group::$table_group_perm, "group_id='$id' AND instance='$instance_id' AND perm_id='$permission_id'");
+				}
+			}
+			
+			// Valori da aggiungere
+			foreach($perm AS $value)
+			{
+				if(!in_array($value, $existing_perms))
+				{
+					$split = Group::getMergeValue($value);
+					
+					$permission_id = $split[0];
+					$instance_id = $split[1];
+					
+					$this->_db->insert(array('instance'=>$instance_id, 'group_id'=>$id, 'perm_id'=>$permission_id), Group::$table_group_perm);
+				}
+			}
+		}
+		else	// elimina tutto
+		{
+			$this->_db->delete(Group::$table_group_perm, "group_id='$id'");
+		}
+		
+		$this->returnJoinLink('group', 'jgp', $id);
+	}
+	
+	/**
 	 * Associazione utente-gruppi
+	 * 
+	 * @see User::getGroups()
+	 * @see formGroup()
+	 * @return string
 	 * 
 	 * Parametri GET: \n
 	 *   - ref (integer), valore ID dell'utente
 	 */
 	private function joinUserGroup() {
 		
-		// PERM ??
+		// PERM
 		
 		$id = cleanVar($_GET, 'ref', 'int', '');
+		if(!$id) return null;
 		
 		$obj_user = new User($id);
-		
-		$gform = Loader::load('Form', array('', '', ''));
+		$checked = $obj_user->getGroups();
 		
 		$gform = loader::load('Form', array('j_usergroup', 'post', false));
 		
-		$content = $gform->open($this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]', false, '');
+		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]';
+		
+		$content = $gform->open($form_action, false, '');
 		$content .= $gform->hidden('id', $obj_user->id);
-		$content .= $this->formGroup($gform);
+		$content .= $this->formGroup($gform, $checked);
 		
 		$content .= $gform->input('submit', 'submit', _("associa"), null);
 		$content .= $gform->close();
@@ -575,11 +756,74 @@ class auth extends Controller {
 		return $view->render($dict);
 	}
 	
+	/**
+	 * Gestisce l'action dell'associazione degli utenti ai gruppi
+	 * 
+	 * @see User::getGroups()
+	 * @see returnJoinLink()
+	 * @return redirect
+	 * 
+	 * Parametri POST: \n
+	 *   - id (integer), valore ID dell'utente
+	 *   - group (array), gruppi selezionati
+	 */
+	public function actionJoinUserGroup() {
+		
+		// PERM
+		
+		$id = cleanVar($_POST, 'id', 'integer', '');
+		if(!$id) return null;
+		
+		$group = $_POST['group'];
+		
+		$obj_user = new User($id);
+		$existing_groups = $obj_user->getGroups();
+		
+		if(is_array($group) && count($group))
+		{
+			$array_delete = array_diff($existing_groups, $group);
+			
+			// Valori da eliminare
+			if(count($array_delete))
+			{
+				foreach($array_delete AS $value)
+				{
+					$this->_db->delete(Group::$table_group_user, "user_id='$id' AND group_id='$value'");
+				}
+			}
+			
+			// Valori da aggiungere
+			foreach($group AS $value)
+			{
+				if(!in_array($value, $existing_groups))
+				{
+					$this->_db->insert(array('group_id'=>$value, 'user_id'=>$id), Group::$table_group_user);
+				}
+			}
+		}
+		else	// elimina tutto
+		{
+			$this->_db->delete(Group::$table_group_user, "user_id='$id'");
+		}
+		
+		$this->returnJoinLink('user', 'jug', $id);
+	}
+	
+	/**
+	 * Imposta il multicheckbox sui permessi
+	 * 
+	 * @see Permission::getList()
+	 * @see User::setMergeValue()
+	 * @see Form::multipleCheckbox()
+	 * @param object $obj_form
+	 * @param array $checked
+	 * @return string
+	 */
 	private function formPermission($obj_form, $checked=array()) {
 		
 		$perm = Permission::getList();
 		
-		$content = '';
+		$a_checked = array();
 		
 		if(count($perm))
 		{
@@ -594,27 +838,38 @@ class auth extends Controller {
 				$mod_label = $p['mod_label'];
 				$inst_id = (int) $p['inst_id'];
 				
-				$key = $perm_id.'_'.$inst_id;
+				$merge = User::setMergeValue($perm_id, $inst_id);
+				if(in_array($merge, $checked))
+					$a_checked[] = $merge;
 				
 				$description = _("Modulo").": $mod_name";
 				if($mod_label) $description .= " ($mod_label)";
 				
 				$description .= "<br />$perm_label ($perm_descr)";
 				
-				$items[$key] = $description;
+				$items[$merge] = $description;
 			}
 		}
 		
-		$content = $obj_form->multipleCheckbox('perm[]', $checked, $items, '', null);
+		$content = $obj_form->multipleCheckbox('perm[]', $a_checked, $items, '', null);
 		
 		return $content;
 	}
 	
+	/**
+	 * Imposta il multicheckbox sui gruppi
+	 * 
+	 * @see Group::getList()
+	 * @see Form::multipleCheckbox()
+	 * @param object $obj_form
+	 * @param array $checked
+	 * @return string
+	 */
 	private function formGroup($obj_form, $checked=array()) {
 		
 		$group = Group::getList();
 		
-		$content = '';
+		$a_checked = array();
 		
 		if(count($group))
 		{
@@ -622,87 +877,62 @@ class auth extends Controller {
 			
 			foreach($group AS $g)
 			{
-				$g_id = $g['id'];
-				$g_name = $g['name'];
-				$g_description = $g['description'];
+				$group_id = $g['id'];
+				$group_name = $g['name'];
+				$group_description = $g['description'];
 				
-				$description = $g_name;
-				if($g_description) $description .= " ($g_description)";
+				if(in_array($group_id, $checked))
+					$a_checked[] = $group_id;
 				
-				$items[$g_id] = $description;
+				$description = $group_name;
+				if($group_description) $description .= " ($group_description)";
+				
+				$items[$group_id] = $description;
 			}
 		}
 		
-		$content = $obj_form->multipleCheckbox('group[]', $checked, $items, '', null);
+		$content = $obj_form->multipleCheckbox('group[]', $a_checked, $items, '', null);
 		
 		return $content;
 	}
 	
 	/**
-	 * Box di login
+	 * Pagina di autenticazione
 	 * 
-	 * @see access::AccessForm()
-	 * @see account::linkRegistration()
-	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
-	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
+	 * @see Access::Authentication()
 	 * @return string
 	 */
-	public function login(){	// $bool=false, $classname='user'
+	public function login(){
 
-		$GINO = "<div class=\"auth\">\n";
-		$GINO .= "<div class=\"auth_title\">"._("login:")."</div>";
-		$GINO .= "<div class=\"auth_content\">"; 
-		$GINO .= $this->_access->AccessForm();
+		$link_interface = $_SERVER['REQUEST_URI'];	// /git/gino/index.php?evt[auth-login]
 		
-		//$registration = new account($classname);
-		//$GINO .= $registration->linkRegistration($bool);
+		$link_interface = $this->_plink->convertLink($link_interface, array('vserver'=>'REQUEST_URI', 'pToLink'=>true, 'basename'=>true));
 		
-		$GINO .= "</div>\n";
-		$GINO .= "</div>\n";
+		$referer = isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] ? $_SERVER['HTTP_REFERER'] : $this->_home;
+		$this->_registry->session->auth_redirect = $referer;
 		
-		return $GINO;
-	}
-	
-	/**
-	 * Box di login in tabella
-	 * 
-	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
-	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
-	 * @return string
-	 */
-	public function tableLogin($bool=false, $classname='index'){
-
-		$GINO = "<form action=\"\" method=\"post\" id=\"formauth\" name=\"formauth\">\n";
-		$GINO .= "<input type=\"hidden\" id=\"action\" name=\"action\" value=\"auth\" />\n";
-		$GINO .= "<table>";
-		$GINO .= "<tr class=\"authTitle\">";
-		$GINO .= "<td></td><td>"._("Area riservata")."</td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\">".($this->_u_username_email?"email":"user")."</td>";
-		$GINO .= "<td class=\"afField\"><input type=\"text\" id=\"user\" name=\"user\" size=\"25\" maxlength=\"50\" class=\"auth\" /></td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\">"._("password")."</td>";
-		$GINO .= "<td class=\"afField\"><input type=\"password\" name=\"pwd\" size=\"25\" maxlength=\"15\" class=\"auth\" /></td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\"></td>";
-		$GINO .= "<td class=\"afField\"><input type=\"submit\" class=\"generic\" name=\"login_user\" value=\""._("login")."\" /></td>";
-		$GINO .= "</tr>";
-		if($this->_u_aut_registration OR $bool) {
-			$class = $classname=='index' ? 'user':$classname;
-			$GINO .= "<tr class=\"authRegTitle\">";
-			$GINO .= "<td></td><td>"._("Registrazione")."</td>";
-			$GINO .= "</tr>";
-			$GINO .= "<tr class=\"authRegForm\">";
-			$GINO .= "<td class=\"arfLabel\"></td>";
-			$GINO .= "<td class=\"arfField\"><input onclick=\"location.href='".$this->_home."?evt[$class-registration]'\" type=\"button\" class=\"generic\" name=\"login_user\" value=\""._("sign up")."\" /></td>";
-			$GINO .= "</tr>";
+		if(isset($_POST['submit_login']))
+		{
+			if($this->_access->Authentication()) exit();
+			else exit(error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface));
 		}
-		$GINO .= "</table>";
-		$GINO .= "</form>";
 		
-		return $GINO;
+		$buffer = "<div class=\"auth\">\n";
+		$buffer .= "<div class=\"auth_title\">"._("Login")."</div>";
+		
+		$gform = loader::load('Form', array('login', 'post', true));
+		
+		$buffer .= $gform->open($link_interface, false, '');
+		$buffer .= $gform->hidden('action', 'auth');
+		
+		$buffer .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));
+		$buffer .= $gform->cinput('pwd', 'password', '', _("Password"), array('size'=>30));
+		
+		$buffer .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
+		$buffer .= $gform->close();
+		
+		$buffer .= "</div>\n";
+		
+		return $buffer;
 	}
 }

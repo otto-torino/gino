@@ -48,7 +48,6 @@ class User extends Model {
 			'email' => _("Email"), 
 			'userpwd' => _('Password'), 
 			'is_admin' => _('Super-amministratore'),
-			'is_staff' => _("Accesso all'area amministrativa"),
 			'address' => _("Indirizzo"), 
 			'city' => _("Città"), 
 			'nation' => _('Nazione'), 
@@ -90,24 +89,6 @@ class User extends Model {
 
 		$structure = parent::structure($id);
 
-		$structure['firstname'] = new CharField(array(
-			'name'=>'firstname', 
-			'required'=>true,
-			'label'=>$this->_fields_label['firstname'], 
-			'value'=>$this->firstname, 
-			'trnsl'=>false,
-			'table'=>$this->_tbl_data
-		));
-		
-		$structure['lastname'] = new CharField(array(
-			'name'=>'lastname', 
-			'required'=>true,
-			'label'=>$this->_fields_label['lastname'], 
-			'value'=>$this->lastname, 
-			'trnsl'=>false,
-			'table'=>$this->_tbl_data
-		));
-		
 		$structure['email'] = new EmailField(array(
 			'name'=>'email', 
 			'required'=>true,
@@ -127,16 +108,6 @@ class User extends Model {
 			'table'=>$this->_tbl_data
 		));
 		
-		$structure['is_staff'] = new BooleanField(array(
-			'name'=>'is_staff', 
-			'required'=>true, 
-			'label'=>$this->_fields_label['is_staff'], 
-			'enum'=>array(1=>_('si'), 0=>_('no')), 
-			'default'=>0,
-			'value'=>$this->is_staff, 
-			'table'=>$this->_tbl_data
-		));
-
 		$structure['nation'] = new foreignKeyField(array(
 			'name'=>'nation', 
 			'value'=>$this->nation, 
@@ -468,13 +439,12 @@ class User extends Model {
     $crypt_method = $registry->pub->getConf('password_crypt');
     
     $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $pwd;
-
-    $rows = $db->select('id', TBL_USER, "username='$username' AND userpwd='$password' AND active='1'");
+    
+    $rows = $db->select('id', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
     if($rows and count($rows) == 1) {
       $user = new User($rows[0]['id']);
     }
     return $user;
-
   }
 
   public static function get($options = array()) {
@@ -493,7 +463,6 @@ class User extends Model {
     }
 
     return $res;
-
   }
 
   /**
@@ -565,6 +534,76 @@ class User extends Model {
     return false;
   }
 
+	/**
+	 * Valore che raggruppa permesso e istanza
+	 * 
+	 * @param integer $permission_id valore ID del permesso
+	 * @param integer $instance_id valore ID dell'istanza
+	 * @return string
+	 */
+	public static function setMergeValue($permission_id, $instance_id) {
+		
+		return $permission_id.'_'.$instance_id;
+	}
+	
+	/**
+	 * Splitta i valori di permesso e istanza
+	 * 
+	 * @param string $value valore da splittare
+	 * @return array array(permission_id, instance_id)
+	 */
+	public static function getMergeValue($value) {
+		
+		$split = explode('_', $value);
+		$permission_id = $split[0];
+		$instance_id = $split[1];
+		
+		return array($permission_id, $instance_id);
+	}
+	
+	/**
+	 * Elenco dei permessi di un utente
+	 * 
+	 * @see setMergeValue()
+	 * @param integer $id valore ID dell'utente
+	 * @return array
+	 */
+	public function getPermissions() {
+		
+		$items = array();
+		
+		$records = $this->_db->select('instance, perm_id', Permission::$table_perm_user, "user_id='".$this->id."'");
+		if($records && count($records))
+		{
+			foreach($records AS $r)
+			{
+				$items[] = self::setMergeValue($r['perm_id'], $r['instance']);
+			}
+		}
+		return $items;
+	}
+	
+	/**
+	 * Elenco dei gruppi di un utente
+	 * 
+	 * @param integer $id valore ID dell'utente
+	 * @return array
+	 */
+	public function getGroups() {
+		
+		$items = array();
+		
+		$records = $this->_db->select('group_id', Group::$table_group_user, "user_id='".$this->id."'");
+		if($records && count($records))
+		{
+			foreach($records AS $r)
+			{
+				$items[] = $r['group_id'];
+			}
+		}
+		return $items;
+	}
+	
 	/**
 	 * @see Model::delete()
 	 */
