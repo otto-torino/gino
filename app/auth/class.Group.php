@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.Group.php
- * Contiene la definizione ed implementazione della classe User.
+ * Contiene la definizione ed implementazione della classe Group.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -76,23 +76,48 @@ class Group extends Model {
 	}
 	
 	/**
-	 * Elenco dei gruppi di un utente
+	 * Valore che raggruppa permesso e istanza
 	 * 
-	 * @param integer $user_id valore ID dell'utente
+	 * @param integer $permission_id valore ID del permesso
+	 * @param integer $instance_id valore ID dell'istanza
+	 * @return string
+	 */
+	public static function setMergeValue($permission_id, $instance_id) {
+		
+		return $permission_id.'_'.$instance_id;
+	}
+	
+	/**
+	 * Splitta i valori di permesso e istanza
+	 * 
+	 * @param string $value valore da splittare
+	 * @return array array(permission_id, instance_id)
+	 */
+	public static function getMergeValue($value) {
+		
+		$split = explode('_', $value);
+		$permission_id = $split[0];
+		$instance_id = $split[1];
+		
+		return array($permission_id, $instance_id);
+	}
+	
+	/**
+	 * Elenco dei permessi di un gruppo
+	 * 
+	 * @param integer $id valore ID del gruppo
 	 * @return array
 	 */
-	public static function userGroup($user_id) {
-		
-		$db = db::instance();
+	public function getPermissions() {
 		
 		$items = array();
 		
-		$records = $db->select('group_id', self::$table_group_user, "user_id='$user_id'");
+		$records = $this->_db->select('instance, perm_id', self::$table_group_perm, "group_id='".$this->id."'");
 		if($records && count($records))
 		{
 			foreach($records AS $r)
 			{
-				$items[] = $r['group_id'];
+				$items[] = self::setMergeValue($r['perm_id'], $r['instance']);
 			}
 		}
 		return $items;

@@ -40,27 +40,6 @@ class index extends Controller{
   }
 
   /**
-   * Pagina di autenticazione
-   * 
-   * @see sysfunc::tableLogin()
-   * @return string
-   */
-  public function auth_page(){
-
-    $registration = cleanVar($_GET, 'reg', 'int', '');
-    
-    if($registration == 1) $control = true; else $control = false;
-    
-    $GINO = "<div id=\"section_indexAuth\" class=\"section\">";
-
-    $GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
-    
-    $GINO .= "</div>";
-    
-    return $GINO;
-  }
-
-  /**
    * Home page amministrazione
    * 
    * @return string

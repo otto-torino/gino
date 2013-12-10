@@ -277,7 +277,9 @@ class Link {
 	 * @param string $params valori da URL (es. $_SERVER['REQUEST_URI'])
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b vserver (string): variabile del server web alla quale fare riferimento (utilizzando QUERY_STRING viene scartato il valore codificato base64)
+	 *   - @b vserver (string): variabile del server web alla quale fare riferimento
+	 *     - QUERY_STRING, utilizzando QUERY_STRING viene scartato il valore codificato base64
+	 *     - REQUEST_URI
 	 *   - @b pToLink (boolean): conversione dal formato permalink a quello di gino (di default è il contrario)
 	 *   - @b basename (boolean): opzione per il metodo permalinkToLink(); se vero antepone il basename al link (vedi class.skin.php)
 	 *   - @b boolean setServerVar (boolean): reimposta le variabili del server indicate nel metodo setServerVar(). Operazione richiesta dalla classe document
@@ -526,9 +528,9 @@ class Link {
 		return $string;
 	}
 
-  /**
+	/**
 	 * Costruisce l'indirizzo di un redirect e lo effettua
-	 * @param string $file indirizzo del redirect, corrispondente al nome del file base dell'applicazione (ad es. la proprietà @a _home)
+	 * @param string $file indirizzo del redirect, corrispondente al nome del file base dell'applicazione (ad es. la proprietà @a $_home)
 	 * @param string $EVT parte dell'indirizzo formata da nome istanza/classe e nome metodo (nel formato @a nomeistanza-nomemetodo)
 	 * @param string $params parametri aggiuntivi della request (ad es. var1=val1&var2=val2)
 	 * @return void
@@ -549,10 +551,11 @@ class Link {
 		exit();
 	}
 
-  public function redirect($class, $method, $params1=null, $params2=null, $options=array()) {
-    header("Location: ".$this->alink($class, $method, $params1, $params2, $options));
-    exit();
-  }
+	public function redirect($class, $method, $params1=null, $params2=null, $options=array()) {
+		
+		header("Location: ".$this->alink($class, $method, $params1, $params2, $options));
+		exit();
+	}
 
 }
 ?>

@@ -590,10 +590,10 @@ class mysql implements DbManager {
 				}
 				else
 				{
-          if($value !== null) {
-				    $a_fields[] = $field;
-					  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
-          }
+          			if($value !== null) {
+						$a_fields[] = $field;
+						$a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+          			}
 				}
 			}
 			

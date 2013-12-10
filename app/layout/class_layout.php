@@ -595,7 +595,10 @@ class layout extends Controller {
 			foreach($pages as $page) {
 				$access_txt = '';
 				if($page->private)
-					$access_txt .= $page->getController()->permissions()['can_view_private']."<br />";
+				{
+					$perm = $page->getController()->permissions();
+					$access_txt .= $page->getController()->$perm['can_view_private']."<br />";
+				}
 				if($page->users)
 					$access_txt .= _("pagina limitata ad utenti selezionati");
         if(!$page->private and !$page->users) 
@@ -781,7 +784,10 @@ class layout extends Controller {
 			foreach($pages as $page) {
 				$access_txt = '';
 				if($page->private)
-					$access_txt .= $page->getController()->permissions()['can_view_private']."<br />";
+				{
+					$perm = $page->getController()->permissions();
+					$access_txt .= $perm['can_view_private']."<br />";
+				}
 				if($page->users)
 					$access_txt .= _("pagina limitata ad utenti selezionati");
         if(!$page->private and !$page->users) 
