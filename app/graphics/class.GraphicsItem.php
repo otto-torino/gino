@@ -41,20 +41,17 @@ class GraphicsItem extends Model {
 
     $structure['type'] = new EnumField(array(
       'name'=>'type', 
+      'model'=>$this,
       'widget'=>'select', 
       'required'=>true,
-      'label'=>$this->_fields_label['type'],
       'enum'=>array(1 => _('immagine'), 2 => _('codice')), 
-      'value'=>$this->type, 
-      'table'=>$this->_tbl_data
     ));
 
     $base_path = GRAPHICS_DIR;
 
     $structure['image'] = new ImageField(array(
       'name'=>'image', 
-      'value'=>$this->image, 
-      'label'=>$this->_fields_label['image'], 
+      'model'=>$this,
       'lenght'=>100, 
       'extensions'=>self::$_extension_img, 
       'resize'=>false, 

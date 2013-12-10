@@ -50,78 +50,63 @@ class Conf extends Model {
 
     $structure['multi_language'] = new BooleanField(array(
       'name'=>'multi_language', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['multi_language'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->multi_language, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['dft_language'] = new ForeignKeyField(array(
       'name'=>'dft_language', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['dft_language'], 
       'lenght'=>3, 
-      'fkey_table'=>TBL_LANGUAGE, 
-      'fkey_field'=>'language', 
-      'fkey_order'=>'language', 
-      'value'=>$this->dft_language, 
-      'table'=>$this->_tbl_data
+      'foreign'=>'Lang', 
+      'foreign_order'=>'language', 
     ));
 
     $structure['log_access'] = new BooleanField(array(
       'name'=>'log_access', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['log_access'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->log_access, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['email_admin'] = new EmailField(array(
       'name'=>'email_admin', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['email_admin'], 
-      'value'=>$this->email_admin, 
     ));
 
     $structure['email_from_app'] = new EmailField(array(
       'name'=>'email_from_app', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['email_from_app'], 
-      'value'=>$this->email_from_app, 
     ));
 
     $structure['mobile'] = new BooleanField(array(
       'name'=>'mobile', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['mobile'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->mobile, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['password_crypt'] = new EnumField(array(
       'name'=>'password_crypt', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['password_crypt'], 
       'enum'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')), 
       'default'=>'md5',
-      'value'=>$this->password_crypt, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['enable_cache'] = new BooleanField(array(
       'name'=>'enable_cache', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['enable_cache'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->enable_cache, 
-      'table'=>$this->_tbl_data
     ));
 
     return $structure;

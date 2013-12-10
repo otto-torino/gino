@@ -7426,6 +7426,9 @@ div.tab-content h1 {
 div.tab-content h2 {
   font-size: 28px;
 }
+div.tab-content h3 {
+  font-size: 20px;
+}
 div.tab-content header a.selected {
   background: transparent;
   color: #ddfd04 !important;
@@ -7876,7 +7879,8 @@ fieldset[disabled] form .form-file-check .trnsl-lng-sel.active {
   border-color: #4cae4c;
 }
 form .form-multicheck,
-form .form-radio-group {
+form .form-radio-group,
+form .form-noinput {
   display: inline-block;
 }
 form .form-multicheck {

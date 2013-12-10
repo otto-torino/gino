@@ -298,7 +298,7 @@ class Form {
    */
   public function label($name, $text, $required){
 
-    if(empty($name) || !$text) return '<label></label>';
+    if(!$text) return '<label></label>';
 
     if(is_array($text)) {
       $label = isset($text['label']) ? $text['label'] : $text[0];
@@ -492,7 +492,6 @@ class Form {
     $class = $this->option('class') ? $this->option('class') : 'form_text_label';
 
     $GFORM = '';
-
     if(!empty($label) OR !empty($value))
     {
       $GFORM = "<div class=\"form-row\">";

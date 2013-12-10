@@ -92,82 +92,67 @@ class PageEntry extends Model {
 		
 		$structure['category_id'] = new ForeignKeyField(array(
 			'name'=>'category_id', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['category_id'], 
 			'lenght'=>3, 
-			'fkey_table'=>pageCategory::$_tbl_item, 
-			'fkey_field'=>'name', 
-			'fkey_order'=>'name', 
-			'value'=>$this->category_id, 
-			'table'=>$this->_tbl_data
+			'foreign'=>'pageCategory', 
+			'foreign_order'=>'name', 
 		));
 		
 		$structure['published'] = new BooleanField(array(
 			'name'=>'published', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['published'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->published, 
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['social'] = new BooleanField(array(
 			'name'=>'social', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['social'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->social
 		));
 		
 		$structure['private'] = new BooleanField(array(
 			'name'=>'private', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['private'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->private, 
-			'table'=>$this->_tbl_data
 		));
 		
-		$structure['users'] = new ManyToManyField(array(
+		$structure['users'] = new ManyToManyInlineField(array(
 			'name'=>'users', 
-			'label'=>$this->_fields_label['users'], 
-			'fkey_table'=>'auth_user', 
-			'fkey_id'=>'id', 
-			'fkey_field'=>array('lastname', 'firstname'), 
-			'fkey_where'=>"active='1'", 
-			'fkey_order'=>"lastname ASC", 
-			'value'=>$this->users
+      'model'=>$this,
+			'm2m'=>'User', 
+			'm2m_where'=>"active='1'", 
+			'm2m_order'=>"lastname ASC, firstname", 
 		));
 
 		$structure['enable_comments'] = new BooleanField(array(
 			'name'=>'enable_comments', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['enable_comments'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0, 
-			'value'=>$this->enable_comments, 
-			'table'=>$this->_tbl_data
 		));
 
 		$structure['creation_date'] = new DatetimeField(array(
 			'name'=>'creation_date', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['creation_date'], 
 			'auto_now'=>false, 
 			'auto_now_add'=>true, 
-			'value'=>$this->creation_date 
 		));
 
 		$structure['last_edit_date'] = new DatetimeField(array(
 			'name'=>'last_edit_date', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['last_edit_date'], 
 			'auto_now'=>true, 
 			'auto_now_add'=>true, 
-			'value'=>$this->last_edit_date 
 		));
 
 		$base_path = $this->_controller->getBasePath();
@@ -175,8 +160,7 @@ class PageEntry extends Model {
 
 		$structure['image'] = new ImageField(array(
 			'name'=>'image', 
-			'value'=>$this->image, 
-			'label'=>$this->_fields_label['image'], 
+      'model'=>$this,
 			'lenght'=>100, 
 			'extensions'=>self::$_extension_img, 
 			'resize'=>false, 

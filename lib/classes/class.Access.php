@@ -35,7 +35,7 @@ class Access {
   function __construct(){
 
     $this->_db = db::instance();
-    $this->session = session::instance();
+    $this->_session = session::instance();
 
     $this->_home = HOME_FILE;
     $this->_crypt = pub::getConf('password_crypt');
@@ -66,14 +66,14 @@ class Access {
       $this->AuthenticationMethod($user, $password) ? $this->loginSuccess() : $this->loginError(_("autenticazione errata"));
     }
     elseif((isset($_GET['action']) && $_GET['action']=='logout')) {
-      $this->session->destroy();
+      $this->_session->destroy();
       header("Location: ".$this->_home);
     }
     else {
       $registry = registry::instance();
-      if(isset($this->session->user_id)) {
+      if(isset($this->_session->user_id)) {
         loader::import('auth', 'User');
-        $registry->user = new User($this->session->user_id);
+        $registry->user = new User($this->_session->user_id);
       }
       else {
         $registry->user = new User(null);
@@ -90,14 +90,14 @@ class Access {
 
   private function loginSuccess() {
 
-    $self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
     $referer = $_SERVER['HTTP_REFERER'] ? $_SERVER['HTTP_REFERER'] : $this->_home;
 
-    $redirect = isset($this->session->auth_redirect)
-        ? $this->session->auth_redirect
+    $redirect = isset($this->_session->auth_redirect)
+        ? $this->_session->auth_redirect
         : $referer;
 
     header("Location: ".$redirect);
+    exit;
   }
 
   /**
@@ -118,8 +118,8 @@ class Access {
 
     $user = User::getFromUserPwd($user, $pwd);
     if($user) {
-      $this->session->user_id = $user->id;
-      $this->session->user_name = htmlChars($user->firstname.' '.$user->lastname);
+      $this->_session->user_id = $user->id;
+      $this->_session->user_name = htmlChars($user->firstname.' '.$user->lastname);
       if($registry->sysconf->log_access) {
         $this->logAccess($user->id);
       }
@@ -384,8 +384,8 @@ class Access {
   
     if(isset($options['logout']) && $options['logout']===true) {
       
-      $this->session->destroy();
-      $this->session->startSession(SESSION_NAME);
+      $this->_session->destroy();
+      $this->_session->startSession(SESSION_NAME);
     }
 
     exit(error::errorMessage(array('error'=>$message), $redirect));

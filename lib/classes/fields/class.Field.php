@@ -23,6 +23,7 @@ class Field {
 	 * Vengono esposte dai relativi metodi GET e SET
 	 */
 	protected $_name, $_label, $_value, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table;
+  protected $_model;
 	
 	/**
 	 * Indica se il tipo di campo è obbligatorio 
@@ -50,28 +51,27 @@ class Field {
 	 * 
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - @b name (string): nome del campo
-	 *   - @b label (mixed): nome dell'intestazione del campo nel form
-	 *   - @b value (mixed): valore del record
 	 *   - @b widget (string): widget
 	 *   - @b lenght (integer): lunghezza del campo
 	 *   - @b auto_increment (boolean): campo auto_increment
 	 *   - @b primary_key (boolean): campo chiave primaria
 	 *   - @b unique_key (boolean): campo chiave unica
 	 *   - @b required (boolean): valore indicatore del campo obbligatorio
-	 *   - @b table (string): nome della tabella
 	 * @return void
 	 */
 	function __construct($options) {
 
+    $this->_model = $options['model'];
 		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
-		$this->_label = array_key_exists('label', $options) ? $options['label'] : '';
-		$this->_value = array_key_exists('value', $options) ? $options['value'] : '';
 		$this->_lenght = array_key_exists('lenght', $options) ? $options['lenght'] : 11;
 		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
 		$this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : false;
 		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
 		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
-		$this->_table = array_key_exists('table', $options) ? $options['table'] : '';
+
+    $this->_label = $this->_model->fieldLabel($this->_name);
+    $this->_table = $this->_model->getTable();
+    $this->_value = $this->_model->{$this->_name};
 
     if(array_key_exists('widget', $options)) {
 		  $this->_default_widget = $options['widget'];
@@ -98,29 +98,14 @@ class Field {
 		return $this->_name;
 	}
 	
-	public function setName($value) {
-		
-		$this->_name = $value;
-	}
-	
 	public function getLabel() {
 		
 		return $this->_label;
 	}
 	
-	public function setLabel($value) {
-		
-		$this->_label = $value;
-	}
-	
 	public function getValue() {
 		
 		return $this->_value;
-	}
-	
-	public function setValue($value) {
-		
-		$this->_value = $value;
 	}
 	
 	public function getLenght() {

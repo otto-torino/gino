@@ -92,61 +92,53 @@ class User extends Model {
 
 		$structure['firstname'] = new CharField(array(
 			'name'=>'firstname', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['firstname'], 
-			'value'=>$this->firstname, 
 			'trnsl'=>false,
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['lastname'] = new CharField(array(
 			'name'=>'lastname', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['lastname'], 
-			'value'=>$this->lastname, 
 			'trnsl'=>false,
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['email'] = new EmailField(array(
 			'name'=>'email', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['email'], 
-			'value'=>$this->email, 
 			'trnsl'=>false,
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['is_admin'] = new BooleanField(array(
 			'name'=>'is_admin', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['is_admin'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->is_admin, 
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['is_staff'] = new BooleanField(array(
 			'name'=>'is_staff', 
+      'model'=>$this,
 			'required'=>true, 
-			'label'=>$this->_fields_label['is_staff'], 
 			'enum'=>array(1=>_('si'), 0=>_('no')), 
 			'default'=>0,
-			'value'=>$this->is_staff, 
-			'table'=>$this->_tbl_data
 		));
 
-		$structure['nation'] = new foreignKeyField(array(
-			'name'=>'nation', 
-			'value'=>$this->nation, 
-			'label'=>$this->_fields_label['nation'], 
+    $nations = array();
+    $rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
+    foreach($rows as $row) {
+      $nations[$row['id']] = htmlChars($row[$this->_lng_nav]);
+    }
+
+		$structure['nation'] = new EnumField(array(
+      'name'=>'nation', 
+      'model'=>$this,
+      'widget'=>'select',
 			'lenght'=>4, 
-			'fkey_table'=>TBL_NATION, 
-			'fkey_id'=>'id', 
-			'fkey_field'=>$this->_lng_nav, 
-			'fkey_where'=>'', 
-			'fkey_order'=>$this->_lng_nav.' ASC'
+			'enum'=>$nations, 
 		));
 		
 		$base_path = $this->_controller->getBasePath();
@@ -154,32 +146,27 @@ class User extends Model {
 		
 		$structure['photo'] = new ImageField(array(
 			'name'=>'photo', 
+      'model'=>$this,
 			'required'=>false, 
-			'label'=>$this->_fields_label['photo'], 
 			'extensions'=>self::$extension_media, 
 			'path'=>$base_path, 
 			//'add_path'=>$add_path, 
-			'value'=>$this->photo
 		));
 
 		$structure['publication'] = new BooleanField(array(
 			'name'=>'publication', 
+      'model'=>$this,
 			'required'=>false, 
-			'label'=>$this->_fields_label['publication'], 
 			'enum'=>array(1=>_('si'), 0=>_('no')), 
 			'default'=>0,
-			'value'=>$this->publication, 
-			'table'=>$this->_tbl_data
 		));
 		
 		$structure['active'] = new BooleanField(array(
 			'name'=>'active', 
+      'model'=>$this,
 			'required'=>true, 
-			'label'=>$this->_fields_label['active'], 
 			'enum'=>array(1=>_('si'), 0=>_('no')), 
 			'default'=>0,
-			'value'=>$this->active, 
-			'table'=>$this->_tbl_data
 		));
 		
 		return $structure;

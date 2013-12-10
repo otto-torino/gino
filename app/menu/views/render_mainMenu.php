@@ -12,7 +12,7 @@
  *   url (string): url della voce di menu
  *   sub (array): array di voci figlie. queste voci sono array associativi con le stesse identiche chiavi
  */
-if(!function_exists('printVoice')) {
+if(!function_exists('adminPrintVoice')) {
   function printVoice($v, $selected, $i) {
 
     $class = $selected == $v['id'] ? " class=\"selected\"" : "";
@@ -27,9 +27,7 @@ if(!function_exists('printVoice')) {
   }
 }
 ?>
-  <nav id="menu_<?= $instance_name ?>">
-  <h1 class="hidden"><?= $title ?></h1>
-  <ul>
+  <ul class="menu-main nav navbar-nav navbar-right">
   <?php
     $i = 0;
     foreach($tree as $v) {
@@ -37,5 +35,5 @@ if(!function_exists('printVoice')) {
       $i++;
     }
   ?>
+  <li><a href="/" style="padding: 8px 15px"><img src="img/ico_home.png" alt="home" /></a></li>
   </ul>
-</nav>

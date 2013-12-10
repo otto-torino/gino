@@ -260,7 +260,7 @@ class layout extends Controller {
           $css->label, // @TODO use css object
           $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
           $skin->cache ? _('si') : _('no'),
-          array('text' => implode(' &#160; ', array($link_delete, $link_modify, $link_sort)), 'class' => 'nowrap')
+          array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
         );
         $i++;
 			}	
@@ -392,7 +392,7 @@ class layout extends Controller {
     $view_table->assign('rows', $tbl_rows);
 
     $buffer = "<div class=\"backoffice-info\">";
-    $buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di Gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
+    $buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
     $buffer .= "</div>";
     $buffer .= $view_table->render();
 
@@ -461,12 +461,28 @@ class layout extends Controller {
 
 	private function info() {
 
-    $GINO = '';
-    $GINO .= Skin::layoutInfo();
-		$GINO .= Template::layoutInfo();
+    $GINO = "<p>"._('In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguentui:')."</p>";
+    $GINO .= "<ul>";
+    $GINO .= "<li>"._('Creare ed uploadare un foglio di stile se necessario')."</li>";
+    $GINO .= "<li>"._('Creare un template a blocchi utilizzando il motorino di GINO oppure un template libero')."</li>";
+    $GINO .= "<li>"._('Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.')."</li>";
+    $GINO .= "<li>"._('Settare la priorità della skin spostandola in alto o in basso.')."</li>";
+    $GINO .= "</ul>";
 		$GINO .= css::layoutInfo();
+		$GINO .= Template::layoutInfo();
+    $GINO .= Skin::layoutInfo();
+    $GINO .= "<h2>"._('Viste')."</h2>";
+    $GINO .= "<p>"._('In questa sezione si possono modificare le viste di sistema di gino. Sono viste generali utilizzate da buona parte dei moduli e dalla stessa area amministrativa.')."</p>";
 
-    return $GINO;
+    $view = new view();
+    $view->setViewTpl('section');
+    $dict = array(
+      'title' => _('Layout'),
+      'class' => 'admin',
+      'content' => $GINO
+    );
+    
+    return $view->render($dict);
 	}
 	
 	public function actionSkin() {

@@ -65,8 +65,7 @@ class AttachedCtg extends Model {
 
     $structure['directory'] = new hiddenField(array(
       'name'=>'directory',
-      'value'=>$this->directory,
-      'label'=>$this->_fields_label['directory']
+      'model'=>$this,
     ));
 
     return $structure;

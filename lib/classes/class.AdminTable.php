@@ -524,6 +524,7 @@ class AdminTable {
 		if($req_error > 0) 
 			return array('error'=>1);
 		
+    $m2m = array();
 		foreach($model->getStructure() as $field=>$object) {
 			
 			if($this->permission($options, $field) &&

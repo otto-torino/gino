@@ -72,6 +72,7 @@
 	 */
 	protected $_fields_label=array();
 	protected $_p, $_chgP = array();
+  protected $_m2m = array();
 	
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;
@@ -91,6 +92,8 @@
 		$this->_lng_nav = $session->lng;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
+
+    $this->initm2m();
 		
 		//$this->_locale = locale::instance_to_class($this->_main_class);
 		
@@ -104,7 +107,7 @@
 
 	public function fieldLabel($field) {
 
-		return $this->_fields_label[$field];
+		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
 	}
 	
 	/**
@@ -116,9 +119,10 @@
 	 */
 	public function __get($pName) {
 	
-		if(!array_key_exists($pName, $this->_p)) return null;
-		if(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
-		else return $this->_p[$pName];
+		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
+    elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
+		elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
+		else return $this->_m2m[$pName];
 	}
 	
 	/**
@@ -131,13 +135,29 @@
 	 */
 	public function __set($pName, $pValue) {
 
-		if(!array_key_exists($pName, $this->_p)) return null;
-		if(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
-		else {
+		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
+    elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
+		elseif(array_key_exists($pName, $this->_p)) {
 			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
+    else {
+      $this->_m2m[$pName] = $pValue;
+    }
 	}
+
+  protected function initm2m() {
+    foreach($this->_structure as $field => $obj) {
+      if(get_class($obj) == 'ManyToManyField') {
+        $values = array();
+        $rows = $this->_db->select('*', $obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+        foreach($rows as $row) {
+          $values[] = $row[$obj->getJoinTableM2mId()];
+        }
+        $this->_m2m[$field] = $values;
+      }
+    }
+  }
 
   public static function getSelectOptionsFromObjects($objects) {
     $res = array();
@@ -196,8 +216,27 @@
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
 
+    $result = $this->savem2m();
+
 		return $result;
-	}
+  }
+
+  public function savem2m() {
+    foreach($this->_m2m as $field => $values) {
+      $obj = $this->_structure[$field];
+      if(get_class($obj) == 'ManyToManyField') {
+        $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+        foreach($values as $fid) {
+          $this->_db->insert(array(
+            $obj->getJoinTableId() => $this->id,
+            $obj->getJoinTableM2mId() => $fid
+          ), $obj->getJoinTable());
+        }
+      }
+    }
+    return true;
+
+  }
 
 	/**
 	 * Elimina le proprietà su DB di un oggetto
@@ -373,6 +412,7 @@
 				
 				$options_field = array(
 					'name'=>$key,
+					'model'=>$this,
 					'lenght'=>$maxLenght,
 					'primary_key'=>$pkey,
 					'unique_key'=>$ukey,
@@ -386,8 +426,6 @@
 					'extra'=>$extra, 
 					'enum'=>$enum, 
 					'label'=>$label, 
-					'value'=>$this->_p[$key], 
-					'table'=>$this->_tbl_data
 				);
 				
 				$structure[$key] = loader::load('fields/'.$dataType, array($options_field));

@@ -45,42 +45,34 @@ class Lang extends Model {
 
     $structure['main'] = new BooleanField(array(
       'name'=>'main', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['main'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->main, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['active'] = new BooleanField(array(
       'name'=>'active', 
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['active'], 
       'enum'=>array(1 => _('si'), 0 => _('no')), 
       'default'=>0,
-      'value'=>$this->active, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['language_code'] = new EnumField(array(
       'name'=>'language_code', 
+      'model'=>$this,
       'widget'=>'select', 
       'required'=>true,
-      'label'=>$this->_fields_label['language_code'], 
       'enum'=>$this->languageCodes(), 
-      'value'=>$this->language_code, 
-      'table'=>$this->_tbl_data
     ));
 
     $structure['country_code'] = new EnumField(array(
       'name'=>'country_code', 
+      'model'=>$this,
       'widget'=>'select', 
       'required'=>true,
-      'label'=>$this->_fields_label['country_code'], 
       'enum'=>$this->countryCodes(), 
-      'value'=>$this->country_code, 
-      'table'=>$this->_tbl_data
     ));
 
     return $structure;

@@ -30,9 +30,9 @@ class PageComment extends Model {
 	 * @param integer $id valore ID del record
 	 * @param object $instance istanza del controller
 	 */
-	function __construct($id, $instance) {
+	function __construct($id) {
 
-		$this->_controller = $instance;
+		$this->_controller = new page();
 		$this->_tbl_data = self::$tbl_comment;
 
 		$this->_fields_label = array(
@@ -74,57 +74,44 @@ class PageComment extends Model {
 
 		$structure['published'] = new booleanField(array(
 			'name'=>'published', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['published'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->published, 
-			'table'=>$this->_tbl_data 
 		));
 
 		$structure['notification'] = new booleanField(array(
 			'name'=>'notification', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['notification'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0, 
-			'value'=>$this->notification, 
-			'table'=>$this->_tbl_data 
 		));
 
 		$structure['datetime'] = new datetimeField(array(
 			'name'=>'datetime', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['datetime'], 
 			'auto_now'=>false, 
 			'auto_now_add'=>true, 
-			'value'=>$this->datetime 
 		));
 
 		$structure['entry'] = new foreignKeyField(array(
 			'name'=>'entry', 
-			'value'=>$this->entry, 
-			'label'=>$this->_fields_label['entry'], 
+      'model'=>$this,
 			'lenght'=>255, 
-			'fkey_table'=>pageEntry::$tbl_entry, 
-			'fkey_id'=>'id', 
-			'fkey_field'=>'title', 
-			'fkey_where'=>'instance=\''.$this->_controller->getInstance().'\'', 
-			'fkey_order'=>'last_edit_date',
-			'table'=>$this->_tbl_data 
+			'foreign'=>'PageEntry', 
+			'foreign_where'=>'instance=\''.$this->_controller->getInstance().'\'', 
+			'foreign_order'=>'last_edit_date',
 		));
 
 		$structure['reply'] = new foreignKeyField(array(
 			'name'=>'reply', 
-			'value'=>$this->reply, 
-			'label'=>$this->_fields_label['reply'], 
+      'model'=>$this,
 			'lenght'=>255, 
-			'fkey_table'=>pageComment::$tbl_comment, 
-			'fkey_id'=>'id', 
-			'fkey_field'=>'id', 
-			'fkey_where'=>'entry=\''.$this->entry.'\'', 
-			'fkey_order'=>'datetime',
-			'table'=>$this->_tbl_data 
+			'foreign'=>'pageComment', 
+			'foreign_where'=>'entry=\''.$this->entry.'\'', 
+			'foreign_order'=>'datetime',
 		));
 
 		return $structure;

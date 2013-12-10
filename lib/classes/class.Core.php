@@ -56,6 +56,7 @@ class core {
       'ImageField',
       'IntegerField',
       'ManyToManyField', 
+      'ManyToManyInlineField', 
       'TextField', 
       'TimeField', 
       'YearField'
@@ -81,7 +82,7 @@ class core {
    */
   private function initRegistry() {
 
-    loader::import('sysconf', 'Conf');
+    Loader::import('sysconf', 'Conf');
     $this->_registry = loader::singleton('Registry');
 
     // core

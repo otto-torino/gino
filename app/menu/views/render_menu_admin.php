@@ -19,7 +19,7 @@ if(!function_exists('adminPrintVoice')) {
     if(!count($v['sub'])) return "<li".$class."><a href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "")."$class>".$v['label']."</a></li>\n";
     else {
       $buffer = "<li".$class."><a href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "")."$class>".$v['label']."</a><ul>\n";
-      foreach($v['sub'] as $sv) $buffer .= printVoice($sv, $selected, null);
+      foreach($v['sub'] as $sv) $buffer .= adminPrintVoice($sv, $selected, null);
       $buffer .= "</ul></li>\n"; 
 
       return $buffer;

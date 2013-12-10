@@ -204,7 +204,6 @@ class MenuVoice extends Model {
     $result = null;
 
     if(preg_match("/\[(.+)\]/is", $query_string, $matches)) {
-      
       $result = '';
       $result_link = '';
       $rows = $db->select('id, url', self::$tbl_voices, "url LIKE '%".$matches[0]."%' AND instance='$instance'");
@@ -214,39 +213,38 @@ class MenuVoice extends Model {
           {
             $result = $row['id'];
             $result_link=$row['url'];
+            return $result;
           }
         }
       }
     }
-		else
-		{
-			/*
-			L'indirizzo di base è nel formato di gino, ovvero ad esempio: 
-			urldecode($_SERVER['QUERY_STRING']) => string(26) "evt[page-displayItem]&id=5" 
-			in quanto l'eventuale permalink è già stato convertito (class Document).
-			Nella tabella del menu i link sono registrati nel formato permalink.
-			*/
-			$obj = new Link();
-			$plink = $obj->convertLink($query_string);	// => page/displayItem/5
-			$search_link = $obj->alternativeLink($plink);
-			
-			$query = "SELECT id, url FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
-			$a = $db->selectquery($query);
-			if(sizeof($a)>0) {
-				foreach($a as $b) {
-					
-					$mlink = $b['url'];
-					$mlink = $obj->convertLink($mlink, array('pToLink'=>true));	// => evt[page-displayItem]&id=5
-					
-					if(preg_match("#".preg_quote(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
-					&& strlen($result_link)<strlen($mlink))
-					{
-						$result = $b['id'];
-						$result_link = $mlink;
-					}
-				}
-			}
-		}
+
+    /*
+    L'indirizzo di base è nel formato di gino, ovvero ad esempio: 
+    urldecode($_SERVER['QUERY_STRING']) => string(26) "evt[page-displayItem]&id=5" 
+    in quanto l'eventuale permalink è già stato convertito (class Document).
+    Nella tabella del menu i link sono registrati nel formato permalink.
+    */
+    $obj = new Link();
+    $plink = $obj->convertLink($query_string);	// => page/displayItem/5
+    $search_link = $obj->alternativeLink($plink);
+    
+    $query = "SELECT id, url FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
+    $a = $db->selectquery($query);
+    if(sizeof($a)>0) {
+      foreach($a as $b) {
+        
+        $mlink = $b['url'];
+        $mlink = $obj->convertLink($mlink, array('pToLink'=>true));	// => evt[page-displayItem]&id=5
+        
+        if(preg_match("#".preg_quote(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
+        && strlen($result_link)<strlen($mlink))
+        {
+          $result = $b['id'];
+          $result_link = $mlink;
+        }
+      }
+    }
 		return $result;
 	}
 

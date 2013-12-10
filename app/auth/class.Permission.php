@@ -80,11 +80,10 @@ class Permission extends Model {
 
 		$structure['admin'] = new BooleanField(array(
 			'name'=>'admin', 
+      'model'=>$this,
 			'required'=>true,
-			'label'=>$this->_fields_label['admin'], 
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
-			'value'=>$this->admin
 		));
 		
 		return $structure;

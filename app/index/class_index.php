@@ -55,8 +55,6 @@ class index extends Controller{
 
     $GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
     
-    $func = new sysfunc();
-    $GINO .= $func->tableLogin($control, $this->_class_name);
     $GINO .= "</div>";
     
     return $GINO;
@@ -70,7 +68,7 @@ class index extends Controller{
   public function admin_page(){
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
-      $this->session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
+      $this->_session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
       Link::HttpCall($this->_home, $this->_class_name.'-auth_page', '');
     }
 

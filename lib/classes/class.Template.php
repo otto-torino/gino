@@ -116,42 +116,17 @@ class Template extends Model {
 	 * @return string
 	 */
 	public static function layoutInfo() {
-		
-		$buffer = "<p>"._("In questa sezione è possibile creare dei template da associare ad una skin. L'associazione del template con un indirizzo (url) dovrà essere effettuato nella sezione 'skin'.");
-		
-		$buffer .= "<h2>"._("Procedura di utilizzo (ovvero come associare un template a una pagina)")."</h2>\n";
-		$buffer .= "<p>"._("1. Creare un nuovo template");
-		$buffer .= "<ul>
-		<li>"._("se necessario inserire anche header e footer")."</li>
-		<li>"._("se è una pagina specifica si può utilizzare 'Modulo da url'")."</li>
-		</ul>";
-		$buffer .= "</p>\n";
-		$buffer .= "<p>"._("2. Creare una nuova skin");
-		$buffer .= "<ul>
-		<li>"._("inserire una espressione regolare completa, tipo").": #index.php\?evt\[course-viewParticipant\].*#</li>
-		<li>"._("selezionare il template appena creato")."</li>
-		</ul>";
-		$buffer .= "</p>\n";
-		$buffer .= "<p>"._("3. Una volta inserita la skin");
-		$buffer .= "<ul>
-		<li>"._("spostare come posizione prima della chiamata standard (ad esempio di 'Pagine pubbliche') per far sì che all'indirizzo inserito possa venire associato il template abbinato alla skin")."</li>
-		</ul>";
-		$buffer .= "</p>\n";
-		
-		$buffer .= "<h2>"._("Indicazioni")."</h2>\n";
-		$buffer .= "<p>"._("Nella maschera di modifica e inserimento è presente il campo 'css' nel quale si può specificare un foglio di stile che viene caricato nella maschera di creazione del template. Selezionando un file css, il foglio di stile non viene automaticamente associato al template, cosa che deve essere fatta al momento di creazione della skin, ma viene utilizzato per creare un template adatto se si ha in previsione di utilizzarlo all'interno di una skin con un css che modifichi le dimensioni degli elementi strutturali.")."</p>\n";
-		$buffer .= "<h2>"._("Funzionamento")."</h2>\n";
+
+    $buffer = "<h2>"._('Template')."</h2>";
+		$buffer .= "<p>"._("gino supporta la creazione di tipi differenti di template, è possibile creare template a blocchi utilizzando il motorino di template apposito, oppure template liberi scrivendo direttamente codice php. Il template creato dovrà poi essere associato ad una skin per essere renderizzato secondo le regole definite dalla skin stessa.");
+		$buffer .= "<h3>"._("Template a blocchi")."</h3>\n";
 		$buffer .= "<p>"._("La struttura del template è formata da blocchi che contengono navate. Ciascuna navata può contenere un numero qualsiasi di moduli. I moduli lasciati 'vuoti' non occuperanno spazio all'interno del layout finale, mentre le navate 'vuote' occuperanno lo spazio in larghezza esattamente come definito nel template.")."</p>\n";
-		
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Template'),
-      'class' => 'admin',
-      'content' => $buffer
-    );
-    
-    return $view->render($dict);
+		$buffer .= "<p>"._("E' possibile inserire qualunque vista esportata dai moduli e la vista corrente (quella specifica dell'url visitato). Il dimensionamento di blocchi e navate può essere gestito in px oppure in percentuali. L'intestazione del documento html non è controllabile, ma viene interamente gestita da gino.")."</p>\n";
+		$buffer .= "<p>"._("Nella maschera di modifica e inserimento è presente il campo 'css' nel quale si può specificare un foglio di stile che viene caricato nella maschera di creazione del template. Selezionando un file css, il foglio di stile non viene automaticamente associato al template, cosa che deve essere fatta al momento di creazione della skin, ma viene utilizzato per creare un template adatto se si ha in previsione di utilizzarlo all'interno di una skin con un css che modifichi le dimensioni degli elementi strutturali.")."</p>\n";
+		$buffer .= "<h3>"._("Template libero")."</h3>\n";
+		$buffer .= "<p>"._("Creando un template libero è possibile controllare finemente ogni aspetto del layout finale della pagina. Il template comprende l'intero documento, dalla definizione del DOCTYPE alla chiusura del tag html. E' possibile utilizzare codice php, si hanno a disposizione tutte le librerie di GINO. In questo caso non è necessario associare fogli di stile caricati a proposito, in quanto si possono direttamente controllare le chiamate a css, javascript etc... modificando l'intestazione del documento.")."</p>\n";
+
+    return $buffer;
 	}
 	
 	private function formData($gform, $free = false) {

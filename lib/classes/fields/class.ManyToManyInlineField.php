@@ -20,13 +20,15 @@ loader::import('class/fields', 'Field');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ManyToManyField extends Field {
+class ManyToManyInlineField extends Field {
 
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
-  protected $_join_table, $_join_table_id, $_join_table_m2m_id;
 	protected $_enum;
 	
 	/**
@@ -55,17 +57,12 @@ class ManyToManyField extends Field {
 		$this->_m2m = $options['m2m'];
 		$this->_m2m_where = array_key_exists('m2m_where', $options) ? $options['m2m_where'] : null;
 		$this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
-		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
-		$this->_join_table = $options['join_table'];
-
-    $this->_join_table_id = strtolower(get_class($this->_model)).'_id';
-    $this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
 	}
 	
 	public function __toString() {
 
     $res = array();
-    foreach($this->_model->{$this->_name} as $id) {
+    foreach(explode(', ', $this->_model->{$this->_name}) as $id) {
       if($this->_m2m_controller) {
         $obj = new $this->_m2m($id, $this->_m2m_controller);
       }
@@ -75,20 +72,13 @@ class ManyToManyField extends Field {
       $res[] = (string) $obj;
     }
     return implode(', ', $res);
-  }
+	}
 	
-  public function getJoinTable() {
-    return $this->_join_table;
-  }
-
-  public function getJoinTableId() {
-    return $this->_join_table_id;
-  }
-
-  public function getJoinTableM2mId() {
-    return $this->_join_table_m2m_id;
-  }
-
+	public function getEnum() {
+		
+		return $this->_enum;
+	}
+	
 	/**
 	 * Stampa l'elemento del form
 	 * 
@@ -97,16 +87,16 @@ class ManyToManyField extends Field {
 	 * @return string
 	 */
 	public function formElement($form, $options) {
-    $db = db::instance();
+
     $m2m = new $this->_m2m(null);
-    $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
+    $rows = $this->_db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
     $enum = array();
     foreach($rows as $row) {
       $m2m = new $this->_m2m($row['id']);
       $enum[$m2m->id] = (string) $m2m;
     }
 		
-    $this->_value = $this->_model->{$this->_name};
+    $this->_value = explode(',', $this->_model->{$this->_name});
 		$this->_enum = $enum;
 		$this->_name .= "[]";
 
@@ -133,6 +123,11 @@ class ManyToManyField extends Field {
 		
 		$value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 
+		if(gOpt('asforminput', $options, false)) {
+			return $value;
+		}
+
+		if($value) $value = implode(',', $value);
 		return $value;
 	}
 

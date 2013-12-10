@@ -358,35 +358,27 @@ class Skin extends Model {
 	 */
 	public static function layoutInfo() {
 	
-		$buffer = "<h2>"._("Indicazioni")."</h2>\n";
-		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono un file css ed un template e che possono essere associate a")."</p>";
+		$buffer = "<h2>"._("Skin")."</h2>\n";
+		$buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono un file css (opzionale) ed un template e che possono essere associate a")."</p>";
 		$buffer .= "<ul>
 		<li>"._("un url")."</li>
 		<li>"._("una serie di url")."</li>
 		<li>"._("una classe di url")."</li>
 		</ul>";
 		$buffer .= "<p>"._("Questi metodi possono essere abbinati o meno ad una variabile di sessione.")."</p>";
-		$buffer .= "<h2>"._("Funzionamento")."</h2>\n";
+		$buffer .= "<h3>"._("Funzionamento")."</h3>\n";
 		$buffer .= "<p>"._("La ricerca di una corrispondenza pagina richiesta/skin avviene in base a dei principi di priorità secondo i quali vengono controllati prima gli url/classi di url appartenenti a skin che hanno un valore di variabile di sessione; successivamente vengono controllati quelli appartenenti a skin che non hanno un valore di variabile di sessione.")."</p>";
 		$buffer .= "<p>"._("L'ordine di priorità delle skin è definito dall'ordine in cui compaiono nell'elenco a sinistra e modificabile per trascinamento.")."</p>";
 		$buffer .= "<p>"._("Nel campo <b>Variabile di sessione</b> che compare nel form di modifica o inserimento si può inserire il valore di una variabile di sessione nel formato \"nome_variabile=valore\", per il quale verranno applicate le regole di matching di url e classi.<br />Nel campo <b>Urls</b> si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
 		<br />Le classi di url, definite mediante il campo <b>Espressione regolare</b>, nel formato PCRE permettono di fare il matching con tutti gli url che soddisfano l'espressione regolare inserita.")."</p>\n";
 
-		$buffer .= "<h2>"._("Regole di matching url/classi")."</h2>\n";
+		$buffer .= "<h3>"._("Regole di matching url/classi")."</h3>\n";
 		$buffer .= "<p>"._("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching tra la pagina richiesta e gli indirizzi associati alle skin.
 		<br />Se il matching non viene trovato, la ricerca continua utilizzando le espressioni regolari.")."</p>\n";
 
 		$buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quello nativo di gino.")."</p>";
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Skin'),
-      'class' => 'admin',
-      'content' => $buffer
-    );
-    
-    return $view->render($dict);
+    return $buffer;
 	}
 }
 
