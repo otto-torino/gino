@@ -15,44 +15,47 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
+ * ###Meccanismi per la gestione delle traduzioni
  * In gino sono previsti due meccanismi per gestire le traduzioni: \n
  * - utilizzo delle librerie gettext
  * - file di stringhe localizzate
  * 
  * La classe locale si prende carico della gestione dei file di stringhe.
  * 
- * La classe locale viene inclusa nel file main.php e viene istanziata come singleton: \n
- * - nella classe AbstractEvtClass (main.php) per le classi applicative
- * - nelle classi modello delle classi applicative che estendono la classe propertyObject
- * - nelle classi non applicative
+ * La classe locale viene inclusa nel file class.Core.php e viene istanziata come singleton: \n
+ *   - nella classe @a Controller per le classi applicative (che risiedono nella directory app)
+ *   - nelle classi modello delle classi applicative che estendono la classe @a Model
+ *   - nelle classi non applicative
  * 
- * La classe AbstractEvtClass viene estesa dalle classi applicative che risiedono nella directory app e che in questo modo ereditano l'istanza @a locale.
- * Le classi modello delle classi applicative si trovano anche loro nella directory app, e ognuna di loro instanzia la classe locale:
+ * ####Esempio di richiamo in una classe modello
  * @code
  * $this->_locale = locale::instance_to_class($this->_controller->getClassName());
  * @endcode
  * 
- * I file delle traduzioni richiamati utilizzando questa procedura dovranno risiedere nelle directory:
- * @code
- * app/[nome_classe]/language/[codice_lingua]/
- * @endcode
- * mentre il nome del file dovrà essere sempre nella forma: @a nomeclasse_lang.php \n
- * ad esempio avremo:
- * @code
- * app/user/language/en_US/user_lang.php
- * @endcode
- * 
- * La classe locale può venire anche istanziata nelle classi non applicative, in questo modo:
+ * ####Esempio di richiamo in una classe non applicativa
  * @code
  * $locale = locale::instance_to_class(get_class());
  * @endcode
  * 
- * I file delle traduzioni in questo caso dovranno risiedere nelle directory:
+ * ###Directory dei file
+ * La definizione delle directory dei file avviene nel metodo @a pathToFile(). \n
+ * Mentre il nome del file è comunque sempre nella forma @a [nome_classe]_lang.php, come ad esempio
+ * @code
+ * app/user/language/en_US/user_lang.php
+ * @endcode
+ * la directory dove risiedono questi file non è univoca.
+ * 
+ * Se esiste la directory app/[nome_classe], il file viene cercato nel percorso:
+ * @code
+ * app/[nome_classe]/language/[codice_lingua]/
+ * @endcode
+ * 
+ * In caso contrario nel percorso:
  * @code
  * languages/[codice_lingua]/
  * @endcode
  * 
- * #### Richiamare le stringhe
+ * ###Richiamare le stringhe
  * Per richiamare una stringa si utilizza il metodo @a get passandogli il nome della chiave che identifica la stringa, ad esempio:
  * @code
  * $this->_locale->get('label_phone')
@@ -103,7 +106,6 @@ class locale extends singleton {
 		if(!file_exists(APP_DIR.OS.$class))
 		{
 			$path_to_file = SITE_ROOT.OS.'languages'.OS.$this->session->lng.OS.$filename;
-			
 		}
 		else
 		{
@@ -244,7 +246,7 @@ class locale extends singleton {
 	 */
 	private static function userLanguage(){
 
-    $db = db::instance();
+    	$db = db::instance();
 
 		$code = self::get_languages();
 
@@ -262,12 +264,12 @@ class locale extends singleton {
 				{
 					$country = strtoupper($array[1]);
 					
-          $langs = Lang::get(array(
-            'where' => "language_code='$lang' AND country_code='$country'"
-          ));
-          if(count($langs)) {
-            return $langs[0]->code();
-          }
+          			$langs = Lang::get(array(
+           				'where' => "language_code='$lang' AND country_code='$country'"
+          			));
+          			if(count($langs)) {
+            			return $langs[0]->code();
+          			}
 				}
 				elseif(sizeof($array) == 1)
 				{

@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.Permission.php
- * Contiene la definizione ed implementazione della classe User.
+ * Contiene la definizione ed implementazione della classe Permission.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -44,6 +44,7 @@
 class Permission extends Model {
 
   public static $table = TBL_PERMISSION;
+  public static $table_perm_user = TBL_USER_PERMISSION;
 
   function __construct($id) {
 
@@ -176,60 +177,87 @@ class Permission extends Model {
     return $res;
   }
 
+	/**
+	 * Elenco dei permessi
+	 * 
+	 * @return array array(perm_id, name, label)
+	 * 
+	 * Vengono mostrati: \n
+	 *   - per i moduli non istanziabili -> i loro permessi
+	 *   - per i moduli istanziabili -> i permessi dei moduli per ogni loro istanza
+	 */
 	public static function getList() {
 		
 		$db = db::instance();
 		
 		$items = array();
 		
-		$perm = $db->select('*', 'auth_permission', '', array('order'=>'class ASC'));
+		$perm = $db->select('*', self::$table, '', array('order'=>'class ASC'));
 		if($perm && count($perm))
 		{
 			foreach($perm AS $p)
 			{
 				$p_id = $p['id'];
 				$p_class = $p['class'];
-				$p_code = $p['code'];
 				$p_label = $p['label'];
+				$p_description = $p['description'];
 				
-				// la classe è istanziabile?
-				$class_instance = $db->getFieldFromId(TBL_MODULE_APP, 'instantiable', 'name', $p_class);
-				$class_id = $db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', $p_class);
+				$module_app = ModuleApp::getFromName($p_class);
 				
-				if($class_instance)
-				{
-          $list_instance = $db->select('id, label, name', TBL_MODULE, "module_app='$class_id'", array('order'=>'label ASC'));
-					if($list_instance && count($list_instance))
+				if($p_class === 'core' or !$module_app->instantiable)
+				{	
+					if($p_class === 'core' or $module_app->active)
 					{
-						foreach($list_instance AS $i)
+						/*if(!isset($res[$p_class.',0'])) {
+							$res[$p_class.',0'] = array();
+						}*/
+						
+						//$res[$p_class.',0'][] = new Permission($row['id']);
+						
+						if($p_class === 'core')
 						{
-							$i_id = $i['id'];
-							$i_name = $i['name'];
-							$i_label = $i['label'];
-							
-							$items[] = array(
-								'perm_id'=>$p_id, 
-								'class'=>$p_class, 
-								'code'=>$p_code, 
-								'label'=>$p_label, 
-								'instance_id'=>$i_id, 
-								'instance_name'=>$i_name, 
-								'instance_label'=>$i_label
-							);
+							$mod_name = 'core';
+							$mod_label = '';
 						}
+						else
+						{
+							$mod_name = $module_app->name; 
+							$mod_label = $module_app->label; 
+						}
+						
+						$items[] = array(
+							'perm_id'=>$p_id, 
+							'perm_label'=>$p_label, 
+							'perm_descr'=>$p_description, 
+							'mod_name'=>$mod_name, 
+							'mod_label'=>$mod_label, 
+							'inst_id'=>null
+						);
 					}
 				}
 				else
 				{
-					$items[] = array(
-						'perm_id'=>$p_id, 
-						'class'=>$p_class, 
-						'code'=>$p_code, 
-						'label'=>$p_label, 
-						'instance_id'=>null, 
-						'instance_name'=>null, 
-						'instance_label'=>null
-					);
+					$modules = ModuleInstance::getFromModuleApp($module_app->id);
+					
+					foreach($modules as $module)
+					{
+						if($module->active)
+						{
+							/*if(!isset($res[$module->name.','.$module->id])) {
+								$res[$module->name.','.$module->id] = array();
+							}
+							$res[$module->name.','.$module->id][] = new Permission($row['id']);*/
+							
+							$items[] = array(
+								'perm_id'=>$p_id, 
+								'perm_label'=>$p_label, 
+								'perm_descr'=>$p_description, 
+								'mod_name'=>$module->name, 
+								'mod_label'=>$module->label, 
+								'inst_id'=>$module->id
+							);
+						}
+					}
 				}
 			}
 		}
