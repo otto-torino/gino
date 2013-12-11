@@ -72,7 +72,7 @@
 	 */
 	protected $_fields_label=array();
 	protected $_p, $_chgP = array();
-  protected $_m2m = array();
+	protected $_m2m = array();
 	
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;

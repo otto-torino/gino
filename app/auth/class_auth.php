@@ -205,6 +205,7 @@ class auth extends Controller {
 	/**
 	 * Gestione dell'utente
 	 * 
+	 * @see AdminTable_AuthUser::AdminTable()
 	 * @return string
 	 */
 	private function manageUser() {
@@ -318,17 +319,15 @@ class auth extends Controller {
 			'address' => array(
 				'trnsl'=>false
 			), 
+			'cap' => array(
+				'size'=>5
+			), 
 			'city' => array(
 				'trnsl'=>false
 			)
 		);
 
-		/*$admin_table = loader::load('AdminTable', array(
-			$this
-		));*/
-		
 		$admin_table = new AdminTable_AuthUser($this);
-		
 
 		return $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
 	}

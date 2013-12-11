@@ -551,7 +551,7 @@ class pub {
    * Viene richiamato dalla classe mFile.
    *
    * @param string $path_to_file percorso assoluto al file
-   * @param string $home (proprietà @a _home)
+   * @param string $home (proprietà @a $_home)
    * @param string $redirect (class-function)
    * @param string $param_link parametri url (es. id=3&ref=12&)
    * @return boolean

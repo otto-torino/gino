@@ -893,13 +893,13 @@ class AdminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-        if(is_array($field_obj)) {
-         $label = $field_obj['label'];
-        }
-        else {
-          $model_label = $model_structure[$field_name]->getLabel();
-          $label = is_array($model_label) ? $model_label[0] : $model_label;
-        }
+				if(is_array($field_obj)) {
+					$label = $field_obj['label'];
+				}
+				else {
+					$model_label = $model_structure[$field_name]->getLabel();
+					$label = is_array($model_label) ? $model_label[0] : $model_label;
+				}
 				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
@@ -936,7 +936,7 @@ class AdminTable {
 
 		$rows = array();
 		foreach($records as $r) {
-				
+			
 			$record_model = new $model($r['id'], $this->_controller);
 			$record_model_structure = $record_model->getStructure();
 
@@ -944,13 +944,13 @@ class AdminTable {
 			foreach($fields_loop as $field_name=>$field_obj) {
 				
 				if($this->permission($options_view, $field_name))
-        {
-          if(is_array($field_obj)) {
-            $record_value = $record_model->$field_obj['member']();
-          }
-          else {
-					  $record_value = (string) $record_model_structure[$field_name];
-          }
+				{
+					if(is_array($field_obj)) {
+						$record_value = $record_model->$field_obj['member']();
+					}
+					else {
+						$record_value = (string) $record_model_structure[$field_name];
+					}
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];

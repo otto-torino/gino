@@ -92,16 +92,16 @@ class PageEntry extends Model {
 		
 		$structure['category_id'] = new ForeignKeyField(array(
 			'name'=>'category_id', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'lenght'=>3, 
 			'foreign'=>'pageCategory', 
-			'foreign_order'=>'name', 
+			'foreign_order'=>'name ASC'
 		));
 		
 		$structure['published'] = new BooleanField(array(
 			'name'=>'published', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
@@ -109,7 +109,7 @@ class PageEntry extends Model {
 		
 		$structure['social'] = new BooleanField(array(
 			'name'=>'social', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
@@ -117,7 +117,7 @@ class PageEntry extends Model {
 		
 		$structure['private'] = new BooleanField(array(
 			'name'=>'private', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
@@ -125,7 +125,7 @@ class PageEntry extends Model {
 		
 		$structure['users'] = new ManyToManyInlineField(array(
 			'name'=>'users', 
-      'model'=>$this,
+			'model'=>$this,
 			'm2m'=>'User', 
 			'm2m_where'=>"active='1'", 
 			'm2m_order'=>"lastname ASC, firstname", 
@@ -133,7 +133,7 @@ class PageEntry extends Model {
 
 		$structure['enable_comments'] = new BooleanField(array(
 			'name'=>'enable_comments', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0, 
@@ -141,7 +141,7 @@ class PageEntry extends Model {
 
 		$structure['creation_date'] = new DatetimeField(array(
 			'name'=>'creation_date', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'auto_now'=>false, 
 			'auto_now_add'=>true, 
@@ -149,7 +149,7 @@ class PageEntry extends Model {
 
 		$structure['last_edit_date'] = new DatetimeField(array(
 			'name'=>'last_edit_date', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'auto_now'=>true, 
 			'auto_now_add'=>true, 
@@ -160,7 +160,7 @@ class PageEntry extends Model {
 
 		$structure['image'] = new ImageField(array(
 			'name'=>'image', 
-      'model'=>$this,
+			'model'=>$this,
 			'lenght'=>100, 
 			'extensions'=>self::$_extension_img, 
 			'resize'=>false, 
