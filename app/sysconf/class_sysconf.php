@@ -3,7 +3,7 @@
  * @file class_sysconf.php
  * @brief Contiene la classe sysconf
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,18 +13,15 @@ require_once('class.Conf.php');
 /**
  * @brief Gestione delle principali impostazioni di sistema
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
  * Le impostazioni di sistema sono:
- *   - Livello base autenticazione
- *   - Livello autenticazione amministratore
  *   - Gestione lingue
  *   - Lingua di default (se la gestione lingue è disattivata)
  *   - Log degli accessi
  *   - Metodo criptazione password
- *   - Caricamento metodi richiamati da url
  *   - Descrizione sito
  *   - Parole chiave sito
  *   - Titolo sito
@@ -36,7 +33,6 @@ require_once('class.Conf.php');
  *   - Email invio automatico comunicazioni
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
  *   - Contenuto file robots.txt
- *   - Permalink
  */
 class sysconf extends Controller {
 

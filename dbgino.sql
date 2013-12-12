@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `auth_permission` (
   `code` varchar(128) NOT NULL,
   `label` varchar(255) NOT NULL,
   `description` text,
-  `admin` int(1) NOT NULL,
+  `admin` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
 
@@ -232,30 +232,6 @@ CREATE TABLE IF NOT EXISTS `auth_user_add` (
   `field3` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `auth_user_email`
---
-
-CREATE TABLE IF NOT EXISTS `auth_user_email` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ref_function` smallint(2) NOT NULL,
-  `description` varchar(255) NOT NULL,
-  `subject` varchar(200) NOT NULL,
-  `text` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ref_function` (`ref_function`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dumping data for table `auth_user_email`
---
-
-INSERT INTO `auth_user_email` (`id`, `ref_function`, `description`, `subject`, `text`) VALUES
-(1, 1, 'email inviata a un utente quando si registra autonomamente e viene automaticamente attivato', '', ''),
-(2, 2, 'email inviata a un utente quando si registra autonomamente e non viene automaticamente attivato', '', '');
 
 -- --------------------------------------------------------
 
@@ -653,9 +629,9 @@ CREATE TABLE IF NOT EXISTS `page_comment` (
   `email` varchar(200) NOT NULL,
   `web` varchar(200) DEFAULT NULL,
   `text` text NOT NULL,
-  `notification` int(1) NOT NULL,
+  `notification` tinyint(1) NOT NULL,
   `reply` int(11) DEFAULT NULL,
-  `published` int(1) NOT NULL,
+  `published` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -820,9 +796,9 @@ CREATE TABLE IF NOT EXISTS `search_site_opt` (
 
 CREATE TABLE IF NOT EXISTS `sys_conf` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `multi_language` int(1) NOT NULL,
-  `dft_language` int(2) NOT NULL,
-  `log_access` int(1) NOT NULL,
+  `multi_language` tinyint(1) NOT NULL,
+  `dft_language` smallint(2) NOT NULL,
+  `log_access` tinyint(1) NOT NULL,
   `head_description` text NOT NULL,
   `head_keywords` varchar(255) DEFAULT NULL,
   `head_title` varchar(255) NOT NULL,
@@ -831,7 +807,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `captcha_private` varchar(64) DEFAULT NULL,
   `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
-  `mobile` enum('yes','no') NOT NULL DEFAULT 'no',
+  `mobile` tinyint(1) NOT NULL DEFAULT '0',
   `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
   `enable_cache` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
@@ -842,7 +818,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
 --
 
 INSERT INTO `sys_conf` (`id`, `multi_language`, `dft_language`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_admin`, `email_from_app`, `mobile`, `password_crypt`, `enable_cache`) VALUES
-(1, 1, 2, 1, 'cippa', '', 'gino CMS', '', '', '', 'kkk@otto.to.it', 'no-reply@otto.to.it', '', 'md5', 0);
+(1, 1, 2, 1, 'cippa', '', 'gino CMS', '', '', '', 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
 
 -- --------------------------------------------------------
 
@@ -886,7 +862,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
-  `description` text NOT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
@@ -946,7 +922,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
   `description` text NOT NULL,
-  `free` int(1) NOT NULL,
+  `free` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=31 ;
 
@@ -1019,67 +995,7 @@ CREATE TABLE IF NOT EXISTS `sys_log_access` (
   `user_id` int(11) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=55 ;
-
---
--- Dumping data for table `sys_log_access`
---
-
-INSERT INTO `sys_log_access` (`id`, `user_id`, `date`) VALUES
-(1, 1, '2012-07-30 14:46:56'),
-(2, 1, '2013-11-22 17:36:42'),
-(3, 1, '2013-11-22 17:36:48'),
-(4, 1, '2013-11-25 10:45:56'),
-(5, 1, '2013-11-25 10:58:37'),
-(6, 1, '2013-11-25 11:10:32'),
-(7, 1, '2013-11-25 15:12:49'),
-(8, 1, '2013-11-25 18:44:34'),
-(9, 1, '2013-11-26 10:25:19'),
-(10, 1, '2013-11-28 14:41:14'),
-(11, 1, '2013-11-28 18:35:57'),
-(12, 1, '2013-11-29 09:10:39'),
-(13, 1, '2013-11-29 10:22:21'),
-(14, 1, '2013-11-29 13:11:52'),
-(15, 1, '2013-11-29 18:26:10'),
-(16, 1, '2013-11-30 16:08:24'),
-(17, 1, '2013-12-02 09:50:54'),
-(18, 1, '2013-12-02 17:31:33'),
-(19, 1, '2013-12-03 09:29:40'),
-(20, 1, '2013-12-03 15:43:55'),
-(21, 1, '2013-12-03 16:56:15'),
-(22, 1, '2013-12-04 08:37:45'),
-(23, 1, '2013-12-04 10:03:28'),
-(24, 1, '2013-12-04 10:49:56'),
-(25, 1, '2013-12-04 14:27:34'),
-(26, 1, '2013-12-04 15:34:35'),
-(27, 1, '2013-12-05 11:28:27'),
-(28, 1, '2013-12-05 14:26:13'),
-(29, 1, '2013-12-05 17:39:44'),
-(30, 1, '2013-12-05 18:11:43'),
-(31, 1, '2013-12-05 18:20:15'),
-(32, 1, '2013-12-06 08:44:40'),
-(33, 1, '2013-12-06 10:09:36'),
-(34, 1, '2013-12-06 11:12:31'),
-(35, 1, '2013-12-06 12:06:38'),
-(36, 1, '2013-12-06 13:54:05'),
-(37, 1, '2013-12-09 09:42:21'),
-(38, 1, '2013-12-09 11:40:01'),
-(39, 1, '2013-12-09 11:40:09'),
-(40, 1, '2013-12-09 11:40:43'),
-(41, 1, '2013-12-09 11:41:23'),
-(42, 1, '2013-12-09 11:42:58'),
-(43, 1, '2013-12-09 11:43:50'),
-(44, 1, '2013-12-09 11:43:54'),
-(45, 1, '2013-12-09 11:45:09'),
-(46, 1, '2013-12-09 11:46:11'),
-(47, 1, '2013-12-09 11:46:38'),
-(48, 1, '2013-12-09 11:48:57'),
-(49, 1, '2013-12-09 11:49:32'),
-(50, 1, '2013-12-09 11:49:39'),
-(51, 1, '2013-12-09 11:50:11'),
-(52, 1, '2013-12-09 11:52:15'),
-(53, 1, '2013-12-09 11:59:16'),
-(54, 1, '2013-12-10 15:02:25');
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1145,7 +1061,7 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
   `name` varchar(100) NOT NULL,
   `module_app` int(11) NOT NULL,
   `directory` varchar(200) DEFAULT NULL,
-  `active` int(1) NOT NULL,
+  `active` tinyint(1) NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
@@ -1170,11 +1086,11 @@ CREATE TABLE IF NOT EXISTS `sys_module_app` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `active` int(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `tbl_name` varchar(30) NOT NULL,
-  `instantiable` int(1) NOT NULL,
+  `instantiable` tinyint(1) NOT NULL,
   `description` text NOT NULL,
-  `removable` int(1) NOT NULL,
+  `removable` tinyint(1) NOT NULL,
   `class_version` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
