@@ -47,7 +47,7 @@ class Skin extends Model {
 
 		$db = db::instance();
 		$res = array();
-    $rows = $db->select('id', self::$_tbl_skin, null, array('order' => $order));
+		$rows = $db->select('id', self::$_tbl_skin, null, array('order' => $order));
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new skin($row['id']);
@@ -57,21 +57,23 @@ class Skin extends Model {
 		return $res;
 	}
 
-  /**
+	/**
 	 * Skin getter
 	 * 
-	 * @param string $order per quale campo ordinare i risultati
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b order (string): per quale campo ordinare i risultati
 	 * @return array
 	 */
 	public static function get($options = array()) {
-
-    $where = gOpt('where', $options, null);
-    $order = gOpt('order', $options, null);
-    $limit = gOpt('limit', $options, null);
+		
+		$where = gOpt('where', $options, null);
+		$order = gOpt('order', $options, null);
+		$limit = gOpt('limit', $options, null);
 
 		$db = db::instance();
-    $res = array();
-    $rows = $db->select('id', self::$_tbl_skin, $where, array('order' => $order, 'limit' => $limit));
+		$res = array();
+		$rows = $db->select('id', self::$_tbl_skin, $where, array('order' => $order, 'limit' => $limit));
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new skin($row['id']);
@@ -226,7 +228,6 @@ class Skin extends Model {
 
     $before_skin->priority = $priority;
     $before_skin->updateDbData();
-    
   }
 
 	/**
@@ -266,15 +267,15 @@ class Skin extends Model {
 
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
 
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 
 	/**
@@ -306,7 +307,7 @@ class Skin extends Model {
 		$this->updateDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-    exit();
+		exit();
 	}
 	
 	/**
@@ -346,9 +347,9 @@ class Skin extends Model {
 		
 		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
 		$this->deleteDbData();
-
-    header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-    exit();
+		
+		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
+		exit();
 	}
 
 	/**
@@ -377,8 +378,8 @@ class Skin extends Model {
 		<br />Se il matching non viene trovato, la ricerca continua utilizzando le espressioni regolari.")."</p>\n";
 
 		$buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quello nativo di gino.")."</p>";
-
-    return $buffer;
+		
+		return $buffer;
 	}
 }
 

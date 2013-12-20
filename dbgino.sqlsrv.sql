@@ -882,14 +882,14 @@ CREATE TABLE sys_layout_skin (
 SET IDENTITY_INSERT sys_layout_skin ON
 
 INSERT INTO sys_layout_skin (id, label, session, rexp, urls, template, css, priority, auth, cache) VALUES
-(1, 'Home Pubblica', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '27', 3, 8, 'no', 0),
-(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '28', 3, 6, 'no', 0),
-(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '25', 0, 5, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '26', 2, 4, 'yes', 0),
+(1, 'Home Pubblica', NULL, '#index.php(\?evt\[index\-index_page\])?[^\[\]]*$#', NULL, '2', 3, 8, 'no', 0),
+(2, 'Pagine Pubbliche', NULL, '#evt\[(?!index)#', NULL, '3', 3, 6, 'no', 0),
+(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '5', 2, 5, 'yes', 0),
+(4, 'Pagine Amministrazione', NULL, '#evt\[\w+\-((manage)|(wrapper))\w*\]#', NULL, '6', 2, 4, 'yes', 0),
 (5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
-(6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 10, '', 0),
-(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '28', 3, 7, 'yes', 0),
-(8, 'Home Privata', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '27', 3, 9, 'yes', 0),
+(6, 'Default', NULL, '#^.*$#', NULL, '1', 0, 10, '', 0),
+(7, 'Pagine Private', NULL, '#evt\[(?!index)#', NULL, '3', 3, 7, 'yes', 0),
+(8, 'Home Privata', NULL, '#index.php(\?evt\[index\-index_page\])?[^\[\]]*$#', NULL, '2', 3, 9, 'yes', 0),
 (9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
 (10, 'Home Mobile', 'mobile=1', NULL, 'index.php?mobile=1', '7', 1, 1, '', 0);
 

@@ -85,19 +85,18 @@
 	 */
 	function __construct($id) {
 
-    $this->_registry = registry::instance();
-    $session = $this->_registry->session;
-	  $this->_db = $this->_registry->db;
+		$this->_registry = registry::instance();
+		$session = $this->_registry->session;
+		$this->_db = $this->_registry->db;
 		$this->_lng_dft = $session->lngDft;
 		$this->_lng_nav = $session->lng;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
-
-    $this->initm2m();
+		
+		$this->initm2m();
 		
 		//$this->_locale = locale::instance_to_class($this->_main_class);
-		
-    $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
  	public function __toString() {
@@ -120,7 +119,7 @@
 	public function __get($pName) {
 	
 		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-    elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
+		elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
 		elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
 		else return $this->_m2m[$pName];
 	}
@@ -136,14 +135,14 @@
 	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-    elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
+		elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		elseif(array_key_exists($pName, $this->_p)) {
 			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
-    else {
-      $this->_m2m[$pName] = $pValue;
-    }
+		else {
+			$this->_m2m[$pName] = $pValue;
+		}
 	}
 
   protected function initm2m() {
@@ -215,11 +214,11 @@
 		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
-
-    $result = $this->savem2m();
+		
+		$result = $this->savem2m();
 
 		return $result;
-  }
+	}
 
   public function savem2m() {
     foreach($this->_m2m as $field => $values) {
@@ -348,11 +347,11 @@
 	 */
  	public function structure($id) {
 
-    if(!$this->_tbl_data) {
-      exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
-    }
+		if(!$this->_tbl_data) {
+			exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
+		}
 
-    loader::import('class', array('Cache'));
+		loader::import('class', array('Cache'));
  		if($id)
 		{
 			$records = $this->_db->select('*', $this->_tbl_data, "id='$id'");

@@ -64,7 +64,7 @@ function replaceChar($text)
  * @param boolean $strip_attributes rimuove alcuni attributi html
  * @return string
  */
-function strip_tags_attributes($text, $strip_js, $strip_attributes)	///////////
+function strip_tags_attributes($text, $strip_js, $strip_attributes)
 {
 	if($strip_js)
 	{
@@ -290,8 +290,6 @@ function clean_sequence($text, $strip_tags, $options){
 	
 	$escape = gOpt('escape', $options, true);
 	
-	$text = convertToDatabase($text);
-	
 	$text = trim($text);
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
 	
@@ -325,8 +323,6 @@ function cleanVarEditor($method, $name, $strip_tags)
 	if(isset($method[$name]) AND !empty($method[$name]))
 	{
 		$value = $method[$name];
-		
-		$value = convertToDatabase($value);
 		
 		settype($value, 'string');
 		

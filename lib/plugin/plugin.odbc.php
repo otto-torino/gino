@@ -1,7 +1,7 @@
 <?php
 /**
- * @file plugin.mssql.php
- * @brief Contiene la classe mssql
+ * @file plugin.odbc.php
+ * @brief Contiene la classe odbc
  * 
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -14,8 +14,10 @@
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * Nel file configuration.php definire come valore della costante DB_HOST il nome del dsn.
  */
-class mssql implements DbManager {
+class odbc implements DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;
@@ -31,7 +33,7 @@ class mssql implements DbManager {
 	 * Costruttore
 	 * 
 	 * @param array $params parametri di connessione al database
-	 *   - @b host (string): nome del server
+	 *   - @b host (string): nome del dsn 
 	 *   - @b db_name (string): nome del database
 	 *   - @b user (string): utente che si connette
 	 *   - @b password (string): password dell'utente che si connette
@@ -80,7 +82,7 @@ class mssql implements DbManager {
 		
 		if(!$query) $query = $this->_sql;
 		
-		$exec = mssql_query($query);
+		$exec = odbc_exec($this->_dbconn, $query);
 		return $exec;
 	}
 	
@@ -89,13 +91,16 @@ class mssql implements DbManager {
 	 */
 	public function openConnection() {
 
-		if($this->_dbconn = mssql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
-			
-			@mssql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mssql_get_last_message());
+		if($this->_dbconn = odbc_connect(
+			$this->_db_host, 
+			$this->_db_user, 
+			$this->_db_password, 
+			SQL_CUR_USE_ODBC)
+		) {	
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify connection parameters");
+			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".odbc_error());
 		}
 	}
 
@@ -105,7 +110,7 @@ class mssql implements DbManager {
 	public function closeConnection() {
 
 		if($this->_connection){
-			mssql_close($this->_dbconn);
+			odbc_close($this->_dbconn);
 		}
 	}
 	
@@ -117,7 +122,8 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
-		$this->_qry = mssql_query($this->_sql);
+		
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -126,6 +132,8 @@ class mssql implements DbManager {
 	}
 	
 	/**
+	 * Per tabelle innodb
+	 * 
 	 * @see DbManager::rollback()
 	 */
 	public function rollback() {
@@ -133,7 +141,7 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -151,7 +159,7 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -168,7 +176,7 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 
 		return $this->_qry ? true:false;
 	}
@@ -195,32 +203,32 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if(!$this->_qry) {
 			return false;
 		} else {
 			// initialize array results
 			$this->_dbresults = array();
 			
-			$this->setnumberrows(mssql_num_rows($this->_qry));
+			$this->setnumberrows(odbc_num_rows($this->_qry));
 			if($this->_numberrows > 0){
-				while($this->_rows=mssql_fetch_assoc($this->_qry))
+				while($this->_rows=odbc_fetch_array($this->_qry))
 				{
 					$this->_dbresults[]=$this->_rows;
 				}
 			}
-			$this->freeresult();
+			//$this->freeresult();
 			return $this->_dbresults;
 		}
 	}
-	
+		
 	/**
 	 * @see DbManager::freeresult()
 	 */
 	public function freeresult($res=null){
 	
 		if(is_null($res)) $res = $this->_qry;
-		mssql_free_result($res);
+		odbc_free_result($res);
 	}
 	
 	/**
@@ -232,11 +240,11 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
-			$this->setnumberrows(mssql_num_rows($this->_qry));
+			$this->setnumberrows(odbc_num_rows($this->_qry));
 			return $this->_numberrows;
 		}
 	}
@@ -246,7 +254,8 @@ class mssql implements DbManager {
 	 */
 	public function affected() 
 	{ 
-		$this->_affected = mssql_rows_affected();
+		$this->_affected = odbc_num_rows($this->_qry);
+		
 		return $this->_affected;
 	}
 	
@@ -258,9 +267,9 @@ class mssql implements DbManager {
 		if($this->affected() > 0)
 		{
 			$id = 0;
-    		$res = mssql_query("SELECT SCOPE_IDENTITY() AS id"); 
-    		if($row = mssql_fetch_array($res, MSSQL_ASSOC)) { 
-        		$id = $row["id"]; 
+    		$res = $this->execQuery("SELECT SCOPE_IDENTITY() AS id"); 
+    		if($row = odbc_fetch_array($res)) { 
+        		$id = $row["id"];
     		} 
     		$this->_lastid = $id;
 		}
@@ -278,7 +287,7 @@ class mssql implements DbManager {
 	 */
 	public function autoIncValue($table){
 
-		$query = mssql_query("SELECT IDENT_CURRENT('$table') AS NextId");
+		$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS NextId");
 		$a = $this->selectquery($query);
 		if($a && isset($a[0]))
 		{
@@ -331,17 +340,16 @@ class mssql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("SELECT TOP 1 * FROM ".$table);
-		$this->_qry = mssql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if(!$this->_qry) {
 			return false;
 		} else {
 			// initialize array results
 			$meta = array();
 			$i = 0;
-			while($i < mssql_num_fields($this->_qry)) {
-				$meta[$i] = mssql_fetch_field($this->_qry, $i);
-				$meta[$i]->length = mssql_field_length($this->_qry, $i);
-				
+			while($i < odbc_num_fields($this->_qry)) {
+				$meta[$i] = odbc_fetch_object($this->_qry, $i);
+				$meta[$i]->length = odbc_field_len($this->_qry, $i);
 				
 				$i++;
 			}
@@ -438,17 +446,17 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 
 		$tables = $this->listTables();
 		
-		while ($td = mssql_fetch_array($tables)) {
+		while ($td = odbc_fetch_array($tables)) {
 			$table = $td[0];
-			$r = mssql_query("SHOW CREATE TABLE `$table`");
+			$r = $this->execQuery("SHOW CREATE TABLE `$table`");
 			if ($r) {
 				$insert_sql = "";
-				$d = mssql_fetch_array($r);
+				$d = odbc_fetch_array($r);
 				$d[1] .= ";";
 				$SQL[] = str_replace("\n", "", $d[1]);
-				$table_query = mssql_query("SELECT * FROM `$table`");
-				$num_fields = mssql_num_fields($table_query);
-				while ($fetch_row = mssql_fetch_array($table_query)) {
+				$table_query = $this->execQuery("SELECT * FROM `$table`");
+				$num_fields = odbc_num_fields($table_query);
+				while ($fetch_row = odbc_fetch_array($table_query)) {
 					$insert_sql .= "INSERT INTO $table VALUES(";
 					for ($n=1;$n<=$num_fields;$n++) {
 						$m = $n - 1;
@@ -472,16 +480,13 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	private function listTables() {
 		
 		$query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG='".$this->_db_name."' AND TABLE_TYPE='BASE_TABLE'";
-		$res = mssql_query($query);
+		$res = $this->execQuery($query);
 		
 		return $res;
 	}
 	
 	/**
 	 * @see DbManager::getTableStructure()
-	 * @see getConstraintType()
-	 * @see getCheckConstraint()
-	 * @see getInformationKey()
 	 */
 	public function getTableStructure($table) {
 
@@ -489,9 +494,9 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		$fields = array();
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='".$this->_db_name."' AND TABLE_NAME='$table'";
-		$res = mssql_query($query);
+		$res = $this->execQuery($query);
 
-		while($row = mssql_fetch_array($res)) {
+		while($row = odbc_fetch_array($res)) {
 			
 			$column_name = $row['COLUMN_NAME'];
 			
@@ -648,6 +653,7 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 
 	/**
 	 * @see DbManager::getFieldsName()
+	 * @see freeresult()
 	 */
 	public function getFieldsName($table) {
 
@@ -658,8 +664,8 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		WHERE TABLE_SCHEMA = '".DB_SCHEMA."'
 		AND TABLE_NAME = '$table'";
 		
-		$res = mssql_query($query);
-		while($row = mssql_fetch_assoc($res)) {
+		$res = $this->execQuery($query);
+		while($row = odbc_fetch_array($res)) {
 			$results[] = $row;
 		}
 		$this->freeresult($res);
@@ -690,14 +696,10 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	
 	/**
 	 * @see DbManager::query()
-	 * 
-	 * query corretta:
-	 * SELECT DISTINCT id FROM ( SELECT row_number() OVER (ORDER BY id) AS rownum, id FROM page_entry ) AS A WHERE A.rownum BETWEEN (0) AND (0 + 20)
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = gOpt('order', $options, null);
-		$distinct = gOpt('distinct', $options, null);
 		$limit = gOpt('limit', $options, null);
 		$debug = gOpt('debug', $options, false);
 		
@@ -706,17 +708,15 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		$qwhere = $where ? "WHERE ".$where : "";
 		$qorder = $order ? "ORDER BY $order" : "";
 		
-		if($distinct) $qfields = $distinct.", ".$qfields;
-		
 		if(is_array($limit) && count($limit))
 		{
 			$offset = $limit[0];
 			$range = $limit[1];
 			
-			if(is_int($offset) > 0)
+			if(int($offset) > 0)
 			{
 				$query = "SELECT $qfields FROM (
-				SELECT row_number() OVER ($qorder) AS rownum, id FROM $qtables $qwhere
+				SELECT row_number() OVER (ORDER BY id) AS rownum, $qfields FROM $qtables $qwhere $qorder
 				) AS A
 				WHERE A.rownum
 				BETWEEN ($offset) AND ($offset + $range)";
@@ -950,29 +950,6 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	 * @see DbManager::escapeString()
 	 */
 	public function escapeString($string) {
-		
-		/*if(!isset($data) or empty($data)) return '';
-		if(is_numeric($data)) return $data;
-		
-		$non_displayables = array(
-			'/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
-			'/%1[0-9a-f]/',             // url encoded 16-31
-			'/[\x00-\x08]/',            // 00-08
-			'/\x0b/',                   // 11
-			'/\x0c/',                   // 12
-			'/[\x0e-\x1f]/'             // 14-31
-			);
-		foreach ($non_displayables as $regex)
-			$data = preg_replace($regex, '', $data);
-		$data = str_replace("'", "''", $data);
-		return $data;
-		*/
-		
-		/*if(is_numeric($string))
-			return $string;
-		$unpacked = unpack('H*hex', $string);
-		return '0x' . $unpacked['hex'];
-		*/
 		
 		$string = str_replace("'", "''", $string);
 		$string = str_replace("\0", "[NULL]", $string);

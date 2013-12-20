@@ -9,21 +9,6 @@
  */
 
 /**
- * Include il file di connessione al database plugin.mysql.php
- */
-include_once(PLUGIN_DIR.OS."plugin.mysql.php");
-
-/**
- * Include il file di connessione al database plugin.mssql.php
- */
-include_once(PLUGIN_DIR.OS."plugin.mssql.php");
-
-/**
- * Include il file di connessione al database plugin.sqlsrv.php
- */
-include_once(PLUGIN_DIR.OS."plugin.sqlsrv.php");
-
-/**
  * @brief Interfaccia per le librerie di connessione al database
  * 
  * Definiscono una serie di metodi che le librerie di connessione al database dovranno implementare.
@@ -470,41 +455,26 @@ abstract class db extends singleton {
 		// singleton, return always the same instance
 		if(array_key_exists($class, self::$_instances) === false) {
 
-			if(DBMS=='mysql') {
-				self::$_instances[$class] = new mysql(
-					array(
-					"connect"=>true,
-					"host"=>self::$_db_host,
-					"user"=>self::$_db_user,
-					"password"=>self::$_db_pass,
-					"db_name"=>self::$_db_dbname,
-					"charset"=>self::$_db_charset
-					)
-				);
-			}
-			elseif(DBMS=='mssql') {
-				self::$_instances[$class] = new mssql(
-					array(
-					"connect"=>true,
-					"host"=>self::$_db_host,
-					"user"=>self::$_db_user,
-					"password"=>self::$_db_pass,
-					"db_name"=>self::$_db_dbname,
-					"charset"=>self::$_db_charset
-					)
-				);
-			}
-			elseif(DBMS=='sqlsrv') {
-				self::$_instances[$class] = new sqlsrv(
-					array(
-					"connect"=>true,
-					"host"=>self::$_db_host,
-					"user"=>self::$_db_user,
-					"password"=>self::$_db_pass,
-					"db_name"=>self::$_db_dbname,
-					"charset"=>self::$_db_charset
-					)
-				);
+			if(DBMS == 'mysql' || DBMS == 'mssql' || DBMS == 'sqlsrv' || DBMS == 'odbc')
+			{
+				$lib_class = DBMS;
+				$lib_file = PLUGIN_DIR.OS."plugin.".$lib_class.".php";
+				
+				if(file_exists($lib_file))
+				{
+					include_once($lib_file);
+					
+					self::$_instances[$class] = new $lib_class(
+						array(
+						"connect"=>true,
+						"host"=>self::$_db_host,
+						"user"=>self::$_db_user,
+						"password"=>self::$_db_pass,
+						"db_name"=>self::$_db_dbname,
+						"charset"=>self::$_db_charset
+						)
+					);
+				}
 			}
 		}
 

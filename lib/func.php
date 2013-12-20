@@ -40,6 +40,28 @@ function gOpt($opt_name, $opt_array, $default) {
 }
 
 /**
+ * Trasforma un array in un oggetto
+ * 
+ * @param array $array
+ * @return object
+ */
+function arrayToObject($array) {
+	
+	$object = new stdClass();
+	if (is_array($array) && count($array) > 0)
+	{
+		foreach ($array as $name=>$value)
+		{
+			$name = strtolower(trim($name));
+			if(!empty($name)) {
+				$object->$name = $value;
+			}
+		}
+	}
+	return $object;
+}
+
+/**
  * File contenuti in una directory
  * 
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)

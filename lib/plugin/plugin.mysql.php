@@ -99,7 +99,7 @@ class mysql implements DbManager {
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify the parameters of connection");	// debug -> die("ERROR MYSQL: ".mysql_error());
+			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR MYSQL: ".mysql_error());
 		}
 	}
 
@@ -341,7 +341,7 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::fieldInformations()
 	 * 
-	 * Come tipo di dato di un campo, MySQL ritorna: int, blob, string, date
+	 * Come tipo di dato di un campo, MySQL (mysql_fetch_field) ritorna: int, blob, string, date
 	 */
 	public function fieldInformations($table) {
 	

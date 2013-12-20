@@ -86,17 +86,17 @@ class options {
 	 *   - @b length (integer): numero massimo di caratteri
 	 */
 	public function manageDoc(){
-
-    $registry = registry::instance();
+		
+		$registry = registry::instance();
 		$trnsl = cleanVar($_GET, 'trnsl', 'int', '');
-    if($trnsl) {
-      if(isset($_GET['save']) and $_GET['save'] == '1') {
-        $registry->trd->actionTranslation();
-      }
-      else {
-        $registry->trd->formTranslation();
-      }
-    }
+		if($trnsl) {
+			if(isset($_GET['save']) and $_GET['save'] == '1') {
+				$registry->trd->actionTranslation();
+			}
+			else {
+				$registry->trd->formTranslation();
+			}
+		}
 
 		if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
 
@@ -211,14 +211,14 @@ class options {
 		}
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$GINO .= $gform->close();
-
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'class' => 'admin',
-      'title' => _('Opzioni'),
-      'content' => $GINO
-    );
+		
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'class' => 'admin',
+			'title' => _('Opzioni'),
+			'content' => $GINO
+		);
 
 		return $view->render($dict);
 	}
