@@ -8,6 +8,8 @@
  * @author abidibo abidibo@gmail.com
  */
 
+require_once("config.ldap.php");
+
 /**
  * @brief Libreria di connessione ai server LDAP
  * 
@@ -15,43 +17,27 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * 
- * Modificare il metodo Authentication della classe Access (class.Access.php)
+ * ###UTILIZZO
+ * Modificare il metodo Authentication della classe Access (class.Access.php) in modo da implementare l'autenticazione attraverso ldap. \n
+ * Per poter accedere alle funzionalità di gino deve essere tuttavia creato un utente da associare a quello ldap. 
+ * Il metodo più semplice è quello di creare un utente con lo username uguale a quello ldap. \n
+ * Un esempio di modifica del metodo Authentication: 
  * @code
-		private function AuthenticationMethod($user, $pwd){
-
-			$registry = registry::instance();
-			
-			include_once(PLUGIN_DIR.OS."plugin.ldap.php");
-			
-			$ldap = new Ldap($user, $pwd);
-			if(!$ldap->authentication())
-				return false;
-			
-			$user = User::getFromUserPwd($user, $pwd);
-			if($user) {
-				$this->session->user_id = $user->id;
-				$this->session->user_name = htmlChars($user->firstname.' '.$user->lastname);
-				if($registry->sysconf->log_access) {
-					$this->logAccess($user->id);
-				}
-				return true;
-			}
-			return false;
-		}
- * @endcode
- * 
- * FIAT
- * @code
- * $ldap = ldap_connect('ldaps://151.92.204.211', 636);
- * $ldap_bind_res = ldap_bind($ldap, 'A006471', 'OMG2013!');
- * var_dump($ldap_bind_res);
- *
- * $ldap_search = ldap_search($ldap, 'CN=ProxyUsers, CN=fgadam,dc=fg,dc=local', 'CN=F29372A');
- * var_dump($ldap_search);
- *
- * $ldap_search_data = ldap_get_entries($ldap, $ldap_search);
- * $ldap_bind_res2 = ldap_bind($ldap, $ldap_search_data[0]['dn'], '************');
+ * private function AuthenticationMethod($user, $pwd){
+ *   $registry = registry::instance();
+ *   
+ *   include_once(PLUGIN_DIR.OS."plugin.ldap.php");
+ *   
+ *   $ldap = new Ldap($user, $pwd);
+ *   if(!$ldap->authentication())
+ *     return false;
+ *   
+ *   $user = User::getFromUserPwd($user, $pwd);
+ *   if($user) {
+ *     ...
+ *   }
+ *   return false;
+ * }
  * @endcode
  */
 class Ldap {
@@ -77,7 +63,6 @@ class Ldap {
 	 */
 	private $_ldap_base_dn;
 	
-	
 	/**
 	 * Ldap link identifier
 	 * 
@@ -86,13 +71,38 @@ class Ldap {
 	private $_ldap_ds;
 	
 	/**
+	 * Username dell'applicazione
+	 * 
+	 * @var mixed
+	 */
+	private $_ldap_username;
+	
+	/**
+	 * Password dell'applicazione
+	 * 
+	 * @var mixed
+	 */
+	private $_ldap_password;
+	
+	/**
 	 * Contenitore dei log
 	 * 
 	 * @var string
 	 */
 	private $_ldap_log;
 	
+	/**
+	 * Username di accesso
+	 * 
+	 * @var mixed
+	 */
 	private $_user_name;
+	
+	/**
+	 * Password di accesso
+	 * 
+	 * @var mixed
+	 */
 	private $_user_password;
 	
 	/**
@@ -121,24 +131,25 @@ class Ldap {
 	 * 
 	 * @param string $username username di accesso
 	 * @param string $password password dell'utente
-	 * @param array $params parametri di connessione al server Ldap
-	 *   - @b host (string)
-	 *   - @b port (integer) ...
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b debug (boolean)
 	 * @return void
 	 */
-	function __construct($username, $password, $params=array()) {
+	function __construct($username, $password, $options=array()) {
 		
-		$this->_ldap_host = 'ldaps://vldap.fg.local';
-		$this->_ldap_port = '636';
-		$this->_ldap_base_dn = 'A006471';	// 'CN=Administration,CN=fgadam,dc=fg,dc=local';
-		$this->_ldap_search_dn = 'CN=ProxyUsers,CN=fgadam,dc=fg,dc=local';
+		$debug = gOpt('debug', $options, false);
 		
-		$this->_ldap_username = 'A006471';
-		$this->_ldap_password = 'OMG2013!';
+		$this->_ldap_host = LDAP_HOST;
+		$this->_ldap_port = LDAP_PORT;
+		$this->_ldap_base_dn = LDAP_BASE_DN;
+		$this->_ldap_search_dn = LDAP_SEARCH_DN;
 		
-		$this->_ldap_info = '';	// es.: ou=Person,dc=example,dc=it
-		$this->_ldap_domain = 'FGCORP';	// es.: @example.it (per la costruzione degli indirizzi email, account+dominio)
-		$this->_ldap_protocol_version = '';
+		$this->_ldap_username = LDAP_APP_USERNAME;
+		$this->_ldap_password = LDAP_APP_PASSWORD;
+		
+		$this->_ldap_domain = LDAP_DOMAIN;
+		$this->_ldap_protocol_version = LDAP_PROTOCOL_VERSION;
 		
 		$this->_filter_search = "(CN=$username)";  // es.: "sn=S*"
 		$this->_justthese_search = array("CN");
@@ -146,7 +157,7 @@ class Ldap {
 		$this->_user_name = $username;
 		$this->_user_password = $password;
 		
-		$this->_debug = false;
+		$this->_debug = $debug;
 		$this->_ldap_log = '';
 		$this->_auth = false;
 		

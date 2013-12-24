@@ -200,7 +200,7 @@ class options {
 				elseif($f->type == 'int' && $f->length>1) {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));
 				}
-				elseif($f->type == 'int' && $f->length == 1) {
+				elseif(($f->type == 'int' && $f->length == 1) || $f->type == 'bool') {
 					$GINO .= $gform->cradio($f->name, ${$f->name}, array(1=>_("si"),0=>_("no")), 'no',  $field_label, array("required"=>$field_required));
 				}
 				elseif($f->type == 'date') {

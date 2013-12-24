@@ -331,8 +331,6 @@ class odbc implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * 
-	 * Come tipo di dato di un campo, SQL Server ritorna: int, char, text
 	 */
 	public function fieldInformations($table) {
 	
@@ -359,16 +357,19 @@ class odbc implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::conformType()
+	 * 
+	 * @param string $type
+	 * 
+	 * Come tipo di dato di un campo, la funzione odbc_fetch_object() ritorna: ...
+	 */
+	public function conformType($type) {
+		
+		
+	}
+	
+	/**
 	 * @see DbManager::limit()
-	 * 
-	 * 
-SELECT * FROM
-(
-SELECT row_number() OVER (ORDER BY column) AS rownum, column2, column3, .... columnX
-  FROM   table
-) AS A
-WHERE A.rownum 
-BETWEEN (@start) AND (@start + @rowsperpage)
 	 */
 	public function limit($range, $offset){
 		

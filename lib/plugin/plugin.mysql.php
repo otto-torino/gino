@@ -340,8 +340,7 @@ class mysql implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * 
-	 * Come tipo di dato di un campo, MySQL (mysql_fetch_field) ritorna: int, blob, string, date
+	 * @see conformType()
 	 */
 	public function fieldInformations($table) {
 	
@@ -361,16 +360,31 @@ class mysql implements DbManager {
 				$meta[$i] = mysql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mysql_field_len($this->_qry, $i);
 				
-				if($meta[$i]->type == 'string')
-					$meta[$i]->type = 'char';
-				elseif($meta[$i]->type == 'blob')
-					$meta[$i]->type = 'text';
-				
+				$meta[$i]->type = $this->conformType($meta[$i]->type);
 				$i++;
 			}
 			$this->freeresult();
 			return $meta;
 		}
+	}
+	
+	/**
+	 * @see DbManager::conformType()
+	 * 
+	 * @param string $type
+	 * 
+	 * Come tipo di dato di un campo la funzione mysql_fetch_field() rileva: int, blob, string, date
+	 */
+	public function conformType($type) {
+		
+		if($type == 'string')
+			$conform_type = 'char';
+		elseif($type == 'blob')
+			$conform_type = 'text';
+		else
+			$conform_type = $type;
+		
+		return $conform_type;
 	}
 	
 	/**

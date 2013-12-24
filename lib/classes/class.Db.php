@@ -139,17 +139,27 @@ interface DbManager {
 	/**
 	 * Recupera le informazioni sui campi di una tabella
 	 * 
+	 * Utilizzato dalla classe options per costruire il form delle opzioni di una classe.
+	 * 
 	 * @param string $table nome della tabella
 	 * @return array
-	 * 
-	 * Utilizzato dalla classe options per costruire il form delle opzioni di una classe. \n
-	 * Il tipo di dato di un campo deve essere uniformato, e occorre che sia uno dei seguenti:
-	 *   - @a char, input form
-	 *   - @a text, textarea form
-	 *   - @a int, input form (se length>1) o radio button (length==1)
-	 *   - @a date, input form di tipo data
 	 */
 	public function fieldInformations($table);
+	
+	/**
+	 * Uniforma i tipi di dato dei campi
+	 * 
+	 * @param mixed $type tipo di dato come definito dalle singole librerie
+	 * @return string
+	 * 
+	 * Il tipo di dato di un campo deve essere uno dei seguenti:
+	 *   - @a char, input form
+	 *   - @a text, textarea form
+	 *   - @a int, input form (se length>1) o radio button (length=1)
+	 *   - @a bool, radio button
+	 *   - @a date, input form di tipo data
+	 */
+	public function conformType($type);
 	
 	/**
 	 * Istruzione per limitare i risultati di una query (LIMIT)

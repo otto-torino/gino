@@ -14,6 +14,16 @@
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ###GESTIONE CODIFICA UTF8
+ * In SQL Server occorre gestire la codifica UTF8 dei dati.
+ * 
+ * ####Dal database alla visualizzazione
+ * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
+ * 
+ * ####Dal form al database
+ * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
+ * 
  */
 class sqlsrv implements DbManager {
 
@@ -328,9 +338,9 @@ class sqlsrv implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * @see metadataType()
+	 * @see conformType()
 	 * 
-	 * La funzione sqlsrv_field_metadata() ritorna i seguenti riferimenti:
+	 * La funzione sqlsrv_field_metadata() ritorna i riferimenti:
 	 * <table>
 	 * <tr><td>Name</td><td>The name of the field.</td></tr>
 	 * <tr><td>Type</td><td>The numeric value for the SQL type.</td></tr>
@@ -368,7 +378,7 @@ class sqlsrv implements DbManager {
 				
 				$array_tmp = array(
 					'name'=>$field_metadata[$i]['Name'],
-					'type'=>$this->metadataType($meta_type),
+					'type'=>$this->conformType($meta_type),
 					'length'=>$size
 				);
 				
@@ -381,15 +391,51 @@ class sqlsrv implements DbManager {
 	}
 	
 	/**
+	 * Uniforma i tipi di dato dei campi
+	 * 
+	 * @param integer $type
+	 * @return string
+	 * 
 	 * Tipi di dato riportati dalla funzione sqlsrv_field_metadata()
 	 * 
 	 * Per l'elenco fare riferimento alla documentazione ufficiale Microsoft: \n
 	 * http://msdn.microsoft.com/en-us/library/cc296197.aspx
 	 * 
-	 * @param integer $code_type
-	 * @return string
+	 * <table>
+	 * <tr><td>bigint</td><td>-5</td></tr>
+	 * <tr><td>binary</td><td>-2</td></tr>
+	 * <tr><td>bit</td><td>-7</td></tr>
+	 * <tr><td>char</td><td>1</td></tr>
+	 * <tr><td>date</td><td>91</td></tr>
+	 * <tr><td>datetime</td><td>93</td></tr>
+	 * <tr><td>datetime2</td><td>93</td></tr>
+	 * <tr><td>datetimeoffset</td><td>-155</td></tr>
+	 * <tr><td>decimal</td><td>3</td></tr>
+	 * <tr><td>float</td><td>6</td></tr>
+	 * <tr><td>image</td><td>-4</td></tr>
+	 * <tr><td>int</td><td>4</td></tr>
+	 * <tr><td>money</td><td>3</td></tr>
+	 * <tr><td>nchar</td><td>-8</td></tr>
+	 * <tr><td>ntext</td><td>-10</td></tr>
+	 * <tr><td>numeric</td><td>2</td></tr>
+	 * <tr><td>nvarchar</td><td>-9</td></tr>
+	 * <tr><td>real</td><td>7</td></tr>
+	 * <tr><td>smalldatetime</td><td>93</td></tr>
+	 * <tr><td>smallint</td><td>5</td></tr>
+	 * <tr><td>Smallmoney</td><td>3</td></tr>
+	 * <tr><td>text</td><td>-1</td></tr>
+	 * <tr><td>time</td><td>-154</td></tr>
+	 * <tr><td>timestamp</td><td>-2</td></tr>
+	 * <tr><td>tinyint</td><td>-6</td></tr>
+	 * <tr><td>udt</td><td>-151</td></tr>
+	 * <tr><td>uniqueidentifier</td><td>-11</td></tr>
+	 * <tr><td>varbinary</td><td>-3</td></tr>
+	 * <tr><td>varchar</td><td>12</td></tr>
+	 * <tr><td>xml</td><td>-152</td></tr>
+	 * </table>
+	 * 
 	 */
-	private function metadataType($code_type) {
+	public function conformType($type) {
 		
 		$data = array(
 			'bigint' => -5, 
@@ -424,14 +470,16 @@ class sqlsrv implements DbManager {
 			'xml' => -152
 		);
 		
-		if($code_type == 4 || $code_type == 5)
-			$type = 'int';
-		elseif($code_type == -9 || $code_type == -8)
-			$type = 'char';
+		if($type == 4 || $type == 5)
+			$conform_type = 'int';
+		elseif($type == -6)
+			$conform_type = 'bool';
+		elseif($type == -9 || $type == -8 || $type == 12 || $type == 1)
+			$conform_type = 'char';
 		else
-			$type = $code_type;
+			$conform_type = array_search($type, $data);
 		
-		return $type;
+		return $conform_type;
 	}
 	
 	/**

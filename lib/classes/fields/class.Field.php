@@ -61,7 +61,7 @@ class Field {
 	 */
 	function __construct($options) {
 
-    $this->_model = $options['model'];
+		$this->_model = $options['model'];
 		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
 		$this->_lenght = array_key_exists('lenght', $options) ? $options['lenght'] : 11;
 		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
@@ -217,6 +217,23 @@ class Field {
 	 * 
 	 * @param object $form
 	 * @param array $options
+	 *   array associativo comprendente le opzioni degli input form e l'opzione @b widget con i seguenti valori:
+	 *   - @a hidden
+	 *   - @a constant
+	 *   - @a select
+	 *   - @a radio
+	 *   - @a checkbox
+	 *   - @a multicheck
+	 *   - @a editor
+	 *   - @a textarea
+	 *   - @a float
+	 *   - @a date
+	 *   - @a datetime
+	 *   - @a time
+	 *   - @a password
+	 *   - @a file
+	 *   - @a image
+	 *   - @a email
 	 * @return string
 	 */
 	private function formElementWidget($form, $options) {
@@ -298,6 +315,10 @@ class Field {
 			$options['maxlength'] = $maxlength;
 			
 			$buffer .= $inputForm->text($this->_name, $value, $this->_label, $options);
+		}
+		elseif($options['widget'] == 'password')
+		{
+			$buffer .= $inputForm->password($this->_name, $this->_value, $this->_label, $options);
 		}
 		elseif($options['widget'] == 'file' || $options['widget'] == 'image')
 		{
