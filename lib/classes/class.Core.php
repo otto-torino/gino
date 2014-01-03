@@ -56,6 +56,7 @@ class core {
       'ImageField',
       'IntegerField',
       'ManyToManyField', 
+      'ManyToManyThroughField', 
       'ManyToManyInlineField', 
       'TextField', 
       'TimeField', 

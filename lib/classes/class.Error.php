@@ -61,7 +61,8 @@ class error {
       34=>_("errore nell'esecuzione della query"),
       35=>_("il codice inserito è già presente, scegliere un altro codice"),
       36=>_("il formato del codice non è valido"),
-      37=>_("impossibile eliminare il record")
+      37=>_("impossibile eliminare il record"),
+      38=>_("impossibile eliminare i dati associati")
     );
   }
 

@@ -97,6 +97,11 @@ class Field {
 		
 		return $this->_name;
 	}
+
+  public function setName($name) {
+		
+		$this->_name = $name;
+	}
 	
 	public function getLabel() {
 		
