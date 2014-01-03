@@ -72,7 +72,8 @@
 	 */
 	protected $_fields_label=array();
 	protected $_p, $_chgP = array();
-	protected $_m2m = array();
+  protected $_m2m = array(),
+            $_m2mt = array();
 	
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;
@@ -85,18 +86,20 @@
 	 */
 	function __construct($id) {
 
-		$this->_registry = registry::instance();
-		$session = $this->_registry->session;
-		$this->_db = $this->_registry->db;
+    $this->_registry = registry::instance();
+    $session = $this->_registry->session;
+	  $this->_db = $this->_registry->db;
 		$this->_lng_dft = $session->lngDft;
 		$this->_lng_nav = $session->lng;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
-		
-		$this->initm2m();
+
+    $this->initm2m();
+    $this->initm2mthrough();
 		
 		//$this->_locale = locale::instance_to_class($this->_main_class);
-		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+		
+    $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
  	public function __toString() {
@@ -117,11 +120,12 @@
 	 * @param string $pName
 	 */
 	public function __get($pName) {
-	
-		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-		elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
+		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return null;
+    elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
 		elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
-		else return $this->_m2m[$pName];
+    elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
+    elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
+    else return null;
 	}
 	
 	/**
@@ -135,16 +139,22 @@
 	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-		elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
+    elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		elseif(array_key_exists($pName, $this->_p)) {
 			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
-		else {
-			$this->_m2m[$pName] = $pValue;
-		}
+    elseif(array_key_exists($pName, $this->_m2m)) {
+      $this->_m2m[$pName] = $pValue;
+    }
+    elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
+      $this->_m2mt[$pName] = $pValue;
+    }
 	}
 
+  /**
+   * Inizializza i m2m del modello
+   */
   protected function initm2m() {
     foreach($this->_structure as $field => $obj) {
       if(get_class($obj) == 'ManyToManyField') {
@@ -158,6 +168,41 @@
     }
   }
 
+  /**
+   * Inizializza i m2m through model del modello
+   */
+  protected function initm2mthrough() {
+    foreach($this->_structure as $field => $obj) {
+      if(get_class($obj) == 'ManyToManyThroughField') {
+        $values = array();
+        $rows = $this->_db->select('*', $obj->getTable(), $obj->getModelTableId()."='".$this->id."'");
+        foreach($rows as $row) {
+          $class = $obj->getM2m();
+          $m2m_obj = new $class($row['id'], $obj->getController());
+          $values[] = $m2m_obj->id;
+        }
+        $this->_m2mt[$field] = $values;
+      }
+    }
+  }
+
+  /**
+   * Ritorna l'oggetto m2m through model
+   * @param string $m2mt_field nome della relazione m2mt
+   * @param int $id id del record
+   * @return oggetto
+   */
+  public function m2mtObject($m2mt_field, $id) {
+    $field_obj = $this->_structure[$m2mt_field];
+    $class = $field_obj->getM2m();
+    return new $class($id, $field_obj->getController());
+  }
+
+  /**
+   * Array associativo id => rappresentazione a stringa a partire da array di oggetti
+   * @param array $objects
+   * @return array associativo id=>stringa
+   */
   public static function getSelectOptionsFromObjects($objects) {
     $res = array();
     foreach($objects as $obj) {
@@ -214,11 +259,11 @@
 		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
-		
-		$result = $this->savem2m();
+
+    $result = $this->savem2m();
 
 		return $result;
-	}
+  }
 
   public function savem2m() {
     foreach($this->_m2m as $field => $values) {
@@ -272,8 +317,42 @@
 			}
 		}
 
+    $this->deletem2m();
+    $this->deletem2mthrough();
+
 		return true;
 	}
+
+  public function deletem2m() {
+    $result = true;
+    foreach($this->_structure as $field => $obj) {
+      if(get_class($obj) == 'ManyToManyField') {
+        $result = $result and $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+      }
+    }
+    return $result;
+  }
+
+  public function deletem2mthrough() {
+    $result = true;
+    foreach($this->_structure as $field => $obj) {
+      if(get_class($obj) == 'ManyToManyThroughField') {
+        $result = $result and $this->deletem2mthroughField($field);
+      }
+    }
+    return $result;
+  }
+
+  public function deletem2mthroughField($field_name) {
+    $obj = $this->_structure[$field_name];
+    $class = $obj->getM2m();
+    foreach($this->_m2mt[$field_name] as $id) {
+      $m2m_obj = new $class($id, $obj->getController());
+      $m2m_obj->delete();
+    }
+
+    return true;
+  }
 	
  	/**
 	 * Espone il testo per personalizzare l'intestazione del form di modifica/inserimento
@@ -347,11 +426,11 @@
 	 */
  	public function structure($id) {
 
-		if(!$this->_tbl_data) {
-			exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
-		}
+    if(!$this->_tbl_data) {
+      exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
+    }
 
-		loader::import('class', array('Cache'));
+    loader::import('class', array('Cache'));
  		if($id)
 		{
 			$records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
