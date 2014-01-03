@@ -104,7 +104,7 @@ class MenuVoice extends Model {
   public static function get($opts) {
     $res = array();
     $where = gOpt('where', $opts, null);
-    $order = gOpt('where', $opts, null);
+    $order = gOpt('order', $opts, null);
     $db = db::instance();
     $rows = $db->select('id', self::$tbl_voices, $where, array('order' => $order));
     if($rows and count($rows)) {

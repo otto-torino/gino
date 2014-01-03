@@ -120,8 +120,8 @@ class PageList{
 			}
 		}
 
-		$this->_ico_more = "<img style=\"margin-bottom:3px\" src=\"img/plist_dx.gif\" alt=\">>\" />";
-		$this->_ico_less = "<img style=\"margin-bottom:3px\" src=\"img/plist_sx.gif\" alt=\"<<\" />";
+		$this->_ico_more = "&raquo;";
+		$this->_ico_less = "&laquo;";
 
 	}
 	
@@ -151,7 +151,7 @@ class PageList{
 			$printTBL .= $this->_start.' - '.$end.' '._("di").' '.$this->_tot."\n";
 		}
 		
-		return $printTBL;
+		return "<div class=\"pagination\">".$printTBL."</div>";
 	}
 
 	private function pageLink($label, $params, $link=true, $opt=null) {
@@ -235,36 +235,35 @@ class PageList{
 		$LOWPART = "";
 		$HIGHPART = "";
 		
-		$BUFFER = "<div class=\"area_link\">\n";
+		$BUFFER = "<ul class=\"pagination\">\n";
 		
 		if($this->_last == 1 || $this->_last == 0) return "";
 				
 		for($i=$this->_actual; $i>1; $i--) {
 			if($i == $this->_last) $LOWPART .= "";
-			elseif($i == $this->_actual) $LOWPART = "<span class=\"pagelist_selected\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, false, $opt)."</span>".$LOWPART;
-			elseif($i>$this->_actual - $this->_vpage_num - 1) $LOWPART = "<span class=\"pagelist\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</span>".$LOWPART;
+			elseif($i == $this->_actual) $LOWPART = "<li class=\"active\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, false, $opt)."</li>".$LOWPART;
+			elseif($i>$this->_actual - $this->_vpage_num - 1) $LOWPART = "<li>".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</li>".$LOWPART;
 			else $this->_less = 1;
 		}
-		if($this->_less) $LOWPART = "<span class=\"pagelistdots\">...</span>".$LOWPART;
+		if($this->_less) $LOWPART = "<li class=\"pagelistdots\">...</li>".$LOWPART;
 		
 		for($i=$this->_actual+1; $i<$this->_last; $i++) {
-			if($i<$this->_actual + $this->_vpage_num +1) $HIGHPART .= "<span class=\"pagelist\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</span>";
+			if($i<$this->_actual + $this->_vpage_num +1) $HIGHPART .= "<li>".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</li>";
 			else $this->_more = 1;
 		}
-		if($this->_more) $HIGHPART .= "<span class=\"pagelistdots\">...</span>";
+		if($this->_more) $HIGHPART .= "<li class=\"pagelistdots\">...</li>";
 		
-		$BUFFER .= _("Pag. &nbsp;");
-		$BUFFER .= ($this->_actual == $this->_first)? "":"<span class=\"pagelistarrow\">".$this->pageLink($this->_ico_less, "start=".($this->_actual-2)*$this->_items_for_page, true, $opt)."</span>";
-		$class_first = ($this->_actual == $this->_first)? "pagelist_selected" : "pagelist";
+		$BUFFER .= ($this->_actual == $this->_first)? "":"<li>".$this->pageLink($this->_ico_less, "start=".($this->_actual-2)*$this->_items_for_page, true, $opt)."</li>";
+		$class_first = ($this->_actual == $this->_first)? "active" : "";
 		$link_first = ($this->_actual == $this->_first)? false:true;
-		$BUFFER .= "<span class=\"$class_first\">".$this->pageLink($this->_first, "start=0", $link_first, $opt)."</span>";
+		$BUFFER .= "<li class=\"$class_first\">".$this->pageLink($this->_first, "start=0", $link_first, $opt)."</li>";
 		$BUFFER .= $LOWPART.$HIGHPART;
-		$class_last = ($this->_actual == $this->_last)? "pagelist_selected" : "pagelist";
+		$class_last = ($this->_actual == $this->_last)? "active" : "";
 		$link_last = ($this->_actual == $this->_last)? false:true; 
-		$BUFFER .= "<span class=\"$class_last\">".$this->pageLink($this->_last, "start=".($this->_last-1)*$this->_items_for_page, $link_last, $opt)."</span>";
-		$BUFFER .= ($this->_actual == $this->_last)? "":"<span class=\"pagelistarrow\">".$this->pageLink($this->_ico_more, "start=".($this->_actual*$this->_items_for_page), true, $opt)."</span>";
+		$BUFFER .= "<li class=\"$class_last\">".$this->pageLink($this->_last, "start=".($this->_last-1)*$this->_items_for_page, $link_last, $opt)."</li>";
+		$BUFFER .= ($this->_actual == $this->_last)? "":"<li>".$this->pageLink($this->_ico_more, "start=".($this->_actual*$this->_items_for_page), true, $opt)."</li>";
 		
-		$BUFFER .= "</div>\n";
+		$BUFFER .= "</ul>\n";
 		
 		return $BUFFER;
 	}

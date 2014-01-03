@@ -631,12 +631,12 @@ class Form {
   public function cinput_date($name, $value, $label, $options){
 
     $this->setOptions($options);
-    if($this->option('inputClickEvent')) $options['other'] = "onclick=\"printCalendar($(this).getNext('img'), $(this))\"";
+    if($this->option('inputClickEvent')) $options['other'] = "onclick=\"gino.printCalendar($(this).getNext('img'), $(this))\"";
     $options['id'] = $name;
     $options['size'] = 10;
     $options['maxlength'] = 10;
     $options['pattern'] = "^\d\d/\d\d/\d\d\d\d$";
-    $options['hint'] = _("inserire la data nel formato dd/mm/yyyy");
+    $options['hint'] = _("dd/mm/yyyy");
 
     $GFORM = "<div class=\"form-row\">";
     $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
@@ -644,7 +644,7 @@ class Form {
     $days = "['"._("Domenica")."', '"._("Lunedì")."', '"._("Martedì")."', '"._("Mercoledì")."', '"._("Giovedì")."', '"._("Venerdì")."', '"._("Sabato")."']";
     $months = "['"._("Gennaio")."', '"._("Febbraio")."', '"._("Marzo")."', '"._("Aprile")."', '"._("Maggio")."', '"._("Giugno")."', '"._("Luglio")."', '"._("Agosto")."', '"._("Settembre")."', '"._("Ottobre")."', '"._("Novembre")."', '"._("Dicembre")."']";
 
-    $GFORM .= "<img style=\"margin-left:5px;margin-bottom:2px;cursor:pointer;\" class=\"tooltip\" title=\""._("calendario")."\" id=\"cal_button_$name\" src=\"".$this->_ico_calendar_path."\" onclick=\"printCalendar($(this), $(this).getPrevious('input'), $days, $months)\" />";
+    $GFORM .= "<span style=\"margin-left:5px;margin-bottom:2px;cursor:pointer;\" class=\"fa fa-calendar calendar-tooltip\" title=\""._("calendario")."\" id=\"cal_button_$name\" src=\"".$this->_ico_calendar_path."\" onclick=\"gino.printCalendar($(this), $(this).getPrevious('input'), $days, $months)\"></span>";
     if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
     $GFORM .= "</div>";
 

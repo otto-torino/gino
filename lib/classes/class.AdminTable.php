@@ -303,9 +303,6 @@ class AdminTable {
 		$trnsl_table = array_key_exists('trnsl_table', $options) ? $options['trnsl_table'] : $model->getTable();
 		$trnsl_id = array_key_exists('trnsl_id', $options) ? $options['trnsl_id'] : $model->id;
 		$verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
-		$tblLayout = array_key_exists('tblLayout', $options) ? $options['tblLayout'] : true;
-		$form_label_width = array_key_exists('form_label_width', $options) ? $options['form_label_width'] : null;
-		$form_field_width = array_key_exists('form_field_width', $options) ? $options['form_field_width'] : null;
 		
 		$session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
 		
@@ -314,9 +311,6 @@ class AdminTable {
 				"trnsl_table"=>$trnsl_table,
 				"trnsl_id"=>$trnsl_id,
 				"verifyToken"=>$verifyToken,
-				"tblLayout"=>$tblLayout,
-				"form_label_width"=>$form_label_width,
-				"form_field_width"=>$form_field_width
 			)
 		);
 		$gform->load($session_value);

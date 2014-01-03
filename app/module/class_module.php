@@ -352,7 +352,7 @@ class module extends Controller {
 
       $base_view_name = baseFileName($view_file);
 
-      if(!($fo = @fopen(APP_DIR.OS.$class.OS.'views'.OS.$base_css_name.'_'.$name.'.php', 'wb'))) {
+      if(!($fo = @fopen(APP_DIR.OS.$class.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
         exit(error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
       }
 

@@ -7618,6 +7618,12 @@ div.abiWinOverlay {
   background: #eee;
   border: 1px solid #bbb;
 }
+/* js calendar */
+.datepicker_jqui div {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
 form {
   margin: 10px 0;
 }

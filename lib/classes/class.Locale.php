@@ -90,6 +90,7 @@ class locale extends singleton {
 	protected function __construct($class) {
 		
 		$this->session = session::instance();
+    $this->_strings = array();
 		
 		$path_to_file = $this->pathToFile($class);
 		
@@ -120,7 +121,6 @@ class locale extends singleton {
 	 * @return string
 	 */
 	public function get($key) {
-
 		if(array_key_exists($key, $this->_strings))
 		{
 			return $this->_strings[$key];
@@ -193,8 +193,9 @@ class locale extends singleton {
     $db = $registry->db;
 
     Loader::import('language', 'Lang');
+    $dft_lang = new Lang($registry->sysconf->dft_language);
 
-    $dft_language = $registry->pub->getConf('dft_language');
+    $dft_language = $dft_lang->code();
     $tbl_language = 'language';
 
 		/* default */
@@ -246,7 +247,7 @@ class locale extends singleton {
 	 */
 	private static function userLanguage(){
 
-    	$db = db::instance();
+    $db = db::instance();
 
 		$code = self::get_languages();
 
