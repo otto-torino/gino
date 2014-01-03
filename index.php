@@ -21,8 +21,7 @@
 /**
  * Percorso assoluto alla root directory
  */
-define('SITE_ROOT', realpath(dirname(__FILE__)));
-
+define('SITE_ROOT', dirname(realpath(__FILE__)));
 
 $siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT) ? preg_replace("#\\\#", "/", SITE_ROOT) : SITE_ROOT;
 

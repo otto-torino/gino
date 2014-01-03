@@ -23,7 +23,7 @@ class Field {
 	 * Vengono esposte dai relativi metodi GET e SET
 	 */
 	protected $_name, $_label, $_value, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table;
-  protected $_model;
+	protected $_model;
 	
 	/**
 	 * Indica se il tipo di campo è obbligatorio 
@@ -61,7 +61,7 @@ class Field {
 	 */
 	function __construct($options) {
 
-    $this->_model = $options['model'];
+		$this->_model = $options['model'];
 		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
 		$this->_lenght = array_key_exists('lenght', $options) ? $options['lenght'] : 11;
 		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
@@ -69,13 +69,13 @@ class Field {
 		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
 		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
 
-    $this->_label = $this->_model->fieldLabel($this->_name);
-    $this->_table = $this->_model->getTable();
-    $this->_value = $this->_model->{$this->_name};
-
-    if(array_key_exists('widget', $options)) {
-		  $this->_default_widget = $options['widget'];
-    }
+		$this->_label = $this->_model->fieldLabel($this->_name);
+		$this->_table = $this->_model->getTable();
+		$this->_value = $this->_model->{$this->_name};
+		
+		if(array_key_exists('widget', $options)) {
+			$this->_default_widget = $options['widget'];
+		}
 	}
 	
 	public function __toString() {
@@ -103,9 +103,19 @@ class Field {
 		return $this->_label;
 	}
 	
+	public function setLabel($value) {
+		
+		$this->_label = $value;
+	}
+	
 	public function getValue() {
 		
 		return $this->_value;
+	}
+	
+	public function setValue($value) {
+		
+		$this->_value = $value;
 	}
 	
 	public function getLenght() {
@@ -207,6 +217,23 @@ class Field {
 	 * 
 	 * @param object $form
 	 * @param array $options
+	 *   array associativo comprendente le opzioni degli input form e l'opzione @b widget con i seguenti valori:
+	 *   - @a hidden
+	 *   - @a constant
+	 *   - @a select
+	 *   - @a radio
+	 *   - @a checkbox
+	 *   - @a multicheck
+	 *   - @a editor
+	 *   - @a textarea
+	 *   - @a float
+	 *   - @a date
+	 *   - @a datetime
+	 *   - @a time
+	 *   - @a password
+	 *   - @a file
+	 *   - @a image
+	 *   - @a email
 	 * @return string
 	 */
 	private function formElementWidget($form, $options) {
@@ -288,6 +315,10 @@ class Field {
 			$options['maxlength'] = $maxlength;
 			
 			$buffer .= $inputForm->text($this->_name, $value, $this->_label, $options);
+		}
+		elseif($options['widget'] == 'password')
+		{
+			$buffer .= $inputForm->password($this->_name, $this->_value, $this->_label, $options);
 		}
 		elseif($options['widget'] == 'file' || $options['widget'] == 'image')
 		{

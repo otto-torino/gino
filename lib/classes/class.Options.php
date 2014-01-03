@@ -86,17 +86,17 @@ class options {
 	 *   - @b length (integer): numero massimo di caratteri
 	 */
 	public function manageDoc(){
-
-    $registry = registry::instance();
+		
+		$registry = registry::instance();
 		$trnsl = cleanVar($_GET, 'trnsl', 'int', '');
-    if($trnsl) {
-      if(isset($_GET['save']) and $_GET['save'] == '1') {
-        $registry->trd->actionTranslation();
-      }
-      else {
-        $registry->trd->formTranslation();
-      }
-    }
+		if($trnsl) {
+			if(isset($_GET['save']) and $_GET['save'] == '1') {
+				$registry->trd->actionTranslation();
+			}
+			else {
+				$registry->trd->formTranslation();
+			}
+		}
 
 		if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
 
@@ -200,7 +200,7 @@ class options {
 				elseif($f->type == 'int' && $f->length>1) {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));
 				}
-				elseif($f->type == 'int' && $f->length == 1) {
+				elseif(($f->type == 'int' && $f->length == 1) || $f->type == 'bool') {
 					$GINO .= $gform->cradio($f->name, ${$f->name}, array(1=>_("si"),0=>_("no")), 'no',  $field_label, array("required"=>$field_required));
 				}
 				elseif($f->type == 'date') {
@@ -211,14 +211,14 @@ class options {
 		}
 		$GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$GINO .= $gform->close();
-
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'class' => 'admin',
-      'title' => _('Opzioni'),
-      'content' => $GINO
-    );
+		
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'class' => 'admin',
+			'title' => _('Opzioni'),
+			'content' => $GINO
+		);
 
 		return $view->render($dict);
 	}

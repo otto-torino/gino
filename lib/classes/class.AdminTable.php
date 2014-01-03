@@ -25,7 +25,7 @@
  * 
  * Per attivare l'importazione dei file utilizzare l'opzione @a import_file come specificato nel metodo modelAction() e sovrascrivere il metodo readFile(). \n
  * 
- * @b "Gestione dei permessi" \n
+ * ###Gestione dei permessi
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
  * @code
@@ -56,7 +56,7 @@
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  * 
- * Tabella delle associazioni del tipo di campo con il tipo input di default
+ * ###Tabella delle associazioni del tipo di campo con il tipo input di default
  * 
  * <table>
  * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
@@ -76,6 +76,14 @@
  * <tr><td>timeField()</td><td>TIME</td><td>time</td></tr>
  * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
+ * 
+ * ###Problemi
+ * Nella visualizzazione degli elenchi gli eventuali link sui valori dei record non funzionano con i permalinks
+ * @code
+ * //$plink = new Link();
+ * //$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
+ * $link_field = $link_field.'&'.$link_field_param."=".$r['id'];
+ * @endcode
  */
 class AdminTable {
 
@@ -215,6 +223,7 @@ class AdminTable {
 	 *     )
 	 *     @endcode
 	 *   - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
+	 *   - @b fieldsets (array): raggruppa i campi in fieldset; l'array è nella forma: array([nome_legenda]=>[nomi dei campi(array)] [,...])
 	 * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
 	 *   opzioni valide
 	 *   - opzioni dei metodi della classe Form()
@@ -410,27 +419,27 @@ class AdminTable {
 				else $buffer .= $gform->hidden($key, $value);
 			}
 		}
-
-    $form_content = '';
-
-    if(isset($options['fieldsets'])) {
-      foreach($options['fieldsets'] as $legend => $fields) {
-        $form_content .= "<fieldset>\n";
-        $form_content .= "<legend>$legend</legend>\n";
-        foreach($fields as $field) {
-          $form_content .= $structure[$field];
-        }
-        $form_content .= "</fieldset>";
-      }
-    }
-    elseif(isset($options['ordering'])) {
-      foreach($options['ordering'] as $field) {
-        $form_content .= $structure[$field];
-      }
-    }
-    else {
-      $form_content = implode('', $structure);
-    }
+		
+		$form_content = '';
+		
+		if(isset($options['fieldsets'])) {
+			foreach($options['fieldsets'] as $legend => $fields) {
+				$form_content .= "<fieldset>\n";
+				$form_content .= "<legend>$legend</legend>\n";
+				foreach($fields as $field) {
+					$form_content .= $structure[$field];
+				}
+				$form_content .= "</fieldset>";
+			}
+		}
+		elseif(isset($options['ordering'])) {
+			foreach($options['ordering'] as $field) {
+				$form_content .= $structure[$field];
+			}
+		}
+		else {
+			$form_content = implode('', $structure);
+		}
 		
 		$buffer .= $form_content;
 		
@@ -691,14 +700,14 @@ class AdminTable {
 				if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
 					error::raise404();	
 				}
-				$title = sprintf(_("Modifica \"%s\""), (string) $model_obj);
+				$title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
 			}
 			// insert
 			else {
 				if(!$this->_allow_insertion) {
 					error::raise404();	
 				}
-				$title = sprintf(_("Inserimento %s"), $model_obj->getModelLabel());
+				$title = sprintf(_("Inserimento %s"), htmlChars($model_obj->getModelLabel()));
 			}
 
 			$form = $this->modelForm($model_obj, $options_form, $inputs);
@@ -746,7 +755,7 @@ class AdminTable {
 	 *     - @a label (string): nome della label
 	 *     - @a data (array): elementi che compongono gli input form radio e select
 	 *     - @a input (string): tipo di input form, valori validi: radio (default), select
-	 *     - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable()
+	 *     - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable() \n
 	 *     inoltre contiene le opzioni da passare al metodo clean
 	 *     - @a value_type (string): tipo di dato (default string)
 	 *     - @a method (array): default $_POST
@@ -769,7 +778,10 @@ class AdminTable {
 	 *       'filter'=>'filterWhereFiliale'
 	 *     )
 	 *     @endcode
-	 *   - @b list_display (array): campi mostrati nella lista (se vuoto mostra tutti)
+	 *   - @b list_display (array): campi mostrati nella lista (se vuoto mostra tutti) \n
+	 *     Al posto del nome del campo è possibile inserire un array con le seguenti chiavi:
+	 *       - @a member (string), nome del metodo da richiamare
+	 *       - @a label (string), etichetta
 	 *   - @b list_remove (array): campi da non mostrare nella lista (default: instance)
 	 *   - @b items_for_page (integer): numero di record per pagina
 	 *   - @b list_title (string): titolo
@@ -811,15 +823,15 @@ class AdminTable {
 		$fields_loop = array();
 		if($this->_list_display) {
 			foreach($this->_list_display as $fname) {
-        if(is_array($fname)) {
-          $fields_loop[$fname['member']] = array(
-            'member' => $fname['member'],
-            'label' => $fname['label']
-          );
-        }
-        else {
-          $fields_loop[$fname] = $model_structure[$fname];
-        }
+				if(is_array($fname)) {
+        			$fields_loop[$fname['member']] = array(
+        				'member' => $fname['member'],
+        				'label' => $fname['label']
+        			);
+        		}
+        		else {
+        			$fields_loop[$fname] = $model_structure[$fname];
+        		}
 			}
 		}
 		else {
@@ -887,13 +899,13 @@ class AdminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-        if(is_array($field_obj)) {
-         $label = $field_obj['label'];
-        }
-        else {
-          $model_label = $model_structure[$field_name]->getLabel();
-          $label = is_array($model_label) ? $model_label[0] : $model_label;
-        }
+				if(is_array($field_obj)) {
+					$label = $field_obj['label'];
+				}
+				else {
+					$model_label = $model_structure[$field_name]->getLabel();
+					$label = is_array($model_label) ? $model_label[0] : $model_label;
+				}
 				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
@@ -930,7 +942,7 @@ class AdminTable {
 
 		$rows = array();
 		foreach($records as $r) {
-				
+			
 			$record_model = new $model($r['id'], $this->_controller);
 			$record_model_structure = $record_model->getStructure();
 
@@ -938,27 +950,24 @@ class AdminTable {
 			foreach($fields_loop as $field_name=>$field_obj) {
 				
 				if($this->permission($options_view, $field_name))
-        {
-          if(is_array($field_obj)) {
-            $record_value = $record_model->$field_obj['member']();
-          }
-          else {
-					  $record_value = (string) $record_model_structure[$field_name];
-          }
+				{
+					if(is_array($field_obj)) {
+						$record_value = $record_model->$field_obj['member']();
+					}
+					else {
+						$record_value = (string) $record_model_structure[$field_name];
+					}
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
 						$link_field_param = array_key_exists('param_id', $link_fields[$field_name]) ? $link_fields[$field_name]['param_id'] : 'id';
 						
-						// PROBLEMI CON I PERMALINKS
-						//$plink = new Link();
-						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
 						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
 						
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
 					
-					$row[] = $record_value;
+					$row[] = htmlChars($record_value);
 				}
 			}
 
@@ -998,7 +1007,7 @@ class AdminTable {
 				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify', array('scale' => 1))."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), htmlChars($record_model)), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
 			}
 			$buttons = array(
 				array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')

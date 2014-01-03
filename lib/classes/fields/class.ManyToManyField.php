@@ -3,7 +3,7 @@
  * @file class.manyToManyField.php
  * @brief Contiene la classe manyToManyField
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,7 +16,7 @@ loader::import('class/fields', 'Field');
  * I valori da associare al campo risiedono in una tabella esterna e i parametri per accedervi devono essere definiti nelle opzioni del campo. \n
  * Tipologie di input associabili: multicheck
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ class ManyToManyField extends Field {
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
-  protected $_join_table, $_join_table_id, $_join_table_m2m_id;
+	protected $_join_table, $_join_table_id, $_join_table_m2m_id;
 	protected $_enum;
 	
 	/**
@@ -34,16 +34,19 @@ class ManyToManyField extends Field {
 	 * 
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - opzioni generali definite come proprietà nella classe field()
-	 *   - @b fkey_table (string): nome della tabella dei dati
-	 *   - @b fkey_id (string): nome del campo della chiave nel SELECT (default: id)
-	 *   - @b fkey_field (mixed): nome del campo o dei campi dei valori nel SELECT
-	 *     - @a string, nome del campo
-	 *     - @a array, nomi dei campi da concatenare, es. array('firstname', 'lastname')
-	 *   - @b fkey_where (mixed): condizioni della query
+	 *   - @b m2m (string): nome della classe del many to many
+	 *   - @b m2m_where (mixed): condizioni della query
 	 *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
-	 *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
-	 *   - @b fkey_order (string): ordinamento dei valori (es. name ASC)
+	 *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'") 
+	 *   - @b m2m_order (string): ordinamento dei valori (es. name ASC)
+	 *   - @b m2m_controller (object): oggetto del controller della classe del many to many
+	 *   - @b join_table (string): nome della tabella di join
 	 * @return void
+	 * 
+	 * Convenzioni: \n
+	 *   - il nome del campo id del modello nella tabella è: [nome_classe_del_modello]_id
+	 *   - il nome del campo id del many to many nella tabella di join è: [nome_classe_del_m2m]_id
+	 * 
 	 */
 	function __construct($options) {
 
@@ -58,8 +61,8 @@ class ManyToManyField extends Field {
 		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 		$this->_join_table = $options['join_table'];
 
-    $this->_join_table_id = strtolower(get_class($this->_model)).'_id';
-    $this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
+		$this->_join_table_id = strtolower(get_class($this->_model)).'_id';
+		$this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
 	}
 	
 	public function __toString() {

@@ -33,15 +33,12 @@ class ForeignKeyField extends field {
 	 * 
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - opzioni generali definite come proprietà nella classe field()
-	 *   - @b fkey_table (string): nome della tabella dei dati
-	 *   - @b fkey_id (string): nome del campo della chiave nel SELECT (default: id)
-	 *   - @b fkey_field (mixed): nome del campo o dei campi dei valori nel SELECT
-	 *     - @a string, nome del campo
-	 *     - @a array, nomi dei campi da concatenare, es. array('firstname', 'lastname')
-	 *   - @b fkey_where (mixed): condizioni della query
+	 *   - @b foreign (string): nome della classe della chiave esterna
+	 *   - @b foreign_where (mixed): condizioni della query
 	 *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
 	 *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
-	 *   - @b fkey_order (string): ordinamento dei valori (es. name ASC)
+	 *   - @b foreign_order (string): ordinamento dei valori (es. name ASC); default 'id'
+	 *   - @b foreign_controller (object): oggetto del controller della classe della chiave esterna
 	 * @return void
 	 */
 	function __construct($options) {
@@ -51,23 +48,21 @@ class ForeignKeyField extends field {
 		$this->_default_widget = 'select';
 		$this->_value_type = 'int';
 
-    $this->_foreign = $options['foreign'];
+		$this->_foreign = $options['foreign'];
 		$this->_foreign_where = array_key_exists('foreign_where', $options) ? $options['foreign_where'] : null;
-    $this->_foreign_order = array_key_exists('foreign_order', $options) ? $options['foreign_order'] : 'id';
-    $this->_foreign_controller = array_key_exists('foreign_controller', $options) ? $options['foreign_controller'] : null;
+		$this->_foreign_order = array_key_exists('foreign_order', $options) ? $options['foreign_order'] : 'id';
+		$this->_foreign_controller = array_key_exists('foreign_controller', $options) ? $options['foreign_controller'] : null;
 	}
 	
 	public function __toString() {
 
-    if($this->_foreign_controller) {
-      $obj = new $this->_foreign($this->_model->{$this->_name}, $this->_foreign_controller);
-    }
-    else {
-      $obj = new $this->_foreign($this->_model->{$this->_name});
-    }
-
-    return (string) $obj;
-
+		if($this->_foreign_controller) {
+			$obj = new $this->_foreign($this->_model->{$this->_name}, $this->_foreign_controller);
+		}
+		else {
+			$obj = new $this->_foreign($this->_model->{$this->_name});
+		}
+		return (string) $obj;
 	}
 	
 	public function getEnum() {

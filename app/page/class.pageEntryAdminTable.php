@@ -71,11 +71,9 @@ class pageEntryAdminTable extends AdminTable {
 	 * In corrispondenza del campo @a slug mostra l'indirizzo completo della pagina
 	 */
 	public function adminList($model, $options_view=array()) {
-		
-		// $this->permission($options_view);
-		
-		$db = db::instance();
 
+		// $this->permission($options_view);
+		$db = db::instance();
 		$model_structure = $model->getStructure();
 		$model_table = $model->getTable();
 
@@ -160,7 +158,7 @@ class pageEntryAdminTable extends AdminTable {
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
+		$pagelist = loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
@@ -173,51 +171,50 @@ class pageEntryAdminTable extends AdminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-        if(is_array($field_obj)) {
-         $label = $field_obj['label'];
-        }
-        else {
-          $model_label = $model_structure[$field_name]->getLabel();
-          $label = is_array($model_label) ? $model_label[0] : $model_label;
-        }
-
+				if(is_array($field_obj)) {
+					$label = $field_obj['label'];
+				}
+				else {
+					$model_label = $model_structure[$field_name]->getLabel();
+					$label = is_array($model_label) ? $model_label[0] : $model_label;
+				}
 				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
 					if($order == $field_name." ASC") {
-						$jsover = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-						$css_class = "arrow_up";
+						$jsover = "$(this).getNext('.fa').removeClass('fa-arrow-circle-up').addClass('fa-arrow-circle-down')";
+						$jsout = "$(this).getNext('.fa').removeClass('fa-arrow-circle-down').addClass('fa-arrow-circle-up')";
+						$css_class = "fa-arrow-circle-up";
 					}
 					elseif($order == $field_name." DESC") {
-						$jsover = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-						$css_class = "arrow_down";
+						$jsover = "$(this).getNext('.fa').removeClass('fa-arrow-circle-down').addClass('fa-arrow-circle-up')";
+						$jsout = "$(this).getNext('.fa').removeClass('fa-arrow-circle-up').addClass('fa-arrow-circle-down')";
+						$css_class = "fa-arrow-circle-down";
 					}
 					else {
 						$js = '';
-						$jsover = "$(this).getNext('.arrow').addClass('arrow_up')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up')";
+						$jsover = "$(this).getNext('.fa').removeClass('invisible')";
+						$jsout = "$(this).getNext('.fa').addClass('invisible')";
 						$a_style = "visibility:hidden";
-						$css_class = '';
+						$css_class = 'fa-arrow-circle-up invisible';
 					}
 
 					$add_params = $addParamsUrl;
 					$add_params['order'] = $ord;
 					$link = $this->editUrl($add_params, array('start'));
 					$head_t = "<a href=\"".$link."\" onmouseover=\"".$jsover."\" onmouseout=\"".$jsout."\" onclick=\"$(this).setProperty('onmouseout', '')\">".$label."</a>";
-					$heads[] = $head_t." <div style=\"margin-right: 5px;top:3px;\" class=\"right arrow $css_class\"></div>";
+					$heads[] = $head_t." <span class=\"fa $css_class\"></div>";
 				}
 				else {
 					$heads[] = $label;
 				}
 			}
 		}
-		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
+		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
 		$rows = array();
 		foreach($records as $r) {
-				
+			
 			$record_model = new $model($r['id'], $this->_controller);
 			$record_model_structure = $record_model->getStructure();
 
@@ -226,12 +223,12 @@ class pageEntryAdminTable extends AdminTable {
 				
 				if($this->permission($options_view, $field_name))
 				{
-          if(is_array($field_obj)) {
-            $record_value = $record_model->$field_obj['member']();
-          }
-          else {
-					  $record_value = (string) $record_model_structure[$field_name];
-          }
+					if(is_array($field_obj)) {
+						$record_value = $record_model->$field_obj['member']();
+					}
+					else {
+						$record_value = (string) $record_model_structure[$field_name];
+					}
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
@@ -242,7 +239,10 @@ class pageEntryAdminTable extends AdminTable {
 						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
 						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
 						
-						if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;	// NEW
+						/*
+						 * Personalizzazione
+						 */
+						if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;
 						
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
@@ -284,18 +284,18 @@ class pageEntryAdminTable extends AdminTable {
 			}
 			
 			if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify')."</a>";
+				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify', array('scale' => 1))."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
 			}
 			$buttons = array(
-				array('text' => implode(' ', $links), 'class' => 'nowrap')
+				array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
 			); 
 
 			$rows[] = array_merge($row, $buttons);
 		}
-		
+
 		if($tot_ff) {
 			$caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
 		}
@@ -322,7 +322,7 @@ class pageEntryAdminTable extends AdminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
-		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
+		$this->_view->assign('search_icon', pub::icon('search'));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

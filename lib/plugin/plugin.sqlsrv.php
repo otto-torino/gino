@@ -14,6 +14,16 @@
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ###GESTIONE CODIFICA UTF8
+ * In SQL Server occorre gestire la codifica UTF8 dei dati.
+ * 
+ * ####Dal database alla visualizzazione
+ * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
+ * 
+ * ####Dal form al database
+ * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
+ * 
  */
 class sqlsrv implements DbManager {
 
@@ -98,7 +108,7 @@ class sqlsrv implements DbManager {
 			$this->setconnection(true);
 			return true;
 		} else {
-			die(print_r(sqlsrv_errors(), true));
+			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".sqlsrv_errors());
 		}
 	}
 
@@ -267,7 +277,7 @@ class sqlsrv implements DbManager {
     		$res = $this->execQuery("SELECT SCOPE_IDENTITY() AS id"); 
     		if($row = sqlsrv_fetch_array($res, SQLSRV_FETCH_ASSOC)) { 
         		$id = $row["id"];
-    		} 
+    		}
     		$this->_lastid = $id;
 		}
 		else
@@ -284,7 +294,7 @@ class sqlsrv implements DbManager {
 	 */
 	public function autoIncValue($table){
 
-		$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS NextId");
+		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
 		$a = $this->selectquery($query);
 		if($a && isset($a[0]))
 		{
@@ -328,8 +338,17 @@ class sqlsrv implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
+	 * @see conformType()
 	 * 
-	 * Come tipo di dato di un campo, SQL Server ritorna: int, char, text
+	 * La funzione sqlsrv_field_metadata() ritorna i riferimenti:
+	 * <table>
+	 * <tr><td>Name</td><td>The name of the field.</td></tr>
+	 * <tr><td>Type</td><td>The numeric value for the SQL type.</td></tr>
+	 * <tr><td>Size</td><td>The number of characters for fields of character type, the number of bytes for fields of binary type, or NULL for other types.</td></tr>
+	 * <tr><td>Precision</td><td>The precision for types of variable precision, NULL for other types.</td></tr>
+	 * <tr><td>Scale</td><td>The scale for types of variable scale, NULL for other types.</td></tr>
+	 * <tr><td>Nullable</td><td>An enumeration indicating whether the column is nullable, not nullable, or if it is not known.</td></tr>
+	 * </table>
 	 */
 	public function fieldInformations($table) {
 	
@@ -343,15 +362,27 @@ class sqlsrv implements DbManager {
 		} else {
 			// initialize array results
 			$meta = array();
+			$field_metadata = sqlsrv_field_metadata($this->_qry);
+			
 			$i = 0;
 			while($i < sqlsrv_num_fields($this->_qry)) {
-				$meta[$i] = sqlsrv_fetch($this->_qry, $i);
 				
-				$meta[$i]->length = 0;	///// COME FARE??
-				//$meta[$i]->length = sqlsrv_field_length($this->_qry, $i);
+				$meta_type = $field_metadata[$i]['Type'];
+				$meta_size = $field_metadata[$i]['Size'];
+				$meta_precision = $field_metadata[$i]['Precision'];
 				
-				//$meta[$i]->length = sqlsrv_field_metadata($this->_qry, $i);	// vedere
+				if(is_null($meta_size))
+					$size = $meta_precision;
+				else 
+					$size = $meta_size;
 				
+				$array_tmp = array(
+					'name'=>$field_metadata[$i]['Name'],
+					'type'=>$this->conformType($meta_type),
+					'length'=>$size
+				);
+				
+				$meta[$i] = arrayToObject($array_tmp);
 				$i++;
 			}
 			$this->freeresult();
@@ -360,23 +391,109 @@ class sqlsrv implements DbManager {
 	}
 	
 	/**
+	 * Uniforma i tipi di dato dei campi
+	 * 
+	 * @param integer $type
+	 * @return string
+	 * 
+	 * Tipi di dato riportati dalla funzione sqlsrv_field_metadata()
+	 * 
+	 * Per l'elenco fare riferimento alla documentazione ufficiale Microsoft: \n
+	 * http://msdn.microsoft.com/en-us/library/cc296197.aspx
+	 * 
+	 * <table>
+	 * <tr><td>bigint</td><td>-5</td></tr>
+	 * <tr><td>binary</td><td>-2</td></tr>
+	 * <tr><td>bit</td><td>-7</td></tr>
+	 * <tr><td>char</td><td>1</td></tr>
+	 * <tr><td>date</td><td>91</td></tr>
+	 * <tr><td>datetime</td><td>93</td></tr>
+	 * <tr><td>datetime2</td><td>93</td></tr>
+	 * <tr><td>datetimeoffset</td><td>-155</td></tr>
+	 * <tr><td>decimal</td><td>3</td></tr>
+	 * <tr><td>float</td><td>6</td></tr>
+	 * <tr><td>image</td><td>-4</td></tr>
+	 * <tr><td>int</td><td>4</td></tr>
+	 * <tr><td>money</td><td>3</td></tr>
+	 * <tr><td>nchar</td><td>-8</td></tr>
+	 * <tr><td>ntext</td><td>-10</td></tr>
+	 * <tr><td>numeric</td><td>2</td></tr>
+	 * <tr><td>nvarchar</td><td>-9</td></tr>
+	 * <tr><td>real</td><td>7</td></tr>
+	 * <tr><td>smalldatetime</td><td>93</td></tr>
+	 * <tr><td>smallint</td><td>5</td></tr>
+	 * <tr><td>Smallmoney</td><td>3</td></tr>
+	 * <tr><td>text</td><td>-1</td></tr>
+	 * <tr><td>time</td><td>-154</td></tr>
+	 * <tr><td>timestamp</td><td>-2</td></tr>
+	 * <tr><td>tinyint</td><td>-6</td></tr>
+	 * <tr><td>udt</td><td>-151</td></tr>
+	 * <tr><td>uniqueidentifier</td><td>-11</td></tr>
+	 * <tr><td>varbinary</td><td>-3</td></tr>
+	 * <tr><td>varchar</td><td>12</td></tr>
+	 * <tr><td>xml</td><td>-152</td></tr>
+	 * </table>
+	 * 
+	 */
+	public function conformType($type) {
+		
+		$data = array(
+			'bigint' => -5, 
+			'binary' => -2, 
+			'bit' => -7, 
+			'char' => 1, 
+			'date' => 91, 
+			'datetime' => 93, 
+			'datetime2' => 93, 
+			'datetimeoffset' => -155, 
+			'decimal' => 3, 
+			'float' => 6, 
+			'image' => -4, 
+			'int' => 4, 
+			'money' => 3, 
+			'nchar' => -8, 
+			'ntext' => -10, 
+			'numeric' => 2, 
+			'nvarchar' => -9, 
+			'real' => 7, 
+			'smalldatetime' => 93, 
+			'smallint' => 5, 
+			'Smallmoney' => 3, 
+			'text' => -1, 
+			'time' => -154, 
+			'timestamp' => -2, 
+			'tinyint' => -6, 
+			'udt' => -151, 
+			'uniqueidentifier' => -11, 
+			'varbinary' => -3, 
+			'varchar' => 12, 
+			'xml' => -152
+		);
+		
+		if($type == 4 || $type == 5)
+			$conform_type = 'int';
+		elseif($type == -6)
+			$conform_type = 'bool';
+		elseif($type == -9 || $type == -8 || $type == 12 || $type == 1)
+			$conform_type = 'char';
+		else
+			$conform_type = array_search($type, $data);
+		
+		return $conform_type;
+	}
+	
+	/**
 	 * @see DbManager::limit()
 	 * 
-	 * 
-SELECT * FROM
-(
-SELECT row_number() OVER (ORDER BY column) AS rownum, column2, column3, .... columnX
-  FROM   table
-) AS A
-WHERE A.rownum 
-BETWEEN (@start) AND (@start + @rowsperpage)
+	 * Examples
+	 * @code
+	 * //Returning the first 100 rows from a table called employee:
+	 * select top 100 * from employee
+	 * //Returning the top 20% of rows from a table called employee:
+	 * select top 20 percent * from employee 
+	 * @endcode
 	 */
-	public function limit($range, $offset){
-		
-		// SELECT TOP 20 * ...
-		// BETWEEN @offset+1 AND @offset+@count;
-		
-		//$limit = "BETWEEN $offset AND $range";
+	public function limit($range, $offset=0){
 		
 		$limit = "TOP $range";
 		
@@ -405,7 +522,7 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 			$fields = implode(', ', $a_data);
 		}
 		
-		$data = "DISTINCT $fields";
+		$data = "DISTINCT ($fields)";
 		if($alias) $data .= " AS $alias";
 		
 		return $data;
@@ -697,47 +814,115 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	
 	/**
 	 * @see DbManager::query()
+	 * @see limitQuery()
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = gOpt('order', $options, null);
 		$limit = gOpt('limit', $options, null);
 		$debug = gOpt('debug', $options, false);
+		$distinct = gOpt('distinct', $options, null);
 		
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
 		$qorder = $order ? "ORDER BY $order" : "";
 		
-		if(is_array($limit) && count($limit))
+		if($distinct) $qfields = $distinct.", ".$qfields;
+		
+		if(is_array($limit) && count($limit))	// Paginazione
 		{
-			$offset = $limit[0];
-			$range = $limit[1];
-			
-			if(int($offset) > 0)
-			{
-				$query = "SELECT $qfields FROM (
-				SELECT row_number() OVER (ORDER BY id) AS rownum, $qfields FROM $qtables $qwhere $qorder
-				) AS A
-				WHERE A.rownum
-				BETWEEN ($offset) AND ($offset + $range)";
-				
-				if($debug) echo $query;
-				
-				return $query;
-			}
-			else
-			{
-				$top = $range;
-			}
+			return $this->limitQuery($fields, $qtables, $where, $options);
 		}
-		elseif(is_string($limit))
-		{
+		
+		if(is_string($limit))
 			$top = $limit;
-		}
 		else $top = '';
 		
 		$query = "SELECT $top $qfields FROM $qtables $qwhere $qorder";
+		
+		if($debug) echo $query;
+		
+		return $query;
+	}
+	
+	private function limitQuery($fields, $tables, $where=null, $options=array()) {
+		
+		$order = gOpt('order', $options, null);
+		$limit = gOpt('limit', $options, null);
+		$debug = gOpt('debug', $options, false);
+		$distinct = gOpt('distinct', $options, null);
+		
+		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
+		$qwhere = $where ? "WHERE ".$where : "";
+		
+		$offset = $limit[0];
+		$range = $limit[1];
+		settype($offset, 'int');
+		
+		if(is_string($fields)) $fields = explode(',', $fields);
+		
+		$clean_fields = array();	// solo i nomi dei campi
+		$func_fields = array();		// nomi dei campi comprensivi delle eventuali funzioni (ad es. distinct)
+		
+		foreach($fields AS $f)
+		{
+			$field = trim($f);
+			preg_match("#^([a-zA-Z ]+)\(([a-zA-Z0-9_]+)\)$#", $field, $matches);
+			if(isset($matches[2]) && $matches[2])
+			{
+				$clean_fields[] = $matches[2];
+			}
+			else
+			{
+				$clean_fields[] = $field;
+			}
+			
+			$func_fields[] = $field;
+		}
+		
+		if($order)
+		{
+			$order_field = array();
+			$split_order_field = explode(',', $order);	// per gestire i casi tipo: name ASC, descr DESC
+			
+			foreach($split_order_field AS $s)
+			{
+				$a_order = array();
+				$split_field = explode(' ', $s);
+				foreach($split_field AS $f)
+				{
+					if(preg_match("#\.#", $f))	// ricerco la ricorrenza [nome_tabella].[nome_campo]
+					{
+						$a_field = explode('.', $f);
+						$field_name = trim($a_field[1]);
+						$a_order[] = $field_name;
+						
+						// verifico se il campo di ordinamento è presente nell'elenco dei campi del select
+						// in caso negativo lo aggiungo all'elenco dei nomi comprensivi delle eventuali funzioni (subquery)
+						if(!in_array($field_name, $clean_fields))
+							$func_fields[] = $field_name;
+					}
+					else $a_order[] = trim($f);
+				}
+				$order_field[] = implode(' ', $a_order);
+			}
+			
+			$clean_order = "ORDER BY ".implode(', ', $order_field);
+			$qorder = "ORDER BY ".$order;
+		}
+		else
+		{
+			$clean_order = $qorder = "ORDER BY id";
+		}
+		
+		$clean_fields = implode(', ', $clean_fields);
+		$func_fields = implode(', ', $func_fields);
+		
+		$query = "SELECT $clean_fields FROM ( 
+			SELECT $func_fields, row_number () over ($qorder) - 1 as rn
+			FROM $qtables $qwhere) rn_subquery 
+		WHERE rn between $offset and ($offset+$range)-1 $clean_order";
 		
 		if($debug) echo $query;
 		
@@ -771,11 +956,15 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "[$field]=".$value['sql'];
+					{
+						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$a_fields[] = "[$field]=".$mb_value;
+					}
 				}
 				else
 				{
-					$a_values[] = ($value !== null) ? "'$value'" : null;	/////// VERIFICARE
+					$mb_value = convertToDatabase($value, 'CP1252');
+					$a_values[] = ($value !== null) ? "'$mb_value'" : null;	// VERIFICARE
 				}
 			}
 			
@@ -805,12 +994,15 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "[$field]=".$value['sql'];
+					{
+						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$a_fields[] = "[$field]=".$mb_value;
+					}
 				}
 				else
 				{
-					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-					$a_fields[] = "[$field]='$value'";
+					$mb_value = convertToDatabase($value, 'CP1252');
+					$a_fields[] = "[$field]='$mb_value'";	//$a_fields[] = ($value == 'null') ? "[$field]=$value" : "[$field]='$mb_value'";
 				}
 			}
 			

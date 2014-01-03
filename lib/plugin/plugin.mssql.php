@@ -14,6 +14,16 @@
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ###GESTIONE CODIFICA UTF8
+ * In SQL Server occorre gestire la codifica UTF8 dei dati.
+ * 
+ * ####Dal database alla visualizzazione
+ * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
+ * 
+ * ####Dal form al database
+ * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
+ * 
  */
 class mssql implements DbManager {
 
@@ -95,7 +105,7 @@ class mssql implements DbManager {
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify the parameters of connection");
+			die("ERROR DB: verify connection parameters");
 		}
 	}
 
@@ -278,7 +288,7 @@ class mssql implements DbManager {
 	 */
 	public function autoIncValue($table){
 
-		$query = mssql_query("SELECT IDENT_CURRENT('$table') AS NextId");
+		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
 		$a = $this->selectquery($query);
 		if($a && isset($a[0]))
 		{
@@ -322,8 +332,6 @@ class mssql implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * 
-	 * Come tipo di dato di un campo, SQL Server ritorna: int, char, text
 	 */
 	public function fieldInformations($table) {
 	
@@ -341,8 +349,6 @@ class mssql implements DbManager {
 			while($i < mssql_num_fields($this->_qry)) {
 				$meta[$i] = mssql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mssql_field_length($this->_qry, $i);
-				
-				
 				$i++;
 			}
 			$this->freeresult();
@@ -351,23 +357,29 @@ class mssql implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::conformType()
+	 * 
+	 * @param string $type
+	 * 
+	 * Come tipo di dato di un campo, la funzione mssql_fetch_field() ritorna: int, char, text
+	 */
+	public function conformType($type) {
+		
+		
+	}
+	
+	/**
 	 * @see DbManager::limit()
 	 * 
-	 * 
-SELECT * FROM
-(
-SELECT row_number() OVER (ORDER BY column) AS rownum, column2, column3, .... columnX
-  FROM   table
-) AS A
-WHERE A.rownum 
-BETWEEN (@start) AND (@start + @rowsperpage)
+	 * Examples
+	 * @code
+	 * //Returning the first 100 rows from a table called employee:
+	 * select top 100 * from employee
+	 * //Returning the top 20% of rows from a table called employee:
+	 * select top 20 percent * from employee 
+	 * @endcode
 	 */
-	public function limit($range, $offset){
-		
-		// SELECT TOP 20 * ...
-		// BETWEEN @offset+1 AND @offset+@count;
-		
-		//$limit = "BETWEEN $offset AND $range";
+	public function limit($range, $offset=0){
 		
 		$limit = "TOP $range";
 		
@@ -396,7 +408,7 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 			$fields = implode(', ', $a_data);
 		}
 		
-		$data = "DISTINCT $fields";
+		$data = "DISTINCT ($fields)";
 		if($alias) $data .= " AS $alias";
 		
 		return $data;
@@ -690,16 +702,14 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 	
 	/**
 	 * @see DbManager::query()
-	 * 
-	 * query corretta:
-	 * SELECT DISTINCT id FROM ( SELECT row_number() OVER (ORDER BY id) AS rownum, id FROM page_entry ) AS A WHERE A.rownum BETWEEN (0) AND (0 + 20)
+	 * @see limitQuery()
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = gOpt('order', $options, null);
-		$distinct = gOpt('distinct', $options, null);
 		$limit = gOpt('limit', $options, null);
 		$debug = gOpt('debug', $options, false);
+		$distinct = gOpt('distinct', $options, null);
 		
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
@@ -708,35 +718,99 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 		
 		if($distinct) $qfields = $distinct.", ".$qfields;
 		
-		if(is_array($limit) && count($limit))
+		if(is_array($limit) && count($limit))	// Paginazione
 		{
-			$offset = $limit[0];
-			$range = $limit[1];
-			
-			if(is_int($offset) > 0)
-			{
-				$query = "SELECT $qfields FROM (
-				SELECT row_number() OVER ($qorder) AS rownum, id FROM $qtables $qwhere
-				) AS A
-				WHERE A.rownum
-				BETWEEN ($offset) AND ($offset + $range)";
-				
-				if($debug) echo $query;
-				
-				return $query;
-			}
-			else
-			{
-				$top = $range;
-			}
+			return $this->limitQuery($fields, $qtables, $where, $options);
 		}
-		elseif(is_string($limit))
-		{
+		
+		if(is_string($limit))
 			$top = $limit;
-		}
 		else $top = '';
 		
 		$query = "SELECT $top $qfields FROM $qtables $qwhere $qorder";
+		
+		if($debug) echo $query;
+		
+		return $query;
+	}
+	
+	private function limitQuery($fields, $tables, $where=null, $options=array()) {
+		
+		$order = gOpt('order', $options, null);
+		$limit = gOpt('limit', $options, null);
+		$debug = gOpt('debug', $options, false);
+		$distinct = gOpt('distinct', $options, null);
+		
+		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
+		$qwhere = $where ? "WHERE ".$where : "";
+		
+		$offset = $limit[0];
+		$range = $limit[1];
+		settype($offset, 'int');
+		
+		if(is_string($fields)) $fields = explode(',', $fields);
+		
+		$clean_fields = array();	// solo i nomi dei campi
+		$func_fields = array();		// nomi dei campi comprensivi delle eventuali funzioni (ad es. distinct)
+		
+		foreach($fields AS $f)
+		{
+			$field = trim($f);
+			preg_match("#^([a-zA-Z ]+)\(([a-zA-Z0-9_]+)\)$#", $field, $matches);
+			if(isset($matches[2]) && $matches[2])
+			{
+				$clean_fields[] = $matches[2];
+			}
+			else
+			{
+				$clean_fields[] = $field;
+			}
+			
+			$func_fields[] = $field;
+		}
+		
+		if($order)
+		{
+			$order_field = array();
+			$split_order_field = explode(',', $order);	// per gestire i casi tipo: name ASC, descr DESC
+			
+			foreach($split_order_field AS $s)
+			{
+				$a_order = array();
+				$split_field = explode(' ', $s);
+				foreach($split_field AS $f)
+				{
+					if(preg_match("#\.#", $f))	// ricerco la ricorrenza [nome_tabella].[nome_campo]
+					{
+						$a_field = explode('.', $f);
+						$field_name = trim($a_field[1]);
+						$a_order[] = $field_name;
+						
+						// verifico se il campo di ordinamento è presente nell'elenco dei campi del select
+						// in caso negativo lo aggiungo all'elenco dei nomi comprensivi delle eventuali funzioni (subquery)
+						if(!in_array($field_name, $clean_fields))
+							$func_fields[] = $field_name;
+					}
+					else $a_order[] = trim($f);
+				}
+				$order_field[] = implode(' ', $a_order);
+			}
+			
+			$clean_order = "ORDER BY ".implode(', ', $order_field);
+			$qorder = "ORDER BY ".$order;
+		}
+		else
+		{
+			$clean_order = $qorder = "ORDER BY id";
+		}
+		
+		$clean_fields = implode(', ', $clean_fields);
+		$func_fields = implode(', ', $func_fields);
+		
+		$query = "SELECT $clean_fields FROM ( 
+			SELECT $func_fields, row_number () over ($qorder) - 1 as rn
+			FROM $qtables $qwhere) rn_subquery 
+		WHERE rn between $offset and ($offset+$range)-1 $clean_order";
 		
 		if($debug) echo $query;
 		
@@ -770,11 +844,15 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "[$field]=".$value['sql'];
+					{
+						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$a_fields[] = "[$field]=".$mb_value;
+					}
 				}
 				else
 				{
-					$a_values[] = ($value !== null) ? "'$value'" : null;	/////// VERIFICARE
+					$mb_value = convertToDatabase($value, 'CP1252');
+					$a_values[] = ($value !== null) ? "'$mb_value'" : null;	// VERIFICARE
 				}
 			}
 			
@@ -804,12 +882,15 @@ BETWEEN (@start) AND (@start + @rowsperpage)
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "[$field]=".$value['sql'];
+					{
+						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$a_fields[] = "[$field]=".$mb_value;
+					}
 				}
 				else
 				{
-					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-					$a_fields[] = "[$field]='$value'";
+					$mb_value = convertToDatabase($value, 'CP1252');
+					$a_fields[] = "[$field]='$mb_value'";	//$a_fields[] = ($value == 'null') ? "[$field]=$value" : "[$field]='$mb_value'";
 				}
 			}
 			

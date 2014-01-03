@@ -3,7 +3,7 @@
  * @file class.manyToManyField.php
  * @brief Contiene la classe manyToManyField
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,7 +16,7 @@ loader::import('class/fields', 'Field');
  * I valori da associare al campo risiedono in una tabella esterna e i parametri per accedervi devono essere definiti nelle opzioni del campo. \n
  * Tipologie di input associabili: multicheck
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -28,7 +28,7 @@ class ManyToManyInlineField extends Field {
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_m2m, $_m2m_order, $_m2m_where;
+	protected $_m2m, $_m2m_order, $_m2m_where, $_m2m_controller;
 	protected $_enum;
 	
 	/**
@@ -36,15 +36,12 @@ class ManyToManyInlineField extends Field {
 	 * 
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - opzioni generali definite come proprietà nella classe field()
-	 *   - @b fkey_table (string): nome della tabella dei dati
-	 *   - @b fkey_id (string): nome del campo della chiave nel SELECT (default: id)
-	 *   - @b fkey_field (mixed): nome del campo o dei campi dei valori nel SELECT
-	 *     - @a string, nome del campo
-	 *     - @a array, nomi dei campi da concatenare, es. array('firstname', 'lastname')
-	 *   - @b fkey_where (mixed): condizioni della query
+	 *   - @b m2m (string): nome della classe del many to many
+	 *   - @b m2m_where (mixed): condizioni della query
 	 *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
 	 *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
-	 *   - @b fkey_order (string): ordinamento dei valori (es. name ASC)
+	 *   - @b m2m_order (string): ordinamento dei valori (es. name ASC)
+	 *   - @b m2m_controller (object): oggetto del controller della classe del many to many
 	 * @return void
 	 */
 	function __construct($options) {
@@ -57,21 +54,22 @@ class ManyToManyInlineField extends Field {
 		$this->_m2m = $options['m2m'];
 		$this->_m2m_where = array_key_exists('m2m_where', $options) ? $options['m2m_where'] : null;
 		$this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
+		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 	}
 	
 	public function __toString() {
-
-    $res = array();
-    foreach(explode(', ', $this->_model->{$this->_name}) as $id) {
-      if($this->_m2m_controller) {
-        $obj = new $this->_m2m($id, $this->_m2m_controller);
-      }
-      else {
-        $obj = new $this->_m2m($id);
-      }
-      $res[] = (string) $obj;
-    }
-    return implode(', ', $res);
+		
+		$res = array();
+		foreach(explode(', ', $this->_model->{$this->_name}) as $id) {
+			if($this->_m2m_controller) {
+				$obj = new $this->_m2m($id, $this->_m2m_controller);
+			}
+			else {
+				$obj = new $this->_m2m($id);
+			}
+			$res[] = (string) $obj;
+		}
+		return implode(', ', $res);
 	}
 	
 	public function getEnum() {
@@ -88,15 +86,17 @@ class ManyToManyInlineField extends Field {
 	 */
 	public function formElement($form, $options) {
 
-    $m2m = new $this->_m2m(null);
-    $rows = $this->_db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-    $enum = array();
-    foreach($rows as $row) {
-      $m2m = new $this->_m2m($row['id']);
-      $enum[$m2m->id] = (string) $m2m;
-    }
+		$db = db::instance();
 		
-    $this->_value = explode(',', $this->_model->{$this->_name});
+		$m2m = new $this->_m2m(null);
+		$rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
+		$enum = array();
+		foreach($rows as $row) {
+			$m2m = new $this->_m2m($row['id']);
+			$enum[$m2m->id] = (string) $m2m;
+		}
+		
+		$this->_value = explode(',', $this->_model->{$this->_name});
 		$this->_enum = $enum;
 		$this->_name .= "[]";
 

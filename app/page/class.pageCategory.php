@@ -27,11 +27,10 @@ class PageCategory extends Model {
 	 * Costruttore
 	 * 
 	 * @param integer $id valore ID del record
-	 * @param object $instance oggetto dell'istanza
 	 */
-	function __construct($id, $instance) {
+	function __construct($id) {
 		
-		$this->_controller = $instance;
+		$this->_controller = new page();
 		$this->_tbl_data = self::$_tbl_item;
 		
 		$this->_fields_label = array(
@@ -41,7 +40,7 @@ class PageCategory extends Model {
 		
 		parent::__construct($id);
 		
-		$this->_model_label = $this->id ? $this->name : null;
+		$this->_model_label = $this->id ? $this->name : '';
 	}
 	
 	/**

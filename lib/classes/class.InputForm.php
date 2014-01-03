@@ -75,8 +75,26 @@ class inputForm {
 		
 		return $this->_form->cinput($name, 'text', $value, $label, $options);
 	}
+	
+	/**
+	 * Form: campo password
+	 * 
+	 * @see Form::input()
+	 * @see Form::cinput()
+	 * @param string $name
+	 * @param mixed $value
+	 * @param mixed $label
+	 * @param array $options opzioni dei metodi input() e cinput() della classe Form
+	 * @return string
+	 */
+	public function password($name, $value, $label, $options) {
+		
+		$value = $this->_form->retvar($name, htmlInput($value));
+		
+		return $this->_form->cinput($name, 'password', $value, $label, $options);
+	}
 
-  /**
+	/**
 	 * Form: campo email
 	 * 
 	 * @see Form::input()

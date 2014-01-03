@@ -46,15 +46,18 @@ class User extends Model {
 			'company' => _('Società'), 
 			'phone' => _("Telefono"), 
 			'email' => _("Email"), 
+			'username' => _("Username"), 
 			'userpwd' => _('Password'), 
 			'is_admin' => _('Super-amministratore'),
 			'address' => _("Indirizzo"), 
+			'cap' => _("CAP"), 
 			'city' => _("Città"), 
 			'nation' => _('Nazione'), 
 			'text' => _("Informazioni"), 
 			'photo' => _("Foto"), 
 			'publication' => _('Pubblicazione dati'), 
-			'active' => _('Attivo')
+			'active' => _('Attivo'), 
+			'group' => _("Gruppi")
 		);
 		
 		$this->_tbl_data = self::$table;
@@ -91,29 +94,29 @@ class User extends Model {
 
 		$structure['email'] = new EmailField(array(
 			'name'=>'email', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'trnsl'=>false,
 		));
 		
 		$structure['is_admin'] = new BooleanField(array(
 			'name'=>'is_admin', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
 		));
 		
-    $nations = array();
-    $rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
-    foreach($rows as $row) {
-      $nations[$row['id']] = htmlChars($row[$this->_lng_nav]);
-    }
+		$nations = array();
+		$rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
+		foreach($rows as $row) {
+			$nations[$row['id']] = htmlChars($row[$this->_lng_nav]);
+		}
 
 		$structure['nation'] = new EnumField(array(
-      'name'=>'nation', 
-      'model'=>$this,
-      'widget'=>'select',
+			'name'=>'nation', 
+			'model'=>$this,
+			'widget'=>'select',
 			'lenght'=>4, 
 			'enum'=>$nations, 
 		));
@@ -123,7 +126,7 @@ class User extends Model {
 		
 		$structure['photo'] = new ImageField(array(
 			'name'=>'photo', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>false, 
 			'extensions'=>self::$extension_media, 
 			'path'=>$base_path, 
@@ -132,7 +135,7 @@ class User extends Model {
 
 		$structure['publication'] = new BooleanField(array(
 			'name'=>'publication', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>false, 
 			'enum'=>array(1=>_('si'), 0=>_('no')), 
 			'default'=>0,
@@ -140,10 +143,20 @@ class User extends Model {
 		
 		$structure['active'] = new BooleanField(array(
 			'name'=>'active', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true, 
 			'enum'=>array(1=>_('si'), 0=>_('no')), 
 			'default'=>0,
+		));
+		
+		$structure['group'] = new ManyToManyField(array(
+			'name'=>'group', 
+			'model'=>$this,
+			'required'=>false, 
+			'm2m'=>'Group', 
+			'm2m_where'=>null, 
+			'm2m_order'=>'name ASC', 
+			'join_table'=>Group::$table_group_user
 		));
 		
 		return $structure;
@@ -598,23 +611,75 @@ class User extends Model {
 	}
 	
 	/**
+	 * Gestisce i record della tabella aggiuntiva degli utenti
+	 * 
+	 * @param integer $id valore ID dell'utente
+	 * @return boolean
+	 */
+	public static function setMoreInfo($id) {
+		
+		$db = db::instance();
+
+		$field1 = cleanVar($_POST, 'field1', 'int', '');
+		$field2 = cleanVar($_POST, 'field2', 'int', '');
+		$field3 = cleanVar($_POST, 'field3', 'int', '');
+		
+		$res = false;
+		
+		if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
+		{
+			$res = $db->update(array('field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more, "user_id='$id'");
+		}
+		else
+		{
+			$res = $db->insert(array('user_id'=>$id, 'field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more);
+		}
+		return $res;
+	}
+	
+	/**
+	 * Eimina i record della tabella aggiuntiva degli utenti
+	 * 
+	 * @param integer $id valore ID dell'utente
+	 * @return boolean
+	 */
+	public static function deleteMoreInfo($id) {
+		
+		$db = db::instance();
+
+		if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
+		{
+			return $db->delete(self::$table_more, "user_id='$id'");
+		}
+		else return true;
+	}
+	
+	/**
 	 * @see Model::delete()
 	 */
-	/*public function delete() {
+	public function delete() {
 
-		$pathToDel = $this->_controller->getBasePath().$this->_controller->getAddPath($this->id);
+		$pathToDel = $this->_controller->getBasePath();
 		
 		$parent = parent::delete();
 		if($parent !== true) return $parent;
+		
+		if(file_exists($pathToDel.$this->photo))
+			@unlink($pathToDel.$this->photo);
+		
+		return self::deleteMoreInfo($this->id);
+		
+		/*
+		// Nel caso di una directory per ogni utente
+		
+		$pathToDel = $this->_controller->getBasePath().$this->_controller->getAddPath($this->id)
 		
 		if($pathToDel)
 		{
 			$registry = registry::instance();
 			$registry->pub->deleteFileDir($pathToDel);
-		}
-
-		return true;
-	}*/
+		}*/
+	}
 
 }
 

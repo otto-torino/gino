@@ -38,7 +38,20 @@ class AdminTable_AuthUser extends AdminTable {
 	 * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
 	 * @return void
 	 * 
-	 * Personalizzazioni: ...
+	 * Personalizzazioni: \n
+	 *   - @b username_as_email
+	 *   - @b user_more_info
+	 *   - @b aut_password
+	 *   - @b aut_password_length
+	 *   - @b pwd_length_min
+	 *   - @b pwd_length_max
+	 *   - @b pwd_numeric_number
+	 *   
+	 * @see User::checkEmail()
+	 * @see User::checkPassword()
+	 * @see User::checkUsername()
+	 * @see User::setPassword()
+	 * @see User::setMoreInfo()
 	 */
 	public function modelAction($model, $options=array(), $options_element=array()) {
 		
@@ -154,12 +167,9 @@ class AdminTable_AuthUser extends AdminTable {
 		
 		if($update_db && $user_more_info)
 		{
-			//$query2 = "INSERT INTO ".$this->_tbl_user_add." VALUES ($user_id, '".$this->_other_field1."', '".$this->_other_field2."', '".$this->_other_field3."')";
-			//$result2 = $this->_db->actionquery($query2);
+			return User::setMoreInfo($model->id);
 		}
 		else return $update_db;
 		// End
-		
-		//return $model->updateDbData();
 	}
 }

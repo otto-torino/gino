@@ -116,7 +116,7 @@ class Permission extends Model {
 
     $res = array();
 
-    $rows = $db->select('*', TBL_PERMISSION, null, array('order' => 'class, id'));
+    $rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
     foreach($rows as $row) {
       $class = $row['class'];
       $module_app = ModuleApp::getFromName($class);

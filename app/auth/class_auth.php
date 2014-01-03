@@ -205,6 +205,7 @@ class auth extends Controller {
 	/**
 	 * Gestione dell'utente
 	 * 
+	 * @see AdminTable_AuthUser::backoffice()
 	 * @return string
 	 */
 	private function manageUser() {
@@ -279,7 +280,7 @@ class auth extends Controller {
 		$opts_form = array(
 			'removeFields' => $removeFields, 
 			'addCell' => $addCell, 
-			// NEW
+			// Custom options
 			'username_as_email' => $this->_username_as_email, 
 			'user_more_info' => $this->_user_more, 
 			'aut_password' => $this->_aut_pwd, 
@@ -298,7 +299,8 @@ class auth extends Controller {
 				'id'=>'username'
 			), 
 			'userpwd' => array(
-				'text_add'=>$this->passwordRules($id)
+				'text_add'=>$this->passwordRules($id), 
+				'widget'=>'password'
 			), 
 			'firstname' => array(
 				'trnsl'=>false
@@ -318,17 +320,15 @@ class auth extends Controller {
 			'address' => array(
 				'trnsl'=>false
 			), 
+			'cap' => array(
+				'size'=>5
+			), 
 			'city' => array(
 				'trnsl'=>false
 			)
 		);
 
-		/*$admin_table = loader::load('AdminTable', array(
-			$this
-		));*/
-		
 		$admin_table = new AdminTable_AuthUser($this);
-		
 
 		return $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
 	}

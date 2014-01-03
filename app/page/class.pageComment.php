@@ -74,7 +74,7 @@ class PageComment extends Model {
 
 		$structure['published'] = new booleanField(array(
 			'name'=>'published', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
@@ -82,7 +82,7 @@ class PageComment extends Model {
 
 		$structure['notification'] = new booleanField(array(
 			'name'=>'notification', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0, 
@@ -90,7 +90,7 @@ class PageComment extends Model {
 
 		$structure['datetime'] = new datetimeField(array(
 			'name'=>'datetime', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'auto_now'=>false, 
 			'auto_now_add'=>true, 
@@ -98,7 +98,7 @@ class PageComment extends Model {
 
 		$structure['entry'] = new foreignKeyField(array(
 			'name'=>'entry', 
-      'model'=>$this,
+			'model'=>$this,
 			'lenght'=>255, 
 			'foreign'=>'PageEntry', 
 			'foreign_where'=>'instance=\''.$this->_controller->getInstance().'\'', 
@@ -107,7 +107,7 @@ class PageComment extends Model {
 
 		$structure['reply'] = new foreignKeyField(array(
 			'name'=>'reply', 
-      'model'=>$this,
+			'model'=>$this,
 			'lenght'=>255, 
 			'foreign'=>'pageComment', 
 			'foreign_where'=>'entry=\''.$this->entry.'\'', 
