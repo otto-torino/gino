@@ -21,11 +21,15 @@
 /**
  * Percorso assoluto alla root directory
  */
-define('SITE_ROOT', realpath(dirname(__FILE__)));
+define('SITE_ROOT', dirname(realpath(__FILE__)));
 
 $siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT) ? preg_replace("#\\\#", "/", SITE_ROOT) : SITE_ROOT;
-// Rispetto a Linux, in Windows $_SERVER['DOCUMENT_ROOT'] termina con '/'
-$docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SERVER['DOCUMENT_ROOT'], '', -1) : $_SERVER['DOCUMENT_ROOT'];
+
+// Per compatibilità con l'ambiente Windows (-> $_SERVER['DOCUMENT_ROOT'] termina con '/')
+$docroot = preg_match("#^[a-zA-Z][:\\\]+#", $_SERVER['DOCUMENT_ROOT']) ? preg_replace("#\\\#", "/", $_SERVER['DOCUMENT_ROOT']) : $_SERVER['DOCUMENT_ROOT'];
+$docroot = (substr($docroot, -1) == '\\') ? substr_replace($docroot, '', -1) : $docroot;
+
+//$docroot = (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') ? substr_replace($_SERVER['DOCUMENT_ROOT'], '', -1) : $_SERVER['DOCUMENT_ROOT'];	// only MySQL
 
 /**
  * Percorso relativo dell'applicazione a partire dalla root directory
@@ -38,17 +42,28 @@ define('SITE_WWW', preg_replace("#".preg_quote($docroot)."?#", "", $siteroot));
 include('settings.php');
 
 /**
- * Include la classe singleton
+ * Include le costanti utilizzate da tutto il sistema
  */
-include(LIB_DIR.OS."singleton.php");
+include_once(LIB_DIR.OS."const.php");
+/**
+ * Include funzioni utilizzate da tutto il sistema
+ */
+include_once(LIB_DIR.OS."func.php");
 
 /**
- * Include la classe session
+ * Include la classe utilizzata per caricare classi di sistema e modelli. I controller sono caricati in maniera automatica
  */
-include(LIB_DIR.OS."session.php");
+include(CLASSES_DIR.OS."class.Loader.php");
 
 /**
- * Include il file definito nella variabile CORE
+ * core dell'applicazione
  */
-include(CORE);
-?>
+$core = loader::load('Core');
+
+/**
+ * Include la libreria per la cattura di chiamate ajax
+ */
+include(LIB_DIR.OS.'methodPointer.php');
+
+// renderizza il documento
+$core->renderApp();

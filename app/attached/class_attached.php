@@ -18,7 +18,7 @@ require_once('class.attachedCtg.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class attached extends AbstractEvtClass {
+class attached extends Controller {
 
   /**
    * @brief titolo del modulo
@@ -29,11 +29,6 @@ class attached extends AbstractEvtClass {
    * @brief numero di allegati mostrati per pagina
    */
   private $_items_for_page;
-
-  /**
-   * @brief gruppo degli assistenti
-   */
-  private $_group_1;
 
   /**
    * @brief estensioni associate a icone immagini
@@ -68,12 +63,6 @@ class attached extends AbstractEvtClass {
 
     parent::__construct();
 
-    $this->_instance = 0;
-    $this->_instanceName = $this->_className;
-
-    $this->setAccess();
-    $this->setGroups();
-
     $this->_title = _('Allegati');
     $this->_items_for_page = 30;
 
@@ -88,59 +77,52 @@ class attached extends AbstractEvtClass {
 
   }
 
-  /**
-   * Gruppi per accedere alle funzionalità del modulo
-   *
-   * @b _group_1: assistenti
-   */
-  private function setGroups(){
+	/**
+	 *  @bries Percorso assoluto alla directory dei contenuti
+	 *  
+	 *  @return percorso assoluto alla directory dei contenuti
+	 */
+	public function getDataDir() {
+		
+		return $this->_data_dir;
+	}
+	
+	/**
+	 *  @bries Percorso relativo alla directory dei contenuti
+	 *  
+	 *  @return percorso relativo alla directory dei contenuti
+	 */
+	public function getDataWWW() {
+		
+		return $this->_data_www;
+	}
 
-    // Gestione file
-    $this->_group_1 = array($this->_list_group[0], $this->_list_group[1]);
-  }
+	/**
+	 * @brief Avvia il downolad il un allegato
+	 *
+	 * @return void
+	 */
+	public function downloader(){
 
-  /**
-   *  @bries Percorso assoluto alla directory dei contenuti
-   *  @return percorso assoluto alla directory dei contenuti
-   */
-  public function getDataDir() {
-    return $this->_data_dir;
-  }
+		$doc_id = cleanVar($_GET, 'id', 'int', '');
+		$db = db::instance();
 
-  /**
-   *  @bries Percorso relativo alla directory dei contenuti
-   *  @return percorso relativo alla directory dei contenuti
-   */
-  public function getDataWWW() {
-    return $this->_data_www;
-  }
+		if($doc_id) {
 
-  /**
-   * @brief Avvia il downolad il un allegato
-   *
-   * @return void
-   */
-  public function downloader(){
+			$rows = $db->select('category, file', attachedItem::$tbl_item, "id='$doc_id'", array('limit'=>array(0, 1)));
+			if($rows and count($rows)) {
+				$category = $rows[0]['category'];
+				$ctg = new attachedCtg($category, $this);
+				$filename = $rows[0]['file'];
+				$full_path = $ctg->path('abs').$filename;
 
-    $doc_id = cleanVar($_GET, 'id', 'int', '');
-    $db = db::instance();
+				download($full_path);
+				exit();
+			}
+		}
 
-    if($doc_id) {
-
-      $rows = $db->select('category, file', attachedItem::$tbl_item, "id='$doc_id'", null, array(0, 1));
-      if($rows and count($rows)) {
-        $category = $rows[0]['category'];
-        $ctg = new attachedCtg($category, $this);
-        $filename = $rows[0]['file'];
-        $full_path = $ctg->path('abs').$filename;
-
-        download($full_path);
-        exit();
-      }
-    }
-
-    exit();
-  }
+		exit();
+	}
 
   /**
    * @brief interfaccia backoffice del modulo
@@ -148,14 +130,13 @@ class attached extends AbstractEvtClass {
    */
   public function manageAttached() {
 
-    $this->accessGroup('ALL');
+    $this->requirePerm('can_admin');
+
+    Loader::import('class', 'AdminTable');
 
     $method = 'manageAttached';
-    $htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-    $link_admin = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=permissions\">"._("Permessi")."</a>";
-    $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instanceName-$method]&block=ctg\">"._("Categorie")."</a>";
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instanceName."-$method]\">"._("File")."</a>";
-
+    $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=ctg\">"._("Categorie")."</a>";
+    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-$method]\">"._("File")."</a>";
     $sel_link = $link_dft;
 
     // Variables
@@ -163,11 +144,7 @@ class attached extends AbstractEvtClass {
     $start = cleanVar($_GET, 'start', 'int', '');
     // end
 
-    if($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-      $buffer = sysfunc::managePermissions($this->_instance, $this->_className);
-      $sel_link = $link_admin;
-    }
-    elseif($this->_block == 'ctg') {
+    if($this->_block == 'ctg') {
       $buffer = $this->manageCategory();
       $sel_link = $link_ctg;
     }
@@ -175,19 +152,15 @@ class attached extends AbstractEvtClass {
       $buffer = $this->manageItem();
     }
 
-    // groups privileges
-    if($this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-      $links_array = array($link_admin, $link_ctg, $link_dft);
-    }
-    else {
-      $links_array = array($link_ctg, $link_dft);
-    }
+    $dict = array(
+      'title' => $this->_title,
+      'links' => array($link_ctg, $link_dft),
+      'selected_link' => $sel_link,
+      'content' => $buffer
+    );
 
-    $htmltab->navigationLinks = $links_array;
-    $htmltab->selectedLink = $sel_link;
-    $htmltab->htmlContent = $buffer;
-
-    return $htmltab->render();
+    $view = new view(null, 'tab');
+    return $view->render($dict);
 
   }
 
@@ -219,32 +192,32 @@ class attached extends AbstractEvtClass {
 
   }
 
-  /**
-   * @brief Interfaccia di amministrazione dei file
-   * @return backoffice file
-   */
-  private function manageItem() {
+	/**
+	 * @brief Interfaccia di amministrazione dei file
+	 * 
+	 * @see attachedItemAdminTable::backOffice()
+	 * @return backoffice file
+	*/
+	private function manageItem() {
 
-    require_once('class.attachedItemAdminTable.php');
+		require_once('class.attachedItemAdminTable.php');
 
-    $admin_table = new attachedItemAdminTable($this, array());
+		$admin_table = new attachedItemAdminTable($this, array());
 
-    $buffer = $admin_table->backOffice(
-      'attachedItem', 
-      array(
-        'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date'),
-        'list_title' => _("Elenco files"), 
-        'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne efettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
-        'filter_fields' => array('category', 'notes')
-      ),
-      array(
-      ),
-      array()
-    );
+		$buffer = $admin_table->backOffice(
+			'attachedItem', 
+			array(
+				'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date'),
+				'list_title' => _("Elenco files"), 
+				'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne efettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
+				'filter_fields' => array('category', 'notes')
+			),
+			array(),
+			array()
+		);
 
-    return $buffer;
-
-  }
+		return $buffer;
+	}
 
   /**
    * @brief Interfaccia per l'inserimento di allegati all'interno dell'edito CKEDITOR
@@ -252,13 +225,12 @@ class attached extends AbstractEvtClass {
    */
   public function editorList() {
 
-    $buffer = "";
-    $myform = new form('attached_list', 'post', false, array('tblLayout'=>false));
+    $myform = Loader::load('Form', array('attached_list', 'post', false, array('tblLayout'=>false)));
 
     $ctgs = attachedCtg::getForSelect($this);
 
-    $onchange = "ajaxRequest('post', '".$this->_home."?pt[".$this->_className."-editorAttachedList]', 'ctg_id='+$(this).value, 'attached_table', {'load': 'attached_table'})";
-    $buffer .= "
+    $onchange = "gino.ajaxRequest('post', '".$this->_home."?pt[".$this->_class_name."-editorAttachedList]', 'ctg_id='+$(this).value, 'attached_table', {'load': 'attached_table'})";
+    $buffer = "
       <p class=\"attached-filter-ctg\">
         <label for=\"attached_ctg\">"._('Seleziona la categoria ')."</label>
         ".$myform->select('attached_ctg', '', $ctgs, array(
@@ -268,7 +240,7 @@ class attached extends AbstractEvtClass {
           'firstVoice' => _('tutte le categorie'),
           'firstValue' => 0
         ))."
-        <span class=\"right link\" onclick=\"$('attached-list-help').toggleClass('hidden')\">".pub::icon('help', _('Informazioni'))."</span>
+        <span class=\"right link\" onclick=\"$('attached-list-help').toggleClass('hidden')\">".pub::icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
       </p>";
 
     $buffer .= "<div id=\"attached-list-help\" class=\"hidden\">";
@@ -307,7 +279,7 @@ class attached extends AbstractEvtClass {
     $items = attachedItem::get($this, array('where' => $where));
 
     $buffer = "
-      <table class=\"generic\">
+      <table class=\"table table-striped table-bordered\">
         <tr>
           <th>"._('Categoria')."</th>
           <th>"._('File')."</th>

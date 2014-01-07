@@ -1,5 +1,5 @@
 @charset "utf-8";
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 5px; }
 html {
 	background: -moz-linear-gradient(center top , #7E7E7E, #CDCDCD) no-repeat scroll 0 0 #CDCDCD;
 	background-image: -webkit-linear-gradient(#7E7E7E, #CDCDCD);
@@ -8,7 +8,7 @@ html {
 	height:100%;
 }
 body {
-	font: normal 12px/17px Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font: normal 75%/180% Verdana, Geneva, Arial, Helvetica, sans-serif;
 	background: transparent url('../graphics/body_bkg.png') no-repeat 10px 140px;
 	text-align: center;
 	color: #333;
@@ -236,65 +236,65 @@ ul.admin li.selected {
 /*
 TAB
 */
-div.tabContainer { margin: 10px 0px;} /* left-right margin affects IE <= 7 behaviour */
-div.tabTop {
+div.tab-container { margin: 10px 0px;} /* left-right margin affects IE <= 7 behaviour */
+div.tab-top {
 	font-size:12px;
 	background: url('../img/linea.jpg') bottom center no-repeat;
 }
-div.tabContent {
+div.tab-content {
 	border-bottom:1px solid #333;
 	border-left:1px solid #333;
 	border-right:1px solid #333;
 	padding: 5px;
 }
-.tabContent header a.selected {
+.tab-content header a.selected {
 	background: transparent;
 	color: #ddfd04 !important;
 }
-div.tabExt {
+div.tab-ext {
 	background-image: url('../img/tab_ext_left.png');
 	background-position: top right;
 	background-repeat:no-repeat;
 }
-div.tabInt {
+div.tab-int {
 	background-image: url('../img/tab_int_left.png');
 	background-position: top left;
 	background-repeat:no-repeat;
 	padding: 6px 0px 5px 15px;
 	margin-right:15px;
 }
-div.extSelected {
+div.tab-ext-selected {
 	background-image: url('../img/tab_ext_left_sel.png');
 }
 
-div.intSelected {
+div.tab-int-selected {
 	background-image: url('../img/tab_int_left_sel.png');
 	padding-bottom: 6px;
 }
 
-div.tabInt a:link, div.tabInt a:visited {
+div.tab-int a:link, div.tabInt a:visited {
 	color: #666;
 	text-decoration: none;
 }
-div.tabInt a:hover {
+div.tab-int a:hover {
 	color: #000;
 	text-decoration: underline;
 }
 
-div.intSelected a:link, div.intSelected a:visited {
+div.tab-int-selected a:link, div.tab-int-selected a:visited {
 	color: #000;
 	text-decoration: none;
 }
 
-.tabTitle {
+.tab-title {
 	font-weight: bold;
 	padding: 4px 8px;
 	letter-spacing: 2px;
 	
 
 }
-.tabImgLeft { /*background:url('../img/title_marker_sx.png');background-repeat: no-repeat;background-position: left top*/ }
-.tabImgRight { /*background:url('../img/title_marker_dx.png');background-repeat: no-repeat;background-position: right top*/ }
+.tab-img-left { /*background:url('../img/title_marker_sx.png');background-repeat: no-repeat;background-position: left top*/ }
+.tab-img-right { /*background:url('../img/title_marker_dx.png');background-repeat: no-repeat;background-position: right top*/ }
 
 /*
 INPUT
@@ -347,64 +347,21 @@ input.generic {
 /*
 FORM
 */
-table.formTbl {
-	width:100%;
-	margin: auto;
+label {
+  padding: 5px;
+  display: inline-block;
+  width: 200px;
 }
-table.formTbl td {
-	border:1px solid #999;
-	padding: 5px;
-
+label:before {
+  content: ' ';
 }
-td.form_label {
-	background-color: #e1e0e0;
+label.req {
+  font-weight: bold;
 }
-div[id^=addblocks_form] td.form_label {
-	background-color: #FFCC00;
-}
-.form_text_label {
-	color: #000000;
-	font-weight: bold;
-}
-.form_text_label_exp {
-	color: #000000;
-	font-weight: normal;
-	font-style:italic;
-}
-.form_star {
-	color: #ff0000;
-	font-weight: bold;
-}
-label.req2 {
-	background: url('../img/ico_alert.png');
-	background-repeat: no-repeat;
-	padding-left:26px;
-	padding-top:2px;
-	padding-bottom:2px;
-}
-td.form_field {
-	background-color: #fff;
+input, select {
+  padding: display: inline-block;
 }
 
-.form_field_noinput {
-	background-color: #f1efef;
-}
-
-.form_fck {
-	background-color: #e1e0e0;
-}
-table.formFileView td {
-	border: 0px solid #000;
-}
-table.formTbl td.formCell {
-	padding:0;
-	border: 0px solid #999;
-}
-.formErrMsg {
-	color:#ff0000;
-	font-weight:bold;
-	margin:0 0 5px;
-}
 /* translations */
 .trnsl_lng {
 	background-color:#eee;
@@ -427,7 +384,7 @@ POSITION STYLES
 */
 .left { float:left }
 .right { float:right }
-.null { clear:both }
+.null, .clear { clear:both }
 /*
 GENERAL STYLES
 */
@@ -507,9 +464,9 @@ div.abiWin {
 	padding: 5px;
 	background-color: #e7e7e7;
   background: linear-gradient(to bottom, #ddd, #eee);
-	border: 1px solid #000;
+	border: 1px solid #aaa;
 	z-index: 10000;
-  box-shadow: 0px 0px 10px #333;
+  box-shadow: 0px 0px 10px #999;
 }
 
 div.abiWin header.abiHeader {

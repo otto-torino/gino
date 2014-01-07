@@ -9,19 +9,32 @@
  */
 
 /**
- * Funzione di sostituzione per Microsoft SQL Server
+ * Converte l'encoding di un valore preso da un campo di un database (non UTF-8) nella codifica UTF-8
  * 
- * @todo verificare se serve
- * 
- * @param string $string_to_escape
+ * @param string $value valore da convertire
  * @return string
  */
-function mssql_escape_string($string_to_escape)
+function convertToHtml($value)
 {
-	$replaced_string = str_replace("'","''",$string_to_escape);
-	$replaced_string = str_replace("\0","[NULL]",$replaced_string);
+	$value = mb_detect_encoding($value, mb_detect_order(), true) === 'UTF-8' ? $value : mb_convert_encoding($value, 'UTF-8');
 	
-	return $replaced_string;
+	return $value;
+}
+
+/**
+ * Converte l'encoding di un valore da html (es UTF-8) a un encoding valido per il database 
+ * 
+ * @param string $value valore da convertire
+ * @param string $character_set set di caratteri del database
+ *   - @a CP1252, per SQL Server
+ * @return string
+ */
+function convertToDatabase($value, $character_set=null)
+{
+	if(!is_null($character_set))
+		$value = mb_convert_encoding($value, $character_set, mb_detect_encoding($value, mb_detect_order(), true));
+	
+	return $value;
 }
 
 /**
@@ -289,7 +302,10 @@ function clean_sequence($text, $strip_tags, $options){
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
 	
 	if($escape)
-		$text = mysql_real_escape_string($text);
+	{
+		$db = db::instance();
+		$text = $db->escapeString($text);
+	}
 	
 	return $text;
 }
@@ -321,7 +337,9 @@ function cleanVarEditor($method, $name, $strip_tags)
 
 		$value = replaceChar($value);
 		$value = stripAll($value);
-		$value = mysql_real_escape_string($value);
+		
+		$db = db::instance();
+		$value = $db->escapeString($value);
 	}
 	else
 	{
@@ -331,15 +349,34 @@ function cleanVarEditor($method, $name, $strip_tags)
 }
 
 /**
+ * Conversione dei dati Unicode $_GET/$_POST, generati dalla funzione javascript escape(), in UTF8 per il processo server-side
+ * 
+ * @param string $str
+ * @return string
+ */
+function utf8_urldecode($str) {
+	
+	$str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;", urldecode($str));
+	$str = html_entity_decode($str, null, 'UTF-8');
+	
+	return $str;
+}
+
+/**
  * Prepara il testo da inserire nel database senza rimuovere il codice html
  * 
  * @param string $text testo
  * @return string
  */
-function codeDb($text) {
+function codeDb($text) {	
+	
 	if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
 	$text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
-	return mysql_real_escape_string($text);
+	
+	$db = db::instance();
+	$text = $db->escapeString($text);
+	
+	return $text;
 }
 
 /**
@@ -390,6 +427,8 @@ function codeToDB($method, $name, $options=array()){
 function htmlChars($string, $id='', $options=array())
 {
 	$newline = array_key_exists('newline', $options) ? $options['newline'] : false;
+	
+	$string = convertToHtml($string);
 	
 	$string = trim($string);
 	$string = stripslashes($string);
@@ -532,6 +571,8 @@ function slimboxReplace($string, $id) {
  */
 function htmlCharsText($string)
 {
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	// CSS2
 	$string = str_replace ('&', '&amp;', $string);
@@ -556,6 +597,8 @@ function htmlInput($string)
 	if(is_null($string))
 		return null;
 	
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = replaceChar($string);
@@ -573,6 +616,8 @@ function htmlInput($string)
  */
 function htmlInputEditor($string)
 {
+	$string = convertToHtml($string);
+	
 	$string = trim($string);
 	$string = stripslashes($string);
 	$string = str_replace ('rel="external"', 'target="_blank"', $string);
@@ -634,6 +679,23 @@ function jsVar($string, $newline=false)
 	$string = str_replace("\"","\'",$string);
 	
 	return $string;
+}
+
+/**
+ * Da utilizzare per il testo che deve essere racchiuso in attributi html
+ * 
+ * @param string $string
+ * @return string
+ */
+function attributeVar($string)
+{
+  $string = str_replace("\n",'',$string);
+  $string = str_replace("\r",'',$string);
+  $string = str_replace("\t",'',$string);
+  $string = str_replace("&#039;",'\\\'',$string);
+  $string = str_replace("\"","\'",$string);
+
+  return $string;
 }
 
 /**

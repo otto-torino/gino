@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.pageCategory.php
- * Contiene la definizione ed implementazione della classe pageCategory.
+ * Contiene la definizione ed implementazione della classe PageCategory.
  * 
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageCategory extends propertyObject {
+class PageCategory extends Model {
 
 	private $_controller;
 	public static $_tbl_item = "page_category";
@@ -27,11 +27,10 @@ class pageCategory extends propertyObject {
 	 * Costruttore
 	 * 
 	 * @param integer $id valore ID del record
-	 * @param object $instance oggetto dell'istanza
 	 */
-	function __construct($id, $instance) {
+	function __construct($id) {
 		
-		$this->_controller = $instance;
+		$this->_controller = new page();
 		$this->_tbl_data = self::$_tbl_item;
 		
 		$this->_fields_label = array(
@@ -41,7 +40,7 @@ class pageCategory extends propertyObject {
 		
 		parent::__construct($id);
 		
-		$this->_model_label = $this->id ? $this->name : null;
+		$this->_model_label = $this->id ? $this->name : '';
 	}
 	
 	/**

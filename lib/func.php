@@ -14,11 +14,6 @@
 include(LIB_DIR.OS.'func.var.php');
 
 /**
- * Include la libreria per l'identificazione di un dispositivo mobile
- */
-include(LIB_DIR.OS.'Mobile_Detect.php');
-
-/**
  * Ricava il percorso relativo a partire da un percorso assoluto
  * 
  * @param string $abspath percorso assoluto
@@ -42,6 +37,28 @@ function relativePath($abspath) {
 function gOpt($opt_name, $opt_array, $default) {
 
 	return isset($opt_array[$opt_name]) ? $opt_array[$opt_name] : $default;
+}
+
+/**
+ * Trasforma un array in un oggetto
+ * 
+ * @param array $array
+ * @return object
+ */
+function arrayToObject($array) {
+	
+	$object = new stdClass();
+	if (is_array($array) && count($array) > 0)
+	{
+		foreach ($array as $name=>$value)
+		{
+			$name = strtolower(trim($name));
+			if(!empty($name)) {
+				$object->$name = $value;
+			}
+		}
+	}
+	return $object;
 }
 
 /**
@@ -285,7 +302,7 @@ function dbNumberToNumber($number, $decimals=2)
 }
 
 /**
- * Formatta un numero per il database. Con MySQL il separatore dei decimali è il '.'
+ * Formatta un numero per il database (il separatore decimale è il punto)
  * 
  * @param string $number numero
  * @return float

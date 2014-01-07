@@ -8,9 +8,6 @@
  * @author abidibo abidibo@gmail.com
  */
 
-// Include la libreria per le ricerche full text
-require_once(CLASSES_DIR.OS."class.search.php");
-
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
  * 
@@ -18,7 +15,7 @@ require_once(CLASSES_DIR.OS."class.search.php");
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class searchSite extends AbstractEvtClass {
+class searchSite extends Controller {
 
 	private $_optionsValue;
 	private $_options;
@@ -32,11 +29,6 @@ class searchSite extends AbstractEvtClass {
 	
 		parent::__construct();
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
-
 		$this->_template = htmlChars($this->setOption('template', true));
 		$this->_sys_mdl = $this->setOption('sys_mdl') ? $this->setOption('sys_mdl') : '';
 		$this->_inst_mdl = $this->setOption('inst_mdl') ? $this->setOption('inst_mdl') : '';
@@ -46,7 +38,7 @@ class searchSite extends AbstractEvtClass {
 		
 		);
 		
-		$this->_options = new options($this->_className, $this->_instance);
+		$this->_options = Loader::load('Options', array($this->_class_name, $this->_instance));
 		$this->_optionsLabels = array(
 			"template"=>array("label"=>array(_("Template"), _("{FIELD}: campo di ricerca<br />{BUTTON}: pulsante di ricerca<br />{CHECK}: selezione moduli da ricercare")), "required"=>false),
 			"sys_mdl"=>array("label"=>array(_("Moduli di sistema"), _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")), "required"=>false),
@@ -67,7 +59,7 @@ class searchSite extends AbstractEvtClass {
 	public static function outputFunctions() {
 
 		$list = array(
-			"form" => array("label"=>_("Visualizza il form di ricerca"), "role"=>'1')
+			"form" => array("label"=>_("Visualizza il form di ricerca"), "permissions"=>array())
 		);
 
 		return $list;
@@ -80,30 +72,31 @@ class searchSite extends AbstractEvtClass {
 	 */
 	public function manageSearchSite() {
 	
-		$this->accessGroup('ALL');
+		$this->requirePerm('can_admin');
 		
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>$this->_title));	
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_className-manageSearchSite]&block=permissions\">"._("Permessi")."</a>";
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_className-manageSearchSite]&block=options\">"._("Opzioni")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageSearchSite]\">"._("Gestione")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=options\">"._("Opzioni")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSearchSite]\">"._("Informazioni")."</a>";
 		$sel_link = $link_dft;
 
 		if($this->_block == 'options') {
-			$GINO = sysfunc::manageOptions($this->_instance, $this->_className);		
+			$GINO = $this->manageOptions();		
 			$sel_link = $link_options;
-		}
-		elseif($this->_block == 'permissions') {
-			$GINO = sysfunc::managePermissions($this->_instance, $this->_className);		
-			$sel_link = $link_admin;
 		}
 		else {
 			$GINO = $this->info();
 		}
 		
-		$htmltab->navigationLinks = array($link_admin, $link_options, $link_dft);
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $GINO;
-		return $htmltab->render();
+    $dict = array(
+      'title' => $this->_title,
+      'links' => array($link_options, $link_dft),
+      'selected_link' => $sel_link,
+      'content' => $GINO
+    );
+
+    $view = new view();
+    $view->setViewTpl('tab');
+
+    return $view->render($dict);
 	}
 
 	/**
@@ -113,9 +106,7 @@ class searchSite extends AbstractEvtClass {
 	 */
 	public function form() {
 
-		$htmlsection = new htmlSection(array('id'=>"searchSite_form",'class'=>'public', 'headerTag'=>'h1', 'headerLabel'=>_("Ricerca nel sito")));
-	
-		$gform = new Form('search_site_form', 'post', true, array('tblLayout'=>false));
+		$gform = Loader::load('Form', array('search_site_form', 'post', true, array('tblLayout'=>false)));
 		$gform->load('dataform');
 
 		$registry = registry::instance();
@@ -123,7 +114,7 @@ class searchSite extends AbstractEvtClass {
 		$registry->addJs($this->_class_www."/searchSite.js");
 		
 		$required = '';
-		$buffer = $gform->form($this->_home."?evt[".$this->_className."-results]", '', $required);
+		$buffer = $gform->open($this->_home."?evt[".$this->_class_name."-results]", '', $required);
 		$field = "<input type=\"text\" name=\"search_site\" id=\"search_site\"/>";
 		$button = "<input type=\"submit\" id=\"search_site_submit\" value=\" \" />";
 		
@@ -138,11 +129,15 @@ class searchSite extends AbstractEvtClass {
 		}
 
 		$buffer .= $this->checkOptions();
-		$buffer .= $gform->cform();
+		$buffer .= $gform->close();
 
-    $htmlsection->content = $buffer;
+    $view = new view(null, 'section');
+    $dict = array(
+      'title' => _("Ricerca nel sito"),
+      'content' => $buffer
+    );
 
-		return $htmlsection->render();
+    return $view->render($dict);
 	}
 
 	private function checkOptions() {
@@ -183,6 +178,8 @@ class searchSite extends AbstractEvtClass {
 	 * @return string
 	 */
 	public function results() {
+
+    Loader::import('class', 'Search');
 
 		$keywords = cleanVar($_POST, 'search_site', 'string', '');
 		$keywords = cutHtmlText($keywords, 500, '', true, false, true);
@@ -240,32 +237,33 @@ class searchSite extends AbstractEvtClass {
 		$title = _("Ricerca")." \"$keywords\"";
 		$name_result = $tot_results == 1 ? _("risultato") : _("risultati");
 		$right_title = $tot_results." ".$name_result;
-		$htmlsection = new htmlSection(array('id'=>"searchSite",'class'=>'public', 'headerTag'=>'header', 'headerLabel'=>$title, 'headerLinks'=>$right_title));
 
 		if($tot_results) {
-			$htmlList = new htmlList(array("numItems"=>sizeof($final_results), "separator"=>true));
-
-			$buffer .= $htmlList->start();
+      $buffer .= "<div class=\"search-results\">";
 			foreach($order_results as $k=>$point) {
 				$fr = $final_results[$k];
 				if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
 				else $obj = new $fr['class']();
-				$buffer .= $htmlList->item($obj->searchSiteResult($fr), array(), false, true);
+				$buffer .= $obj->searchSiteResult($fr);
 			}
-			$buffer .= $htmlList->end();
+			$buffer .= "</div>";
 		}
 		else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
 
-		$htmlsection->content = $buffer;
 
-		return $htmlsection->render();
+    $view = new view(null, 'section');
+    $dict = array(
+      'title' => $title,
+      'header_links' => $right_title,
+      'content' => $buffer
+    );
+
+    return $view->render($dict);
 	}
 
 	public function info() {
 	
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modulo di ricerca nel sito")));
-
-		$buffer = "<p>"._("Il modulo mette a disposizione una interfaccia di ricerca nel sito.")."</p>";
+		$buffer = "<p>"._("Il modulo mette a disposizione un'interfaccia di ricerca nel sito.")."</p>";
 		$buffer .= "<p>"._("Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello di default, e indicare i valori ID dei moduli (di sistema e non) che si vogliono includere nella ricerca.")."</p>";
 		$buffer .= "<p>"._("Per poter funzionare occorre")."</p>";
 		$buffer .= "<ul>";
@@ -273,9 +271,14 @@ class searchSite extends AbstractEvtClass {
 		$buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
 		$buffer .= "</ul>";
 
-		$htmlsection->content = $buffer;
+    $view = new view(null, 'section');
+    $dict = array(
+      'title' => _("Modulo di ricerca nel sito"),
+      'class' => 'admin',
+      'content' => $buffer
+    );
 
-		return $htmlsection->render();
+    return $view->render($dict);
 	}
 }
 

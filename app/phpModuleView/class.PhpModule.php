@@ -15,7 +15,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class PhpModule extends propertyObject {
+class PhpModule extends Model {
 
 	protected $_tbl_data;
 	public static $_tbl_php_mdl = 'php_module';
@@ -76,22 +76,46 @@ class PhpModule extends propertyObject {
 	 */
 	public function formPhpModule() {
 
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica codice")));
-		$gform = new Form('gform', 'post', true);
+		$this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
+		$this->_registry->addCss(CSS_WWW."/codemirror.css");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
+    $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
+
+    $options = "{
+      lineNumbers: true,
+      matchBrackets: true,
+      mode: \"application/x-httpd-php\",
+      indentUnit: 4,
+      indentWithTabs: true,
+      enterMode: \"keep\",
+      tabMode: \"shift\"
+    }";
+
+		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 	
 		$required = 'content';
-		$buffer = $gform->form($this->_home."?evt[".$this->_interface."-manageDoc]&action=save", '', $required, array("generateToken"=>true));
+		$buffer = $gform->open($this->_home."?evt[".$this->_interface."-manageDoc]&action=save", '', $required, array("generateToken"=>true));
 
 		$content = $this->content? $this->content:"\$buffer = '';";
-		$buffer .= $gform->ctextarea('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("cols"=>'96%', "rows"=>30));
+		$buffer .= $gform->ctextarea('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("id"=>"codemirror", "required"=> true, "other"=>"style=\"width: 95%\"", "rows"=>30));
 
 		$buffer .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
-		$buffer .= $gform->cform();
+		$buffer .= $gform->close();
 
-		$htmlsection->content = $buffer;
+    $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
-		return $htmlsection->render();
+    $view =   new View(null, 'section');
+    $dict = array(
+      'title' => _('Modifica codice'),
+      'class' => 'admin',
+      'content' => $buffer
+    );
+    return $view->render($dict);
 	}
 
 	/**
@@ -99,11 +123,11 @@ class PhpModule extends propertyObject {
 	 */
 	public function actionPhpModule() {
 		
-		$gform = new Form('gform', 'post', false, array("verifyToken"=>true));
+		$gform = Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
-		$content = mysql_real_escape_string(htmlspecialchars_decode($_POST['content']));
+		$content = $this->_db->escapeString(htmlspecialchars_decode($_POST['content']));
 		
 		$link_error = $this->_home."?evt[$this->_interface-manageDoc]&action=modify";
 
@@ -114,6 +138,7 @@ class PhpModule extends propertyObject {
 		$this->updateDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageDoc]");
+    exit();
 	}
 }
 ?>

@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.8
+-- version 3.5.5
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generato il: 01 mar, 2013 at 11:49 AM
--- Versione MySQL: 5.1.48
--- Versione PHP: 5.3.15
+-- Generation Time: Dec 10, 2013 at 05:19 PM
+-- Server version: 5.5.34-0ubuntu0.13.04.1
+-- PHP Version: 5.4.9-4ubuntu2.3
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `attached` (
 INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
 (1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
-(3, 1, 'github.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
+(3, 1, 'brightness_controller.png', '', '2013-04-03 16:20:37', '2013-12-06 16:51:55'),
 (4, 1, 'plugin.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37');
 
 -- --------------------------------------------------------
@@ -63,47 +64,204 @@ CREATE TABLE IF NOT EXISTS `attached_ctg` (
 --
 
 INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
-(1, 'various', 'c1');
+(1, 'various m a', 'c1');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_grp`
+-- Table structure for table `auth_group`
 --
 
-CREATE TABLE IF NOT EXISTS `attached_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
+CREATE TABLE IF NOT EXISTS `auth_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `description` text,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `attached_grp`
+-- Dumping data for table `auth_group`
 --
 
-INSERT INTO `attached_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono gli allegati.', 'no');
+INSERT INTO `auth_group` (`id`, `name`, `description`) VALUES
+(1, 'gruppo cippo', NULL),
+(2, 'gruppo pippo', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_usr`
+-- Table structure for table `auth_group_perm`
 --
 
-CREATE TABLE IF NOT EXISTS `attached_usr` (
+CREATE TABLE IF NOT EXISTS `auth_group_perm` (
   `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
+  `group_id` smallint(6) NOT NULL,
+  `perm_id` smallint(6) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_group_user`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_group_user` (
+  `group_id` smallint(6) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_opt`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_opt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `instance` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `users_for_page` smallint(3) NOT NULL,
+  `user_more_info` tinyint(1) NOT NULL,
+  `user_card_view` tinyint(1) NOT NULL,
+  `self_registration` tinyint(1) NOT NULL,
+  `self_registration_active` tinyint(1) NOT NULL,
+  `username_as_email` tinyint(1) NOT NULL,
+  `aut_pwd` tinyint(1) NOT NULL,
+  `aut_pwd_length` smallint(2) NOT NULL,
+  `pwd_min_length` smallint(2) NOT NULL,
+  `pwd_max_length` smallint(2) NOT NULL,
+  `pwd_numeric_number` int(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `auth_opt`
+--
+
+INSERT INTO `auth_opt` (`id`, `instance`, `title`, `users_for_page`, `user_more_info`, `user_card_view`, `self_registration`, `self_registration_active`, `username_as_email`, `aut_pwd`, `aut_pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_numeric_number`) VALUES
+(1, 0, 'Utenti', 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments`
+-- Table structure for table `auth_permission`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `class` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `description` text,
+  `admin` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+
+--
+-- Dumping data for table `auth_permission`
+--
+
+INSERT INTO `auth_permission` (`id`, `class`, `code`, `label`, `description`, `admin`) VALUES
+(3, 'attached', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
+(6, 'instruments', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(7, 'instruments', 'can_view', 'visualizzazione', 'visualizzazione degli strumenti', 1),
+(8, 'language', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(9, 'page', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(10, 'page', 'can_publish', 'pubblicazione', 'Pubblicazione di pagine e commenti e redazione contenuti', 1),
+(11, 'page', 'can_edit', 'redazione', 'redazione dei contenuti', 1),
+(12, 'page', 'can_view_private', 'visualizzazione pagine private', 'visualizzazione di pagine che sono state salvate come private', 0),
+(13, 'phpModuleView', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(14, 'searchSite', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(15, 'sysConf', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(16, 'graphics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(17, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(18, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(19, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
+(20, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(1, 'core', 'is_logged', 'login effettuato', 'Utente che ha effettuato il login', 0),
+(2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_user`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `firstname` varchar(50) NOT NULL DEFAULT '',
+  `lastname` varchar(50) NOT NULL DEFAULT '',
+  `company` varchar(100) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `fax` varchar(30) DEFAULT NULL,
+  `email` varchar(100) NOT NULL DEFAULT '',
+  `username` varchar(50) NOT NULL,
+  `userpwd` varchar(100) NOT NULL,
+  `is_admin` tinyint(1) NOT NULL DEFAULT '0',
+  `address` varchar(200) DEFAULT NULL,
+  `cap` int(5) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `nation` smallint(4) DEFAULT NULL,
+  `text` text,
+  `photo` varchar(50) DEFAULT NULL,
+  `publication` tinyint(1) NOT NULL DEFAULT '0',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `active` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `auth_user`
+--
+
+INSERT INTO `auth_user` (`id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `is_admin`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `publication`, `date`, `active`) VALUES
+(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'via Mazzini 37', 10123, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_user_add`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_user_add` (
+  `user_id` int(11) NOT NULL,
+  `field1` tinyint(1) NOT NULL DEFAULT '0',
+  `field2` tinyint(1) NOT NULL DEFAULT '0',
+  `field3` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_user_perm`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_user_perm` (
+  `instance` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `perm_id` smallint(6) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_user_registration`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_user_registration` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `session` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `instruments`
 --
 
 CREATE TABLE IF NOT EXISTS `instruments` (
@@ -115,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `instruments`
+-- Dumping data for table `instruments`
 --
 
 INSERT INTO `instruments` (`id`, `name`, `description`, `order_list`) VALUES
@@ -125,111 +283,71 @@ INSERT INTO `instruments` (`id`, `name`, `description`, `order_list`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments_grp`
---
-
-CREATE TABLE IF NOT EXISTS `instruments_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `instruments_grp`
---
-
-INSERT INTO `instruments_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'utilizzatori', 'Visualizzano gli strumenti', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `instruments_opt`
+-- Table structure for table `instruments_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `instruments_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(200) NOT NULL,
+  `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Dump dei dati per la tabella `instruments_opt`
---
-
-
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `instruments_usr`
---
-
-CREATE TABLE IF NOT EXISTS `instruments_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `instruments_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `language`
+-- Table structure for table `language`
 --
 
 CREATE TABLE IF NOT EXISTS `language` (
+  `id` int(2) NOT NULL AUTO_INCREMENT,
   `label` varchar(10) NOT NULL,
   `language` varchar(50) NOT NULL DEFAULT '',
-  `code` varchar(5) NOT NULL DEFAULT '',
-  `main` enum('no','yes') NOT NULL DEFAULT 'no',
-  `active` enum('no','yes') NOT NULL DEFAULT 'yes',
-  `flag` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `language_code` varchar(5) NOT NULL DEFAULT '',
+  `country_code` varchar(5) NOT NULL,
+  `main` int(1) NOT NULL,
+  `active` int(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
--- Dump dei dati per la tabella `language`
+-- Dumping data for table `language`
 --
 
-INSERT INTO `language` (`label`, `language`, `code`, `main`, `active`, `flag`) VALUES
-('ITA', 'italiano', 'it_IT', 'yes', 'yes', NULL),
-('ENG', 'english', 'en_US', 'no', 'yes', NULL),
-('ESP', 'espanol', 'es_ES', 'no', 'yes', NULL),
-('FRA', 'français', 'fr_FR', 'no', 'yes', NULL);
+INSERT INTO `language` (`id`, `label`, `language`, `language_code`, `country_code`, `main`, `active`) VALUES
+(1, 'ITA', 'italiano', 'it', 'IT', 1, 1),
+(2, 'ENG', 'english', 'en', 'US', 0, 1),
+(3, 'ESP', 'espanol', 'es', 'ES', 0, 1),
+(4, 'FRA', 'français', 'fr', 'FR', 0, 1);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `language_opt`
+-- Table structure for table `language_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `language_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(200) NOT NULL,
+  `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `opt_flag` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
--- Dump dei dati per la tabella `language_opt`
+-- Dumping data for table `language_opt`
 --
 
 INSERT INTO `language_opt` (`id`, `instance`, `title`, `opt_flag`) VALUES
-(1, 0, 'Lingue', 0);
+(1, 0, 'Lingue', 0),
+(2, 0, 'Lingue', 0),
+(3, 0, 'Lingue', 0),
+(4, 0, 'Lingue', 0);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `language_translation`
+-- Table structure for table `language_translation`
 --
 
 CREATE TABLE IF NOT EXISTS `language_translation` (
@@ -241,7 +359,7 @@ CREATE TABLE IF NOT EXISTS `language_translation` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dump dei dati per la tabella `language_translation`
+-- Dumping data for table `language_translation`
 --
 
 INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, `text`) VALUES
@@ -251,12 +369,22 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 (4, 'page_layout', 'name', 'en_US', 'editor left - media right'),
 (5, 'page_layout', 'name', 'en_US', 'link to file'),
 (8, 'page_layout', 'name', 'en_US', 'by file'),
-(9, 'page_layout', 'name', 'en_US', 'by html code');
+(9, 'page_layout', 'name', 'en_US', 'by html code'),
+(1, 'sys_conf', 'head_title', 'en_US', 'GINO ENG'),
+(1, 'sys_module_app', 'label', 'en_US', 'Settings'),
+(1, 'sys_conf', 'head_title', 'es_ES', 'ESP'),
+(1, 'sys_conf', 'head_title', 'fr_FR', 'FRENCH'),
+(4, 'sys_module', 'label', 'en_US', 'Main menu'),
+(10, 'sys_graphics', 'description', 'en_US', 'footer engli'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
+(4, 'language_opt', 'title', 'en_US', 'Languages'),
+(4, 'language_opt', 'title', 'es_ES', 'Idiomas');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `nation`
+-- Table structure for table `nation`
 --
 
 CREATE TABLE IF NOT EXISTS `nation` (
@@ -269,7 +397,7 @@ CREATE TABLE IF NOT EXISTS `nation` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=193 ;
 
 --
--- Dump dei dati per la tabella `nation`
+-- Dumping data for table `nation`
 --
 
 INSERT INTO `nation` (`id`, `it_IT`, `en_US`, `fr_FR`, `onu`) VALUES
@@ -469,7 +597,7 @@ INSERT INTO `nation` (`id`, `it_IT`, `en_US`, `fr_FR`, `onu`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_category`
+-- Table structure for table `page_category`
 --
 
 CREATE TABLE IF NOT EXISTS `page_category` (
@@ -478,17 +606,19 @@ CREATE TABLE IF NOT EXISTS `page_category` (
   `description` text,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `page_category`
+-- Dumping data for table `page_category`
 --
 
+INSERT INTO `page_category` (`id`, `name`, `description`, `date`) VALUES
+(1, 'Cippa', NULL, '2013-12-02 13:22:22');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_comment`
+-- Table structure for table `page_comment`
 --
 
 CREATE TABLE IF NOT EXISTS `page_comment` (
@@ -499,21 +629,16 @@ CREATE TABLE IF NOT EXISTS `page_comment` (
   `email` varchar(200) NOT NULL,
   `web` varchar(200) DEFAULT NULL,
   `text` text NOT NULL,
-  `notification` int(1) NOT NULL,
+  `notification` tinyint(1) NOT NULL,
   `reply` int(11) DEFAULT NULL,
-  `published` int(1) NOT NULL,
+  `published` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_comment`
---
-
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_entry`
+-- Table structure for table `page_entry`
 --
 
 CREATE TABLE IF NOT EXISTS `page_entry` (
@@ -528,10 +653,10 @@ CREATE TABLE IF NOT EXISTS `page_entry` (
   `url_image` varchar(200) DEFAULT NULL,
   `text` text NOT NULL,
   `tags` varchar(255) DEFAULT NULL,
-  `enable_comments` int(1) NOT NULL,
-  `published` int(1) NOT NULL,
-  `social` int(1) NOT NULL,
-  `private` int(1) NOT NULL,
+  `enable_comments` tinyint(1) NOT NULL,
+  `published` tinyint(1) NOT NULL,
+  `social` tinyint(1) NOT NULL,
+  `private` tinyint(1) NOT NULL,
   `users` varchar(255) NOT NULL,
   `read` int(11) NOT NULL,
   `tpl_code` text,
@@ -541,21 +666,20 @@ CREATE TABLE IF NOT EXISTS `page_entry` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
--- Dump dei dati per la tabella `page_entry`
+-- Dumping data for table `page_entry`
 --
 
 INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_edit_date`, `title`, `slug`, `image`, `url_image`, `text`, `tags`, `enable_comments`, `published`, `social`, `private`, `users`, `read`, `tpl_code`, `box_tpl_code`) VALUES
-(4, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>\r\ngino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
-(5, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
+(4, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 1, 1, 0, 0, '', 13, NULL, NULL),
+(5, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 1, 1, 0, 0, '', 1, NULL, NULL),
 (7, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
 (8, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
-(9, 0, 1, '2011-11-08 14:05:57', '2013-01-09 12:48:07', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p><img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p><p>Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL);
-
+(9, 0, 0, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino m', 'estendere-gino-m', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 1, 1, 0, 1, '', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_entry_tag`
+-- Table structure for table `page_entry_tag`
 --
 
 CREATE TABLE IF NOT EXISTS `page_entry_tag` (
@@ -563,41 +687,12 @@ CREATE TABLE IF NOT EXISTS `page_entry_tag` (
   `entry` int(11) NOT NULL,
   `tag` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `page_entry_tag`
---
-
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_grp`
---
-
-CREATE TABLE IF NOT EXISTS `page_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
-
---
--- Dump dei dati per la tabella `page_grp`
---
-
-INSERT INTO `page_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'pubblicatori', 'Gestiscono la pubblicazione di pagine e commenti e la redazione', 'no'),
-(3, 'redattori', 'Gestiscono la redazione', 'no'),
-(4, 'utenti pagine private', 'Accedono alle pagine che sono state salvate come private', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `page_opt`
+-- Table structure for table `page_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `page_opt` (
@@ -607,34 +702,34 @@ CREATE TABLE IF NOT EXISTS `page_opt` (
   `archive_title` varchar(200) NOT NULL,
   `showcase_title` varchar(200) NOT NULL,
   `cloud_title` varchar(200) NOT NULL,
-  `last_number` int(2) NOT NULL,
+  `last_number` smallint(2) NOT NULL,
   `last_tpl_code` text NOT NULL,
-  `showcase_number` int(3) NOT NULL,
-  `showcase_auto_start` int(1) NOT NULL,
+  `showcase_number` smallint(3) NOT NULL,
+  `showcase_auto_start` tinyint(1) NOT NULL,
   `showcase_auto_interval` int(5) NOT NULL,
   `showcase_tpl_code` text NOT NULL,
   `archive_efp` int(11) NOT NULL,
   `archive_tpl_code` text NOT NULL,
   `entry_tpl_code` text NOT NULL,
   `box_tpl_code` text NOT NULL,
-  `comment_moderation` int(1) NOT NULL,
-  `comment_notification` int(1) NOT NULL,
-  `newsletter_entries_number` int(2) NOT NULL,
+  `comment_moderation` tinyint(1) NOT NULL,
+  `comment_notification` tinyint(1) NOT NULL,
+  `newsletter_entries_number` smallint(2) NOT NULL,
   `newsletter_tpl_code` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `page_opt`
+-- Dumping data for table `page_opt`
 --
 
 INSERT INTO `page_opt` (`id`, `instance`, `last_title`, `archive_title`, `showcase_title`, `cloud_title`, `last_number`, `last_tpl_code`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `archive_efp`, `archive_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
-(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n{{ social}}\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', '<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n{{ social}}\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>', '<div class="left" style="padding-left:4px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n</div>\r\n<div class="null"></div>', 0, 1, 5, '');
+(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n{{ social}}\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n{{ social}}\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>', '<div class="left" style="padding-left:4px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n</div>\r\n<div class="null"></div>', 0, 1, 5, '');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_tag`
+-- Table structure for table `page_tag`
 --
 
 CREATE TABLE IF NOT EXISTS `page_tag` (
@@ -643,32 +738,10 @@ CREATE TABLE IF NOT EXISTS `page_tag` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Dump dei dati per la tabella `page_tag`
---
-
-
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `page_usr`
---
-
-CREATE TABLE IF NOT EXISTS `page_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `page_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `php_module`
+-- Table structure for table `php_module`
 --
 
 CREATE TABLE IF NOT EXISTS `php_module` (
@@ -679,75 +752,31 @@ CREATE TABLE IF NOT EXISTS `php_module` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dump dei dati per la tabella `php_module`
+-- Dumping data for table `php_module`
 --
 
 INSERT INTO `php_module` (`id`, `instance`, `content`) VALUES
-(1, 6, '$lng = (isset($_SESSION[''lng''])) ? $_SESSION[''lng'']:''it_IT'';\r\n$access = new access();\r\n \r\n$buffer = "<div class=\\"topBar\\">";\r\n$buffer .= "<div class=\\"left\\">";\r\nif(pub::variable(''multi_language'')==''yes'') {\r\n  $query = "SELECT label, code, main FROM language WHERE active=''yes'' ORDER BY main DESC";\r\n  $a = $this->_db->selectquery($query);\r\n  $lng_buffer = array();\r\n  foreach($a as $b) {\r\n    if(isset($_SESSION[''lng''])) {\r\n      $selected = $_SESSION[''lng''] == $b[''code''] ? true : false;\r\n    }\r\n    else\r\n      $selected = $b[''main''] == ''yes'' ? true : false;\r\n    \r\n    if(!$selected) \r\n      $lng_buffer[]  =  "<a href=\\"index.php?lng=".$b[''code'']."\\">".htmlChars($b[''label''])."</a>";\r\n    else \r\n      $lng_buffer[]  =  "<a class=\\"selected\\">".htmlChars($b[''label''])."</a>";\r\n  }\r\n  \r\n  $buffer .= implode("", $lng_buffer); \r\n}\r\n$buffer .= "</div>";\r\nif(!isset($_SESSION[''userId''])) {\r\n    $buffer .= "<span class=\\"link\\" onclick=\\"login_toggle.toggle();\\">"._("Area riservata")."</span>";\r\n    $buffer .= "<div id=\\"login_registered\\" style=\\"display:none;\\">";\r\n    $buffer .= "<div>";\r\n    $buffer .= "<form method=\\"post\\" action=\\"index.php\\" style=\\"float:right\\">";\r\n    $buffer .= "<input type=\\"hidden\\" name=\\"action\\" value=\\"auth\\" />";\r\n    $buffer .= "<table class=\\"flt\\">";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\">User</td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"text\\" name=\\"user\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\">Password</td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"password\\" name=\\"pwd\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "<tr>";\r\n    $buffer .= "<td class=\\"fl_label\\"></td>";\r\n    $buffer .= "<td class=\\"fl_field\\"><input type=\\"submit\\" class=\\"generic\\" value=\\"login\\" /></td>";\r\n    $buffer .= "</tr>";\r\n    $buffer .= "</table>";\r\n    $buffer .= "</form>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<script>var login_toggle = new Fx.Reveal(''login_registered'');</script>";\r\n}\r\nelse {\r\n    $admin_link = false;\r\n    if($access->getAccessAdmin()) {\r\n        $buffer .= "<a class=\\"aTopBar no_border\\" href=\\"admin.php\\">"._("Amministrazione")."</a>";\r\n        $admin_link = true;\r\n    }\r\n    $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''userId'']."''";\r\n    $a = $this->_db->selectquery($query);\r\n    $username = $a>0 ? $a[0][''name'']:null;\r\n    $buffer .= "<a class=\\"aTopBar".($admin_link ? "" : " no_border")."\\" href=\\"index.php?evt[user-userCard]\\"><span title=\\""._("Profilo utente")."\\" class=\\"tooltip\\">".$username."</span></a>";\r\n    $buffer .= "<a class=\\"aTopBar\\" href=\\"index.php?action=logout\\">"._("Logout")."</a>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n}\r\n$buffer .= "</div>";'),
-(2, 9, '$buffer = "<div class=\\"topBar\\">";\r\n\r\n$index = new index();\r\n\r\n$sysMdls = $index->sysModulesManageArray();\r\n$mdls = $index->modulesManageArray();\r\n \r\nif(count($sysMdls)) {	\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''sysmdl_menu'' onchange=\\"$onchange\\">";\r\n  $buffer .= "<option value=\\"\\">"._("Sistema")."</option>";\r\n  foreach($sysMdls as $sm) { \r\n    $buffer .= "<option value=\\"".$sm[''name'']."-manage".ucfirst($sm[''name''])."\\">".htmlChars($sm[''label''])."</option>";\r\n  }\r\n  $buffer .= "</select> ";\r\n}\r\n				\r\nif(count($mdls)) {\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''mdl_menu'' onchange=\\"$onchange\\">";	\r\n  $buffer .= "<option value=\\"\\">"._("Moduli")."</option>";\r\n  foreach($mdls as $m) {\r\n    $buffer .= "<option value=\\"".$m[''name'']."-manageDoc\\">".htmlChars($m[''label''])."</option>";\r\n  }	\r\n  $buffer .= "</select>";\r\n}\r\n\r\n$buffer .= "</div>";');
+(1, 6, '$lng = (isset($_SESSION[''lng''])) ? $_SESSION[''lng'']:''it_IT'';\r\n$access = new Access();\r\n \r\n$buffer = "<div class=\\"top-bar\\">";\r\n$buffer .= "<div class=\\"left\\">";\r\nif(pub::getConf(''multi_language'')==''yes'') {\r\n  $query = "SELECT label, code, main FROM language WHERE active=''yes'' ORDER BY main DESC";\r\n  $a = $this->_db->selectquery($query);\r\n  $lng_buffer = array();\r\n  foreach($a as $b) {\r\n    if(isset($_SESSION[''lng''])) {\r\n      $selected = $_SESSION[''lng''] == $b[''code''] ? true : false;\r\n    }\r\n    else\r\n      $selected = $b[''main''] == ''yes'' ? true : false;\r\n    \r\n    if(!$selected) \r\n      $lng_buffer[]  =  "<a href=\\"index.php?lng=".$b[''code'']."\\">".htmlChars($b[''label''])."</a>";\r\n    else \r\n      $lng_buffer[]  =  "<a class=\\"selected\\">".htmlChars($b[''label''])."</a>";\r\n  }\r\n  \r\n  $buffer .= implode("", $lng_buffer); \r\n}\r\n$buffer .= "</div>";\r\n$buffer .= "<div class=\\"right\\">";\r\nif(!isset($_SESSION[''user_id''])) {\r\n    $buffer .= "<span class=\\"link\\" onclick=\\"login_toggle.toggle();\\">"._("Area riservata")."</span>";\r\n    $buffer .= "<div id=\\"topbar-login\\" style=\\"display:none;\\">";\r\n    $buffer .= "<div>";\r\n    $buffer .= "<form method=\\"post\\" action=\\"index.php\\" style=\\"float:right\\">";\r\n    $buffer .= "<input type=\\"hidden\\" name=\\"action\\" value=\\"auth\\" />";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label>User</label>";\r\n    $buffer .= "<input type=\\"text\\" name=\\"user\\" required />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label>Password</label>";\r\n    $buffer .= "<input type=\\"password\\" name=\\"pwd\\" required />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label></label>";\r\n    $buffer .= "<input type=\\"submit\\" class=\\"generic\\" value=\\"login\\" />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</form>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<script>var login_toggle = new Fx.Reveal(''topbar-login'');</script>";\r\n}\r\nelse {\r\n    $admin_link = false;\r\n    \r\n        $buffer .= "<a href=\\"admin.php\\">"._("Amministrazione")."</a>";\r\n        $admin_link = true;\r\n\r\n    $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''user_id'']."''";\r\n    $a = $this->_db->selectquery($query);\r\n    $username = $a>0 ? $a[0][''name'']:null;\r\n    $buffer .= "<a href=\\"index.php?evt[user-userCard]\\"><span title=\\""._("Profilo utente")."\\" class=\\"tooltip\\">".$username."</span></a>";\r\n    $buffer .= "<a href=\\"index.php?action=logout\\">"._("Logout")."</a>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n}\r\n$buffer .= "</div>";\r\n$buffer .= "<div class=\\"clear\\"></div>";\r\n$buffer .= "</div>";'),
+(2, 9, '$buffer = "<div class=\\"top-bar\\">";\r\n\r\n$index = new index();\r\n\r\n$sysMdls = $index->sysModulesManageArray();\r\n$mdls = $index->modulesManageArray();\r\n \r\nif(count($sysMdls)) {	\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''sysmdl_menu'' onchange=\\"$onchange\\">";\r\n  $buffer .= "<option value=\\"\\">"._("Sistema")."</option>";\r\n  foreach($sysMdls as $sm) { \r\n    $buffer .= "<option value=\\"".$sm[''name'']."-manage".ucfirst($sm[''name''])."\\">".htmlChars($sm[''label''])."</option>";\r\n  }\r\n  $buffer .= "</select> ";\r\n}\r\n				\r\nif(count($mdls)) {\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''mdl_menu'' onchange=\\"$onchange\\">";	\r\n  $buffer .= "<option value=\\"\\">"._("Moduli")."</option>";\r\n  foreach($mdls as $m) {\r\n    $buffer .= "<option value=\\"".$m[''name'']."-manageDoc\\">".htmlChars($m[''label''])."</option>";\r\n  }	\r\n  $buffer .= "</select>";\r\n}\r\n\r\n$buffer .= "</div>";');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module_grp`
---
-
-CREATE TABLE IF NOT EXISTS `php_module_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `php_module_grp`
---
-
-INSERT INTO `php_module_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono i moduli php.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `php_module_opt`
+-- Table structure for table `php_module_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `php_module_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(200) NOT NULL,
+  `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `title_vis` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Dump dei dati per la tabella `php_module_opt`
---
-
-
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `php_module_usr`
---
-
-CREATE TABLE IF NOT EXISTS `php_module_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `php_module_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `search_site_opt`
+-- Table structure for table `search_site_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `search_site_opt` (
@@ -759,66 +788,56 @@ CREATE TABLE IF NOT EXISTS `search_site_opt` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- Dump dei dati per la tabella `search_site_opt`
---
-
-
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_conf`
+-- Table structure for table `sys_conf`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_conf` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `user_role` int(1) NOT NULL,
-  `admin_role` int(1) NOT NULL,
-  `multi_language` enum('yes','no') NOT NULL DEFAULT 'no',
-  `dft_language` varchar(5) NOT NULL,
-  `precharge_mdl_url` enum('yes','no') NOT NULL,
-  `log_access` enum('yes','no') NOT NULL DEFAULT 'no',
-  `head_description` varchar(255) NOT NULL,
-  `head_keywords` varchar(255) NOT NULL,
+  `id` smallint(2) NOT NULL AUTO_INCREMENT,
+  `multi_language` tinyint(1) NOT NULL,
+  `dft_language` smallint(2) NOT NULL,
+  `log_access` tinyint(1) NOT NULL,
+  `head_description` text NOT NULL,
+  `head_keywords` varchar(255) DEFAULT NULL,
   `head_title` varchar(255) NOT NULL,
-  `google_analytics` varchar(20) NOT NULL,
+  `google_analytics` varchar(20) DEFAULT NULL,
   `captcha_public` varchar(64) DEFAULT NULL,
   `captcha_private` varchar(64) DEFAULT NULL,
-  `email_name` varchar(100) DEFAULT NULL,
+  `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
-  `mobile` enum('yes','no') NOT NULL DEFAULT 'no',
+  `mobile` tinyint(1) NOT NULL DEFAULT '0',
   `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
-  `email_admin` varchar(100) DEFAULT NULL,
-  `enable_cache` int(1) NOT NULL,
-  `permalinks` enum('yes','no') NOT NULL DEFAULT 'yes',
+  `enable_cache` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `sys_conf`
+-- Dumping data for table `sys_conf`
 --
 
-INSERT INTO `sys_conf` (`id`, `user_role`, `admin_role`, `multi_language`, `dft_language`, `precharge_mdl_url`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_name`, `email_from_app`, `mobile`, `password_crypt`, `email_admin`, `enable_cache`, `permalinks`) VALUES
-(1, 4, 2, 'no', 'it_IT', 'yes', 'yes', '', '', 'gino CMS', '', '', '', '', 'no-reply@otto.to.it', 'yes', 'md5', 'support@otto.to.it', 0, 'yes');
+INSERT INTO `sys_conf` (`id`, `multi_language`, `dft_language`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_admin`, `email_from_app`, `mobile`, `password_crypt`, `enable_cache`) VALUES
+(1, 1, 2, 1, 'cippa', '', 'gino CMS', '', '', '', 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_graphics`
+-- Table structure for table `sys_graphics`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_graphics` (
   `id` smallint(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `description` varchar(100) NOT NULL,
-  `type` int(1) NOT NULL DEFAULT '1',
-  `image` varchar(128) NOT NULL,
-  `html` text NOT NULL,
+  `type` tinyint(1) NOT NULL DEFAULT '1',
+  `image` varchar(128) DEFAULT NULL,
+  `html` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=11 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=13 ;
 
 --
--- Dump dei dati per la tabella `sys_graphics`
+-- Dumping data for table `sys_graphics`
 --
 
 INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`) VALUES
@@ -831,119 +850,24 @@ INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`
 (7, 'footer_private', 'Footer index privata', 2, '', '<p>\r\nheader\r\n</p>'),
 (8, 'footer_admin', 'Footer amministrazione', 1, 'footer_admin.jpg', ''),
 (9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', ''),
-(10, 'footer_adhoc', 'Footer ad hoc', 1, '', 'FOOTER ADHOC');
+(10, 'footer_adhoc', 'Footer ad hoc', 1, '', 'FOOTER ADHOC HOLA BOLA');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_graphics_grp`
---
-
-CREATE TABLE IF NOT EXISTS `sys_graphics_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `sys_graphics_grp`
---
-
-INSERT INTO `sys_graphics_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Personalizzano l''header e il footer del sito.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_graphics_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_graphics_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_graphics_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_image`
---
-
-CREATE TABLE IF NOT EXISTS `sys_image` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `sys_image`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_image_grp`
---
-
-CREATE TABLE IF NOT EXISTS `sys_image_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `sys_image_grp`
---
-
-INSERT INTO `sys_image_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_image_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_image_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_image_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_layout_css`
+-- Table structure for table `sys_layout_css`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_css` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
-  `description` text NOT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
--- Dump dei dati per la tabella `sys_layout_css`
+-- Dumping data for table `sys_layout_css`
 --
 
 INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
@@ -954,64 +878,43 @@ INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_grp`
---
-
-CREATE TABLE IF NOT EXISTS `sys_layout_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `sys_layout_grp`
---
-
-INSERT INTO `sys_layout_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_layout_skin`
+-- Table structure for table `sys_layout_skin`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(200) NOT NULL,
-  `session` varchar(128) NOT NULL,
-  `rexp` varchar(200) NOT NULL,
-  `urls` varchar(2000) NOT NULL,
+  `session` varchar(128) DEFAULT NULL,
+  `rexp` varchar(200) DEFAULT NULL,
+  `urls` varchar(200) DEFAULT NULL,
   `template` varchar(200) NOT NULL,
-  `css` int(200) NOT NULL,
+  `css` int(11) NOT NULL,
   `priority` int(11) NOT NULL,
   `auth` enum('yes','no','') NOT NULL,
-  `cache` int(16) NOT NULL DEFAULT '0',
+  `cache` bigint(16) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
--- Dump dei dati per la tabella `sys_layout_skin`
+-- Dumping data for table `sys_layout_skin`
 --
 
 INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
-(1, 'Home Pubblica', '', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 8, 'no', 0),
-(2, 'Pagine Pubbliche', '', '#evt\\[(?!index)#', '', '3', 3, 6, 'no', 0),
-(3, 'Home Amministrazione', '', '', 'index.php?evt[index-admin_page]', '5', 2, 5, 'yes', 0),
-(4, 'Pagine Amministrazione', '', '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', '', '6', 2, 4, 'yes', 0),
-(5, 'Pagina Autenticazione', '', '', 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
-(6, 'Default', '', '#^.*$#', '', '1', 0, 10, '', 0),
-(7, 'Pagine Private', '', '#evt\\[(?!index)#', '', '3', 3, 7, 'yes', 0),
-(8, 'Home Privata', '', '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', '', '2', 3, 9, 'yes', 0),
-(9, 'Pagine Mobile', 'mobile=1', '#.*#', '', '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'mobile=1', '', 'index.php?mobile=1', '7', 1, 1, '', 0);
+(1, 'Home Pubblica', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '27', 3, 8, 'no', 0),
+(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '28', 3, 6, 'no', 0),
+(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '25', 0, 5, 'yes', 0),
+(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '26', 2, 4, 'yes', 0),
+(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
+(6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 10, '', 0),
+(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '28', 3, 7, 'yes', 0),
+(8, 'Home Privata', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '27', 3, 9, 'yes', 0),
+(9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
+(10, 'Home Mobile', 'mobile=1', NULL, 'index.php?mobile=1', '7', 1, 1, '', 0);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_tpl`
+-- Table structure for table `sys_layout_tpl`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
@@ -1019,69 +922,53 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
   `filename` varchar(200) NOT NULL,
   `label` varchar(200) NOT NULL,
   `description` text NOT NULL,
+  `free` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=31 ;
 
 --
--- Dump dei dati per la tabella `sys_layout_tpl`
+-- Dumping data for table `sys_layout_tpl`
 --
 
-INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`) VALUES
-(1, 'default.tpl', 'Default', ''),
-(2, 'home.tpl', 'Home', ''),
-(3, 'pages.tpl', 'Pagine', ''),
-(4, 'auth_page.tpl', 'Pagina Autenticazione', ''),
-(5, 'home_admin.tpl', 'Home Area Amministrativa', ''),
-(6, 'admin_pages.tpl', 'Pagine Area Amministrativa', ''),
-(7, 'home_mobile.tpl', 'Home Mobile', ''),
-(8, 'mobile_pages.tpl', 'Pagine Mobile', '');
+INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`, `free`) VALUES
+(1, 'default.tpl', 'Default', '', 0),
+(27, 'home.php', 'Home', '', 1),
+(28, 'page.php', 'Pagine', '', 1),
+(4, 'auth_page.tpl', 'Pagina Autenticazione', '', 0),
+(26, 'admin_page.php', 'Pagine admin', '', 1),
+(7, 'home_mobile.tpl', 'Home Mobile', '', 0),
+(8, 'mobile_pages.tpl', 'Pagine Mobile', '', 0),
+(23, 'test2.tpl', 'test copy', '', 0),
+(22, 'test.tpl', 'test', '', 0),
+(24, 'testfree.php', 'testfree', '', 1),
+(25, 'admin_home.php', 'Home admin', '', 1);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_layout_tpl_block`
+-- Table structure for table `sys_layout_tpl_block`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tpl` int(4) NOT NULL,
-  `position` int(2) NOT NULL,
+  `position` smallint(2) NOT NULL,
   `width` int(4) NOT NULL,
-  `um` int(1) NOT NULL,
-  `align` int(1) NOT NULL,
-  `rows` int(2) NOT NULL,
-  `cols` int(2) NOT NULL,
+  `um` tinyint(1) NOT NULL,
+  `align` tinyint(1) NOT NULL,
+  `rows` smallint(2) NOT NULL,
+  `cols` smallint(2) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=62 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=68 ;
 
 --
--- Dump dei dati per la tabella `sys_layout_tpl_block`
+-- Dumping data for table `sys_layout_tpl_block`
 --
 
 INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `align`, `rows`, `cols`) VALUES
 (52, 1, 2, 0, 0, 0, 1, 1),
 (51, 1, 1, 0, 0, 0, 1, 1),
 (50, 7, 1, 480, 1, 2, 1, 1),
-(48, 6, 4, 0, 0, 0, 1, 1),
-(47, 6, 3, 960, 1, 2, 1, 1),
-(46, 6, 2, 0, 0, 0, 1, 1),
-(45, 6, 1, 0, 0, 0, 1, 1),
-(30, 2, 1, 0, 0, 0, 1, 1),
-(31, 2, 2, 0, 0, 0, 1, 1),
-(32, 2, 3, 960, 1, 2, 3, 3),
-(33, 2, 4, 0, 0, 0, 1, 1),
-(34, 2, 5, 960, 1, 2, 1, 2),
-(35, 3, 1, 0, 0, 0, 1, 1),
-(36, 3, 2, 0, 0, 0, 1, 1),
-(37, 3, 3, 960, 1, 2, 2, 2),
-(38, 3, 4, 0, 0, 0, 1, 1),
-(39, 3, 5, 960, 1, 2, 1, 2),
-(40, 5, 1, 0, 0, 0, 1, 1),
-(41, 5, 2, 0, 0, 0, 1, 1),
-(42, 5, 3, 960, 1, 2, 1, 1),
-(43, 5, 4, 0, 0, 0, 1, 1),
-(44, 5, 5, 960, 1, 2, 1, 2),
-(49, 6, 5, 960, 1, 2, 1, 2),
 (53, 1, 3, 960, 1, 2, 1, 2),
 (54, 1, 4, 0, 0, 0, 1, 1),
 (55, 1, 5, 960, 1, 2, 1, 2),
@@ -1090,28 +977,17 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (58, 4, 2, 0, 0, 0, 1, 1),
 (59, 4, 3, 960, 1, 2, 1, 4),
 (60, 4, 4, 0, 0, 0, 1, 1),
-(61, 4, 5, 960, 1, 2, 1, 2);
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_layout_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_layout_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_layout_usr`
---
-
+(61, 4, 5, 960, 1, 2, 1, 2),
+(62, 21, 1, 0, 0, 0, 1, 1),
+(65, 22, 2, 0, 0, 0, 1, 2),
+(64, 22, 1, 0, 0, 0, 1, 3),
+(66, 23, 2, 0, 0, 0, 1, 2),
+(67, 23, 1, 0, 0, 0, 1, 3);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_log_access`
+-- Table structure for table `sys_log_access`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_log_access` (
@@ -1119,88 +995,34 @@ CREATE TABLE IF NOT EXISTS `sys_log_access` (
   `user_id` int(11) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `sys_log_access`
---
-
-INSERT INTO `sys_log_access` (`id`, `user_id`, `date`) VALUES
-(1, 1, '2012-07-30 14:46:56');
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_grp`
---
-
-CREATE TABLE IF NOT EXISTS `sys_menu_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `sys_menu_grp`
---
-
-INSERT INTO `sys_menu_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi.', 'no'),
-(2, 'assistenti', 'Gestiscono le voci di menu.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_menu_opt`
+-- Table structure for table `sys_menu_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `vis_title` tinyint(1) NOT NULL,
-  `home_voice` varchar(50) NOT NULL,
-  `admin_voice` varchar(50) NOT NULL,
-  `logout_voice` varchar(50) NOT NULL,
-  `horizontal` tinyint(1) NOT NULL,
-  `click_event` tinyint(1) NOT NULL,
-  `initShowIcon` tinyint(1) NOT NULL,
-  `path_to_sel` tinyint(1) NOT NULL,
-  `cache` int(16) DEFAULT '0',
+  `cache` bigint(16) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
--- Dump dei dati per la tabella `sys_menu_opt`
+-- Dumping data for table `sys_menu_opt`
 --
 
-INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `vis_title`, `home_voice`, `admin_voice`, `logout_voice`, `horizontal`, `click_event`, `initShowIcon`, `path_to_sel`, `cache`) VALUES
-(6, 4, 'Menu principale', 0, 'Home', 'Amministrazione', 'Logout', 1, 0, 0, 0, 0),
-(7, 5, 'Menu amministrazione', 0, 'Home', 'Amministrazione', 'Logout', 1, 0, 0, 0, 0);
+INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `cache`) VALUES
+(6, 4, 'Menu principale', 0),
+(7, 5, 'Menu amministrazione', 0);
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_menu_usr`
---
-
-CREATE TABLE IF NOT EXISTS `sys_menu_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `sys_menu_usr`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_menu_voices`
+-- Table structure for table `sys_menu_voices`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
@@ -1208,315 +1030,94 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
   `instance` int(11) NOT NULL,
   `parent` int(11) NOT NULL,
   `label` varchar(200) NOT NULL,
-  `link` varchar(200) NOT NULL,
+  `url` varchar(200) NOT NULL,
   `type` enum('int','ext') NOT NULL,
-  `role1` int(1) NOT NULL,
-  `orderList` int(3) NOT NULL,
-  `authView` int(1) NOT NULL,
-  `reference` varchar(200) NOT NULL,
-  `voice` enum('class','page') NOT NULL DEFAULT 'page',
-  `page_id` int(11) NOT NULL,
+  `order_list` smallint(3) NOT NULL,
+  `perms` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
--- Dump dei dati per la tabella `sys_menu_voices`
+-- Dumping data for table `sys_menu_voices`
 --
 
+INSERT INTO `sys_menu_voices` (`id`, `instance`, `parent`, `label`, `url`, `type`, `order_list`, `perms`) VALUES
+(2, 4, 0, 'Home', '/', 'int', 1, ''),
+(7, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
+(3, 4, 2, 'le pippe', 'page/view/gino-CMS', 'int', 1, '10,0'),
+(4, 4, 2, 'la puppa', 'graphics/printHeaderMobile', 'int', 2, ''),
+(6, 4, 0, 'voce 2', 'page/view/licenza', 'int', 2, '10,0'),
+(8, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_module`
+-- Table structure for table `sys_module`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_module` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `class` varchar(200) NOT NULL,
-  `type` enum('class','func') NOT NULL DEFAULT 'class',
-  `role1` smallint(2) NOT NULL,
-  `role2` smallint(2) NOT NULL,
-  `role3` smallint(2) NOT NULL,
+  `module_app` int(11) NOT NULL,
   `directory` varchar(200) DEFAULT NULL,
-  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `role_group` int(2) NOT NULL,
+  `active` tinyint(1) NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
--- Dump dei dati per la tabella `sys_module`
+-- Dumping data for table `sys_module`
 --
 
-INSERT INTO `sys_module` (`id`, `label`, `name`, `class`, `type`, `role1`, `role2`, `role3`, `directory`, `masquerade`, `role_group`, `description`) VALUES
-(1, 'Autenticazione formato tabella', 'tableLogin', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Boxino di autenticazione in formato tabella'),
-(2, 'Autenticazione', 'Autenticazione', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Boxino di autenticazione'),
-(3, 'Credits', 'credits', '', 'func', 5, 5, 5, NULL, 'no', 0, 'Credits'),
-(4, 'Menu principale', 'mainMenu', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu principale'),
-(5, 'Menu amministrazione', 'menu_admin', 'menu', 'class', 5, 5, 5, NULL, 'no', 0, 'Menu area amministrativa'),
-(6, 'Top Bar', 'topbar', 'phpModuleView', 'class', 5, 5, 5, NULL, 'no', 0, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 'phpModuleView', 'class', 4, 5, 5, NULL, 'no', 0, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
+INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `directory`, `active`, `description`) VALUES
+(4, 'Menu principale', 'mainMenu', 10, NULL, 1, 'Menu principale'),
+(5, 'Menu amministrazione', 'menu_admin', 10, NULL, 1, 'Menu area amministrativa'),
+(6, 'Top Bar', 'topbar', 14, NULL, 1, 'Barra superiore con scelta lingua ed autenticazione'),
+(9, 'Top Bar Admin', 'topbaradmin', 14, NULL, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `sys_module_app`
+-- Table structure for table `sys_module_app`
 --
 
 CREATE TABLE IF NOT EXISTS `sys_module_app` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `type` enum('class','func') NOT NULL,
-  `role1` smallint(2) NOT NULL,
-  `role2` smallint(2) NOT NULL,
-  `role3` smallint(2) NOT NULL,
-  `masquerade` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `role_group` int(2) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `tbl_name` varchar(30) NOT NULL,
-  `order_list` smallint(2) NOT NULL,
-  `instance` enum('yes','no') NOT NULL DEFAULT 'no',
+  `instantiable` tinyint(1) NOT NULL,
   `description` text NOT NULL,
-  `removable` enum('yes','no') NOT NULL,
+  `removable` tinyint(1) NOT NULL,
   `class_version` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
 
 --
--- Dump dei dati per la tabella `sys_module_app`
+-- Dumping data for table `sys_module_app`
 --
 
-INSERT INTO `sys_module_app` (`id`, `label`, `name`, `type`, `role1`, `role2`, `role3`, `masquerade`, `role_group`, `tbl_name`, `order_list`, `instance`, `description`, `removable`, `class_version`) VALUES
-(1, 'Impostazioni', 'sysconf', 'class', 2, 2, 2, 'no', 0, 'sys_conf', 1, 'no', 'Principali impostazioni di sistema', 'no', '1.0'),
-(2, 'Lingue', 'language', 'class', 5, 2, 2, 'no', 0, 'language', 2, 'no', 'Gestione delle lingue disponibili per le traduzioni', 'no', '1.0'),
-(3, 'Moduli di sistema', 'sysClass', 'class', 2, 2, 2, 'no', 0, 'sys_class', 3, 'no', 'Modifica, installazione e rimozione dei moduli di sistema', 'no', '1.0'),
-(4, 'Moduli', 'module', 'class', 2, 2, 2, 'no', 0, 'sys_module', 4, 'no', 'Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione', 'no', '1.0'),
-(5, 'Utenti', 'user', 'class', 5, 5, 4, 'no', 1, 'user', 5, 'no', 'Gestione degli utenti di sistema', 'no', '1.0'),
-(6, 'Statistiche', 'statistics', 'class', 2, 2, 2, 'no', 1, 'sys_stat', 6, 'no', 'Statistiche degli accessi all''area privata', 'no', '1.0'),
-(7, 'Layout', 'layout', 'class', 2, 2, 2, 'no', 1, 'sys_layout', 7, 'no', 'Gestione di css, template, skin ed assegnazione a indirizzi o classi di indirizzi', 'no', '1.0'),
-(8, 'Header e Footer', 'graphics', 'class', 5, 2, 2, 'no', 1, 'sys_graphics', 8, 'no', 'Gestione personalizzata degli header e footer del sistema', 'no', '1.0'),
-(9, 'Allegati', 'attached', 'class', 4, 5, 4, 'no', 1, 'attached', 9, 'no', 'Archivi di file con struttura ad albero', 'no', '1.0'),
-(10, 'Menu', 'menu', 'class', 5, 5, 4, 'no', 1, 'sys_menu', 10, 'yes', '', 'no', '1.0'),
-(11, 'Pagine', 'page', 'class', 5, 5, 4, 'no', 1, 'page', 11, 'no', 'Pagine html con struttura ad albero', 'no', '1.0'),
-(12, 'Index', 'index', 'class', 5, 4, 4, 'no', 1, '', 12, 'no', '', 'no', '1.0'),
-(13, 'Generatore di immagini', 'imageGenerator', 'class', 2, 2, 2, 'no', 1, 'sys_image', 13, 'no', 'Generatore di immagini ', 'no', '1.0'),
-(14, 'Ricerca nel sito', 'searchSite', 'class', 5, 5, 5, 'no', 1, 'search_site', 14, 'no', 'Form di ricerca nel sito', 'no', '1.0'),
-(15, 'phpModuleView', 'phpModuleView', 'class', 0, 0, 0, 'no', 1, 'php_module', 15, 'yes', 'Generatore di moduli contenenti codice php', 'yes', '1.0'),
-(16, 'Strumenti', 'instruments', 'class', 4, 4, 4, 'no', 1, 'instruments', 16, 'no', 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 'no', '1.0');
+INSERT INTO `sys_module_app` (`id`, `label`, `name`, `active`, `tbl_name`, `instantiable`, `description`, `removable`, `class_version`) VALUES
+(1, 'Impostazioni', 'sysconf', 1, 'sys_conf', 0, 'Principali impostazioni di sistema', 0, '1.0'),
+(2, 'Lingue', 'language', 1, 'language', 0, 'Gestione delle lingue disponibili per le traduzioni', 0, '1.0'),
+(3, 'Moduli di sistema', 'sysClass', 1, 'sys_class', 0, 'Modifica, installazione e rimozione dei moduli di sistema', 0, '1.0'),
+(4, 'Moduli', 'module', 1, 'sys_module', 0, 'Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione', 0, '1.0'),
+(5, 'Utenti', 'user', 1, 'user', 0, 'Gestione degli utenti di sistema', 0, '1.0'),
+(6, 'Statistiche', 'statistics', 1, 'sys_stat', 0, 'Statistiche degli accessi all''area privata', 0, '1.0'),
+(7, 'Layout', 'layout', 1, 'sys_layout', 0, 'Gestione di css, template, skin ed assegnazione a indirizzi o classi di indirizzi', 0, '1.0'),
+(8, 'Header e Footer', 'graphics', 1, 'sys_graphics', 0, 'Gestione personalizzata degli header e footer del sistema', 0, '1.0'),
+(9, 'Allegati', 'attached', 1, 'attached', 0, 'Archivi di file con struttura ad albero', 0, '1.0'),
+(10, 'Menu', 'menu', 1, 'sys_menu', 1, '', 0, '1.0'),
+(11, 'Pagine', 'page', 1, 'page', 0, 'Pagine html con struttura ad albero', 0, '1.0'),
+(12, 'Index', 'index', 1, '', 0, '', 0, '1.0'),
+(13, 'Ricerca nel sito', 'searchSite', 1, 'search_site', 0, 'Form di ricerca nel sito', 0, '1.0'),
+(14, 'phpModuleView', 'phpModuleView', 1, 'php_module', 1, 'Generatore di moduli contenenti codice php', 1, '1.0'),
+(15, 'Strumenti', 'instruments', 1, 'instruments', 0, 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 0, '1.0'),
+(16, 'Autenticazione', 'auth', 1, 'auth', 0, 'Modulo utenti, gruppi e permessi', 0, '1.0'),
+(17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0');
 
--- --------------------------------------------------------
-
---
--- Struttura della tabella `sys_stat_opt`
---
-
-CREATE TABLE IF NOT EXISTS `sys_stat_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `sys_stat_opt`
---
-
-INSERT INTO `sys_stat_opt` (`id`, `instance`, `title`) VALUES
-(1, 0, 'Statistiche');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_add`
---
-
-CREATE TABLE IF NOT EXISTS `user_add` (
-  `user_id` int(11) NOT NULL,
-  `field1` enum('yes','no') NOT NULL DEFAULT 'no',
-  `field2` enum('yes','no') NOT NULL DEFAULT 'no',
-  `field3` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `user_add`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_app`
---
-
-CREATE TABLE IF NOT EXISTS `user_app` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `firstname` varchar(50) NOT NULL DEFAULT '',
-  `lastname` varchar(50) NOT NULL DEFAULT '',
-  `company` varchar(100) DEFAULT NULL,
-  `phone` varchar(30) DEFAULT NULL,
-  `fax` varchar(30) DEFAULT NULL,
-  `email` varchar(100) NOT NULL DEFAULT '',
-  `username` varchar(50) NOT NULL,
-  `userpwd` varchar(100) NOT NULL,
-  `address` varchar(200) DEFAULT NULL,
-  `cap` int(5) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `nation` smallint(4) DEFAULT NULL,
-  `text` text,
-  `photo` varchar(50) DEFAULT NULL,
-  `pub` enum('no','yes') NOT NULL DEFAULT 'no',
-  `role` smallint(2) NOT NULL DEFAULT '0',
-  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `valid` enum('yes','no') NOT NULL DEFAULT 'yes',
-  `privacy` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `user_app`
---
-
-INSERT INTO `user_app` (`user_id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `pub`, `role`, `date`, `valid`, `privacy`) VALUES
-(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 'via Mazzini 37', 10123, 'Torino', 83, '', '', 'yes', 1, '2011-10-10 01:00:00', 'yes', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_email`
---
-
-CREATE TABLE IF NOT EXISTS `user_email` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ref_function` smallint(2) NOT NULL,
-  `description` varchar(255) NOT NULL,
-  `subject` varchar(200) NOT NULL,
-  `text` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ref_function` (`ref_function`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `user_email`
---
-
-INSERT INTO `user_email` (`id`, `ref_function`, `description`, `subject`, `text`) VALUES
-(1, 1, 'email inviata a un utente quando si registra autonomamente e viene automaticamente attivato', '', ''),
-(2, 2, 'email inviata a un utente quando si registra autonomamente e non viene automaticamente attivato', '', '');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_grp`
---
-
-CREATE TABLE IF NOT EXISTS `user_grp` (
-  `id` int(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `no_admin` enum('yes','no') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Dump dei dati per la tabella `user_grp`
---
-
-INSERT INTO `user_grp` (`id`, `name`, `description`, `no_admin`) VALUES
-(1, 'responsabili', 'Gestiscono l''assegnazione degli utenti ai singoli gruppi. Possono inserire, modificare ed eliminare utenti con livello di accesso inferiore al loro.', 'no'),
-(2, 'assistenti', 'Gestiscono gli utenti. Possono inserire e modificare utenti. Hanno restrizioni sulla modifica dei livelli di accesso e delle password. Non possono eliminare nessun utente.', 'no');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_opt`
---
-
-CREATE TABLE IF NOT EXISTS `user_opt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance` int(11) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `more_info` tinyint(1) NOT NULL,
-  `media_info` tinyint(1) NOT NULL,
-  `user_card_view` tinyint(1) NOT NULL,
-  `aut_valid` tinyint(1) NOT NULL,
-  `users_for_page` int(3) NOT NULL,
-  `aut_registration` tinyint(1) NOT NULL,
-  `mod_email` tinyint(1) NOT NULL,
-  `username_email` tinyint(1) NOT NULL,
-  `aut_pwd` tinyint(1) NOT NULL,
-  `pwd_length` int(2) NOT NULL,
-  `pwd_min_length` int(2) NOT NULL,
-  `pwd_max_length` int(2) NOT NULL,
-  `pwd_number` int(10) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
-
---
--- Dump dei dati per la tabella `user_opt`
---
-
-INSERT INTO `user_opt` (`id`, `instance`, `title`, `more_info`, `media_info`, `user_card_view`, `aut_valid`, `users_for_page`, `aut_registration`, `mod_email`, `username_email`, `aut_pwd`, `pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_number`) VALUES
-(1, 0, 'Utenti', 0, 1, 1, 1, 10, 0, 1, 0, 0, 10, 6, 14, 2);
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_registration`
---
-
-CREATE TABLE IF NOT EXISTS `user_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `session` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `user_registration`
---
-
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_role`
---
-
-CREATE TABLE IF NOT EXISTS `user_role` (
-  `role_id` smallint(2) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '',
-  `identifier` varchar(10) NOT NULL DEFAULT '',
-  `default_value` enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`role_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
-
---
--- Dump dei dati per la tabella `user_role`
---
-
-INSERT INTO `user_role` (`role_id`, `name`, `identifier`, `default_value`) VALUES
-(1, 'system administrator', 'sysadmin', 'no'),
-(2, 'administrator', 'admin', 'no'),
-(3, 'poweruser', 'power', 'no'),
-(4, 'user', 'user', 'no'),
-(5, 'free access', 'free', 'yes');
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `user_usr`
---
-
-CREATE TABLE IF NOT EXISTS `user_usr` (
-  `instance` int(11) NOT NULL,
-  `group_id` int(2) NOT NULL,
-  `user_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dump dei dati per la tabella `user_usr`
---
-
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

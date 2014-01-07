@@ -1,7 +1,7 @@
 <?php
 /**
  * \file class.attachedItem.php
- * @brief Contiene la definizione ed implementazione della classe attachedItem.
+ * @brief Contiene la definizione ed implementazione della classe AttachedItem.
  *
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
@@ -15,7 +15,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class attachedItem extends propertyObject {
+class AttachedItem extends Model {
 
   /**
    * @brief istanza del controller
@@ -60,8 +60,8 @@ class attachedItem extends propertyObject {
     $this->_tbl_data = self::$tbl_item;
 
     $this->_fields_label = array(
-      'insertion_date'=>_('Data inserimento'),
-      'last_edit_date'=>_('Data ultima modifica'),
+      'insertion_date'=>_('Inserimento'),
+      'last_edit_date'=>_('Ultima modifica'),
       'category'=>_('Categoria'),
       'file'=>_("File"),
       'notes'=>_("Note")
@@ -123,31 +123,25 @@ class attachedItem extends propertyObject {
 
     $structure['category'] = new foreignKeyField(array(
       'name'=>'category',
-      'value'=>$this->category,
-      'label'=>$this->_fields_label['category'],
-      'fkey_table'=>attachedCtg::$tbl_ctg,
-      'fkey_id'=>'id',
-      'fkey_field'=>'name',
-      'fkey_order'=>'name',
-      'table'=>$this->_tbl_data
+      'model'=>$this,
+      'foreign'=>'attachedCtg',
+      'foreign_order'=>'name',
     ));
 
     $structure['insertion_date'] = new datetimeField(array(
       'name'=>'insertion_date',
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['insertion_date'],
       'auto_now'=>false,
       'auto_now_add'=>true,
-      'value'=>$this->insertion_date 
     ));
 
     $structure['last_edit_date'] = new datetimeField(array(
       'name'=>'last_edit_date',
+      'model'=>$this,
       'required'=>true,
-      'label'=>$this->_fields_label['last_edit_date'],
       'auto_now'=>true,
       'auto_now_add'=>true,
-      'value'=>$this->last_edit_date
     ));
 
     // se esiste l'id costruisce il path, in inserimento lo costruisce la subclass di adminTable
@@ -161,11 +155,11 @@ class attachedItem extends propertyObject {
 
     $structure['file'] = new fileField(array(
       'name'=>'file',
-      'value'=>$this->file,
-      'label'=>$this->_fields_label['file'],
+      'model'=>$this,
+      'required'=>true,
       'extensions'=>array(),
       'path'=>$base_path,
-      'check_type'=>false
+      'check_type'=>false,
     ));
 
     return $structure;
@@ -191,7 +185,7 @@ class attachedItem extends propertyObject {
     $selection = 'id';
     $table = self::$tbl_item;
 
-    $rows = $db->select($selection, $table, $where, $order, $limit);
+    $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
         $res[] = new attachedItem($row['id'], $controller);
@@ -217,52 +211,53 @@ class attachedItem extends propertyObject {
         $item->delete();
       }
     }
-
   }
 
-  /**
-   * @brief Percorso dell'allegato
-   * @param string $type tipo di percorso:
-   *               - abs: assoluto
-   *               - rel: relativo alla DOCUMENT ROOT
-   *               - view: realtivo alla ROOT
-   *               - url: url assoluto
-   *               - download: url relativo per il download
-   * @return string il percorso dell'allegato
-   */
-  public function path($type) {
+	/**
+	 * @brief Percorso dell'allegato
+	 * 
+	 * @param string $type tipo di percorso:
+	 *   - abs: assoluto
+	 *   - rel: relativo alla DOCUMENT ROOT
+	 *   - view: realtivo alla ROOT
+	 *   - url: url assoluto
+	 *   - download: url relativo per il download
+	 * @return string il percorso dell'allegato
+	 */
+	public function path($type) {
 
-    if($type == 'download') {
-      $link = new link();
-      return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
-    }
-    else {
-      $ctg = new attachedCtg($this->category, $this->_controller);
+		if($type == 'download') {
+			$link = new link();
+			return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
+		}
+		else {
+			
+			$ctg = new attachedCtg($this->category, $this->_controller);
+			return $ctg->path($type).$this->file;
+		}
+	}
 
-      return $ctg->path($type).$this->file;
-    }
+	/**
+	 * @brief Link al preview dell'allegato
+	 * 
+	 * @description lightbox per le immagini e dowload per altri tipi di file
+	 * 
+	 * @see path()
+	 * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
+	 */
+	public function previewLink($label = 'filename') {
 
-  }
+		$alabel = $label == 'path' ? $this->path('view') : $this->file;
 
-  /**
-   * @brief Link al preview dell'allegato
-   * @description lightbox per le immagini e dowload per altri tipi di file
-   * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
-   */
-  public function previewLink($label = 'filename') {
-
-    $alabel = $label == 'path' ? $this->path('view') : $this->file;
-
-    if($this->type() === 'img') {
-      $onclick = "Slimbox.open('".$this->path('view')."')";
-      return "<span class=\"link\" onclick=\"$onclick\">".$alabel."</span>";
-    }
-    else {
-      $link = new link();
-      return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
-    }
-
-  }
+		if($this->type() === 'img') {
+			$onclick = "Slimbox.open('".$this->path('view')."')";
+			return "<span class=\"link\" onclick=\"$onclick\">".$alabel."</span>";
+		}
+		else {
+			$link = new link();
+			return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
+	 	}
+	}
 
 }
 

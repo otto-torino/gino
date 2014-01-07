@@ -1,0 +1,48 @@
+#phpModuleView_topbar {
+  padding: 0;
+}
+.top-bar {
+  text-align: right;
+  line-height: 30px;
+  color: #fff;
+  margin: auto;
+  width: 960px;
+  a:link, a:visited, .link {
+    color: #fff; 
+    text-decoration:none;
+  }
+  div > a {
+    padding: 0 10px; 
+    border-left: 1px dotted #fff; 
+    &:first-child {
+      border-width: 0;
+    }
+  }
+  .left {
+    a {
+      padding: 0 10px; 
+      border-left: 1px dotted #fff; 
+      font-size: 11px;
+    }
+  }
+  .selected {
+    color: #ddfd04; 
+    background: transparent !important;
+  }
+}
+
+#topbar-login {
+  display:none;
+  position:absolute;
+  top: 30px;
+  padding: 10px 0;
+  left: 0;
+  background: #650923;
+  .opacity(0.9);
+  width: 100%;
+  line-height: 23px;
+  div {
+    margin: auto;
+    width: 960px;
+  }
+}

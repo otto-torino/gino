@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.pageTag.php
- * Contiene la definizione ed implementazione della classe pageTag.
+ * Contiene la definizione ed implementazione della classe PageTag.
  *
  * @version 1.0
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageTag extends propertyObject {
+class PageTag extends Model {
 
 	private $_controller;
 	public static $_tbl_tag = "page_tag";
@@ -65,7 +65,7 @@ class pageTag extends propertyObject {
 		$db = db::instance();
 
 		$res = null;
-		$rows = $db->select(array('id'), self::$_tbl_tag, "name='".$name."'", null, null);
+		$rows = $db->select(array('id'), self::$_tbl_tag, "name='".$name."'");
 		if($rows and count($rows)) {
 			$res = new pageTag($rows[0]['id'], $instance);
 		}
@@ -84,7 +84,7 @@ class pageTag extends propertyObject {
 		$db = db::instance();
 
 		$res = array();
-		$rows = $db->select(array('id', 'name'), self::$_tbl_tag, "", 'name', null);
+		$rows = $db->select(array('id', 'name'), self::$_tbl_tag, "", array('order'=>'name'));
 		if(count($rows)) {
 			foreach($rows as $row) {
 				if(gOpt('jsescape', $options, false)) {
@@ -112,7 +112,7 @@ class pageTag extends propertyObject {
 
 		if($tag == '') return null;
 
-		$rows = $db->select('id', self::$_tbl_tag, "name='$tag'", null);
+		$rows = $db->select('id', self::$_tbl_tag, "name='$tag'");
 		if(count($rows) && $rows) {
 			return $rows[0]['id'];
 		}

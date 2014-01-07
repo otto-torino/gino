@@ -18,7 +18,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class pageEntryAdminTable extends adminTable {
+class pageEntryAdminTable extends AdminTable {
 	
 	/**
 	 * Metodo chiamato al salvataggio di una pagina 
@@ -73,14 +73,14 @@ class pageEntryAdminTable extends adminTable {
 	public function adminList($model, $options_view=array()) {
 
 		// $this->permission($options_view);
-		
 		$db = db::instance();
-
 		$model_structure = $model->getStructure();
 		$model_table = $model->getTable();
 
 		// some options
 		$this->_filter_fields = gOpt('filter_fields', $options_view, array());
+		$this->_filter_join = gOpt('filter_join', $options_view, array());
+		$this->_filter_add = gOpt('filter_add', $options_view, array());
 		$this->_list_display = gOpt('list_display', $options_view, array());
 		$this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
 		$this->_ifp = gOpt('items_for_page', $options_view, 20);
@@ -95,7 +95,15 @@ class pageEntryAdminTable extends adminTable {
 		$fields_loop = array();
 		if($this->_list_display) {
 			foreach($this->_list_display as $fname) {
-				$fields_loop[$fname] = $model_structure[$fname];
+        if(is_array($fname)) {
+          $fields_loop[$fname['member']] = array(
+            'member' => $fname['member'],
+            'label' => $fname['label']
+          );
+        }
+        else {
+          $fields_loop[$fname] = $model_structure[$fname];
+        }
 			}
 		}
 		else {
@@ -116,7 +124,13 @@ class pageEntryAdminTable extends adminTable {
 
 		// filter form
 		$tot_ff = count($this->_filter_fields);
-		if($tot_ff) $this->setSessionSearch($model);	
+		if($tot_ff) $this->setSessionSearch($model);
+		
+		$tot_ff_join = count($this->_filter_join);
+		if($tot_ff_join) $this->setSessionSearchAdd($model, $this->_filter_join);
+		
+		$tot_ff_add = count($this->_filter_add);
+		if($tot_ff_add) $this->setSessionSearchAdd($model, $this->_filter_add);
 
 		// managing instance
 		$query_where = array();
@@ -125,12 +139,12 @@ class pageEntryAdminTable extends adminTable {
 		}
 		
 		//prepare query
-		$query_selection = "DISTINCT(".$model_table.".id)";
+		$query_selection = $db->distinct($model_table.".id");
 		$query_table = array($model_table);
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
-		$query_where_no_filters = implode(' AND ', $query_where);
+    	$query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
@@ -138,17 +152,17 @@ class pageEntryAdminTable extends adminTable {
 		// order
 		$query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-		$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters, null);
-		$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
+    	$tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
+    	$tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
-		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where), null);
+		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = new PageList($this->_ifp, $tot_records, 'array');
+		$pagelist = loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
 		$limit = array($pagelist->start(), $pagelist->rangeNumber);
 
-		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), $query_order, $limit);
+		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 
 		$heads = array();
@@ -157,48 +171,50 @@ class pageEntryAdminTable extends adminTable {
 
 			if($this->permission($options_view, $field_name))
 			{
-				$model_label = $model_structure[$field_name]->getLabel();
-				$label = is_array($model_label) ? $model_label[0] : $model_label;
-				
-				if($field_name == 'slug') $label = _("Indirizzo");
-
-				if($field_obj->canBeOrdered()) {
+				if(is_array($field_obj)) {
+					$label = $field_obj['label'];
+				}
+				else {
+					$model_label = $model_structure[$field_name]->getLabel();
+					$label = is_array($model_label) ? $model_label[0] : $model_label;
+				}
+				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
 					if($order == $field_name." ASC") {
-						$jsover = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-						$css_class = "arrow_up";
+						$jsover = "$(this).getNext('.fa').removeClass('fa-arrow-circle-up').addClass('fa-arrow-circle-down')";
+						$jsout = "$(this).getNext('.fa').removeClass('fa-arrow-circle-down').addClass('fa-arrow-circle-up')";
+						$css_class = "fa-arrow-circle-up";
 					}
 					elseif($order == $field_name." DESC") {
-						$jsover = "$(this).getNext('.arrow').removeClass('arrow_down').addClass('arrow_up')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up').addClass('arrow_down')";
-						$css_class = "arrow_down";
+						$jsover = "$(this).getNext('.fa').removeClass('fa-arrow-circle-down').addClass('fa-arrow-circle-up')";
+						$jsout = "$(this).getNext('.fa').removeClass('fa-arrow-circle-up').addClass('fa-arrow-circle-down')";
+						$css_class = "fa-arrow-circle-down";
 					}
 					else {
 						$js = '';
-						$jsover = "$(this).getNext('.arrow').addClass('arrow_up')";
-						$jsout = "$(this).getNext('.arrow').removeClass('arrow_up')";
+						$jsover = "$(this).getNext('.fa').removeClass('invisible')";
+						$jsout = "$(this).getNext('.fa').addClass('invisible')";
 						$a_style = "visibility:hidden";
-						$css_class = '';
+						$css_class = 'fa-arrow-circle-up invisible';
 					}
 
 					$add_params = $addParamsUrl;
 					$add_params['order'] = $ord;
 					$link = $this->editUrl($add_params, array('start'));
 					$head_t = "<a href=\"".$link."\" onmouseover=\"".$jsover."\" onmouseout=\"".$jsout."\" onclick=\"$(this).setProperty('onmouseout', '')\">".$label."</a>";
-					$heads[] = $head_t." <div style=\"margin-right: 5px;top:3px;\" class=\"right arrow $css_class\"></div>";
+					$heads[] = $head_t." <span class=\"fa $css_class\"></div>";
 				}
 				else {
 					$heads[] = $label;
 				}
 			}
 		}
-		$heads[] = array('text'=>'', 'class'=>'no_border no_bkg');
+		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
 		$rows = array();
 		foreach($records as $r) {
-				
+			
 			$record_model = new $model($r['id'], $this->_controller);
 			$record_model_structure = $record_model->getStructure();
 
@@ -207,7 +223,12 @@ class pageEntryAdminTable extends adminTable {
 				
 				if($this->permission($options_view, $field_name))
 				{
-					$record_value = (string) $record_model_structure[$field_name];
+					if(is_array($field_obj)) {
+						$record_value = $record_model->$field_obj['member']();
+					}
+					else {
+						$record_value = (string) $record_model_structure[$field_name];
+					}
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
@@ -218,10 +239,13 @@ class pageEntryAdminTable extends adminTable {
 						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
 						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
 						
+						/*
+						 * Personalizzazione
+						 */
+						if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;
+						
 						$record_value = "<a href=\"".$link_field."\">$record_value</a>";
 					}
-					
-					if($field_name == 'slug') $record_value = page::getLinkPage().$record_value;
 					
 					$row[] = $record_value;
 				}
@@ -260,27 +284,27 @@ class pageEntryAdminTable extends adminTable {
 			}
 			
 			if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify')."</a>";
+				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify', array('scale' => 1))."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
 			}
 			$buttons = array(
-				array('text' => implode(' ', $links), 'class' => 'no_border no_bkg')
+				array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
 			); 
 
 			$rows[] = array_merge($row, $buttons);
-    }
+		}
 
-    if($tot_ff) {
-      $caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
-    }
-    else {
-      $caption = '';
-    }
+		if($tot_ff) {
+			$caption = sprintf(_('Risultati %s di %s'), $tot_records, $tot_records_no_filters);
+		}
+		else {
+			$caption = '';
+		}
 
 		$this->_view->setViewTpl('table');
-		$this->_view->assign('class', 'generic');
+		$this->_view->assign('class', 'table table-striped table-hover');
 		$this->_view->assign('caption', $caption);
 		$this->_view->assign('heads', $heads);
 		$this->_view->assign('rows', $rows);
@@ -288,7 +312,7 @@ class pageEntryAdminTable extends adminTable {
 		$table = $this->_view->render();
 
 		if($this->_allow_insertion) {
-			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert')."</a>";
+			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert', array('scale' => 2))."</a>";
 		}
 		else {
 			$link_insert = "";

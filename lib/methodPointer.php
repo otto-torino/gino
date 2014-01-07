@@ -13,6 +13,9 @@
  */
 
 if(isset($_REQUEST['pt'])) {
+
+  Loader::import('sysClass', 'ModuleApp');
+  Loader::import('module', 'ModuleInstance');
 	
 	$db = db::instance();
 
@@ -21,13 +24,18 @@ if(isset($_REQUEST['pt'])) {
 	if(preg_match('#^[^a-zA-Z0-9_-]+?#', $mypointer)) return null;
 	
 	list($mdl, $function) = explode("-", key($_REQUEST['pt']));
-	if(class_exists($mdl) && $db->getFieldFromId(TBL_MODULE_APP, 'instance', 'name', $mdl)!='yes') {$class=$mdl; $instance = new $mdl();}
-	elseif(class_exists($db->getFieldFromId('sys_module', 'class', 'name', $mdl))) {
-		$class = $db->getFieldFromId('sys_module', 'class', 'name', $mdl);
-		$instance = new $class($db->getFieldFromId(TBL_MODULE, 'id', 'name', $mdl));
-	}
-	else exit(error::syserrorMessage("methodPointer", "none", "Modulo sconosciuto", __LINE__));
-	
+  if($module_app = ModuleApp::getFromName($mdl)) {
+    $class = $mdl;
+    $instance = new $mdl();
+  }
+  elseif($module = ModuleInstance::getFromName($mdl)) {
+    $class = $module->className();
+    $instance = new $class($module->id);
+  }
+  else {
+    exit(error::syserrorMessage("methodPointer", "none", "Modulo sconosciuto", __LINE__));
+  }
+
 	$methodCheck = parse_ini_file(APP_DIR.OS.$class.OS.$class.".ini", true);
 	$publicMethod = @$methodCheck['PUBLIC_METHODS'][$function];
 
