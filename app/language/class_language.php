@@ -855,6 +855,8 @@ class language extends AbstractEvtClass{
 	 * 
 	 * @see $_access_user
 	 * @return print
+	 * 
+	 * Il metodo viene richiamato da una request ajax avviata dalla funzione javascript prepareTrlForm().
 	 */
 	public function formTranslation() {
 	 	
@@ -996,17 +998,29 @@ class language extends AbstractEvtClass{
 	 	return $text;
 	}
 
+	/**
+	 * Sostituisce un campo input con un campo editor
+	 * 
+	 * @see Form::editorHtml()
+	 * @return string
+	 * 
+	 * Il metodo viene richiamato come callback di una request ajax (su formTranslation()) avviata dalla funzione javascript prepareTrlForm(). \n
+	 * Se il campo input è di tipo editor, il metodo sovrascrive il campo input creato da formTranslation().
+	 */
 	public function replaceTextarea() {
 	 
 		$gform = new Form('gform', 'post', true);
 
-	 	$field = cleanVar($_POST, 'field', 'string', '');
-		$width = cleanVar($_POST, 'width', 'string', '');
-	 	$fck_toolbar = cleanVar($_POST, 'fck_toolbar', 'string', '');
+		$type = cleanVar($_POST, 'type', 'string', '');
+		
+		if($type == $this->_fckeditor_field)
+		{
+	 		$field = cleanVar($_POST, 'field', 'string', '');
+			$width = cleanVar($_POST, 'width', 'string', '');
+	 		$fck_toolbar = cleanVar($_POST, 'fck_toolbar', 'string', '');
 
-		$GINO = $gform->editorHtml('trnsl_'.$field, null, $fck_toolbar, $width, null, true);
-
-		return $GINO;
+			return $gform->editorHtml('trnsl_'.$field, null, $fck_toolbar, $width, null, true);
+		} else return null;
 	}
 }
 ?>

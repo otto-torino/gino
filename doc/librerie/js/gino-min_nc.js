@@ -202,7 +202,7 @@ function prepareTrlForm(lng_code, el, tbl, field, type, id_value, width, fck_too
 		var data = 'lng_code='+lng_code+'&tbl='+tbl+'&field='+field+'&type='+type+'&id_value='+id_value+'&width='+width+'&fck_toolbar='+fck_toolbar;		
 		ajaxRequest('post', url, data, myTrnsl, {'load':tbl+field, 'cache':true, 'cacheTime':5000, callback: function() { 
 			var url2 = home_file+'?pt[language-replaceTextarea]';	
-			ajaxRequest('post', url2, 'fck_toolbar='+fck_toolbar+'&width='+width+'&field='+field, null, {'script': true }); 
+			ajaxRequest('post', url2, 'fck_toolbar='+fck_toolbar+'&width='+width+'&field='+field+'&type='+type, null, {'script': true }); 
 		}});
 	}
 

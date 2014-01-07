@@ -1443,7 +1443,7 @@ class page extends AbstractEvtClass {
 			'pageEntry', 
 			array(
 				'list_display' => array('id', 'creation_date', 'title', 'slug', 'category_id', 'published', 'private'),
-				'list_title'=>_("Elenco post"), 
+				'list_title'=>_("Elenco pagine"), 
 				'filter_fields'=>array('title', 'category_id', 'tags', 'published')
 				),
 			array(

@@ -84,8 +84,29 @@ class adminTable {
 	protected $_view, $_hidden;
 	
 	protected $_allow_insertion, $_edit_deny, $_delete_deny;
+	
+	/**
+	 * Filtri per la ricerca automatica (corrispondono ai nomi dei campi della tabella)
+	 * 
+	 * @var array
+	 */
+	protected $_filter_fields;
+	
+	/**
+	 * Filtri aggiuntivi associati ai campi della tabella di riferimento (concorrono alla definizione delle loro condizioni)
+	 * 
+	 * @var array
+	 */
+	protected $_filter_join;
+	
+	/**
+	 * Filtri aggiuntivi non collegati ai campi della tabella di riferimento
+	 * 
+	 * @var array
+	 */
+	protected $_filter_add;
 
-	protected $_filter_fields, $_list_display, $_list_remove;
+	protected $_list_display, $_list_remove;
 	protected $_ifp;
 	
 	/**
@@ -660,6 +681,56 @@ class adminTable {
 	 * @param array $options_view
 	 *   array associativo di opzioni
 	 *   - @b filter_fields (array): campi sui quali applicare il filtro per la ricerca automatica
+	 *   - @b filter_join (array): contiene le proprietà degli input form da associare ai campi ai quali viene applicato il filtro; i valori in arrivo da questi input concorrono alla definizione delle condizioni dei campi ai quali sono associati
+	 *     - @a field (string): nome del campo di riferimento; l'input form viene posizionato dopo questo campo
+	 *     - @a name (string): nome dell'input
+	 *     - @a label (string): nome della label
+	 *     - @a data (array): elementi che compongono gli input form radio e select
+	 *     - @a input (string): tipo di input form, valori validi: radio (default), select
+	 *     - @a where_clause (string): nome della chiave da passare alle opzioni del metodo addWhereClauses(); per i campi data: @a operator
+	 *     inoltre contiene le opzioni da passare al metodo clean
+	 *     - @a value_type (string): tipo di dato (default string)
+	 *     - @a method (array): default $_POST
+	 *     - @a escape (boolean): default true
+	 *     Esempio:
+	 *     @code
+	 *     array(
+	 *       'field'=>'date_end', 
+	 *       'label'=>'', 
+	 *       'name'=>'op', 
+	 *       'data'=>array(1=>'<=', 2=>'=', 3=>'>='), 
+	 *       'where_clause'=>'operator'
+	 *     )
+	 *     @endcode
+	 *   - @b filter_add (array): contiene le proprietà degli input form che vengono aggiunti come filtro per la ricerca automatica
+	 *     - @a field (string): nome del campo che precede l'input form aggiuntivo nel form di ricerca
+	 *     - @a name (string): nome dell'input
+	 *     - @a label (string): nome della label
+	 *     - @a data (array): elementi che compongono gli input form radio e select
+	 *     - @a input (string): tipo di input form, valori validi: radio (default), select
+	 *     - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable()
+	 *     inoltre contiene le opzioni da passare al metodo clean
+	 *     - @a value_type (string): tipo di dato (default string)
+	 *     - @a method (array): default $_POST
+	 *     - @a escape (boolean): default true
+	 *     Esempio:
+	 *     @code
+	 *     array(
+	 *       'field'=>'date_end', 
+	 *       'label'=>_("Scaduto"), 
+	 *       'name'=>'expired', 
+	 *       'data'=>array('no'=>_("no"), 'yes'=>_("si")), 
+	 *       'filter'=>'filterWhereExpired'
+	 *     ), 
+	 *     array(
+	 *       'field'=>'date_end', 
+	 *       'label'=>_("Filiali"), 
+	 *       'name'=>'cod_filiale', 
+	 *       'data'=>$array_filiali, 
+	 *       'input'=>'select', 
+	 *       'filter'=>'filterWhereFiliale'
+	 *     )
+	 *     @endcode
 	 *   - @b list_display (array): campi mostrati nella lista (se vuoto mostra tutti)
 	 *   - @b list_remove (array): campi da non mostrare nella lista (default: instance)
 	 *   - @b items_for_page (integer): numero di record per pagina
@@ -688,6 +759,8 @@ class adminTable {
 
 		// some options
 		$this->_filter_fields = gOpt('filter_fields', $options_view, array());
+		$this->_filter_join = gOpt('filter_join', $options_view, array());
+		$this->_filter_add = gOpt('filter_add', $options_view, array());
 		$this->_list_display = gOpt('list_display', $options_view, array());
 		$this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
 		$this->_ifp = gOpt('items_for_page', $options_view, 20);
@@ -723,7 +796,13 @@ class adminTable {
 
 		// filter form
 		$tot_ff = count($this->_filter_fields);
-		if($tot_ff) $this->setSessionSearch($model);	
+		if($tot_ff) $this->setSessionSearch($model);
+		
+		$tot_ff_join = count($this->_filter_join);
+		if($tot_ff_join) $this->setSessionSearchAdd($model, $this->_filter_join);
+		
+		$tot_ff_add = count($this->_filter_add);
+		if($tot_ff_add) $this->setSessionSearchAdd($model, $this->_filter_add);
 
 		// managing instance
 		$query_where = array();
@@ -942,10 +1021,55 @@ class adminTable {
 			}
 		}
 	}
+	
+	/**
+	 * Setta le variabili di sessione usate per filtrare i record nella lista amministrativa (riferimento ai filtri non automatici)
+	 * 
+	 * @see clean()
+	 * @param object $model
+	 * @param array $filters elenco dei filtri
+	 * @return void
+	 */
+	protected function setSessionSearchAdd($model, $filters) {
+
+		$class_name = get_class($model);
+
+		foreach($filters as $array) {
+
+			if(is_array($array) && array_key_exists('name', $array))
+			{
+				$fname = $array['name'];
+				
+				if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
+					$this->session->{$class_name.'_'.$fname.'_filter'} = null;
+				}
+			}
+		}
+
+		if(isset($_POST['ats_submit'])) {
+
+			foreach($filters as $array) {
+				
+				if(is_array($array) && array_key_exists('name', $array))
+				{
+					$fname = $array['name'];
+					
+					if(isset($_POST[$fname]) && $_POST[$fname] !== '') {
+						$this->session->{$class_name.'_'.$fname.'_filter'} = $this->clean($fname, $array);
+					}
+					else {
+						$this->session->{$class_name.'_'.$fname.'_filter'} = null;
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Setta la condizione where usata per filtrare i record nella admin list
-	 *
+	 * 
+	 * @see addWhereJoin()
+	 * @see addWhereExtra()
 	 * @param array $query_where
 	 * @param object $model
 	 * @return string (the where clause)
@@ -957,18 +1081,117 @@ class adminTable {
 
 		foreach($this->_filter_fields as $fname) {
 			if(isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
-				$query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
+				
+				// Filtri aggiuntivi associati ai campi automatici
+				if(count($this->_filter_join))
+				{
+					$where_join = $this->addWhereJoin($model_structure, $class_name, $fname);
+					if(!is_null($where_join))
+						$query_where[] = $where_join;
+					else
+						$query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
+				}
+				else $query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
+			}
+		}
+		
+		// Filtri aggiuntivi non associati ai campi automatici
+		if(count($this->_filter_add))
+		{
+			$where_add = $this->addWhereExtra($class_name);
+			
+			if(count($where_add))
+			{
+				foreach($where_add AS $value)
+				{
+					if(!is_null($value)) $query_where[] = $value;
+				}
 			}
 		}
 	}
-
+	
+	/**
+	 * Elementi che concorrono a determinare le condizioni di ricerca dei campi automatici
+	 * 
+	 * Ci può essere una solo campo input di tipo join.
+	 * 
+	 * @param array $model_structure struttura del modello
+	 * @param string $class_name nome della classe
+	 * @param string $fname nome del campo della tabella al quale associare le condizioni aggiuntive
+	 * @return array
+	 */
+	private function addWhereJoin($model_structure, $class_name, $fname) {
+		
+		foreach($this->_filter_join AS $array)
+		{
+			$field = gOpt('field', $array, null);
+			
+			if(($field && $field == $fname))
+			{
+				$ff_name = $array['name'];
+				$ff_where_clause = array();
+				
+				if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
+				{
+					$ff_data = $array['data'];
+					$ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+					
+					if(array_key_exists('where_clause', $array))
+					{
+						$ff_where_clause_key = $array['where_clause'];
+						$ff_where_clause_value = array_key_exists($ff_value, $ff_data) ? $ff_data[$ff_value] : null;
+						
+						$ff_where_clause = array($ff_where_clause_key=>$ff_where_clause_value);
+					}
+				}
+				
+				return $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Definizione delle condizioni di ricerca aggiuntive a quelle sui campi automatici
+	 * 
+	 * La condizione da inserire nella query di ricerca viene definita nel metodo indicato come valore della chiave @a filter. Il metodo deve essere creato di volta in volta.
+	 * 
+	 * @param string $class_name nome della classe
+	 * @return array
+	 */
+	private function addWhereExtra($class_name) {
+		
+		$where = array();
+		
+		foreach($this->_filter_add AS $array)
+		{
+			$ff_name = $array['name'];
+			
+			if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
+			{
+				$ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+			}
+			else
+			{
+				$ff_value = null;
+			}
+			$ff_filter = $array['filter'];
+			
+			if($ff_filter) $where[] = $this->{$ff_filter}($ff_value);
+		}
+		
+		return $where;
+	}
+	
 	/**
 	 * Form per filtraggio record
 	 * 
 	 * @see permission()
+	 * @see formFiltersAdd()
 	 * @param object $model
 	 * @param array $options autorizzazioni alla visualizzazione dei singoli campi
-	 * @return il form
+	 * @return string (form)
 	 */
 	protected function formFilters($model, $options) {
 
@@ -990,9 +1213,12 @@ class adminTable {
 					$field->setLabel($field_label[0]);
 				}
 				$form .= $field->formElement($gform, array('required'=>false, 'default'=>null));
+				
+				$form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
+				$form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);
 			}
 		}
-
+		
 		$onclick = "onclick=\"$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {
 			if(el.get('type')==='text') el.value='';
 			else if(el.get('type')==='radio') el.removeProperty('checked');
@@ -1003,6 +1229,51 @@ class adminTable {
 		$form .= $gform->cinput('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
 		$form .= $gform->cform();
 
+		return $form;
+	}
+	
+	/**
+	 * Input form dei filtri aggiuntivi
+	 * 
+	 * @param array $filters elenco dei filtri
+	 * @param string $fname nome del campo della tabella al quale far seguire gli eventuali filtri aggiuntivi
+	 * @param string $class_name nome della classe
+	 * @param object $gform
+	 * @return string
+	 */
+	private function formFiltersAdd($filters, $fname, $class_name, $gform) {
+		
+		$form = '';
+		
+		if(count($filters))
+		{
+			foreach($filters AS $array)
+			{
+				$field = gOpt('field', $array, null);
+				
+				if(($field && $field == $fname))
+				{
+					$ff_name = $array['name'];
+					$ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+					$ff_label = gOpt('label', $array, '');
+					$ff_data = gOpt('data', $array, array());
+					$ff_input = gOpt('input', $array, 'radio');
+					
+					if($ff_input == 'radio')
+					{
+						$form .= $gform->cradio($ff_name, $ff_value, $ff_data, '', $ff_label, array('required'=>false));
+					}
+					elseif($ff_input == 'select')
+					{
+						$form .= $gform->cselect($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+					}
+					else
+					{
+						$form .= $gform->cinput($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
+					}
+				}
+			}
+		}
 		return $form;
 	}
 
@@ -1039,6 +1310,25 @@ class adminTable {
 		}
 
 		return $url;
+	}
+	
+	/**
+	 * Formatta un elemento input per l'inserimento in database
+	 * 
+	 * @param string $name nome dell'input form
+	 * @param array $options array associativo di opzioni
+	 *   - @b value_type (string)
+	 *   - @b method (array)
+	 *   - @b escape (boolean)
+	 * @return mixed
+	 */
+	private function clean($name, $options=null) {
+		
+		$value_type = isset($options['value_type']) ? $options['value_type'] : 'string';
+		$method = isset($options['method']) ? $options['method'] : $_POST;
+		$escape = gOpt('escape', $options, true);
+		
+		return cleanVar($method, $name, $value_type, null, array('escape'=>$escape));
 	}
 	
 	/**

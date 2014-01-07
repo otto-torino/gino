@@ -47,6 +47,23 @@ class dateField extends field {
 	}
 	
 	/**
+	 * @see field::filterWhereClause()
+	 * 
+	 * @param string $value
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b operator (string): operatore di confronto della data
+	 * @return string
+	 */
+	public function filterWhereClause($value, $options=array()) {
+
+		$operator = gOpt('operator', $options, null);
+		if(is_null($operator)) $operator = '=';
+		
+		return $this->_table.".".$this->_name." $operator '".$value."'";
+	}
+	
+	/**
 	 * Formatta un elemento input di tipo @a date per l'inserimento in database
 	 * 
 	 * @see field::clean()
