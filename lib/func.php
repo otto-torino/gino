@@ -199,12 +199,16 @@ function dateToDbDate($date, $s='/') {
 /**
  * Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (DD/MM[/YYYY])
  * 
- * @param string $db_date valore del campo date (YYYY-MM-DD)
+ * @param mixed $db_date valore del campo date; string (YYYY-MM-DD) or object(DateTime)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
  * @return string
  */
 function dbDateToDate($db_date, $s='/', $num_year=4) {
+	
+	if(is_object($db_date))
+		$db_date = $db_date->format('Y-m-d');
+	
 	if(empty($db_date) || $db_date=='0000-00-00') return '';
 	$date_array = explode('-', $db_date);
 	$year = substr($date_array[0], -$num_year);
@@ -214,35 +218,59 @@ function dbDateToDate($db_date, $s='/', $num_year=4) {
 /**
  * Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (DD/MM[/YYYY])
  * 
- * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
+ * @param mixed $datetime valore del campo datetime; string (YYYY-MM-DD HH:MM:SS) or object(DateTime)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
  * @return string
  */
 function dbDatetimeToDate($datetime, $s='/', $num_year=4) {
-	$datetime_array = explode(" ", $datetime);
-	return dbDateToDate($datetime_array[0], $s, $num_year);
+	
+	if(is_object($datetime))
+	{
+		$date = $datetime->format('Y-m-d');
+	}
+	else
+	{
+		$datetime_array = explode(" ", $datetime);
+		$date = $datetime_array[0];
+	}
+	
+	return dbDateToDate($date, $s, $num_year);
 }
 
 /**
  * Riporta l'orario di un campo DATETIME (HH:MM:SS)
  * 
- * @param string $datetime valore del campo datetime (YYYY-MM-DD HH:MM:SS)
+ * @param mixed $datetime valore del campo datetime; string (YYYY-MM-DD HH:MM:SS) or object(DateTime)
  * @return string
  */
 function dbDatetimeToTime($datetime) {
-	$datetime_array = explode(" ", $datetime);
-	return $datetime_array[1];
+	
+	if(is_object($datetime))
+	{
+		$time = $datetime->format('H:i:s');
+	}
+	else
+	{
+		$datetime_array = explode(" ", $datetime);
+		$time = $datetime_array[1];
+	}
+	
+	return $time;
 }
 
 /**
  * Mostra l'orario (HH:MM[:SS])
  * 
- * @param string $db_time valore del campo time o dell'output della funzione dbDatetimeToTime (HH:MM:SS)
+ * @param mixed $db_time valore del campo time o dell'output della funzione dbDatetimeToTime; string (HH:MM:SS) or object(DateTime)
  * @param boolean $seconds visualizzazione dei secondi
  * @return string
  */
 function dbTimeToTime($db_time, $seconds=false) {
+	
+	if(is_object($db_time))
+		$db_time = $db_time->format('H:i:s');
+	
 	if(empty($db_time) || $db_time=='00:00:00') return '';
 	if(!$seconds)
 		$db_time = substr($db_time, 0, 5);

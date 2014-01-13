@@ -305,14 +305,14 @@ class FileField extends Field {
 	}
 	
 	/**
-	 * Imposta il carattere '/' come ultimo carattere della directory
+	 * Imposta il separatore di directory come ultimo carattere
 	 *
 	 * @param string $directory nome della directory
 	 * @return string
 	 */
 	private function conformPath($directory){
 		
-		$directory = (substr($directory, -1) != '/' && $directory != '') ? $directory.'/' : $directory;
+		$directory = (substr($directory, -1) != OS && $directory != '') ? $directory.OS : $directory;
 		return $directory;
 	}
 	

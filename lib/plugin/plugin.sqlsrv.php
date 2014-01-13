@@ -98,10 +98,13 @@ class sqlsrv implements DbManager {
 	
 	/**
 	 * @see DbManager::openConnection()
+	 * 
+	 * L'estensione SQLSRV restituisce oggetti DateTime. \n
+	 * È possibile disabilitare la funzione utilizzando l'opzione di connessione ReturnDatesAsStrings.
 	 */
 	public function openConnection() {
 
-		$connectionInfo = array("Database"=>$this->_db_name, "UID"=>$this->_db_user, "PWD"=>$this->_db_password);
+		$connectionInfo = array("Database"=>$this->_db_name, "UID"=>$this->_db_user, "PWD"=>$this->_db_password, "ReturnDatesAsStrings"=>true);
 		
 		if($this->_dbconn = sqlsrv_connect($this->_db_host, $connectionInfo)) {
 			
