@@ -188,8 +188,10 @@ class sqlsrv implements DbManager {
 		}
 		$this->setsql($qry);
 		$this->_qry = $this->execQuery();
+		
+		//$this->_affected = sqlsrv_rows_affected($this->_qry);
 
-		return $this->_qry ? true:false;
+		return $this->_qry ? true : false;
 	}
 
 	/**
@@ -265,7 +267,6 @@ class sqlsrv implements DbManager {
 	 */
 	public function affected() 
 	{ 
-		$this->_affected = sqlsrv_rows_affected();
 		return $this->_affected;
 	}
 	
@@ -274,19 +275,13 @@ class sqlsrv implements DbManager {
 	 */
 	public function getlastid($table)
 	{ 
-		if($this->affected() > 0)
-		{
-			$id = 0;
-    		$res = $this->execQuery("SELECT SCOPE_IDENTITY() AS id"); 
-    		if($row = sqlsrv_fetch_array($res, SQLSRV_FETCH_ASSOC)) { 
-        		$id = $row["id"];
-    		}
-    		$this->_lastid = $id;
-		}
-		else
-		{
-			$this->_lastid = false;
-		}
+		$id = 0;
+		$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS id");	// SCOPE_IDENTITY()
+    	if($row = sqlsrv_fetch_array($res, SQLSRV_FETCH_ASSOC)) { 
+        	$id = $row["id"];
+    	}
+    	$this->_lastid = $id;
+    	
 		return $this->_lastid; 
 	}
 	
@@ -304,6 +299,8 @@ class sqlsrv implements DbManager {
 			$auto_increment = $a[0]['NextId'];
 		}
 		else $auto_increment = 0;
+		
+		$auto_increment++;
 		
 		return $auto_increment;
 	}

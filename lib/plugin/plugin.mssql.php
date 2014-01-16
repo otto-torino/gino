@@ -179,7 +179,7 @@ class mssql implements DbManager {
 		}
 		$this->setsql($qry);
 		$this->_qry = mssql_query($this->_sql);
-
+		
 		return $this->_qry ? true:false;
 	}
 
@@ -256,7 +256,7 @@ class mssql implements DbManager {
 	 */
 	public function affected() 
 	{ 
-		$this->_affected = mssql_rows_affected();
+		$this->_affected = mssql_rows_affected($this->_dbconn);
 		return $this->_affected;
 	}
 	
@@ -265,19 +265,13 @@ class mssql implements DbManager {
 	 */
 	public function getlastid($table)
 	{ 
-		if($this->affected() > 0)
-		{
-			$id = 0;
-    		$res = mssql_query("SELECT SCOPE_IDENTITY() AS id"); 
-    		if($row = mssql_fetch_array($res, MSSQL_ASSOC)) { 
-        		$id = $row["id"]; 
-    		} 
-    		$this->_lastid = $id;
-		}
-		else
-		{
-			$this->_lastid = false;
-		}
+		$id = 0;
+    	$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS id");	// SCOPE_IDENTITY()
+    	if($row = mssql_fetch_array($res, MSSQL_ASSOC)) { 
+        	$id = $row["id"]; 
+    	} 
+    	$this->_lastid = $id;
+		
 		return $this->_lastid; 
 	}
 	
@@ -295,6 +289,8 @@ class mssql implements DbManager {
 			$auto_increment = $a[0]['NextId'];
 		}
 		else $auto_increment = 0;
+		
+		$auto_increment++;
 		
 		return $auto_increment;
 	}

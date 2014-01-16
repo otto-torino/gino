@@ -176,10 +176,13 @@
       if(get_class($obj) == 'ManyToManyThroughField') {
         $values = array();
         $rows = $this->_db->select('*', $obj->getTable(), $obj->getModelTableId()."='".$this->id."'");
-        foreach($rows as $row) {
-          $class = $obj->getM2m();
-          $m2m_obj = new $class($row['id'], $obj->getController());
-          $values[] = $m2m_obj->id;
+        if($rows && count($rows))
+        {
+          foreach($rows as $row) {
+            $class = $obj->getM2m();
+            $m2m_obj = new $class($row['id'], $obj->getController());
+            $values[] = $m2m_obj->id;
+          }
         }
         $this->_m2mt[$field] = $values;
       }
@@ -237,21 +240,25 @@
 	 */
 	public function updateDbData() {
 	
+		$result = true;
+		
 		if($this->_p['id']) { 
-			if(!sizeof($this->_chgP)) return true;
-			
-			$fields = array();
-			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-			
-			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			if(sizeof($this->_chgP)) {
+				$fields = array();
+				foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+				$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			}
 		}
 		else {
-			if(!sizeof($this->_chgP)) return true;
-			
-			$fields = array();
-			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-			
-			$result = $this->_db->insert($fields, $this->_tbl_data);
+			if(sizeof($this->_chgP)) {
+				$fields = array();
+				foreach($this->_chgP as $pName) 
+				{
+					if(!($pName == 'id' and $this->id === null))
+						$fields[$pName] = $this->_p[$pName];
+        		}
+				$result = $this->_db->insert($fields, $this->_tbl_data);
+			}
 		}
 		
 		if(!$result) {
@@ -259,28 +266,29 @@
 		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
-
-    $result = $this->savem2m();
+		
+		$result = $this->savem2m();
 
 		return $result;
-  }
-
-  public function savem2m() {
-    foreach($this->_m2m as $field => $values) {
-      $obj = $this->_structure[$field];
-      if(get_class($obj) == 'ManyToManyField') {
-        $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-        foreach($values as $fid) {
-          $this->_db->insert(array(
-            $obj->getJoinTableId() => $this->id,
-            $obj->getJoinTableM2mId() => $fid
-          ), $obj->getJoinTable());
-        }
-      }
-    }
-    return true;
-
-  }
+	}
+	
+ 	public function savem2m() {
+		
+		foreach($this->_m2m as $field => $values) {
+			$obj = $this->_structure[$field];
+			if(get_class($obj) == 'ManyToManyField') {
+				$this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+				foreach($values as $fid) {
+					$this->_db->insert(array(
+						$obj->getJoinTableId() => $this->id,
+						$obj->getJoinTableM2mId() => $fid
+						), $obj->getJoinTable()
+					);
+				}
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Elimina le proprietà su DB di un oggetto
@@ -317,8 +325,8 @@
 			}
 		}
 
-    $this->deletem2m();
-    $this->deletem2mthrough();
+		$this->deletem2m();
+		$this->deletem2mthrough();
 
 		return true;
 	}
