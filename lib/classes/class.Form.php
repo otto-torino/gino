@@ -1104,6 +1104,7 @@ class Form {
 				foreach($data as $k=>$v)
 				{
 					$check = in_array($k, $checked)? "checked=\"checked\"": "";
+					$value_name = htmlChars($v);
 
 					$GFORM .= "<tr>\n";
 
@@ -1117,10 +1118,10 @@ class Form {
 
 					if($this->option("checkPosition")=='left') {
 					$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-					$GFORM .= "<td>$v</td>";
+					$GFORM .= "<td>$value_name</td>";
 					}
 					else {
-					$GFORM .= "<td>$v</td>";
+					$GFORM .= "<td>$value_name</td>";
 					$GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
 					}
 
@@ -1134,12 +1135,13 @@ class Form {
 		}
 
 		$GFORM .= "</div>\n";
-    if(isset($options['helptext'])) {
-      $title = $options['helptext']['title'];
-      $text = $options['helptext']['text'];
-      $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-    }
-    $GFORM .= "</div>\n";
+		
+		if(isset($options['helptext'])) {
+			$title = $options['helptext']['title'];
+			$text = $options['helptext']['text'];
+			$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+		}
+		$GFORM .= "</div>\n";
 
 		return $GFORM;
 	}

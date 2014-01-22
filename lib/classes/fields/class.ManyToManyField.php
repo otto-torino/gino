@@ -127,7 +127,7 @@ class ManyToManyField extends Field {
     $enum = array();
     foreach($rows as $row) {
       $m2m = new $this->_m2m($row['id']);
-      $enum[$m2m->id] = (string) $m2m;
+      $enum[$m2m->id] = htmlChars((string) $m2m);
     }
 		
 		$this->_enum = $enum;

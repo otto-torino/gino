@@ -215,19 +215,25 @@
 
     $result = true;
 	
+		$result = true;
+		
 		if($this->_p['id']) { 
 			if(sizeof($this->_chgP)) {
-        $fields = array();
-        foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-        $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
-      }
+				$fields = array();
+				foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+				$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			}
 		}
 		else {
 			if(sizeof($this->_chgP)) {
-        $fields = array();
-        foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-        $result = $this->_db->insert($fields, $this->_tbl_data);
-      }
+				$fields = array();
+				foreach($this->_chgP as $pName) 
+				{
+					if(!($pName == 'id' and $this->id === null))
+						$fields[$pName] = $this->_p[$pName];
+        		}
+				$result = $this->_db->insert($fields, $this->_tbl_data);
+			}
 		}
 		
 		if(!$result) {
@@ -239,24 +245,25 @@
 		$result = $this->savem2m();
 
 		return $result;
-  }
-
-  public function savem2m() {
-    foreach($this->_m2m as $field => $values) {
-      $obj = $this->_structure[$field];
-      if(get_class($obj) == 'ManyToManyField') {
-        $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-        foreach($values as $fid) {
-          $this->_db->insert(array(
-            $obj->getJoinTableId() => $this->id,
-            $obj->getJoinTableM2mId() => $fid
-          ), $obj->getJoinTable());
-        }
-      }
-    }
-    return true;
-
-  }
+	}
+	
+ 	public function savem2m() {
+		
+		foreach($this->_m2m as $field => $values) {
+			$obj = $this->_structure[$field];
+			if(get_class($obj) == 'ManyToManyField') {
+				$this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+				foreach($values as $fid) {
+					$this->_db->insert(array(
+						$obj->getJoinTableId() => $this->id,
+						$obj->getJoinTableM2mId() => $fid
+						), $obj->getJoinTable()
+					);
+				}
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Elimina le proprietà su DB di un oggetto
@@ -293,8 +300,8 @@
 			}
 		}
 
-    $this->deletem2m();
-    $this->deletem2mthrough();
+		$this->deletem2m();
+		$this->deletem2mthrough();
 
 		return true;
 	}

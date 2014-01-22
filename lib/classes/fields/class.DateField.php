@@ -34,6 +34,11 @@ class dateField extends field {
 		$this->_value_type = 'string';
 	}
 	
+	function __toString() {
+		
+		return (string) $this->_value;
+	}
+	
 	/**
 	 * Stampa l'elemento del form
 	 * 

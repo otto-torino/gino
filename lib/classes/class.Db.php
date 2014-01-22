@@ -224,7 +224,7 @@ interface DbManager {
 	 * 
 	 * Per ogni campo vengono definite le chiavi:
 	 *   - @b order (string): the ordinal position
-	 *   - @b deafult (null or mixed): the default value
+	 *   - @b default (null or mixed): the default value
 	 *   - @b null (string): whether the field is nullable or not ('NO' or 'YES')
 	 *   - @b type (string): the field type (varchar, int, text, ...); deve ritornare un valore compatibile con quelli definiti in propertyObject::dataType()
 	 *   - @b max_length (null or string): the field max length (es. '200' in un campo varchar)
