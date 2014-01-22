@@ -164,7 +164,8 @@ class translation
 	 	elseif($type == 'fckeditor') {
 		  $onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', true, '$lng_code', '$action')";
 			
-			$GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>40, "rows"=>4, "id"=>'trnsl_'.$field));
+			//$GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>40, "rows"=>4, "id"=>'trnsl_'.$field));
+      $GINO .= $myform->editorHtml('trnsl_'.$field, $text, $fck_toolbar, '100%', 300);
 	 	}
 	 	$onclick = "onclick=\"$onclick\"";
 
@@ -236,8 +237,8 @@ class translation
 	 	
 		$db = db::instance();
     $result = $tbl_id == 'all'
-      ? $db->delete($this->_tbl_translation, "tbl='".$tbl."'")
-      : $db->delete($this->_tbl_translation, "tbl='".$tbl."' AND tbl_id_value='".$tbl_id."'");
+      ? $db->delete(TBL_TRANSLATION, "tbl='".$tbl."'")
+      : $db->delete(TBL_TRANSLATION, "tbl='".$tbl."' AND tbl_id_value='".$tbl_id."'");
 
     return $result;
   }

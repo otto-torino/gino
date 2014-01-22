@@ -41,9 +41,18 @@ class ManyToManyThroughField extends Field {
 	 */
 	function __construct($options) {
 
-		parent::__construct($options);
+		$this->_model = $options['model'];
+		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
+		$this->_lenght = array_key_exists('lenght', $options) ? $options['lenght'] : 11;
+		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
+		$this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : false;
+		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
+		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
 		
-		$this->_default_widget = 'multicheck';
+		$this->_label = $this->_model->fieldLabel($this->_name);
+		$this->_table = $this->_model->getTable();
+
+    $this->_default_widget = 'multicheck';
 		$this->_value_type = 'array';
 
     $this->_controller = $options['controller'];
@@ -51,6 +60,24 @@ class ManyToManyThroughField extends Field {
 		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 
     $this->_model_table_id = strtolower(get_class($this->_model)).'_id';
+
+    $values = array();
+    $db = db::instance();
+    $rows = $db->select('*', $this->getTable(), $this->_model_table_id."='".$this->_model->id."'", array('order' => 'id ASC'));
+    foreach($rows as $row) {
+      $class = $this->_m2m;
+      $m2m_obj = new $class($row['id'], $this->_controller);
+      $values[] = $m2m_obj->id;
+    }
+
+    $this->_model->addm2mthrough($this->_name, $values);
+
+		$this->_value =& $this->_model->{$this->_name};
+		
+		if(array_key_exists('widget', $options)) {
+			$this->_default_widget = $options['widget'];
+		}
+		
 	}
 	
   /**

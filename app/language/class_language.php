@@ -80,24 +80,24 @@ class language extends Controller {
 	 */
 	public function choiceLanguage($p=true){
 
-		$GINO = $this->_registry->pub->scriptAsset("language.css", "languageCSS", 'css');
-		
-		if($this->_registry->sysconf->multi_language == 'yes') {
+		$GINO = $this->_registry->addCss($this->_class_www.'/language.css');
+		if($this->_registry->sysconf->multi_language) {
 			if($p) {
 				$GINO .= "<section id=\"section_language\">\n";
 				$GINO .= '<h1 class="hidden">' . $this->_title . '</h1>';
 			}
-			
-			$query_i = "SELECT label FROM ".$this->_tbl_language." WHERE active='yes' AND code='".$this->_lng_nav."' ORDER BY language";
+      $codes = explode('_', $this->_registry->session->lng);
+			$query_i = "SELECT label FROM ".TBL_LANGUAGE." WHERE active='1' AND language_code='".$codes[0]."' AND country_code='".$codes[1]."' ORDER BY language";
 			$a_i = $this->_db->selectquery($query_i);
 			$lngSupport = sizeof($a_i)>0 ? true:false;
 
-			$query = "SELECT label, code FROM ".$this->_tbl_language." WHERE active='yes' ORDER BY language";
+			$query = "SELECT id, label, country_code, language_code FROM ".TBL_LANGUAGE." WHERE active='1' ORDER BY language";
 			$a = $this->_db->selectquery($query);
 			if(sizeof($a) > 0)
 			{
 				$list = '';
-				foreach($a AS $b) {
+        foreach($a AS $b) {
+          $lng = new Lang($b['id']);
 					if($this->_flag_language) {
 						$language = "<img src=\"".$this->_img_www.'/'.$this->_flag_prefix.htmlChars($b['label']).$this->_flag_suffix."\" />";
 						$space = " ";
@@ -107,10 +107,10 @@ class language extends Controller {
 						$space = "| ";
 					}
 
-					if(($lngSupport && $b['code'] == $this->_lng_nav) || (!$lngSupport && $b['code']== $this->_lng_dft))
-						$list .= "$space $language \n";
+					if(($lngSupport && $lng->code() == $this->_registry->session->lng) || (!$lngSupport && $lng->code()== $this->_registry->session->lngDft))
+						$list .= "$space <span>$language</span> \n";
 					else
-						$list .= "$space <a href=\"".$this->_home."?lng=$b[code]\">$language</a> \n";
+						$list .= "$space <a href=\"".$this->_home."?lng=".$lng->code()."\">$language</a> \n";
 				}
 				$list = substr_replace($list, '', 0, 2);
 				$GINO .= $list;

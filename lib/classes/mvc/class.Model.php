@@ -94,11 +94,6 @@
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
 
-    $this->initm2m();
-    $this->initm2mthrough();
-		
-		//$this->_locale = locale::instance_to_class($this->_main_class);
-		
     $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
@@ -119,13 +114,14 @@
 	 * 
 	 * @param string $pName
 	 */
-	public function __get($pName) {
-		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return null;
+  public function &__get($pName) {
+    $null = null;
+		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
     elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
 		elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
     elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
     elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
-    else return null;
+    else return $null;
 	}
 	
 	/**
@@ -153,37 +149,17 @@
 	}
 
   /**
-   * Inizializza i m2m del modello
+   * Aggiunge un m2m al modello
    */
-  protected function initm2m() {
-    foreach($this->_structure as $field => $obj) {
-      if(get_class($obj) == 'ManyToManyField') {
-        $values = array();
-        $rows = $this->_db->select('*', $obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-        foreach($rows as $row) {
-          $values[] = $row[$obj->getJoinTableM2mId()];
-        }
-        $this->_m2m[$field] = $values;
-      }
-    }
+  public function addm2m($field, $value) {
+    $this->_m2m[$field] = $value;
   }
 
   /**
-   * Inizializza i m2m through model del modello
+   * Aggiunge un m2m through al modello
    */
-  protected function initm2mthrough() {
-    foreach($this->_structure as $field => $obj) {
-      if(get_class($obj) == 'ManyToManyThroughField') {
-        $values = array();
-        $rows = $this->_db->select('*', $obj->getTable(), $obj->getModelTableId()."='".$this->id."'");
-        foreach($rows as $row) {
-          $class = $obj->getM2m();
-          $m2m_obj = new $class($row['id'], $obj->getController());
-          $values[] = $m2m_obj->id;
-        }
-        $this->_m2mt[$field] = $values;
-      }
-    }
+  public function addm2mthrough($field, $value) {
+    $this->_m2mt[$field] = $value;
   }
 
   /**
@@ -236,22 +212,22 @@
 	 * @return boolean
 	 */
 	public function updateDbData() {
+
+    $result = true;
 	
 		if($this->_p['id']) { 
-			if(!sizeof($this->_chgP)) return true;
-			
-			$fields = array();
-			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-			
-			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			if(sizeof($this->_chgP)) {
+        $fields = array();
+        foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+        $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+      }
 		}
 		else {
-			if(!sizeof($this->_chgP)) return true;
-			
-			$fields = array();
-			foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-			
-			$result = $this->_db->insert($fields, $this->_tbl_data);
+			if(sizeof($this->_chgP)) {
+        $fields = array();
+        foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
+        $result = $this->_db->insert($fields, $this->_tbl_data);
+      }
 		}
 		
 		if(!$result) {
@@ -259,8 +235,8 @@
 		}
 
 		if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
-
-    $result = $this->savem2m();
+		
+		$result = $this->savem2m();
 
 		return $result;
   }

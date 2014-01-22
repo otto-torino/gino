@@ -788,9 +788,9 @@ class Form {
     if($this->option('img_preview')) $GFORM .= $this->imagePreviewer();
     $GFORM .= $this->editorHtml($name, $value, $this->option('fck_toolbar'), $this->option('fck_width'), $this->option('fck_height'));
 
-    if($this->option('trnsl') AND $this->_multi_language == 'yes') {
+    if($this->option('trnsl') AND $this->_multi_language) {
       if($this->option('trnsl_id'))
-        $GFORM .= "<div class=\"form-trnsl\">".$this->_lng_trl->formFieldTranslation($this->_fckeditor_field, $this->option('trnsl_table'), $this->option('field'), $this->option('trnsl_id'), $this->option('fck_width'), $this->option('fck_toolbar'))."</div>";
+        $GFORM .= "<div class=\"form-trnsl\">".$this->formFieldTranslation($this->_fckeditor_field, $this->option('trnsl_table'), $this->option('field'), $this->option('trnsl_id'), $this->option('fck_width'), $this->option('fck_toolbar'))."</div>";
     }
 
     if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";

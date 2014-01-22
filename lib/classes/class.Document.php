@@ -175,8 +175,14 @@ class Document {
     }
     
     $this->_registry->addJs(SITE_JS."/mootools-1.4.0-yc.js");
+    $this->_registry->addJs(SITE_JS."/modernizr.js");
     $this->_registry->addJs(SITE_JS."/gino-min.js");
-    
+
+    $browser = get_browser_info();
+    if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
+      $this->_registry->addJs(SITE_JS."/respond.js");
+    }
+
     if(pub::getConf("captcha_public") && pub::getConf("captcha_private"))
       $this->_registry->addJs("http://api.recaptcha.net/js/recaptcha_ajax.js");
   }

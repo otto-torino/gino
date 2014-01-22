@@ -71,7 +71,7 @@ class Field {
 
 		$this->_label = $this->_model->fieldLabel($this->_name);
 		$this->_table = $this->_model->getTable();
-		$this->_value = $this->_model->{$this->_name};
+		$this->_value =& $this->_model->{$this->_name};
 		
 		if(array_key_exists('widget', $options)) {
 			$this->_default_widget = $options['widget'];

@@ -406,7 +406,7 @@ class sysClass extends Controller {
     
     $this->requirePerm('can_admin');
     
-    $gform = new Form('mform', 'post', false);
+    $gform = Loader::load('Form', array('mform', 'post', false));
     $gform->save('mdataform');
     $req_error = $gform->arequired();
 
