@@ -992,6 +992,7 @@ class Form {
 	 *     - string: nome del campo con il testo da tradurre
 	 *     - array: nomi dei campi da concatenare
 	 *   - @b idName (string): nome del campo di riferimento
+	 *   - @b encode_html (boolean): attiva la conversione del testo dal database ad html (default true)
 	 * @return string
 	 * 
 	 * Esempio
@@ -1007,6 +1008,8 @@ class Form {
 		}
 		
 		$this->setOptions($options);
+		$encode_html = is_bool($this->option('encode_html')) ? $this->option('encode_html') : true;
+		
     	$GFORM = "<div class=\"form-row\">";
 		$GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
 
@@ -1075,9 +1078,11 @@ class Form {
 					}
 					elseif(is_string($field))
 					{
-						$value_name = htmlChars($this->_trd->selectTXT($this->option('table'), $field, $val1, $this->option('idName')));
+						$value_name = $this->_trd->selectTXT($this->option('table'), $field, $val1, $this->option('idName'));
 					}
 					else $value_name = '';
+					
+					if($encode_html && $value_name) $value_name = htmlChars($value_name);
 					
 					if($this->option("checkPosition")=='left') {
 						$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
@@ -1104,7 +1109,8 @@ class Form {
 				foreach($data as $k=>$v)
 				{
 					$check = in_array($k, $checked)? "checked=\"checked\"": "";
-					$value_name = htmlChars($v);
+					$value_name = $v;
+					if($encode_html && $value_name) $value_name = htmlChars($value_name);
 
 					$GFORM .= "<tr>\n";
 
@@ -1219,8 +1225,13 @@ class Form {
 		if(is_array($data)) {
 			if(sizeof($data) > 0) {
 				foreach ($data as $key=>$value) {
-					if($this->option('maxChars')) $value = cutHtmlText($value, $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
-						$GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
+					if($this->option('maxChars'))
+					{
+						$value = cutHtmlText($value, $this->option('maxChars'), '...', true, $this->option('cutWords')?$this->option('cutWords'):false, true);
+					}
+					$value = htmlChars($value);
+					
+					$GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
 				}
 			}
 			//else return _("non risultano opzioni disponibili");

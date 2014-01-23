@@ -226,8 +226,8 @@ interface DbManager {
 	 *   - @b order (string): the ordinal position
 	 *   - @b default (null or mixed): the default value
 	 *   - @b null (string): whether the field is nullable or not ('NO' or 'YES')
-	 *   - @b type (string): the field type (varchar, int, text, ...); deve ritornare un valore compatibile con quelli definiti in propertyObject::dataType()
-	 *   - @b max_length (null or string): the field max length (es. '200' in un campo varchar)
+	 *   - @b type (string): the field type (varchar, int, text, ...); must return a compatible value with those defined in Model::dataType()
+	 *   - @b max_length (null or string): the field max length (es. '200' in varchar field)
 	 *   - @b n_int (string): the number of int digits
 	 *   - @b n_precision (integer): the number of decimal digits
 	 *   - @b key (string): the field key if set (ex. 'PRI' for primary key, 'UNI' for unique key)

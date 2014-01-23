@@ -272,6 +272,11 @@
 		return $result;
 	}
 	
+	/**
+	 * Salva i ManyToMany
+	 * 
+	 * @return boolean
+	 */
  	public function savem2m() {
 		
 		foreach($this->_m2m as $field => $values) {
@@ -524,18 +529,35 @@
 		return $structure;
 	}
 	
+ 	/**
+	 * Uniforma il tipo di dato di un campo definito dal metodo DbManager::getTableStructure() 
+	 * e ritorna il nome della classe che gestisce il modello del tipo di campo
+	 * 
+	 * @param string $type tipo di dato
+	 * @return string
+	 */
 	private function dataType($type) {
 		
-		if($type == 'tinyint' || $type == 'smallint'  || $type == 'mediumint' || $type == 'int' || $type == 'bigint')
+		if($type == 'tinyint' || $type == 'smallint' || $type == 'int' || $type == 'mediumint' || $type == 'bigint')
+		{
 			$dataType = 'integer';
-		elseif($type == 'float' || $type == 'double' || $type == 'decimal')
+		}
+		elseif($type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'numeric')
+		{
 			$dataType = 'float';
-		elseif($type == 'mediumtext')
+		}
+		elseif($type == 'mediumtext' || $type == 'longtext')
+		{
 			$dataType = 'text';
+		}
 		elseif($type == 'varchar')
+		{
 			$dataType = 'char';
+		}
 		else
+		{
 			$dataType = $type;
+		}
 		
 		$dataType = ucfirst($dataType).'Field';
 		

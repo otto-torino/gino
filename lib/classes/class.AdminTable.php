@@ -749,7 +749,7 @@ class AdminTable {
         if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
           error::raise404();	
         }
-        $title = sprintf(_("Modifica \"%s\""), (string) $model_obj);
+        $title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
       }
       // insert
       else {
@@ -1004,6 +1004,9 @@ class AdminTable {
           else {
             $record_value = (string) $record_model_structure[$field_name];
           }
+          
+          $record_value = htmlChars($record_value);
+          
           if(isset($link_fields[$field_name]) && $link_fields[$field_name])
           {
             $link_field = $link_fields[$field_name]['link'];

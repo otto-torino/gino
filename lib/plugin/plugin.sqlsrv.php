@@ -566,13 +566,15 @@ class sqlsrv implements DbManager {
 		
 		while ($td = sqlsrv_fetch_array($tables)) {
 			$table = $td[0];
-			$r = $this->execQuery("SHOW CREATE TABLE `$table`");
+			$r = $this->execQuery("SHOW CREATE TABLE $table");
+			//SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='page_entry' ORDER BY ORDINAL_POSITION
 			if ($r) {
 				$insert_sql = "";
 				$d = sqlsrv_fetch_array($r);
 				$d[1] .= ";";
 				$SQL[] = str_replace("\n", "", $d[1]);
-				$table_query = $this->execQuery("SELECT * FROM `$table`");
+				
+				$table_query = $this->execQuery("SELECT * FROM $table");
 				$num_fields = sqlsrv_num_fields($table_query);
 				while ($fetch_row = sqlsrv_fetch_array($table_query)) {
 					$insert_sql .= "INSERT INTO $table VALUES(";
@@ -621,19 +623,19 @@ class sqlsrv implements DbManager {
 			$constraint_type = $this->getConstraintType($column_name, $table);
 			$key = !is_null($constraint_type['key']) ? $constraint_type['key'] : '';
 			
-			$data_type = $row['DATA_TYPE'];
-			if(($data_type == 'varchar' || $data_type == 'nvarchar') && $row['CHARACTER_MAXIMUM_LENGTH'] == '-1')
-				$data_type = 'text';
-			elseif($data_type == 'nchar' || $data_type == 'nvarchar' || $data_type == 'varchar')
-				$data_type = 'char';
+			// Data Type
+			$data_type = $this->getDataType($row);
 			
-			//$extra = $column_name == 'id' ? 'auto_increment' : null;
+			// Length
+			$field_length = $this->getFieldLength($row);
 			
+			// Auto-increment
 			if($column_name == 'id' or (preg_match("#^[a-zA-Z0-9]+(_id)$#", $column_name) && $row['ORDINAL_POSITION'] == 1))
 				$extra = 'auto_increment';
 			else
 				$extra = null;
 			
+			// Check constraint
 			$enum = $this->getCheckConstraint($column_name, $table);
 			
 			$fields[$column_name] = array(
@@ -641,14 +643,9 @@ class sqlsrv implements DbManager {
 				"default"=>$row['COLUMN_DEFAULT'],
 				"null"=>$row['IS_NULLABLE'],
 				"type"=>$data_type,
-				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
-				
-				//"n_int"=>isset($matches[2]) ? $matches[2] : 0,
-				//"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
-				
+				"max_length"=>$field_length,
 				"n_int"=>$row['NUMERIC_PRECISION'],
-				"n_precision"=>$row['NUMERIC_PRECISION_RADIX'],		// VERIFICARE FLOAT
-				
+				"n_precision"=>$row['NUMERIC_PRECISION_RADIX'],	
 				"key"=>$key,
 				"extra"=>$extra,
 				"enum"=>$enum
@@ -662,6 +659,77 @@ class sqlsrv implements DbManager {
 		$structure['fields'] = $fields;
 
 		return $structure;
+	}
+	
+	/**
+	 * Ricava il tipo di dato
+	 * 
+	 * Il tipo di dato deve essere compatibile con quelli definiti in Model::dataType().
+	 * 
+	 * @param array $info
+	 * @return string
+	 */
+	private function getDataType($info) {
+		
+		$data_type = $info['DATA_TYPE'];
+		
+		if(($data_type == 'varchar' || $data_type == 'nvarchar') && $info['CHARACTER_MAXIMUM_LENGTH'] == '-1')
+			$data_type = 'text';
+		elseif($data_type == 'nchar' || $data_type == 'nvarchar' || $data_type == 'varchar')
+			$data_type = 'char';
+		
+		return $data_type;
+	}
+	
+	/**
+	 * Ricava il numero di caratteri di un campo
+	 * 
+	 * @param array $info
+	 * @return integer
+	 */
+	private function getFieldLength($info) {
+		
+		$data_type = $info['DATA_TYPE'];
+		$maximum_length = $info['CHARACTER_MAXIMUM_LENGTH'];
+		$numeric_precision = $info['NUMERIC_PRECISION'];
+		$numeric_precision_radix = $info['NUMERIC_PRECISION_RADIX'];
+		$numeric_scale = $info['NUMERIC_SCALE'];
+		$datetime_precision = $info['DATETIME_PRECISION'];
+		
+		if(is_int($maximum_length))
+		{
+			$length = $maximum_length;
+		}
+		elseif($maximum_length == -1)	// varchar(max)
+		{
+			$length = 2147483647;
+		}
+		elseif(is_int($numeric_precision))
+		{
+			$length = $numeric_precision;
+			
+			if(is_int($numeric_scale) && $numeric_scale > 0)
+				$length = $numeric_precision+1;
+		}
+		elseif($datetime_precision !== null)
+		{
+			if($data_type == 'date')
+			{
+				$length = 10;
+			}
+			elseif($data_type == 'time')
+			{
+				$length = 8;
+			}
+			elseif($data_type == 'datetime' || $data_type == 'datetime2')
+			{
+				$length = 19;
+			}
+			else $length = 20;
+		}
+		else $length = null;
+		
+		return $length;
 	}
 	
 	/**
@@ -701,11 +769,11 @@ class sqlsrv implements DbManager {
 	}
 	
 	/**
-	 * Verifica se una colonna ha un vincolo CHECK
+	 * Verifica se una colonna ha un vincolo CHECK e ne ricava il vincolo
 	 * 
 	 * @param string $column
 	 * @param string $table
-	 * @return string
+	 * @return string, @example ([no_admin]='no' OR [no_admin]='yes')
 	 */
 	private function getCheckConstraint($column, $table) {
 		

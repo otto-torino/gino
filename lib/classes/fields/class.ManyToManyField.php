@@ -67,18 +67,18 @@ class ManyToManyField extends Field {
 	
 	public function __toString() {
 
-    $res = array();
-    foreach($this->_model->{$this->_name} as $id) {
-      if($this->_m2m_controller) {
-        $obj = new $this->_m2m($id, $this->_m2m_controller);
-      }
-      else {
-        $obj = new $this->_m2m($id);
-      }
-      $res[] = (string) $obj;
-    }
-    return implode(', ', $res);
-  }
+		$res = array();
+		foreach($this->_model->{$this->_name} as $id) {
+			if($this->_m2m_controller) {
+				$obj = new $this->_m2m($id, $this->_m2m_controller);
+			}
+			else {
+				$obj = new $this->_m2m($id);
+			}
+			$res[] = (string) $obj;
+		}
+		return implode(', ', $res);
+	}
 	
   public function getJoinTable() {
     return $this->_join_table;
@@ -100,16 +100,17 @@ class ManyToManyField extends Field {
 	 * @return string
 	 */
 	public function formElement($form, $options) {
-    $db = db::instance();
-    $m2m = new $this->_m2m(null);
-    $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-    $enum = array();
-    foreach($rows as $row) {
-      $m2m = new $this->_m2m($row['id']);
-      $enum[$m2m->id] = htmlChars((string) $m2m);
-    }
+    
+		$db = db::instance();
+		$m2m = new $this->_m2m(null);
+		$rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
+		$enum = array();
+		foreach($rows as $row) {
+			$m2m = new $this->_m2m($row['id']);
+			$enum[$m2m->id] = (string) $m2m;
+		}
 		
-    $this->_value = $this->_model->{$this->_name};
+		$this->_value = $this->_model->{$this->_name};
 		$this->_enum = $enum;
 		$this->_name .= "[]";
 

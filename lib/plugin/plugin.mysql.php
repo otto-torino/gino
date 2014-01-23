@@ -491,7 +491,7 @@ class mysql implements DbManager {
 				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
 				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
 				"key"=>$row['COLUMN_KEY'],
-				"extra"=>$row['EXTRA'] ,
+				"extra"=>$row['EXTRA'],
 				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
 			);
 			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
