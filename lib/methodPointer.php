@@ -24,7 +24,8 @@ if(isset($_REQUEST['pt'])) {
 	if(preg_match('#^[^a-zA-Z0-9_-]+?#', $mypointer)) return null;
 	
 	list($mdl, $function) = explode("-", key($_REQUEST['pt']));
-  if($module_app = ModuleApp::getFromName($mdl)) {
+  $module_app = ModuleApp::getFromName($mdl);
+  if($module_app && !$module_app->instantiable) {
     $class = $mdl;
     $instance = new $mdl();
   }

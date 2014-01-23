@@ -290,7 +290,7 @@ class AdminTable {
     $structure = array();
     $form_upload = false;
       $form_required = array();
-    foreach($model->structure($model->id) as $field=>$object) {
+    foreach($model->getStructure() as $field=>$object) {
       
       if($addCell)
       {

@@ -14,6 +14,11 @@
 include(LIB_DIR.OS.'func.var.php');
 
 /**
+ * Include le librerie per il riconoscimento browser
+ */
+include(LIB_DIR.OS.'func.browser.php');
+
+/**
  * Ricava il percorso relativo a partire da un percorso assoluto
  * 
  * @param string $abspath percorso assoluto
@@ -836,6 +841,8 @@ function share($site, $url, $title=null, $description=null) {
  */
 function shareAll($social, $url, $title=null, $description=null) {
 
+  $registry = registry::instance();
+
 	if($social==="all") $social = array("facebook", "twitter", "linkedin", "digg", "googleplus");
 
 	$items = array();
@@ -847,7 +854,7 @@ function shareAll($social, $url, $title=null, $description=null) {
 			$items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
 		}
 		elseif($s=='linkedin') {
-			$items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode(pub::variable('head_title'))."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
+			$items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode($registry->sysconf->head_title)."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
 		}
 		elseif($s=='googleplus') {
 			$items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";

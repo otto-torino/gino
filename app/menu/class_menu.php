@@ -251,6 +251,14 @@ class menu extends Controller {
         $this->actionDelMenuVoice();
         exit();
       }
+      elseif(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
+        if(isset($_GET['save']) and $_GET['save'] == '1') {
+          $this->_trd->actionTranslation();
+        }
+        else {
+          $this->_trd->formTranslation();
+        }
+      }
       elseif($this->_action == 'insert') {
         $GINO = $this->formMenuVoice($menuVoice, $parent);
       }

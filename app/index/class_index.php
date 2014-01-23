@@ -109,7 +109,7 @@ class index extends Controller{
     }
 
     $list = array();
-    $modules_app = ModuleApp::get(array('where' => "active='1'"));
+    $modules_app = ModuleApp::get(array('where' => "active='1' AND instantiable='0'"));
     if(count($modules_app)) {
       foreach($modules_app as $module_app) {
         if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->name, 'manage'.ucfirst($module_app->name))) {

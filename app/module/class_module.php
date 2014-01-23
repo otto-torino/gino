@@ -346,7 +346,7 @@ class module extends Controller {
      * create view files
      */
     $view_files = $class_elements['views'];
-    foreach($view_files as $view_file => $description) {
+    foreach($view_files as $view_file => $vdescription) {
 
       $view_content = file_get_contents(APP_DIR.OS.$class.OS.'views'.OS.$view_file);
 

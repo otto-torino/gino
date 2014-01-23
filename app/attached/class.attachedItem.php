@@ -125,6 +125,7 @@ class AttachedItem extends Model {
       'name'=>'category',
       'model'=>$this,
       'foreign'=>'attachedCtg',
+      'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
     ));
 
