@@ -9,10 +9,17 @@
           <?= $form_filters ?>
         </div>
       </div>
-    <?php endif ?> 
-    <?php if($link_insert): ?>
-      <div class="right"><?= $link_insert ?></div>
-    <?php endif ?> 
+    <?php endif ?>
+    <?php if($link_insert || $link_export): ?>
+      <div class="right">
+        <? if($link_export): ?>
+			<?= $link_export.' ' ?>
+		<?php endif ?>
+		<? if($link_insert): ?>
+			<?= $link_insert ?>
+		<?php endif ?>
+      </div>
+    <?php endif ?>
     <div class="null"></div>
   </header>
   <? if($description): ?>

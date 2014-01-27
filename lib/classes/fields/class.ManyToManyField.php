@@ -26,7 +26,7 @@ class ManyToManyField extends Field {
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
-  protected $_join_table, $_join_table_id, $_join_table_m2m_id;
+	protected $_join_table, $_join_table_id, $_join_table_m2m_id;
 	protected $_enum;
 	
 	/**
@@ -47,7 +47,7 @@ class ManyToManyField extends Field {
 	 */
 	function __construct($options) {
 
-    $this->_model = $options['model'];
+		$this->_model = $options['model'];
 		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
 		$this->_lenght = array_key_exists('lenght', $options) ? $options['lenght'] : 11;
 		$this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : false;
@@ -58,7 +58,7 @@ class ManyToManyField extends Field {
 		$this->_label = $this->_model->fieldLabel($this->_name);
 		$this->_table = $this->_model->getTable();
 
-    $this->_default_widget = 'multicheck';
+		$this->_default_widget = 'multicheck';
 		$this->_value_type = 'array';
 		
 		$this->_m2m = $options['m2m'];
@@ -67,23 +67,22 @@ class ManyToManyField extends Field {
 		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 		$this->_join_table = $options['join_table'];
 
-    $this->_join_table_id = strtolower(get_class($this->_model)).'_id';
-    $this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
+		$this->_join_table_id = strtolower(get_class($this->_model)).'_id';
+		$this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
 
-    $db = db::instance();
-    $rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_model->id."'");
-    $values = array();
-    foreach($rows as $row) {
-      $values[] = $row[$this->_join_table_m2m_id];
-    }
-    $this->_model->addm2m($this->_name, $values);
+		$db = db::instance();
+		$rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_model->id."'");
+		$values = array();
+		foreach($rows as $row) {
+			$values[] = $row[$this->_join_table_m2m_id];
+		}
+		$this->_model->addm2m($this->_name, $values);
 
 		$this->_value =& $this->_model->{$this->_name};
 		
 		if(array_key_exists('widget', $options)) {
 			$this->_default_widget = $options['widget'];
 		}
-
 	}
 	
 	public function __toString() {

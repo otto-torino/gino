@@ -1258,12 +1258,12 @@ class Form {
 		}
 
     	$GFORM .= "</select>\n";
-
-    if(isset($options['helptext'])) {
-      $title = $options['helptext']['title'];
-      $text = $options['helptext']['text'];
-      $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-    }
+    	
+    	if(isset($options['helptext'])) {
+    		$title = $options['helptext']['title'];
+    		$text = $options['helptext']['text'];
+    		$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    	}
 
     	return $GFORM;
 	}

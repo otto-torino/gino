@@ -25,7 +25,7 @@
  * 
  * Per attivare l'importazione dei file utilizzare l'opzione @a import_file come specificato nel metodo modelAction() e sovrascrivere il metodo readFile(). \n
  * 
- * @b "Gestione dei permessi" \n
+ * ###Gestione dei permessi
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
  * @code
@@ -56,7 +56,7 @@
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  * 
- * Tabella delle associazioni del tipo di campo con il tipo input di default
+ * ###Tabella delle associazioni del tipo di campo con il tipo input di default
  * 
  * <table>
  * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
@@ -76,6 +76,14 @@
  * <tr><td>timeField()</td><td>TIME</td><td>time</td></tr>
  * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
+ * 
+ * ###Problemi
+ * Nella visualizzazione degli elenchi (metodo adminList()) gli eventuali link sui valori dei record non funzionano con i permalinks
+ * @code
+ * //$plink = new Link();
+ * //$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
+ * $link_field = $link_field.'&'.$link_field_param."=".$r['id'];
+ * @endcode
  */
 class AdminTable {
 
@@ -649,6 +657,7 @@ class AdminTable {
     $insert = cleanVar($_GET, 'insert', 'int', '');
     $edit = cleanVar($_GET, 'edit', 'int', '');
     $delete = cleanVar($_GET, 'delete', 'int', '');
+    $export = cleanVar($_GET, 'export', 'int', '');
     $trnsl = cleanVar($_GET, 'trnsl', 'int', '');
 
     if($trnsl) {
@@ -669,6 +678,7 @@ class AdminTable {
       $buffer = $this->adminDelete($model_obj, $options_form);
     }
     else {
+      $options_view['export'] = $export;
       $buffer = $this->adminList($model_obj, $options_view);
     }
 
@@ -783,6 +793,7 @@ class AdminTable {
    *     - @a name (string): nome dell'input
    *     - @a label (string): nome della label
    *     - @a data (array): elementi che compongono gli input form radio e select
+   *     - @a default (string): valore di default
    *     - @a input (string): tipo di input form, valori validi: radio (default), select
    *     - @a where_clause (string): nome della chiave da passare alle opzioni del metodo addWhereClauses(); per i campi data: @a operator
    *     inoltre contiene le opzioni da passare al metodo clean
@@ -804,6 +815,7 @@ class AdminTable {
    *     - @a name (string): nome dell'input
    *     - @a label (string): nome della label
    *     - @a data (array): elementi che compongono gli input form radio e select
+   *     - @a default (string): valore di default
    *     - @a input (string): tipo di input form, valori validi: radio (default), select
    *     - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable()
    *     inoltre contiene le opzioni da passare al metodo clean
@@ -843,6 +855,9 @@ class AdminTable {
    *     - @a label (string), nome del bottone
    *     - @a link (string), indirizzo del collegamento
    *     - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
+   *   - @b view_export (boolean): attiva il collegamento per l'esportazione dei record (default false)
+   *   - @b name_export (string): nome del file di esportazione
+   *   - @b export (integer): valore che indica la richiesta del file di esportazione (il parametro viene passato dal metodo backOffice)
    * @return string
    */
   public function adminList($model, $options_view=array()) {
@@ -865,6 +880,9 @@ class AdminTable {
     $link_fields = gOpt('link_fields', $options_view, array());
     $addParamsUrl = gOpt('add_params_url', $options_view, array());
     $add_buttons = gOpt('add_buttons', $options_view, array());
+    $view_export = gOpt('view_export', $options_view, false);
+    $name_export = gOpt('name_export', $options_view, 'export_items.csv');
+    $export = gOpt('export', $options_view, false);
 
     // fields to be shown
     $fields_loop = array();
@@ -927,20 +945,21 @@ class AdminTable {
     // order
     $query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
 
-      $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
-      $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
+    $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
+    $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
     $tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
     $tot_records = $tot_records_result[0]['tot'];
 
     $pagelist = loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
-    $limit = array($pagelist->start(), $pagelist->rangeNumber);
+    $limit = $export ? null: array($pagelist->start(), $pagelist->rangeNumber);
 
     $records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
     if(!$records) $records = array();
 
     $heads = array();
+    $export_header = array();
 
     foreach($fields_loop as $field_name=>$field_obj) {
 
@@ -953,6 +972,8 @@ class AdminTable {
           $model_label = $model_structure[$field_name]->getLabel();
           $label = is_array($model_label) ? $model_label[0] : $model_label;
         }
+        $export_header[] = $label;
+        
         if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
           $ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
@@ -985,6 +1006,7 @@ class AdminTable {
         }
       }
     }
+    if($export) $items[] = $export_header;
     $heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
     $rows = array();
@@ -994,6 +1016,7 @@ class AdminTable {
       $record_model_structure = $record_model->getStructure();
 
       $row = array();
+      $export_row = array();
       foreach($fields_loop as $field_name=>$field_obj) {
         
         if($this->permission($options_view, $field_name))
@@ -1005,6 +1028,7 @@ class AdminTable {
             $record_value = (string) $record_model_structure[$field_name];
           }
           
+          $export_row[] = $record_value;
           $record_value = htmlChars($record_value);
           
           if(isset($link_fields[$field_name]) && $link_fields[$field_name])
@@ -1012,9 +1036,6 @@ class AdminTable {
             $link_field = $link_fields[$field_name]['link'];
             $link_field_param = array_key_exists('param_id', $link_fields[$field_name]) ? $link_fields[$field_name]['param_id'] : 'id';
             
-            // PROBLEMI CON I PERMALINKS
-            //$plink = new Link();
-            //$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
             $link_field = $link_field.'&'.$link_field_param."=".$r['id'];
             
             $record_value = "<a href=\"".$link_field."\">$record_value</a>";
@@ -1066,7 +1087,18 @@ class AdminTable {
         array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
       ); 
 
+      if($export) $items[] = $export_row;
       $rows[] = array_merge($row, $buttons);
+    }
+    
+    if($export)
+    {
+    	require_once(CLASSES_DIR.OS.'class.export.php');
+    	
+    	$obj_export = new export();
+    	$obj_export->setData($items);
+    	$obj_export->exportData($name_export, 'csv');
+    	return null;
     }
 
     if($tot_ff) {
@@ -1090,11 +1122,14 @@ class AdminTable {
     else {
       $link_insert = "";
     }
+    
+    $link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".pub::icon('export')."</a>" : null;
 
     $this->_view->setViewTpl('admin_table_list');
     $this->_view->assign('title', $list_title);
     $this->_view->assign('description', $list_description);
     $this->_view->assign('link_insert', $link_insert);
+    $this->_view->assign('link_export', $link_export);
     $this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
     $this->_view->assign('table', $table);
     $this->_view->assign('tot_records', $tot_records);
@@ -1376,11 +1411,12 @@ class AdminTable {
           $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
           $ff_label = gOpt('label', $array, '');
           $ff_data = gOpt('data', $array, array());
+          $ff_default = gOpt('default', $array, '');
           $ff_input = gOpt('input', $array, 'radio');
           
           if($ff_input == 'radio')
           {
-            $form .= $gform->cradio($ff_name, $ff_value, $ff_data, '', $ff_label, array('required'=>false));
+            $form .= $gform->cradio($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
           }
           elseif($ff_input == 'select')
           {

@@ -90,6 +90,9 @@ class pageEntryAdminTable extends AdminTable {
 		$link_fields = gOpt('link_fields', $options_view, array());
 		$addParamsUrl = gOpt('add_params_url', $options_view, array());
 		$add_buttons = gOpt('add_buttons', $options_view, array());
+		$view_export = gOpt('view_export', $options_view, false);
+		$name_export = gOpt('name_export', $options_view, 'export_items.csv');
+		$export = gOpt('export', $options_view, false);
 
 		// fields to be shown
 		$fields_loop = array();
@@ -160,12 +163,13 @@ class pageEntryAdminTable extends AdminTable {
 
 		$pagelist = loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
-		$limit = array($pagelist->start(), $pagelist->rangeNumber);
+		$limit = $export ? null: array($pagelist->start(), $pagelist->rangeNumber);
 
 		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 
 		$heads = array();
+		$export_header = array();
 
 		foreach($fields_loop as $field_name=>$field_obj) {
 
@@ -178,6 +182,8 @@ class pageEntryAdminTable extends AdminTable {
 					$model_label = $model_structure[$field_name]->getLabel();
 					$label = is_array($model_label) ? $model_label[0] : $model_label;
 				}
+				$export_header[] = $label;
+				
 				if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
 					$ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
@@ -210,6 +216,7 @@ class pageEntryAdminTable extends AdminTable {
 				}
 			}
 		}
+		if($export) $items[] = $export_header;
 		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
 		$rows = array();
@@ -219,6 +226,7 @@ class pageEntryAdminTable extends AdminTable {
 			$record_model_structure = $record_model->getStructure();
 
 			$row = array();
+			$export_row = array();
 			foreach($fields_loop as $field_name=>$field_obj) {
 				
 				if($this->permission($options_view, $field_name))
@@ -229,14 +237,15 @@ class pageEntryAdminTable extends AdminTable {
 					else {
 						$record_value = (string) $record_model_structure[$field_name];
 					}
+					
+					$export_row[] = $record_value;
+					$record_value = htmlChars($record_value);
+          			
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
 						$link_field_param = array_key_exists('param_id', $link_fields[$field_name]) ? $link_fields[$field_name]['param_id'] : 'id';
 						
-						// PROBLEMI CON I PERMALINKS
-						//$plink = new Link();
-						//$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
 						$link_field = $link_field.'&'.$link_field_param."=".$r['id'];
 						
 						/*
@@ -293,7 +302,18 @@ class pageEntryAdminTable extends AdminTable {
 				array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
 			); 
 
+			if($export) $items[] = $export_row;
 			$rows[] = array_merge($row, $buttons);
+		}
+		
+		if($export)
+		{
+			require_once(CLASSES_DIR.OS.'class.export.php');
+			
+			$obj_export = new export();
+			$obj_export->setData($items);
+			$obj_export->exportData($name_export, 'csv');
+			return null;
 		}
 
 		if($tot_ff) {
@@ -322,6 +342,7 @@ class pageEntryAdminTable extends AdminTable {
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
+		$this->_view->assign('link_export', $link_export);
 		$this->_view->assign('search_icon', pub::icon('search'));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
