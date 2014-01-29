@@ -337,6 +337,8 @@ class pageEntryAdminTable extends AdminTable {
 		else {
 			$link_insert = "";
 		}
+		
+		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".pub::icon('export')."</a>" : null;
 
 		$this->_view->setViewTpl('admin_table_list');
 		$this->_view->assign('title', $list_title);
