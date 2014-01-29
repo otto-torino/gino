@@ -48,7 +48,7 @@ class index extends Controller{
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       $this->_session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
-      Link::HttpCall($this->_home, $this->_class_name.'-auth_page', '');
+      $this->_registry->plink->redirect('auth', 'login');
     }
 
     $buffer = '';
