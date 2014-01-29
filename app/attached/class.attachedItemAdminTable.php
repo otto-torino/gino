@@ -47,6 +47,9 @@ class attachedItemAdminTable extends adminTable {
 		$link_fields = gOpt('link_fields', $options_view, array());
 		$addParamsUrl = gOpt('add_params_url', $options_view, array());
 		$add_buttons = gOpt('add_buttons', $options_view, array());
+		$view_export = gOpt('view_export', $options_view, false);
+		$name_export = gOpt('name_export', $options_view, 'export_items.csv');
+		$export = gOpt('export', $options_view, false);
 
 		// fields to be shown
 		$fields_loop = array();
@@ -87,7 +90,7 @@ class attachedItemAdminTable extends adminTable {
 		if(count($list_where)) {
 			$query_where = array_merge($query_where, $list_where);
 		}
-    $query_where_no_filters = implode(' AND ', $query_where);
+		$query_where_no_filters = implode(' AND ', $query_where);
 		// filters
 		if($tot_ff) {
 			$this->addWhereClauses($query_where, $model);
@@ -103,19 +106,26 @@ class attachedItemAdminTable extends adminTable {
 
 		$pagelist = Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
-		$limit = array($pagelist->start(), $pagelist->rangeNumber);
+		$limit = $export ? null: array($pagelist->start(), $pagelist->rangeNumber);
 
 		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
 
 		$heads = array();
+		$export_header = array();
 
 		foreach($fields_loop as $field_name=>$field_obj) {
 
 			if($this->permission($options_view, $field_name))
 			{
-				$model_label = $model_structure[$field_name]->getLabel();
-				$label = is_array($model_label) ? $model_label[0] : $model_label;
+				if(is_array($field_obj)) {
+					$label = $field_obj['label'];
+				}
+				else {
+					$model_label = $model_structure[$field_name]->getLabel();
+					$label = is_array($model_label) ? $model_label[0] : $model_label;
+				}
+				$export_header[] = $label;
 
 				if($field_obj->canBeOrdered()) {
 
@@ -149,6 +159,7 @@ class attachedItemAdminTable extends adminTable {
 				}
 			}
 		}
+		if($export) $items[] = $export_header;
 		$heads[] = _('URL relativo');
 		$heads[] = _('URL download');
 		$heads[] = array('text'=>'', 'class'=>'noborder nobkg');
@@ -160,11 +171,20 @@ class attachedItemAdminTable extends adminTable {
 			$record_model_structure = $record_model->getStructure();
 
 			$row = array();
+			$export_row = array();
 			foreach($fields_loop as $field_name=>$field_obj) {
 				
 				if($this->permission($options_view, $field_name))
 				{
-					$record_value = (string) $record_model_structure[$field_name];
+					if(is_array($field_obj)) {
+						$record_value = $record_model->$field_obj['member']();
+					}
+					else {
+						$record_value = (string) $record_model_structure[$field_name];
+					}
+					$export_row[] = $record_value;
+					$record_value = htmlChars($record_value);
+					
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
 						$link_field = $link_fields[$field_name]['link'];
@@ -231,7 +251,18 @@ class attachedItemAdminTable extends adminTable {
 				array('text' => implode(' ', $links), 'class' => 'nowrap')
 			); 
 
+			if($export) $items[] = $export_row;
 			$rows[] = array_merge($row, $buttons);
+		}
+		
+		if($export)
+		{
+			require_once(CLASSES_DIR.OS.'class.export.php');
+			
+			$obj_export = new export();
+			$obj_export->setData($items);
+			$obj_export->exportData($name_export, 'csv');
+			return null;
 		}
 
 		if($tot_ff) {
@@ -255,11 +286,14 @@ class attachedItemAdminTable extends adminTable {
 		else {
 			$link_insert = "";
 		}
+		
+		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".pub::icon('export')."</a>" : null;
 
 		$this->_view->setViewTpl('admin_table_list');
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
+		$this->_view->assign('link_export', $link_export);
 		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);

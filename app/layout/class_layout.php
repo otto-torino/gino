@@ -156,7 +156,7 @@ class layout extends Controller {
       $buffer = $tpl->formCopyTemplate();
     }
     elseif($this->_action=='copytpl') {
-      return $tpl->this->_actionCopyTemplate();
+      return $tpl->actionCopyTemplate();
     }
     else {
       $buffer = $this->templateList();
