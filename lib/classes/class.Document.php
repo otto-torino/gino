@@ -184,7 +184,7 @@ class Document {
     }
 
     if(pub::getConf("captcha_public") && pub::getConf("captcha_private"))
-      $this->_registry->addJs("http://api.recaptcha.net/js/recaptcha_ajax.js");
+      $this->_registry->addJs("http://www.google.com/recaptcha/api/js/recaptcha_ajax.js");
   }
 
   private function headLine($skinObj) {
