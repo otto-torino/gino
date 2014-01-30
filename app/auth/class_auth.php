@@ -916,23 +916,24 @@ class auth extends Controller {
 			if($this->_access->Authentication()) exit();
 			else exit(error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface));
 		}
-		
-		$buffer = "<div class=\"auth\">\n";
-		$buffer .= "<div class=\"auth_title\">"._("Login")."</div>";
-		
+
 		$gform = loader::load('Form', array('login', 'post', true));
 		
-		$buffer .= $gform->open($link_interface, false, '');
-		$buffer .= $gform->hidden('action', 'auth');
+		$form = $gform->open($link_interface, false, '');
+		$form .= $gform->hidden('action', 'auth');
 		
-		$buffer .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));
-		$buffer .= $gform->cinput('pwd', 'password', '', _("Password"), array('size'=>30));
+		$form .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));
+		$form .= $gform->cinput('pwd', 'password', '', _("Password"), array('size'=>30));
 		
-		$buffer .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
-		$buffer .= $gform->close();
+		$form .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
+		$form .= $gform->close();
+
+    $view = new View($this->_view_dir, 'login');
+    $dict = array(
+      'form' => $form,
+      'title' => _('Login')
+    );
+    return $view->render($dict);
 		
-		$buffer .= "</div>\n";
-		
-		return $buffer;
 	}
 }
