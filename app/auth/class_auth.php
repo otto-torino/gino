@@ -106,6 +106,37 @@ class auth extends Controller {
 
 		return $list;
 	}
+
+	/**
+	 * Restituisce alcune proprietà della classe
+	 *
+	 * @static
+	 * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+	 */
+	public static function getClassElements() {
+
+		return array(
+			"tables"=>array(
+				'auth_group', 
+				'auth_group_perm', 
+				'auth_group_user', 
+				'auth_opt', 
+				'auth_permission', 
+				'auth_user', 
+				'auth_user_add',
+				'auth_user_email',
+				'auth_user_perm',
+				'auth_user_registration'
+			),
+      'views' => array(
+        'login.php' => _('Login area privata/amministrativa')
+      ),
+			"folderStructure"=>array (
+				CONTENT_DIR.OS.'user'=> null
+			)
+		);
+	}
+
 	
 	/**
 	 * Percorso base della directory dei contenuti
@@ -156,13 +187,19 @@ class auth extends Controller {
 		$block = cleanVar($_GET, 'block', 'string', null);
 		$op = cleanVar($_GET, 'op', 'string', null);
 
+		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=frontend\">"._("Frontend")."</a>";
 		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=options\">"._("Opzioni")."</a>";
 		$link_group = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=group\">"._("Gruppi")."</a>";
 		$link_perm = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=perm\">"._("Permessi")."</a>";
 		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageAuth]\">"._("Utenti")."</a>";
 		$sel_link = $link_dft;
 
-		if($block=='options') {
+
+		if($block == 'frontend') {
+			$content = $this->manageFrontend();
+			$sel_link = $link_frontend;
+		}
+    elseif($block=='options') {
 			$content = $this->manageOptions();
 			$sel_link = $link_options;
 		}
@@ -191,7 +228,7 @@ class auth extends Controller {
 
 		$dict = array(
 			'title' => _('Utenti di sistema'),
-			'links' => array($link_options, $link_perm, $link_group, $link_dft),
+			'links' => array($link_frontend, $link_options, $link_perm, $link_group, $link_dft),
 			'selected_link' => $sel_link,
 			'content' => $content
 		);
