@@ -1375,6 +1375,8 @@ class page extends Controller {
 	private function manageEntry() {
 
     loader::import('page', 'pageEntryAdminTable');
+
+    $edit = cleanVar($_GET, 'edit', 'int', '');
 		
 		$registry = registry::instance();
 		$registry->addJs($this->_class_www.'/page.js');
@@ -1430,7 +1432,7 @@ class page extends Controller {
 					'required'=>false
 				), 
 				'title'=>array(
-					'js'=>"onblur=\"$('slug').value = $(this).value.slugify()\""
+					'js'=> $edit ? "" : "onblur=\"$('slug').value = $(this).value.slugify()\""
 				),
 				'slug'=>array(
 					'id'=>'slug', 
