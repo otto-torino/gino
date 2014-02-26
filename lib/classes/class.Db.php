@@ -22,6 +22,13 @@ interface DbManager {
 	function __construct($params);
 
 	/**
+	 * Restituisce informazioni sull'esecuzione delle query
+	 * 
+	 * @return string
+	 */
+	public function getInfoQuery();
+	
+	/**
 	 * Apre una connessione al database
 	 * 
 	 * @return boolean
@@ -65,6 +72,8 @@ interface DbManager {
 	/**
 	 * Esegue una o più query concatenate dal punto e virgola
 	 * 
+	 * Il metodo viene utilizzato per l'installazione dei pacchetti.
+	 * 
 	 * @param string $query query
 	 * @return boolean
 	 */
@@ -74,9 +83,10 @@ interface DbManager {
 	 * Esecuzione della query (istruzione select)
 	 * 
 	 * @param string $query query
+	 * @param boolean $cache abilita il salvataggio del risultato della query in una cache-array 
 	 * @return array
 	 */
-	public function selectquery($query);
+	public function selectquery($query, $cache);
 	
 	/**
 	 * Libera tutta la memoria utilizzata dal Result Set

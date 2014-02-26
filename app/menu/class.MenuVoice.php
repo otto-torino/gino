@@ -91,7 +91,7 @@ class MenuVoice extends Model {
 
 		$children = array();
 
-    $rows = $this->_db->select('id', self::$tbl_voices, "parent='{$this->_p['id']}'", array('order' => "order_list"));
+		$rows = $this->_db->select('id', self::$tbl_voices, "parent='{$this->_p['id']}'", array('order' => "order_list"));
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$children[$row['id']] = new MenuVoice($row['id']);
@@ -101,10 +101,11 @@ class MenuVoice extends Model {
 		return $children;
 	}
 
-  public static function get($opts) {
-    $res = array();
-    $where = gOpt('where', $opts, null);
-    $order = gOpt('order', $opts, null);
+  public static function get($options=null) {
+    
+  	$res = array();
+    $where = gOpt('where', $options, null);
+    $order = gOpt('order', $options, null);
     $db = db::instance();
     $rows = $db->select('id', self::$tbl_voices, $where, array('order' => $order));
     if($rows and count($rows)) {

@@ -138,15 +138,22 @@ class PageComment extends Model {
 	/**
 	 * Restituisce oggetti di tipo @ref pageComment legati ad una pagina 
 	 * 
-	 * @param object $controller istanza del controller 
-	 * @param integer $entry_id identificativo della pagina
-	 * @param array $options array associativo di opzioni 
+	 * @param array $options array associativo di opzioni
+	 *   array associativo di opzioni
+	 *   - @b controller (object): istanza del controller
+	 *   - @b entry_id (integer): identificativo della pagina
 	 * @return array di istanze di tipo pageComment
 	 */
-	public static function get($controller, $entry_id, $options = null) {
+	public static function get($options = null) {
 
 		$res = array();
 
+		$controller = gOpt('controller', $options, null);
+		$entry_id = gOpt('entry_id', $options, null);
+		
+		if(!$controller || !$entry_id)
+			return $res;
+		
 		$published = gOpt('published', $options, true);
 		$reply = gOpt('reply', $options, null);
 		$order = gOpt('order', $options, 'creation_date');
@@ -167,7 +174,7 @@ class PageComment extends Model {
 		$rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
 		if(count($rows)) {
 			foreach($rows as $row) {
-				$res[] = new pageComment($row['id'], $controller);
+				$res[] = new pageComment(array('entry_id'=>$row['id'], 'controller'=>$controller));
 			}
 		}
 

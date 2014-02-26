@@ -106,7 +106,7 @@ class Document {
         $tplContent = ob_get_contents();
         ob_clean();
         // parse second time to replace codes
-        $buffer = preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent);
+        $cache->stop(preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent));
       }
       else {
         $tplContent = file_get_contents($template);

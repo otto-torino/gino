@@ -84,7 +84,7 @@ class Lang extends Model {
     return $result;
   }
 
-  public static function get($options) {
+  public static function get($options=null) {
 
     $where = gOpt('where', $options, null);
     $order = gOpt('order', $options, null);
