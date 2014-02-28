@@ -67,3 +67,7 @@ include(LIB_DIR.OS.'methodPointer.php');
 
 // renderizza il documento
 $core->renderApp();
+
+// debug database
+$db = db::instance();
+echo $db->getInfoQuery();

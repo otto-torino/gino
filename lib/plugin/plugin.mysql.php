@@ -14,6 +14,24 @@
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * OTTIMIZZAZIONE DATABASE
+ * ---------------
+ * Con la proprietà self::$_enable_cache è possibile caricare i risultati delle query (non di struttura) in un array in modo da evitare l'esecuzione multipla della stessa query. \n
+ * Le query che vengono caricate nell'array sono quelle che passano dal metodo selectquery(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
+ *   - fieldInformations()
+ *   - getTableStructure()
+ *   - getFieldsName()
+ * 
+ * In particolari query gestite dal metodo selectquery() è talvolta necessario non salvarne i risultati (vedi autoIncValue()). 
+ * In questo caso è suffuciente passare a selectquery() il parametro @a cache=false. 
+ * 
+ * I risultati delle query sulla struttura delle tabelle (getTableStructure()) vengono gestiti dalla cache di gino (Principali impostazioni di sistema) e salvati su file (vedi Model::structure()).
+ * 
+ * DEBUG DATABASE
+ * ---------------
+ * Con la proprietà self::$_debug è possibile attivare un debug sulle performace delle chiamate al database. \n
+ * Le query di tipo select alimentano un contatore che può essere visualizzato attraverso l'intefaccia getCnt().
  */
 class mysql implements DbManager {
 
@@ -26,6 +44,34 @@ class mysql implements DbManager {
 	private $_affected;
 	private $_lastid;
 	private $_dbresults = array();
+	
+	/**
+	 * Abilita la cache 
+	 * 
+	 * @var boolean
+	 */
+	private $_enable_cache;
+	
+	/**
+	 * Abilita il debug sulle query
+	 * 
+	 * @var boolean
+	 */
+	private $_debug;
+	
+	/**
+	 * Contatore di query
+	 * 
+	 * @var integer
+	 */
+	private $_cnt;
+	
+	/**
+	 * Contenitore delle query di tipo select
+	 * 
+	 * @var array(query=>results)
+	 */
+	private $_cache;
 	
 	/**
 	 * Costruttore
@@ -52,6 +98,11 @@ class mysql implements DbManager {
 		
 		$this->setnumberrows(0);
 		$this->setconnection(false);
+
+		$this->_enable_cache = false;
+		$this->_debug = false;
+		$this->_cnt = 0;
+		$this->_cache = array();
 		
 		if($params["connect"]===true) $this->openConnection();
 	}
@@ -74,6 +125,17 @@ class mysql implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::getInfoQuery()
+	 */
+	public function getInfoQuery() {
+ 		
+ 		if($this->_debug)
+ 			return $this->_cnt;
+ 		else
+ 			return null;
+	}
+	
+	/**
 	 * Esegue la query
 	 * 
 	 * @param string $query
@@ -83,11 +145,13 @@ class mysql implements DbManager {
 		
 		if(!$query) $query = $this->_sql;
 		
+		if($this->_debug) $this->_cnt++;
+		
 		$exec = mysql_query($query);
 		return $exec;
-	}
-	
-	/**
+ 	}
+ 	
+ 	/**
 	 * @see DbManager::openConnection()
 	 */
 	public function openConnection() {
@@ -104,9 +168,13 @@ class mysql implements DbManager {
 	}
 
 	private function setUtf8() {
-		$db_charset = mysql_query("SHOW VARIABLES LIKE 'character_set_database'");
+		
+		$query = "SHOW VARIABLES LIKE 'character_set_database'";
+		$db_charset = $this->execQuery($query);
 		$charset_row = mysql_fetch_assoc($db_charset);
-		mysql_query("SET NAMES '" . $charset_row['Value'] . "'");
+		
+		$this->execQuery("SET NAMES '".$charset_row['Value']."'");
+		
 		unset($db_charset, $charset_row);
 	}
 
@@ -132,7 +200,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -150,7 +218,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -168,7 +236,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -185,7 +253,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 
 		return $this->_qry ? true:false;
 	}
@@ -205,28 +273,39 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry) {
+	public function selectquery($qry, $cache=true) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
-		if(!$this->_qry) {
-			return false;
-		} else {
-			// initialize array results
-			$this->_dbresults = array();
-			
-			$this->setnumberrows(mysql_num_rows($this->_qry));
-			if($this->_numberrows > 0){
-				while($this->_rows=mysql_fetch_assoc($this->_qry))
-				{
-					$this->_dbresults[]=$this->_rows;
+
+		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
+			return $this->_cache[$this->_sql];
+		}
+		else
+		{
+			$this->_qry = $this->execQuery();
+			if(!$this->_qry) {
+				return false;
+			} else {
+				// initialize array results
+				$this->_dbresults = array();
+				
+				$this->setnumberrows(mysql_num_rows($this->_qry));
+				if($this->_numberrows > 0){
+					while($this->_rows=mysql_fetch_assoc($this->_qry))
+					{
+						$this->_dbresults[]=$this->_rows;
+					}
 				}
+				$this->freeresult();
+				
+				if($this->_enable_cache and $cache) {
+					$this->_cache[$this->_sql] = $this->_dbresults;
+				}
+				return $this->_dbresults;
 			}
-			$this->freeresult();
-			return $this->_dbresults;
 		}
 	}
 	
@@ -248,7 +327,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -292,7 +371,7 @@ class mysql implements DbManager {
 	public function autoIncValue($table){
 
 		$query = "SHOW TABLE STATUS LIKE '$table'";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if(sizeof($a) > 0)
 		{
 			foreach ($a AS $b)
@@ -329,7 +408,7 @@ class mysql implements DbManager {
 	public function tableexists($table){
 		
 		$query = "SHOW TABLES FROM `".$this->_db_name."`";
-		$result = mysql_query($query);
+		$result = $this->execQuery($query);
 		$data = mysql_num_rows($result);
 
 		for ($i=0; $i<$data; $i++) {
@@ -348,7 +427,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("SELECT * FROM ".$table." LIMIT 0,1");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		
 		if(!$this->_qry) {
 			return false;
@@ -476,8 +555,7 @@ class mysql implements DbManager {
 		$fields = array();
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = mysql_query($query);
-
+		$res = $this->execQuery($query);
 		while($row = mysql_fetch_array($res)) {
 			
 			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
@@ -510,8 +588,7 @@ class mysql implements DbManager {
 
 		$fields = array();
 		$query = "SHOW COLUMNS FROM ".$table;
-
-		$res = mysql_query($query);
+		$res = $this->execQuery($query);
 		while($row = mysql_fetch_assoc($res)) {
 			$results[] = $row;
 		}
@@ -604,10 +681,10 @@ class mysql implements DbManager {
 				}
 				else
 				{
-          			if($value !== null) {
-						$a_fields[] = $field;
-						$a_values[] = "'$value'";	//@TODO ///// VERIFICARE
-          			}
+          	if($value !== null) {
+						  $a_fields[] = $field;
+						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+          	}
 				}
 			}
 			
@@ -642,7 +719,6 @@ class mysql implements DbManager {
 				else
 				{
 					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-					//$a_fields[] = "`$field`='$value'";
 					$a_fields[] = $value === null ? "`$field`=NULL" : "`$field`='$value'";
 				}
 			}

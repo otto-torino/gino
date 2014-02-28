@@ -15,9 +15,12 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * ###GESTIONE CODIFICA UTF8
+ * GESTIONE CODIFICA UTF8
+ * ---------------
  * In SQL Server occorre gestire la codifica UTF8 dei dati.
  * 
+ * GESTIONE DATABASE/HTML
+ * ---------------
  * ####Dal database alla visualizzazione
  * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
  * 
@@ -36,6 +39,34 @@ class sqlsrv implements DbManager {
 	private $_affected;
 	private $_lastid;
 	private $_dbresults = array();
+	
+	/**
+	 * Abilita la cache 
+	 * 
+	 * @var boolean
+	 */
+	private $_enable_cache;
+	
+	/**
+	 * Abilita il debug sulle query
+	 * 
+	 * @var boolean
+	 */
+	private $_debug;
+	
+	/**
+	 * Contatore di query
+	 * 
+	 * @var integer
+	 */
+	private $_cnt;
+	
+	/**
+	 * Contenitore delle query di tipo select
+	 * 
+	 * @var array(query=>results)
+	 */
+	private $_cache;
 	
 	/**
 	 * Costruttore
@@ -60,6 +91,11 @@ class sqlsrv implements DbManager {
 		$this->setnumberrows(0);
 		$this->setconnection(false);
 		
+		$this->_enable_cache = false;
+		$this->_debug = false;
+		$this->_cnt = 0;
+		$this->_cache = array();
+		
 		if($params["connect"]===true) $this->openConnection();
 	}
 	
@@ -81,6 +117,17 @@ class sqlsrv implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::getInfoQuery()
+	 */
+	public function getInfoQuery() {
+ 		
+ 		if($this->_debug)
+ 			return $this->_cnt;
+ 		else
+ 			return null;
+	}
+	
+	/**
 	 * Esegue la query
 	 * 
 	 * @param string $query
@@ -91,6 +138,8 @@ class sqlsrv implements DbManager {
 	private function execQuery($query=null) {
 		
 		if(!$query) $query = $this->_sql;
+		
+		if($this->_debug) $this->_cnt++;
 		
 		$exec = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
 		return $exec;
@@ -199,6 +248,8 @@ class sqlsrv implements DbManager {
 	 */
 	public function multiActionquery($qry) {
 	
+		// SPLITTARE LE QUERY
+		
 		/*$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 		$this->setsql($qry);
 		$this->_qry = mysqli_multi_query($conn, $this->_sql);
@@ -210,28 +261,39 @@ class sqlsrv implements DbManager {
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry) {
+	public function selectquery($qry, $cache=true) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-		if(!$this->_qry) {
-			return false;
-		} else {
-			// initialize array results
-			$this->_dbresults = array();
-			
-			$this->setnumberrows(sqlsrv_num_rows($this->_qry));
-			if($this->_numberrows > 0){
-				while($this->_rows=sqlsrv_fetch_array($this->_qry))
-				{
-					$this->_dbresults[]=$this->_rows;
+		
+		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
+			return $this->_cache[$this->_sql];
+		}
+		else
+		{
+			$this->_qry = $this->execQuery();
+			if(!$this->_qry) {
+				return false;
+			} else {
+				// initialize array results
+				$this->_dbresults = array();
+				
+				$this->setnumberrows(sqlsrv_num_rows($this->_qry));
+				if($this->_numberrows > 0){
+					while($this->_rows=sqlsrv_fetch_array($this->_qry))
+					{
+						$this->_dbresults[]=$this->_rows;
+					}
 				}
+				//$this->freeresult();
+				
+				if($this->_enable_cache and $cache) {
+					$this->_cache[$this->_sql] = $this->_dbresults;
+				}
+				return $this->_dbresults;
 			}
-			//$this->freeresult();
-			return $this->_dbresults;
 		}
 	}
 		
@@ -293,7 +355,7 @@ class sqlsrv implements DbManager {
 	public function autoIncValue($table){
 
 		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if($a && isset($a[0]))
 		{
 			$auto_increment = $a[0]['NextId'];
@@ -559,6 +621,7 @@ class sqlsrv implements DbManager {
 
 	/**
 	 * @see DbManager::dumpDatabase()
+	 * @see listTables()
 	 */
 	public function dumpDatabase($file) {
 
@@ -607,6 +670,11 @@ class sqlsrv implements DbManager {
 	
 	/**
 	 * @see DbManager::getTableStructure()
+	 * @see getConstraintType()
+	 * @see getDataType()
+	 * @see getFieldLength()
+	 * @see getCheckConstraint()
+	 * @see getInformationKey()
 	 */
 	public function getTableStructure($table) {
 
@@ -615,7 +683,6 @@ class sqlsrv implements DbManager {
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='".$this->_db_name."' AND TABLE_NAME='$table'";
 		$res = $this->execQuery($query);
-
 		while($row = sqlsrv_fetch_array($res)) {
 			
 			$column_name = $row['COLUMN_NAME'];
@@ -757,7 +824,7 @@ class sqlsrv implements DbManager {
 		AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG
 		AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA
 		AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)
@@ -780,7 +847,7 @@ class sqlsrv implements DbManager {
 		$check_name = 'CK_'.$table.'_'.$column;
 		
 		$query = "SELECT CHECK_CLAUSE FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS WHERE CONSTRAINT_NAME='$check_name'";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)
@@ -824,7 +891,7 @@ class sqlsrv implements DbManager {
 			WHERE C.CONSTRAINT_TYPE = '$key_name'
 			AND K.COLUMN_NAME = '$column'
 			AND K.TABLE_NAME = '$table'";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)

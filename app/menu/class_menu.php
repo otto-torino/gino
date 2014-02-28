@@ -586,6 +586,7 @@ class menu extends Controller {
    * Elenco pagine che è possibile inserire come voce di menu
    * 
    * @see page::getUrlPage()
+   * @see Permission::getFromFullCode()
    * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
    * @return string
    */
@@ -610,7 +611,7 @@ class menu extends Controller {
         if($page->private && $page->users) $page_perm .= " / ";
         if($page->users) $page_perm .= _("pagina limitata ad utenti selezionati");
 
-        $p = Permission::getFromClassCode('page', 'can_view_private');
+        $p = Permission::getFromFullCode('page.can_view_private');
 
         $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
           $('url').set('value', '".$page->getUrl()."');
@@ -643,7 +644,8 @@ class menu extends Controller {
    * Interfacce che le classi dei moduli mettono a disposizione del menu
    * 
    * Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
-   *
+   * 
+   * @see Permission::getFromFullCode()
    * @param array $array_search array di array con le chiavi id, name, label, role1
    * @return string
    */
@@ -678,7 +680,10 @@ class menu extends Controller {
             $perms_js = array();
             if($permissions_code and count($permissions_code)) {
               foreach($permissions_code as $permission_code) {
-                $p = Permission::getFromClassCode($class, $permission_code);
+                if(!preg_match('#\.#', $permission_code)) {
+                	$permission_code = $class.'.'.$permission_code;
+                }
+              	$p = Permission::getFromFullCode($permission_code);
                 $permissions[] = $p->label;
                 $perms_js[] = $p->id;
               }

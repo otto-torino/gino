@@ -30,6 +30,34 @@ class odbc implements DbManager {
 	private $_dbresults = array();
 	
 	/**
+	 * Abilita la cache 
+	 * 
+	 * @var boolean
+	 */
+	private $_enable_cache;
+	
+	/**
+	 * Abilita il debug sulle query
+	 * 
+	 * @var boolean
+	 */
+	private $_debug;
+	
+	/**
+	 * Contatore di query
+	 * 
+	 * @var integer
+	 */
+	private $_cnt;
+	
+	/**
+	 * Contenitore delle query di tipo select
+	 * 
+	 * @var array(query=>results)
+	 */
+	private $_cache;
+	
+	/**
 	 * Costruttore
 	 * 
 	 * @param array $params parametri di connessione al database
@@ -52,6 +80,11 @@ class odbc implements DbManager {
 		$this->setnumberrows(0);
 		$this->setconnection(false);
 		
+		$this->_enable_cache = false;
+		$this->_debug = false;
+		$this->_cnt = 0;
+		$this->_cache = array();
+		
 		if($params["connect"]===true) $this->openConnection();
 	}
 	
@@ -73,6 +106,17 @@ class odbc implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::getInfoQuery()
+	 */
+	public function getInfoQuery() {
+ 		
+ 		if($this->_debug)
+ 			return $this->_cnt;
+ 		else
+ 			return null;
+	}
+	
+	/**
 	 * Esegue la query
 	 * 
 	 * @param string $query
@@ -81,6 +125,8 @@ class odbc implements DbManager {
 	private function execQuery($query=null) {
 		
 		if(!$query) $query = $this->_sql;
+		
+		if($this->_debug) $this->_cnt++;
 		
 		$exec = odbc_exec($this->_dbconn, $query);
 		return $exec;
@@ -197,28 +243,39 @@ class odbc implements DbManager {
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry) {
+	public function selectquery($qry, $cache=true) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-		if(!$this->_qry) {
-			return false;
-		} else {
-			// initialize array results
-			$this->_dbresults = array();
-			
-			$this->setnumberrows(odbc_num_rows($this->_qry));
-			if($this->_numberrows > 0){
-				while($this->_rows=odbc_fetch_array($this->_qry))
-				{
-					$this->_dbresults[]=$this->_rows;
+		
+		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
+			return $this->_cache[$this->_sql];
+		}
+		else
+		{
+			$this->_qry = $this->execQuery();
+			if(!$this->_qry) {
+				return false;
+			} else {
+				// initialize array results
+				$this->_dbresults = array();
+				
+				$this->setnumberrows(odbc_num_rows($this->_qry));
+				if($this->_numberrows > 0){
+					while($this->_rows=odbc_fetch_array($this->_qry))
+					{
+						$this->_dbresults[]=$this->_rows;
+					}
 				}
+				//$this->freeresult();
+				
+				if($this->_enable_cache and $cache) {
+					$this->_cache[$this->_sql] = $this->_dbresults;
+				}
+				return $this->_dbresults;
 			}
-			//$this->freeresult();
-			return $this->_dbresults;
 		}
 	}
 		
@@ -288,7 +345,7 @@ class odbc implements DbManager {
 	public function autoIncValue($table){
 
 		$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS NextId");
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if($a && isset($a[0]))
 		{
 			$auto_increment = $a[0]['NextId'];

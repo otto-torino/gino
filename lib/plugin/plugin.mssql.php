@@ -38,6 +38,34 @@ class mssql implements DbManager {
 	private $_dbresults = array();
 	
 	/**
+	 * Abilita la cache 
+	 * 
+	 * @var boolean
+	 */
+	private $_enable_cache;
+	
+	/**
+	 * Abilita il debug sulle query
+	 * 
+	 * @var boolean
+	 */
+	private $_debug;
+	
+	/**
+	 * Contatore di query
+	 * 
+	 * @var integer
+	 */
+	private $_cnt;
+	
+	/**
+	 * Contenitore delle query di tipo select
+	 * 
+	 * @var array(query=>results)
+	 */
+	private $_cache;
+	
+	/**
 	 * Costruttore
 	 * 
 	 * @param array $params parametri di connessione al database
@@ -60,6 +88,11 @@ class mssql implements DbManager {
 		$this->setnumberrows(0);
 		$this->setconnection(false);
 		
+		$this->_enable_cache = false;
+		$this->_debug = false;
+		$this->_cnt = 0;
+		$this->_cache = array();
+		
 		if($params["connect"]===true) $this->openConnection();
 	}
 	
@@ -81,6 +114,17 @@ class mssql implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::getInfoQuery()
+	 */
+	public function getInfoQuery() {
+ 		
+ 		if($this->_debug)
+ 			return $this->_cnt;
+ 		else
+ 			return null;
+	}
+	
+	/**
 	 * Esegue la query
 	 * 
 	 * @param string $query
@@ -89,6 +133,8 @@ class mssql implements DbManager {
 	private function execQuery($query=null) {
 		
 		if(!$query) $query = $this->_sql;
+		
+		if($this->_debug) $this->_cnt++;
 		
 		$exec = mssql_query($query);
 		return $exec;
@@ -199,28 +245,39 @@ class mssql implements DbManager {
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry) {
+	public function selectquery($qry, $cache=true) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mssql_query($this->_sql);
-		if(!$this->_qry) {
-			return false;
-		} else {
-			// initialize array results
-			$this->_dbresults = array();
-			
-			$this->setnumberrows(mssql_num_rows($this->_qry));
-			if($this->_numberrows > 0){
-				while($this->_rows=mssql_fetch_assoc($this->_qry))
-				{
-					$this->_dbresults[]=$this->_rows;
+		
+		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
+			return $this->_cache[$this->_sql];
+		}
+		else
+		{
+			$this->_qry = mssql_query($this->_sql);
+			if(!$this->_qry) {
+				return false;
+			} else {
+				// initialize array results
+				$this->_dbresults = array();
+				
+				$this->setnumberrows(mssql_num_rows($this->_qry));
+				if($this->_numberrows > 0){
+					while($this->_rows=mssql_fetch_assoc($this->_qry))
+					{
+						$this->_dbresults[]=$this->_rows;
+					}
 				}
+				$this->freeresult();
+				
+				if($this->_enable_cache and $cache) {
+					$this->_cache[$this->_sql] = $this->_dbresults;
+				}
+				return $this->_dbresults;
 			}
-			$this->freeresult();
-			return $this->_dbresults;
 		}
 	}
 	
@@ -283,7 +340,7 @@ class mssql implements DbManager {
 	public function autoIncValue($table){
 
 		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if($a && isset($a[0]))
 		{
 			$auto_increment = $a[0]['NextId'];
