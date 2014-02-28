@@ -227,7 +227,7 @@ class Form {
       $confirm = " && confirmSubmit('".$options['text_confirm']."')";
 
     $GFORM .= "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_formId."\" name=\"".$this->_formId."\" action=\"$action\" method=\"$this->_method\"";
-    if($this->_validation) $GFORM .= " onsubmit=\"return (validateForm($(this))".$confirm.")\"";
+    if($this->_validation) $GFORM .= " onsubmit=\"return (gino.validateForm($(this))".$confirm.")\"";
     $GFORM .= ">\n";
 
     if($list_required) {

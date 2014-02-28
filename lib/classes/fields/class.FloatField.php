@@ -89,7 +89,7 @@ class floatField extends field {
 		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
 		$method = isset($options['method']) ? $options['method'] : $_POST;
 		
-		return numberToDB(cleanVar($method, $this->_name, $value_type, null));
+		return cleanVar($method, $this->_name, $value_type, null);
 	}
 }
 ?>

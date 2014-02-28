@@ -642,7 +642,8 @@ class mysql implements DbManager {
 				else
 				{
 					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-					$a_fields[] = "`$field`='$value'";
+					//$a_fields[] = "`$field`='$value'";
+					$a_fields[] = $value === null ? "`$field`=NULL" : "`$field`='$value'";
 				}
 			}
 			

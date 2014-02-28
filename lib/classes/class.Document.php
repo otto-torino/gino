@@ -96,6 +96,13 @@ class Document {
       $template = TPL_DIR.OS.$tplObj->filename;
 
       if($tplObj->free) {
+        // Il template viene parserizzato 2 volte. La prima volta vengono eseguiti i metodi (definiti nei tag {module...}), 
+        // in questo modo vengono salvate eventuali modifiche al registry che viene utilizzato per includere js e css e meta nell'head del documento.
+        // L'output viene quindi tenuto in memoria, mentre il template non viene toccato.
+        // La seconda volta viene parserizzato per sostituire effettivamente i segnaposto dei moduli con l'output precedentemente salvato nella prima
+        // parserizzazione.
+        // Non si possono sostituire gli output già alla prima parserizzazione, e poi fare un eval del template perché altrimenti eventuali contenuti
+        // degli output potrebbero causare errori di interpretazione dell'eval, è sufficiente una stringa '<?' a far fallire l'eval.
         // parse modules first time to update registry
         $tplContent = file_get_contents($template);
         $regexp = "#{module(.*?)}#";
@@ -106,7 +113,7 @@ class Document {
         $tplContent = ob_get_contents();
         ob_clean();
         // parse second time to replace codes
-        $buffer = preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent);
+        $cache->stop(preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent));
       }
       else {
         $tplContent = file_get_contents($template);
@@ -148,7 +155,7 @@ class Document {
     $buffer = '';
     $errorMsg = error::getErrorMessage();
     if(!empty($errorMsg)) {
-      $buffer .= "<script>alert('".$errorMsg."');</script>";
+      $buffer .= "<script>window.addEvent('load', function() { new gino.layerWindow({title:'".jsVar(_('Errore!'))."', html: '".jsVar($errorMsg)."', 'width': 600}).display();});</script>";
     }
     return $buffer;
   }
@@ -318,7 +325,7 @@ class Document {
   }
 
   private function modClass($mdlId, $mdlFunc, $mdlType){
-    
+
     if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
       return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
     }
@@ -342,13 +349,12 @@ class Document {
       if(count($rows))
       {
         $name = htmlChars($rows[0]['name']);
-        if($ofp and !$this->_registry->user->hasPerm($class_name, $ofp, 0)) {
-          return '';
+        if(!$this->checkOutputFunctionPermissions($ofp, $name, 0)) {
+            return '';
         }
+       $buffer = $classObj->$mdlFunc();
       }
       else return '';
-
-      $buffer = $classObj->$mdlFunc();
     }
     elseif($mdlType=='class') {
 
@@ -356,7 +362,7 @@ class Document {
       if(count($rows))
       {
         $class = htmlChars($rows[0]['class']);
-        if($ofp and !$this->_registry->user->hasPerm($class, $ofp, $mdlId)) {
+        if(!$this->checkOutputFunctionPermissions($ofp, $class, $mdlId)) {
           return '';
         }
       }
@@ -368,6 +374,35 @@ class Document {
     $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc] = $buffer;
 
     return $buffer;
+  }
+
+  /**
+   * Output function permissions:
+   * formati:
+   *   sysclass_name.perm_name => cerca il permesso perm_name della classe sysclass_name con istanza 0 (compresa la sysclass fittizia 'core')
+   *   perm_name => cerca il permesso perm_name della classe che definisce outputFunctions con istanza corrente (0 se si tratta di una sysclass)
+   */
+  private function checkOutputFunctionPermissions($perms, $class_name, $instance) {
+     if(!count($perms)) {
+        return true;
+     }
+
+    foreach($perms as $perm) {
+        if(strpos($perm, '.') !== false) {
+            list($class_name_perm, $perm_name) = explode('.', $perm);
+            if($this->_registry->user->hasPerm($class_name_perm, $perm_name, 0)) {
+                return true;
+            }
+        }
+        else {
+            if($this->_registry->user->hasPerm($class_name, $perm, $instance)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+
   }
   
   private function modUrl() {

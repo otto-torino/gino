@@ -74,6 +74,9 @@
 	protected $_p, $_chgP = array();
   protected $_m2m = array(),
             $_m2mt = array();
+
+  protected $_is_constraint = array();
+  protected $_check_is_constraint = true;
 	
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;
@@ -95,6 +98,7 @@
 		$this->_p['instance'] = null;
 
     $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+
 	}
 	
  	public function __toString() {
@@ -107,6 +111,14 @@
 		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
 	}
 	
+  protected function setCheckIsConstraint($check) {
+    $this->_check_is_constraint = (bool) $check;
+  }
+
+  public function setIsConstraint($is_constraint) {
+    $this->_is_consraint = $is_constraint;
+  }
+
 	/**
 	 * Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto
 	 * 
@@ -206,6 +218,27 @@
 		return $this->_structure;
 	}
 
+  /**
+   * Metodo generico statico per ricavare oggetti
+   */
+  public static function get($options = array()) {
+
+    $where = isset($options['where']) ? $options['where'] : null;
+    $order = isset($options['order']) ? $options['order'] : null;
+    $limit = isset($options['limit']) ? $options['limit'] : null;
+
+    $res = array();
+    $db = db::instance();
+    $rows = $db->select('id', static::$table, $where, array('order'=>$order, 'limit'=>$limit));
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        $res[] = new static($row['id']);
+      }
+    }
+
+    return $res;
+  }
+
 	/**
 	 * Salva i cambiamenti fatti sull'oggetto modificando o inserendo un nuovo record su DB
 	 *
@@ -213,8 +246,6 @@
 	 */
 	public function updateDbData() {
 
-    $result = true;
-	
 		$result = true;
 		
 		if($this->_p['id']) { 
@@ -291,6 +322,17 @@
 	 */
  	public function delete() {
 
+    // check constraints
+    if($this->_check_is_constraint and count($this->_is_constraint)) {
+      $res = $this->checkIsConstraint();
+      if($res !== true) {
+        return array("error"=>$this->isConstraintError($res));
+      }
+    }
+
+		$this->deletem2m();
+		$this->deletem2mthrough();
+
 		$result = $this->deleteDbData();
 		if($result !== true) {
 			return array("error"=>37);
@@ -305,11 +347,66 @@
 			}
 		}
 
-		$this->deletem2m();
-		$this->deletem2mthrough();
-
 		return true;
 	}
+
+  protected function isConstraintError($res) {
+    $html = "<p>"._("Il record che si intende eliminare compare come riferimento nei seguenti oggetti").":</p>";
+    $html .= "<ul>";
+    foreach($res as $model => $records) {
+      $html .= "<li>".$model."</li>";
+      $html .= "<ul>";
+      foreach($records as $record) {
+        $html .= "<li>".$record."</li>";
+      }
+      $html .= "</ul>";
+    }
+    $html .= "</ul>";
+
+    return $html;
+  }
+
+  protected function checkIsConstraint() {
+
+    $res = array();
+    $db = db::instance();
+
+    foreach($this->_is_constraint as $model=>$field) {
+
+      $an_objs = $model::get(null, null, array(0,1));
+      $an_obj = count($an_objs) ? $an_objs[0] : null;
+      $model_label = $an_obj ? $an_obj->getModelLabel() : '';
+      if($an_obj and $an_obj->id) {
+        if(isset($an_obj->_structure[$field]) and is_a($an_obj->_structure[$field], 'ManyToManyField')) {
+          $field_obj = $an_obj->_structure[$field];
+          $table = $field_obj->getJoinTable();
+          $id_string = $field_obj->getJoinTableId();
+          $m2m_id_string = $field_obj->getJoinTableM2mId();
+          $rows = $db->select($id_string, $table, $m2m_id_string."='".$this->id."'");
+          if($rows and count($rows)) {
+            if(!isset($res[$model_label])) {
+              $res[$model_label] = array();
+            }
+            foreach($rows as $row) {
+              $obj = new $model($row[$id_string]);
+              $res[$model_label][] = (string) $obj . ' - '._('m2m:').' '.$obj->fieldLabel($field);
+            }
+          }
+        }
+      }
+      $objs = $model::get($field."='".$this->id."'");
+      if($objs and count($objs)) {
+        if(!isset($res[$model_label])) {
+          $res[$model_label] = array();
+        }
+        foreach($objs as $obj) {
+          $res[$model_label][] = (string) $obj.' - '._('campo:').' '.$obj->fieldLabel($field);
+        }
+      }
+    }
+
+    return count($res) ? $res : true;
+  }
 
   public function deletem2m() {
     $result = true;
@@ -503,6 +600,17 @@
 		}
 		return $structure;
 	}
+
+  /**
+   * Update della struttura da chiamare manualmente quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina
+   * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
+   * viene gestito da AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
+   * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
+   * metodo modelAction di AdminTable
+   */
+  public function updateStructure() {
+    $this->_structure = $this->structure($this->id);
+  }
 	
  	/**
 	 * Uniforma il tipo di dato di un campo definito dal metodo DbManager::getTableStructure() 

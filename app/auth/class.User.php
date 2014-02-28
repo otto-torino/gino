@@ -471,74 +471,72 @@ class User extends Model {
     return $res;
   }
 
-  /**
-   * Verifica se l'utente ha uno dei permessi della classe
-   * @param string $class la classe
-   * @param int|array $perms id o array di id dei permessi da verificare
-   * @param int $instance istanza della classe (0 per classi non istanziabili)
-   * @return boolean
-   */
-  public function hasPerm($class, $perms, $instance = 0) {
+    /**
+     * Verifica se l'utente ha uno dei permessi della classe
+     * @param string $class la classe
+     * @param int|array $perms id o array di id dei permessi da verificare
+     * @param int $instance istanza della classe (0 per classi non istanziabili)
+     * @return boolean
+     */
+    public function hasPerm($class, $perms, $instance = 0) {
+        if(!$this->id) {
+            return false;
+        }
+        elseif($this->is_admin) {
+            return true;
+        }
 
-    if(!$this->id) {
-      return false;
-    }
-    elseif($this->is_admin) {
-      return true;
-    }
+        if(!is_array($perms)) {
+            $perms = array($perms);
+        }
+        foreach($perms as $perm_code) {
+            // check user permission
+            $rows = $this->_db->select(TBL_USER_PERMISSION.'.perm_id', array(TBL_USER_PERMISSION, TBL_PERMISSION), "
+                ".TBL_USER_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
+                ".TBL_USER_PERMISSION.".user_id = '".$this->id."' AND 
+                ".TBL_USER_PERMISSION.".instance = '".$instance."' AND 
+                ".TBL_PERMISSION.".class = '".$class."' AND 
+                ".TBL_PERMISSION.".code = '$perm_code'");
+            if($rows and count($rows)) {
+                return true;
+            }
+            // check user group permission
+            $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_GROUP_USER, TBL_PERMISSION), "
+                ".TBL_GROUP_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
+                ".TBL_PERMISSION.".class = '".$class."' AND 
+                ".TBL_PERMISSION.".code = '".$perm_code." AND 
+                ".TBL_GROUP_PERMISSION.".instance = '".$instance."' AND 
+                ".TBL_GROUP_PERMISSION.".group_id = ".TBL_GROUP_USER.".group_id AND
+                ".TBL_GROUP_USER.".user_id = '".$this->id."'");
+            if($rows and count($rows)) {
+                return true;
+            }
+        }
 
-    if(!is_array($perms)) {
-      $perms = array($perms);
-    }
-
-    foreach($perms as $perm_code) {
-      // check user permission
-      $rows = $this->_db->select(TBL_USER_PERMISSION.'.perm_id', array(TBL_USER_PERMISSION, TBL_PERMISSION), array(
-        TBL_USER_PERMISSION.'.perm_id' => TBL_PERMISSION.'.id',
-        TBL_USER_PERMISSION.'.user_id' => $this->id,
-        TBL_USER_PERMISSION.'.instance' => $instance,
-        TBL_PERMISSION.'.code' => $perm_code
-      ));
-      if($rows and count($rows)) {
-        return true;
-      }
-      // check user group permission
-      $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_GROUP_USER, TBL_PERMISSION), array(
-        TBL_GROUP_PERMISSION.'.perm_id' => TBL_PERMISSION.'.id',
-        TBL_PERMISSION.'.code' => $perm_code,
-        TBL_GROUP_PERMISSION.'.instance' => $instance,
-        TBL_GROUP_PERMISSION.'.group_id' => TBL_GROUP_USER.'.group_id',
-        TBL_GROUP_USER.'.user_id' => $this->id
-      ));
-      if($rows and count($rows)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Verifica se l'utente ha uno dei permessi amministrativi della classe
-   * @param string $class la classe
-   * @param int $instance istanza della classe (0 per classi non istanziabili)
-   * @return boolean
-   */
-  public function hasAdminPerm($class, $instance = 0) {
-
-    $perms = array();
-    $rows = $this->_db->select('code', TBL_PERMISSION, "admin='1'");
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $perms[] = $row['code'];
-      }
-    }
-    if($this->hasPerm($class, $instance, $perms)) {
-      return true;
+        return false;
     }
 
-    return false;
-  }
+    /**
+     * Verifica se l'utente ha uno dei permessi amministrativi della classe
+     * @param string $class la classe
+     * @param int $instance istanza della classe (0 per classi non istanziabili)
+     * @return boolean
+     */
+    public function hasAdminPerm($class, $instance = 0) {
+
+        $perms = array();
+        $rows = $this->_db->select('code', TBL_PERMISSION, "admin='1'");
+        if($rows and count($rows)) {
+            foreach($rows as $row) {
+                $perms[] = $row['code'];
+            }
+        }
+        if($this->hasPerm($class, $perms, $instance)) {
+            return true;
+        }
+
+        return false;
+    }
 
 	/**
 	 * Valore che raggruppa permesso e istanza

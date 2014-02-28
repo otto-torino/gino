@@ -266,9 +266,11 @@ function cleanVar($method, $name, $type, $strip_tags, $options=array())
 			$replace = array('.', '.', '', '', '', '');
 			$value = str_replace($search, $replace, $value);
 			*/
-			$value = str_replace(',', '.', $value);
-			$value = floatval($value);
-			$value = str_replace($larr['decimal_point'], '.', $value);
+      if($value !== null) {
+        $value = str_replace(',', '.', $value);
+			  $value = floatval($value);
+			  $value = str_replace($larr['decimal_point'], '.', $value);
+      }
 		}
 		elseif($value !== null) settype($value, $type);
 	}

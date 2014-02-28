@@ -634,6 +634,10 @@ class AdminTable {
       $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
       $m2m_model->updateDbData();
     }
+
+    // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
+    $model->updateStructure();
+
   }
   
   /**

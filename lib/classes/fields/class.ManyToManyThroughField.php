@@ -66,7 +66,12 @@ class ManyToManyThroughField extends Field {
     $rows = $db->select('*', $this->getTable(), $this->_model_table_id."='".$this->_model->id."'", array('order' => 'id ASC'));
     foreach($rows as $row) {
       $class = $this->_m2m;
-      $m2m_obj = new $class($row['id'], $this->_controller);
+      if($this->_m2m_controller) {
+        $m2m_obj = new $class($row['id'], $this->_m2m_controller);
+      }
+      else {
+        $m2m_obj = new $class($row['id']);
+      }
       $values[] = $m2m_obj->id;
     }
 

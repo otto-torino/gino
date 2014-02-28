@@ -132,14 +132,12 @@ class error {
   public static function errorMessage($message, $link) {
 
     $codeMessages = self::codeMessages();
-    
     $msg = (is_int($message['error']))? $codeMessages[$message['error']]:$message['error'];
 
-    $buffer = _("Errore: ");
-    $buffer .= " ".jsVar($msg)."\\n";
+    $buffer = $msg;
     if(isset($message['hint'])) {
-      $buffer .= _("Suggerimenti:");
-      $buffer .= " ".jsVar($message['hint']);
+      $buffer .= "<p><b>"._("Suggerimenti:")."</b></p>";
+      $buffer .= $message['hint'];
     }
     $session = session::instance();
     $session->GINOERRORMSG = $buffer;
