@@ -199,7 +199,7 @@ class auth extends Controller {
 			$content = $this->manageFrontend();
 			$sel_link = $link_frontend;
 		}
-    elseif($block=='options') {
+        elseif($block=='options') {
 			$content = $this->manageOptions();
 			$sel_link = $link_options;
 		}
@@ -215,6 +215,10 @@ class auth extends Controller {
 		elseif($block=='perm') {
 			$content = $this->managePermission();
 			$sel_link = $link_perm;
+		}
+		elseif($block=='password') {
+			$content = $this->changePassword();
+			$sel_link = $link_dft;
 		}
 		else {
 			
@@ -258,7 +262,7 @@ class auth extends Controller {
 			'add_buttons' => array(
 				array('label'=>pub::icon('group', array('scale' => 1)), 'link'=>$link_button."&op=jug", 'param_id'=>'ref'), 
 				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
-				array('label'=>pub::icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-changePassword]", 'param_id'=>'ref')
+				array('label'=>pub::icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-manageAuth]&block=password", 'param_id'=>'ref')
 			)
 		);
 		
@@ -429,11 +433,9 @@ class auth extends Controller {
 	 * Parametri POST (per l'action del form): \n
 	 *   - id (integer), valore ID dell'utente
 	 */
-	public function changePassword() {
+	private function changePassword() {
 		
 		// PERM ??
-		
-		$link_interface = $this->_home."?evt[".$this->_class_name."-changePassword]";
 		
 		if(isset($_POST['submit_action']))
 		{
@@ -446,16 +448,13 @@ class auth extends Controller {
 				'pwd_numeric_number' => $this->_pwd_numeric_number
 			));
 			
-			$link_interface .= "&ref=$user_id";
-			
 			if($action_result === true) {
-				
-				$link_interface .= "&c=1";
-				
-				header("Location: "."http://".$_SERVER['HTTP_HOST'].$link_interface);
+				header("Location: ".$this->_home."?evt[".$this->_class_name."-manageAuth]");
 				exit();
 			}
-			exit(error::errorMessage($action_result, $link_interface));
+            else {
+			    exit(error::errorMessage($action_result, $this->_home."?evt[".$this->_class_name."-manageAuth]&block=password&ref=$user_id"));
+            }
 		}
 		
 		$user_id = cleanVar($_GET, 'ref', 'int', '');
@@ -464,13 +463,12 @@ class auth extends Controller {
 		$obj_user = new User($user_id);
 		
 		$content = $obj_user->formPassword(array(
-			'form_action'=>$link_interface, 
+			'form_action'=>'', 
 			'rules'=>$this->passwordRules($user_id), 
 			'maxlength'=>$this->_pwd_length_max)
 		);
 		
-		$title = _('Impostazione password');
-		if($change == 1) $title .= " - "._("modifica effettuata");
+		$title = sprintf(_('Modifica password "%s"'), $obj_user);
 		
 		$dict = array(
 			'title' => $title,
@@ -514,7 +512,8 @@ class auth extends Controller {
 		);
 		
 		$admin_table = loader::load('AdminTable', array(
-			$this
+            $this,
+            array('allow_insertion' => false, 'edit_deny' => 'all', 'delete_deny' => 'all')
 		));
 
 		return $admin_table->backoffice('Permission', $opts);
@@ -568,8 +567,7 @@ class auth extends Controller {
 		$content .= $gform->close();
 		
 		$dict = array(
-			'title' => _('Associazione Utente - Permessi'),
-			'pre_header' => $obj_user, 
+			'title' => sprintf(_("Utente \"%s\" - permessi"), $obj_user),
 			'content' => $content
 		);
 
@@ -675,8 +673,7 @@ class auth extends Controller {
 		$content .= $gform->close();
 		
 		$dict = array(
-			'title' => _('Associazione Gruppo - Permessi'),
-			'pre_header' => $obj_group, 
+			'title' => sprintf(_("Gruppo \"%s\" - permessi"), $obj_group),
 			'content' => $content
 		);
 
@@ -782,8 +779,7 @@ class auth extends Controller {
 		$content .= $gform->close();
 		
 		$dict = array(
-			'title' => _('Associazione Utenti - Gruppi'), 
-			'pre_header' => $obj_user, 
+			'title' => sprintf(_('Utente "%s" - gruppi'), $obj_user),
 			'content' => $content
 		);
 
@@ -942,10 +938,14 @@ class auth extends Controller {
 	public function login(){
 
 		$link_interface = $_SERVER['REQUEST_URI'];	// /git/gino/index.php?evt[auth-login]
-		
+
 		$link_interface = $this->_plink->convertLink($link_interface, array('vserver'=>'REQUEST_URI', 'pToLink'=>true, 'basename'=>true));
 		
-		$referer = isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] ? $_SERVER['HTTP_REFERER'] : $this->_home;
+        $referer = isset($this->_registry->session->auth_redirect)
+            ? $this->_registry->session->auth_redirect
+            : ((isset($_SERVER['HTTP_REFERER']) and $_SERVER['HTTP_REFERER'])
+                ? $_SERVER['HTTP_REFERER']
+                : $this->_home);
 		$this->_registry->session->auth_redirect = $referer;
 		
 		if(isset($_POST['submit_login']))

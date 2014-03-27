@@ -1027,6 +1027,11 @@ class page extends Controller {
 		if(!$item || !$item->id || !$item->published) {
 			error::raise404();
 		}
+
+        // load sharethis if present
+        if($item->social) {
+            $registry->js_load_sharethis = true;
+        }
 		
 		if(!$this->accessPage(array('page_obj'=>$item)))
 			return "<p>"._("I contenuti della pagina non sono disponibili")."</p>";
@@ -1067,6 +1072,7 @@ class page extends Controller {
 
 		$view->setViewTpl('view');
 		$view->assign('section_id', 'view_'.$this->_instance_name);
+		$view->assign('page', $item);
 		$view->assign('tpl', $tpl);
 		$view->assign('enable_comments', $item->enable_comments);
 		$view->assign('form_comment', $form_comment);
@@ -1261,7 +1267,7 @@ class page extends Controller {
 			if(!$obj->social) {
 				return '';
 			}
-			$pre_filter = shareAll('all', $this->_url_root.SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
+			$pre_filter = shareAll(array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), $this->_registry->pub->getRootUrl().SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
 		}
 		elseif($property == 'comments') {
 			if(!$obj->enable_comments) {
@@ -1592,7 +1598,7 @@ class page extends Controller {
 		return array(
 			"table"=>pageEntry::$tbl_entry, 
 			"selected_fields"=>array("id", "slug", "creation_date", array("highlight"=>true, "field"=>"title"), array("highlight"=>true, "field"=>"text")), 
-			"required_clauses"=>array("instance"=>$this->_instance, "published"=>1), 
+			"required_clauses"=>array("published"=>1), 
 			"weight_clauses"=>array("title"=>array("weight"=>5), 'tags'=>array('weight'=>3), "text"=>array("weight"=>1))
 		);
 	}
@@ -1608,15 +1614,15 @@ class page extends Controller {
 	
 		$obj = new pageEntry($results['id'], $this);
 
-		$buffer = "<div>".dbDatetimeToDate($results['creation_date'], "/")." <a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
+		$buffer = "<dt><a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
 		$buffer .= $results['title'] ? htmlChars($results['title']) : htmlChars($obj->ml('title'));
-		$buffer .= "</a></div>";
+		$buffer .= "</a> </dt>";
 
 		if($results['text']) {
-			$buffer .= "<div class=\"search_text_result\">...".htmlChars($results['text'])."...</div>";
+			$buffer .= "<dd class=\"search-text-result\">...".htmlChars($results['text'])."...</dd>";
 		}
 		else {
-			$buffer .= "<div class=\"search_text_result\">".htmlChars(cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</div>";
+			$buffer .= "<dd class=\"search-text-result\">".htmlChars(cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</dd>";
 		}
 		
 		return $buffer;

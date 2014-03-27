@@ -53,7 +53,7 @@ class Permission extends Model {
 			'code' => _('Codice del permesso'), 
 			'label' => _('Label'), 
 			'description' => _('Descrizione'), 
-			'admin' => _('Permesso da amministratore'), 
+			'admin' => _('Richiede accesso area amministrativa'), 
 		);
 
     $this->_tbl_data = TBL_PERMISSION;

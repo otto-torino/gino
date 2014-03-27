@@ -221,7 +221,7 @@
   /**
    * Metodo generico statico per ricavare oggetti
    */
-  public static function get($options = array()) {
+  public static function objects($controller = null, $options = array()) {
 
     $where = isset($options['where']) ? $options['where'] : null;
     $order = isset($options['order']) ? $options['order'] : null;
@@ -232,7 +232,7 @@
     $rows = $db->select('id', static::$table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
-        $res[] = new static($row['id']);
+        $res[] = $controller ? new static($row['id'], $controller) : new static($row['id']);
       }
     }
 

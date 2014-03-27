@@ -151,10 +151,12 @@ class PageList{
 			$printTBL .= $this->_start.' - '.$end.' '._("di").' '.$this->_tot."\n";
 		}
 		
-		return "<div class=\"pagination\">".$printTBL."</div>";
+		return "<div class=\"pagination-summary\">".$printTBL."</div>";
 	}
 
 	private function pageLink($label, $params, $link=true, $opt=null) {
+
+        $registry = registry::instance();
 
 		if(gOpt('add_no_permalink', $opt, false)) {
 			if($params != '') {
@@ -170,8 +172,8 @@ class PageList{
 				$plink = new Link();
 				$secondary = $this->_permalink_primary ? false : true;
 				$url = $plink->addParams($this->_variables, $params, $secondary);
-				if(pub::variable('permalinks') == 'no')
-					$url = $this->_filename."?".$url;
+				//if(!$registry->sysconf->permalinks)
+				//	$url = $this->_filename."?".$url;
 			}
 			return "<a href=\"$url\">".$label."</a>";	// OLD: href=\"".$this->_url.$this->_symbol."$params\"
 		}
@@ -241,7 +243,7 @@ class PageList{
 				
 		for($i=$this->_actual; $i>1; $i--) {
 			if($i == $this->_last) $LOWPART .= "";
-			elseif($i == $this->_actual) $LOWPART = "<li class=\"active\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, false, $opt)."</li>".$LOWPART;
+			elseif($i == $this->_actual) $LOWPART = "<li class=\"active\">".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</li>".$LOWPART;
 			elseif($i>$this->_actual - $this->_vpage_num - 1) $LOWPART = "<li>".$this->pageLink($i, "start=".($i-1)*$this->_items_for_page, true, $opt)."</li>".$LOWPART;
 			else $this->_less = 1;
 		}
@@ -255,12 +257,10 @@ class PageList{
 		
 		$BUFFER .= ($this->_actual == $this->_first)? "":"<li>".$this->pageLink($this->_ico_less, "start=".($this->_actual-2)*$this->_items_for_page, true, $opt)."</li>";
 		$class_first = ($this->_actual == $this->_first)? "active" : "";
-		$link_first = ($this->_actual == $this->_first)? false:true;
-		$BUFFER .= "<li class=\"$class_first\">".$this->pageLink($this->_first, "start=0", $link_first, $opt)."</li>";
+		$BUFFER .= "<li class=\"$class_first\">".$this->pageLink($this->_first, "start=0", true, $opt)."</li>";
 		$BUFFER .= $LOWPART.$HIGHPART;
 		$class_last = ($this->_actual == $this->_last)? "active" : "";
-		$link_last = ($this->_actual == $this->_last)? false:true; 
-		$BUFFER .= "<li class=\"$class_last\">".$this->pageLink($this->_last, "start=".($this->_last-1)*$this->_items_for_page, $link_last, $opt)."</li>";
+		$BUFFER .= "<li class=\"$class_last\">".$this->pageLink($this->_last, "start=".($this->_last-1)*$this->_items_for_page, true, $opt)."</li>";
 		$BUFFER .= ($this->_actual == $this->_last)? "":"<li>".$this->pageLink($this->_ico_more, "start=".($this->_actual*$this->_items_for_page), true, $opt)."</li>";
 		
 		$BUFFER .= "</ul>\n";

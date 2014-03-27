@@ -1021,6 +1021,7 @@ class Form {
 		}
 
 		$GFORM .= "<div class=\"form-multicheck\">\n";
+		$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
 
 		if(is_string($data))
 		{
@@ -1028,8 +1029,6 @@ class Form {
 			$a = $db->selectquery($data);
 			if(sizeof($a) > 0)
 			{
-				$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
-				
 				foreach($a AS $b)
 				{
 					$b = array_values($b);
@@ -1096,9 +1095,8 @@ class Form {
 
 				}
 				
-				$GFORM .= "</table>\n";
 			}
-			else $GFORM .= _("non risultano scelte disponibili");
+			else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
 		}
 		elseif(is_array($data))
 		{
@@ -1137,15 +1135,22 @@ class Form {
 				}
 				$GFORM .= "</table>\n";
 			}
-			else $GFORM .= _("non risultano scelte disponibili");
+			else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
 		}
 
+		$GFORM .= "</table>\n";
 		$GFORM .= "</div>\n";
 		
 		if(isset($options['helptext'])) {
 			$title = $options['helptext']['title'];
 			$text = $options['helptext']['text'];
 			$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+		}
+		if(isset($options['add_related'])) {
+			$title = $options['add_related']['title'];
+			$id = $options['add_related']['id'];
+			$url = $options['add_related']['url'];
+			$GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
 		}
 		$GFORM .= "</div>\n";
 
@@ -1258,12 +1263,19 @@ class Form {
 		}
 
     	$GFORM .= "</select>\n";
-    	
-    	if(isset($options['helptext'])) {
-    		$title = $options['helptext']['title'];
-    		$text = $options['helptext']['text'];
-    		$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-    	}
+
+        if(isset($options['helptext'])) {
+          $title = $options['helptext']['title'];
+          $text = $options['helptext']['text'];
+          $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+        }
+
+		if(isset($options['add_related'])) {
+			$title = $options['add_related']['title'];
+			$id = $options['add_related']['id'];
+			$url = $options['add_related']['url'];
+			$GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
+		}
 
     	return $GFORM;
 	}

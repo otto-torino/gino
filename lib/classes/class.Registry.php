@@ -66,6 +66,18 @@ class registry extends singleton {
 		return $this->vars[$index];
 	}
 
+    /**
+     * @brief Controlla se è stata definita una proprietà del registry
+     *
+     * @param $prop nome della proprietà
+     *
+     * @return vero se è definita, falso altrimenti
+     */
+    public function propertyExists($prop)
+    {
+        return (bool) isset($this->vars[$prop]);
+    }
+
 	/**
 	 * Carica un file css in un array (chiave @a css)
 	 * 

@@ -29,6 +29,7 @@ require_once('class.Conf.php');
  *   - Codice google analytics (es. UA-1234567-1)
  *   - Chiave pubblica reCAPTCHA
  *   - Chiave privata reCAPTCHA
+ *   - Chiave pubblica ShareThis
  *   - Email amministratore di sistema
  *   - Email invio automatico comunicazioni
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
@@ -109,12 +110,14 @@ class sysconf extends Controller {
           _('Cache') => array('enable_cache', 'empty_cache'),
           _('Meta') => array('head_title', 'head_description', 'head_keywords'),
           _('Robots') => array('robots'),
-          _('Servizi') => array('google_analytics', 'captcha_public', 'captcha_private')
+          _('Servizi') => array('google_analytics', 'captcha_public', 'captcha_private', 'sharethis_public_key', 'disqus_shortname')
         )
       ), array(
         'google_analytics' => array('trnsl' => false),
         'captcha_public' => array('trnsl' => false),
-        'captcha_private' => array('trnsl' => false)
+        'captcha_private' => array('trnsl' => false),
+        'sharethis_public_key' => array('trnsl' => false),
+        'disqus_shortname' => array('trnsl' => false),
       ));
     }
 

@@ -280,6 +280,9 @@ class AdminTable {
     $inputs_prefix = array_key_exists('inputs_prefix', $options) ? $options['inputs_prefix'] : '';
     
     $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
+
+    // popup
+    $popup = cleanVar($_GET, '_popup', 'int', '');
     
     $gform = new Form($formId, $method, $validation, 
       array(
@@ -375,6 +378,7 @@ class AdminTable {
           'generateToken'=>$f_generateToken
         )
       );
+      $buffer .= $gform->hidden('_popup', $popup);
     }
     
     if(sizeof($this->_hidden) > 0)
@@ -519,7 +523,7 @@ class AdminTable {
         {
           $model->instance = $this->_controller->getInstance();
         }
-        elseif(get_class($object) == 'ManyToManyThroughField') 
+        elseif(is_a($object, 'ManyToManyThroughField')) 
         {
           $m2mt[] = array(
             'field' => $field, 
@@ -572,7 +576,7 @@ class AdminTable {
     return $result;
   }
 
-  private function m2mthroughAction($m2m_field, $m2m_field_object, $model) {
+  protected function m2mthroughAction($m2m_field, $m2m_field_object, $model) {
   
     // elimina tutti e poi riscrive
     $model->deletem2mthroughField($m2m_field);
@@ -605,7 +609,7 @@ class AdminTable {
           {
             $m2m_model->instance = $this->_controller->getInstance();
           }
-          elseif(get_class($object) == 'ManyToManyThroughField') 
+          elseif(is_a($object, 'ManyToManyThroughField'))
           {
             $this->m2mthroughAction($object, $m2m_model);
           }
@@ -702,7 +706,7 @@ class AdminTable {
   public function adminDelete($model, $options_form) {
 
     if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
-      error::raise404();	
+      error::raise403();	
     }
     
     $result = $model->delete();
@@ -744,11 +748,16 @@ class AdminTable {
       $link_return = $this->editUrl(array(), array('edit', 'insert', 'id'));
     
     if(count($_POST)) {
+      $popup = cleanVar($_POST, '_popup', 'int', '');
       $link_error = $this->editUrl(null, null);
       $options_form['link_error'] = $link_error ;
       $action_result = $this->modelAction($model_obj, $options_form, $inputs);
-      
-      if($action_result === true) {
+      if($action_result === true and $popup) {
+        $buffer = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
+        echo $buffer;
+        exit;
+      }
+      elseif($action_result === true) {
         header("Location: $link_return");
         exit();
       }
@@ -1085,7 +1094,7 @@ class AdminTable {
         $links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify', array('scale' => 1))."</a>";
       }
       if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-        $links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
+        $links[] = "<a href=\"javascript: if(confirm('".jsVar(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model))."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
       }
       $buttons = array(
         array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')

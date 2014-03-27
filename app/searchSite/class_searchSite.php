@@ -17,269 +17,288 @@
  */
 class searchSite extends Controller {
 
-	private $_optionsValue;
-	private $_options;
-	public $_optionsLabels;
-	
-	private $_template, $_sys_mdl, $_inst_mdl;
-	private $_title;
-	private $_action, $_block;
+    public $_optionsLabels;
+    protected $_view_dir;
+    private $_options,
+            $_sys_mdl,
+            $_inst_mdl,
+            $_title;
 
-	function __construct() {
-	
-		parent::__construct();
+    /**
+     * @brief Costruttore
+     *
+     * @return istanza di searchSite
+     */
+    function __construct() {
 
-		$this->_template = htmlChars($this->setOption('template', true));
-		$this->_sys_mdl = $this->setOption('sys_mdl') ? $this->setOption('sys_mdl') : '';
-		$this->_inst_mdl = $this->setOption('inst_mdl') ? $this->setOption('inst_mdl') : '';
+        parent::__construct();
 
-		// Valori di default
-		$this->_optionsValue = array(
-		
-		);
-		
-		$this->_options = Loader::load('Options', array($this->_class_name, $this->_instance));
-		$this->_optionsLabels = array(
-			"template"=>array("label"=>array(_("Template"), _("{FIELD}: campo di ricerca<br />{BUTTON}: pulsante di ricerca<br />{CHECK}: selezione moduli da ricercare")), "required"=>false),
-			"sys_mdl"=>array("label"=>array(_("Moduli di sistema"), _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")), "required"=>false),
-			"inst_mdl"=>array("label"=>array(_("Moduli istanziabili"), _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")), "required"=>false)
-		);
-		
-		$this->_title = _("Ricerca nel sito");
+        $this->_title = _("Ricerca nel sito");
+        $this->_sys_mdl = $this->setOption('sys_mdl', '');
+        $this->_inst_mdl = $this->setOption('inst_mdl', '');
 
-		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
-	}
+        $this->_options = Loader::load('Options', array($this->_class_name, $this->_instance));
+        $this->_optionsLabels = array(
+            "sys_mdl"=>array(
+                "label"=>array(
+                    _("Moduli di sistema"), 
+                    _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")
+                ), 
+                "required"=>false
+            ),
+            "inst_mdl"=>array(
+                "label"=>array(
+                    _("Moduli istanziabili"), 
+                    _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")
+                ), 
+                "required"=>false
+            )
+        );
+        $this->_view_dir = dirname(__FILE__).OS.'views';
 
-	/**
-	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
-	 * 
-	 * @return array
-	 */
-	public static function outputFunctions() {
+    }
 
-		$list = array(
-			"form" => array("label"=>_("Visualizza il form di ricerca"), "permissions"=>array())
-		);
+    /**
+     * Restituisce alcune proprietà della classe
+     *
+     * @static
+     * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+     */
+    public static function getClassElements() {
 
-		return $list;
-	}
+        return array(
+            "tables"=>array(
+                'search_site_opt', 
+            ),
+            'css' => array(
+                'searchSite.css'
+            ),
+            'views' => array(
+                'form.php' => _('Form di ricerca')
+            ),
+        );
+    }
 
-	/**
-	 * Interfaccia amministrativa per la gestione delle ricerche
-	 * 
-	 * @return string
-	 */
-	public function manageSearchSite() {
-	
-		$this->requirePerm('can_admin');
-		
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=options\">"._("Opzioni")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSearchSite]\">"._("Informazioni")."</a>";
-		$sel_link = $link_dft;
+    /**
+     * Elenco dei metodi che possono essere richiamati dal menu e dal template
+     * 
+     * @return array
+     */
+    public static function outputFunctions() {
 
-		if($this->_block == 'options') {
-			$GINO = $this->manageOptions();		
-			$sel_link = $link_options;
-		}
-		else {
-			$GINO = $this->info();
-		}
-		
-    $dict = array(
-      'title' => $this->_title,
-      'links' => array($link_options, $link_dft),
-      'selected_link' => $sel_link,
-      'content' => $GINO
-    );
+        $list = array(
+            "form" => array("label"=>_("Visualizza il form di ricerca"), "permissions"=>array())
+        );
 
-    $view = new view();
-    $view->setViewTpl('tab');
+        return $list;
+    }
 
-    return $view->render($dict);
-	}
+    /**
+     * Interfaccia amministrativa per la gestione delle ricerche
+     * 
+     * @return string
+     */
+    public function manageSearchSite() {
+    
+        $this->requirePerm('can_admin');
 
-	/**
-	 * Form di ricerca
-	 * 
-	 * @return string
-	 */
-	public function form() {
+        $block = cleanVar($_REQUEST, 'block', 'string', '');
+        
+        $link_frontend = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=frontend\">"._("Frontend")."</a>";
+        $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=options\">"._("Opzioni")."</a>";
+        $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSearchSite]\">"._("Informazioni")."</a>";
+        $sel_link = $link_dft;
+        
+        if($block == 'frontend') {
+            $GINO = $this->manageFrontend();
+            $sel_link = $link_frontend;
+        }
+        elseif($block == 'options') {
+            $GINO = $this->manageOptions();		
+            $sel_link = $link_options;
+        }
+        else {
+            $GINO = $this->info();
+        }
 
-		$gform = Loader::load('Form', array('search_site_form', 'post', true, array('tblLayout'=>false)));
-		$gform->load('dataform');
+        $dict = array(
+            'title' => $this->_title,
+            'links' => array($link_frontend, $link_options, $link_dft),
+            'selected_link' => $sel_link,
+            'content' => $GINO
+        );
 
-		$registry = registry::instance();
-		$registry->addCss($this->_class_www."/searchSite.css");
-		$registry->addJs($this->_class_www."/searchSite.js");
-		
-		$required = '';
-		$buffer = $gform->open($this->_home."?evt[".$this->_class_name."-results]", '', $required);
-		$field = "<input type=\"text\" name=\"search_site\" id=\"search_site\"/>";
-		$button = "<input type=\"submit\" id=\"search_site_submit\" value=\" \" />";
-		
-		$check = ($this->_sys_mdl || $this->_inst_mdl) ? "<input type=\"button\" id=\"search_site_check\" value=\" \" />" : '';
-		if($this->_template) {
-			$tpl = preg_replace("#{FIELD}#", $field, $this->_template);	
-			$tpl = preg_replace("#{BUTTON}#", $button, $tpl);	
-			$buffer .= preg_replace("#{CHECK}#", $check, $tpl);	
-		}
-		else {
-			$buffer .= $check." ".$field." ".$button;
-		}
+        $view = new view(null, 'tab');
+        return $view->render($dict);
+    }
 
-		$buffer .= $this->checkOptions();
-		$buffer .= $gform->close();
+    /**
+     * @brief Form di ricerca
+     * 
+     * @return form di ricerca
+     */
+    public function form() {
 
-    $view = new view(null, 'section');
-    $dict = array(
-      'title' => _("Ricerca nel sito"),
-      'content' => $buffer
-    );
+        $registry = registry::instance();
+        $registry->addCss($this->_class_www."/searchSite.css");
+        $registry->addJs($this->_class_www."/searchSite.js");
 
-    return $view->render($dict);
-	}
+        $choices = ($this->_sys_mdl || $this->_inst_mdl) ? true : false;
+        $check_options = $this->checkOptions();
 
-	private function checkOptions() {
-	
-		$buffer = "<div id=\"search_site_check_options\" style=\"display:none; position:absolute;text-align:left;\">";
-		$buffer .= "<div>";
-		$buffer .= "<p><b>"._("Ricerca solo in")."</b></p>";
+        $view = new view($this->_view_dir, 'form');
+        $dict = array(
+            'form_action' => $this->_home."?evt[".$this->_class_name."-results]",
+            'choices' => $choices,
+            'check_options' => $check_options
+        );
 
-		$i=1;
-		if($this->_sys_mdl)
-		{
-		foreach(explode(",", $this->_sys_mdl) as $smid) {
-			$label = $this->_db->getFieldFromId($this->_tbl_module_app, 'label', 'id', $smid);
-			$buffer .= "<input type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".htmlChars($label);
-			if($i++%3==0) $buffer .= "<br />";
-		}
-		}
-		if($this->_inst_mdl)
-		{
-		foreach(explode(",", $this->_inst_mdl) as $mid) {
-			$label = $this->_db->getFieldFromId($this->_tbl_module, 'label', 'id', $mid);
-			$buffer .= "<input type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".htmlChars($label);
-			if($i++%3==0) $buffer .= "<br />";
-		}
-		}
-		$buffer .= "</div>";
-		$buffer .= "</div>";
+        return $view->render($dict);
+    }
 
-		return $buffer;
-	}
+    /**
+     * @brief Pannello con le opzioni di ricerca
+     * 
+     * @return pannello
+     */
+    private function checkOptions() {
+    
+        $buffer = "<div id=\"search_site_check_options\" style=\"display:none; position:absolute;text-align:left;\">";
+        $buffer .= "<div>";
+        $buffer .= "<p class=\"lead\"><strong>"._("Ricerca solo in")."</strong></p>";
 
-	/**
-	 * Stampa i risultati di una ricerca
-	 * 
-	 * La ricerca viene effettuata sui moduli nei quali sono stati definiti i metodi @a searchSite() e @a searchSiteResult()
-	 * 
-	 * @see search::getSearchResults()
-	 * @return string
-	 */
-	public function results() {
+        $i=1;
+        if($this->_sys_mdl)
+        {
+        foreach(explode(",", $this->_sys_mdl) as $smid) {
+            $label = $this->_db->getFieldFromId(TBL_MODULE_APP, 'label', 'id', $smid);
+            $buffer .= "<label for=\"sysmdl_$smid\"><input id=\"sysmdl_$smid\" type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".htmlChars($label)."</label>";
+            if($i++%3==0) $buffer .= "<br />";
+        }
+        }
+        if($this->_inst_mdl)
+        {
+        foreach(explode(",", $this->_inst_mdl) as $mid) {
+            $label = $this->_db->getFieldFromId(TBL_MODULE, 'label', 'id', $mid);
+            $buffer .= "<label for=\"mdl_$mid\"><input id=\"mdl_$mid\" type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".htmlChars($label)."</label>";
+            if($i++%3==0) $buffer .= "<br />";
+        }
+        }
+        $buffer .= "</div>";
+        $buffer .= "</div>";
 
-    Loader::import('class', 'Search');
+        return $buffer;
+    }
 
-		$keywords = cleanVar($_POST, 'search_site', 'string', '');
-		$keywords = cutHtmlText($keywords, 500, '', true, false, true);
-		$sysmdl = cleanVar($_POST, 'sysmdl', 'array', '');
-		$instmdl = cleanVar($_POST, 'instmdl', 'array', '');
+    /**
+     * Stampa i risultati di una ricerca
+     * 
+     * La ricerca viene effettuata sui moduli nei quali sono stati definiti i metodi @a searchSite() e @a searchSiteResult()
+     * 
+     * @see search::getSearchResults()
+     * @return string
+     */
+    public function results() {
 
-		$opt = (!count($sysmdl) && !count($instmdl)) ? false : true;
-		$results = array();
-		$buffer = '';
+        Loader::import('class', 'Search');
 
-		foreach(explode(",", $this->_sys_mdl) as $smdlid) {
-			if(!$opt || in_array($smdlid, $sysmdl)) {
-				$classname = $this->_db->getFieldFromId($this->_tbl_module_app, 'name', 'id', $smdlid);
-				if(method_exists($classname, "searchSite")) {
-					$obj = new $classname();
-					$data = $obj->searchSite();
-					$searchObj = new search($data['table']);
-					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-					$results[$classname] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-				}
-			}
-		}
-		foreach(explode(",", $this->_inst_mdl) as $mdlid) {
-			if(!$opt || in_array($mdlid, $instmdl)) {
-				$instancename = $this->_db->getFieldFromId($this->_tbl_module, 'name', 'id', $mdlid);
-				$classname = $this->_db->getFieldFromId($this->_tbl_module, 'class', 'id', $mdlid);
-				if(method_exists($classname, "searchSite")) {
-					$obj = new $classname($mdlid);
-					$data = $obj->searchSite();
-					$searchObj = new search($data['table']);
-					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-					$results[$classname."||".$mdlid] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-				}
-			}
-		}
+        $keywords = cleanVar($_POST, 'search_site', 'string', '');
+        $keywords = cutHtmlText($keywords, 500, '', true, false, true);
+        $sysmdl = cleanVar($_POST, 'sysmdl', 'array', '');
+        $instmdl = cleanVar($_POST, 'instmdl', 'array', '');
 
-		$order_results = array();
-		$final_results = array();
-		
-		if(count($results) > 0)
-		{
-			$i = 0;
-			foreach($results as $classname=>$res) {
-				foreach($res as $k=>$v) {
-					$order_results[$i] = $v['relevance']*1000 + round($v['occurrences']);
-					$final_results[$i] = array_merge(array("class"=>$classname), $v);	
-					$i++;
-				}	
-			}
+        $opt = (!count($sysmdl) && !count($instmdl)) ? false : true;
+        $results = array();
+        $buffer = '';
 
-			arsort($order_results);
-		}
-		$tot_results = count($final_results);
+        foreach(explode(",", $this->_sys_mdl) as $smdlid) {
+            if(!$opt || in_array($smdlid, $sysmdl)) {
+                $classname = $this->_db->getFieldFromId(TBL_MODULE_APP, 'name', 'id', $smdlid);
+                if(method_exists($classname, "searchSite")) {
+                    $obj = new $classname();
+                    $data = $obj->searchSite();
+                    $searchObj = new search($data['table']);
+                    foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+                    $results[$classname] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                }
+            }
+        }
+        foreach(explode(",", $this->_inst_mdl) as $mdlid) {
+            if(!$opt || in_array($mdlid, $instmdl)) {
+                $module = new ModuleInstance($mdlid);
+                $instancename = $module->name;
+                $classname = $module->className();
+                if(method_exists($classname, "searchSite")) {
+                    $obj = new $classname($mdlid);
+                    $data = $obj->searchSite();
+                    $searchObj = new search($data['table']);
+                    foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+                    $results[$classname."||".$mdlid] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                }
+            }
+        }
 
-		$title = _("Ricerca")." \"$keywords\"";
-		$name_result = $tot_results == 1 ? _("risultato") : _("risultati");
-		$right_title = $tot_results." ".$name_result;
+        $order_results = array();
+        $final_results = array();
+        
+        if(count($results) > 0)
+        {
+            $i = 0;
+            foreach($results as $classname=>$res) {
+                foreach($res as $k=>$v) {
+                    $order_results[$i] = $v['relevance']*1000 + round($v['occurrences']);
+                    $final_results[$i] = array_merge(array("class"=>$classname), $v);	
+                    $i++;
+                }
+            }
 
-		if($tot_results) {
-      $buffer .= "<div class=\"search-results\">";
-			foreach($order_results as $k=>$point) {
-				$fr = $final_results[$k];
-				if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
-				else $obj = new $fr['class']();
-				$buffer .= $obj->searchSiteResult($fr);
-			}
-			$buffer .= "</div>";
-		}
-		else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
+            arsort($order_results);
+        }
+        $tot_results = count($final_results);
 
+        $title = _("Ricerca")." \"$keywords\"";
+        $name_result = $tot_results == 1 ? _("risultato") : _("risultati");
+        $results_num = "<span class=\"search-result-tot\">".$tot_results." ".$name_result."</span>";
 
-    $view = new view(null, 'section');
-    $dict = array(
-      'title' => $title,
-      'header_links' => $right_title,
-      'content' => $buffer
-    );
+        if($tot_results) {
+            $buffer .= "<dl class=\"search-results\">";
+            foreach($order_results as $k=>$point) {
+                $fr = $final_results[$k];
+                if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
+                else $obj = new $fr['class']();
+                $buffer .= $obj->searchSiteResult($fr);
+            }
+            $buffer .= "</dl>";
+        }
+        else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
 
-    return $view->render($dict);
-	}
+        $view = new view($this->_view_dir, 'results');
+        $dict = array(
+            'title' => $title,
+            'results_num' => $results_num,
+            'content' => $buffer
+        );
 
-	public function info() {
-	
-		$buffer = "<p>"._("Il modulo mette a disposizione un'interfaccia di ricerca nel sito.")."</p>";
-		$buffer .= "<p>"._("Nelle <b>Opzioni</b> è possibile definire un template sostitutivo di quello di default, e indicare i valori ID dei moduli (di sistema e non) che si vogliono includere nella ricerca.")."</p>";
-		$buffer .= "<p>"._("Per poter funzionare occorre")."</p>";
-		$buffer .= "<ul>";
-		$buffer .= "<li>"._("caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)")."</li>";
-		$buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
-		$buffer .= "</ul>";
+        return $view->render($dict);
+    }
 
-    $view = new view(null, 'section');
-    $dict = array(
-      'title' => _("Modulo di ricerca nel sito"),
-      'class' => 'admin',
-      'content' => $buffer
-    );
+    public function info() {
+    
+        $buffer = "<p>"._("Il modulo mette a disposizione un'interfaccia di ricerca nel sito.")."</p>";
+        $buffer .= "<p>"._("Nelle <b>Opzioni</b> è possibile indicare i valori ID dei moduli (di sistema e non) che si vogliono includere nella ricerca.")."</p>";
+        $buffer .= "<p>"._("Per poter funzionare occorre")."</p>";
+        $buffer .= "<ul>";
+        $buffer .= "<li>"._("caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)")."</li>";
+        $buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
+        $buffer .= "</ul>";
 
-    return $view->render($dict);
-	}
+        $view = new view(null, 'section');
+        $dict = array(
+            'title' => _("Modulo di ricerca nel sito"),
+            'class' => 'admin',
+            'content' => $buffer
+        );
+
+        return $view->render($dict);
+    }
 }
-
-?>

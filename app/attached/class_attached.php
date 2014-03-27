@@ -329,6 +329,26 @@ class attached extends Controller {
 
   }
 
+  public function jsonImageList()
+  {
+      $items = attachedItem::get($this);
+      $images = array();
+      foreach($items as $item) {
+          if(preg_match('#(\.png|\.jpg|\.jpeg|\.tif|\.gif)$#', $item->file)) {
+              $ctg = new AttachedCtg($item->category, $this);
+              $images[] = array(
+                  'image' => $item->path('rel'),
+                  'folder' => $ctg->name
+              );
+          }
+      }
+
+      header('Content-Type: application/json');
+      echo json_encode($images);
+      exit;
+  }
+  
+
 }
 
 ?>

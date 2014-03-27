@@ -764,7 +764,6 @@ CREATE TABLE php_module_opt (
 CREATE TABLE search_site_opt (
   id int IDENTITY(1, 1),
   instance int NOT NULL,
-  template text NOT NULL,
   sys_mdl nvarchar(256) NOT NULL,
   inst_mdl nvarchar(256) NOT NULL,
   PRIMARY KEY (id)
@@ -787,6 +786,8 @@ CREATE TABLE sys_conf (
   google_analytics nvarchar(20) DEFAULT NULL,
   captcha_public nvarchar(64) DEFAULT NULL,
   captcha_private nvarchar(64) DEFAULT NULL,
+  sharethis_public_key nvarchar(64) DEFAULT NULL,
+  disqus_shortname nvarchar(64) DEFAULT NULL,
   email_admin nvarchar(128) NOT NULL,
   email_from_app nvarchar(100) DEFAULT NULL,
   mobile tinyint NOT NULL DEFAULT '0',

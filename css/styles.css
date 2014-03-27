@@ -7629,6 +7629,7 @@ form {
 }
 form .form-row {
   padding: 10px 0;
+  position: relative;
 }
 form .form-row * {
   vertical-align: top;
@@ -7638,6 +7639,7 @@ form .form-row .fa-question-circle {
   margin-left: 10px;
 }
 form fieldset .form-row {
+  vertical-align: middle;
   padding: 10px 0;
 }
 form fieldset .form-row * {
@@ -7892,6 +7894,10 @@ form .form-noinput {
 form .form-multicheck {
   max-height: 250px;
   overflow: auto;
+  vertical-align: middle;
+}
+form .form-multicheck table {
+  margin-bottom: 0;
 }
 form #trnsl-container {
   background: #eee;
@@ -7900,6 +7906,10 @@ form #trnsl-container {
 form .form-textadd {
   display: inline-block;
   margin-left: 10px;
+}
+form .form-addrelated {
+  display: inline;
+  vertical-align: middle;
 }
 label {
   font-weight: normal;
@@ -7912,6 +7922,21 @@ label {
 }
 label.req {
   font-weight: bold;
+}
+label.req2:before {
+  content: "";
+  color: red;
+  display: inline-block;
+  margin-right: 5px;
+  font-family: 'FontAwesome';
+}
+label.req2:after {
+  content: '' !important;
+  display: none !important;
+}
+.form-error-msg {
+  display: block;
+  color: red;
 }
 input,
 textarea {
@@ -7944,6 +7969,9 @@ textarea:valid {
 input:focus:invalid,
 textarea:focus:invalid {
   background: #ffffff url(../img/invalid.png) no-repeat 98% center;
+}
+input[type=checkbox]:focus {
+  padding-right: 0;
 }
 .form-no-check {
   padding: 0px;

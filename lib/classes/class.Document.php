@@ -225,6 +225,7 @@ class Document {
     
     $headline .= $this->_registry->variables('css');
     $headline .= $this->_registry->variables('js');
+    $headline .= javascript::vendor();
     $headline .= javascript::onLoadFunction($skinObj);
     
     $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";

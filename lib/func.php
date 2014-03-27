@@ -841,32 +841,67 @@ function share($site, $url, $title=null, $description=null) {
  */
 function shareAll($social, $url, $title=null, $description=null) {
 
-  $registry = registry::instance();
+    $registry = registry::instance();
 
-	if($social==="all") $social = array("facebook", "twitter", "linkedin", "digg", "googleplus");
+    $all = array("facebook", "twitter", "linkedin", "digg", "googleplus");
+    $st_all = array('sharethis', 'facebook', 'twitter', 'linkedin', 'googleplus', 'reddit', 'pinterest', 'tumblr', 'digg', 'delicious', 'evernote', 'google_reader', 'email');
+    $st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'reddit_large', 'pinterest_large', 'tumblr_large', 'digg_large', 'delicious_large', 'evernote_large', 'google_reader_large', 'email_large');
+    $display_text = array(
+        'sharethis' => 'ShareThis', 
+        'facebook' => 'Facebook',
+        'twitter' => 'Twitter',
+        'linkedin' => 'LinkedIn', 
+        'googleplus' => 'Google +', 
+        'reddit' => 'Reddit', 
+        'pinterest' => 'Pinterest', 
+        'tumblr' => 'Tumblr', 
+        'digg' => 'Digg', 
+        'delicious' => 'Delicious', 
+        'evernote' => 'Evernote', 
+        'google_reader' => 'Google Reader', 
+        'email' => 'Email'
+    );
 
-	$items = array();
-	foreach($social as $s) {
-		if($s=='facebook') {
-			$items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";	
-		}
-		elseif($s=='twitter') {
-			$items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
-		}
-		elseif($s=='linkedin') {
-			$items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode($registry->sysconf->head_title)."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
-		}
-		elseif($s=='googleplus') {
-			$items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
-		}
-		elseif($s=='digg') {
-			$items[] = "<a href=\"http://digg.com/submit?phase=2&amp;url=".$url."&amp;title=".$title."\"><img src=\"".SITE_IMG."/share_digg.png\" alt=\"Share on LinkedIn\"></a>";
-		}
-	}
+    if($social==="all") {
+        $social = $all;
+    }
+    else if($social==="st_all") {
+        $social = $st_all;
+    }
+    else if($social==="st_all_large") {
+        $social = $st_all_large;
+    }
 
-	$buffer = implode(" ", $items);
+    $items = array();
 
-	return "<div class=\"share\">".$buffer."</div>";
+    if($registry->sysconf->sharethis_public_key) {
+        foreach($social as $s) {
+            $items[] = "<span class=\"st_".$s."\" displayText=\"".$display_text[preg_replace('#_large#', '', $s)]."\"></span>";
+        }
+    }
+    else {
+        foreach($social as $s) {
+            if($s=='facebook') {
+                $items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";	
+            }
+            elseif($s=='twitter') {
+                $items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
+            }
+            elseif($s=='linkedin') {
+                $items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode($registry->sysconf->head_title)."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
+            }
+            elseif($s=='googleplus') {
+                $items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
+            }
+            elseif($s=='digg') {
+                $items[] = "<a href=\"http://digg.com/submit?phase=2&amp;url=".$url."&amp;title=".$title."\"><img src=\"".SITE_IMG."/share_digg.png\" alt=\"Share on LinkedIn\"></a>";
+            }
+        }
+    }
+
+    $buffer = implode(" ", $items);
+
+    return "<div class=\"share\">".$buffer."</div>";
 }
 
 /**

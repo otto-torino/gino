@@ -112,6 +112,26 @@ class Javascript {
 
 		return $buffer;
 	}
+
+    public static function vendor() {
+        $buffer = '';
+
+        $registry = registry::instance();
+        if($registry->sysconf->sharethis_public_key) {
+            $buffer .= self::sharethis($registry->sysconf->sharethis_public_key);
+        }
+
+        return $buffer;
+    }
+
+    private static function sharethis($key) {
+
+        $buffer = "<script type=\"text/javascript\">var switchTo5x=true;</script>\n";
+        $buffer .= "<script type=\"text/javascript\" src=\"http://w.sharethis.com/button/buttons.js\"></script>\n";
+        $buffer .= "<script type=\"text/javascript\">stLight.options({publisher: \"".$key."\", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>\n";
+
+        return $buffer;
+    }
 }
 
 ?>

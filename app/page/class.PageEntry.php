@@ -96,7 +96,9 @@ class PageEntry extends Model {
 			'required'=>true,
 			'lenght'=>3, 
 			'foreign'=>'pageCategory', 
-			'foreign_order'=>'name ASC'
+			'foreign_order'=>'name ASC',
+            'add_related' => true,
+            'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-managePage]&block=ctg&insert=1',
 		));
 		
 		$structure['published'] = new BooleanField(array(
@@ -519,12 +521,11 @@ class PageEntry extends Model {
 	/**
 	 * Path relativo dell'immagine associata 
 	 * 
-	 * @param object $controller istanza del controller
 	 * @return path relativo dell'immagine
 	 */
-	public function imgPath($controller) {
+	public function imgPath() {
 
-		return $controller->getBasePath('rel').'/'.$this->id.'/'.$this->image;
+		return $this->_controller->getBasePath('rel').'/'.$this->id.'/'.$this->image;
 	}
 }
 

@@ -27,6 +27,7 @@ class ManyToManyField extends Field {
 	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
 	protected $_join_table, $_join_table_id, $_join_table_m2m_id;
+    protected $_add_related, $_add_related_url;
 	protected $_enum;
 	
 	/**
@@ -54,6 +55,9 @@ class ManyToManyField extends Field {
 		$this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : false;
 		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
 		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
+
+		$this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
+		$this->_add_related_url = array_key_exists('add_related_url', $options) ? $options['add_related_url'] : '';
 		
 		$this->_label = $this->_model->fieldLabel($this->_name);
 		$this->_table = $this->_model->getTable();
@@ -119,23 +123,41 @@ class ManyToManyField extends Field {
 	 * @param array $options opzioni dell'elemento del form
 	 * @return string
 	 */
-	public function formElement($form, $options) {
-    
-		$db = db::instance();
-		$m2m = new $this->_m2m(null);
-		$rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-		$enum = array();
-		foreach($rows as $row) {
-			$m2m = new $this->_m2m($row['id']);
-			$enum[$m2m->id] = (string) $m2m;
-		}
-		
-		$this->_value = $this->_model->{$this->_name};
-		$this->_enum = $enum;
-		$this->_name .= "[]";
+    public function formElement($form, $options) {
 
-		return parent::formElement($form, $options);
-	}
+        $db = db::instance();
+        $m2m = new $this->_m2m(null);
+        $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
+        $enum = array();
+        $selected_part = array();
+        $not_selected_part = array();
+        $this->_value = $this->_model->{$this->_name};
+        foreach($rows as $row) {
+            $m2m = new $this->_m2m($row['id']);
+            //$enum[$row['id']] = (string) $m2m;
+            if(is_array($this->_value) and in_array($row['id'], $this->_value)) {
+                $selected_part[$row['id']] = (string) $m2m;
+            }
+            else {
+                $not_selected_part[$row['id']] = (string) $m2m;
+            }
+        }
+
+        $enum = $selected_part + $not_selected_part;
+        
+        $this->_enum = $enum;
+        $this->_name .= "[]";
+
+        if($this->_add_related) {
+            $options['add_related'] = array(
+                'title' => _('inserisci').' '.$m2m->getModelLabel(),
+                'id' => 'add_'.$this->_name,
+                'url' => $this->_add_related_url
+            );
+        }
+
+        return parent::formElement($form, $options);
+    }
 
 	/**
 	 * Formatta un elemento input per l'inserimento in database

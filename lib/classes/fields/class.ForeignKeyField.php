@@ -26,6 +26,7 @@ class ForeignKeyField extends field {
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
 	protected $_foreign, $_foreign_where, $_foreign_order;
+    protected $_add_related, $_add_related_url;
 	protected $_enum;
 	
 	/**
@@ -50,8 +51,10 @@ class ForeignKeyField extends field {
 
 		$this->_foreign = $options['foreign'];
 		$this->_foreign_where = array_key_exists('foreign_where', $options) ? $options['foreign_where'] : null;
-		$this->_foreign_order = array_key_exists('foreign_order', $options) ? $options['foreign_order'] : 'id';
-		$this->_foreign_controller = array_key_exists('foreign_controller', $options) ? $options['foreign_controller'] : null;
+        $this->_foreign_order = array_key_exists('foreign_order', $options) ? $options['foreign_order'] : 'id';
+        $this->_foreign_controller = array_key_exists('foreign_controller', $options) ? $options['foreign_controller'] : null;
+		$this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
+		$this->_add_related_url = array_key_exists('add_related_url', $options) ? $options['add_related_url'] : '';
 	}
 	
 	public function __toString() {
@@ -99,6 +102,14 @@ class ForeignKeyField extends field {
     }
 		
 		$this->_enum = $enum;
+
+        if($this->_add_related) {
+            $options['add_related'] = array(
+                'title' => _('inserisci').' '.$foreign->getModelLabel(),
+                'id' => 'add_'.$this->_name,
+                'url' => $this->_add_related_url
+            );
+        }
 		
 		return parent::formElement($form, $options);
 	}

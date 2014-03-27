@@ -782,7 +782,6 @@ CREATE TABLE IF NOT EXISTS `php_module_opt` (
 CREATE TABLE IF NOT EXISTS `search_site_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
-  `template` text NOT NULL,
   `sys_mdl` varchar(256) NOT NULL,
   `inst_mdl` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)
@@ -805,6 +804,8 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `google_analytics` varchar(20) DEFAULT NULL,
   `captcha_public` varchar(64) DEFAULT NULL,
   `captcha_private` varchar(64) DEFAULT NULL,
+  `sharethis_public_key` varchar(64) DEFAULT NULL,
+  `disqus_shortname` varchar(64) DEFAULT NULL,
   `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
   `mobile` tinyint(1) NOT NULL DEFAULT '0',

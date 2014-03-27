@@ -345,7 +345,7 @@ class pageEntryAdminTable extends AdminTable {
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
 		$this->_view->assign('link_export', $link_export);
-		$this->_view->assign('search_icon', pub::icon('search'));
+		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

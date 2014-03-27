@@ -2,6 +2,7 @@ form {
   margin: 10px 0;
   .form-row {
     padding: 10px 0;
+    position: relative;
     * {
       vertical-align: top;
     }
@@ -16,6 +17,7 @@ form {
   }
   fieldset {
     .form-row {
+      vertical-align: middle;
       padding: 10px 0;
       * {
         vertical-align: top;
@@ -41,6 +43,10 @@ form {
   .form-multicheck {
     max-height: 250px;
     overflow: auto;
+    vertical-align: middle;
+    table {
+        margin-bottom: 0;
+    }
   }
   #trnsl-container {
     background: #eee;
@@ -49,6 +55,10 @@ form {
   .form-textadd {
     display: inline-block;
     margin-left: 10px;
+  }
+  .form-addrelated {
+      display: inline;
+      vertical-align: middle;
   }
 }
 
@@ -104,6 +114,11 @@ input, textarea {
   &:focus:invalid {
     background: #fff url(../img/invalid.png) no-repeat 98% center;
   }
+}
+input[type=checkbox] {
+    &:focus {
+        padding-right: 0;
+    }
 }
 .form-no-check {
   padding: 0px;

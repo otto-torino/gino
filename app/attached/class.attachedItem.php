@@ -127,6 +127,8 @@ class AttachedItem extends Model {
       'foreign'=>'attachedCtg',
       'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
+      'add_related' => true,
+      'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-manageAttached]&block=ctg&insert=1',
     ));
 
     $structure['insertion_date'] = new datetimeField(array(

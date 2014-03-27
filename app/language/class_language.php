@@ -99,7 +99,7 @@ class language extends Controller {
         foreach($a AS $b) {
           $lng = new Lang($b['id']);
 					if($this->_flag_language) {
-						$language = "<img src=\"".$this->_img_www.'/'.$this->_flag_prefix.htmlChars($b['label']).$this->_flag_suffix."\" />";
+						$language = "<img src=\"".SITE_IMG.'/'.$this->_flag_prefix.htmlChars($b['label']).$this->_flag_suffix."\" />";
 						$space = " ";
 					}
 					else {

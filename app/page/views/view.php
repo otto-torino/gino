@@ -6,6 +6,7 @@
  *
  * Variabili disponibili:
  * - **section_id**: attributo id del tag section
+ * - **page**: oggetto pageEntry
  * - **tpl**: template del post deciso da opzioni
  * - **enable_comments**: abilitazione commenti
  * - **form_comment**: form inserimento commento

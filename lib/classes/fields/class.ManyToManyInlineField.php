@@ -97,8 +97,13 @@ class ManyToManyInlineField extends Field {
 		$rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
 		$enum = array();
 		foreach($rows as $row) {
-			$m2m = new $this->_m2m($row['id']);
-			$enum[$m2m->id] = (string) $m2m;
+			if($this->_m2m_controller) {
+				$obj = new $this->_m2m($row['id'], $this->_m2m_controller);
+			}
+			else {
+				$obj = new $this->_m2m($row['id']);
+			}
+			$enum[$obj->id] = (string) $obj;
 		}
 		
 		$this->_value = explode(',', $this->_model->{$this->_name});

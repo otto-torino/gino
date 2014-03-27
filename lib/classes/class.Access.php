@@ -21,7 +21,7 @@ class Access {
   
   protected $_home;
   protected $_crypt;
-  protected $_db, $session;
+  protected $_db, $_session;
 
   private $_block_page;
 
@@ -99,9 +99,7 @@ class Access {
    */
   private function loginSuccess() {
 
-    $self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
-
-    $redirect = isset($this->session->auth_redirect) ? $this->session->auth_redirect : $this->_home;
+    $redirect = isset($this->_session->auth_redirect) ? $this->_session->auth_redirect : $this->_home;
 
     header("Location: ".$redirect);
     exit();
