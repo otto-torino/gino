@@ -35,5 +35,5 @@ if(!function_exists('adminPrintVoice')) {
       $i++;
     }
   ?>
-  <li><a href="/" style="padding: 8px 15px"><img src="img/ico_home.png" alt="home" /></a></li>
+  <li><a href="#" style="padding: 8px 15px"><img src="img/ico_home.png" alt="home" /></a></li>
   </ul>
