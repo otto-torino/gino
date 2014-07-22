@@ -1379,7 +1379,7 @@ class AdminTable {
         if(is_array($field_label)) {
           $field->setLabel($field_label[0]);
         }
-        $form .= $field->formElement($gform, array('required'=>false, 'default'=>null));
+        $form .= $field->formElement($gform, array('required'=>false, 'default'=>null, 'is_filter'=>true));
         
         $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
         $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);
