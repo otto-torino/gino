@@ -1026,7 +1026,7 @@ CREATE TABLE sys_menu_voices (
 SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
-(2, 4, 0, 'Home', '/', 'int', 1, ''),
+(2, 4, 0, 'Home', '#', 'int', 1, ''),
 (7, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
 (3, 4, 2, 'le pippe', 'page/view/gino-CMS', 'int', 1, '10,0'),
 (4, 4, 2, 'la puppa', 'graphics/printHeaderMobile', 'int', 2, ''),

@@ -640,6 +640,12 @@ class Form {
 
     $GFORM = "<div class=\"form-row\">";
     $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
+    if(is_array($label)) {
+      $options['helptext'] = array(
+        'title' => isset($label['label']) ? $label['label'] : $label[0],
+        'text' => isset($label['description']) ? $label['description'] : $label[1]
+      );
+    }
     $GFORM .= $this->input($name, 'text', $value, $options);
     $days = "['"._("Domenica")."', '"._("Lunedì")."', '"._("Martedì")."', '"._("Mercoledì")."', '"._("Giovedì")."', '"._("Venerdì")."', '"._("Sabato")."']";
     $months = "['"._("Gennaio")."', '"._("Febbraio")."', '"._("Marzo")."', '"._("Aprile")."', '"._("Maggio")."', '"._("Giugno")."', '"._("Luglio")."', '"._("Agosto")."', '"._("Settembre")."', '"._("Ottobre")."', '"._("Novembre")."', '"._("Dicembre")."']";
