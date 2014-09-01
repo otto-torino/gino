@@ -13,7 +13,6 @@
     <?=  $registry->variables('head_links') ?>
     <!-- system css -->
     <?=  $registry->variables('css') ?>
-    <link type="text/css" rel="stylesheet" href="css/admin.css" />
     <!-- system js -->
     <?=  $registry->variables('js') ?>
     <?= Document::errorMessages() ?>

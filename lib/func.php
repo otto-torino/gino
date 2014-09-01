@@ -383,6 +383,156 @@ function timeDiff($firstTime, $lastTime){
 }
 
 /**
+ * Calcola la differenza di tempo tra due datetime in più formati
+ * 
+ * @param string $interval indica il tipo di numero da ricavare, accetta i valori:
+ *   - @b yyyy - numero totale di anni
+ *   - @b q - numero totale di quarti
+ *   - @b m - numero totale di mesi
+ *   - @b y - differenza tra numero di giorni (ad es. 1st Jan 2004 è "1", il primo giorno. 2nd Feb 2003 è "33". La differenza è "-32".)
+ *   - @b d - numero totale di giorni
+ *   - @b w - numero totale di giorni della settimana
+ *   - @b ww - numero totale di settimane
+ *   - @b h - numero totale di ore
+ *   - @b n - numero totale di minuti
+ *   - @b s - numero totale di secondi (default)
+ * @param string $datefrom datetime iniziale
+ * @param string $dateto datetime finale
+ * @param boolean $using_timestamps indica se i valori di $datefrom e $dateto sono in formato timestamp (default false)
+ * @return integer
+ */
+function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
+    
+	if (!$using_timestamps) {
+		$datefrom = strtotime($datefrom, 0);
+		$dateto = strtotime($dateto, 0);
+	}
+	$difference = $dateto - $datefrom; // differenza in secondi
+
+	switch($interval) {
+     
+	case 'yyyy':
+		$years_difference = floor($difference / 31536000);
+		if (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom), date("j", $datefrom), date("Y", $datefrom)+$years_difference) > $dateto) {
+			$years_difference--;
+		}
+		if (mktime(date("H", $dateto), date("i", $dateto), date("s", $dateto), date("n", $dateto), date("j", $dateto), date("Y", $dateto)-($years_difference+1)) > $datefrom) {
+			$years_difference++;
+		}
+		$datediff = $years_difference;
+		break;
+
+	case "q":
+		$quarters_difference = floor($difference / 8035200);
+		while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($quarters_difference*3), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
+			$months_difference++;
+		}
+		$quarters_difference--;
+		$datediff = $quarters_difference;
+		break;
+
+	case "m":
+		$months_difference = floor($difference / 2678400);
+		while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($months_difference), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
+			$months_difference++;
+		}
+		$months_difference--;
+		$datediff = $months_difference;
+		break;
+
+	case 'y':
+		$datediff = date("z", $dateto) - date("z", $datefrom);
+		break;
+
+	case "d":
+		$datediff = floor($difference / 86400);
+		break;
+
+	case "w":
+		$days_difference = floor($difference / 86400);
+		$weeks_difference = floor($days_difference / 7); // Complete weeks
+		$first_day = date("w", $datefrom);
+		$days_remainder = floor($days_difference % 7);
+		$odd_days = $first_day + $days_remainder; // Do we have a Saturday or Sunday in the remainder?
+		if($odd_days > 7) { // domenica
+			$days_remainder--;
+		}
+		if($odd_days > 6) { // sabato
+			$days_remainder--;
+		}
+		$datediff = ($weeks_difference * 5) + $days_remainder;
+		break;
+
+	case "ww":
+		$datediff = floor($difference / 604800);
+		break;
+
+	case "h":
+		$datediff = floor($difference / 3600);
+		break;
+
+	case "n":
+		$datediff = floor($difference / 60);
+		break;
+
+	default:
+		$datediff = $difference;
+		break;
+	}    
+
+	return $datediff;
+}
+
+/**
+ * Calcola la differenza di tempo tra due datetime in più formati
+ * 
+ * @param string $start_date datetime iniziale
+ * @param string $end_date datetime finale (default now)
+ * @param array $options
+ *   array associativo di opzioni
+ *   - @b diff (string): tipo di output
+ *     - @a s, differenza in secondi (default)
+ *     - @a i, differenza in minuti
+ *     - @a h. differenza in ore
+ * @return integer
+ * 
+ * Utilizza la classe DateTime.
+ */
+function getDateDiff($start_date, $end_date=null, $options=array()) {
+	
+	$get_diff = gOpt('diff', $options, 's');
+	
+	if(!$end_date) $end_date = date("Y-m-d H:i:s");
+	
+	$start_date = new DateTime($start_date);
+	$end_date = new DateTime($end_date);
+	
+	$since_start = $start_date->diff($end_date);	// DateInterval object
+	
+	$days_tot = $since_start->days;	// total days (for example 1837)
+	/*
+	$diff_years = $since_start->y;
+	$diff_months = $since_start->m;
+	$diff_days = $since_start->d;
+	$diff_hours = $since_start->h;
+	$diff_minutes = $since_start->i;
+	$diff_seconds = $since_start->s;
+	*/
+	
+	$hours = $since_start->days * 24 * 60;
+	$hours += $since_start->h;
+	if($get_diff == 'h') return $hours;
+	
+	$minutes += $hours * 60;
+	$minutes += $since_start->i;
+	if($get_diff == 'i') return $minutes;
+	
+	$seconds = $minutes * 60;
+	$seconds += $since_start->s;
+	return $seconds;
+}
+
+/**
  * Verifica se il valore della variabile è conforme al tipo di controllo indicato
  * 
  * @param string $type tipo di controllo da eseguire

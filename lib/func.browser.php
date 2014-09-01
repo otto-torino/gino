@@ -52,6 +52,7 @@ function get_browser_info($arg='',$agent='')
         }
         
         /*----------------------------------------- browser name ---------------------------------------------*/
+        $name = '';
         foreach( browsers() as $key){
                 if(strpos($agent, strtolower(trim($key))) ){         
                         $name= trim($key);
@@ -93,6 +94,7 @@ function get_browser_info($arg='',$agent='')
         }
 
         /*----------------------------------------- Platform ---------------------------------------------*/
+        $platform = '';
         foreach(platforms() as $key){
                 if (preg_match("|".preg_quote(trim($key))."|i", $agent)){
                         $platform=trim($key);
