@@ -1380,9 +1380,9 @@ class page extends Controller {
 	 */
 	private function manageEntry() {
 
-    loader::import('page', 'pageEntryAdminTable');
+		loader::import('page', 'pageEntryAdminTable');
 
-    $edit = cleanVar($_GET, 'edit', 'int', '');
+		$edit = cleanVar($_GET, 'edit', 'int', '');
 		
 		$registry = registry::instance();
 		$registry->addJs($this->_class_www.'/page.js');

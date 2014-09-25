@@ -1945,7 +1945,7 @@ class Form {
     return $GFORM;
   }
 
-  /**
+	/**
 	 * Interfaccia che apre o chiude il form per l'inserimento e la modifica delle traduzioni
 	 * 
 	 * Viene richiamato nei metodi della classe Form: cinput(), ctextarea(), fcktextarea()
