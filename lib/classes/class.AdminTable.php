@@ -853,7 +853,10 @@ class AdminTable {
    *       'filter'=>'filterWhereFiliale'
    *     )
    *     @endcode
-   *   - @b list_display (array): campi mostrati nella lista (se vuoto mostra tutti)
+   *   - @b list_display (array): nomi dei campi da mostrare nella lista (se vuoto mostra tutti); 
+   *     al posto del nome di un campo è possibile indicare un array con le seguenti chiavi
+   *     - @a member (string): nome del metodo del modello da richiamare e il cui output verrà mostrato nelle righe della colonna
+   *     - @a label (string): intestazione della colonna
    *   - @b list_remove (array): campi da non mostrare nella lista (default: instance)
    *   - @b items_for_page (integer): numero di record per pagina
    *   - @b list_title (string): titolo

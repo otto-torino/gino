@@ -1390,11 +1390,11 @@ class page extends Controller {
 		$registry->addCss($this->_class_www.'/MooComplete.css');
 
 		if(!$this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
-      $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
+			$list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
 			$remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
 		}
 		else {
-      $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'private', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
+			$list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'private', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
 			$remove_fields = array('author', 'read');
 		}
 
@@ -1426,10 +1426,10 @@ class page extends Controller {
 				'list_display' => $list_display,
 				'list_title'=>_("Elenco pagine"), 
 				'filter_fields'=>array('title', 'category_id', 'tags', 'published')
-      ),
-      array(
-        'removeFields' => $remove_fields
-      ),
+			),
+			array(
+				'removeFields' => $remove_fields
+			),
 			array(
 				'id'=>array(
 					'id'=>'id'
