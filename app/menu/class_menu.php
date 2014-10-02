@@ -560,7 +560,7 @@ class menu extends Controller {
     $GINO = "<div style=\"max-height:600px;overflow:auto; border: 2px solid #eee; margin-top: 10px; padding: 10px;\">";
 
     if(!empty($class)) {
-      $modules_app = ModuleApp::get(array('where' => "active='1' AND label LIKE '$class%'"));
+      $modules_app = ModuleApp::get(array('where' => "active='1' AND label LIKE '$class%' AND instantiable='0'"));
       $modules = ModuleInstance::get(array('where' => "active='1' AND label LIKE '$class%'"));
       $GINO .= $this->printItemsClass($modules_app, $modules);
     }
@@ -616,7 +616,7 @@ class menu extends Controller {
         $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
           $('url').set('value', '".$page->getUrl()."');
           var private = $(this).get('data-private');
-          if(private) {
+          if(private.toInt()) {
             $$('input[value=".$p->id.",0]').setProperty('checked', 'checked');
           }
           location.hash = 'top';
@@ -731,6 +731,7 @@ class menu extends Controller {
       $cnt = 0;
       foreach($modules AS $module) {
         $class = $module->className();
+        $module_name = $module->name;
         if(method_exists($class, 'outputFunctions')) {
           $list = call_user_func(array($class, 'outputFunctions'));
           foreach($list as $func => $desc) {
@@ -747,7 +748,7 @@ class menu extends Controller {
               }
             }
 
-            $url = $this->_registry->plink->aLink($class, $func);
+            $url = $this->_registry->plink->aLink($module_name, $func);
             $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
               $('url').set('value', '".$url."');
               perms = $(this).get('data-perm');

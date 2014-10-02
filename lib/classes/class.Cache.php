@@ -17,12 +17,14 @@
  */
 class Cache {
 
+    protected $_registry;
 	protected $_ds, $_fld, $_prefix;
 	protected $_grp, $id, $_tc;
 	protected $_enabled;
 
 	function __construct() {
 
+        $this->_registry = registry::instance();
 		$this->_ds = OS;
 		$this->_fld = CACHE_DIR;
 		$this->_prefix = 'cache_';
@@ -58,6 +60,17 @@ class Cache {
 			
 		return false;
 	}
+
+    public function delete($grp, $id) {
+        $this->_grp = $grp;
+        $this->_id = $id;
+
+        $filename = $this->getFilename();
+        if(is_file($filename)) {
+            return @unlink($filename);
+        }
+        return true;
+    }
 }
 
 /**
@@ -88,10 +101,11 @@ class Cache {
  */
 class OutputCache extends cache {
 
-	function __construct(&$buffer) {
+	function __construct(&$buffer, $enabled = true) {
 
 		parent::__construct();
-		$this->_buffer = &$buffer;
+        $this->_buffer = &$buffer;
+        $this->_enabled = $enabled;
 	}
 
 	public function start($grp, $id, $tc) {

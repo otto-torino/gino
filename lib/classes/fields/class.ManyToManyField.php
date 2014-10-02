@@ -126,14 +126,24 @@ class ManyToManyField extends Field {
     public function formElement($form, $options) {
 
         $db = db::instance();
-        $m2m = new $this->_m2m(null);
+        if($this->_m2m_controller) {
+            $m2m = new $this->_m2m(null, $this->_m2m_controller);
+        }
+        else {
+            $m2m = new $this->_m2m(null);
+        }
         $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
         $enum = array();
         $selected_part = array();
         $not_selected_part = array();
         $this->_value = $this->_model->{$this->_name};
         foreach($rows as $row) {
-            $m2m = new $this->_m2m($row['id']);
+            if($this->_m2m_controller) {
+                $m2m = new $this->_m2m($row['id'], $this->_m2m_controller);
+            }
+            else {
+                $m2m = new $this->_m2m($row['id']);
+            }
             //$enum[$row['id']] = (string) $m2m;
             if(is_array($this->_value) and in_array($row['id'], $this->_value)) {
                 $selected_part[$row['id']] = (string) $m2m;

@@ -66,6 +66,7 @@ class FileField extends Field {
 		$this->_path_add = isset($options['add_path']) ? $options['add_path'] : '';
 		$this->_prefix = isset($options['prefix']) ? $options['prefix'] : '';
 		$this->_check_type = isset($options['check_type']) ? $options['check_type'] : false;
+		$this->_filesize_field = isset($options['filesize_field']) ? $options['filesize_field'] : false;
 		$this->_types_allowed = isset($options['types_allowed']) ? $options['types_allowed'] : array(
 			"text/plain",
 			"text/html",
@@ -249,8 +250,11 @@ class FileField extends Field {
 		$upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? true : false;
 		if(!$upload) { 
 			return array('error'=>16);
-		}
-		
+        }
+
+        if($this->_filesize_field) {
+            $this->_model->{$this->_filesize_field} = $_FILES[$this->_name]['size'];
+        };
 		if($this->_delete_file)
 			return $this->delete();
 

@@ -74,7 +74,8 @@ class searchSite extends Controller {
                 'searchSite.css'
             ),
             'views' => array(
-                'form.php' => _('Form di ricerca')
+                'form.php' => _('Form di ricerca'),
+                'results.php' => _('Risultati della ricerca')
             ),
         );
     }
