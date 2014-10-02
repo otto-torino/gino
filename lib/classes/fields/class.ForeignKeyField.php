@@ -82,24 +82,24 @@ class ForeignKeyField extends field {
 	 */
 	public function formElement($form, $options) {
 
-    $db = db::instance();
+		$db = db::instance();
 		if($this->_foreign_controller) {
 			$foreign = new $this->_foreign(null, $this->_foreign_controller);
 		}
 		else {
 			$foreign = new $this->_foreign(null);
 		}
-    $rows = $db->select('id', $foreign->getTable(), $this->_foreign_where, array('order' => $this->_foreign_order));
-    $enum = array();
-    foreach($rows as $row) {
-      if($this->_foreign_controller) {
-        $f = new $this->_foreign($row['id'], $this->_foreign_controller);
-      }
-      else {
-        $f = new $this->_foreign($row['id']);
-      }
-      $enum[$f->id] = (string) $f;
-    }
+		$rows = $db->select('id', $foreign->getTable(), $this->_foreign_where, array('order' => $this->_foreign_order));
+		$enum = array();
+		foreach($rows as $row) {
+			if($this->_foreign_controller) {
+				$f = new $this->_foreign($row['id'], $this->_foreign_controller);
+			}
+			else {
+				$f = new $this->_foreign($row['id']);
+			}
+			$enum[$f->id] = (string) $f;
+		}
 		
 		$this->_enum = $enum;
 

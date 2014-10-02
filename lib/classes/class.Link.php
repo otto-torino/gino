@@ -46,14 +46,19 @@ class Link {
 	/**
 	 * Costruisce un collegamento parziale o completo
 	 * 
+	 * @see opLinkToPerm()
+	 * @see conformParams()
 	 * @param string $class nome della classe/istanza
 	 * @param string $method nome del metodo
-	 * @param mixed $params1 parametri principali
+	 * @param mixed $params1 parametri principali in formato stringa o array
 	 *   - string: il separatore è '&' (es. id=4&ctg=2)
-	 *   - array: key=>value (array('id'=>4, 'ctg'=>2))
-	 * @param mixed	$params2 parametri secondari
+	 *   - array: i parametri sono nel formato chiave=>valore, es. 
+	 *   @code
+	 *   $this->_plink->aLink('page', 'view', array('id'=>4, 'ctg'=>2);
+	 *   @endcode
+	 * @param mixed	$params2 parametri secondari in formato stringa o array (nel formato chiave=>valore); i parametri secondari vengono sempre encodati
 	 *   - string: il separatore è '&' (es. order=desc&start=20)
-	 *   - array: key=>value (array('order'=>'desc', 'start'=>20))
+	 *   - array: es. array('order'=>'desc', 'start'=>20)
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b all (boolean): link completo (http://...)
@@ -243,9 +248,9 @@ class Link {
 	 */
 	public function alternativeLink($link){
 
-    if($link == '') {
-      return "url='/'";
-    }
+		if($link == '') {
+			return "url='/'";
+		}
 		
 		$where = "url LIKE '%$0%'";
 		$string = '';
@@ -447,12 +452,10 @@ class Link {
 	/**
 	 * Costruisce un collegamento in formato permalink
 	 * 
-	 * @param mixed $params parametri principali/secondari
-	 *   - string: il separatore è '&' (es. id=4&ctg=2)
-	 *   - array: key=>value (array('id'=>4, 'ctg'=>2))
+	 * @param mixed $params parametri principali o secondari in formato stringa o array (nel formato chiave=>valore); vedere le descrizioni presenti nel metodo aLink()
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b param_sec (boolean): indica se si tratta di parametri secondari
+	 *   - @b param_sec (boolean): indica se il metodo viene richiamato con parametri secondari
 	 *   - @b param_sec_exist (boolean): indica se nel link sono presenti parametri secondari
 	 * @return string
 	 */

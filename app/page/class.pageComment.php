@@ -48,7 +48,7 @@ class PageComment extends Model {
 
 		parent::__construct($id);
 
-		$this->_model_label = $this->id ? $this->datetime.'-'.$this->author : '';
+		$this->_model_label = _("Commenti");
 	}
 
 	/**
@@ -58,7 +58,7 @@ class PageComment extends Model {
 	 */
 	function __toString() {
 		
-		return $this->_model_label;
+		return (string) $this->id ? $this->datetime.'-'.$this->author : '';
 	}
 
 	/**
@@ -101,7 +101,6 @@ class PageComment extends Model {
 			'model'=>$this,
 			'lenght'=>255, 
 			'foreign'=>'PageEntry', 
-			'foreign_where'=>'instance=\''.$this->_controller->getInstance().'\'', 
 			'foreign_order'=>'last_edit_date',
 		));
 

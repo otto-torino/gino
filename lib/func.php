@@ -197,8 +197,13 @@ function checkEmail($value, $regexp=null) {
 function dateToDbDate($date, $s='/') {
 
 	if(!$date) return null;
-	$date_array = explode($s, $date);
-	return $date_array[2].'-'.$date_array[1].'-'.$date_array[0];
+	
+	if(preg_match("#\\".$s."#", $date))
+	{
+		$date_array = explode($s, $date);
+		return $date_array[2].'-'.$date_array[1].'-'.$date_array[0];
+	}
+	else return $date;
 }
 
 /**

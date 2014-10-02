@@ -88,12 +88,12 @@ class ManyToManyInlineField extends Field {
 
 		$db = db::instance();
 		
-    if($this->_m2m_controller) {
-		  $m2m = new $this->_m2m(null, $this->_m2m_controller);
-    }
-    else {
-		  $m2m = new $this->_m2m(null);
-    }
+		if($this->_m2m_controller) {
+			$m2m = new $this->_m2m(null, $this->_m2m_controller);
+		}
+		else {
+			$m2m = new $this->_m2m(null);
+		}
 		$rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
 		$enum = array();
 		foreach($rows as $row) {

@@ -40,7 +40,7 @@ class PageTag extends Model {
 
 		parent::__construct($id);
 
-		$this->_model_label = $this->id ? $this->name : '';
+		$this->_model_label = _("Tag");
 	}
 
 	/**
@@ -50,7 +50,7 @@ class PageTag extends Model {
 	 */
 	function __toString() {
 		
-		return $this->_model_label;
+		return (string) $this->id ? $this->name : '';
 	}
 
 	/**

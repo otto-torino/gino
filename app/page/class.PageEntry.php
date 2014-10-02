@@ -62,7 +62,7 @@ class PageEntry extends Model {
 
 		parent::__construct($id);
 
-		$this->_model_label = $this->id ? $this->title : '';
+		$this->_model_label = _("Pagine");
 	}
 
 	public function getController() {
@@ -76,7 +76,7 @@ class PageEntry extends Model {
 	 */
 	function __toString() {
 		
-		return $this->_model_label;
+		return (string) $this->id ? $this->title : '';
 	}
 
 	/**
@@ -202,7 +202,7 @@ class PageEntry extends Model {
 		return $res;
 	}
 
-  public function getIdUrl($box=false) {
+	public function getIdUrl($box=false) {
 
 		if($box)
 		{
@@ -215,14 +215,15 @@ class PageEntry extends Model {
 			$call = 'evt';
 		}
 		
-    $link = "index.php?".$call."[page-$method]&id=$this->id";
+		$link = "index.php?".$call."[page-$method]&id=$this->id";
 
 		return $link;
 	}
 
-  public function getUrl() {
-    return $this->_registry->plink->aLink('page', 'view', array('id'=>$this->slug));
-  }
+	public function getUrl() {
+		
+		return $this->_registry->plink->aLink('page', 'view', array('id'=>$this->slug));
+	}
 
 	/**
 	 * Lista di valori ID di tag associati ad almeno una pagina 
