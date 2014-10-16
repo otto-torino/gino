@@ -103,7 +103,7 @@ class ForeignKeyField extends field {
 		
 		$this->_enum = $enum;
 
-        if($this->_add_related) {
+        if($this->_add_related && (!isset($options['is_filter']) or !$options['is_filter'])) {
             $options['add_related'] = array(
                 'title' => _('inserisci').' '.$foreign->getModelLabel(),
                 'id' => 'add_'.$this->_name,

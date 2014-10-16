@@ -21,6 +21,7 @@
     <!-- Gino onload function -->
     <?= Javascript::vendor() ?>  </head>
     <?= Javascript::onLoadFunction() ?>  
+    <?= Javascript::analytics() ?>  
   </head>
   <body>
     <!-- top bar -->

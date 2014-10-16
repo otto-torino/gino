@@ -83,6 +83,10 @@ class TextField extends field {
 		
 		if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
 		if(!isset($options['field'])) $options['field'] = $this->_name;
+
+        if(isset($options['is_filter']) and $options['is_filter']) {
+            $options['widget'] = 'input';
+        }
 		
 		return parent::formElement($form, $options);
 	}

@@ -1322,6 +1322,14 @@ class Form {
 
     $GFORM = "<div class=\"form-row\">";
     $GFORM .= $this->label($name, $finLabel, $this->option('required'), $this->option('classLabel'))."\n";
+
+    if(is_array($label)) {
+      $options['helptext'] = array(
+        'title' => isset($label['label']) ? $label['label'] : $label[0],
+        'text' => isset($label['description']) ? $label['description'] : $label[1]
+      );
+    }
+
     if(!empty($value)) {
       $value_link = ($this->option('preview') && $this->option('previewSrc'))
         ? "<span onclick=\"Slimbox.open('".$this->option('previewSrc')."')\" class=\"link\">$value</span>"

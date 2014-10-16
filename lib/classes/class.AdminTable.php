@@ -364,7 +364,7 @@ class AdminTable {
     $f_text_confirm = array_key_exists('f_text_confirm', $options) ? $options['f_text_confirm'] : '';
     $f_generateToken = array_key_exists('f_generateToken', $options) ? $options['f_generateToken'] : false;
     
-    $s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit';
+    $s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit_'.$formId;
     $s_value = array_key_exists('s_value', $options) ? $options['s_value'] : $submit;
     $s_classField = array_key_exists('s_classField', $options) ? $options['s_classField'] : 'submit';
     
@@ -1382,7 +1382,7 @@ class AdminTable {
         if(is_array($field_label)) {
           $field->setLabel($field_label[0]);
         }
-        $form .= $field->formElement($gform, array('required'=>false, 'default'=>null));
+        $form .= $field->formElement($gform, array('required'=>false, 'default'=>null, 'is_filter'=>true));
         
         $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
         $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

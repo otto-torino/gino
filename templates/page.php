@@ -20,7 +20,7 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->
     <?= Javascript::vendor() ?>  </head>
-    <?= Javascript::onLoadFunction() ?>  </head>
+    <?= Javascript::analytics() ?>  </head>
   <body>
     <!-- top bar -->
     <nav class="navbar-wrapper navbar-default navbar-fixed-top" role="navigation">
