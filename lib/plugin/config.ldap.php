@@ -22,7 +22,7 @@ define('LDAP_HOST', '');
  * 
  * @var integer
  */
-define('LDAP_PORT', '');
+define('LDAP_PORT', '389');
 
 /**
  * Parametri di connessione al server
@@ -65,5 +65,12 @@ define('LDAP_DOMAIN', '');
  * @var integer
  */
 define('LDAP_PROTOCOL_VERSION', '');
+
+/**
+ * Nome del filtro di ricerca dell'utente
+ * 
+ * @var string
+ */
+define('LDAP_FILTER_SEARCH', '');
 
 ?>

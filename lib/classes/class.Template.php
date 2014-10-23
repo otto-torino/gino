@@ -117,8 +117,8 @@ class Template extends Model {
 	 */
 	public static function layoutInfo() {
 
-    $buffer = "<h2>"._('Template')."</h2>";
-		$buffer .= "<p>"._("gino supporta la creazione di tipi differenti di template, è possibile creare template a blocchi utilizzando il motorino di template apposito, oppure template liberi scrivendo direttamente codice php. Il template creato dovrà poi essere associato ad una skin per essere renderizzato secondo le regole definite dalla skin stessa.");
+    	$buffer = "<h2>"._('Template')."</h2>";
+		$buffer .= "<p>"._("<i>gino</i> supporta la creazione di tipi differenti di template, è possibile creare template a blocchi utilizzando il motorino di template apposito, oppure template liberi scrivendo direttamente codice php. Il template creato dovrà poi essere associato ad una skin per essere renderizzato secondo le regole definite dalla skin stessa.");
 		$buffer .= "<h3>"._("Template a blocchi")."</h3>\n";
 		$buffer .= "<p>"._("La struttura del template è formata da blocchi che contengono navate. Ciascuna navata può contenere un numero qualsiasi di moduli. I moduli lasciati 'vuoti' non occuperanno spazio all'interno del layout finale, mentre le navate 'vuote' occuperanno lo spazio in larghezza esattamente come definito nel template.")."</p>\n";
 		$buffer .= "<p>"._("E' possibile inserire qualunque vista esportata dai moduli e la vista corrente (quella specifica dell'url visitato). Il dimensionamento di blocchi e navate può essere gestito in px oppure in percentuali. L'intestazione del documento html non è controllabile, ma viene interamente gestita da gino.")."</p>\n";
@@ -126,17 +126,17 @@ class Template extends Model {
 		$buffer .= "<h3>"._("Template libero")."</h3>\n";
 		$buffer .= "<p>"._("Creando un template libero è possibile controllare finemente ogni aspetto del layout finale della pagina. Il template comprende l'intero documento, dalla definizione del DOCTYPE alla chiusura del tag html. E' possibile utilizzare codice php, si hanno a disposizione tutte le librerie di GINO. In questo caso non è necessario associare fogli di stile caricati a proposito, in quanto si possono direttamente controllare le chiamate a css, javascript etc... modificando l'intestazione del documento.")."</p>\n";
 
-    return $buffer;
+    	return $buffer;
 	}
 	
 	private function formData($gform, $free = false) {
 		
-    if($free) {
-      $formaction = $this->_home."?evt[".$this->_interface."-actionTemplate]&free=1";
-    }
-    else {
-      $formaction = $this->_home."?pt[".$this->_interface."-manageLayout]&block=template&action=mngtpl";
-    }
+		if($free) {
+			$formaction = $this->_home."?evt[".$this->_interface."-actionTemplate]&free=1";
+		}
+		else {
+			$formaction = $this->_home."?pt[".$this->_interface."-manageLayout]&block=template&action=mngtpl";
+		}
 		$required = 'label';
 		$buffer = $gform->open($formaction, '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
@@ -146,81 +146,81 @@ class Template extends Model {
 			: $gform->cinput('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
 		$buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
 
-    if(!$free) {
-      $css_list = array();
-      foreach(css::getAll() as $css) {
-        $css_list[$css->id] = htmlInput($css->label);
-      }
-      $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
-    }
+		if(!$free) {
+			$css_list = array();
+			foreach(css::getAll() as $css) {
+				$css_list[$css->id] = htmlInput($css->label);
+			}
+			$buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
+		}
 
 		return $buffer;
 	}
 
-  public function formFreeTemplate() {
+	public function formFreeTemplate() {
 
-    $registry = registry::instance();
+		$registry = registry::instance();
 		$registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
 		$registry->addCss(CSS_WWW."/codemirror.css");
 
-    $registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-    $registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-    $registry->addJs(SITE_JS."/CodeMirror/css.js");
-    $registry->addJs(SITE_JS."/CodeMirror/xml.js");
-    $registry->addJs(SITE_JS."/CodeMirror/clike.js");
-    $registry->addJs(SITE_JS."/CodeMirror/php.js");
-    $options = "{
-      lineNumbers: true,
-      matchBrackets: true,
-      mode: \"application/x-httpd-php\",
-      indentUnit: 4,
-      indentWithTabs: true,
-      enterMode: \"keep\",
-      tabMode: \"shift\"
-    }";
+		$registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+		$registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+		$registry->addJs(SITE_JS."/CodeMirror/css.js");
+		$registry->addJs(SITE_JS."/CodeMirror/xml.js");
+		$registry->addJs(SITE_JS."/CodeMirror/clike.js");
+		$registry->addJs(SITE_JS."/CodeMirror/php.js");
+		$options = "{
+		lineNumbers: true,
+		matchBrackets: true,
+		mode: \"application/x-httpd-php\",
+		indentUnit: 4,
+		indentWithTabs: true,
+		enterMode: \"keep\",
+		tabMode: \"shift\"
+		}";
 
-    if($this->id) {
-      $code = file_get_contents(TPL_DIR.OS.$this->filename);
-    } 
-    else {
-      $code = file_get_contents(TPL_DIR.OS."default_free_tpl.php");
-    }
+		if($this->id) {
+			$code = file_get_contents(TPL_DIR.OS.$this->filename);
+		} 
+		else {
+			$code = file_get_contents(TPL_DIR.OS."default_free_tpl.php");
+		}
   
 		$gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
 		$gform->load('dataform');
+		
+		$title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 
-    $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
-
-    $buffer = "<div class=\"backoffice-info\">";
-    $buffer .= "<p>"._('La scrittura di template in modalità libera consente di scrivere direttamente il template utilizzando codice php. E\' uno strumento molto potente quanto pericoloso, si consiglia di non modificare template amministrativi in questo modo, in quanto se dovessero verificarsi degli errori non sarebbe in alcuni casi possibile correggerli.')."</p>";
-    $buffer .= "<p>"._('Tutte le classi di GINO sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di GINO per maggiori informazioni.')."</p>";
-    $buffer .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), "var w = new gino.layerWindow({
-      'title': '"._('Moduli e pagine')."',
-        'url': '".$this->_home."?pt[".$this->_interface."-modulesCodeList]',
-        'width': 800,
-        height: 500
-    }); w.display();")."</p>";
-    $buffer .= "</div>";
+		$buffer = "<div class=\"backoffice-info\">";
+		$buffer .= "<p>"._('La scrittura di template in modalità libera consente di scrivere direttamente il template utilizzando codice php. E\' uno strumento molto potente quanto pericoloso, si consiglia di non modificare template amministrativi in questo modo, in quanto se dovessero verificarsi degli errori non sarebbe in alcuni casi possibile correggerli.')."</p>";
+		$buffer .= "<p>"._('Tutte le classi di GINO sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di GINO per maggiori informazioni.')."</p>";
+		$buffer .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), "var w = new gino.layerWindow({
+		'title': '"._('Moduli e pagine')."',
+		'url': '".$this->_home."?pt[".$this->_interface."-modulesCodeList]',
+		'width': 800,
+		'height': 500
+		}); w.display();")."</p>";
+		$buffer .= "</div>";
 
 		$buffer .= $this->formData($gform, true);
 		$buffer .= $gform->hidden('free', 1);
 		$buffer .= $gform->ctextarea('code', $gform->retvar('code', $code), _("Codice PHP"), array("cols"=>45, "rows"=>14, 'id'=>'codemirror'));
-    $save_and_continue = $gform->input('savecontinue_action', 'submit', _('salva e continua la modifica'), array("classField"=>"submit"));
+		$save_and_continue = $gform->input('savecontinue_action', 'submit', _('salva e continua la modifica'), array("classField"=>"submit"));
 		$buffer .= $gform->cinput('submit_action', 'submit', _('salva'), '', array("classField"=>"submit", 'text_add'=>$save_and_continue));
 		$buffer .= $gform->close();
+		
+		$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
-    $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
-
-    return $view->render($dict);
-  }
+		return $view->render($dict);
+	}
 
   public function actionFreeTemplate() {
     $this->free = 1;
@@ -306,15 +306,15 @@ class Template extends Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
-
-    return $view->render($dict);
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
+		
+		return $view->render($dict);
 	}
 	
 	/**
@@ -790,13 +790,13 @@ class Template extends Model {
 				$mdlId = (!empty($m[2]))? $m[2]:null;
 				$mdlType = (!empty($m[1]))? $m[1]:null;
 
-        if($mdlType=='page') {
-          $page = new PageEntry($mdlId);
+				if($mdlType=='page') {
+					$page = new PageEntry($mdlId);
 					$title = $page->title;
-          $jsurl = $page->getIdUrl(true);
+					$jsurl = $page->getIdUrl(true);
 				}
 				elseif($mdlType=='class' || $mdlType=='class') {
-          $module = new ModuleInstance($mdlId);
+					$module = new ModuleInstance($mdlId);
 					$classname = $module->className();
 					$title = $module->label;
 					$mdlFunc = $m[4];
@@ -805,7 +805,7 @@ class Template extends Model {
 					$jsurl = $this->_home."?pt[".$module->name."-$mdlFunc]";
 				}
 				elseif($mdlType=='class' || $mdlType=='sysclass') {
-          $module_app = new ModuleApp($mdlId);
+					$module_app = new ModuleApp($mdlId);
 					$classname = $module_app->className();
 					$title = $module_app->label;
 					$mdlFunc = $m[4];
@@ -885,7 +885,7 @@ class Template extends Model {
 		$tplContent = $_POST['tplform_text'];
 		if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);	// magic_quotes_gpc = On
 
-    $this->free = 0;
+		$this->free = 0;
 		$this->label = cleanVar($_POST, 'label', 'string', '');
 		$this->description = cleanVar($_POST, 'description', 'string', '');
 		$tplFilename = cleanVar($_POST, 'filename', 'string', '');
@@ -918,7 +918,7 @@ class Template extends Model {
 			{
 				foreach($blocks_del AS $key=>$value)
 				{
-          $this->_db->delete(self::$_tbl_tpl_block, "id='$key'");
+					$this->_db->delete(self::$_tbl_tpl_block, "id='$key'");
 				}
 			}
 			
@@ -938,57 +938,58 @@ class Template extends Model {
 		}
 		
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-    exit();
+		exit();
 	}
 
 	private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
+		
 		if($id)
 		{
-      $cnt = $this->_db->getNumRecords(self::$_tbl_tpl_block, "id='$id' AND position='$position'");
+			$cnt = $this->_db->getNumRecords(self::$_tbl_tpl_block, "id='$id' AND position='$position'");
 			if($cnt)
 			{
-        $res = $this->_db->update(array(
-          'width' => $width,
-          'um' => $um,
-          'align' => $align,
-          'rows' => $rows,
-          'cols' => $cols
-        ), self::$_tbl_tpl_block, "id='$id'");
-        return $res;
+				$res = $this->_db->update(array(
+				'width' => $width,
+				'um' => $um,
+				'align' => $align,
+				'rows' => $rows,
+				'cols' => $cols
+				), self::$_tbl_tpl_block, "id='$id'");
+				return $res;
 			}
 			else
 			{
-        $this->_db->delete(self::$_tbl_tpl_block, "id='$id'");
-        $res = $this->_db->insert(array(
-          'tpl' => $this->id,
-          'position' => $position,
-          'width' => $width,
-          'um' => $um,
-          'align' => $align,
-          'rows' => $rows,
-          'cols' => $cols
-        ), self::$_tbl_tpl_block);
-        return $res;
+				$this->_db->delete(self::$_tbl_tpl_block, "id='$id'");
+				$res = $this->_db->insert(array(
+				'tpl' => $this->id,
+				'position' => $position,
+				'width' => $width,
+				'um' => $um,
+				'align' => $align,
+				'rows' => $rows,
+				'cols' => $cols
+				), self::$_tbl_tpl_block);
+				return $res;
 			}
 		}
 		else
 		{
-      $res = $this->_db->insert(array(
-        'tpl' => $this->id,
-        'position' => $position,
-        'width' => $width,
-        'um' => $um,
-        'align' => $align,
-        'rows' => $rows,
-        'cols' => $cols
-      ), self::$_tbl_tpl_block);
-      return $res;
+			$res = $this->_db->insert(array(
+			'tpl' => $this->id,
+			'position' => $position,
+			'width' => $width,
+			'um' => $um,
+			'align' => $align,
+			'rows' => $rows,
+			'cols' => $cols
+			), self::$_tbl_tpl_block);
+			return $res;
 		}
-
 	}
 
 	private function deleteBlocks() {
-    return $this->_db->delete(self::$_tbl_tpl_block, "tpl='".$this->id."'");
+
+		return $this->_db->delete(self::$_tbl_tpl_block, "tpl='".$this->id."'");
 	}
 	
 	/**
@@ -1024,32 +1025,32 @@ class Template extends Model {
 		}
 		
 		$db = db::instance();
-    $db->insert(array(
-      'filename' => $filename,
-      'label' => $label,
-      'description' => $description
-    ), self::$_tbl_tpl);
+		$db->insert(array(
+			'filename' => $filename,
+			'label' => $label,
+			'description' => $description
+		), self::$_tbl_tpl);
 		$id = $db->getlastid(self::$_tbl_tpl);
-		
-    $rows = $db->select('*', self::$_tbl_tpl_block, "tpl='$ref'");
+
+		$rows = $db->select('*', self::$_tbl_tpl_block, "tpl='$ref'");
 		if($rows and count($rows))
 		{
 			foreach($rows AS $row)
 			{
-        $db->insert(array(
-          'tpl' => $id,
-          'position' => $row['position'],
-          'width' => $row['width'],
-          'um' => $row['um'],
-          'align' => $row['align'],
-          'rows' => $row['rows'],
-          'cols' => $row['cols']
-        ), self::$_tbl_tpl_block);
+				$db->insert(array(
+				'tpl' => $id,
+				'position' => $row['position'],
+				'width' => $row['width'],
+				'um' => $row['um'],
+				'align' => $row['align'],
+				'rows' => $row['rows'],
+				'cols' => $row['cols']
+				), self::$_tbl_tpl_block);
 			}
 		}
 
 		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-    exit();
+		exit();
 	}
 }
 ?>

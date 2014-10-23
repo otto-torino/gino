@@ -461,15 +461,15 @@ class layout extends Controller {
 
 	private function info() {
 
-    $GINO = "<p>"._('In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguentui:')."</p>";
+    $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguentui:")."</p>";
     $GINO .= "<ul>";
-    $GINO .= "<li>"._('Creare ed uploadare un foglio di stile se necessario')."</li>";
-    $GINO .= "<li>"._('Creare un template a blocchi utilizzando il motorino di GINO oppure un template libero')."</li>";
-    $GINO .= "<li>"._('Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.')."</li>";
-    $GINO .= "<li>"._('Settare la priorità della skin spostandola in alto o in basso.')."</li>";
+    $GINO .= "<li>"._("Creare ed uploadare un foglio di stile se necessario")."</li>";
+    $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file tpl) oppure un template libero (file php)")."</li>";
+    $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.")."</li>";
+    $GINO .= "<li>"._("Settare la priorità della skin spostandola in alto o in basso.")."</li>";
     $GINO .= "</ul>";
-		$GINO .= css::layoutInfo();
-		$GINO .= Template::layoutInfo();
+    $GINO .= css::layoutInfo();
+    $GINO .= Template::layoutInfo();
     $GINO .= Skin::layoutInfo();
     $GINO .= "<h2>"._('Viste')."</h2>";
     $GINO .= "<p>"._('In questa sezione si possono modificare le viste di sistema di gino. Sono viste generali utilizzate da buona parte dei moduli e dalla stessa area amministrativa.')."</p>";

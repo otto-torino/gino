@@ -147,6 +147,8 @@ CREATE TABLE auth_permission (
 SET IDENTITY_INSERT auth_permission ON
 
 INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VALUES
+(1, 'core', 'is_logged', 'login effettuato', 'Utente che ha effettuato il login', 0),
+(2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1),
 (3, 'attached', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
@@ -164,9 +166,7 @@ INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VAL
 (17, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (18, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (19, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
-(20, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(1, 'core', 'is_logged', 'login effettuato', 'Utente che ha effettuato il login', 0),
-(2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1);
+(20, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1);
 
 SET IDENTITY_INSERT auth_permission OFF
 
@@ -202,7 +202,7 @@ CREATE TABLE auth_user (
 SET IDENTITY_INSERT auth_user ON
 
 INSERT INTO auth_user (id, firstname, lastname, company, phone, fax, email, username, userpwd, is_admin, address, cap, city, nation, text, photo, publication, date, active) VALUES
-(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', NULL, 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'via Mazzini 37', 10123, 'Torino', 83, NULL, NULL, 0, '2011-10-10 01:00:00', 1);
+(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', NULL, 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, NULL, NULL, 0, '2011-10-10 01:00:00', 1);
 
 SET IDENTITY_INSERT auth_user OFF
 
@@ -324,10 +324,7 @@ CREATE TABLE language_opt (
 SET IDENTITY_INSERT language_opt ON
 
 INSERT INTO language_opt (id, instance, title, opt_flag) VALUES
-(1, 0, 'Lingue', 0),
-(2, 0, 'Lingue', 0),
-(3, 0, 'Lingue', 0),
-(4, 0, 'Lingue', 0);
+(1, 0, 'Lingue', 0);
 
 SET IDENTITY_INSERT language_opt OFF
 
@@ -591,13 +588,6 @@ CREATE TABLE page_category (
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT page_category ON
-
-INSERT INTO page_category (id, name, description, date) VALUES
-(1, 'Cippa', NULL, '2013-12-02 13:22:22');
-
-SET IDENTITY_INSERT page_category OFF
-
 -- --------------------------------------------------------
 
 --
@@ -650,11 +640,11 @@ CREATE TABLE page_entry (
 SET IDENTITY_INSERT page_entry ON
 
 INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, [read], tpl_code, box_tpl_code) VALUES
-(4, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 1, 1, 0, 0, '', 13, NULL, NULL),
-(5, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il buon vecchio server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 1, 1, 0, 0, '', 1, NULL, NULL),
-(7, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
-(8, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 1, 1, 0, 0, '', 0, NULL, NULL),
-(9, 0, 0, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino m', 'estendere-gino-m', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 1, 1, 0, 1, '', 0, NULL, NULL);
+(1, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attached/c1/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(3, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attached/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(4, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attached/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(5, 0, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attached/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 0, 1, 0, 0, '', 0, NULL, NULL);
 
 SET IDENTITY_INSERT page_entry OFF
 
@@ -704,7 +694,7 @@ CREATE TABLE page_opt (
 SET IDENTITY_INSERT page_opt ON
 
 INSERT INTO page_opt (id, instance, last_title, archive_title, showcase_title, cloud_title, last_number, last_tpl_code, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, archive_efp, archive_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
-(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<div class="left" style="padding-left:10px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n{{ social}}\r\n</aside>\r\n</div>\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<aside>\r\n<time><span class="date">{{ creation_date }}<span><br /><span class="time">{{ creation_time }}</span></time><p>\r\n{{ author_img|class:author }}</p>\r\n{{ social}}\r\n<p>Letto {{ read }} volte | Commenti ({{ comments }}) | <span class="tags">Tags: {{ tags }}</span>\r\n</p>\r\n</aside>', '<div class="left" style="padding-left:4px;">\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n</div>\r\n<div class="null"></div>', 0, 1, 5, '');
+(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>', 0, 1, 5, '');
 
 SET IDENTITY_INSERT page_opt OFF
 
@@ -800,7 +790,7 @@ CREATE TABLE sys_conf (
 SET IDENTITY_INSERT sys_conf ON
 
 INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache) VALUES
-(1, 1, 2, 1, 'cippa', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
+(1, 1, 2, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
 
 SET IDENTITY_INSERT sys_conf OFF
 
@@ -832,7 +822,7 @@ INSERT INTO sys_graphics (id, name, description, type, image, html) VALUES
 (7, 'footer_private', 'Footer index privata', 2, NULL, '<p>\r\nheader\r\n</p>'),
 (8, 'footer_admin', 'Footer amministrazione', 1, 'footer_admin.jpg', NULL),
 (9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', NULL),
-(10, 'footer_adhoc', 'Footer ad hoc', 1, NULL, 'FOOTER ADHOC HOLA BOLA');
+(10, 'footer_adhoc', 'Footer ad hoc', 1, NULL, 'FOOTER ADHOC');
 
 SET IDENTITY_INSERT sys_graphics OFF
 
@@ -915,16 +905,13 @@ SET IDENTITY_INSERT sys_layout_tpl ON
 
 INSERT INTO sys_layout_tpl (id, filename, label, description, free) VALUES
 (1, 'default.tpl', 'Default', '', 0),
-(27, 'home.php', 'Home', '', 1),
-(28, 'page.php', 'Pagine', '', 1),
+(2, 'home.php', 'Home', '', 1),
+(3, 'page.php', 'Pagine', '', 1),
 (4, 'auth_page.tpl', 'Pagina Autenticazione', '', 0),
-(26, 'admin_page.php', 'Pagine admin', '', 1),
+(5, 'admin_home.php', 'Home admin', '', 1),
+(6, 'admin_page.php', 'Pagine admin', '', 1),
 (7, 'home_mobile.tpl', 'Home Mobile', '', 0),
-(8, 'mobile_pages.tpl', 'Pagine Mobile', '', 0),
-(23, 'test2.tpl', 'test copy', '', 0),
-(22, 'test.tpl', 'test', '', 0),
-(24, 'testfree.php', 'testfree', '', 1),
-(25, 'admin_home.php', 'Home admin', '', 1);
+(8, 'mobile_pages.tpl', 'Pagine Mobile', '', 0);
 
 SET IDENTITY_INSERT sys_layout_tpl OFF
 
@@ -949,23 +936,18 @@ CREATE TABLE sys_layout_tpl_block (
 SET IDENTITY_INSERT sys_layout_tpl_block ON
 
 INSERT INTO sys_layout_tpl_block (id, tpl, position, width, um, align, rows, cols) VALUES
-(52, 1, 2, 0, 0, 0, 1, 1),
-(51, 1, 1, 0, 0, 0, 1, 1),
-(50, 7, 1, 480, 1, 2, 1, 1),
-(53, 1, 3, 960, 1, 2, 1, 2),
-(54, 1, 4, 0, 0, 0, 1, 1),
-(55, 1, 5, 960, 1, 2, 1, 2),
-(56, 8, 1, 480, 1, 2, 1, 1),
-(57, 4, 1, 0, 0, 0, 1, 1),
-(58, 4, 2, 0, 0, 0, 1, 1),
-(59, 4, 3, 960, 1, 2, 1, 4),
-(60, 4, 4, 0, 0, 0, 1, 1),
-(61, 4, 5, 960, 1, 2, 1, 2),
-(62, 21, 1, 0, 0, 0, 1, 1),
-(65, 22, 2, 0, 0, 0, 1, 2),
-(64, 22, 1, 0, 0, 0, 1, 3),
-(66, 23, 2, 0, 0, 0, 1, 2),
-(67, 23, 1, 0, 0, 0, 1, 3);
+(1, 1, 1, 0, 0, 0, 1, 1),
+(2, 1, 2, 0, 0, 0, 1, 1),
+(3, 1, 3, 960, 1, 2, 1, 2),
+(4, 1, 4, 0, 0, 0, 1, 1),
+(5, 1, 5, 960, 1, 2, 1, 2),
+(6, 4, 1, 0, 0, 0, 1, 1),
+(7, 4, 2, 0, 0, 0, 1, 1),
+(8, 4, 3, 960, 1, 2, 1, 4),
+(9, 4, 4, 0, 0, 0, 1, 1),
+(10, 4, 5, 960, 1, 2, 1, 2),
+(11, 7, 1, 480, 1, 2, 1, 1),
+(12, 8, 1, 480, 1, 2, 1, 1);
 
 SET IDENTITY_INSERT sys_layout_tpl_block OFF
 
@@ -999,8 +981,8 @@ CREATE TABLE sys_menu_opt (
 SET IDENTITY_INSERT sys_menu_opt ON
 
 INSERT INTO sys_menu_opt (id, instance, title, cache) VALUES
-(6, 4, 'Menu principale', 0),
-(7, 5, 'Menu amministrazione', 0);
+(1, 4, 'Menu principale', 0),
+(2, 5, 'Menu amministrazione', 0);
 
 SET IDENTITY_INSERT sys_menu_opt OFF
 
@@ -1026,12 +1008,10 @@ CREATE TABLE sys_menu_voices (
 SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
-(2, 4, 0, 'Home', '#', 'int', 1, ''),
-(7, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
-(3, 4, 2, 'le pippe', 'page/view/gino-CMS', 'int', 1, '10,0'),
-(4, 4, 2, 'la puppa', 'graphics/printHeaderMobile', 'int', 2, ''),
-(6, 4, 0, 'voce 2', 'page/view/licenza', 'int', 2, '10,0'),
-(8, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
+(1, 4, 0, 'Home', '#', 'int', 1, ''),
+(2, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
+(3, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '10,0'),
+(4, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
 
 SET IDENTITY_INSERT sys_menu_voices OFF
 

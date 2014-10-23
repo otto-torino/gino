@@ -224,7 +224,7 @@ class menu extends Controller {
     
     $this->requirePerm(array('can_admin', 'can_edit'));
 
-      $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
+	$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
 
     $link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=permissions\">"._("Permessi")."</a>";
     $link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
@@ -237,7 +237,7 @@ class menu extends Controller {
       $sel_link = $link_frontend;
     }
     elseif($this->_block == 'options') {
-      $GINO = $this->manageOptions();		
+      $GINO = $this->manageOptions();
       $sel_link = $link_options;
     }
     else {

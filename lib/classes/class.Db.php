@@ -430,6 +430,7 @@ interface DbManager {
 	 * @param string $filename nome del file completo di percorso
 	 * @param array $options
 	 *   array associativo di opzioni
+	 *   - @b where (string): condizioni della query
 	 *   - @b delim (string): stringa che viene usata per separare tra loro i valori dei campi
 	 *   - @b enclosed (string): stringa utilizzata per racchiudere i valori di tipo stringa
 	 * @return string (nome del file di dump)

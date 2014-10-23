@@ -36,7 +36,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><img src="img/logo.png" style="width: 238px; height: 109px;" /></a>
+          <a class="navbar-brand" href="#"><img src="img/logo.png" style="width: 109px; height: 50px;" /></a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menu-main-container">
@@ -44,15 +44,15 @@
         </div><!-- /.navbar-collapse -->
       </div>
     </nav>
-    <div class="container">
+    <div class="container bg-white">
       <div class="row">
         <div class="col-md-6">
-          {module pageid=4 func=full}
-          {module pageid=5 func=full}
+          {module pageid=1 func=full}
+          {module pageid=2 func=full}
         </div>
         <div class="col-md-6">
-          {module pageid=7 func=full}
-          {module pageid=8 func=full}
+          {module pageid=3 func=full}
+          {module pageid=4 func=full}
         </div>
       </div>
     </div>

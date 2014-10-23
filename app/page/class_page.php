@@ -426,12 +426,13 @@ class page extends Controller {
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
 	}
+	
+	public function permissions() {
 
-  public function permissions() {
-    return array(
-      'can_view_private' => 'Visualizzazione pagine private'
-    );
-  }
+		return array(
+			'can_view_private' => 'Visualizzazione pagine private'
+		);
+	}
 
 	/**
 	 * Restituisce alcune proprietà della classe
@@ -455,14 +456,14 @@ class page extends Controller {
 			"css"=>array(
 				'page.css'
 			),
-      'views' => array(
-        'archive.php' => _('Archivio delle pagine'),
-        'box.php' => _('Template per l\'inserimento della pagine nel layout'),
-        'cloud.php' => _('Nuovola di tag'),
-        'last.php' => _('Ultime pagine'),
-        'showcase.php' => _('Vetrina pagine'),
-        'view.php' => _('Dettaglio pagina')
-      ),
+			'views' => array(
+				'archive.php' => _('Archivio delle pagine'),
+				'box.php' => _('Template per l\'inserimento della pagine nel layout'),
+				'cloud.php' => _('Nuvola di tag'),
+				'last.php' => _('Ultime pagine'),
+				'showcase.php' => _('Vetrina pagine'),
+				'view.php' => _('Dettaglio pagina')
+			),
 			"folderStructure"=>array (
 				CONTENT_DIR.OS.'page'=> null
 			)

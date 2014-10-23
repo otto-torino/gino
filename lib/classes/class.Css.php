@@ -242,7 +242,7 @@ class Css extends Model {
 	public static function layoutInfo() {
 		
 		$buffer = "<h2>"._("CSS")."</h2>\n";
-		$buffer .= "<p>"._("Upload di fogli di stile da associare eventualmente ad una skin. Il css viene accodato ai file di default di gino CMS, pertanto è possibile definire nuovi stili o sovrascrivere quelli già presenti.")."</p>\n";
+		$buffer .= "<p>"._("Upload di fogli di stile da associare eventualmente ad una skin. Il css viene accodato ai file di default di <i>gino</i>, pertanto è possibile definire nuovi stili o sovrascrivere quelli già presenti.")."</p>\n";
 		
     return $buffer;
 	}
