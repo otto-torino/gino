@@ -8118,6 +8118,10 @@ body {
 .bg-white {
   background-color: #fff;
 }
+.navbar-wrapper {
+  background: #eceeed;
+  box-shadow: 0 0 5px #666;
+}
 body > footer {
   background: #2e2f2d;
   position: relative;
