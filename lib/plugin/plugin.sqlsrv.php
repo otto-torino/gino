@@ -282,7 +282,7 @@ class sqlsrv implements DbManager {
 				
 				$this->setnumberrows(sqlsrv_num_rows($this->_qry));
 				if($this->_numberrows > 0){
-					while($this->_rows=sqlsrv_fetch_array($this->_qry))
+					while($this->_rows=sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
 					{
 						$this->_dbresults[]=$this->_rows;
 					}
@@ -1099,7 +1099,7 @@ class sqlsrv implements DbManager {
 				else
 				{
 					$mb_value = convertToDatabase($value, 'CP1252');
-					$a_values[] = ($value !== null) ? "'$mb_value'" : null;	// VERIFICARE
+					$a_values[] = ($value !== null) ? "'$mb_value'" : 'null';	// verificare se crea problemi
 				}
 			}
 			
