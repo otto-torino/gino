@@ -272,7 +272,7 @@ class GImage {
      */
     private function makeThumb($key, $width, $height, $options) {
         // simple resize or enlargement
-        if($width === null or $height === null or round($width/$height) == round($this->_width/$this->_height)) {
+        if($width === null or $height === null or round($width/$height, 2) == round($this->_width/$this->_height, 2)) {
             $ratio = $width === null ? $height / $this->_height : $width / $this->_width;
             $this->_tmp_image = $this->resizeImage($this->_image, $this->_width * $ratio, $this->_height * $ratio, $options);
         }
@@ -280,7 +280,7 @@ class GImage {
         else {
             // force enlargement
             $options['allow_enlarge'] = true;
-            $ratio = $this->_width / $this->_height < $width / $height ? $width / $this->_width : $height / $this->_height;
+            $ratio = ($this->_width / $this->_height) < ($width / $height) ? $width / $this->_width : $height / $this->_height;
             $this->_tmp_image = $this->resizeImage($this->_image, $this->_width * $ratio, $this->_height * $ratio, $options);
             // crop
             $this->_tmp_image = $this->cropImageEntropy($this->_tmp_image, $width, $height, $options);

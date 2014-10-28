@@ -739,6 +739,7 @@ class AdminTable {
    * @param array $options_form
    *   array associativo di opzioni
    *   - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
+   *   - @b form_description (string): testo che compare tra il titolo ed il form
    * @param array $inputs
    * @return redirect or string
    */
@@ -749,6 +750,8 @@ class AdminTable {
       $link_return = $options_form['link_return'];
     else
       $link_return = $this->editUrl(array(), array('edit', 'insert', 'id'));
+
+    $form_description = gOpt('form_description', $options_form, null);
     
     if(count($_POST)) {
       $popup = cleanVar($_POST, '_popup', 'int', '');
@@ -789,6 +792,7 @@ class AdminTable {
 
       $this->_view->setViewTpl('admin_table_form');
       $this->_view->assign('title', $title);
+      $this->_view->assign('form_description', $form_description);
       $this->_view->assign('form', $form);
       $this->_view->assign('link_return', $link_return);
 
