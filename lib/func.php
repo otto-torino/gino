@@ -32,6 +32,16 @@ function relativePath($abspath) {
 }
 
 /**
+ * Ricava il percorso assoluto a partire da un percorso relativo
+ * 
+ * @param string $relpath percorso relativo
+ */
+function absolutePath($relpath) {
+	
+	return SITE_ROOT.$relpath;
+}
+
+/**
  * Restituisce l'elemento di un array corrispondente alla chiave data oppure un valore di default 
  * 
  * @param string $opt_name nome della chiave
@@ -118,6 +128,9 @@ function download($full_path)
 		@readfile($full_path);
 		fclose($fp);
 	}
+    else {
+        return false;
+    }
 }
 
 /**
@@ -1000,7 +1013,8 @@ function shareAll($social, $url, $title=null, $description=null) {
 
     $all = array("facebook", "twitter", "linkedin", "digg", "googleplus");
     $st_all = array('sharethis', 'facebook', 'twitter', 'linkedin', 'googleplus', 'reddit', 'pinterest', 'tumblr', 'digg', 'delicious', 'evernote', 'google_reader', 'email');
-    $st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'reddit_large', 'pinterest_large', 'tumblr_large', 'digg_large', 'delicious_large', 'evernote_large', 'google_reader_large', 'email_large');
+    //$st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'reddit_large', 'pinterest_large', 'tumblr_large', 'digg_large', 'delicious_large', 'evernote_large', 'google_reader_large', 'email_large');
+    $st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'googleplus_large', 'pinterest_large', 'email_large');
     $display_text = array(
         'sharethis' => 'ShareThis', 
         'facebook' => 'Facebook',

@@ -566,7 +566,7 @@ class AdminTable {
     }
 
     foreach($m2mt as $data) {
-      $result = $this->m2mthroughAction($data['field'], $data['object'], $model);
+      $result = $this->m2mthroughAction($data['field'], $data['object'], $model, $options);
       // error
       if(is_array($result)) {
         return $result;
@@ -576,8 +576,9 @@ class AdminTable {
     return $result;
   }
 
-  protected function m2mthroughAction($m2m_field, $m2m_field_object, $model) {
+  protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
   
+    $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
     // elimina tutti e poi riscrive
     $model->deletem2mthroughField($m2m_field);
     $m2m_class = $m2m_field_object->getM2m();
@@ -641,6 +642,8 @@ class AdminTable {
 
     // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
     $model->updateStructure();
+
+    return true;
 
   }
   

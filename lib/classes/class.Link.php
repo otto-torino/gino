@@ -61,9 +61,10 @@ class Link {
 	 *   - array: es. array('order'=>'desc', 'start'=>20)
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b all (boolean): link completo (http://...)
+	 *   - @b absolute (boolean): link completo (http://...)
 	 *   - @b code (string): tipo di evento (di default 'evt')
 	 *   - @b basename (boolean): mostra il nome del file php (index.php)
+	 *   - @b permalink (boolean): utilizza i permalink, default come impostato da proprietà di classe
 	 * @return string
 	 * 
 	 * Come esempio, per richiamare il metodo listReferenceGINO() della classe pagelist: 
@@ -73,11 +74,12 @@ class Link {
 	 */
 	public function aLink($class, $method, $params1=null, $params2=null, $options=array()){
 		
-		$all = array_key_exists('all', $options) ? $options['all'] : false;
+		$absolute = array_key_exists('absolute', $options) ? $options['absolute'] : false;
 		$code = array_key_exists('code', $options) ? $options['code'] : EVT_NAME;
 		$basename = array_key_exists('basename', $options) ? $options['basename'] : true;
+		$permalink = array_key_exists('permalink', $options) ? $options['permalink'] : $this->_permalinks;
 		
-		if($this->_permalinks)
+		if($permalink)
 		{
 			$link = "{$class}/{$method}";
 			
@@ -139,8 +141,15 @@ class Link {
 				}
 			}
 		}
-		
-		return $link;
+
+        if($absolute) {
+            $registry = registry::instance();
+            $url_root = $registry->pub->getRootUrl();
+            return $url_root.$link;
+        }
+        else {
+		    return $link;
+        }
 	}
 	
 	/**

@@ -47,6 +47,7 @@ class ManyToManyThroughField extends Field {
 		$this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : false;
 		$this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : false;
 		$this->_required = array_key_exists('required', $options) ? $options['required'] : false;
+		$this->_remove_fields = array_key_exists('remove_fields', $options) ? $options['remove_fields'] : array();
 		
 		$this->_label = $this->_model->fieldLabel($this->_name);
 		$this->_table = $this->_model->getTable();
@@ -160,7 +161,7 @@ class ManyToManyThroughField extends Field {
       $buffer .= "<fieldset>";
       $buffer .= "<legend><span data-clone-ctrl=\"minus\" class=\"link fa fa-minus-circle\"></span> ".ucfirst($model->getModelLabel())."</legend>";
       $buffer .= "<div>";
-      $buffer .= $admin_table->modelForm($m2m, array('only_inputs' => true), array());
+      $buffer .= $admin_table->modelForm($m2m, array('only_inputs' => true, 'removeFields' => $this->_remove_fields), array());
       $buffer .= "</div>";
       $buffer .= "</fieldset>";
     }
