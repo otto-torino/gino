@@ -681,10 +681,10 @@ class mysql implements DbManager {
 				}
 				else
 				{
-          	if($value !== null) {
-						  $a_fields[] = $field;
-						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
-          	}
+					if($value !== null) {
+						$a_fields[] = $field;
+						$a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+					}
 				}
 			}
 			
@@ -840,12 +840,15 @@ class mysql implements DbManager {
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
+		$where = gOpt('where', $options, null);
 		$delim = gOpt('delim', $options, ',');
 		$enclosed = gOpt('enclosed', $options, '"');
 		
+		$where = $where ? " WHERE $where" : '';
+		
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
 		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
-		FROM $table";
+		FROM $table".$where;
 		if($this->actionquery($query))
 			return $filename;
 		else

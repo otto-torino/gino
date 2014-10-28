@@ -18,16 +18,23 @@ require_once("config.ldap.php");
  * @author abidibo abidibo@gmail.com
  * 
  * ###UTILIZZO
- * Modificare il metodo Authentication della classe Access (class.Access.php) in modo da implementare l'autenticazione attraverso ldap. \n
+ * Modificare il metodo AuthenticationMethod() della classe Access (class.Access.php) in modo da implementare l'autenticazione attraverso ldap. \n
  * Per poter accedere alle funzionalità di gino deve essere tuttavia creato un utente da associare a quello ldap. 
  * Il metodo più semplice è quello di creare un utente con lo username uguale a quello ldap. \n
- * Un esempio di modifica del metodo Authentication: 
+ * Un esempio di modifica del metodo AuthenticationMethod: 
  * @code
  * private function AuthenticationMethod($user, $pwd){
  *   $registry = registry::instance();
  *   
  *   include_once(PLUGIN_DIR.OS."plugin.ldap.php");
  *   
+ *   // per evitare che vengano bloccati gli accessi con gli username scritti nella forma "dominio\username"
+ *   if(preg_match("#(\\\)+#", $user))
+ *   {
+ *     $array = explode('\\', $user);
+ *     $last = count($array)-1;
+ *     $user = $array[$last];
+ *   }
  *   $ldap = new Ldap($user, $pwd);
  *   if(!$ldap->authentication())
  *     return false;
@@ -91,6 +98,8 @@ class Ldap {
 	 */
 	private $_ldap_log;
 	
+	private $_ldap_domain, $_ldap_protocol_version, $_filter_search, $_justthese_search;
+	
 	/**
 	 * Username di accesso
 	 * 
@@ -126,6 +135,8 @@ class Ldap {
 	 */
 	private $_test_anonymous;
 	
+	private $_test_search;
+	
 	/**
 	 * Costruttore
 	 * 
@@ -151,8 +162,8 @@ class Ldap {
 		$this->_ldap_domain = LDAP_DOMAIN;
 		$this->_ldap_protocol_version = LDAP_PROTOCOL_VERSION;
 		
-		$this->_filter_search = "(CN=$username)";  // es.: "sn=S*"
-		$this->_justthese_search = array("CN");
+		$this->_filter_search = "(".LDAP_FILTER_SEARCH."=$username)";  // es.: "sn=S*"
+		$this->_justthese_search = array(LDAP_FILTER_SEARCH);	// ("CN")
 		
 		$this->_user_name = $username;
 		$this->_user_password = $password;
@@ -168,14 +179,47 @@ class Ldap {
 	/**
 	 * Autenticazione Ldap
 	 * 
+	 * @see checkValidUsername()
+	 * @see printError()
+	 * @see connection()
+	 * @see binding()
 	 * @return boolean
 	 */
 	public function authentication() {
+		
+		if(!$this->checkValidUsername())
+		{
+			$this->_ldap_log = "<p>Lo username è stato inserito in un formato non valido</p>";
+			$this->printError();
+			return false;
+		}
 		
 		$this->connection();
 		$this->binding();
 		
 		return $this->_auth;
+	}
+	
+	/**
+	 * Verifica se il nome utente è in un formato valido
+	 * 
+	 * Uno username inserito nella forma "dominio\username" ritorna un errore quando viene utilizzato come filtro di ricerca.
+	 * 
+	 * @return boolean
+	 */
+	private function checkValidUsername() {
+		
+		if(preg_match("#(\\\)+#", $this->_user_name))
+		{
+			return false;
+			/*
+			// per uniformare lo username togliendo il nome di dominio
+			$array = explode('\\', $user);
+			$last = count($array)-1;
+			$user = $array[$last];
+			*/
+		}
+		else return true;
 	}
 	
 	/**
@@ -204,6 +248,11 @@ class Ldap {
 		else return null;
 	}
 	
+	/**
+	 * Connessione Ldap
+	 * 
+	 * @return void or string (log)
+	 */
 	private function connection() {
 		
 		ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
@@ -271,7 +320,9 @@ class Ldap {
 	}
 	
 	/**
+	 * Ricerca Ldap
 	 * 
+	 * @return boolean (authentication) or string (log)
 	 * 
 	 * Esempio di output di ldap_get_entries
 	 * @code
@@ -337,7 +388,5 @@ class Ldap {
 		
 		return null;
 	}
-	
 }
-
 ?>

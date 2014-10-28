@@ -20,7 +20,8 @@
     <link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
     <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->
-    <?= Javascript::onLoadFunction() ?>  </head>
+    <?= Javascript::onLoadFunction() ?>
+  </head>
   <body>
     <!-- top bar -->
     <nav class="navbar-wrapper navbar-default navbar-fixed-top" role="navigation">
@@ -34,7 +35,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><img src="img/logo.png" style="width: 238px; height: 109px;" /></a>
+          <a class="navbar-brand" href="#"><img src="img/logo.png" style="width: 105px; height: 50px;" /></a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menu-admin-container">

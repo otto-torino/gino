@@ -833,6 +833,23 @@ function cutString($string, $max_char, $word_complete=true, $file=false)
 }
 
 /**
+ * Testo a capo dopo un dato numero di caratteri
+ * 
+ * @param string $string testo da trattare
+ * @param integer $max_char numero massimo di caratteri per riga
+ * @return string
+ */
+function textToHead($string, $max_char) {
+	
+	if($string && strlen($string) > $max_char)
+	{
+		$array = str_split($string, $max_char);
+		$string = implode("<br />", $array);
+	}
+	return $string;
+}
+
+/**
  * Ricava il nome del file senza l'estensione
  * @param string $filename nome del file
  * @return string

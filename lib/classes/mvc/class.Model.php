@@ -111,13 +111,13 @@
 		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
 	}
 	
-  protected function setCheckIsConstraint($check) {
-    $this->_check_is_constraint = (bool) $check;
-  }
+	protected function setCheckIsConstraint($check) {
+		$this->_check_is_constraint = (bool) $check;
+	}
 
-  public function setIsConstraint($is_constraint) {
-    $this->_is_consraint = $is_constraint;
-  }
+	public function setIsConstraint($is_constraint) {
+		$this->_is_consraint = $is_constraint;
+	}
 
 	/**
 	 * Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto
@@ -126,14 +126,14 @@
 	 * 
 	 * @param string $pName
 	 */
-  public function &__get($pName) {
-    $null = null;
+	public function &__get($pName) {
+		$null = null;
 		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
-    elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
+		elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
 		elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
-    elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
-    elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
-    else return $null;
+		elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
+		elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
+		else return $null;
 	}
 	
 	/**
@@ -147,17 +147,17 @@
 	public function __set($pName, $pValue) {
 
 		if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-    elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
+		elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
 		elseif(array_key_exists($pName, $this->_p)) {
 			if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
 			$this->_p[$pName] = $pValue;
 		}
-    elseif(array_key_exists($pName, $this->_m2m)) {
-      $this->_m2m[$pName] = $pValue;
-    }
-    elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
-      $this->_m2mt[$pName] = $pValue;
-    }
+		elseif(array_key_exists($pName, $this->_m2m)) {
+			$this->_m2m[$pName] = $pValue;
+		}
+		elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
+			$this->_m2mt[$pName] = $pValue;
+		}
 	}
 
   /**
@@ -186,18 +186,18 @@
     return new $class($id, $field_obj->getController());
   }
 
-  /**
-   * Array associativo id => rappresentazione a stringa a partire da array di oggetti
-   * @param array $objects
-   * @return array associativo id=>stringa
-   */
-  public static function getSelectOptionsFromObjects($objects) {
-    $res = array();
-    foreach($objects as $obj) {
-      $res[$obj->id] = (string) $obj;
-    }
-    return $res;
-  }
+	/**
+	 * Array associativo id => rappresentazione a stringa a partire da array di oggetti
+	 * @param array $objects
+	 * @return array associativo id=>stringa
+	 */
+	public static function getSelectOptionsFromObjects($objects) {
+		$res = array();
+		foreach($objects as $obj) {
+			$res[$obj->id] = (string) $obj;
+		}
+		return $res;
+	}
 
 	/**
 	 * Recupera le proprietà con la traduzione

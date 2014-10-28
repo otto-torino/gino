@@ -1,15 +1,10 @@
-body {
-  font-family: 'Roboto', Helvetica,Arial,sans-serif;
-  background: #fff3dd;
-  color: #444;
-}
 
 /* links */
-a, .link {
+.link {
   .transition(0.2s all ease-in);
 }
-a:link, a:visited, .link {
-  color: #fc2e69;
+.link {
+  color: @link-color;
   cursor: pointer;
 }
 
@@ -23,12 +18,6 @@ section {
 }
 section.admin {
   padding: 10px 20px;
-}
-
-/* tables */
-caption {
-  padding: 10px;
-  font-style: italic;
 }
 
 /* text */
@@ -144,7 +133,7 @@ div.tab-int-selected a:link, div.tab-int-selected a:visited {
   .tip {
     background: #fff;
     text-align:left;
-}
+  }
   .tip-title {
     margin: 0 20px;
     font-size: 0.9em;

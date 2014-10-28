@@ -282,7 +282,7 @@ class sqlsrv implements DbManager {
 				
 				$this->setnumberrows(sqlsrv_num_rows($this->_qry));
 				if($this->_numberrows > 0){
-					while($this->_rows=sqlsrv_fetch_array($this->_qry))
+					while($this->_rows=sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
 					{
 						$this->_dbresults[]=$this->_rows;
 					}
@@ -1099,7 +1099,7 @@ class sqlsrv implements DbManager {
 				else
 				{
 					$mb_value = convertToDatabase($value, 'CP1252');
-					$a_values[] = ($value !== null) ? "'$mb_value'" : null;	// VERIFICARE
+					$a_values[] = ($value !== null) ? "'$mb_value'" : 'null';	// verificare se crea problemi
 				}
 			}
 			
@@ -1245,29 +1245,27 @@ class sqlsrv implements DbManager {
 		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
 		
-		$query = 
-		"LOAD DATA INFILE '".$filename."' INTO TABLE ".$table." ".
-		"FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' ".
-		"ESCAPED BY '".$escaped."' ".
-		"LINES TERMINATED BY '".$lineend."' ".$ignore.$fields;
+		$query = "BULK INSERT ".$table." FROM '".$filename."' 
+		WITH (
+			FIELDTERMINATOR = '".$delim."',
+			ROWTERMINATOR = '".$lineend."'
+		)";
 		return $this->actionquery($query);
 	}
 	
 	/**
 	 * @see DbManager::dump()
-	 * 
-	 * Per poter effettuare questa operazione occorre: \n
-	 *   - assegnare il permesso FILE all'utente del database: GRANT FILE ON *.* TO 'dbuser'@'localhost';
-	 *   - la directory di salvataggio deve avere i permessi 777, oppure deve avere come proprietario l'utente di sistema mysql (gruppo mysql)
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
+		$where = gOpt('where', $options, null);
 		$delim = gOpt('delim', $options, ',');
 		$enclosed = gOpt('enclosed', $options, '"');
 		
-		$query = "SELECT * INTO OUTFILE '".$filename."' 
-		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
-		FROM $table";
+		$where = $where ? "WHERE $where" : '';
+		
+		$query = "SELECT * FROM $table $where INTO OUTFILE '".$filename."' 
+		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."'";
 		if($this->actionquery($query))
 			return $filename;
 		else
