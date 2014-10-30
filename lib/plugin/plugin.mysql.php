@@ -846,8 +846,10 @@ class mysql implements DbManager {
 		
 		$where = $where ? " WHERE $where" : '';
 		
+		//LINES TERMINATED BY '\n' 
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
-		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
+		FIELDS TERMINATED BY '".$delim."' 
+		ENCLOSED BY '".$enclosed."' 
 		FROM $table".$where;
 		if($this->actionquery($query))
 			return $filename;

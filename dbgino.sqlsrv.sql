@@ -797,6 +797,23 @@ SET IDENTITY_INSERT sys_conf OFF
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sys_gimage`
+--
+
+CREATE TABLE sys_gimage (
+	id int IDENTITY(1, 1),
+	[key] nvarchar(32) NOT NULL,
+	path nvarchar(255) NOT NULL,
+	width int NOT NULL,
+	height int NOT NULL,
+	PRIMARY KEY (id)
+)
+
+CREATE INDEX idx_sys_gimage_key on sys_gimage([key]);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table sys_graphics
 --
 

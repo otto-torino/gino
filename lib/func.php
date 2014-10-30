@@ -126,10 +126,8 @@ function download($full_path)
  * Verifica se il file ha una estensione valida, ovvero presente nell'elenco delle estensioni.
  *
  * @param string $filename nome del file
- * @param array $extensions elenco delle estensioni valide
+ * @param array $extensions elenco delle estensioni valide (se è vuoto la funzione ritorna true)
  * @return boolean
- * 
- * se $extensions è vuoto => true
  */
 function extension($filename, $extensions){
 
@@ -1155,5 +1153,17 @@ function traslitterazione($numero, $decimale=false)
                     $risultato = $risultato.'/'.$decimale;
             return  $risultato;
     }
+}
+
+/**
+ * Converte una dimensione in KB o MB
+ * 
+ * @param integer $size
+ * @return string
+ */
+function convertSize($size)
+{
+    $sizename = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
+    return $size ? round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) .$sizename[$i] : '0 Bytes';
 }
 ?>
