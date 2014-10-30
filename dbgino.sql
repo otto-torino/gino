@@ -806,6 +806,40 @@ INSERT INTO `sys_conf` (`id`, `multi_language`, `dft_language`, `log_access`, `h
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sys_gimage`
+--
+
+CREATE TABLE IF NOT EXISTS `sys_gimage` (
+`id` int(11) NOT NULL,
+  `key` varchar(32) NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `width` int(8) NOT NULL,
+  `height` int(8) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sys_gimage`
+--
+ALTER TABLE `sys_gimage`
+ ADD PRIMARY KEY (`id`), ADD KEY `key` (`key`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sys_gimage`
+--
+ALTER TABLE `sys_gimage`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sys_graphics`
 --
 

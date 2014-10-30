@@ -30,7 +30,8 @@ class core {
       'Locale', 
       'Translation', 
       'Error', 
-      'Session'
+      'Session',
+      'GImage'
     ));
 
     loader::import('class/mvc', array(

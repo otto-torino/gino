@@ -16,6 +16,7 @@
  *   - @b label (string): nome della label
  *   - @b value (mixed): valore di default
  *   - @b required (boolean): campo obbligatorio
+ *   - @b trnsl (boolean): campo che necessita di traduzione
  *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
@@ -184,18 +185,20 @@ class options {
 				{
 					$field_label = $field_option['label'];
 					$field_required = array_key_exists('required', $field_option) ? $field_option['required'] : false;
+					$field_trnsl = array_key_exists('trnsl', $field_option) ? $field_option['trnsl'] : true;
 				}
 				else
 				{
 					$field_label = $field_option;
 					$field_required = true;
+					$field_trnsl = true;
 				}
 				
 				if($f->type == 'char') {
-					$GINO .= $gform->cinput($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
+					$GINO .= $gform->cinput($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
 				elseif($f->type == 'text') {
-					$GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>true, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
+					$GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
 				}
 				elseif($f->type == 'int' && $f->length>1) {
 					$GINO .= $gform->cinput($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));

@@ -22,7 +22,7 @@ class Field {
 	 * 
 	 * Vengono esposte dai relativi metodi GET e SET
 	 */
-	protected $_name, $_label, $_value, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table;
+	protected $_name, $_label, $_value, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table;
 	protected $_model;
 	
 	/**
@@ -52,6 +52,7 @@ class Field {
 	 * @param array $options array associativo di opzioni del campo del database
 	 *   - @b name (string): nome del campo
 	 *   - @b widget (string): widget
+	 *   - @b default (mixed): valore di default del campo
 	 *   - @b lenght (integer): lunghezza del campo
 	 *   - @b auto_increment (boolean): campo auto_increment
 	 *   - @b primary_key (boolean): campo chiave primaria
@@ -60,6 +61,8 @@ class Field {
 	 * @return void
 	 */
 	function __construct($options) {
+
+        $this->_default = null;
 
 		$this->_model = $options['model'];
 		$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
@@ -112,7 +115,17 @@ class Field {
 		
 		$this->_label = $value;
 	}
-	
+
+    public function getDefault()
+    {
+        return $this->_default;
+    }
+
+    public function setDefault($value)
+    {
+        $this->_default = $value;
+    }
+
 	public function getValue() {
 		
 		return $this->_value;
@@ -246,7 +259,11 @@ class Field {
 		$inputForm = new inputForm($form);
 		
 		$buffer = '';
-		
+
+        if(!$this->_model->id and !is_null($this->_default)) {
+            $this->_value = $this->_default;
+        }
+
 		if($options['widget'] == 'hidden')
 		{
 			$buffer .= $inputForm->hidden($this->_name, $this->_value, $options);
