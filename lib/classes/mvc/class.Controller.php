@@ -31,6 +31,8 @@ abstract class Controller {
             $_instance_label,
             $_class_www,
             $_class_img,
+            $_data_dir,
+            $_data_www,
             $_home;
 
   /**

@@ -576,77 +576,92 @@ class AdminTable {
     return $result;
   }
 
-  protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
-  
-    $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-    // elimina tutti e poi riscrive
-    $model->deletem2mthroughField($m2m_field);
-    $m2m_class = $m2m_field_object->getM2m();
-    $m2m_model = new $m2m_class(null, $m2m_field_object->getController());
+    protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
+    
+        $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
+        $m2m_class = $m2m_field_object->getM2m();
 
-    $m2m_m2m = array();
-    $indexes = cleanVar($_POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
-    $object_names = array();
-    foreach($indexes as $index) {
-      foreach($m2m_model->getStructure() as $field=>$object) {
+        $check_ids = array();
 
-        if(!isset($object_names[$field])) {
-          $object_names[$field] = $object->getName();
-        }
-        
-        if($this->permission($options, $field) &&
-        (
-          ($removeFields && !in_array($field, $removeFields)) || 
-          ($viewFields && in_array($field, $viewFields)) || 
-          (!$viewFields && !$removeFields)
-        ))
-        {
-          if(isset($options_element[$field]))
-            $opt_element = $options_element[$field];
-          else 
-            $opt_element = array();
-          
-          if($field == 'instance' && is_null($m2m_model->instance))
-          {
-            $m2m_model->instance = $this->_controller->getInstance();
-          }
-          elseif(is_a($object, 'ManyToManyThroughField'))
-          {
-            $this->m2mthroughAction($object, $m2m_model);
-          }
-          else
-          {
-            $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
-            $value = $object->clean($opt_element);
-            $result = $object->validate($value);
+        $m2m_m2m = array();
+        $indexes = cleanVar($_POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
+        if(!is_array($indexes)) $indexes = array();
+        $object_names = array();
+        foreach($indexes as $index) {
+            $id = cleanVar($_POST, 'm2mt_'.$m2m_field.'_id_'.$index, 'int', '');
+            // oggetto pronto per edit or insert
+            $m2m_model = new $m2m_class($id, $m2m_field_object->getController());
+            foreach($m2m_model->getStructure() as $field=>$object) {
 
-            if($result === true) {
-              $m2m_model->{$field} = $value;
-            }
-            else {
-              return array('error'=>$result['error']);
-            }
+                if(!isset($object_names[$field])) {
+                    $object_names[$field] = $object->getName();
+                }
             
-            if($import)
-            {
-              if($field == $field_import)
-                $path_to_file = $object->getPath();
+                if($this->permission($options, $field) &&
+                (
+                    ($removeFields && !in_array($field, $removeFields)) || 
+                    (!$removeFields)
+                ))
+                {
+                    if(isset($options_element[$field]))
+                        $opt_element = $options_element[$field];
+                    else 
+                        $opt_element = array();
+                    
+                    if($field == 'instance' && is_null($m2m_model->instance))
+                    {
+                        $m2m_model->instance = $this->_controller->getInstance();
+                    }
+                    elseif(is_a($object, 'ManyToManyThroughField'))
+                    {
+                        $this->m2mthroughAction($object, $m2m_model);
+                    }
+                    else
+                    {
+                        $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
+                        $value = $object->clean($opt_element);
+                        $result = $object->validate($value);
+
+                        var_dump($value);
+
+                        if($result === true) {
+                            $m2m_model->{$field} = $value;
+                        }
+                        else {
+                            return array('error'=>$result['error']);
+                        }
+                        
+                        if(isset($import) and $import)
+                        {
+                            if($field == $field_import)
+                                $path_to_file = $object->getPath();
+                        }
+                    }
+                }
             }
-          }
+            $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
+            $m2m_model->updateDbData();
+            $check_ids[] = $m2m_model->id;
         }
-      }
-      $m2m_model->id = null; // sempre inserimento
-      $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
-      $m2m_model->updateDbData();
+
+        // eliminazione tutti m2mt che non ci sono piu
+        $db = db::instance();
+        $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
+        $objs = $m2m_class::objects($m2m_field_object->getController(), array('where' => $where));
+
+        if($objs and count($objs)) {
+            foreach($objs as $obj) {
+                $obj->delete();
+            }
+        }
+
+        // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
+        $model->updateStructure();
+
+        return true;
+
     }
-
-    // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-    $model->updateStructure();
-
-    return true;
-
-  }
-  
+    
   /**
    * Gestisce il backoffice completo di un modello (wrapper)
    * 

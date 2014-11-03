@@ -48,11 +48,15 @@ class emailField extends field {
 	 */
 	public function validate($value) {
 		
-		$result = checkEmail($value, true);
-		if(!$result) {
-			$result['error'] = _('formato dell\'email non valido');
-		}
-		return $result;
+        if($value) {
+            $result = checkEmail($value, true);
+            if(!$result) {
+                $result['error'] = _('formato dell\'email non valido');
+            }
+            return $result;
+        }
+
+        return true;
 	}
 }
 ?>
