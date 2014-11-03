@@ -694,7 +694,7 @@ CREATE TABLE page_opt (
 SET IDENTITY_INSERT page_opt ON
 
 INSERT INTO page_opt (id, instance, last_title, archive_title, showcase_title, cloud_title, last_number, last_tpl_code, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, archive_efp, archive_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
-(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300}}\r\n<div class="null"></div>', 0, 1, 5, '');
+(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, '');
 
 SET IDENTITY_INSERT page_opt OFF
 
@@ -793,6 +793,23 @@ INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_descrip
 (1, 1, 2, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
 
 SET IDENTITY_INSERT sys_conf OFF
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sys_gimage`
+--
+
+CREATE TABLE sys_gimage (
+	id int IDENTITY(1, 1),
+	[key] nvarchar(32) NOT NULL,
+	path nvarchar(255) NOT NULL,
+	width int NOT NULL,
+	height int NOT NULL,
+	PRIMARY KEY (id)
+)
+
+CREATE INDEX idx_sys_gimage_key on sys_gimage([key]);
 
 -- --------------------------------------------------------
 

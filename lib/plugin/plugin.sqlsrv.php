@@ -1260,12 +1260,16 @@ class sqlsrv implements DbManager {
 		
 		$where = gOpt('where', $options, null);
 		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
+		$enclosed = gOpt('enclosed', $options, null);
 		
-		$where = $where ? "WHERE $where" : '';
+		$where = $where ? " WHERE $where" : '';
+		$enclosed = $enclosed ? "ENCLOSED BY '".$enclosed."' " : '';
 		
-		$query = "SELECT * FROM $table $where INTO OUTFILE '".$filename."' 
-		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."'";
+		$query = "SELECT * INTO OUTFILE '".$filename."' 
+		FIELDS TERMINATED BY '".$delim."' 
+		$enclosed
+		LINES TERMINATED BY '\r\n' 
+		FROM $table".$where;
 		if($this->actionquery($query))
 			return $filename;
 		else
