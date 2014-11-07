@@ -29,19 +29,33 @@
 ?>
 <? if(isset($form_start)) echo $form_start; ?>
 <table class="<?= $class ?>"<?= isset($id) ? " id=\"".$id."\"" : '' ?>>
-<? if(isset($caption)): ?>
+<? if(isset($caption) and $caption): ?>
 <caption><?= $caption ?></caption>
 <? endif ?>
 	<thead>
-		<tr>
 		<?php
-			if(isset($heads)) foreach($heads as $h) {
+        if(isset($heads) && (!isset($multiple_heads) or !$multiple_heads)) {
+		    echo "<tr>";
+            foreach($heads as $h) {
 				$class = (is_array($h) && isset($h['class'])) ? " class=\"".$h['class']."\"" : "";
 				$text = (is_array($h) && isset($h['text'])) ? $h['text'] : $h;
 				echo "<th".$class.">$text</th>";
-			}
+            }
+		    echo "</tr>";
+		}
+        if(isset($heads) && isset($multiple_heads) && $multiple_heads) {
+            foreach($heads as $rh) {
+		        echo "<tr>";
+                    foreach($rh as $h) {
+					    $cell_colspan = (is_array($h) && isset($h['colspan']) && $h['colspan']) ? " colspan=\"".$h['colspan']."\"" : "";
+                        $class = (is_array($h) && isset($h['class'])) ? " class=\"".$h['class']."\"" : "";
+                        $text = (is_array($h) && isset($h['text'])) ? $h['text'] : $h;
+                        echo "<th$cell_colspan".$class.">$text</th>";
+                    }
+		        echo "</tr>";
+            }
+        }
 		?>
-		</tr>
 	</thead>
 	<tbody>
 		<?php

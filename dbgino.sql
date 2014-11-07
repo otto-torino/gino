@@ -661,37 +661,17 @@ INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_
 -- --------------------------------------------------------
 
 --
--- Table structure for table `page_entry_tag`
---
-
-CREATE TABLE IF NOT EXISTS `page_entry_tag` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `entry` int(11) NOT NULL,
-  `tag` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `page_opt`
 --
 
 CREATE TABLE IF NOT EXISTS `page_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
-  `last_title` varchar(200) NOT NULL,
-  `archive_title` varchar(200) NOT NULL,
   `showcase_title` varchar(200) NOT NULL,
-  `cloud_title` varchar(200) NOT NULL,
-  `last_number` smallint(2) NOT NULL,
-  `last_tpl_code` text NOT NULL,
   `showcase_number` smallint(3) NOT NULL,
   `showcase_auto_start` tinyint(1) NOT NULL,
   `showcase_auto_interval` int(5) NOT NULL,
   `showcase_tpl_code` text NOT NULL,
-  `archive_efp` int(11) NOT NULL,
-  `archive_tpl_code` text NOT NULL,
   `entry_tpl_code` text NOT NULL,
   `box_tpl_code` text NOT NULL,
   `comment_moderation` tinyint(1) NOT NULL,
@@ -705,20 +685,8 @@ CREATE TABLE IF NOT EXISTS `page_opt` (
 -- Dumping data for table `page_opt`
 --
 
-INSERT INTO `page_opt` (`id`, `instance`, `last_title`, `archive_title`, `showcase_title`, `cloud_title`, `last_number`, `last_tpl_code`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `archive_efp`, `archive_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
-(1, 0, 'Ultime pagine pubblicate', 'Pagine', 'In evidenza', 'Categorie', 3, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', 3, 1, 5000, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', 5, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, '');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `page_tag`
---
-
-CREATE TABLE IF NOT EXISTS `page_tag` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+INSERT INTO `page_opt` (`id`, `instance`, `showcase_title`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
+(1, 0, 'In evidenza', 3, 1, 5000, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, '');
 
 -- --------------------------------------------------------
 
@@ -1125,6 +1093,33 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `active`, `tbl_name`, `inst
 (16, 'Autenticazione', 'auth', 1, 'auth', 0, 'Modulo utenti, gruppi e permessi', 0, '1.0'),
 (17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0');
 
+--
+-- Table structure for table `sys_tag`
+--
+
+CREATE TABLE IF NOT EXISTS `sys_tag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tag` varchar(68) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `sys_tag_taggeditem`
+--
+
+CREATE TABLE IF NOT EXISTS `sys_tag_taggeditem` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tag_id` int(11) NOT NULL,
+  `content_controller_class` varchar(255) NOT NULL,
+  `content_controller_instance` int(11) NOT NULL,
+  `content_class` varchar(64) NOT NULL,
+  `content_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+

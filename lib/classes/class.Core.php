@@ -31,7 +31,9 @@ class core {
       'Translation', 
       'Error', 
       'Session',
-      'GImage'
+      'EventDispatcher', 
+      'GImage',
+      'GTag'
     ));
 
     loader::import('class/mvc', array(
@@ -61,7 +63,8 @@ class core {
       'ManyToManyInlineField', 
       'TextField', 
       'TimeField', 
-      'YearField'
+      'YearField',
+      'TagField'
     ));
 
     // gettext

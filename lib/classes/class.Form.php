@@ -1035,6 +1035,18 @@ class Form {
 			$a = $db->selectquery($data);
 			if(sizeof($a) > 0)
 			{
+                $GFORM .= "<thead>";
+                if(sizeof($data) > 10) {
+                    $GFORM .= "<tr>";
+                    $GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
+                    $GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+                    $GFORM .= "</tr>";
+                }
+                $GFORM .= "<tr>";
+                $GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
+                $GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+                $GFORM .= "</tr>";
+                $GFORM .= "</thead>";
 				foreach($a AS $b)
 				{
 					$b = array_values($b);
@@ -1109,7 +1121,18 @@ class Form {
 			$i = 0;
 			if(sizeof($data)>0)
 			{
-				$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
+                $GFORM .= "<thead>";
+                if(sizeof($data) > 10) {
+                    $GFORM .= "<tr>";
+                    $GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
+                    $GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+                    $GFORM .= "</tr>";
+                }
+                $GFORM .= "<tr>";
+                $GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
+                $GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+                $GFORM .= "</tr>";
+                $GFORM .= "</thead>";
 				foreach($data as $k=>$v)
 				{
 					$check = in_array($k, $checked)? "checked=\"checked\"": "";
@@ -1327,6 +1350,13 @@ class Form {
       $options['helptext'] = array(
         'title' => _('Formati consentiti'),
         'text' => $finLabel['description']
+      );
+    }
+
+    if(is_array($label)) {
+      $options['helptext'] = array(
+        'title' => isset($label['label']) ? $label['label'] : $label[0],
+        'text' => isset($label['description']) ? $label['description'] : $label[1]
       );
     }
 

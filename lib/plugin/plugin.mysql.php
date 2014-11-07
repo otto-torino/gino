@@ -624,6 +624,7 @@ class mysql implements DbManager {
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = gOpt('order', $options, null);
+		$group_by = gOpt('group_by', $options, null);
 		$distinct = gOpt('distinct', $options, null);
 		$limit = gOpt('limit', $options, null);
 		$debug = gOpt('debug', $options, false);
@@ -631,6 +632,7 @@ class mysql implements DbManager {
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
+		$qgroup_by = $group_by ? "GROUP BY ".$group_by : "";
 		$qorder = $order ? "ORDER BY $order" : "";
 		
 		if($distinct) $qfields = $distinct.", ".$qfields;
@@ -645,7 +647,7 @@ class mysql implements DbManager {
 		}
 		else $qlimit = '';
 		
-		$query = "SELECT $qfields FROM $qtables $qwhere $qorder $qlimit";
+		$query = "SELECT $qfields FROM $qtables $qwhere $qgroup_by $qorder $qlimit";
 		
 		if($debug) echo $query;
 		
@@ -681,10 +683,10 @@ class mysql implements DbManager {
 				}
 				else
 				{
-					if($value !== null) {
-						$a_fields[] = $field;
-						$a_values[] = "'$value'";	//@TODO ///// VERIFICARE
-					}
+          	if($value !== null) {
+						  $a_fields[] = $field;
+						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+          	}
 				}
 			}
 			
@@ -840,17 +842,12 @@ class mysql implements DbManager {
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
-		$where = gOpt('where', $options, null);
 		$delim = gOpt('delim', $options, ',');
 		$enclosed = gOpt('enclosed', $options, '"');
 		
-		$where = $where ? " WHERE $where" : '';
-		
-		//LINES TERMINATED BY '\n' 
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
-		FIELDS TERMINATED BY '".$delim."' 
-		ENCLOSED BY '".$enclosed."' 
-		FROM $table".$where;
+		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
+		FROM $table";
 		if($this->actionquery($query))
 			return $filename;
 		else
