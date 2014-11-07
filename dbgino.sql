@@ -691,6 +691,19 @@ INSERT INTO `page_opt` (`id`, `instance`, `showcase_title`, `showcase_number`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `page_tag`
+--
+
+CREATE TABLE IF NOT EXISTS `page_tag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+>>>>>>> b53862d2fb9034d411b4e93b2a2df783e607d0b8
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `php_module`
 --
 

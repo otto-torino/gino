@@ -23,15 +23,15 @@
  *   - file css presenti nella directory @a css
  *   - file delle viste presenti nella directory @a views
  * 
- * SCHEMA DEL LAYOUT A LIVELLO AMMINISTRATIVO
+ * PROCESSO DI GESTIONE DEL LAYOUT
  * ---------------
- * A livello amministrativo lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
+ * Lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
  * @code
  * <div id="nav_3_1_1" style="width:100%;">
  * {module sysclassid=8 func=printFooterPublic}
  * </div>
  * @endcode
- * passandole con la funzione preg_replace_callback() al metodo template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
+ * Queste porzioni di codice vengono passate con la funzione preg_replace_callback() al metodo template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
  * L'elenco dei moduli/pagine disponibili viene gestito dal metodo layout::modulesList().
  * 
  * TRADUZIONE DEL LAYOUT NELLA VISUALIZZAZIONE DI UNA PAGINA
@@ -461,10 +461,10 @@ class layout extends Controller {
 
 	private function info() {
 
-    $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguentui:")."</p>";
+    $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguenti:")."</p>";
     $GINO .= "<ul>";
     $GINO .= "<li>"._("Creare ed uploadare un foglio di stile se necessario")."</li>";
-    $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file tpl) oppure un template libero (file php)")."</li>";
+    $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file .tpl) oppure un template libero (file .php)")."</li>";
     $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.")."</li>";
     $GINO .= "<li>"._("Settare la priorità della skin spostandola in alto o in basso.")."</li>";
     $GINO .= "</ul>";
