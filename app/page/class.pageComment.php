@@ -20,8 +20,6 @@
  */
 class PageComment extends Model {
 
-	private $_controller;
-
 	public static $tbl_comment = 'page_comment';
 
 	/**

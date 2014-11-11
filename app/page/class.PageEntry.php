@@ -20,8 +20,6 @@
  */
 class PageEntry extends Model {
 
-    private $_controller;
-
     protected static $_extension_img = array('jpg', 'jpeg', 'png');
     public static $tbl_entry = 'page_entry';
     
@@ -62,10 +60,6 @@ class PageEntry extends Model {
         parent::__construct($id);
 
         $this->_model_label = _("Pagine");
-    }
-
-    public function getController() {
-        return $this->_controller;
     }
 
     /**
@@ -187,7 +181,7 @@ class PageEntry extends Model {
      * @access public
      * @return istanza di pageEntry
      */
-    public static function getFromSlug($slug, $controller) {
+    public static function getFromSlug($slug, $controller = null) {
     
         $res = null;
 

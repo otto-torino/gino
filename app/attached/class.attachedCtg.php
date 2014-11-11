@@ -17,8 +17,6 @@
  */
 class AttachedCtg extends Model {
 
-  private $_controller;
-
   public static $tbl_ctg = 'attached_ctg';
 
   /**

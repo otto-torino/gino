@@ -18,11 +18,6 @@
 class AttachedItem extends Model {
 
   /**
-   * @brief istanza del controller
-   */
-  private $_controller;
-
-  /**
    * @brief tabella del modello
    */
   public static $tbl_item = 'attached';

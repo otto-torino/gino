@@ -20,7 +20,6 @@
  */
 class PageCategory extends Model {
 
-	private $_controller;
 	public static $_tbl_item = "page_category";
 	
 	/**
