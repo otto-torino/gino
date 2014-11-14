@@ -1,4 +1,7 @@
 <?php
+
+namespace Gino;
+
 /**
  * @file class.Logger.php
  * @brief Contiene la definizione ed implementazione della classe Logger
