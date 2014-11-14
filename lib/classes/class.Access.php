@@ -147,7 +147,7 @@ class Access {
    */
   private function logAccess($userid) {
 
-    Loader::import('statistics', '\Gino\App\Statistics\LogAccess');
+    Loader::import('statistics', 'LogAccess');
 
     \date_default_timezone_set('Europe/Rome');
 

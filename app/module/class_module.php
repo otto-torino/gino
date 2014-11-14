@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Module;
 
+use \Gino\Error;
+
 require_once('class.ModuleInstance.php');
 
 /**
@@ -100,7 +102,7 @@ class module extends \Gino\Controller {
     $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
 
-    $modules = ModuleInstance::get(array('order' => 'label'));
+    $modules = ModuleInstance::objects(null, array('order' => 'label'));
 
     if(count($modules)) {
       \Gino\Loader::import('sysClass', 'ModuleApp');
@@ -190,7 +192,7 @@ class module extends \Gino\Controller {
     $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $module = new ModuleInstance($id);
 
-    $class = $module->className();
+    $class = $module->classNameNs();
     $obj = new $class($id);
     // obj shoul delete table records
     $obj->deleteInstance();
@@ -212,15 +214,16 @@ class module extends \Gino\Controller {
     // delete group perm assoc
     $this->_db->delete(TBL_GROUP_PERMISSION, "instance=\"".$module->id."\"");
 
-    $class = $module->className();
+    $class = $module->classNameNs();
+    $class_name = $module->className();
     $class_elements = $class::getClassElements();
     // delete css
     foreach($class_elements['css'] as $css) {
-      @unlink(APP_DIR.OS.$class.OS.\Gino\baseFileName($css)."_".$module->name.".css");
+      @unlink(APP_DIR.OS.$class_name.OS.\Gino\baseFileName($css)."_".$module->name.".css");
     }
     // delete views
     foreach($class_elements['views'] as $view => $description) {
-      @unlink(APP_DIR.OS.$class.OS.'views'.OS.\Gino\baseFileName($view)."_".$module->name.".php");
+      @unlink(APP_DIR.OS.$class_name.OS.'views'.OS.\Gino\baseFileName($view)."_".$module->name.".php");
     }
     // delete contents
     foreach($class_elements['folderStructure'] as $fld=>$fldStructure) {
@@ -286,7 +289,7 @@ class module extends \Gino\Controller {
    */
   private function actionInsertModule() {
 
-    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    \Gino\Loader::import('sysClass', 'ModuleApp');
 
     $gform = \Gino\Loader::load('Form', array('gform','post', true));
     $gform->save('dataform');
@@ -315,7 +318,8 @@ class module extends \Gino\Controller {
       exit(error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error));
     }
 
-    $class = $module_app->name;
+    $class = $module_app->classNameNs();
+    $class_name = $module_app->className();
     $class_elements = call_user_func(array($class, 'getClassElements'));
     /*
      * create css files
@@ -323,16 +327,16 @@ class module extends \Gino\Controller {
     $css_files = $class_elements['css'];
     foreach($css_files as $css_file) {
 
-      $css_content = file_get_contents(APP_DIR.OS.$class.OS.$css_file);
+      $css_content = file_get_contents(APP_DIR.OS.$class_name.OS.$css_file);
 
       $base_css_name = \Gino\baseFileName($css_file);
 
-      if(!($fo = @fopen(APP_DIR.OS.$class.OS.$base_css_name.'_'.$name.'.css', 'wb'))) {
-        exit(error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
+      if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.$base_css_name.'_'.$name.'.css', 'wb'))) {
+        exit(Error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
       }
 
-      $reg_exp = "/#(.*?)".$class." /";
-      $replace = "#$1".$class."_".$name." ";
+      $reg_exp = "/#(.*?)".$class_name." /";
+      $replace = "#$1".$class_name."_".$name." ";
       $content = preg_replace($reg_exp, $replace, $css_content);
 
       fwrite($fo, $content);
@@ -344,12 +348,12 @@ class module extends \Gino\Controller {
     $view_files = $class_elements['views'];
     foreach($view_files as $view_file => $vdescription) {
 
-      $view_content = file_get_contents(APP_DIR.OS.$class.OS.'views'.OS.$view_file);
+      $view_content = file_get_contents(APP_DIR.OS.$class_name.OS.'views'.OS.$view_file);
 
       $base_view_name = \Gino\baseFileName($view_file);
 
-      if(!($fo = @fopen(APP_DIR.OS.$class.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
-        exit(error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
+      if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
+        exit(Error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
       }
 
       $content = $view_content;

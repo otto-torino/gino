@@ -9,6 +9,8 @@
  */
 namespace Gino\App\SysClass;
 
+use \Gino\Error;
+
 require_once('class.ModuleApp.php');
 
 /**
@@ -201,18 +203,18 @@ class sysClass extends \Gino\Controller {
     $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&block=install";
 
     if(!\Gino\pub::enabledZip())
-      exit(error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
     
     $archive_name = $_FILES['archive']['name'];
     $archive_tmp = $_FILES['archive']['tmp_name'];
 
     if(empty($archive_tmp)) {
-      exit(error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
     }
     
     $class_name = preg_replace("/[^a-zA-Z0-9].*?.zip/", "", $archive_name);
     if(preg_match("/[\.\/\\\]/", $class_name)) {
-      exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
     }
     
     /*
@@ -221,7 +223,7 @@ class sysClass extends \Gino\Controller {
     $this->_db->dumpDatabase(SITE_ROOT.OS.'backup'.OS.'dump_'.date("d_m_Y_H_i_s").'.sql');
 
     $class_dir = APP_DIR.OS.$class_name;
-    @mkdir($class_dir, 0755) || exit(error::errorMessage(array('error'=>_("impossibile creare la cartella base del modulo"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+    @mkdir($class_dir, 0755) || exit(Error::errorMessage(array('error'=>_("impossibile creare la cartella base del modulo"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
 
     /*
      * Extract archive
@@ -238,7 +240,7 @@ class sysClass extends \Gino\Controller {
     } 
     else {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("impossibile scompattare il pacchetto")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("impossibile scompattare il pacchetto")), $link_error));
     }
 
     /*
@@ -246,7 +248,7 @@ class sysClass extends \Gino\Controller {
      */
     if(!is_readable($class_dir.OS."config.txt")) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
     }
 
     $config = file_get_contents($class_dir.OS."config.txt");
@@ -271,12 +273,12 @@ class sysClass extends \Gino\Controller {
     if(!in_array($db_conf['removable'], array('1', '0'))) $dbConfError = true;
     if($dbConfError) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche.")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche.")), $link_error));
     }
     // name check
-    $res = ModuleApp::get(array('where' => "name='".$db_conf['name']."'"));
+    $res = ModuleApp::objects(null, array('where' => "name='".$db_conf['name']."'"));
     if($res and count($res)) {
-      exit(error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
     }
 
     /*
@@ -296,7 +298,7 @@ class sysClass extends \Gino\Controller {
 
     if(!$result) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
     }
     
     /*
@@ -316,7 +318,7 @@ class sysClass extends \Gino\Controller {
           foreach(array_reverse($created_flds) as $created_fld) {
             $this->_registry->pub->deleteFileDir($created_fld, true);
           }
-          exit(error::errorMessage(array('error'=>_("impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+          exit(Error::errorMessage(array('error'=>_("impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
         }
       }
     }
@@ -333,7 +335,7 @@ class sysClass extends \Gino\Controller {
         foreach(array_reverse($created_flds) as $created_fld) {
           $this->_registry->pub->deleteFileDir($created_fld, true);
         }
-        exit(error::errorMessage(array('error'=>_("impossibile creare le tabelle")), $link_error));
+        exit(Error::errorMessage(array('error'=>_("impossibile creare le tabelle")), $link_error));
       }
     }	
     
@@ -413,14 +415,14 @@ class sysClass extends \Gino\Controller {
     $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&action=insert";
     
     if($req_error > 0) 
-      exit(error::errorMessage(array('error'=>1), $link_error));
+      exit(Error::errorMessage(array('error'=>1), $link_error));
 
     $name = \Gino\cleanVar($_POST, 'name', 'string', '');
     // name check
     if(preg_match("/[\.\/\\\]/", $name)) exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
     $res = ModuleApp::get(array('where' => "name='$name'"));
     if($res and count($res)) {
-      exit(error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
     }
 
     $module_app = new ModuleApp(null);
@@ -436,7 +438,7 @@ class sysClass extends \Gino\Controller {
     $res = $module_app->updateDbData();
 
     if(!$res) {
-      exit(error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
     }
 
     \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
@@ -457,9 +459,8 @@ class sysClass extends \Gino\Controller {
 
     $module_app = new ModuleApp($id);
     if(!$module_app->id) {
-      exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
-
 
     $required = 'label';
     $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClass]", '', $required);
@@ -494,7 +495,7 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
     $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
@@ -529,7 +530,7 @@ class sysClass extends \Gino\Controller {
 
     $module_app = new ModuleApp($id);
     if(!$module_app->id) {
-      exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
     $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
@@ -613,7 +614,7 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(error::syserrorMessage("sysClass", "actionUpgradeSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      exit(Error::syserrorMessage("sysClass", "actionUpgradeSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
     $module_class_name = $module_app->name;
@@ -623,15 +624,15 @@ class sysClass extends \Gino\Controller {
     $archive_tmp = $_FILES['archive']['tmp_name'];
 
     if(empty($archive_tmp)) {
-      exit(error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
     }
 
     $class_name = preg_replace("/[^a-zA-Z0-9].*?upgrade.*?.zip/", "", $archive_name);
     if($class_name!=$module_class_name) {
-      exit(error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("il pacchetto non pare essere un upgrade del modulo esistente")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("il pacchetto non pare essere un upgrade del modulo esistente")), $link_error));
     }
     if(preg_match("/[\.\/\\\]/", $class_name)) {
-      exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
     }
 
     /*
@@ -641,7 +642,7 @@ class sysClass extends \Gino\Controller {
 
     $class_dir = APP_DIR.OS.$class_name."_inst_tmp";
     $module_dir = APP_DIR.OS.$class_name;
-    @mkdir($class_dir, 0755) || exit(error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("controllare i permessi di scrttura")), $link_error));
+    @mkdir($class_dir, 0755) || exit(Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("controllare i permessi di scrttura")), $link_error));
 
     $db_conf = array('name'=>$class_name, 'version'=>null, 'tbl_name'=>null, 'instantiable'=>null, 'description'=>null, 'folders'=>null);
     $noCopyFiles = array('config.txt', $class_name.'.sql');
@@ -659,7 +660,7 @@ class sysClass extends \Gino\Controller {
       $zip->close();
     } else {
     $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("Impossibile scompattare il pacchetto")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("Impossibile scompattare il pacchetto")), $link_error));
     }
     
     /*
@@ -667,7 +668,7 @@ class sysClass extends \Gino\Controller {
      */
     if(!is_readable($class_dir.OS."config.txt")) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
     }
 
     $config = file_get_contents($class_dir.OS."config.txt");
@@ -689,7 +690,7 @@ class sysClass extends \Gino\Controller {
     if(!in_array($db_conf['instantiable'], array('1', '0', null))) $dbConfError = true;
     if($dbConfError) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche.")), $link_error));
+      exit(Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche.")), $link_error));
     }
 
     /*
@@ -707,7 +708,7 @@ class sysClass extends \Gino\Controller {
           foreach(array_reverse($created_flds) as $created_fld) {
             $this->_registry->pub->deleteFileDir($created_fld, true);
           }
-          exit(error::errorMessage(array('error'=>_("upgrade fallito - impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+          exit(Error::errorMessage(array('error'=>_("upgrade fallito - impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
         }
       }
     }
@@ -723,7 +724,7 @@ class sysClass extends \Gino\Controller {
         foreach(array_reverse($created_flds) as $created_fld) {
           $this->_registry->pub->deleteFileDir($created_fld, true);
         }
-        exit(error::errorMessage(array('error'=>_("Upgrade fallito - impossibile creare le tabelle")), $link_error));
+        exit(Error::errorMessage(array('error'=>_("Upgrade fallito - impossibile creare le tabelle")), $link_error));
       }
     }	
 
@@ -743,7 +744,7 @@ class sysClass extends \Gino\Controller {
      */
     @unlink($class_dir.OS.$archive_name);
     $res = $this->upgradeFolders($class_dir, $module_dir, $noCopyFiles);
-    if(!$res) exit(error::errorMessage(array('error'=>_("Si è verificato un errore durante l'upgrade. Uno o più file non sono stati copiati correttamente. Contattare l'amministratore del sistema per risolvere il problema.")), $link_error));
+    if(!$res) exit(Error::errorMessage(array('error'=>_("Si è verificato un errore durante l'upgrade. Uno o più file non sono stati copiati correttamente. Contattare l'amministratore del sistema per risolvere il problema.")), $link_error));
     
     /*
      * Removing tmp install folder
@@ -788,7 +789,7 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
     $GINO = "<p class=\"lead\">"._("Attenzione! La disinstallazione di un modulo di sistema potrebbe provocare dei malfunzionamenti ed è un'operazione irreversibile.")."</p>\n";
