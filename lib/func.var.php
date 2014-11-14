@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * Converte l'encoding di un valore preso da un campo di un database (non UTF-8) nella codifica UTF-8

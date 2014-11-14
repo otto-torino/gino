@@ -7,10 +7,12 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-ini_set('session.use_cookies', 1);
-ini_set('session.use_only_cookies', 1);
+namespace Gino;
 
-session_name(SESSION_NAME);
+\ini_set('session.use_cookies', 1);
+\ini_set('session.use_only_cookies', 1);
+
+\session_name(SESSION_NAME);
 
 /**
  * @brief Gestione delle variabili di sessione

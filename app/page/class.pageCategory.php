@@ -8,6 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Page;
 
 /**
  * \ingroup page
@@ -18,7 +19,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class PageCategory extends Model {
+class PageCategory extends \Gino\Model {
 
 	private $_controller;
 	public static $_tbl_item = "page_category";

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Language;
 
 require_once('class.Lang.php');
 
@@ -24,7 +25,7 @@ require_once('class.Lang.php');
  * 
  * The public view privilege and the administrative privilege are setted in the DB, and editable by the user in the sysClass class administration
  */
-class language extends Controller {
+class language extends \Gino\Controller {
 
 	protected $_instance, $_instance_name;
 
@@ -46,16 +47,13 @@ class language extends Controller {
 		$this->_instance = 0;
 		$this->_instance_name = $this->_class_name;
 
-		//$this->setAccess();
-
-		$this->_title = htmlChars($this->setOption('title', true));
+		$this->_title = \Gino\htmlChars($this->setOption('title', true));
 		$this->_flag_language = $this->setOption('opt_flag');
 		$this->_flag_prefix = "flag_";
 		$this->_flag_suffix = ".gif";
 
-		$this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
+		$this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
 		$this->_optionsLabels = array("title"=>_("Titolo"), "opt_flag"=>_("Bandiere come etichette"));
-		
 	}
 	
 	/**
@@ -81,12 +79,13 @@ class language extends Controller {
 	public function choiceLanguage($p=true){
 
 		$GINO = $this->_registry->addCss($this->_class_www.'/language.css');
+		
 		if($this->_registry->sysconf->multi_language) {
 			if($p) {
 				$GINO .= "<section id=\"section_language\">\n";
 				$GINO .= '<h1 class="hidden">' . $this->_title . '</h1>';
 			}
-      $codes = explode('_', $this->_registry->session->lng);
+			$codes = explode('_', $this->_registry->session->lng);
 			$query_i = "SELECT label FROM ".TBL_LANGUAGE." WHERE active='1' AND language_code='".$codes[0]."' AND country_code='".$codes[1]."' ORDER BY language";
 			$a_i = $this->_db->selectquery($query_i);
 			$lngSupport = sizeof($a_i)>0 ? true:false;
@@ -96,14 +95,14 @@ class language extends Controller {
 			if(sizeof($a) > 0)
 			{
 				$list = '';
-        foreach($a AS $b) {
-          $lng = new Lang($b['id']);
+				foreach($a AS $b) {
+					$lng = new Lang($b['id']);
 					if($this->_flag_language) {
-						$language = "<img src=\"".SITE_IMG.'/'.$this->_flag_prefix.htmlChars($b['label']).$this->_flag_suffix."\" />";
+						$language = "<img src=\"".SITE_IMG.'/'.$this->_flag_prefix.\Gino\htmlChars($b['label']).$this->_flag_suffix."\" />";
 						$space = " ";
 					}
 					else {
-						$language = htmlChars($b['label']);
+						$language = \Gino\htmlChars($b['label']);
 						$space = "| ";
 					}
 
@@ -128,7 +127,7 @@ class language extends Controller {
 
     $this->requirePerm('can_admin');
 
-    $block = cleanVar($_GET, 'block', 'string', null);
+    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
 
     $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageLanguage]&block=options\">"._("Opzioni")."</a>";
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]\">"._("Gestione")."</a>";
@@ -149,7 +148,7 @@ class language extends Controller {
       'content' => $content
     );
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('tab');
 
     return $view->render($dict);
@@ -165,8 +164,8 @@ class language extends Controller {
       'list_description' => $info
     );
 
-    $admin_table = loader::load('AdminTable', array(
-      $this
+    $admin_table = \Gino\Loader::load('AdminTable', array(
+    	$this
     ));
 
     if(isset($_POST['id'])) {
@@ -190,15 +189,15 @@ class language extends Controller {
 	 */
 	public function replaceTextarea() {
 	 
-		$gform = new Form('gform', 'post', true);
-
-		$type = cleanVar($_POST, 'type', 'string', '');
+		$type = \Gino\cleanVar($_POST, 'type', 'string', '');
 		
 		if($type == $this->_fckeditor_field)
 		{
-	 		$field = cleanVar($_POST, 'field', 'string', '');
-			$width = cleanVar($_POST, 'width', 'string', '');
-	 		$fck_toolbar = cleanVar($_POST, 'fck_toolbar', 'string', '');
+	 		$field = \Gino\cleanVar($_POST, 'field', 'string', '');
+			$width = \Gino\cleanVar($_POST, 'width', 'string', '');
+	 		$fck_toolbar = \Gino\cleanVar($_POST, 'fck_toolbar', 'string', '');
+	 		
+	 		$gform = \Gino\Loader::load('Form', array('gform', 'post', true));
 
 			return $gform->editorHtml('trnsl_'.$field, null, $fck_toolbar, $width, null, true);
 		} else return null;

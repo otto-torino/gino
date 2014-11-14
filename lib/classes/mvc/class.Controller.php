@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Classe astratta primitiva Controller, dalla quale tutti i controller delle singole app discendono
@@ -50,7 +51,7 @@ abstract class Controller {
     $this->_plink = $this->_registry->plink;
     $this->_trd = $this->_registry->trd;
 
-    $this->_class_name = get_class($this);
+    $this->_class_name = get_name_class($this);
     $this->setInstanceProperties($instance_id);
 
     $this->_locale = locale::instance_to_class($this->_class_name);

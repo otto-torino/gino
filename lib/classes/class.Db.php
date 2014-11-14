@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Interfaccia per le librerie di connessione al database
@@ -280,7 +281,8 @@ interface DbManager {
 	 * @param string $where condizione della query
 	 * @param array $options array associativo di opzioni
 	 *   - @b order (string): ordinamento
-	 *   - @b distinct (string): nome/nomi dei campisui quali quali applicare la keyword DISTINCT
+	 *   - @b group_by (string): elenco dei campi da raggruppare (istruzione GROUP BY)
+	 *   - @b distinct (string): nome/nomi dei campi sui quali applicare la keyword DISTINCT
 	 *   - @b limit (mixed): limitazione degli elementi
 	 *     - string, condizione di limitazione degli elementi
 	 *     - array, valori per il range di limitazione (array(offset, range))
@@ -484,6 +486,7 @@ abstract class db extends singleton {
 				if(file_exists($lib_file))
 				{
 					include_once($lib_file);
+					$lib_class = '\Gino\Plugin\\'.$lib_class;
 					
 					self::$_instances[$class] = new $lib_class(
 						array(

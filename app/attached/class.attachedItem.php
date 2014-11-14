@@ -7,6 +7,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Attached;
 
 /**
  * Classe tipo model che rappresenta una singolo allegato
@@ -15,7 +16,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class AttachedItem extends Model {
+class AttachedItem extends \Gino\Model {
 
   /**
    * @brief istanza del controller
@@ -121,17 +122,17 @@ class AttachedItem extends Model {
 
     $structure = parent::structure($id);
 
-    $structure['category'] = new foreignKeyField(array(
+    $structure['category'] = new \Gino\ForeignKeyField(array(
       'name'=>'category',
       'model'=>$this,
       'foreign'=>'attachedCtg',
       'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
       'add_related' => true,
-      'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-manageAttached]&block=ctg&insert=1',
+      'add_related_url' => $this->_home.'?evt['.\get_class($this->_controller).'-manageAttached]&block=ctg&insert=1',
     ));
 
-    $structure['insertion_date'] = new datetimeField(array(
+    $structure['insertion_date'] = new \Gino\DatetimeField(array(
       'name'=>'insertion_date',
       'model'=>$this,
       'required'=>true,
@@ -139,7 +140,7 @@ class AttachedItem extends Model {
       'auto_now_add'=>true,
     ));
 
-    $structure['last_edit_date'] = new datetimeField(array(
+    $structure['last_edit_date'] = new \Gino\DatetimeField(array(
       'name'=>'last_edit_date',
       'model'=>$this,
       'required'=>true,
@@ -149,14 +150,14 @@ class AttachedItem extends Model {
 
     // se esiste l'id costruisce il path, in inserimento lo costruisce la subclass di adminTable
     if($id) {
-      $ctg = new attachedCtg($this->category, $this->_controller);
-      $base_path = $ctg->path('abs');
+    	$ctg = new attachedCtg($this->category, $this->_controller);
+    	$base_path = $ctg->path('abs');
     }
     else {
-      $base_path = null;
+    	$base_path = null;
     }
 
-    $structure['file'] = new fileField(array(
+    $structure['file'] = new \Gino\FileField(array(
       'name'=>'file',
       'model'=>$this,
       'required'=>true,
@@ -180,11 +181,11 @@ class AttachedItem extends Model {
 
     $res = array();
 
-    $where = gOpt('where', $options, '');
-    $order = gOpt('order', $options, 'last_edit_date DESC');
-    $limit = gOpt('limit', $options, null);
+    $where = \Gino\gOpt('where', $options, '');
+    $order = \Gino\gOpt('order', $options, 'last_edit_date DESC');
+    $limit = \Gino\gOpt('limit', $options, null);
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $selection = 'id';
     $table = self::$tbl_item;
 
@@ -206,7 +207,7 @@ class AttachedItem extends Model {
    */
   public static function deleteFromCtg($ctg_id, $controller) {
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$tbl_item, "category='".$ctg_id."'");
     if($rows and count($rows)) {
       foreach($rows as $row) {
@@ -230,7 +231,7 @@ class AttachedItem extends Model {
 	public function path($type) {
 
 		if($type == 'download') {
-			$link = new link();
+			$link = new \Gino\Link();
 			return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
 		}
 		else {
@@ -257,7 +258,7 @@ class AttachedItem extends Model {
 			return "<span class=\"link\" onclick=\"$onclick\">".$alabel."</span>";
 		}
 		else {
-			$link = new link();
+			$link = new \Gino\Link();
 			return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
 	 	}
 	}

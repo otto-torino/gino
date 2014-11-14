@@ -8,6 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Auth;
 
 /**
  * \ingroup auth
@@ -18,7 +19,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class User extends Model {
+class User extends \Gino\Model {
 
   /**
    * Costruttore
@@ -63,11 +64,11 @@ class User extends Model {
 		$this->_tbl_data = self::$table;
 		
 		require_once 'class_auth.php';
-		//loader::import('auth', 'auth');
+		
 		$controller = new auth();
 		$this->_controller = $controller;
 		
-		$registry = registry::instance();
+		$registry = \Gino\registry::instance();
 		self::$extension_media = !$registry->pub->enabledPng() ? array('jpg') : array('png', 'jpg');
 		
 		parent::__construct($id);
@@ -92,14 +93,14 @@ class User extends Model {
 
 		$structure = parent::structure($id);
 
-		$structure['email'] = new EmailField(array(
+		$structure['email'] = new \Gino\EmailField(array(
 			'name'=>'email', 
 			'model'=>$this,
 			'required'=>true,
 			'trnsl'=>false,
 		));
 		
-		$structure['is_admin'] = new BooleanField(array(
+		$structure['is_admin'] = new \Gino\BooleanField(array(
 			'name'=>'is_admin', 
 			'model'=>$this,
 			'required'=>true,
@@ -110,10 +111,10 @@ class User extends Model {
 		$nations = array();
 		$rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
 		foreach($rows as $row) {
-			$nations[$row['id']] = htmlChars($row[$this->_lng_nav]);
+			$nations[$row['id']] = \Gino\htmlChars($row[$this->_lng_nav]);
 		}
 
-		$structure['nation'] = new EnumField(array(
+		$structure['nation'] = new \Gino\EnumField(array(
 			'name'=>'nation', 
 			'model'=>$this,
 			'widget'=>'select',
@@ -124,7 +125,7 @@ class User extends Model {
 		$base_path = $this->_controller->getBasePath();
 		$add_path = $this->_controller->getAddPath($this->id);
 		
-		$structure['photo'] = new ImageField(array(
+		$structure['photo'] = new \Gino\ImageField(array(
 			'name'=>'photo', 
 			'model'=>$this,
 			'required'=>false, 
@@ -133,7 +134,7 @@ class User extends Model {
 			//'add_path'=>$add_path, 
 		));
 
-		$structure['publication'] = new BooleanField(array(
+		$structure['publication'] = new \Gino\BooleanField(array(
 			'name'=>'publication', 
 			'model'=>$this,
 			'required'=>false, 
@@ -141,7 +142,7 @@ class User extends Model {
 			'default'=>0,
 		));
 		
-		$structure['active'] = new BooleanField(array(
+		$structure['active'] = new \Gino\BooleanField(array(
 			'name'=>'active', 
 			'model'=>$this,
 			'required'=>true, 
@@ -149,7 +150,7 @@ class User extends Model {
 			'default'=>0,
 		));
 		
-		$structure['group'] = new ManyToManyField(array(
+		$structure['group'] = new \Gino\ManyToManyField(array(
 			'name'=>'group', 
 			'model'=>$this,
 			'required'=>false, 
@@ -178,9 +179,8 @@ class User extends Model {
 	 	$rules = gOpt('rules', $options, null);
 	 	$maxlength = gOpt('maxlength', $options, null);
 	 	
-	 	$gform = Loader::load('Form', array('pwdform', 'post', true));
+	 	$gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 	 	
-		$gform = new Form('pwdform', 'post', true);
 		$gform->load('pwdform');
 
 		$required = 'userpwd,check_userpwd';
@@ -212,16 +212,15 @@ class User extends Model {
 	 */
 	public function savePassword($options=array()) {
 	 	
-	 	$gform = Loader::load('Form', array('pwdform', 'post', true));
+	 	$gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 	 	
-		$gform = new Form('pwdform', 'post', true);
 		$gform->save('pwdform');
 		$req_error = $gform->arequired();
 		
 		if($req_error > 0) 
 			return array('error'=>1);
 
-		$password = cleanVar($_POST, 'userpwd', 'string', '');
+		$password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
 	 	$options['password'] = $password;
 	 	
 		$check_password = self::checkPassword($options);
@@ -249,7 +248,7 @@ class User extends Model {
 	  */
 	 public static function setPassword($password, $options=array()) {
 	 	
-	 	$aut_password = gOpt('aut_password', $options, false);
+	 	$aut_password = \Gino\gOpt('aut_password', $options, false);
 		
 		if(is_null($password) && $aut_password)
 		{
@@ -257,7 +256,7 @@ class User extends Model {
 		}
 		else
 		{
-			$registry = registry::instance();
+			$registry = \Gino\registry::instance();
     		$crypt_method = $registry->pub->getConf('password_crypt');
     		
     		$password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $password;
@@ -285,14 +284,14 @@ class User extends Model {
 	 */
 	public static function checkPassword($options=array()){
 		
-		$password = gOpt('password', $options, null);
-		$password_check = gOpt('password_check', $options, null);
-		$pwd_length_min = gOpt('pwd_length_min', $options, null);
-		$pwd_length_max = gOpt('pwd_length_max', $options, null);
-		$pwd_numeric_number = gOpt('pwd_numeric_number', $options, null);
+		$password = \Gino\gOpt('password', $options, null);
+		$password_check = \Gino\gOpt('password_check', $options, null);
+		$pwd_length_min = \Gino\gOpt('pwd_length_min', $options, null);
+		$pwd_length_max = \Gino\gOpt('pwd_length_max', $options, null);
+		$pwd_numeric_number = \Gino\gOpt('pwd_numeric_number', $options, null);
 		
-		if(is_null($password)) $password = cleanVar($_POST, 'userpwd', 'string', '');
-		if(is_null($password_check)) $password_check = cleanVar($_POST, 'check_userpwd', 'string', '');
+		if(is_null($password)) $password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
+		if(is_null($password_check)) $password_check = \Gino\cleanVar($_POST, 'check_userpwd', 'string', '');
 		
 		if($password_check && $password != $password_check)
 			return array('error'=>6);
@@ -337,7 +336,7 @@ class User extends Model {
 	 */
 	public static function generatePassword($options=array()){
 
-		$password_length = gOpt('aut_password_length', $options, null);
+		$password_length = \Gino\gOpt('aut_password_length', $options, null);
 		
 		if(!$password_length) return null;
 		
@@ -383,10 +382,10 @@ class User extends Model {
 	 */
 	public static function checkEmail($id=null){
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		
-		$email = cleanVar($_POST, 'email', 'string', '');
-		$check_email = cleanVar($_POST, 'check_email', 'string', '');
+		$email = \Gino\cleanVar($_POST, 'email', 'string', '');
+		$check_email = \Gino\cleanVar($_POST, 'check_email', 'string', '');
 		
 		if($email && !checkEmail($email, true))
 			return array('error'=>7);
@@ -414,13 +413,13 @@ class User extends Model {
 	 */
 	public static function checkUsername($options) {
 		
-		$username_as_email = gOpt('username_as_email', $options, false);
+		$username_as_email = \Gino\gOpt('username_as_email', $options, false);
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		
 		$input_name = $username_as_email ? 'email' : 'username';
 		
-		$username = cleanVar($_POST, $input_name, 'string', '');
+		$username = \Gino\cleanVar($_POST, $input_name, 'string', '');
 		
 		if($db->columnHasValue(self::$table, 'username', $username))
 			return array('error'=>8);
@@ -437,11 +436,11 @@ class User extends Model {
    */
   public static function getFromUserPwd($username, $password) {
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
 
     $user = null;
 
-    $registry = registry::instance();
+    $registry = \Gino\registry::instance();
     $crypt_method = $registry->pub->getConf('password_crypt');
     
     $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $pwd;
@@ -455,12 +454,12 @@ class User extends Model {
 
   public static function get($options = array()) {
 
-    $where = gOpt('where', $options, null);
-    $order = gOpt('order', $options, null);
+    $where = \Gino\gOpt('where', $options, null);
+    $order = \Gino\gOpt('order', $options, null);
 
     $res = array();
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$table, $where, array('order' => $order));
     if($rows and count($rows)) {
       foreach($rows as $row) {
@@ -471,6 +470,63 @@ class User extends Model {
     return $res;
   }
 
+	/**
+	 * Elenco degli utenti associati a uno o più permessi
+	 * 
+	 * @param string!array $code codice o codici del permesso
+	 * @param object $controller controller
+	 * @return array (valori id)
+	 */
+	public static function getUsersFromPermissions($code, $controller) {
+		
+		$db = \Gino\db::instance();
+		
+		$array = array();
+		
+		$class = get_class($controller);
+		$instance = $controller->getInstance();
+		
+		if(is_array($code) && count($code))
+		{
+			foreach ($code AS $value)
+			{
+				$res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+				if($res && count($res))
+				{
+					$perm_id = $res[0];
+					$records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
+					if($records && count($records))
+					{
+						foreach ($records AS $r)
+						{
+							if(!in_array($r['user_id'], $array))
+								$array[] = $r['user_id'];
+						}
+					}
+				}
+			}
+		}
+		elseif(is_string($code))
+		{
+			$res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+			if($res && count($res))
+			{
+				$perm_id = $res[0];
+				$records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
+				if($records && count($records))
+				{
+					foreach ($records AS $r)
+					{
+						if(!in_array($r['user_id'], $array))
+							$array[] = $r['user_id'];
+					}
+				}
+			}
+		}
+		
+		return $array;
+	}
+	
     /**
      * Verifica se l'utente ha uno dei permessi della classe
      * @param string $class la classe
@@ -616,11 +672,11 @@ class User extends Model {
 	 */
 	public static function setMoreInfo($id) {
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 
-		$field1 = cleanVar($_POST, 'field1', 'int', '');
-		$field2 = cleanVar($_POST, 'field2', 'int', '');
-		$field3 = cleanVar($_POST, 'field3', 'int', '');
+		$field1 = \Gino\cleanVar($_POST, 'field1', 'int', '');
+		$field2 = \Gino\cleanVar($_POST, 'field2', 'int', '');
+		$field3 = \Gino\cleanVar($_POST, 'field3', 'int', '');
 		
 		$res = false;
 		
@@ -643,7 +699,7 @@ class User extends Model {
 	 */
 	public static function deleteMoreInfo($id) {
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 
 		if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
 		{

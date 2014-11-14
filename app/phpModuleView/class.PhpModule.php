@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\PhpModuleView;
 
 /**
  * @brief Fornisce gli strumenti alla classe phpModuleView per la gestione amministrativa
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class PhpModule extends Model {
+class PhpModule extends \Gino\Model {
 
 	protected $_tbl_data;
 	public static $_tbl_php_mdl = 'php_module';
@@ -78,24 +79,24 @@ class PhpModule extends Model {
 
 		$this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
 		$this->_registry->addCss(CSS_WWW."/codemirror.css");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
-    $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
+		$this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
 
-    $options = "{
-      lineNumbers: true,
-      matchBrackets: true,
-      mode: \"application/x-httpd-php\",
-      indentUnit: 4,
-      indentWithTabs: true,
-      enterMode: \"keep\",
-      tabMode: \"shift\"
-    }";
+		$options = "{
+		lineNumbers: true,
+		matchBrackets: true,
+		mode: \"application/x-httpd-php\",
+		indentUnit: 4,
+		indentWithTabs: true,
+		enterMode: \"keep\",
+		tabMode: \"shift\"
+		}";
 
-		$gform = Loader::load('Form', array('gform', 'post', true));
+		$gform = \Gino\Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 	
 		$required = 'content';
@@ -106,16 +107,16 @@ class PhpModule extends Model {
 
 		$buffer .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
+		
+		$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
-    $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
-
-    $view =   new View(null, 'section');
-    $dict = array(
-      'title' => _('Modifica codice'),
-      'class' => 'admin',
-      'content' => $buffer
-    );
-    return $view->render($dict);
+		$view =   new \Gino\View(null, 'section');
+		$dict = array(
+		'title' => _('Modifica codice'),
+		'class' => 'admin',
+		'content' => $buffer
+		);
+		return $view->render($dict);
 	}
 
 	/**
@@ -123,7 +124,7 @@ class PhpModule extends Model {
 	 */
 	public function actionPhpModule() {
 		
-		$gform = Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
+		$gform = \Gino\Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
@@ -138,7 +139,7 @@ class PhpModule extends Model {
 		$this->updateDbData();
 
 		header("Location: $this->_home?evt[$this->_interface-manageDoc]");
-    exit();
+		exit();
 	}
 }
 ?>

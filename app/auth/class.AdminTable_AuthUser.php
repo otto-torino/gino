@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Auth;
 
 /**
  * @brief Sovrascrive la classe AdminTable
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class AdminTable_AuthUser extends AdminTable {
+class AdminTable_AuthUser extends \Gino\AdminTable {
 	
 	/**
 	 * Gestisce l'azione del form
@@ -82,7 +83,7 @@ class AdminTable_AuthUser extends AdminTable {
 		$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
 		$viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
 		
-		$gform = new Form($formId, $method, $validation);
+		$gform = new \Gino\Form($formId, $method, $validation);
 		$gform->save($session_value);
 		$req_error = $gform->arequired();
 		

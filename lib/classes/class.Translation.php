@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Gestisce le traduzioni
@@ -226,7 +227,7 @@ class translation
 	}
 
 
-  /**
+	/**
 	 * Elimina una traduzione
 	 * 
 	 * @param string $tbl nome della tabella con il campo da tradurre
@@ -236,12 +237,12 @@ class translation
 	public function deleteTranslations($tbl, $tbl_id) {
 	 	
 		$db = db::instance();
-    $result = $tbl_id == 'all'
-      ? $db->delete(TBL_TRANSLATION, "tbl='".$tbl."'")
-      : $db->delete(TBL_TRANSLATION, "tbl='".$tbl."' AND tbl_id_value='".$tbl_id."'");
+		$result = $tbl_id == 'all'
+		? $db->delete(TBL_TRANSLATION, "tbl='".$tbl."'")
+		: $db->delete(TBL_TRANSLATION, "tbl='".$tbl."' AND tbl_id_value='".$tbl_id."'");
 
-    return $result;
-  }
+		return $result;
+	}
 
 }
 ?>

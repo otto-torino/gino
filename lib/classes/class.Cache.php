@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Libreria che fornisce gli strumenti alle classi outputCache() e dataCache()
@@ -99,7 +100,7 @@ class Cache {
  * if the content is cached the if statement is skipped and the content is concatenated to $GINO
  * if content is not cached the if statemet runs, the content is prepared and then saved in cache and added to $GINO (through stop method)
  */
-class OutputCache extends cache {
+class OutputCache extends Cache {
 
 	function __construct(&$buffer, $enabled = true) {
 

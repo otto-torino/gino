@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Graphics;
 
 require_once('class.GraphicsItem.php');
 
@@ -22,7 +23,7 @@ require_once('class.GraphicsItem.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class graphics extends Controller {
+class Graphics extends \Gino\Controller {
 
 	private $_title;
 	private $_tbl_graphics;
@@ -35,7 +36,7 @@ class graphics extends Controller {
 		$this->_title = _("Layout - header/footer");
 		$this->_tbl_graphics = 'sys_graphics';
 		
-		$this->_block = cleanVar($_REQUEST, 'block', 'string', '');
+		$this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
   public static function getClassElements() {
@@ -184,7 +185,7 @@ class graphics extends Controller {
 	
 		if(!$id) return '';
 		
-    $graphics_item = new GraphicsItem($id);
+		$graphics_item = new GraphicsItem($id);
 
 		if($graphics_item->type==1 && $graphics_item->image) 
 		{
@@ -198,22 +199,21 @@ class graphics extends Controller {
 		}
 		elseif($graphics_item->type==2) {
 			$buffer = $graphics_item->html;
-    }
+		}
 
-    $view = new view($this->_view_dir);
-    $view->setViewTpl('render');
-    $dict = array(
-      'id' => "site_".($this->isHeader($id) ? "header" : "footer"),
-      'content' => $buffer,
-      'type' => $graphics_item->type,
-      'header' => $this->isHeader($id),
-      'img_path' => $graphics_item->image ? SITE_GRAPHICS."/$graphics_item->image" : null,
-      'code' => $graphics_item->html
-    );
+		$view = new \Gino\View($this->_view_dir);
+		$view->setViewTpl('render');
+		$dict = array(
+			'id' => "site_".($this->isHeader($id) ? "header" : "footer"),
+			'content' => $buffer,
+			'type' => $graphics_item->type,
+			'header' => $this->isHeader($id),
+			'img_path' => $graphics_item->image ? SITE_GRAPHICS."/$graphics_item->image" : null,
+			'code' => $graphics_item->html
+		);
 
-    return $view->render($dict);
-
-  }
+		return $view->render($dict);
+	}
 
   public function manageGraphics() {
 
@@ -240,7 +240,7 @@ class graphics extends Controller {
         'removeFields' => array('name')
       );
 
-      $admin_table = loader::load('AdminTable', array(
+      $admin_table = \Gino\Loader::load('AdminTable', array(
         $this,
         array(
           'allow_insertion' => false,
@@ -258,7 +258,7 @@ class graphics extends Controller {
       'content' => $buffer
     );
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('tab');
 
     return $view->render($dict);

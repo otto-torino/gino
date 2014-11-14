@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Classe per la gestione dell'autenticazione ed accesso alla funzionalità
@@ -57,7 +58,7 @@ class Access {
    */
   public function Authentication(){
 
-    loader::import('auth', 'User');
+    Loader::import('auth', 'Gino\App\Auth\User');
     
     if((isset($_POST['action']) && $_POST['action']=='auth')) {
       $user = cleanVar($_POST, 'user', 'string', '');
@@ -71,11 +72,11 @@ class Access {
     else {
       $registry = registry::instance();
       if(isset($this->_session->user_id)) {
-        loader::import('auth', 'User');
-        $registry->user = new User($this->_session->user_id);
+        Loader::import('auth', 'Gino\App\Auth\User');
+        $registry->user = new \Gino\App\Auth\User($this->_session->user_id);
       }
       else {
-        $registry->user = new User(null);
+        $registry->user = new \Gino\App\Auth\User(null);
       }
     }
   }
@@ -122,11 +123,11 @@ class Access {
 
     /*include_once(PLUGIN_DIR.OS."plugin.ldap.php");
     
-    $ldap = new Ldap($user, $pwd);
+    $ldap = new \Gino\Plugin\Ldap($user, $pwd);
     if(!$ldap->authentication())
       return false;*/
     
-    $user = User::getFromUserPwd($user, $pwd);
+    $user = \Gino\App\Auth\User::getFromUserPwd($user, $pwd);
     if($user) {
       $this->_session->user_id = $user->id;
       $this->_session->user_name = htmlChars($user->firstname.' '.$user->lastname);
@@ -147,11 +148,11 @@ class Access {
    */
   private function logAccess($userid) {
 
-    Loader::import('statistics', 'LogAccess');
+    Loader::import('statistics', '\Gino\App\Statistics\LogAccess');
 
-    date_default_timezone_set('Europe/Rome');
+    \date_default_timezone_set('Europe/Rome');
 
-    $log_access = new LogAccess(null);
+    $log_access = new \Gino\App\Statistics\LogAccess(null);
     $log_access->user_id = $userid;
     $log_access->date = date("Y-m-d H:i:s");
 

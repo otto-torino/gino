@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Registro di gino
@@ -172,7 +173,7 @@ class registry extends singleton {
 		elseif($var == 'meta')
 		{
 			$buffer = '';
-      $already_inserted = array();
+			$already_inserted = array();
 			foreach($this->vars[$var] as $meta)
       {
         if(!in_array($meta, $already_inserted)) {
@@ -188,7 +189,7 @@ class registry extends singleton {
 		elseif($var == 'head_links')
 		{
 			$buffer = '';
-      $already_inserted = array();
+			$already_inserted = array();
 			foreach($this->vars[$var] as $hlink) {
         if(!in_array($hlink, $already_inserted)) {
           $buffer .= "<link"

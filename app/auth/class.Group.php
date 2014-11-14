@@ -8,6 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Auth;
 
 /**
  * \ingroup auth
@@ -18,7 +19,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class Group extends Model {
+class Group extends \Gino\Model {
 
 	public static $table = TBL_GROUP;
 	public static $table_group_user = TBL_GROUP_USER;
@@ -56,7 +57,7 @@ class Group extends Model {
 	 */
 	public static function getList() {
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		
 		$items = array();
 		

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Attached;
 
 require_once('class.attachedItem.php');
 require_once('class.attachedCtg.php');
@@ -18,7 +19,7 @@ require_once('class.attachedCtg.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class attached extends Controller {
+class attached extends \Gino\Controller {
 
   /**
    * @brief titolo del modulo
@@ -72,8 +73,8 @@ class attached extends Controller {
     $this->_pdf_extension = array('pdf');
     $this->_extension = array();
 
-    $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-    $this->_block = cleanVar($_REQUEST, 'block', 'string', '');
+    $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
+    $this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
 
   }
 
@@ -104,8 +105,8 @@ class attached extends Controller {
 	 */
 	public function downloader(){
 
-		$doc_id = cleanVar($_GET, 'id', 'int', '');
-		$db = db::instance();
+		$doc_id = \Gino\cleanVar($_GET, 'id', 'int', '');
+		$db = \Gino\db::instance();
 
 		if($doc_id) {
 
@@ -116,7 +117,7 @@ class attached extends Controller {
 				$filename = $rows[0]['file'];
 				$full_path = $ctg->path('abs').$filename;
 
-				download($full_path);
+				\Gino\download($full_path);
 				exit();
 			}
 		}
@@ -132,7 +133,7 @@ class attached extends Controller {
 
     $this->requirePerm('can_admin');
 
-    Loader::import('class', 'AdminTable');
+    \Gino\Loader::import('class', '\Gino\AdminTable');
 
     $method = 'manageAttached';
     $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=ctg\">"._("Categorie")."</a>";
@@ -140,8 +141,8 @@ class attached extends Controller {
     $sel_link = $link_dft;
 
     // Variables
-    $id = cleanVar($_GET, 'id', 'int', '');
-    $start = cleanVar($_GET, 'start', 'int', '');
+    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
+    $start = \Gino\cleanVar($_GET, 'start', 'int', '');
     // end
 
     if($this->_block == 'ctg') {
@@ -159,7 +160,7 @@ class attached extends Controller {
       'content' => $buffer
     );
 
-    $view = new view(null, 'tab');
+    $view = new \Gino\View(null, 'tab');
     return $view->render($dict);
 
   }
@@ -225,7 +226,7 @@ class attached extends Controller {
    */
   public function editorList() {
 
-    $myform = Loader::load('Form', array('attached_list', 'post', false, array('tblLayout'=>false)));
+    $myform = \Gino\Loader::load('Form', array('attached_list', 'post', false, array('tblLayout'=>false)));
 
     $ctgs = attachedCtg::getForSelect($this);
 
@@ -267,7 +268,7 @@ class attached extends Controller {
    */
   public function editorAttachedList() {
 
-    $ctg_id = cleanVar($_POST, 'ctg_id', 'int', '');
+    $ctg_id = \Gino\cleanVar($_POST, 'ctg_id', 'int', '');
 
     if($ctg_id) {
       $where = "category='$ctg_id'";
@@ -347,8 +348,6 @@ class attached extends Controller {
       echo json_encode($images);
       exit;
   }
-  
-
 }
 
 ?>

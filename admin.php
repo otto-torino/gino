@@ -7,7 +7,6 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-
 define('SITE_ROOT', realpath(dirname(__FILE__)));
 
 // Per compatibilità con l'ambiente Windows (-> $_SERVER['DOCUMENT_ROOT'] termina con '/')

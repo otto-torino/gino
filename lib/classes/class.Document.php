@@ -7,6 +7,10 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
+use \Gino\App\SysClass\ModuleApp;
+use \Gino\App\Module\ModuleInstance;
+use \Gino\App\Page\page;
 
 /**
  * @brief Libreria che si preoccupa di costruire la pagina richiesta e di stamparla utilizzando il metodo render()
@@ -41,8 +45,8 @@ class Document {
     $this->_db = db::instance();
     $this->session = session::instance();
 
-    loader::import('sysClass', 'ModuleApp');
-    loader::import('module', 'ModuleInstance');
+    loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    loader::import('module', '\Gino\App\Module\ModuleInstance');
     
     $this->_plink = new link();
     $this->_tbl_module_app = 'sys_module_app';
@@ -65,12 +69,12 @@ class Document {
    */
   public function render() {
 
-    loader::import('class', 
+    Loader::import('class', 
       array(
-        'Skin',
-        'Template',
-        'Css',
-        'Javascript'
+        '\Gino\Skin',
+        '\Gino\Template',
+        '\Gino\Css',
+        '\Gino\Javascript'
       )
     );
 
@@ -92,7 +96,7 @@ class Document {
     $cache = new OutputCache($buffer, $skinObj->cache ? true : false);
     if($cache->start('skin', $query_string.$this->session->lng.$skinObj->id, $skinObj->cache)) {
 
-      $tplObj = loader::load('Template', array($skinObj->template));
+      $tplObj = Loader::load('Template', array($skinObj->template));
       $template = TPL_DIR.OS.$tplObj->filename;
 
       if($tplObj->free) {
@@ -177,7 +181,7 @@ class Document {
     $this->_registry->addCss(CSS_WWW."/slimbox.css");
     
     if($skinObj->css) {
-      $cssObj = loader::load('Css', array('layout', array('id'=>$skinObj->css)));
+      $cssObj = Loader::load('Css', array('layout', array('id'=>$skinObj->css)));
       $this->_registry->addCss(CSS_WWW."/".$cssObj->filename);
     }
     
@@ -196,7 +200,7 @@ class Document {
 
   private function headLine($skinObj) {
 
-    loader::import('class', 'Javascript');
+    Loader::import('class', '\Gino\Javascript');
     
     $evt = $this->getEvent();
     $instance = is_null($evt) ? null : $evt[1];
@@ -303,42 +307,46 @@ class Document {
     return $mdlContent;
   }
   
-  /**
-   * Elemento pagina
-   * 
-   * @see page::box()
-   * @param integer $mdlId valore ID della pagina
-   * @return string
-   */
-  private function modPage($mdlId){
+	/**
+	 * Elemento pagina
+	 * 
+	 * @see page::box()
+	 * @param integer $mdlId valore ID della pagina
+	 * @return string
+	 */
+	private function modPage($mdlId){
 
-    if(isset($this->_outputs['page-'.$mdlId])) {
-      return $this->_outputs['page-'.$mdlId];
-    }
+		if(isset($this->_outputs['page-'.$mdlId])) {
+			return $this->_outputs['page-'.$mdlId];
+		}
+		
+		if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
+		{
+			Loader::import('page', '\Gino\App\Page\page');	//////////
+			$this->_instances['page'] = new page();
+		}
 
-    if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
-      $this->_instances['page'] = new page();
+		$page = $this->_instances['page'];
+		$this->_outputs['page-'.$mdlId] = $page->box($mdlId);
+		return $this->_outputs['page-'.$mdlId];
+	}
 
-    $page = $this->_instances['page'];
-    $this->_outputs['page-'.$mdlId] = $page->box($mdlId);
-    return $this->_outputs['page-'.$mdlId];
+	private function modClass($mdlId, $mdlFunc, $mdlType){
 
-  }
+		if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
+			return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
+		}
 
-  private function modClass($mdlId, $mdlFunc, $mdlType){
+		$obj = $mdlType=='sysclass' ? new ModuleApp($mdlId) : new ModuleInstance($mdlId);
+	
+		$class_ns = $obj->className();	//////////
+		Loader::import('menu', $class_ns);	//////////
+		
+		$class_name = get_name_class($class_ns);
 
-    if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
-      return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
-    }
-
-    $obj = $mdlType=='sysclass'
-      ? new ModuleApp($mdlId)
-      : new ModuleInstance($mdlId);
-    $class_name = $obj->className();
-
-    if(!isset($this->_instances[$class_name."_".$mdlId]) || !is_object($this->_instances[$class_name."_".$mdlId])) {
-      $this->_instances[$class_name."_".$mdlId] = new $class_name($mdlId);
-    }
+		if(!isset($this->_instances[$class_name."_".$mdlId]) || !is_object($this->_instances[$class_name."_".$mdlId])) {
+			$this->_instances[$class_name."_".$mdlId] = new $class_ns($mdlId);
+		}
 
     $classObj = $this->_instances[$class_name."_".$mdlId];		
     $ofs = call_user_func(array($classObj, 'outputFunctions'));
@@ -423,8 +431,8 @@ class Document {
 
   private function getEvent() {
 
-    Loader::import('sysClass', 'ModuleApp');
-    Loader::import('module', 'ModuleInstance');
+    Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    Loader::import('module', '\Gino\App\Module\ModuleInstance');
 
     $evtKey = isset($_GET[EVT_NAME])
       ? is_array($_GET[EVT_NAME])
@@ -440,30 +448,35 @@ class Document {
 
     $module_app = ModuleApp::getFromName($mdl);
     $module = ModuleInstance::getFromName($mdl);
-
-    if(is_dir(APP_DIR.OS.$mdl) && class_exists($mdl) && $module_app && !$module_app->instantiable) {
+    
+		if(is_dir(APP_DIR.OS.$mdl) && class_exists($mdl) && $module_app && !$module_app->instantiable) {
       
-      $mdlId = $module_app->id;
-      $class = $module_app->className();
+    		$mdlId = $module_app->id;
+			$class = $module_app->className();
+			
+			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
+				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
 
-      if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
-        $this->_instances[$class."_".$mdlId] = new $class($mdlId);
+			$instance = $this->_instances[$class."_".$mdlId];
+		}
+		elseif(class_exists($module->className())) {
+			$mdlId = $module->id;
+			$class = $module->className();
+			
+			/*$class_ns = $obj->className();	//////////
+			Loader::import('menu', $class_ns);	//////////
+			
+			$class_name = get_name_class($class_ns);
+			*/
+			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId]))
+				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
 
-      $instance = $this->_instances[$class."_".$mdlId];
-    }
-    elseif(class_exists($module->className())) {
-      $mdlId = $module->id;
-      $class = $module->className();
-      
-      if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
-        $this->_instances[$class."_".$mdlId] = new $class($mdlId);
-
-      $instance = $this->_instances[$class."_".$mdlId];
-    }
-    else { $class=null; $instance=null; }
-
-    return array($class, $instance, $function);
-  }
+			$instance = $this->_instances[$class."_".$mdlId];
+		}
+		else { $class=null; $instance=null; }
+		
+		return array($class, $instance, $function);
+	}
 
   private function google_analytics(){
     

@@ -7,8 +7,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
-loader::import('class/fields', 'Field');
+loader::import('class/fields', '\Gino\Field');
 
 /**
  * @brief Campo di tipo many to many con associazione attraverso un modello (estensione)
@@ -52,7 +53,7 @@ class ManyToManyThroughField extends Field {
 		$this->_label = $this->_model->fieldLabel($this->_name);
 		$this->_table = $this->_model->getTable();
 
-    $this->_default_widget = 'multicheck';
+		$this->_default_widget = 'multicheck';
 		$this->_value_type = 'array';
 
     $this->_controller = $options['controller'];

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Module;
 
 require_once('class.ModuleInstance.php');
 
@@ -19,7 +20,7 @@ require_once('class.ModuleInstance.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class module extends Controller {
+class module extends \Gino\Controller {
 
   private $_action;
 
@@ -27,29 +28,28 @@ class module extends Controller {
 
     parent::__construct();
 
-    $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
+    $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
 
   }
 
   /**
    * Interfaccia amministrativa per la gestione dei moduli
    * 
-   * @see $_access_2
    * @return string
    */
   public function manageModule(){
 
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_GET, 'id', 'int', '');
-    $block = cleanVar($_GET, 'block', 'string', null);
+    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
+    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
 
     $module = new ModuleInstance($id);
 
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageModule]\">"._("Gestione istanze")."</a>";
     $sel_link = $link_dft;
 
-    $action = cleanVar($_GET, 'action', 'string', null);
+    $action = \Gino\cleanVar($_GET, 'action', 'string', null);
     if(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
       if(isset($_GET['save']) and $_GET['save'] == '1') {
         $this->_trd->actionTranslation();
@@ -73,7 +73,7 @@ class module extends Controller {
       $GINO = $this->listModule();
     }
  
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('tab');
     $dict = array(
       'title' => _('Moduli istanziabili'),
@@ -83,7 +83,6 @@ class module extends Controller {
     );
 
     return $view->render($dict);
-
   }
 
   /**
@@ -98,13 +97,13 @@ class module extends Controller {
 
     $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&amp;action=insert\">".pub::icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
 
-    $view_table = new view();
+    $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
 
     $modules = ModuleInstance::get(array('order' => 'label'));
 
     if(count($modules)) {
-      loader::import('sysClass', 'ModuleApp');
+      \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
       $GINO = "<p class=\"backoffice-info\">"._('Di seguito l\'elenco di tutte le istanze di moduli presenti nel sistema. Cliccare l\'icona di modifica per cambiare l\'etichetta e la descrizione del modulo. In caso di eliminazione tutti i dati ed i file verrano cancellati definitivamente.')."</p>";
       $heads = array(
         _('id'),
@@ -115,8 +114,8 @@ class module extends Controller {
       );
       $tbl_rows = array();
       foreach($modules as $module) {
-        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".pub::icon('modify')."</a>";
-        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".pub::icon('delete')."</a>";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".\Gino\Pub::icon('modify')."</a>";
+        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".\Gino\Pub::icon('delete')."</a>";
         $module_app = $module->moduleApp();
         $tbl_rows[] = array(
           $module->id,
@@ -137,7 +136,7 @@ class module extends Controller {
       $GINO = _('Non risultano istanze di moduli di sistema.');
     }
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco moduli installati'),
@@ -157,7 +156,7 @@ class module extends Controller {
    */
   private function formRemoveModule($module) {
     
-    $gform = Loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = "<p class=\"lead\">"._("Attenzione! L'eliminazione del modulo comporta l'eliminazione di tutti i dati!")."</p>\n";
@@ -168,7 +167,7 @@ class module extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Eliminazione istanza "%s"'), $module->label),
@@ -182,13 +181,13 @@ class module extends Controller {
   /**
    * Eliminazione di un modulo
    * 
-   * @see $_access_2
+   * 
    */
   public function actionRemoveModule() {
 
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $module = new ModuleInstance($id);
 
     $class = $module->className();
@@ -201,8 +200,7 @@ class module extends Controller {
     $module->deleteDbData();
     $this->_trd->deleteTranslations(TBL_MODULE, $id);
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
-
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
   }
 
   /**
@@ -218,11 +216,11 @@ class module extends Controller {
     $class_elements = $class::getClassElements();
     // delete css
     foreach($class_elements['css'] as $css) {
-      @unlink(APP_DIR.OS.$class.OS.baseFileName($css)."_".$module->name.".css");
+      @unlink(APP_DIR.OS.$class.OS.\Gino\baseFileName($css)."_".$module->name.".css");
     }
     // delete views
     foreach($class_elements['views'] as $view => $description) {
-      @unlink(APP_DIR.OS.$class.OS.'views'.OS.baseFileName($view)."_".$module->name.".php");
+      @unlink(APP_DIR.OS.$class.OS.'views'.OS.\Gino\baseFileName($view)."_".$module->name.".php");
     }
     // delete contents
     foreach($class_elements['folderStructure'] as $fld=>$fldStructure) {
@@ -238,24 +236,24 @@ class module extends Controller {
    */
   private function formModule($module) {
 
-    loader::import('sysClass', 'ModuleApp');
+    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
     $module_app = $module->moduleApp();
-    $modules_app = ModuleApp::get(array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
+    $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
 
-    $gform = loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id)));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id)));
     $gform->load('dataform');
 
     $required = 'name,label';
     $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionModule]", '', $required);
     $GINO .= $gform->hidden('id', $module->id);
-    $GINO .= $gform->cselect('module_app', $gform->retvar('module_app', $module_app->id), ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
+    $GINO .= $gform->cselect('module_app', $gform->retvar('module_app', $module_app->id), \Gino\App\SysClass\ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
     $GINO .= $gform->cinput('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
     $GINO .= $gform->cinput('label', 'text', $gform->retvar('label', $module->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
     $GINO .= $gform->ctextarea('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
     $GINO .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module->id ? sprintf(_('Modifica istanza "%s"'), $module->label) : _('Nuova istanza'),
@@ -269,7 +267,7 @@ class module extends Controller {
   public function actionModule() {
 
     $this->requirePerm('can_admin');
-    $id = cleanVar($_POST, 'id', 'int', null);
+    $id = \Gino\cleanVar($_POST, 'id', 'int', null);
     $module = new ModuleInstance($id);
 
     if($module->id) {
@@ -279,30 +277,28 @@ class module extends Controller {
       $this->actionInsertModule();
     }
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
-
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
   }
 
   /**
    * Inserimento di un nuovo modulo
    * 
-   * @see $_access_2
    */
   private function actionInsertModule() {
 
-    loader::import('sysClass', 'ModuleApp');
+    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
 
-    $gform = loader::load('Form', array('gform','post', true));
+    $gform = \Gino\Loader::load('Form', array('gform','post', true));
     $gform->save('dataform');
     $req_error = $gform->arequired();
 
-    $name = cleanVar($_POST, 'name', 'string', '');
-    $module_app_id = cleanVar($_POST, 'module_app', 'string', '');
-    $label = cleanVar($_POST, 'label', 'string', '');
-    $description = cleanVar($_POST, 'description', 'string', '');
+    $name = \Gino\cleanVar($_POST, 'name', 'string', '');
+    $module_app_id = \Gino\cleanVar($_POST, 'module_app', 'string', '');
+    $label = \Gino\cleanVar($_POST, 'label', 'string', '');
+    $description = \Gino\cleanVar($_POST, 'description', 'string', '');
 
     $module = new ModuleInstance(null);
-    $module_app = new ModuleApp($module_app_id);
+    $module_app = new \Gino\App\SysClass\ModuleApp($module_app_id);
 
     $link_error = $this->_home."?evt[$this->_class_name-manageModule]&action=insert";
 
@@ -329,7 +325,7 @@ class module extends Controller {
 
       $css_content = file_get_contents(APP_DIR.OS.$class.OS.$css_file);
 
-      $base_css_name = baseFileName($css_file);
+      $base_css_name = \Gino\baseFileName($css_file);
 
       if(!($fo = @fopen(APP_DIR.OS.$class.OS.$base_css_name.'_'.$name.'.css', 'wb'))) {
         exit(error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
@@ -350,7 +346,7 @@ class module extends Controller {
 
       $view_content = file_get_contents(APP_DIR.OS.$class.OS.'views'.OS.$view_file);
 
-      $base_view_name = baseFileName($view_file);
+      $base_view_name = \Gino\baseFileName($view_file);
 
       if(!($fo = @fopen(APP_DIR.OS.$class.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
         exit(error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
@@ -398,25 +394,24 @@ class module extends Controller {
   /**
    * Modifica di un modulo
    * 
-   * @see $_access_2
    */
   private function actionEditModule() {
 
-    $gform = Loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->save('dataform');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $module = new ModuleInstance($id);
 
     $link_error = $this->_home."?evt[$this->_class_name-manageModule]&id=$id&action=modify";
 
-    $label = cleanVar($_POST, 'label', 'string', '');
+    $label = \Gino\cleanVar($_POST, 'label', 'string', '');
     if(!$label) {
       exit(error::errorMessage(array('error'=>1), $link_error));
     }
 
     $module->label = $label;
-    $module->description = cleanVar($_POST, 'description', 'string', '');
+    $module->description = \Gino\cleanVar($_POST, 'description', 'string', '');
 
     return $module->updateDbData();
 
@@ -430,7 +425,7 @@ class module extends Controller {
    */
   private function formActivateModule($module) {
     
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = '';
@@ -444,7 +439,7 @@ class module extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module->active ? _('Disattivazione') : _('Attivazione'),
@@ -462,14 +457,14 @@ class module extends Controller {
 
     $this->require_pem('can_admin');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
 
     $module = new ModuleInstance($id);
 
     $module->active = $module->active ? 0 : 1;
     $module->updateDbData();
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
   }
 }
 ?>

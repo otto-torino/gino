@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\Plugin;
 
 /**
  * @brief Libreria di connessione ai database SQL Server
@@ -25,7 +26,7 @@
  * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
  * 
  */
-class mssql implements DbManager {
+class mssql implements \Gino\DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;

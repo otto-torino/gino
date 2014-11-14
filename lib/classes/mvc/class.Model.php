@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Contiene i metodi utilizzati da ogni classe che abbia proprietà definite sul database
@@ -72,11 +73,10 @@
 	 */
 	protected $_fields_label=array();
 	protected $_p, $_chgP = array();
-  protected $_m2m = array(),
-            $_m2mt = array();
+	protected $_m2m = array(), $_m2mt = array();
 
-  protected $_is_constraint = array();
-  protected $_check_is_constraint = true;
+	protected $_is_constraint = array();
+	protected $_check_is_constraint = true;
 	
 	protected $_lng_dft, $_lng_nav;
 	private $_trd;
@@ -89,24 +89,23 @@
 	 */
 	function __construct($id) {
 
-    $this->_registry = registry::instance();
-    $session = $this->_registry->session;
-	  $this->_db = $this->_registry->db;
+		$this->_registry = registry::instance();
+		$session = $this->_registry->session;
+		$this->_db = $this->_registry->db;
 		$this->_lng_dft = $session->lngDft;
 		$this->_lng_nav = $session->lng;
 		$this->_structure = $this->structure($id);
 		$this->_p['instance'] = null;
 
-    $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
-
+		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
 	}
 	
  	public function __toString() {
 
 		return $this->id;
 	}
-
-	public function fieldLabel($field) {
+	
+ 	public function fieldLabel($field) {
 
 		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
 	}
@@ -511,11 +510,11 @@
 	 */
  	public function structure($id) {
 
-    if(!$this->_tbl_data) {
-      exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
-    }
-
-    loader::import('class', array('Cache'));
+		if(!$this->_tbl_data) {
+			exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
+		}
+		
+		Loader::import('class', array('\Gino\Cache'));
  		if($id)
 		{
 			$records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
@@ -608,9 +607,9 @@
    * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
    * metodo modelAction di AdminTable
    */
-  public function updateStructure() {
-    $this->_structure = $this->structure($this->id);
-  }
+	public function updateStructure() {
+		$this->_structure = $this->structure($this->id);
+	}
 	
  	/**
 	 * Uniforma il tipo di dato di un campo definito dal metodo DbManager::getTableStructure() 

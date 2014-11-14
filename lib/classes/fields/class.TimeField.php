@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Campo di tipo TIME
@@ -18,7 +19,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class timeField extends field {
+class TimeField extends Field {
 
 	/**
 	 * Costruttore

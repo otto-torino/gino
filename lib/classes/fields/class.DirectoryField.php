@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Campo di tipo DIRECTORY
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class directoryField extends field {
+class directoryField extends Field {
 
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo

@@ -7,8 +7,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
-loader::import('class/fields', 'Field');
+loader::import('class/fields', '\Gino\Field');
 
 /**
  * @brief Campo di tipo chiave esterna (estensione)
@@ -20,7 +21,7 @@ loader::import('class/fields', 'Field');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ForeignKeyField extends field {
+class ForeignKeyField extends Field {
 
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo

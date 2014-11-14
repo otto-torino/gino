@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Campo di tipo nascosto (estensione)
@@ -17,7 +18,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class hiddenField extends field {
+class HiddenField extends Field {
 
 	/**
 	 * Costruttore

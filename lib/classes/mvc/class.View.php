@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Gestisce le viste, impostando il template e ritornando l'output
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class view {
+class View {
 	
 	/**
 	 * oggetto che contiene il context della view 
@@ -49,14 +50,14 @@ class view {
 	 */
 	function __construct($view_folder=null, $tpl = null) {
 
-		$this->_data = new stdClass();
+		$this->_data = new \stdClass();
 		$this->_registry = registry::instance();
 		$this->_view_folder = $view_folder;
 		$this->_dft_view_folder = VIEWS_DIR;
-
-    if($tpl) {
-      $this->setViewTpl($tpl);
-    }
+		
+		if($tpl) {
+			$this->setViewTpl($tpl);
+		}
 	}
 
 	/**
@@ -103,12 +104,12 @@ class view {
 
 		$buffer = '';
 
-    if($data) {
-      foreach($data as $k => $v) $$k = $v;
-    }
-    else {
-		  foreach($this->_data as $k=>$v) $$k=$v;
-    }
+		if($data) {
+			foreach($data as $k => $v) $$k = $v;
+		}
+		else {
+			foreach($this->_data as $k=>$v) $$k=$v;
+		}
 
 		ob_start();
 		include($this->_view_tpl);

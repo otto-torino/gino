@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Campo di tipo nascosto che mostra anche il valore corrispondente senza input
@@ -17,7 +18,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class constantField extends field {
+class constantField extends Field {
 
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo

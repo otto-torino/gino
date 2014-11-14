@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Auth;
 
 require_once('class.User.php');
 require_once('class.Group.php');
@@ -35,7 +36,7 @@ require_once('class.AdminTable_AuthUser.php');
  * 
  * 
  */
-class auth extends Controller {
+class auth extends \Gino\Controller {
 	
 	private $_options;
 	public $_optionsLabels;
@@ -57,7 +58,7 @@ class auth extends Controller {
 		$this->_instance = 0;
 		$this->_instanceName = $this->_class_name;
 
-		$this->_title = htmlChars($this->setOption('title', true));
+		$this->_title = \Gino\htmlChars($this->setOption('title', true));
 		$this->_users_for_page = $this->setOption('users_for_page');
 		$this->_user_more = $this->setOption('user_more_info');
 		$this->_user_view = $this->setOption('user_card_view');
@@ -71,7 +72,7 @@ class auth extends Controller {
 		$this->_pwd_length_max = $this->setOption('pwd_max_length');
 		$this->_pwd_numeric_number = $this->setOption('pwd_numeric_number');
 		
-		$this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
+		$this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
 		$this->_optionsLabels = array(
 			"title"=>_("Titolo"), 
 			"users_for_page"=>_("Utenti per pagina"),
@@ -128,9 +129,9 @@ class auth extends Controller {
 				'auth_user_perm',
 				'auth_user_registration'
 			),
-      'views' => array(
-        'login.php' => _('Login area privata/amministrativa')
-      ),
+			'views' => array(
+				'login.php' => _('Login area privata/amministrativa')
+			),
 			"folderStructure"=>array (
 				CONTENT_DIR.OS.'user'=> null
 			)
@@ -184,8 +185,8 @@ class auth extends Controller {
 
 		$this->requirePerm('can_admin');
 
-		$block = cleanVar($_GET, 'block', 'string', null);
-		$op = cleanVar($_GET, 'op', 'string', null);
+		$block = \Gino\cleanVar($_GET, 'block', 'string', null);
+		$op = \Gino\cleanVar($_GET, 'op', 'string', null);
 
 		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=frontend\">"._("Frontend")."</a>";
 		$link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=options\">"._("Opzioni")."</a>";
@@ -193,7 +194,6 @@ class auth extends Controller {
 		$link_perm = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=perm\">"._("Permessi")."</a>";
 		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageAuth]\">"._("Utenti")."</a>";
 		$sel_link = $link_dft;
-
 
 		if($block == 'frontend') {
 			$content = $this->manageFrontend();
@@ -237,7 +237,7 @@ class auth extends Controller {
 			'content' => $content
 		);
 
-		$view = new view(null, 'tab');
+		$view = new \Gino\View(null, 'tab');
 		$view->setViewTpl('tab');
 
 		return $view->render($dict);
@@ -251,7 +251,7 @@ class auth extends Controller {
 	 */
 	private function manageUser() {
 		
-		//Loader::import('class', 'AdminTable');
+		//Loader::import('class', '\Gino\AdminTable');
 		
 		$info = _("Elenco degli utenti del sistema.");
 		$link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=user";
@@ -280,8 +280,8 @@ class auth extends Controller {
 		
 		 */
 		
-		$id = cleanVar($_GET, 'id', 'int', '');
-		$edit = cleanVar($_GET, 'edit', 'int', '');
+		$id = \Gino\cleanVar($_GET, 'id', 'int', '');
+		$edit = \Gino\cleanVar($_GET, 'edit', 'int', '');
 		
 		if($id && $edit)	// modify
 		{
@@ -297,7 +297,7 @@ class auth extends Controller {
 			$onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
 			$check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
 
-			$gform = Loader::load('Form', array('', '', ''));
+			$gform = \Gino\Loader::load('Form', array('', '', ''));
 			$check_username = $gform->cinput('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
 			$check_email = $gform->cinput('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
 			
@@ -401,7 +401,7 @@ class auth extends Controller {
 	 */
 	public function checkUsername() {
 
-		$username = cleanVar($_POST, 'username', 'string', '');
+		$username = \Gino\cleanVar($_POST, 'username', 'string', '');
 
 		if(empty($username)) {echo "<span style=\"font-weight:bold\">"._("Inserire uno username!")."</span>"; exit();}
 
@@ -439,7 +439,7 @@ class auth extends Controller {
 		
 		if(isset($_POST['submit_action']))
 		{
-			$user_id = cleanVar($_POST, 'id', 'int', '');
+			$user_id = \Gino\cleanVar($_POST, 'id', 'int', '');
 			$obj_user = new User($user_id);
 			
 			$action_result = $obj_user->savePassword(array(
@@ -457,8 +457,8 @@ class auth extends Controller {
             }
 		}
 		
-		$user_id = cleanVar($_GET, 'ref', 'int', '');
-		$change = cleanVar($_GET, 'c', 'int', '');
+		$user_id = \Gino\cleanVar($_GET, 'ref', 'int', '');
+		$change = \Gino\cleanVar($_GET, 'c', 'int', '');
 		
 		$obj_user = new User($user_id);
 		
@@ -475,7 +475,7 @@ class auth extends Controller {
 			'content' => $content
 		);
 
-		$view = new view();
+		$view = new \Gino\View();
 		$view->setViewTpl('section');
 
 		return $view->render($dict);
@@ -490,11 +490,11 @@ class auth extends Controller {
 			'list_display' => array('id', 'name', 'description'),
 			'list_description' => $info, 
 			'add_buttons' => array(
-				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jgp", 'param_id'=>'ref')
+				array('label'=>\Gino\pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jgp", 'param_id'=>'ref')
 			)
 		);
 		
-		$admin_table = loader::load('AdminTable', array(
+		$admin_table = \Gino\Loader::load('AdminTable', array(
 			$this
 		));
 
@@ -511,7 +511,7 @@ class auth extends Controller {
 			'list_description' => $info
 		);
 		
-		$admin_table = loader::load('AdminTable', array(
+		$admin_table = \Gino\Loader::load('AdminTable', array(
             $this,
             array('allow_insertion' => false, 'edit_deny' => 'all', 'delete_deny' => 'all')
 		));
@@ -549,13 +549,13 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_GET, 'ref', 'int', '');
+		$id = \Gino\cleanVar($_GET, 'ref', 'int', '');
 		if(!$id) return null;
 		
 		$obj_user = new User($id);
 		$checked = $obj_user->getPermissions();
 		
-		$gform = loader::load('Form', array('j_userperm', 'post', false));
+		$gform = \Gino\Loader::load('Form', array('j_userperm', 'post', false));
 		
 		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserPermission]';
 		
@@ -571,7 +571,7 @@ class auth extends Controller {
 			'content' => $content
 		);
 
-		$view = new view();
+		$view = new \Gino\View();
 		$view->setViewTpl('section');
 
 		return $view->render($dict);
@@ -593,7 +593,7 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_POST, 'id', 'integer', '');
+		$id = \Gino\cleanVar($_POST, 'id', 'integer', '');
 		if(!$id) return null;
 		
 		$perm = $_POST['perm'];
@@ -655,13 +655,13 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_GET, 'ref', 'int', '');
+		$id = \Gino\cleanVar($_GET, 'ref', 'int', '');
 		if(!$id) return null;
 		
 		$obj_group = new Group($id);
 		$checked = $obj_group->getPermissions();
 		
-		$gform = loader::load('Form', array('j_groupperm', 'post', false));
+		$gform = \Gino\Loader::load('Form', array('j_groupperm', 'post', false));
 		
 		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinGroupPermission]';
 		
@@ -677,7 +677,7 @@ class auth extends Controller {
 			'content' => $content
 		);
 
-		$view = new view();
+		$view = new \Gino\View();
 		$view->setViewTpl('section');
 
 		return $view->render($dict);
@@ -699,7 +699,7 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_POST, 'id', 'integer', '');
+		$id = \Gino\cleanVar($_POST, 'id', 'integer', '');
 		if(!$id) return null;
 		
 		$perm = $_POST['perm'];
@@ -761,13 +761,13 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_GET, 'ref', 'int', '');
+		$id = \Gino\cleanVar($_GET, 'ref', 'int', '');
 		if(!$id) return null;
 		
 		$obj_user = new User($id);
 		$checked = $obj_user->getGroups();
 		
-		$gform = loader::load('Form', array('j_usergroup', 'post', false));
+		$gform = \Gino\Loader::load('Form', array('j_usergroup', 'post', false));
 		
 		$form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]';
 		
@@ -783,7 +783,7 @@ class auth extends Controller {
 			'content' => $content
 		);
 
-		$view = new view();
+		$view = new \Gino\View();
 		$view->setViewTpl('section');
 
 		return $view->render($dict);
@@ -804,7 +804,7 @@ class auth extends Controller {
 		
 		// PERM
 		
-		$id = cleanVar($_POST, 'id', 'integer', '');
+		$id = \Gino\cleanVar($_POST, 'id', 'integer', '');
 		if(!$id) return null;
 		
 		$group = $_POST['group'];
@@ -954,7 +954,7 @@ class auth extends Controller {
 			else exit(error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface));
 		}
 
-		$gform = loader::load('Form', array('login', 'post', true));
+		$gform = \Gino\Loader::load('Form', array('login', 'post', true));
 		
 		$form = $gform->open($link_interface, false, '');
 		$form .= $gform->hidden('action', 'auth');
@@ -965,12 +965,11 @@ class auth extends Controller {
 		$form .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
 		$form .= $gform->close();
 
-    $view = new View($this->_view_dir, 'login');
-    $dict = array(
-      'form' => $form,
-      'title' => _('Login')
-    );
-    return $view->render($dict);
-		
+		$view = new \Gino\View($this->_view_dir, 'login');
+		$dict = array(
+			'form' => $form,
+			'title' => _('Login')
+		);
+		return $view->render($dict);
 	}
 }

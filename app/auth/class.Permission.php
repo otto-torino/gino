@@ -8,7 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-
+namespace Gino\App\Auth;
 
 /**
  * I permessi sono relativi ad una classe.
@@ -41,7 +41,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class Permission extends Model {
+class Permission extends \Gino\Model {
 
   public static $table = TBL_PERMISSION;
   public static $table_perm_user = TBL_USER_PERMISSION;
@@ -60,7 +60,7 @@ class Permission extends Model {
     parent::__construct($id);
   }
 
-  function __toString() {
+	function __toString() {
 		return $this->label;
 	}
 	
@@ -79,9 +79,9 @@ class Permission extends Model {
 
 		$structure = parent::structure($id);
 
-		$structure['admin'] = new BooleanField(array(
+		$structure['admin'] = new \Gino\BooleanField(array(
 			'name'=>'admin', 
-      'model'=>$this,
+			'model'=>$this,
 			'required'=>true,
 			'enum'=>array(1 => _('si'), 0 => _('no')), 
 			'default'=>0,
@@ -101,7 +101,7 @@ class Permission extends Model {
     $class = $matches[1];
     $perm_code = $matches[2];
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$table, "class='$class' AND code='$perm_code'");
     if($rows and count($rows)) {
       return new Permission($rows[0]['id']);
@@ -112,14 +112,14 @@ class Permission extends Model {
 
   private static function getGroupedPermissions() {
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
 
     $res = array();
 
     $rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
     foreach($rows as $row) {
       $class = $row['class'];
-      $module_app = ModuleApp::getFromName($class);
+      $module_app = \Gino\App\SysClass\ModuleApp::getFromName($class);
       if($class === 'core' or !$module_app->instantiable) {
         if($class === 'core' or $module_app->active) {
           if(!isset($res[$class.',0'])) {
@@ -129,7 +129,7 @@ class Permission extends Model {
         }
       }
       else {
-        $modules = ModuleInstance::getFromModuleApp($module_app->id);
+        $modules = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
         foreach($modules as $module) {
           if($module->active) {
             if(!isset($res[$module->name.','.$module->id])) {
@@ -146,8 +146,8 @@ class Permission extends Model {
 
   public static function getForMulticheck() {
 
-    Loader::import('sysClass', 'ModuleApp');
-    Loader::import('module', 'ModuleInstance');
+    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
 
     $res = array();
     $grouped_permissions = self::getGroupedPermissions();
@@ -155,7 +155,7 @@ class Permission extends Model {
       preg_match("#(.*?),(\d*)#", $k, $matches);
       // instantiable module
       if(isset($matches[2]) and $matches[2] != 0) {
-        $module = ModuleInstance::getFromName($matches[1]);
+        $module = \Gino\App\Module\ModuleInstance::getFromName($matches[1]);
         foreach($perms as $p) {
           $res[$p->id.','.$matches[2]] = $module->label.' - '.$p->label;
         }
@@ -165,7 +165,7 @@ class Permission extends Model {
           $label = 'Sistema';
         }
         else {
-          $module = ModuleApp::getFromName($matches[1]);
+          $module = \Gino\App\SysClass\ModuleApp::getFromName($matches[1]);
           $label = $module->label;
         }
         foreach($perms as $p) {
@@ -188,7 +188,7 @@ class Permission extends Model {
 	 */
 	public static function getList() {
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		
 		$items = array();
 		
@@ -202,7 +202,7 @@ class Permission extends Model {
 				$p_label = $p['label'];
 				$p_description = $p['description'];
 				
-				$module_app = ModuleApp::getFromName($p_class);
+				$module_app = \Gino\App\SysClass\ModuleApp::getFromName($p_class);
 				
 				if($p_class === 'core' or !$module_app->instantiable)
 				{	
@@ -237,7 +237,7 @@ class Permission extends Model {
 				}
 				else
 				{
-					$modules = ModuleInstance::getFromModuleApp($module_app->id);
+					$modules = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
 					
 					foreach($modules as $module)
 					{
@@ -264,6 +264,4 @@ class Permission extends Model {
 		
 		return $items;
 	}
-
-
 }

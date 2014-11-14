@@ -7,8 +7,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
-loader::import('class/fields', array('Field', 'FileField'));
+loader::import('class/fields', array('\Gino\Field', '\Gino\FileField'));
 
 /**
  * @brief Campo di tipo IMMAGINE (estensione)

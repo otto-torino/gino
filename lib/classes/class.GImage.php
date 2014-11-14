@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 define('GIMAGE_DIR', CONTENT_DIR.OS.'gimage');
 

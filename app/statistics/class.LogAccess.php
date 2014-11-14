@@ -1,6 +1,7 @@
 <?php
+namespace Gino\App\Statistics;
 
-class LogAccess extends Model {
+class LogAccess extends \Gino\Model {
 
   public static $table = TBL_LOG_ACCESS;
 
@@ -11,19 +12,19 @@ class LogAccess extends Model {
 
   public static function getCountForUser($user_id) {
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     return $db->getNumRecords(self::$table, "user_id='$user_id'");
 
   }
 
   public static function get($options = array()) {
 
-    $where = gOpt('where', $options, null);
-    $order = gOpt('order', $options, null);
+    $where = \Gino\gOpt('where', $options, null);
+    $order = \Gino\gOpt('order', $options, null);
 
     $res = array();
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$table, $where, array('order' => $order));
     if($rows and count($rows)) {
       foreach($rows as $row) {
@@ -39,7 +40,7 @@ class LogAccess extends Model {
 
     $res = null;
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$table, "user_id='$user_id'", array('order'=>'date DESC', 'limit' => array(1, 1)));
     if($rows and count($rows)) {
       $res = new LogAccess($rows[0]['id']);

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\Plugin;
 
 /**
  * @brief Libreria di connessione ai database SQL Server
@@ -28,7 +29,7 @@
  * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
  * 
  */
-class sqlsrv implements DbManager {
+class sqlsrv implements \Gino\DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;
@@ -567,8 +568,8 @@ class sqlsrv implements DbManager {
 	 */
 	public function distinct($fields, $options=array()) {
 		
-		$alias = gOpt('alias', $options, null);
-		$remove_table = gOpt('remove_table', $options, true);
+		$alias = \Gino\gOpt('alias', $options, null);
+		$remove_table = \Gino\gOpt('remove_table', $options, true);
 		
 		if(!$fields) return null;
 		
@@ -953,14 +954,15 @@ class sqlsrv implements DbManager {
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 
-		$order = gOpt('order', $options, null);
-		$limit = gOpt('limit', $options, null);
-		$debug = gOpt('debug', $options, false);
-		$distinct = gOpt('distinct', $options, null);
+		$order = \Gino\gOpt('order', $options, null);
+		$limit = \Gino\gOpt('limit', $options, null);
+		$debug = \Gino\gOpt('debug', $options, false);
+		$distinct = \Gino\gOpt('distinct', $options, null);
 		
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
+		$qgroup_by = $group_by ? "GROUP BY ".$group_by : "";
 		$qorder = $order ? "ORDER BY $order" : "";
 		
 		if($distinct) $qfields = $distinct.", ".$qfields;
@@ -974,7 +976,7 @@ class sqlsrv implements DbManager {
 			$top = $limit;
 		else $top = '';
 		
-		$query = "SELECT $top $qfields FROM $qtables $qwhere $qorder";
+		$query = "SELECT $top $qfields FROM $qtables $qwhere $qgroup_by $qorder";
 		
 		if($debug) echo $query;
 		
@@ -983,10 +985,10 @@ class sqlsrv implements DbManager {
 	
 	private function limitQuery($fields, $tables, $where=null, $options=array()) {
 		
-		$order = gOpt('order', $options, null);
-		$limit = gOpt('limit', $options, null);
-		$debug = gOpt('debug', $options, false);
-		$distinct = gOpt('distinct', $options, null);
+		$order = \Gino\gOpt('order', $options, null);
+		$limit = \Gino\gOpt('limit', $options, null);
+		$debug = \Gino\gOpt('debug', $options, false);
+		$distinct = \Gino\gOpt('distinct', $options, null);
 		
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
@@ -1186,7 +1188,7 @@ class sqlsrv implements DbManager {
 	 */
 	public function columnHasValue($table, $field, $value, $options=array()) {
 		
-		$except_id = gOpt('except_id', $options, null);
+		$except_id = \Gino\gOpt('except_id', $options, null);
 		
 		$where = $field."='$value'";
 		if($except_id) $where .= " AND id!='$except_id'";
@@ -1216,8 +1218,8 @@ class sqlsrv implements DbManager {
 	 */
 	public function union($queries, $options=array()) {
 		
-		$debug = gOpt('debug', $options, false);
-		$instruction = gOpt('instruction', $options, 'UNION');
+		$debug = \Gino\gOpt('debug', $options, false);
+		$instruction = \Gino\gOpt('instruction', $options, 'UNION');
 		
 		if(count($queries))
 		{
@@ -1235,12 +1237,12 @@ class sqlsrv implements DbManager {
 	 */
 	public function restore($table, $filename, $options=array()) {      
 	
-		$fields = gOpt('fields', $options, null);
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
-		$escaped = gOpt('escaped', $options, '\\');
-		$lineend = gOpt('lineend', $options, '\\r\\n');
-		$hasheader = gOpt('hasheader', $options, false);
+		$fields = \Gino\gOpt('fields', $options, null);
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, '"');
+		$escaped = \Gino\gOpt('escaped', $options, '\\');
+		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
+		$hasheader = \Gino\gOpt('hasheader', $options, false);
 		
 		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
@@ -1258,9 +1260,9 @@ class sqlsrv implements DbManager {
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
-		$where = gOpt('where', $options, null);
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, null);
+		$where = \Gino\gOpt('where', $options, null);
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, null);
 		
 		$where = $where ? " WHERE $where" : '';
 		$enclosed = $enclosed ? "ENCLOSED BY '".$enclosed."' " : '';

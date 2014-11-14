@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Libreria per la gestione dei file di front-end dei singoli moduli (css e viste)
@@ -39,8 +40,8 @@ class Frontend {
 		
 		$db = db::instance();
 
-    Loader::import('sysClass', 'ModuleApp');
-    Loader::import('module', 'ModuleInstance');
+    Loader::import('sysClass', '\Gino\App\ModuleApp');
+    Loader::import('module', '\Gino\App\ModuleInstance');
 		
 		$this->_class = $params['class'];
     $this->_module_id = $params['module_id'];

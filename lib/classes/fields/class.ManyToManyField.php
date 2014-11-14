@@ -7,8 +7,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
-loader::import('class/fields', 'Field');
+loader::import('class/fields', '\Gino\Field');
 
 /**
  * @brief Campo di tipo many to many (estensione)
@@ -71,7 +72,7 @@ class ManyToManyField extends Field {
 		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 		$this->_join_table = $options['join_table'];
 
-		$this->_join_table_id = strtolower(get_class($this->_model)).'_id';
+		$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
 		$this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
 
 		$db = db::instance();
