@@ -1,6 +1,6 @@
 <?php
 /**
- * @file core.php
+ * @file class.Core.php
  * @brief File che genera il documento
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -25,6 +25,7 @@ class core {
   function __construct() {
 
     loader::import('class', array(
+      'Logger', 
       'Singleton', 
       'Db', 
       'Locale', 

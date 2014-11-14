@@ -19,155 +19,140 @@ include(LIB_DIR.OS.'func.var.php');
 include(LIB_DIR.OS.'func.browser.php');
 
 /**
- * Ricava il percorso relativo a partire da un percorso assoluto
- * 
+ * @brief Ricava il percorso relativo a partire da un percorso assoluto
  * @param string $abspath percorso assoluto
+ * @return percorso relativo
  */
 function relativePath($abspath) {
-	$path = SITE_WWW.preg_replace("#".preg_quote(SITE_ROOT)."#", "", $abspath);
-	
-	if(OS=="\\") return preg_replace("#".preg_quote("\\")."#", "/", $path);
-	
-	return $path;
+    $path = SITE_WWW.preg_replace("#".preg_quote(SITE_ROOT)."#", "", $abspath);
+    if(OS=="\\") return preg_replace("#".preg_quote("\\")."#", "/", $path);
+
+    return $path;
 }
 
 /**
- * Ricava il percorso assoluto a partire da un percorso relativo
- * 
+ * @brief Ricava il percorso assoluto a partire da un percorso relativo
  * @param string $relpath percorso relativo
+ * @return percorso assoluto
  */
 function absolutePath($relpath) {
-	
-	return SITE_ROOT.$relpath;
+    return SITE_ROOT.$relpath;
 }
 
 /**
- * Restituisce l'elemento di un array corrispondente alla chiave data oppure un valore di default 
- * 
+ * @brief Restituisce l'elemento di un array corrispondente alla chiave data oppure un valore di default 
+ *
  * @param string $opt_name nome della chiave
  * @param array $opt_array array associativo
  * @param mixed $default valore di default
  * @return l'elemento corrispondente alla chiave data oppure il default
  */
 function gOpt($opt_name, $opt_array, $default) {
-
-	return isset($opt_array[$opt_name]) ? $opt_array[$opt_name] : $default;
+    return isset($opt_array[$opt_name]) ? $opt_array[$opt_name] : $default;
 }
 
 /**
- * Trasforma un array in un oggetto
- * 
+ * @brief Trasforma un array in un oggetto
+ *
  * @param array $array
  * @return object
  */
-function arrayToObject($array) {
-	
-	$object = new stdClass();
-	if (is_array($array) && count($array) > 0)
-	{
-		foreach ($array as $name=>$value)
-		{
-			$name = strtolower(trim($name));
-			if(!empty($name)) {
-				$object->$name = $value;
-			}
-		}
-	}
-	return $object;
+function arrayToObject(array $array) {
+    $object = new stdClass();
+    if (is_array($array) && count($array) > 0)
+    {
+        foreach ($array as $name=>$value)
+        {
+            $name = strtolower(trim($name));
+            if($name !== '') {
+                $object->$name = $value;
+            }
+        }
+    }
+    return $object;
 }
 
 /**
- * File contenuti in una directory
+ * @brief Lista files contenuti in una directory
  * 
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)
  * @return array
  */
 function searchNameFile($dir){
-	
-	$filenames = array();
-	if(is_dir($dir))
-	{
-		$dp = opendir($dir);
-		while($file = readdir($dp))
-		{
-			if($file != "." AND $file != "..")
-			{
-				$filenames[] = $file;
-			}
-		}
-	}
-	
-	return $filenames;
+    $filenames = array();
+    if(is_dir($dir))
+    {
+        $dp = opendir($dir);
+        while($file = readdir($dp))
+        {
+            if($file != "." AND $file != "..")
+            {
+                $filenames[] = $file;
+            }
+        }
+    }
+
+    return $filenames;
 }
 
 /**
- * Gestisce il download di un file
+ * @brief Forza il download di un file
  * 
  * @param string $full_path percorso del file
- * @return void
+ * @return stream del file o falso se il file non si apre in lettura
  */
 function download($full_path)
 {
-	if($fp = fopen($full_path, "r"))
-	{
-		$fsize = filesize($full_path);
-		$path_parts = pathinfo($full_path);
-		$extension = strtolower($path_parts["extension"]);
+    if($fp = fopen($full_path, "r"))
+    {
+        $fsize = filesize($full_path);
+        $path_parts = pathinfo($full_path);
+        $extension = strtolower($path_parts["extension"]);
 
-		header("Pragma: public");
-		header('Expires: 0');
-		header('Content-Description: File Transfer');
-		header("Content-type: application/download");
-		header("Content-Disposition: attachment; filename=\"".$path_parts["basename"]."\"");
-		header("Content-length: ".$fsize);
-		header("Cache-control: private");
+        header("Pragma: public");
+        header('Expires: 0');
+        header('Content-Description: File Transfer');
+        header("Content-type: application/download");
+        header("Content-Disposition: attachment; filename=\"".$path_parts["basename"]."\"");
+        header("Content-length: ".$fsize);
+        header("Cache-control: private");
 
-		ob_clean();
-		flush();
+        ob_clean();
+        flush();
 
-		@readfile($full_path);
-		fclose($fp);
-	}
+        @readfile($full_path);
+        fclose($fp);
+    }
     else {
         return false;
     }
 }
 
 /**
- * Controlla le estensioni dei file
+ * @brief Controlla le estensioni dei file
  * 
- * Verifica se il file ha una estensione valida, ovvero presente nell'elenco delle estensioni.
+ * @description Verifica se il file ha una estensione valida, ovvero presente nell'elenco delle estensioni.
  *
  * @param string $filename nome del file
- * @param array $extensions elenco delle estensioni valide (se è vuoto la funzione ritorna true)
+ * @param array $extensions elenco delle estensioni valide
  * @return boolean
+ * 
+ * se $extensions è vuoto => true
  */
 function extension($filename, $extensions){
+    $ext = str_replace('.','',strrchr($filename, '.'));
+    $count = 0;
+    if(is_array($extensions) AND sizeof($extensions) > 0)
+    {
+        foreach($extensions AS $value)
+        {
+            if(strtolower($ext) == strtolower($value))
+            $count++;
+        }
 
-	$ext = str_replace('.','',strrchr($filename, '.'));
-	$count = 0;
-	if(is_array($extensions) AND sizeof($extensions) > 0)
-	{
-		foreach($extensions AS $value)
-		{
-			if(strtolower($ext) == strtolower($value))
-			$count++;
-		}
-
-		if($count > 0) return true; else return false;
-	}
-	else return true;
-}
-
-/**
- * Verifica la validità dell'indirizzo email
- * 
- * @param string $email indirizzo email
- * @return boolean
- */
-function email_control($email) {
-	
-	return !preg_match("#^[a-z0-9_-]+[a-z0-9_.-]*@[a-z0-9_-]+[a-z0-9_.-]*\.[a-z]{2,5}$#", $email) ? false : true;
+        if($count > 0) return true; else return false;
+    }
+    else return true;
 }
 
 /**
@@ -195,7 +180,7 @@ function checkEmail($value, $regexp=null) {
 	{
 		$check = filter_var($value, FILTER_VALIDATE_EMAIL);
 	}
-	return $check;
+	return (bool) $check;
 }
 
 /**
@@ -535,7 +520,7 @@ function getDateDiff($start_date, $end_date=null, $options=array()) {
 	$diff_seconds = $since_start->s;
 	*/
 	
-	$hours = $since_start->days * 24 * 60;
+	$hours = $since_start->days * 24;
 	$hours += $since_start->h;
 	if($get_diff == 'h') return $hours;
 	
@@ -564,55 +549,33 @@ function getDateDiff($start_date, $end_date=null, $options=array()) {
  */
 function isValid($type, $var)
 {
-	if(empty($var)) return true;
-	
-	$valid = false;
-	
-	switch ($type) {
-		case "IP":
-		if (ereg('^([0-9]{1,3}\.){3}[0-9]{1,3}$',$var)) {
-			$valid = true;
-		}
-		break;
-		case "URL":
-		if (ereg("^[a-zA-Z0-9\-\.]+\.[a-zA-Z0-9_\-\.]+$",$var)) {
-			$valid = true;
-		}
-		break;
-		case "Email":
-		if (preg_match('#^[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-\.]+$#', $var)) {
-			$valid = true;
-		}
-		break;
-		case "ISBN":
-		if (ereg("^[0-9]{9}[[0-9]|X|x]$",$var)) {
-			$valid = true;
-		}
-		break;
-		case "Date":
-		if (ereg("^([0-9][0-2]|[0-9])\/([0-2][0-9]|3[01]|[0-9])\/[0-9]{4}|([0-9][0-2]|[0-9])-([0-2][0-9]|3[01]|[0-9])-[0-9]{4}$",$var)) {
-			$valid = true;
-		}
-		break;
-		case "Time":
-		if (ereg("^[0-9]{2}[:][0-9]{2}$",$var)) {
-			$valid = true;
-		}
-		break;
-		case "HexColor":
-		if (ereg('^#?([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$',$var)) {
-			$valid = true;
-		}
-		break;
-	}
-	return $valid;
+    if(!$var) return false;
+
+    switch ($type) {
+        case "IP":
+            return  !!preg_match("#^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$#", $var);
+        case "URL":
+            return  !!preg_match("#^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$#", $var);
+        case "Email":
+            return !!preg_match('#^[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-]+\.[a-zA-Z0-9_\-\.]+$#', $var);
+        case "ISBN":
+            return !!preg_match("^[0-9]{9}[[0-9]|X|x]$",$var);
+        case "Date":
+            return !!preg_match("#^(0[1-9]|[12][0-9]|3[01])([- /.])(0[1-9]|1[012])\\2(19|20)\d\d$#",$var);
+        case "Time":
+            return !!preg_match("#^([01][1-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$#",$var);
+        case "HexColor":
+            return !!preg_match('#^\#?([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$#',$var);
+    }
+
+    return false;
 }
 
 /**
- * Accorcia un testo HTML alla lunghezza desiderata (length)
- * 
+ * @brief Accorcia un testo HTML alla lunghezza desiderata (length)
+ *
  * Inoltre sostituisce l'ultimo carattere con il valore ending se il testo è più lungo di length. Può strippare i TAG.
- * 
+ *
  * @param string $html stringa HTML da accorciare
  * @param integer $length lunghezza della stringa da riportare, incluse le ellissi
  * @param string $ending finale da aggiungere alla stringa accorciata
@@ -831,34 +794,12 @@ function cutString($string, $max_char, $word_complete=true, $file=false)
 }
 
 /**
- * Testo a capo dopo un dato numero di caratteri
- * 
- * @param string $string testo da trattare
- * @param integer $max_char numero massimo di caratteri per riga
- * @return string
- */
-function textToHead($string, $max_char) {
-	
-	if($string && strlen($string) > $max_char)
-	{
-		$array = str_split($string, $max_char);
-		$string = implode("<br />", $array);
-	}
-	return $string;
-}
-
-/**
  * Ricava il nome del file senza l'estensione
  * @param string $filename nome del file
  * @return string
  */
 function baseFileName($filename) {
-	$baseFile = '';
-	$filename_a = explode(".", $filename);
-	for($i=0, $limit=count($filename_a); $i<$limit-1; $i++) {
-		$baseFile .= $filename_a[$i];
-	}
-	return $baseFile;
+    return substr($filename, 0, strrpos($filename, '.'));
 }
 
 /**
@@ -1167,17 +1108,5 @@ function traslitterazione($numero, $decimale=false)
                     $risultato = $risultato.'/'.$decimale;
             return  $risultato;
     }
-}
-
-/**
- * Converte una dimensione in KB o MB
- * 
- * @param integer $size
- * @return string
- */
-function convertSize($size)
-{
-    $sizename = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
-    return $size ? round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) .$sizename[$i] : '0 Bytes';
 }
 ?>

@@ -33,6 +33,8 @@ class sysfunc extends Controller {
 	 */
 	public function page404($title = '', $message = '') {
 
+        header("HTTP/1.0 404 Not Found");
+
 		if(!$title) {
 			$title = _("404 Pagina inesistente");
 		}
@@ -60,6 +62,8 @@ class sysfunc extends Controller {
 	 */
 	public function page403($title = '', $message = '') {
 
+        header("HTTP/1.1 403 Unauthorized");
+
 		if(!$title) {
 			$title = _("403 Autorizzazione negata");
 		}
@@ -77,5 +81,33 @@ class sysfunc extends Controller {
 		return $view->render();
 	}
 
+    /**
+	 * Pagina di errore server error
+	 * 
+	 * @param string $title titolo della pagina 
+	 * @param string $message messaggio mostrato
+	 * @access public
+	 * @return pagina di errore
+	 */
+	public function page500($title = '', $message = '') {
+
+        header("HTTP/1.0 500 Internal Server Error");
+
+		if(!$title) {
+			$title = _("500 Server error");
+		}
+
+		if(!$message) {
+			$message = _("Si è verificato un errore interno al sistema.");
+		}
+
+		$view = new view();
+
+		$view->setViewTpl('500');
+		$view->assign('title', $title);
+		$view->assign('message', $message);
+
+		return $view->render();
+    }
+
 }
-?>

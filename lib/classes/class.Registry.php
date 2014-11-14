@@ -29,42 +29,42 @@
  */
 class registry extends singleton {
 
-	/*
-	 * @the vars array
-	 * @access private
-	 */
-	private $vars = array();
+    /*
+     * @the vars array
+     * @access private
+     */
+    private $vars = array();
 
-	/**
-	 * Imposta il valore di una variabile
-	 *
-	 * @param string $index nome della variabile
-	 * @param mixed $value valore della variabile
-	 * @return void
-	 * 
-	 * Esempio
-	 * @code
-	 * $instance->foo = 'bar';
-	 * @endcode
-	 */
-	public function __set($index, $value) {
-		$this->vars[$index] = $value;
-	}
-	
-	/**
-	 * Ritorna il valore di una variabile
-	 *
-	 * @param mixed $index nome della variabile
-	 * @return mixed
-	 * 
-	 * Esempio
-	 * @code
-	 * echo $instance->foo;
-	 * @endcode
-	 */
-	public function __get($index) {
-		return $this->vars[$index];
-	}
+    /**
+     * Imposta il valore di una variabile
+     *
+     * @param string $index nome della variabile
+     * @param mixed $value valore della variabile
+     * @return void
+     * 
+     * Esempio
+     * @code
+     * $instance->foo = 'bar';
+     * @endcode
+     */
+    public function __set($index, $value) {
+        $this->vars[$index] = $value;
+    }
+    
+    /**
+     * Ritorna il valore di una variabile
+     *
+     * @param mixed $index nome della variabile
+     * @return mixed
+     * 
+     * Esempio
+     * @code
+     * echo $instance->foo;
+     * @endcode
+     */
+    public function __get($index) {
+        return $this->vars[$index];
+    }
 
     /**
      * @brief Controlla se è stata definita una proprietà del registry
@@ -78,102 +78,118 @@ class registry extends singleton {
         return (bool) isset($this->vars[$prop]);
     }
 
-	/**
-	 * Carica un file css in un array (chiave @a css)
-	 * 
-	 * @param string $css percorso relativo al file css
-	 * @return void
-	 * 
-	 * Esempio
-	 * @code
-	 * $instance->addCss(CSS_WWW."/file.css");
-	 * @endcode
-	 */
-	public function addCss($css) {
-		$this->vars['css'][] = $css;
-	}
+    /**
+     * Carica un file css in un array (chiave @a css)
+     * 
+     * @param string $css percorso relativo al file css
+     * @return void
+     * 
+     * Esempio
+     * @code
+     * $instance->addCss(CSS_WWW."/file.css");
+     * @endcode
+     */
+    public function addCss($css) {
+        $this->vars['css'][] = $css;
+    }
 
-	/**
-	 * Carica un file javascript in un array (chiave @a js)
-	 * 
-	 * @param string $js percorso relativo al file javascript
-	 * @return void
-	 * 
-	 * Esempio
-	 * @code
-	 * $instance->addCss(SITE_JS."/file.js");
-	 * @endcode
-	 */
-	public function addJs($js) {
-		$this->vars['js'][] = $js;
-	}
+    /**
+     * Carica un file javascript in un array (chiave @a js)
+     * 
+     * @param string $js percorso relativo al file javascript
+     * @return void
+     * 
+     * Esempio
+     * @code
+     * $instance->addCss(SITE_JS."/file.js");
+     * @endcode
+     */
+    public function addJs($js) {
+        $this->vars['js'][] = $js;
+    }
 
-	/**
-	 * Carica gli elementi di un tag meta in un array (chiave @a meta)
-	 * 
-	 * @param array $meta elementi di un tag meta (name, property, content)
-	 * @return void
-	 * 
-	 * Esempio
-	 * @code
-	 * $instance->addMeta(array('name'=>'bar', 'property'=>'foo'));
-	 * @endcode
-	 */
-	public function addMeta($meta) {
-		$this->vars['meta'][] = $meta;
-	}
-	
-	/**
-	 * Carica gli elementi di un tag link in un array (chiave @a head_links)
-	 * 
-	 * @param array $link elementi di un tag link (rel, type, title, href)
-	 * @return void
-	 * 
-	 * Esempio
-	 * @code
-	 * $instance->addHeadLink(array('rel'=>'external', 'title'=>'foo', 'href'=>''));
-	 * @endcode
-	 */
-	public function addHeadLink($link) {
-		$this->vars['head_links'][] = $link;
-	}
-	
-	/**
-	 * Stampa le variabili di registro
-	 * 
-	 * @param mixed $var nome della chiave che deve essere recuperata dal registro
-	 * @return string
-	 */
-	public function variables($var) {
-		
-		if($var == 'title' || $var == 'description' || $var == 'keywords' || $var == 'favicon') {
-			return $this->vars[$var];
-		}
-		elseif($var == 'css')
-		{
-			$buffer = '';
-			if(sizeof($this->vars[$var]) > 0)
-			{
-				foreach(array_unique($this->vars[$var]) as $link)
-					$buffer .= "<link rel=\"stylesheet\" href=\"$link\" type=\"text/css\" />\n";
-			}
-			return $buffer;
-		}
-		elseif($var == 'js')
-		{
-			$buffer = '';
-			if(sizeof($this->vars[$var]) > 0)
-			{
-				foreach(array_unique($this->vars[$var]) as $link)
-					$buffer .= "<script type=\"text/javascript\" src=\"$link\"></script>\n";
-			}
-			return $buffer;
-		}
-		elseif($var == 'meta')
-		{
-			$buffer = '';
+    /**
+     * Carica gli elementi di un tag meta in un array (chiave @a meta)
+     * 
+     * @param array $meta elementi di un tag meta (name, property, content)
+     * @return void
+     * 
+     * Esempio
+     * @code
+     * $instance->addMeta(array('name'=>'bar', 'property'=>'foo'));
+     * @endcode
+     */
+    public function addMeta($meta) {
+        $this->vars['meta'][] = $meta;
+    }
+    
+    /**
+     * Carica gli elementi di un tag link in un array (chiave @a head_links)
+     * 
+     * @param array $link elementi di un tag link (rel, type, title, href)
+     * @return void
+     * 
+     * Esempio
+     * @code
+     * $instance->addHeadLink(array('rel'=>'external', 'title'=>'foo', 'href'=>''));
+     * @endcode
+     */
+    public function addHeadLink($link) {
+        $this->vars['head_links'][] = $link;
+    }
+    
+    /**
+     * Stampa le variabili di registro
+     * 
+     * @param mixed $var nome della chiave che deve essere recuperata dal registro
+     * @return string
+     */
+    public function variables($var) {
+        
+        if($var == 'title' || $var == 'description' || $var == 'keywords' || $var == 'favicon') {
+            return $this->vars[$var];
+        }
+        elseif($var == 'css')
+        {
+            $buffer = '';
+            if(sizeof($this->vars[$var]) > 0)
+            {
+                if(DEBUG) {
+                    $buffer = '';
+                    foreach(array_unique($this->vars[$var]) as $link)
+                        $buffer .= "<link rel=\"stylesheet\" href=\"$link\" type=\"text/css\" />\n";
+                }
+                else {
+                    $compressor = Loader::load('Compressor', array());
+                    $compressor->addCss(array_unique($this->vars[$var]));
+                    $buffer = "<link rel=\"stylesheet\" href=\"".$compressor->mergeCss()."\" type=\"text/css\" />";
+                }
+            }
+            return $buffer;
+        }
+        elseif($var == 'js')
+        {
+            $buffer = '';
+            if(sizeof($this->vars[$var]) > 0)
+            {
+                if(DEBUG) {
+                    $buffer = '';
+                    foreach(array_unique($this->vars[$var]) as $link)
+                        $buffer .= "<script type=\"text/javascript\" src=\"$link\"></script>\n";
+                }
+                else {
+                    $compressor = Loader::load('Compressor', array());
+                    $compressor->addJs(array_unique($this->vars[$var]));
+                    $buffer = "<script type=\"text/javascript\" src=\"".$compressor->mergeJs()."\"></script>";
+                }
+            }
+            return $buffer;
+        }
+        elseif($var == 'meta')
+        {
+            $buffer = '';
       $already_inserted = array();
-			foreach($this->vars[$var] as $meta)
+            foreach($this->vars[$var] as $meta)
       {
         if(!in_array($meta, $already_inserted)) {
           $buffer .= "<meta"
@@ -182,14 +198,14 @@ class registry extends singleton {
           ." content=\"".$meta['content']."\" />\n";
           $already_inserted[] = $meta;
         }
-			}
-			return $buffer;
-		}
-		elseif($var == 'head_links')
-		{
-			$buffer = '';
+            }
+            return $buffer;
+        }
+        elseif($var == 'head_links')
+        {
+            $buffer = '';
       $already_inserted = array();
-			foreach($this->vars[$var] as $hlink) {
+            foreach($this->vars[$var] as $hlink) {
         if(!in_array($hlink, $already_inserted)) {
           $buffer .= "<link"
           .(isset($hlink['rel']) ? " rel=\"".$hlink['rel']."\"" : '')
@@ -198,10 +214,10 @@ class registry extends singleton {
           ." href=\"".$hlink['href']."\" />\n";
           $already_inserted[] = $hlink;
         }
-			}
-			return $buffer;
-		}
-	}
+            }
+            return $buffer;
+        }
+    }
 }
 
 ?>

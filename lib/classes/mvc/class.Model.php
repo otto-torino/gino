@@ -641,8 +641,14 @@
         if($id)
         {
             $records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
-            if(count($records))
+            if($records and count($records)) {
                 $this->_p = $records[0];
+            }
+            else {
+                error::warning(sprintf(_('Oggetto %s, id %d inesistente.'), get_class($this), $id));
+                $this->_p = array();
+                $id = null;
+            }
         }
 
         $cache = new DataCache();

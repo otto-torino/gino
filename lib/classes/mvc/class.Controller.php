@@ -61,6 +61,16 @@ abstract class Controller {
     }
 
     /**
+     * @brief Funzione chiamata quando si cerca di chiamare un metodo inaccessibile
+     * @param string $name nome metodo
+     * @param array $arguments argomenti
+     * @return Exception
+     */
+    function __call($name, $arguments) {
+        throw new Exception(sprintf(_('"%s" is not a method of "%s" class'), $name, get_class($this)));
+    }
+
+    /**
      * @brief Setta le proprietà legate all'istanza
      * @param int $id id dell'istanza
      * @return void
