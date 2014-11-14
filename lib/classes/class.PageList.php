@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Gestisce la paginazione dei contenuti

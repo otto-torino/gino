@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
@@ -96,7 +97,7 @@ class Css extends Model {
 
 		$db = db::instance();
 		$res = array();
-    $rows = $db->select('id', self::$_tbl_css, null, array('order' => $order));
+		$rows = $db->select('id', self::$_tbl_css, null, array('order' => $order));
 		if($rows and count($rows)) {
 			foreach($rows as $row) {
 				$res[] = new css('layout', array('id'=>$row['id']));
@@ -106,11 +107,11 @@ class Css extends Model {
 		return $res;
 	}
 
-  public static function getFromFilename($filename) {
+	public static function getFromFilename($filename) {
 
 		$db = db::instance();
-    $res = null;
-    $rows = $db->select('id', self::$_tbl_css, "filename='$filename'");
+		$res = null;
+		$rows = $db->select('id', self::$_tbl_css, "filename='$filename'");
 		if($rows and count($rows)) {
 			$res = new css('layout', array('id'=>$rows[0]['id']));
 		}
@@ -184,8 +185,8 @@ class Css extends Model {
 
 		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css", "text/x-c", "text/plain")));
 
-    header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-    exit();
+		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+		exit();
 	}
 	
 	/**
@@ -198,9 +199,9 @@ class Css extends Model {
 		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
-    $title = sprintf(_('Elimina foglio di stile "%s"'), $this->label);
+		$title = sprintf(_('Elimina foglio di stile "%s"'), $this->label);
 
-    $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione determina l\'eliminazione del file css dalle skin che lo contengono!')."</p>";
+		$buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione determina l\'eliminazione del file css dalle skin che lo contengono!')."</p>";
 		$required = '';
 		$buffer .= $gform->open($this->_home."?evt[layout-actionDelCss]", '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
@@ -230,8 +231,8 @@ class Css extends Model {
 		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
 		$this->deleteDbData();
 
-    header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-    exit();
+		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
+		exit();
 	}
 
 	/**
@@ -244,7 +245,7 @@ class Css extends Model {
 		$buffer = "<h2>"._("CSS")."</h2>\n";
 		$buffer .= "<p>"._("Upload di fogli di stile da associare eventualmente ad una skin. Il css viene accodato ai file di default di <i>gino</i>, pertanto è possibile definire nuovi stili o sovrascrivere quelli già presenti.")."</p>\n";
 		
-    return $buffer;
+		return $buffer;
 	}
 }
 ?>

@@ -7,11 +7,12 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Attached;
 
 /**
  * @brief Estende la classe adminTable base di Gino per permettere la creazione, modifica ed eliminazione di cartelle su filesystem
  */
-class attachedCtgAdminTable extends adminTable {
+class attachedCtgAdminTable extends \Gino\AdminTable {
 
   /**
    * @brief Costruttore

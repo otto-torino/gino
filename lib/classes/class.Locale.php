@@ -7,6 +7,9 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
+
+use \Gino\App\Language\Lang;
 
 /**
  * @brief Libreria per la gestione delle traduzioni che non utilizzano le librerie gettext
@@ -149,6 +152,7 @@ class locale extends singleton {
 	/**
 	 * Inizializza le librerie getttext
 	 * 
+	 * @see lib/global.php
 	 * @return boolean true
 	 */
 	public static function initGettext() {
@@ -168,48 +172,34 @@ class locale extends singleton {
 		else $lang = '';
 		
 		define('LANG', $lang);
-
-		if(!extension_loaded('gettext'))
-		{
-			function _($str){
-				return $str;
-			}
-		}
-		else
-		{
-			$domain='messages';
-			bindtextdomain($domain, "./languages");
-			bind_textdomain_codeset($domain, 'UTF-8');
-			textdomain($domain);
-		}
 		
 		return true;
 	}
 
-  private static function setLanguage(){
+	private static function setLanguage(){
 
-    $registry = registry::instance();
-    $session = $registry->session;
-    $db = $registry->db;
+		$registry = registry::instance();
+		$session = $registry->session;
+		$db = $registry->db;
 
-    Loader::import('language', 'Lang');
-    $dft_lang = new Lang($registry->sysconf->dft_language);
+		Loader::import('language', '\Gino\App\Language\Lang');
+		$dft_lang = new \Gino\App\Language\Lang($registry->sysconf->dft_language);
 
-    $dft_language = $dft_lang->code();
-    $tbl_language = 'language';
+		$dft_language = $dft_lang->code();
+		$tbl_language = 'language';
 
 		/* default */
 		if($registry->sysconf->multi_language)
 		{
 			if(!$session->lngDft)
 			{
-        $main_lang = Lang::getMainLang();
-        if($main_lang) {
-          $session->lngDft = $main_lang->code();
-        }
-        else {
-          $session->lngDft = '';
-        }
+				$main_lang = \Gino\App\Language\Lang::getMainLang();
+				if($main_lang) {
+					$session->lngDft = $main_lang->code();
+				}
+				else {
+					$session->lngDft = '';
+				}
 			}
 
 			// language
@@ -234,7 +224,6 @@ class locale extends singleton {
 			$session->lng = $dft_language;
 			$session->lngDft = $dft_language;
 		}
-
 	}
 
 	/**

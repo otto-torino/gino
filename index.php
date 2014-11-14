@@ -17,6 +17,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * Percorso assoluto alla root directory
@@ -45,6 +46,12 @@ include('settings.php');
  * Include le costanti utilizzate da tutto il sistema
  */
 include_once(LIB_DIR.OS."const.php");
+
+/**
+ * Include le funzioni definite nel namespace globale
+ */
+include_once(LIB_DIR.OS."global.php");
+
 /**
  * Include funzioni utilizzate da tutto il sistema
  */
@@ -58,7 +65,7 @@ include(CLASSES_DIR.OS."class.Loader.php");
 /**
  * core dell'applicazione
  */
-$core = loader::load('Core');
+$core = Loader::load('Core');
 
 /**
  * Include la libreria per la cattura di chiamate ajax

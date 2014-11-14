@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Interfaccia agli elementi di un form
@@ -2001,7 +2002,7 @@ class Form {
 	 */
 	private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
 
-		loader::import('language', 'Lang');
+		loader::import('language', '\Gino\App\Lang');
 
 		$GINO = '';
 

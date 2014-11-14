@@ -7,6 +7,8 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
+use \Gino\App\SysClass\ModuleApp;
 
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
@@ -27,32 +29,32 @@
  */
 class options {
 
-  private $_db;
+	private $_db;
 	private $_class, $_module_app, $_class_prefix;
 	private $_tbl_options;
 	private $_instance;
 	private $_title;
-  private $_home;
+	private $_home;
 
 	private $_action;
 	
-  function __construct($class, $instance){
-
-    loader::import('sysClass', 'ModuleApp');
+	function __construct($class, $instance){
 		
-    $this->_db = db::instance();
-
+		Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+		
+		$this->_db = db::instance();
 		$this->_title = _("Opzioni");
 
 		$this->setData($instance, $class);
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-
-    $this->_home = HOME_FILE;
-
+		
+		$this->_home = HOME_FILE;
 	}
 	
 	private function setData($instance, $class) {
+		
+		$class = get_name_class($class);
 		
 		$this->_instance = $instance;
 		$this->_instance_name = $this->_db->getFieldFromId(TBL_MODULE, 'name', 'id', $instance);
@@ -62,9 +64,9 @@ class options {
 		if($class) $this->_class = $class;
 		else exit(error::syserrorMessage("options", "setData", "Classe ".$class." inesistente", __LINE__));
 
-		if(!$this->_instance) $this->_instance_name = $this->_class; 		
+		if(!$this->_instance) $this->_instance_name = $this->_class;
 		
-    $this->_module_app = ModuleApp::getFromName($this->_class);
+		$this->_module_app = ModuleApp::getFromName($this->_class);
 		$this->_class_prefix = $this->_module_app->tbl_name;
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
@@ -101,7 +103,7 @@ class options {
 
 		if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
 
-		$gform = loader::load('Form', array('gform', 'post', true));
+		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
 		$class_instance = ($this->_instance)?new $this->_class($this->_instance):new $this->_class();
@@ -233,7 +235,7 @@ class options {
 	 */
 	public function actionOptions() {
 	
-		$gform = loader::load('Form', array('gform', 'post', false));
+		$gform = Loader::load('Form', array('gform', 'post', false));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 

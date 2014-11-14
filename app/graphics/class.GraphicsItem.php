@@ -1,6 +1,7 @@
 <?php
+namespace Gino\App\Graphics;
 
-class GraphicsItem extends Model {
+class GraphicsItem extends \Gino\Model {
 
   public static $table = "sys_graphics";
   private static $_extension_img = array("jpg", "png", "gif");
@@ -39,7 +40,7 @@ class GraphicsItem extends Model {
 
     $structure = parent::structure($id);
 
-    $structure['type'] = new EnumField(array(
+    $structure['type'] = new \Gino\EnumField(array(
       'name'=>'type', 
       'model'=>$this,
       'widget'=>'select', 
@@ -49,7 +50,7 @@ class GraphicsItem extends Model {
 
     $base_path = GRAPHICS_DIR;
 
-    $structure['image'] = new ImageField(array(
+    $structure['image'] = new \Gino\ImageField(array(
       'name'=>'image', 
       'model'=>$this,
       'lenght'=>100, 

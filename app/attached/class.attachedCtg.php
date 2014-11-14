@@ -7,6 +7,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Attached;
 
 /**
  * Classe tipo model che rappresenta una categoria di allegati.
@@ -15,7 +16,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class AttachedCtg extends Model {
+class AttachedCtg extends \Gino\Model {
 
   public static $tbl_ctg = 'attached_ctg';
 
@@ -61,7 +62,7 @@ class AttachedCtg extends Model {
 
     $structure = parent::structure($id);
 
-    $structure['directory'] = new hiddenField(array(
+    $structure['directory'] = new \Gino\HiddenField(array(
       'name'=>'directory',
       'model'=>$this,
     ));
@@ -81,11 +82,11 @@ class AttachedCtg extends Model {
 
     $res = array();
 
-    $where = gOpt('where', $options, '');
-    $order = gOpt('order', $options, 'name');
-    $limit = gOpt('limit', $options, null);
+    $where = \Gino\gOpt('where', $options, '');
+    $order = \Gino\gOpt('order', $options, 'name');
+    $limit = \Gino\gOpt('limit', $options, null);
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $selection = 'id';
     $table = self::$tbl_ctg;
 
@@ -115,7 +116,7 @@ class AttachedCtg extends Model {
     $order = gOpt('order', $options, 'name');
     $limit = gOpt('limit', $options, null);
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $selection = 'id, name';
     $table = self::$tbl_ctg;
 

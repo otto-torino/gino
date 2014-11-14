@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Sysconf;
 
 require_once('class.Conf.php');
 
@@ -35,7 +36,7 @@ require_once('class.Conf.php');
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
  *   - Contenuto file robots.txt
  */
-class sysconf extends Controller {
+class sysconf extends \Gino\Controller {
 
   private $_title;
 
@@ -49,7 +50,6 @@ class sysconf extends Controller {
     $this->_title = _("Impostazioni");
 
     $this->_permissions = array('can_admin');
-
   }
 
   public function manageSysconf() {
@@ -58,14 +58,14 @@ class sysconf extends Controller {
 
     $opts = array();
 
-    $admin_table = loader::load('AdminTable', array(
+    $admin_table = \Gino\Loader::load('AdminTable', array(
       $this,
       $opts
     ));
 
     $conf = new Conf(1);
 
-    $myform = new Form(null, null, null);
+    $myform = \Gino\Loader::load('Form', array(null, null, null));
 
     if(isset($_POST['empty_cache'])) {
       $this->_registry->pub->deleteFileDir(CACHE_DIR, false);
@@ -127,10 +127,9 @@ class sysconf extends Controller {
       'content' => $content
     );
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     return $view->render($dict);
-
   }
 
 }

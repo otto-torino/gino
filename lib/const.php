@@ -29,22 +29,4 @@ define("TBL_TRANSLATION", 'language_translation');
 // other
 define("TBL_NATION", 'nation');
 
-	/*private function setSysTable(){
-		
-		$this->_tbl_sysconf = 'sys_conf';
-		$this->_tbl_module = 'sys_module';
-		$this->_tbl_module_app = 'sys_module_app';
-		$this->_tbl_position = 'sys_position';
-		$this->_tbl_menu = 'sys_menu';
-		$this->_tbl_menu_tree = 'sys_menu_tree';
-		$this->_tbl_page = 'page_entry';
-		$this->_tbl_nation = 'nation';
-		$this->_tbl_user = 'user_app';
-		$this->_tbl_user_add = 'user_add';
-		$this->_tbl_user_reg = 'user_registration';
-		$this->_tbl_user_role = 'user_role';
-		$this->_tbl_user_email = 'user_email';
-		$this->_tbl_translation = 'language_translation';
-  }*/
-
 ?>

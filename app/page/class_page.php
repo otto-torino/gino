@@ -9,6 +9,7 @@
  * @author abidibo abidibo@gmail.com
  * @date 2013
  */
+namespace Gino\App\Page;
 
 require_once('class.pageCategory.php');
 require_once('class.PageEntry.php');
@@ -96,7 +97,7 @@ require_once('class.pageComment.php');
  * In questo caso il template di default è quello che corrisponde al campo @a box_tpl_code della tabella delle opzioni ('Template vista dettaglio pagina' nelle opzioni vista pagina inserita nel template). \n
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  */
-class page extends Controller {
+class page extends \Gino\Controller {
 
     /**
      * Titolo vista vetrina
@@ -190,7 +191,7 @@ class page extends Controller {
             'newsletter_tpl_code'=>$newsletter_tpl_code,
         );
 
-        $this->_showcase_title = htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
+        $this->_showcase_title = \Gino\htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
         $this->_showcase_number = $this->setOption('showcase_number', array('value'=>$this->_optionsValue['showcase_number']));
         $this->_showcase_auto_start = $this->setOption('showcase_auto_start', array('value'=>$this->_optionsValue['showcase_auto_start']));
         $this->_showcase_auto_interval = $this->setOption('showcase_auto_interval', array('value'=>$this->_optionsValue['showcase_auto_interval']));
@@ -210,7 +211,7 @@ class page extends Controller {
             $newsletter_module = false;
         }
 
-        $this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
+        $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
         $this->_optionsLabels = array(
             "showcase_title"=>array(
                 'label'=>_("Titolo vetrina pagine più lette"),
@@ -479,9 +480,7 @@ class page extends Controller {
      */
     public function showcase() {
         
-        $this->setAccess($this->_auth_base);
-
-        $registry = registry::instance();
+        $registry = \Gino\registry::instance();
         $registry->addCss($this->_class_www."/page.css");
         $registry->addJs($this->_class_www."/page.js");
 
@@ -512,14 +511,14 @@ class page extends Controller {
             $options = "{auto_start: true, auto_interval: ".$this->_showcase_auto_interval."}";
         }
 
-        $view = new view($this->_view_dir);
+        $view = new \Gino\View($this->_view_dir);
 
         $view->setViewTpl('showcase');
         $view->assign('section_id', 'showcase_'.$this->_instance_name);
         $view->assign('wrapper_id', 'showcase_items_'.$this->_instance_name);
         $view->assign('ctrl_begin', 'sym_'.$this->_instance.'_');
         $view->assign('title', $this->_showcase_title);
-        $view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".pub::icon('feed')."</a>");
+        $view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".\Gino\pub::icon('feed')."</a>");
         $view->assign('items', $items);
         $view->assign('ctrls', $ctrls);
         $view->assign('options', $options);
@@ -549,13 +548,13 @@ class page extends Controller {
 
         //$this->setAccess($this->_auth_base);
 
-        $registry = registry::instance();
+        $registry = \Gino\registry::instance();
         $registry->addCss($this->_class_www."/prettify.css");
         $registry->addJs($this->_class_www."/prettify.js");
         $registry->addCss($this->_class_www."/page.css");
         $registry->addJs($this->_class_www."/page.js");
         
-        if(!$id) $id = cleanVar($_GET, 'id', 'int', '');
+        if(!$id) $id = \Gino\cleanVar($_GET, 'id', 'int', '');
         
         $item = pageEntry::getFromSlug($id, $this);
 
@@ -570,7 +569,7 @@ class page extends Controller {
         
         preg_match_all("#{{[^}]+}}#", $tpl_item, $matches);
         $tpl = $this->parseTemplate($item, $tpl_item, $matches);
-        $view = new view($this->_view_dir);
+        $view = new \Gino\View($this->_view_dir);
 
         $view->setViewTpl('box');
         $view->assign('section_id', 'view_'.$this->_instance_name.$id);
@@ -594,13 +593,13 @@ class page extends Controller {
      */
     public function view() {
 
-        $registry = registry::instance();
+        $registry = \Gino\registry::instance();
         $registry->addCss($this->_class_www."/prettify.css");
         $registry->addJs($this->_class_www."/prettify.js");
         $registry->addCss($this->_class_www."/page.css");
         $registry->addJs($this->_class_www."/page.js");
         
-        $slug = cleanVar($_GET, 'id', 'string', '');
+        $slug = \Gino\cleanVar($_GET, 'id', 'string', '');
         
         $item = pageEntry::getFromSlug($slug, $this);
 
@@ -634,11 +633,11 @@ class page extends Controller {
                 $comments[] = array(
                     'id' => $comment->id,
                     'datetime' => date("d/m/Y H:i", strtotime($comment->datetime)),
-                    'author' => htmlChars($comment->author),
-                    'web' => htmlChars($comment->web),
-                    'text' => htmlChars(nl2br($comment->text)),
+                    'author' => \Gino\htmlChars($comment->author),
+                    'web' => \Gino\htmlChars($comment->web),
+                    'text' => \Gino\htmlChars(nl2br($comment->text)),
                     'recursion' => $recursion,
-                    'reply' => $replyobj && $replyobj->id ? htmlChars($replyobj->author) : null,
+                    'reply' => $replyobj && $replyobj->id ? \Gino\htmlChars($replyobj->author) : null,
                     'avatar' => md5( strtolower(trim( $comment->email)))
                 );
             }
@@ -648,7 +647,7 @@ class page extends Controller {
             $item->updateDbData();
         }
 
-        $view = new view($this->_view_dir);
+        $view = new \Gino\View($this->_view_dir);
 
         $view->setViewTpl('view');
         $view->assign('section_id', 'view_'.$this->_instance_name);
@@ -664,7 +663,7 @@ class page extends Controller {
 
     private function formComment($entry) {
 
-        $myform = loader::load('Form', array('form_comment', 'post', true, null));
+        $myform = \Gino\Loader::load('Form', array('form_comment', 'post', true, null));
         $myform->load('dataform');
 
         $buffer = '';
@@ -676,11 +675,11 @@ class page extends Controller {
         $buffer .= $myform->open($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', null);
         $buffer .= $myform->hidden('entry', $entry->id);
         $buffer .= $myform->hidden('form_reply', 0, array('id'=>'form_reply'));
-        $buffer .= $myform->cinput('author', 'text', htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= $myform->cinput('email', 'text', htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= $myform->cinput('web', 'text', htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
-        $buffer .= $myform->ctextarea('text', htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
-        $buffer .= $myform->cradio('notification', htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
+        $buffer .= $myform->cinput('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
+        $buffer .= $myform->cinput('email', 'text', \Gino\htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
+        $buffer .= $myform->cinput('web', 'text', \Gino\htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
+        $buffer .= $myform->ctextarea('text', \Gino\htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
+        $buffer .= $myform->cradio('notification', \Gino\htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
         $buffer .= $myform->captcha();
         $buffer .= $myform->cinput('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
 
@@ -696,11 +695,11 @@ class page extends Controller {
      */
     public function actionComment() {
 
-        $myform = new form('form_comment', 'post', true, null);
+        $myform = \Gino\Loader::load('Form', array('form_comment', 'post', true, null));
         $myform->save('dataform');
         $req_error = $myform->arequired();
 
-        $id = cleanVar($_POST, 'entry', 'int', '');
+        $id = \Gino\cleanVar($_POST, 'entry', 'int', '');
         $entry = new pageEntry($id, $this);
 
         if(!$entry or !$entry->id or !$entry->enable_comments) {
@@ -721,14 +720,14 @@ class page extends Controller {
 
         $comment = new pageComment(null, $this);
 
-        $comment->author = cleanVar($_POST, 'author', 'string', '');
-        $comment->email = cleanVar($_POST, 'email', 'string', '');
-        $comment->web = cleanVar($_POST, 'web', 'string', '');
-        $comment->text = cutHtmlText(cleanVar($_POST, 'text', 'string', ''), 100000000, '', true, true, true, array());
-        $comment->notification = cleanVar($_POST, 'notification', 'int', '');
+        $comment->author = \Gino\cleanVar($_POST, 'author', 'string', '');
+        $comment->email = \Gino\cleanVar($_POST, 'email', 'string', '');
+        $comment->web = \Gino\cleanVar($_POST, 'web', 'string', '');
+        $comment->text = \Gino\cutHtmlText(\Gino\cleanVar($_POST, 'text', 'string', ''), 100000000, '', true, true, true, array());
+        $comment->notification = \Gino\cleanVar($_POST, 'notification', 'int', '');
         $comment->entry = $entry->id;
         $comment->datetime = date('Y-m-d H:i:s');
-        $comment->reply = cleanVar($_POST, 'form_reply', 'int', '');
+        $comment->reply = \Gino\cleanVar($_POST, 'form_reply', 'int', '');
         $comment->published = $published;
 
         $comment->updateDbData();
@@ -738,17 +737,18 @@ class page extends Controller {
 
             $link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$this->_plink->aLink($this->_instance_name, 'view', array("id"=>$entry->slug)).'#comment'.$comment->id;
 
-            $admin = new admin('page', $this->_instance);
-            $user_ids = $admin->listUserGroup($this->_list_group[1]);
+			\Gino\Loader::import('auth', '\Gino\App\Auth\User');
+            
+            $user_ids = \Gino\App\Auth\User::getUsersFromPermissions('can_publish', $this);
 
             foreach($user_ids as $uid) {
                 $email = $this->_db->getFieldFromId('user_app', 'email', 'user_id', $uid);
                 if($email) {
                     $subject = sprintf(_("Nuovo commento alla pagina \"%s\" in attesa di approvazione"), $entry->title);
                     $object = sprintf("E' stato inserito un nuovo commento in fase di approvazione da %s il %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $comment->author, $comment->datetime, $link);
-                    $from = "From: ".pub::variable('email_from_app');
+                    $from = "From: ".\Gino\pub::variable('email_from_app');
 
-                    mail($email, $subject, $object, $from);
+                    \mail($email, $subject, $object, $from);
                 }
             }
         }
@@ -764,9 +764,9 @@ class page extends Controller {
      */
     public function relatedContentsList($page_entry)
     {
-        $related_contents = GTag::getRelatedContents('PageEntry', $page_entry->id);
+        $related_contents = \Gino\GTag::getRelatedContents('PageEntry', $page_entry->id);
         if(count($related_contents)) {
-            $view = new View(null, 'related_contents_list');
+            $view = new \Gino\View(null, 'related_contents_list');
             return $view->render(array('related_contents' => $related_contents));
         }
         else return '';
@@ -818,7 +818,7 @@ class page extends Controller {
             if(!$obj->image) {
                 return '';
             }
-            $image = "<img src=\"".$obj->imgPath($this)."\" alt=\"img: ".jsVar($obj->ml('title'))."\" />";
+            $image = "<img src=\"".$obj->imgPath($this)."\" alt=\"img: ".\Gino\jsVar($obj->ml('title'))."\" />";
             if($obj->url_image)
                 $image = "<a href=\"".$obj->url_image."\">$image</a>";
             $pre_filter = $image;	
@@ -830,7 +830,7 @@ class page extends Controller {
             if(!$user_image) {
                 return '';
             }
-            $pre_filter = "<img src=\"".CONTENT_WWW."/user/img_".$user_image."\" alt=\"img: ".jsVar($user_name)."\" title=\"".jsVar($user_name)."\" />";	
+            $pre_filter = "<img src=\"".CONTENT_WWW."/user/img_".$user_image."\" alt=\"img: ".\Gino\jsVar($user_name)."\" title=\"".\Gino\jsVar($user_name)."\" />";	
         }
         elseif($property == 'creation_date' or $property == 'last_edit_date') {
             $pre_filter = date('d/m/Y', strtotime($obj->{$property}));
@@ -839,7 +839,7 @@ class page extends Controller {
             $pre_filter = date('H:m', strtotime($obj->creation_date));
         }
         elseif($property == 'text' || $property == 'title') {
-            $pre_filter = htmlChars($obj->ml($property));
+            $pre_filter = \Gino\htmlChars($obj->ml($property));
         }
         elseif($property == 'read') {
             $pre_filter = $obj->read;
@@ -855,7 +855,7 @@ class page extends Controller {
             if(!$obj->social) {
                 return '';
             }
-            $pre_filter = shareAll(array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), $this->_registry->pub->getRootUrl().SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), htmlChars($obj->ml('title')));
+            $pre_filter = \Gino\shareAll(array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), $this->_registry->pub->getRootUrl().SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), \Gino\htmlChars($obj->ml('title')));
         }
         elseif($property == 'comments') {
             if(!$obj->enable_comments) {
@@ -879,7 +879,7 @@ class page extends Controller {
             return "<a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug))."\">".$pre_filter."</a>";
         }
         elseif(preg_match("#chars:(\d+)#", $filter, $matches)) {
-            return cutHtmlText($pre_filter, $matches[1], '...', false, false, true, array('endingPosition'=>'in'));
+            return \Gino\cutHtmlText($pre_filter, $matches[1], '...', false, false, true, array('endingPosition'=>'in'));
         }
         elseif(preg_match("#class:(.+)#", $filter, $matches)) {
             if(isset($matches[1]) && ($property == 'img' || $property == 'author_img')) {
@@ -889,8 +889,7 @@ class page extends Controller {
         }
         elseif(preg_match("#size:(\d+)x(\d+)#", $filter, $matches)) {
             if(isset($matches[1]) && isset($matches[2]) && ($property == 'img' || $property == 'author_img')) {
-                $path = 
-                $gimage = new GImage(absolutePath($obj->imgPath($this)));
+                $gimage = new \Gino\GImage(absolutePath($obj->imgPath($this)));
                 $thumb = $gimage->thumb($matches[1], $matches[2]);
                 return preg_replace("#src=\"(.*?)\"#", "src=\"".$thumb->getPath()."\"", $pre_filter);
             }
@@ -918,10 +917,10 @@ class page extends Controller {
      */
     public function managePage() {
 
-    loader::import('class', 'AdminTable');
-
-    $block = cleanVar($_GET, 'block', 'string', '');
-    $action = cleanVar($_GET, 'action', 'string', '');
+		\Gino\Loader::import('class', '\Gino\AdminTable');
+		
+		$block = \Gino\cleanVar($_GET, 'block', 'string', '');
+		$action = \Gino\cleanVar($_GET, 'action', 'string', '');
 
         $this->requirePerm(array('can_admin', 'can_publish', 'can_edit'));
         
@@ -970,7 +969,7 @@ class page extends Controller {
       'content' => $buffer
     );
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('tab');
 
     return $view->render($dict);
@@ -987,9 +986,9 @@ class page extends Controller {
      */
     private function manageEntry() {
 
-        $edit = cleanVar($_GET, 'edit', 'int', '');
+        $edit = \Gino\cleanVar($_GET, 'edit', 'int', '');
         
-        $registry = registry::instance();
+        $registry = \Gino\registry::instance();
         $registry->addJs($this->_class_www.'/page.js');
 
         if(!$this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
@@ -1007,7 +1006,7 @@ class page extends Controller {
         $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
         
-        $admin_table = new adminTable($this, array());
+        $admin_table = new \Gino\AdminTable($this, array());
         
         $buffer = $admin_table->backOffice(
             'pageEntry', 
@@ -1069,7 +1068,7 @@ class page extends Controller {
      */
     private function manageCtg() {
         
-        $admin_table = new adminTable($this, array());
+        $admin_table = new \Gino\AdminTable($this, array());
         
         $buffer = $admin_table->backOffice('pageCategory', 
             array(
@@ -1091,7 +1090,7 @@ class page extends Controller {
      */
     private function manageComment() {
 
-        $admin_table = new adminTable($this, array());
+        $admin_table = new \Gino\AdminTable($this, array());
 
         $buffer = $admin_table->backOffice(
             'pageComment', 
@@ -1120,8 +1119,8 @@ class page extends Controller {
      */
     public function checkSlug($string=true) {
         
-        $id = cleanVar($_POST, 'id', 'int', '');
-        $slug = cleanVar($_POST, 'slug', 'string', '');
+        $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+        $slug = \Gino\cleanVar($_POST, 'slug', 'string', '');
         
         if(!$slug)
         {
@@ -1176,14 +1175,14 @@ class page extends Controller {
         $obj = new pageEntry($results['id'], $this);
 
         $buffer = "<dt><a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
-        $buffer .= $results['title'] ? htmlChars($results['title']) : htmlChars($obj->ml('title'));
+        $buffer .= $results['title'] ? \Gino\htmlChars($results['title']) : \Gino\htmlChars($obj->ml('title'));
         $buffer .= "</a> </dt>";
 
         if($results['text']) {
-            $buffer .= "<dd class=\"search-text-result\">...".htmlChars($results['text'])."...</dd>";
+            $buffer .= "<dd class=\"search-text-result\">...".\Gino\htmlChars($results['text'])."...</dd>";
         }
         else {
-            $buffer .= "<dd class=\"search-text-result\">".htmlChars(cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</dd>";
+            $buffer .= "<dd class=\"search-text-result\">".\Gino\htmlChars(\Gino\cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</dd>";
         }
         
         return $buffer;
@@ -1204,9 +1203,9 @@ class page extends Controller {
         foreach($entries as $entry) {
             $items[] = array(
                 _('id') => $entry->id,
-                _('titolo') => htmlChars($entry->ml('title')),
+                _('titolo') => \Gino\htmlChars($entry->ml('title')),
                 _('pubblicato') => $entry->published ? _('si') : _('no'),
-                _('data creazione') => dbDateToDate($entry->creation_date),
+                _('data creazione') => \Gino\dbDateToDate($entry->creation_date),
             ); 
         }
 
@@ -1239,12 +1238,10 @@ class page extends Controller {
      */
     public function feedRSS() {
 
-        $this->accessType($this->_auth_base);
-
         header("Content-type: text/xml; charset=utf-8");
 
         $function = "feedRSS";
-        $title_site = pub::variable('head_title');
+        $title_site = \Gino\pub::variable('head_title');
         $title = $title_site.' - '._('Pagine');
         $description = $this->_db->getFieldFromId(TBL_MODULE, 'description', 'id', $this->_instance);
 
@@ -1264,9 +1261,9 @@ class page extends Controller {
         $entries = pageEntry::get($this, array('published'=>true, 'order'=>'creation_date DESC', 'limit'=>array(0, 50)));
         if(count($entries) > 0) {
             foreach($entries as $entry) {
-                $id = htmlChars($entry->id);
-                $title = htmlChars($entry->ml('title'));
-                $text = htmlChars($entry->ml('text'));
+                $id = \Gino\htmlChars($entry->id);
+                $title = \Gino\htmlChars($entry->ml('title'));
+                $text = \Gino\htmlChars($entry->ml('text'));
                 $text = str_replace("src=\"", "src=\"".substr($this->_url_root,0,strrpos($this->_url_root,"/")), $text);
                 $text = str_replace("href=\"", "href=\"".substr($this->_url_root,0,strrpos($this->_url_root,"/")), $text);
 

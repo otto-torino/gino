@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Layout;
 
 /**
  * @brief Gestisce il layout dell'applicazione raggruppando le funzionalità fornite dalle librerie dei css, template e skin
@@ -44,7 +45,7 @@
  *   - modUrl()
  * 
  */
-class layout extends Controller {
+class layout extends \Gino\Controller {
 
 	private $_tbl_skin, $_tbl_css;
 	private $_relativeUrl;
@@ -60,8 +61,8 @@ class layout extends Controller {
 		$this->_tbl_skin = 'sys_layout_skin';
 		$this->_tbl_css = 'sys_layout_css';
 
-		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-		$this->_block = cleanVar($_REQUEST, 'block', 'string', 'skin');
+		$this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
+		$this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', 'skin');
 		if(empty($this->_block)) $this->_block = 'css';
 	}
 
@@ -76,15 +77,15 @@ class layout extends Controller {
 	public function manageLayout() {
 
 		$this->requirePerm('can_admin');
+		
+		$block = \Gino\cleanVar($_GET, 'block', 'string', null);
 
-    $block = cleanVar($_GET, 'block', 'string', null);
-
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]\">"._("Informazioni")."</a>";
-    $link_tpl = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=template\">"._("Template")."</a>";
-    $link_skin = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=skin\">"._("Skin")."</a>";
-    $link_css = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=css\">"._("CSS")."</a>";
-    $link_view = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=view\">"._("Viste")."</a>";
-    $sel_link = $link_dft;
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]\">"._("Informazioni")."</a>";
+		$link_tpl = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=template\">"._("Template")."</a>";
+		$link_skin = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=skin\">"._("Skin")."</a>";
+		$link_css = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=css\">"._("CSS")."</a>";
+		$link_view = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=view\">"._("Viste")."</a>";
+		$sel_link = $link_dft;
 
     if($block == 'template') {
       $GINO = $this->manageTemplate();
@@ -106,35 +107,35 @@ class layout extends Controller {
       $GINO = $this->info();
     }
 
-    $view = new view();
-    $view->setViewTpl('tab');
-    $dict = array(
-      'title' => _('Layout'),
-      'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
-      'selected_link' => $sel_link,
-      'content' => $GINO
-    );
-    return $view->render($dict);
+		$view = new \Gino\View();
+		$view->setViewTpl('tab');
+		$dict = array(
+			'title' => _('Layout'),
+			'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
+			'selected_link' => $sel_link,
+			'content' => $GINO
+		);
+		return $view->render($dict);
 
 	}
 
-  private function manageTemplate() {
-
-    $id = cleanVar($_REQUEST, 'id', 'int', '');
-    $tpl = Loader::load('Template', array($id));
+	private function manageTemplate() {
+		
+		$id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
+		$tpl = \Gino\Loader::load('Template', array($id));
 
     if($this->_action == 'mngblocks') {
       echo $tpl->tplBlockForm(); 
       exit();
     }
     elseif($this->_action == 'mngtpl') {
-        $css_id = cleanVar($_POST, 'css', 'int', '');
-        $css = Loader::load('Css', array('layout', array('id'=>$css_id)));
+        $css_id = \Gino\cleanVar($_POST, 'css', 'int', '');
+        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$css_id)));
         echo $tpl->manageTemplate($css, $id);
         exit();
     }
     elseif($this->_action == 'insert' || $this->_action == 'modify') {
-      $free = cleanVar($_GET, 'free', 'int', null);
+      $free = \Gino\cleanVar($_GET, 'free', 'int', null);
       if($free) {
         $buffer = $tpl->formFreeTemplate();
       }
@@ -163,20 +164,19 @@ class layout extends Controller {
     }
 
     return $buffer;
-
   }
 
   private function manageSkin() {
 
-    $id = cleanVar($_REQUEST, 'id', 'int', '');
-    $skin = Loader::load('Skin', array($id));
+    $id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
+    $skin = \Gino\Loader::load('Skin', array($id));
 
     if($this->_action == 'insert' || $this->_action == 'modify') {
       $buffer = $skin->formSkin();
     }
     elseif($this->_action == 'sortup') {
       $skin->sortUp();
-      Link::HttpCall($this->_home, $this->_class_name.'-manageLayout', "block=skin");
+      \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageLayout', "block=skin");
     }
     elseif($this->_action == 'delete') {
       $buffer = $skin->formDelSkin();
@@ -186,13 +186,12 @@ class layout extends Controller {
     }
 
     return $buffer;
-
   }
 
   private function manageCss() {
 
-    $id = cleanVar($_REQUEST, 'id', 'int', '');
-    $css = Loader::load('Css', array('layout', array('id' => $id)));
+    $id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
+    $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
 
     if($this->_action == 'insert' || $this->_action == 'modify') {
       $buffer = $css->formCssLayout();
@@ -201,7 +200,7 @@ class layout extends Controller {
       $buffer = $css->formDelCssLayout();
     }
     elseif($this->_action == 'edit') {
-      $fname = cleanVar($_GET, 'fname', 'string', null);
+      $fname = \Gino\cleanVar($_GET, 'fname', 'string', null);
       $buffer = $this->formFiles($fname, 'css');
     }
     else {
@@ -209,13 +208,12 @@ class layout extends Controller {
     }
 
     return $buffer;
-
   }
 
   private function manageView() {
 
     if($this->_action == 'edit') {
-      $fname = cleanVar($_GET, 'fname', 'string', null);
+      $fname = \Gino\cleanVar($_GET, 'fname', 'string', null);
       $buffer = $this->formFiles($fname, 'view');
     }
     else {
@@ -223,37 +221,36 @@ class layout extends Controller {
     }
 
     return $buffer;
-
   }
 
 	private function skinList() {
 
-    Loader::import('class', 'Template');
-    Loader::import('class', 'Css');
+		\Gino\Loader::import('class', '\Gino\Template');
+		\Gino\Loader::import('class', '\Gino\Css');
 
-		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&action=insert\">".pub::icon('insert', array('text' => _("nuova skin"), 'scale'=>2))."</a>";
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuova skin"), 'scale'=>2))."</a>";
 
-		$skin_list = skin::getAll();
+		$skin_list = \Gino\Skin::getAll();
 		if(count($skin_list)) {
-      $view_table = new view();
-      $view_table->setViewTpl('table');
-      $view_table->assign('heads', array(
-        _('etichetta'),
-        _('template'),
-        _('css'),
-        _('autenticazione'),
-        _('cache'),
-        ''
-      ));
-      $tbl_rows = array();
+			$view_table = new \Gino\View();
+			$view_table->setViewTpl('table');
+			$view_table->assign('heads', array(
+			_('etichetta'),
+			_('template'),
+			_('css'),
+			_('autenticazione'),
+			_('cache'),
+			''
+			));
+			$tbl_rows = array();
 
-      $i = 0;
+			$i = 0;
 			foreach($skin_list as $skin) {
-				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=modify\">".pub::icon('modify')."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=delete\">".pub::icon('delete')."</a>";
-        $link_sort = $i ? "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=sortup\">".pub::icon('sort-up')."</a>" : '';
-        $tpl = new Template($skin->template);
-        $css = new Css('layout', array('id' => $skin->css));
+				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=modify\">".\Gino\pub::icon('modify')."</a>";
+				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=delete\">".\Gino\pub::icon('delete')."</a>";
+        $link_sort = $i ? "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&id={$skin->id}&action=sortup\">".\Gino\pub::icon('sort-up')."</a>" : '';
+        $tpl = new \Gino\Template($skin->template);
+        $css = new \Gino\Css('layout', array('id' => $skin->css));
         $tbl_rows[] = array(
           $skin->ml('label'),
           $tpl->ml('label'),
@@ -262,119 +259,119 @@ class layout extends Controller {
           $skin->cache ? _('si') : _('no'),
           array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
         );
-        $i++;
+				$i++;
 			}	
-      $view_table->assign('class', 'table table-striped', 'table-hover');
-      $view_table->assign('rows', $tbl_rows);
-      $buffer = "<p class=\"backoffice-info\">"._('Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull\'icona a forma di freccia.')."</p>";
-      $buffer .= $view_table->render();
+			$view_table->assign('class', 'table table-striped', 'table-hover');
+			$view_table->assign('rows', $tbl_rows);
+			$buffer = "<p class=\"backoffice-info\">"._('Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull\'icona a forma di freccia.')."</p>";
+			$buffer .= $view_table->render();
 		}
 		else {
 			$buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
 		}
 
-		$view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Elenco skin'),
-      'class' => 'admin',
-      'header_links' => $link_insert,
-      'content' => $buffer
-    );
+		$view = new \Gino\View();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => _('Elenco skin'),
+			'class' => 'admin',
+			'header_links' => $link_insert,
+			'content' => $buffer
+		);
     
-    return $view->render($dict);
-
+		return $view->render($dict);
 	}
 	
 	private function templateList() {
 
-		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert\">".pub::icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2))."</a>";
-		$link_insert_free = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert&free=1\">".pub::icon('code', array('text' => _("nuovo template libero"), 'scale'=>2))."</a>";
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2))."</a>";
+		$link_insert_free = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert&free=1\">".\Gino\pub::icon('code', array('text' => _("nuovo template libero"), 'scale'=>2))."</a>";
 	
-		$tpl_list = template::getAll();
+		$tpl_list = \Gino\Template::getAll();
 		if(count($tpl_list)) {
-      $view_table = new view();
-      $view_table->setViewTpl('table');
-      $view_table->assign('heads', array(
-        _('etichetta'),
-        _('file'),
-        _('descrizione'),
-        ''
-      ));
-      $tbl_rows = array();
-      foreach($tpl_list as $tpl) {
-				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=modify&free=".$tpl->free."\">".pub::icon('modify', array('text' => _("modifica il template")))."</a>";
-				$link_outline = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=outline\">".pub::icon('layout', array('text' => _("modifica lo schema")))."</a>";
-				$link_copy = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=copy\">".pub::icon('copy', array('text' => _("crea una copia")))."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=delete\">".pub::icon('delete')."</a>";
-        $links = $tpl->free 
-          ? array($link_delete, $link_modify)
-          : array($link_delete, $link_copy, $link_modify, $link_outline);
-        $tbl_rows[] = array(
-          $tpl->ml('label'),
-          $tpl->filename,
-          $tpl->ml('description'),
-          implode(' &#160; ', $links)
-        );
-      }
-      $view_table->assign('class', 'table table-striped', 'table-hover');
-      $view_table->assign('rows', $tbl_rows);
-      $buffer = $view_table->render();
+			$view_table = new \Gino\View();
+			$view_table->setViewTpl('table');
+			$view_table->assign('heads', array(
+			_('etichetta'),
+			_('file'),
+			_('descrizione'),
+			''
+			));
+			$tbl_rows = array();
+			foreach($tpl_list as $tpl) {
+				$link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=modify&free=".$tpl->free."\">".\Gino\pub::icon('modify', array('text' => _("modifica il template")))."</a>";
+				$link_outline = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=outline\">".\Gino\pub::icon('layout', array('text' => _("modifica lo schema")))."</a>";
+				$link_copy = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=copy\">".\Gino\pub::icon('copy', array('text' => _("crea una copia")))."</a>";
+				$link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&id={$tpl->id}&action=delete\">".\Gino\pub::icon('delete')."</a>";
+				
+				$links = $tpl->free 
+				? array($link_delete, $link_modify)
+				: array($link_delete, $link_copy, $link_modify, $link_outline);
+				
+				$tbl_rows[] = array(
+					$tpl->ml('label'),
+					$tpl->filename,
+					$tpl->ml('description'),
+					implode(' &#160; ', $links)
+				);
+			}
+			$view_table->assign('class', 'table table-striped', 'table-hover');
+			$view_table->assign('rows', $tbl_rows);
+			$buffer = $view_table->render();
 		}
 		else {
 			$buffer = "<p>"._("Non risultano template registrati")."</p>\n";
 		}
-
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Elenco template'),
-      'class' => 'admin',
-      'header_links' => array($link_insert, $link_insert_free),
-      'content' => $buffer
-    );
+		
+		$view = new \Gino\View();
+		$view->setViewTpl('section');
+		$dict = array(
+		'title' => _('Elenco template'),
+		'class' => 'admin',
+		'header_links' => array($link_insert, $link_insert_free),
+		'content' => $buffer
+		);
     
-    return $view->render($dict);
-
+		return $view->render($dict);
 	}
 
 	private function cssList() {
 	
 		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&action=insert\">".pub::icon('insert', array('text' => _("nuovo file css"), 'scale'=>2))."</a>";
 
-    $view_table = new view();
-    $view_table->setViewTpl('table');
-    $view_table->assign('heads', array(
-      _('etichetta'),
-      _('file'),
-      _('descrizione'),
-      ''
-    ));
-    $tbl_rows = array();
+		$view_table = new \Gino\View();
+		$view_table->setViewTpl('table');
+		$view_table->assign('heads', array(
+			_('etichetta'),
+			_('file'),
+			_('descrizione'),
+			''
+		));
+		$tbl_rows = array();
 
-    $dir = CSS_DIR;
-    $files = array();
-    if(is_dir($dir)) {
-      if($dh = opendir($dir)) {
-        while (($file = readdir($dh)) !== false) {
-          if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.css$#', $file)) {
-            $files[] = $file;
-          }
-        }
-        closedir($dh);
-      }
-    }
+		$dir = CSS_DIR;
+		$files = array();
+		if(is_dir($dir)) {
+			if($dh = opendir($dir)) {
+				while (($file = readdir($dh)) !== false) {
+					if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.css$#', $file)) {
+						$files[] = $file;
+					}
+				}
+				closedir($dh);
+			}
+		}
 
     foreach($files as $file) {
-      $css = Css::getFromFilename($file);
-      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&fname=$file&action=edit\">".pub::icon('write', array('text' => _('modifica file')))."</a>";
+      $css = \Gino\Css::getFromFilename($file);
+      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&fname=$file&action=edit\">".\Gino\pub::icon('write', array('text' => _('modifica file')))."</a>";
       if($css and $css->id) {
-        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=modify\">".pub::icon('modify')."</a>";
-        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=delete\">".pub::icon('delete')."</a>";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=modify\">".\Gino\pub::icon('modify')."</a>";
+        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&id={$css->id}&action=delete\">".\Gino\pub::icon('delete')."</a>";
         $tbl_rows[] = array(
-          htmlChars($css->ml('label')),
+          \Gino\htmlChars($css->ml('label')),
           $file,
-          htmlChars($css->ml('description')),
+          \Gino\htmlChars($css->ml('description')),
           implode(' &#160; ', array($link_edit, $link_modify, $link_delete))
         );
       }
@@ -388,29 +385,29 @@ class layout extends Controller {
       }
     }
 
-    $view_table->assign('class', 'table table-striped', 'table-hover');
-    $view_table->assign('rows', $tbl_rows);
+		$view_table->assign('class', 'table table-striped', 'table-hover');
+		$view_table->assign('rows', $tbl_rows);
 
-    $buffer = "<div class=\"backoffice-info\">";
-    $buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
-    $buffer .= "</div>";
-    $buffer .= $view_table->render();
+		$buffer = "<div class=\"backoffice-info\">";
+		$buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
+		$buffer .= "</div>";
+		$buffer .= $view_table->render();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Elenco fogli di stile'),
-      'class' => 'admin',
-      'header_links' => $link_insert,
-      'content' => $buffer
-    );
+		$view = new \Gino\View();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => _('Elenco fogli di stile'),
+			'class' => 'admin',
+			'header_links' => $link_insert,
+			'content' => $buffer
+		);
     
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 
   private function viewList() {
 	
-    $view_table = new view();
+    $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
     $view_table->assign('heads', array(
       _('file'),
@@ -432,7 +429,7 @@ class layout extends Controller {
     }
 
     foreach($files as $file) {
-      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=view&fname=$file&action=edit\">".pub::icon('write', array('text' => _('modifica file')))."</a>";
+      $link_edit = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=view&fname=$file&action=edit\">".\Gino\pub::icon('write', array('text' => _('modifica file')))."</a>";
       $tbl_rows[] = array(
           $file,
           $link_edit
@@ -448,7 +445,7 @@ class layout extends Controller {
     $buffer .= "</div>";
     $buffer .= $view_table->render();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco viste generali di sistema'),
@@ -468,13 +465,13 @@ class layout extends Controller {
     $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.")."</li>";
     $GINO .= "<li>"._("Settare la priorità della skin spostandola in alto o in basso.")."</li>";
     $GINO .= "</ul>";
-    $GINO .= css::layoutInfo();
-    $GINO .= Template::layoutInfo();
-    $GINO .= Skin::layoutInfo();
+    $GINO .= \Gino\Css::layoutInfo();
+    $GINO .= \Gino\Template::layoutInfo();
+    $GINO .= \Gino\Skin::layoutInfo();
     $GINO .= "<h2>"._('Viste')."</h2>";
     $GINO .= "<p>"._('In questa sezione si possono modificare le viste di sistema di gino. Sono viste generali utilizzate da buona parte dei moduli e dalla stessa area amministrativa.')."</p>";
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Layout'),
@@ -489,8 +486,8 @@ class layout extends Controller {
 		
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$skin = new skin($id);
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$skin = new \Gino\Skin($id);
 		$skin->actionSkin();
 
 		exit();
@@ -500,8 +497,8 @@ class layout extends Controller {
 		
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$skin = new skin($id);
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$skin = new \Gino\Skin($id);
 		$skin->actionDelSkin();
 
 		exit();
@@ -511,8 +508,8 @@ class layout extends Controller {
 		
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$css = new css('layout', array('id'=>$id));
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$css = new \Gino\Css('layout', array('id'=>$id));
 		$css->actionCssLayout();
 
 		exit();
@@ -522,8 +519,8 @@ class layout extends Controller {
 		
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$css = new css('layout', array('id'=>$id));
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$css = new \Gino\Css('layout', array('id'=>$id));
 		$css->actionDelCssLayout();
 
 		exit();
@@ -533,15 +530,16 @@ class layout extends Controller {
 
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$free = cleanVar($_POST, 'free', 'int', '');
-    $tpl = new template($id);
-    if($free) {
-      $tpl->actionFreeTemplate();
-    }
-    else {
-      $tpl->actionTemplate();
-    }
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$free = \Gino\cleanVar($_POST, 'free', 'int', '');
+		
+		$tpl = new \Gino\Template($id);
+		if($free) {
+			$tpl->actionFreeTemplate();
+		}
+		else {
+			$tpl->actionTemplate();
+		}
 
 		exit();
 	}
@@ -550,8 +548,8 @@ class layout extends Controller {
 		
 		$this->requirePerm('can_admin');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$tpl = new template($id);
+		$id = \Gino\cleanVar($_POST, 'id', 'int', '');
+		$tpl = new \Gino\Template($id);
 		$tpl->actionDelTemplate();
 
 		exit();
@@ -565,32 +563,32 @@ class layout extends Controller {
 	 */
 	public function modulesCodeList() {
 
-    $this->requirePerm('can_admin');
+		$this->requirePerm('can_admin');
 
-    Loader::import('page', 'PageEntry');
-    Loader::import('auth', 'Permission');
-    Loader::import('module', 'ModuleInstance');
-    Loader::import('sysClass', 'ModuleApp');
+		\Gino\Loader::import('page', '\Gino\App\Page\PageEntry');
+		\Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
+		\Gino\Loader::import('module', 'Gino\App\Module\ModuleInstance');
+		\Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
 
-    $view_table = new view();
-    $view_table->setViewTpl('table');
-    $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
-    $tbl_rows = array();
+		$view_table = new \Gino\View();
+		$view_table->setViewTpl('table');
+		$view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+		$tbl_rows = array();
 
 		/*
 		 * Pages
 		 */
-    $tbl_rows[] = array(
-      array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
-    );
-    $tbl_rows[] = array(
-      array('text' =>_('titolo'), 'header' => true),
-      array('text' =>_('vista'), 'header' => true),
-      array('text' =>_('permessi'), 'header' => true),
-      array('text' =>_('codice'), 'header' => true)
-    );
+		$tbl_rows[] = array(
+			array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+		);
+		$tbl_rows[] = array(
+			array('text' =>_('titolo'), 'header' => true),
+			array('text' =>_('vista'), 'header' => true),
+			array('text' =>_('permessi'), 'header' => true),
+			array('text' =>_('codice'), 'header' => true)
+		);
 
-    $pages = PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
+		$pages = \Gino\App\Page\PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
 		if(count($pages)) {
 			foreach($pages as $page) {
 				$access_txt = '';
@@ -601,17 +599,17 @@ class layout extends Controller {
 				}
 				if($page->users)
 					$access_txt .= _("pagina limitata ad utenti selezionati");
-        if(!$page->private and !$page->users) 
-          $access_txt .= _('pubblica');
+				if(!$page->private and !$page->users) 
+					$access_txt .= _('pubblica');
 				
 				$code_full = "{module pageid=".$page->id." func=full}";
-        $url = $page->getIdUrl(true);
-        $tbl_rows[] = array(
-          htmlChars($page->ml('title')),
-          _("Pagina completa"),
-          $access_txt,
-          $code_full
-        );
+				$url = $page->getIdUrl(true);
+				$tbl_rows[] = array(
+					\Gino\htmlChars($page->ml('title')),
+					_("Pagina completa"),
+					$access_txt,
+					$code_full
+				);
 			}
 		}
     
@@ -628,45 +626,46 @@ class layout extends Controller {
       array('text' =>_('codice'), 'header' => true)
     );
 
-    $modules = ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
+		$modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
 		if(count($modules)) {
 			foreach($modules as $module) {
-        $class = $module->className();
-        $output_functions = method_exists($class, 'outputFunctions') 
-          ? call_user_func(array($class, 'outputFunctions'))
-          : array();
+				$class = $module->className();
+				$output_functions = method_exists($class, 'outputFunctions') 
+				? call_user_func(array($class, 'outputFunctions'))
+				: array();
+				
 				if(count($output_functions)) {
-          $first = true;
+					$first = true;
 					foreach($output_functions as $func=>$data) {
-            $permissions_code = $data['permissions'];
-            $permissions = array();
-            if($permissions_code and count($permissions_code)) {
-              foreach($permissions_code as $permission_code) {
-                $p = Permission::getFromFullCode($permission_code);
-                $permissions[] = $p->label;
-              }
-            }
+						$permissions_code = $data['permissions'];
+						$permissions = array();
+						if($permissions_code and count($permissions_code)) {
+							foreach($permissions_code as $permission_code) {
+								$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+								$permissions[] = $p->label;
+							}
+						}
 						$code = "{module classid=".$module->id." func=".$func."}";
-            $row = array(
-              $data['label'],
-              count($permissions) ? implode(', ', $permissions) : _('pubblico'),
-              $code
-            );
-            if($first) {
-              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
-              $first = false;
-            }
-            else {
-              $tbl_rows[] = $row;
-            }
-					}	
-        }
-      }
-    }
+						$row = array(
+							$data['label'],
+							count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+							$code
+						);
+						if($first) {
+							$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+							$first = false;
+						}
+						else {
+							$tbl_rows[] = $row;
+						}
+					}
+				}
+			}
+		}
 
 		/*
 		 * Modules sys_module_app
-     */
+		 */
     $tbl_rows[] = array(
       array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
     );
@@ -677,66 +676,67 @@ class layout extends Controller {
       array('text' =>_('codice'), 'header' => true)
     );
 
-    $modules_app = ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+		$modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
 		if(count($modules_app)) {
 			foreach($modules_app as $module_app) {
-        $class = $module_app->className();
-        $output_functions = method_exists($class, 'outputFunctions') 
-          ? call_user_func(array($class, 'outputFunctions'))
-          : array();
+				$class = $module_app->className();
+				$output_functions = method_exists($class, 'outputFunctions') 
+				? call_user_func(array($class, 'outputFunctions'))
+				: array();
+				
 				if(count($output_functions)) {
-          $first = true;
+					$first = true;
 					foreach($output_functions as $func=>$data) {
-            $permissions_code = $data['permissions'];
-            $permissions = array();
-            if($permissions_code and count($permissions_code)) {
-              foreach($permissions_code as $permission_code) {
-                $p = Permission::getFromFullCode($permission_code);
-                $permissions[] = $p->label;
-              }
-            }
+						$permissions_code = $data['permissions'];
+						$permissions = array();
+						if($permissions_code and count($permissions_code)) {
+							foreach($permissions_code as $permission_code) {
+								$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+								$permissions[] = $p->label;
+							}
+						}
 						$code = "{module sysclassid=".$module_app->id." func=".$func."}";
-            $row = array(
-              $data['label'],
-              count($permissions) ? implode(', ', $permissions) : _('pubblico'),
-              $code
-            );
-            if($first) {
-              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
-              $first = false;
-            }
-            else {
-              $tbl_rows[] = $row;
-            }
+						$row = array(
+							$data['label'],
+							count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+							$code
+						);
+						if($first) {
+							$tbl_rows[] = array_merge(array(array('text' => htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+							$first = false;
+						}
+						else {
+							$tbl_rows[] = $row;
+						}
 					}	
-        }
-      }
-    }
+				}
+			}
+		}
 
 		/*
 		 * Url module
-     */
-    $tbl_rows[] = array(
-      array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
-    );
-    $tbl_rows[] = array(
-      array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
-      array('text' =>_('permessi'), 'header' => true),
-      array('text' =>_('codice'), 'header' => true)
-    );
+		 */
+		$tbl_rows[] = array(
+			array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+		);
+		$tbl_rows[] = array(
+			array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
+			array('text' =>_('permessi'), 'header' => true),
+			array('text' =>_('codice'), 'header' => true)
+		);
 		$code = "{module id=0}";
-    $tbl_rows[] = array(
-      array(
-        'text' => _("Modulo da url"),
-        'colspan' => 2
-      ),
-      _("Prende i permessi del modulo chiamato"),
-      $code
-    );
+		$tbl_rows[] = array(
+			array(
+				'text' => _("Modulo da url"),
+				'colspan' => 2
+			),
+			_("Prende i permessi del modulo chiamato"),
+			$code
+		);
 
-    $buffer = "<div>";
-    $view_table->assign('rows', $tbl_rows);
-    $buffer .= $view_table->render();
+		$buffer = "<div>";
+		$view_table->assign('rows', $tbl_rows);
+		$buffer .= $view_table->render();
 		$buffer .= "</div>";
 
 		return $buffer;
@@ -751,35 +751,35 @@ class layout extends Controller {
 	 */
 	public function modulesList() {
 
-    $this->requirePerm('can_admin');
+		$this->requirePerm('can_admin');
 
-    Loader::import('page', 'PageEntry');
-    Loader::import('auth', 'Permission');
-    Loader::import('module', 'ModuleInstance');
-    Loader::import('sysClass', 'ModuleApp');
+		\Gino\Loader::import('page', 'PageEntry');
+		\Gino\Loader::import('auth', 'Permission');
+		\Gino\Loader::import('module', 'ModuleInstance');
+		\Gino\Loader::import('sysClass', 'ModuleApp');
 
-		$nav_id = cleanVar($_GET, 'nav_id', 'string', '');
-		$refillable_id = cleanVar($_GET, 'refillable_id', 'string', '');
-		$fill_id = cleanVar($_GET, 'fill_id', 'string', '');
+		$nav_id = \Gino\cleanVar($_GET, 'nav_id', 'string', '');
+		$refillable_id = \Gino\cleanVar($_GET, 'refillable_id', 'string', '');
+		$fill_id = \Gino\cleanVar($_GET, 'fill_id', 'string', '');
 
-    $view_table = new view();
-    $view_table->setViewTpl('table');
-    $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
-    $tbl_rows = array();
+		$view_table = new \Gino\View();
+		$view_table->setViewTpl('table');
+		$view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+		$tbl_rows = array();
 
 		/*
 		 * Pages
 		 */
-    $tbl_rows[] = array(
-      array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
-    );
-    $tbl_rows[] = array(
-      array('text' =>_('titolo'), 'header' => true),
-      array('text' =>_('vista'), 'header' => true),
-      array('text' =>_('permessi'), 'header' => true)
-    );
+		$tbl_rows[] = array(
+			array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+		);
+		$tbl_rows[] = array(
+			array('text' =>_('titolo'), 'header' => true),
+			array('text' =>_('vista'), 'header' => true),
+			array('text' =>_('permessi'), 'header' => true)
+		);
 
-    $pages = PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
+		$pages = \Gino\App\Page\PageEntry::get(array('where' => "published='1'", 'order' => 'title'));
 		if(count($pages)) {
 			foreach($pages as $page) {
 				$access_txt = '';
@@ -790,22 +790,23 @@ class layout extends Controller {
 				}
 				if($page->users)
 					$access_txt .= _("pagina limitata ad utenti selezionati");
-        if(!$page->private and !$page->users) 
-          $access_txt .= _('pubblica');
+				if(!$page->private and !$page->users)
+					$access_txt .= _('pubblica');
 				
 				$code_full = "{module pageid=".$page->id." func=full}";
-        $url = $page->getIdUrl(true);
-        $tbl_rows[] = array(
-          htmlChars($page->ml('title')),
-          "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
-          $access_txt
-        );
+				
+				$url = $page->getIdUrl(true);
+				$tbl_rows[] = array(
+					\Gino\htmlChars($page->ml('title')),
+					"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\jsVar(\Gino\htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
+					$access_txt
+				);
 			}
 		}
     
 		/*
 		 * Modules sys_module
-     */
+		 */
     $tbl_rows[] = array(
       array('text' => _('Istanze di moduli'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
     );
@@ -815,44 +816,46 @@ class layout extends Controller {
       array('text' =>_('permessi'), 'header' => true)
     );
 
-    $modules = ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
+		$modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
 		if(count($modules)) {
 			foreach($modules as $module) {
-        $class = $module->className();
-        $output_functions = method_exists($class, 'outputFunctions') 
-          ? call_user_func(array($class, 'outputFunctions'))
-          : array();
+				$class = $module->className();
+				$output_functions = method_exists($class, 'outputFunctions') 
+				? call_user_func(array($class, 'outputFunctions'))
+				: array();
+				
 				if(count($output_functions)) {
-          $first = true;
+					$first = true;
 					foreach($output_functions as $func=>$data) {
-            $permissions_code = $data['permissions'];
-            $permissions = array();
-            if($permissions_code and count($permissions_code)) {
-              foreach($permissions_code as $permission_code) {
-                $p = Permission::getFromFullCode($permission_code);
-                $permissions[] = $p->label;
-              }
-            }
+						$permissions_code = $data['permissions'];
+						$permissions = array();
+						if($permissions_code and count($permissions_code)) {
+							foreach($permissions_code as $permission_code) {
+								$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+								$permissions[] = $p->label;
+							}
+						}
 						$code = "{module classid=".$module->id." func=".$func."}";
-            $row = array(
-              "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($module->label)." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
-              count($permissions) ? implode(', ', $permissions) : _('pubblico')
-            );
-            if($first) {
-              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
-              $first = false;
-            }
-            else {
-              $tbl_rows[] = $row;
-            }
-					}	
-        }
-      }
-    }
+						
+						$row = array(
+							"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+							count($permissions) ? implode(', ', $permissions) : _('pubblico')
+						);
+						if($first) {
+							$tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+							$first = false;
+						}
+						else {
+							$tbl_rows[] = $row;
+						}
+					}
+				}
+			}
+		}
 
 		/*
 		 * Modules sys_module_app
-     */
+		 */
     $tbl_rows[] = array(
       array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
     );
@@ -862,40 +865,42 @@ class layout extends Controller {
       array('text' =>_('permessi'), 'header' => true)
     );
 
-    $modules_app = ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+		$modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
 		if(count($modules_app)) {
 			foreach($modules_app as $module_app) {
-        $class = $module_app->className();
-        $output_functions = method_exists($class, 'outputFunctions') 
-          ? call_user_func(array($class, 'outputFunctions'))
-          : array();
+				$class = $module_app->className();
+				$output_functions = method_exists($class, 'outputFunctions') 
+				? call_user_func(array($class, 'outputFunctions'))
+				: array();
+				
 				if(count($output_functions)) {
-          $first = true;
+					$first = true;
 					foreach($output_functions as $func=>$data) {
-            $permissions_code = $data['permissions'];
-            $permissions = array();
-            if($permissions_code and count($permissions_code)) {
-              foreach($permissions_code as $permission_code) {
-                $p = Permission::getFromFullCode($permission_code);
-                $permissions[] = $p->label;
-              }
-            }
+						$permissions_code = $data['permissions'];
+						$permissions = array();
+						if($permissions_code and count($permissions_code)) {
+							foreach($permissions_code as $permission_code) {
+								$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+								$permissions[] = $p->label;
+							}
+						}
 						$code = "{module sysclassid=".$module_app->id." func=".$func."}";
-            $row = array(
-              "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($module_app->label)." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
-              count($permissions) ? implode(', ', $permissions) : _('pubblico')
-            );
-            if($first) {
-              $tbl_rows[] = array_merge(array(array('text' => htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
-              $first = false;
-            }
-            else {
-              $tbl_rows[] = $row;
-            }
-					}	
-        }
-      }
-    }
+						
+						$row = array(
+							"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?pt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+							count($permissions) ? implode(', ', $permissions) : _('pubblico')
+						);
+						if($first) {
+							$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+							$first = false;
+						}
+						else {
+							$tbl_rows[] = $row;
+						}
+					}
+				}
+			}
+		}
 
 		/*
 		 * Url module
@@ -916,9 +921,9 @@ class layout extends Controller {
       _("Prende i permessi del modulo chiamato")
     );
 
-    $buffer = "<div>";
-    $view_table->assign('rows', $tbl_rows);
-    $buffer .= $view_table->render();
+		$buffer = "<div>";
+		$view_table->assign('rows', $tbl_rows);
+		$buffer .= $view_table->render();
 		$buffer .= "</div>";
 
 		return $buffer;
@@ -973,7 +978,7 @@ class layout extends Controller {
 		
 		if(is_file($pathToFile))
 		{
-			$gform = Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
+			$gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
 			$gform->load('dataform');
 			$buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '');
 			$buffer .= $gform->hidden('fname', $filename);
@@ -981,29 +986,29 @@ class layout extends Controller {
 			$buffer .= $gform->hidden('action', $action);
 
 			$contents = file_get_contents($pathToFile);
-      $buffer .= "<div class=\"form-row\">";
+			$buffer .= "<div class=\"form-row\">";
 			$buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
-      $buffer .= "</div>";
-
-      $buffer .= "<div class=\"form-row\">";
+			$buffer .= "</div>";
+			
+			$buffer .= "<div class=\"form-row\">";
 			$buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
 			$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
-      $buffer .= "</div>";
-
-      $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+			$buffer .= "</div>";
+			
+			$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
 			$buffer .= $gform->close();
 		}
 		
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new \Gino\View();
+		$view->setViewTpl('section');
+		$dict = array(
+		'title' => $title,
+		'class' => 'admin',
+		'content' => $buffer
+		);
 
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 	
 	/**
@@ -1011,11 +1016,11 @@ class layout extends Controller {
 	 */
 	public function actionFiles() {
 
-    $this->requirePerm('can_admin');
+		$this->requirePerm('can_admin');
 	
-		$action = cleanVar($_POST, 'action', 'string', '');
-		$filename = cleanVar($_POST, 'fname', 'string', '');
-		$code = cleanVar($_POST, 'code', 'string', '');
+		$action = \Gino\cleanVar($_POST, 'action', 'string', '');
+		$filename = \Gino\cleanVar($_POST, 'fname', 'string', '');
+		$code = \Gino\cleanVar($_POST, 'code', 'string', '');
 
 		if($code == 'css')
 		{

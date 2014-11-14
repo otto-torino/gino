@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\Plugin;
 
 /**
  * @brief Libreria di connessione ai database SQL Server
@@ -17,7 +18,7 @@
  * 
  * Nel file configuration.php definire come valore della costante DB_HOST il nome del dsn.
  */
-class odbc implements DbManager {
+class odbc implements \Gino\DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;

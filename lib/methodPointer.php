@@ -11,11 +11,12 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 if(isset($_REQUEST['pt'])) {
 
-  Loader::import('sysClass', 'ModuleApp');
-  Loader::import('module', 'ModuleInstance');
+	Loader::import('sysClass', 'ModuleApp');
+	Loader::import('module', 'ModuleInstance');
 	
 	$db = db::instance();
 
@@ -24,18 +25,18 @@ if(isset($_REQUEST['pt'])) {
 	if(preg_match('#^[^a-zA-Z0-9_-]+?#', $mypointer)) return null;
 	
 	list($mdl, $function) = explode("-", key($_REQUEST['pt']));
-  $module_app = ModuleApp::getFromName($mdl);
-  if($module_app && !$module_app->instantiable) {
-    $class = $mdl;
-    $instance = new $mdl();
-  }
-  elseif($module = ModuleInstance::getFromName($mdl)) {
-    $class = $module->className();
-    $instance = new $class($module->id);
-  }
-  else {
-    exit(error::syserrorMessage("methodPointer", "none", "Modulo sconosciuto", __LINE__));
-  }
+	$module_app = ModuleApp::getFromName($mdl);
+	if($module_app && !$module_app->instantiable) {
+		$class = $mdl;
+		$instance = new $mdl();
+	}
+	elseif($module = ModuleInstance::getFromName($mdl)) {
+		$class = $module->className();
+		$instance = new $class($module->id);
+	}
+	else {
+		exit(error::syserrorMessage("methodPointer", "none", "Modulo sconosciuto", __LINE__));
+	}
 
 	$methodCheck = parse_ini_file(APP_DIR.OS.$class.OS.$class.".ini", true);
 	$publicMethod = @$methodCheck['PUBLIC_METHODS'][$function];

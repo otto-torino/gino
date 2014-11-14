@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\Plugin;
 
 /**
  * @brief Libreria di connessione ai database MySQL
@@ -33,7 +34,7 @@
  * Con la proprietà self::$_debug è possibile attivare un debug sulle performace delle chiamate al database. \n
  * Le query di tipo select alimentano un contatore che può essere visualizzato attraverso l'intefaccia getCnt().
  */
-class mysql implements DbManager {
+class mysql implements \Gino\DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;
@@ -623,11 +624,11 @@ class mysql implements DbManager {
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 
-		$order = gOpt('order', $options, null);
-		$group_by = gOpt('group_by', $options, null);
-		$distinct = gOpt('distinct', $options, null);
-		$limit = gOpt('limit', $options, null);
-		$debug = gOpt('debug', $options, false);
+		$order = \Gino\gOpt('order', $options, null);
+		$group_by = \Gino\gOpt('group_by', $options, null);
+		$distinct = \Gino\gOpt('distinct', $options, null);
+		$limit = \Gino\gOpt('limit', $options, null);
+		$debug = \Gino\gOpt('debug', $options, false);
 		
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
@@ -770,7 +771,7 @@ class mysql implements DbManager {
 	 */
 	public function columnHasValue($table, $field, $value, $options=array()) {
 		
-		$except_id = gOpt('except_id', $options, null);
+		$except_id = \Gino\gOpt('except_id', $options, null);
 		
 		$where = $field."='$value'";
 		if($except_id) $where .= " AND id!='$except_id'";
@@ -796,8 +797,8 @@ class mysql implements DbManager {
 	 */
 	public function union($queries, $options=array()) {
 		
-		$debug = gOpt('debug', $options, false);
-		$instruction = gOpt('instruction', $options, 'UNION');
+		$debug = \Gino\gOpt('debug', $options, false);
+		$instruction = \Gino\gOpt('instruction', $options, 'UNION');
 		
 		if(count($queries))
 		{
@@ -815,12 +816,12 @@ class mysql implements DbManager {
 	 */
 	public function restore($table, $filename, $options=array()) {      
 	
-		$fields = gOpt('fields', $options, null);
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
-		$escaped = gOpt('escaped', $options, '\\');
-		$lineend = gOpt('lineend', $options, '\\r\\n');
-		$hasheader = gOpt('hasheader', $options, false);
+		$fields = \Gino\gOpt('fields', $options, null);
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, '"');
+		$escaped = \Gino\gOpt('escaped', $options, '\\');
+		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
+		$hasheader = \Gino\gOpt('hasheader', $options, false);
 		
 		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
@@ -842,8 +843,8 @@ class mysql implements DbManager {
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, '"');
 		
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
 		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 

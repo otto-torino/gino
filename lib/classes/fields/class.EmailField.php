@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Campo di tipo EMAIL
@@ -17,7 +18,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class emailField extends field {
+class emailField extends Field {
 
 	/**
 	 * Costruttore
@@ -40,7 +41,7 @@ class emailField extends field {
 	public function clean($options=array()) {
 		
 		$method = isset($options['method']) ? $options['method'] : $_POST;
-		return filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
+		return \filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
 	}
 
 	/**

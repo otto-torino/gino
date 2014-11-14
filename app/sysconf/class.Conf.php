@@ -1,6 +1,7 @@
 <?php
+namespace Gino\App\Sysconf;
 
-class Conf extends Model {
+class Conf extends \Gino\Model {
 
   function __construct() {
 
@@ -50,7 +51,7 @@ class Conf extends Model {
 
     $structure = parent::structure($id);
 
-    $structure['multi_language'] = new BooleanField(array(
+    $structure['multi_language'] = new \Gino\BooleanField(array(
       'name'=>'multi_language', 
       'model'=>$this,
       'required'=>true,
@@ -58,7 +59,7 @@ class Conf extends Model {
       'default'=>0,
     ));
 
-    $structure['dft_language'] = new ForeignKeyField(array(
+    $structure['dft_language'] = new \Gino\ForeignKeyField(array(
       'name'=>'dft_language', 
       'model'=>$this,
       'required'=>true,
@@ -67,7 +68,7 @@ class Conf extends Model {
       'foreign_order'=>'language', 
     ));
 
-    $structure['log_access'] = new BooleanField(array(
+    $structure['log_access'] = new \Gino\BooleanField(array(
       'name'=>'log_access', 
       'model'=>$this,
       'required'=>true,
@@ -75,19 +76,19 @@ class Conf extends Model {
       'default'=>0,
     ));
 
-    $structure['email_admin'] = new EmailField(array(
+    $structure['email_admin'] = new \Gino\EmailField(array(
       'name'=>'email_admin', 
       'model'=>$this,
       'required'=>true,
     ));
 
-    $structure['email_from_app'] = new EmailField(array(
+    $structure['email_from_app'] = new \Gino\EmailField(array(
       'name'=>'email_from_app', 
       'model'=>$this,
       'required'=>true,
     ));
 
-    $structure['mobile'] = new BooleanField(array(
+    $structure['mobile'] = new \Gino\BooleanField(array(
       'name'=>'mobile', 
       'model'=>$this,
       'required'=>true,
@@ -95,7 +96,7 @@ class Conf extends Model {
       'default'=>0,
     ));
 
-    $structure['password_crypt'] = new EnumField(array(
+    $structure['password_crypt'] = new \Gino\EnumField(array(
       'name'=>'password_crypt', 
       'model'=>$this,
       'required'=>true,
@@ -103,7 +104,7 @@ class Conf extends Model {
       'default'=>'md5',
     ));
 
-    $structure['enable_cache'] = new BooleanField(array(
+    $structure['enable_cache'] = new \Gino\BooleanField(array(
       'name'=>'enable_cache', 
       'model'=>$this,
       'required'=>true,
@@ -112,8 +113,6 @@ class Conf extends Model {
     ));
 
     return $structure;
-
   }
-
 
 }

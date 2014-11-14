@@ -9,6 +9,7 @@
  * @author abidibo abidibo@gmail.com
  * @date 2013
  */
+namespace Gino;
 
 /**
  * @brief Class used to generate captcha images

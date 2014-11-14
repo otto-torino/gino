@@ -8,6 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Page;
 
 /**
  * \ingroup page
@@ -18,7 +19,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class PageEntry extends Model {
+class PageEntry extends \Gino\Model {
 
     protected static $_extension_img = array('jpg', 'jpeg', 'png');
     public static $tbl_entry = 'page_entry';
@@ -83,7 +84,7 @@ class PageEntry extends Model {
 
         $structure = parent::structure($id);
         
-        $structure['category_id'] = new ForeignKeyField(array(
+        $structure['category_id'] = new \Gino\ForeignKeyField(array(
             'name'=>'category_id', 
             'model'=>$this,
             'required'=>true,
@@ -94,7 +95,7 @@ class PageEntry extends Model {
             'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-managePage]&block=ctg&insert=1',
         ));
         
-        $structure['published'] = new BooleanField(array(
+        $structure['published'] = new \Gino\BooleanField(array(
             'name'=>'published', 
             'model'=>$this,
             'required'=>true,
@@ -102,7 +103,7 @@ class PageEntry extends Model {
             'default'=>0,
         ));
         
-        $structure['social'] = new BooleanField(array(
+        $structure['social'] = new \Gino\BooleanField(array(
             'name'=>'social', 
             'model'=>$this,
             'required'=>true,
@@ -110,7 +111,7 @@ class PageEntry extends Model {
             'default'=>0,
         ));
         
-        $structure['private'] = new BooleanField(array(
+        $structure['private'] = new \Gino\BooleanField(array(
             'name'=>'private', 
             'model'=>$this,
             'required'=>true,
@@ -118,7 +119,7 @@ class PageEntry extends Model {
             'default'=>0,
         ));
         
-        $structure['users'] = new ManyToManyInlineField(array(
+        $structure['users'] = new \Gino\ManyToManyInlineField(array(
             'name'=>'users', 
             'model'=>$this,
             'm2m'=>'User', 
@@ -126,7 +127,7 @@ class PageEntry extends Model {
             'm2m_order'=>"lastname ASC, firstname", 
         ));
 
-        $structure['enable_comments'] = new BooleanField(array(
+        $structure['enable_comments'] = new \Gino\BooleanField(array(
             'name'=>'enable_comments', 
             'model'=>$this,
             'required'=>true,
@@ -134,7 +135,7 @@ class PageEntry extends Model {
             'default'=>0, 
         ));
 
-        $structure['creation_date'] = new DatetimeField(array(
+        $structure['creation_date'] = new \Gino\DatetimeField(array(
             'name'=>'creation_date', 
             'model'=>$this,
             'required'=>true,
@@ -142,7 +143,7 @@ class PageEntry extends Model {
             'auto_now_add'=>true, 
         ));
 
-        $structure['last_edit_date'] = new DatetimeField(array(
+        $structure['last_edit_date'] = new \Gino\DatetimeField(array(
             'name'=>'last_edit_date', 
             'model'=>$this,
             'required'=>true,
@@ -153,7 +154,7 @@ class PageEntry extends Model {
         $base_path = $this->_controller->getBasePath();
         $add_path = $this->_controller->getAddPath($this->id);
 
-        $structure['image'] = new ImageField(array(
+        $structure['image'] = new \Gino\ImageField(array(
             'name'=>'image', 
             'model'=>$this,
             'lenght'=>100, 
@@ -163,7 +164,7 @@ class PageEntry extends Model {
             'add_path'=>$add_path
         ));
 
-        $structure['tags'] = new TagField(array(
+        $structure['tags'] = new \Gino\TagField(array(
             'name' => 'tags',
             'model' => $this,
             'model_controller_class' => 'page',
@@ -185,7 +186,7 @@ class PageEntry extends Model {
     
         $res = null;
 
-        $db = db::instance();
+        $db = \Gino\db::instance();
         
         if(preg_match('#^[0-9]+$#', $slug))
         {
@@ -291,17 +292,17 @@ class PageEntry extends Model {
 
         $res = array();
 
-        $published = gOpt('published', $options, true);
-        $tag = gOpt('tag', $options, null);
-        $category = gOpt('category', $options, null);
-        $order = gOpt('order', $options, 'creation_date');
-        $limit = gOpt('limit', $options, null);
-        $where_opt = gOpt('where', $options, null);
+        $published = \Gino\gOpt('published', $options, true);
+        $tag = \Gino\gOpt('tag', $options, null);
+        $category = \Gino\gOpt('category', $options, null);
+        $order = \Gino\gOpt('order', $options, 'creation_date');
+        $limit = \Gino\gOpt('limit', $options, null);
+        $where_opt = \Gino\gOpt('where', $options, null);
         
-        $access_user = gOpt('access_user', $options, null);
-        $access_private = gOpt('access_private', $options, null);
+        $access_user = \Gino\gOpt('access_user', $options, null);
+        $access_private = \Gino\gOpt('access_private', $options, null);
 
-        $db = db::instance();
+        $db = \Gino\db::instance();
         $selection = 'id';
         $table = self::$tbl_entry;
         $where_arr = array();
@@ -315,10 +316,10 @@ class PageEntry extends Model {
             $where_arr[] = "id IN (SELECT entry FROM ".self::$tbl_entry_tag." WHERE tag='".$tag."')";
         }
         
-    $where = implode(' AND ', $where_arr);
-    if($where_opt) {
-      $where = implode(' AND ', array($where_opt));
-    }
+        $where = implode(' AND ', $where_arr);
+        if($where_opt) {
+        	$where = implode(' AND ', array($where_opt));
+        }
         
         $where_add = self::accessWhere($access_user, $access_private);
         
@@ -346,11 +347,11 @@ class PageEntry extends Model {
 
         $res = array();
 
-        $order = gOpt('order', $options, 'creation_date');
-        $limit = gOpt('limit', $options, null);
-        $where = gOpt('where', $options, null);
+        $order = \Gino\gOpt('order', $options, 'creation_date');
+        $limit = \Gino\gOpt('limit', $options, null);
+        $where = \Gino\gOpt('where', $options, null);
         
-        $db = db::instance();
+        $db = \Gino\db::instance();
         
         $rows = $db->select('id', self::$tbl_entry, $where, array('order'=>$order, 'limit'=>$limit));
         if(count($rows)) {
@@ -378,14 +379,14 @@ class PageEntry extends Model {
 
         $res = 0;
 
-        $published = gOpt('published', $options, true);
-        $tag = gOpt('tag', $options, null);
-        $category = gOpt('category', $options, null);
+        $published = \Gino\gOpt('published', $options, true);
+        $tag = \Gino\gOpt('tag', $options, null);
+        $category = \Gino\gOpt('category', $options, null);
         
-        $access_user = gOpt('access_user', $options, null);
-        $access_private = gOpt('access_private', $options, null);
+        $access_user = \Gino\gOpt('access_user', $options, null);
+        $access_private = \Gino\gOpt('access_private', $options, null);
 
-        $db = db::instance();
+        $db = \Gino\db::instance();
         $selection = 'COUNT(id) AS tot';
         $table = self::$tbl_entry;
         $where_arr = array();
@@ -417,7 +418,7 @@ class PageEntry extends Model {
 
     public function updateDbData()
     {
-        $session = session::instance();
+        $session = \Gino\session::instance();
         $this->author = $session->user_id;
 
         return parent::updateDbData();

@@ -1,6 +1,7 @@
 <?php
+namespace Gino\App\Language;
 
-class Lang extends Model {
+class Lang extends \Gino\Model {
 
   public static $table = "language";
 
@@ -43,7 +44,7 @@ class Lang extends Model {
 
     $structure = parent::structure($id);
 
-    $structure['main'] = new BooleanField(array(
+    $structure['main'] = new \Gino\BooleanField(array(
       'name'=>'main', 
       'model'=>$this,
       'required'=>true,
@@ -51,7 +52,7 @@ class Lang extends Model {
       'default'=>0,
     ));
 
-    $structure['active'] = new BooleanField(array(
+    $structure['active'] = new \Gino\BooleanField(array(
       'name'=>'active', 
       'model'=>$this,
       'required'=>true,
@@ -59,7 +60,7 @@ class Lang extends Model {
       'default'=>0,
     ));
 
-    $structure['language_code'] = new EnumField(array(
+    $structure['language_code'] = new \Gino\EnumField(array(
       'name'=>'language_code', 
       'model'=>$this,
       'widget'=>'select', 
@@ -67,7 +68,7 @@ class Lang extends Model {
       'enum'=>$this->languageCodes(), 
     ));
 
-    $structure['country_code'] = new EnumField(array(
+    $structure['country_code'] = new \Gino\EnumField(array(
       'name'=>'country_code', 
       'model'=>$this,
       'widget'=>'select', 
@@ -78,20 +79,21 @@ class Lang extends Model {
     return $structure;
   }
 
-  public static function resetMain() {
-    $db = db::instance();
-    $result = $db->update(array('main' => '0'), self::$table);
-    return $result;
-  }
+	public static function resetMain() {
+		
+		$db = \Gino\db::instance();
+		$result = $db->update(array('main' => '0'), self::$table);
+		return $result;
+	}
 
   public static function get($options=null) {
 
-    $where = gOpt('where', $options, null);
-    $order = gOpt('order', $options, null);
+    $where = \Gino\gOpt('where', $options, null);
+    $order = \Gino\gOpt('order', $options, null);
 
     $res = array();
 
-    $db = db::instance();
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$table, $where, array('order' => $order));
     if($rows and count($rows)) {
       foreach($rows as $row) {
@@ -100,7 +102,6 @@ class Lang extends Model {
     }
 
     return $res;
-
   }
 
   public static function getMainLang() {

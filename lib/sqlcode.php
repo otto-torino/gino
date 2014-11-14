@@ -8,6 +8,8 @@
  * @author abidibo abidibo@gmail.com
  */
 
+namespace Gino;
+
 /**
  * @brief Contiene query e codice sql personalizzato
  * 

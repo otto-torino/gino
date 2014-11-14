@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Classe astratta che definisce un modello, cioè un oggetto che rappresenta una tabella su database
@@ -46,76 +47,71 @@
  */
  abstract class Model {
 
-     protected $_registry,
-               $_db,
-               $_tbl_data, // tabella dei dati su db
-               $_model_label;
+	protected $_registry;
+	protected $_db;
+	protected $_tbl_data;
+	protected $_model_label;
+	
+	/**
+	 * Struttura della tabella
+	 * @var array
+	 */
+	protected $_structure;
+	
+	protected $_controller;
+	
+	/**
+	 * Oggetto della localizzazione
+	 * @var object
+	 */
+	protected $_locale;
+	
+	//protected $_main_class;
+	
+	/**
+	 * Intestazioni dei campi del database nel form
+	 * @var array
+	 */
+	protected $_fields_label=array();
+	protected $_p, $_chgP = array();
+	protected $_m2m = array(), $_m2mt = array();
 
-    /**
-     * Struttura della tabella
-     * @var array
-     */
-    protected $_structure;
+	protected $_is_constraint = array();
+	protected $_check_is_constraint = true;
+	
+	protected $_lng_dft, $_lng_nav;
+	private $_trd;
 
-    protected $_controller;
+	/**
+	 * Costruttore
+	 *
+	 * @param integer $id valore ID del record dell'oggetto
+	 * @return void
+	 */
+	function __construct($id) {
 
-    /**
-     * Oggetto della localizzazione
-     * @var object
-     */
-    protected $_locale;
+		$this->_registry = registry::instance();
+		$session = $this->_registry->session;
+		$this->_db = $this->_registry->db;
+		$this->_lng_dft = $session->lngDft;
+		$this->_lng_nav = $session->lng;
+		$this->_structure = $this->structure($id);
+		$this->_p['instance'] = null;
 
-    /**
-     * Intestazioni dei campi del database nel form
-     * @var array
-     */
-    protected $_fields_label=array();
-
-    /* proprietà che conservano i campi della tabella ed i campi modificati */
-    protected $_p, $_chgP = array();
-    /* relazioni molti a molti */
-    protected $_m2m = array(),
-              $_m2mt = array();
-
-    /* regole per il controllo dei constraint */
-    protected $_is_constraint = array();
-    protected $_check_is_constraint = true;
-
-    /* lingua e traduzioni */
-    protected $_lng_dft, $_lng_nav;
-    private $_trd;
-
-    /**
-     * Costruttore
-     *
-     * @param integer $id valore ID del record dell'oggetto
-     * @return void
-     */
-    function __construct($id) {
-
-        $this->_registry = registry::instance();
-        $session = $this->_registry->session;
-        $this->_db = $this->_registry->db;
-        $this->_lng_dft = $session->lngDft;
-        $this->_lng_nav = $session->lng;
-        $this->_structure = $this->structure($id);
-        $this->_p['instance'] = null;
-
-        $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
-
-    }
-
-    /**
+		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+	}
+	
+	/**
      * @brief Rappresentazione a stringa dell'oggetto
      * @description Sovrascrivere questo metodo nella classe figlia per restituire un valore parlante
      * @return id
      */
-    public function __toString() {
+ 	public function __toString() {
 
-        return $this->id;
-    }
-
-    /**
+		return $this->id;
+	}
+	
+	/**
      * @brief Etichetta del campo
      * @param string $field nome campo
      * @return etichetta
@@ -124,8 +120,8 @@
 
         return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
     }
-
-    /**
+	
+     /**
      * @brief Setter per la variabile di controllo del check constraint
      * @param bool $check
      * @return void
@@ -149,7 +145,7 @@
         $this->_is_consraint = $is_constraint;
     }
 
-    /**
+	/**
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
      * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
      * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db.
@@ -158,7 +154,7 @@
      * @param string $pName
      * @return valore proprietà
      */
-    public function &__get($pName) {
+     public function &__get($pName) {
         $null = null;
         if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
         elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
@@ -167,7 +163,7 @@
         elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
         else return $null;
     }
-    
+	
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita
      * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
@@ -724,6 +720,218 @@
         return $structure;
     }
 
+<<<<<<< HEAD
+    return true;
+  }
+	
+ 	/**
+	 * Espone il testo per personalizzare l'intestazione del form di modifica/inserimento
+	 * 
+	 * @return string
+	 */
+	public function getModelLabel() {
+		
+		return $this->_model_label;
+	}
+	
+	/**
+	 * Espone il nome della tabella
+	 * 
+	 * @return string
+	 */
+	public function getTable() {
+		
+		return $this->_tbl_data;
+	}
+	
+	/**
+	 * Definisce la struttura dei campi di una tabella del database
+	 * 
+	 * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende model. \n
+	 * 
+	 * Ogni elemento viene associato a una classe del tipo di dato e le vengono passate le specifiche del campo. \n
+	 * Esistono classi che corrispondono al tipo di dato e classi specifiche, per poter associare le quali è necessario sovrascrivere il campo nel metodo structure(). \n
+	 * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField, hiddenField.
+	 * 
+	 * @see DbManager::getTableStructure()
+	 * @see dataCache::get()
+	 * @see dataCache::save()
+	 * @param integer $id valore ID del record di riferimento
+	 * @return array
+	 * 
+	 * Esempio di riscrittura del metodo structure():
+	 * @code
+	 * public function structure($id) {
+	 *   
+	 *   $structure = parent::structure($id);
+	 *   
+	 *   $structure['ctg'] = new foreignKeyField(array(
+	 *     'name'=>'ctg', 
+	 *     'value'=>$this->ctg, 
+	 *     'label'=>$this->_fields_label['ctg'], 
+	 *     'lenght'=>11, 
+	 *     'fkey_table'=>eventCtg::$_tbl_ctg, 
+	 *     'fkey_field'=>'name', 
+	 *     'fkey_order'=>'name'
+	 *   ));
+	 *   
+	 *   $base_path = $this->_controller->getBasePath(); // example -> /contents/events/eventsInterface/
+	 *   $add_path_image = $this->id ? $this->_controller->getAddPath($this->id, 'image') : '';	// example -> id/img/
+	 *   
+	 *   $structure['image'] = new imageField(array(
+	 *     'name'=>'image', 
+	 *     'value'=>$this->image, 
+	 *     'label'=>$this->_fields_label['image'], 
+	 *     'lenght'=>200, 
+	 *     'extensions'=>self::$extension_media, 
+	 *     'path'=>$base_path, 
+	 *     'add_path'=>$add_path_image, 
+	 *     'resize'=>true, 
+	 *     'check_type'=>false, 
+	 *     'width'=>$this->_controller->getImageWidth(),
+	 *     'thumb_width'=>$this->_controller->getImageThumbWidth()
+	 *   ));
+	 * }
+	 * @endcode
+	 */
+ 	public function structure($id) {
+
+		if(!$this->_tbl_data) {
+			exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
+		}
+		
+		Loader::import('class', array('\Gino\Cache'));
+ 		if($id)
+		{
+			$records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
+			if(count($records))
+				$this->_p = $records[0];
+		}
+ 		
+ 		$cache = new DataCache();
+		if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600)) {
+			$fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
+			$cache->save($fieldsTable);
+		}
+		
+		$structure = array();
+		
+		if(sizeof($fieldsTable) > 0)
+		{
+			$primary_key = $fieldsTable['primary_key'];
+			$fields = $fieldsTable['fields'];
+			$keys = $fieldsTable['keys'];	// array delle chiavi uniche
+			
+			foreach($fields AS $key=>$value)
+			{
+				if(!$id) $this->_p[$key] = null;
+				
+				$type = $value['type'];
+				$maxLenght = $value['max_length'];
+				$numberIntDigits = $value['n_int'];
+				$numberDecimalDigits = $value['n_precision'];
+				$order = $value['order'];
+				$default = $value['default'];
+				$null = $value['null'];
+				$extra = $value['extra'];
+				$enum = $value['enum'];
+				
+				$pkey = $key == $primary_key ? true : false;
+				$ukey = in_array($key, $keys) ? true : false;
+				$auto_increment = $extra == 'auto_increment' ? true : false;
+				
+				$dataType = $this->dataType($type);
+				
+				// Valori di un campo enumerazione
+				if($enum)
+				{
+					$array = explode(',', $enum);
+					$array_clean = array();
+					foreach($array AS $evalue)
+					{
+						preg_match("#\'([0-9a-zA-Z-_,.']+)\'#", $evalue, $matches);
+						if(isset($matches[1]))
+							$array_clean[$matches[1]] = $matches[1];
+					}
+					$enum = $array_clean;
+				}
+				
+				$label = array_key_exists($key, $this->_fields_label) ? $this->_fields_label[$key] : ucfirst($key);
+				
+				$options_field = array(
+					'name'=>$key,
+					'model'=>$this,
+					'lenght'=>$maxLenght,
+					'primary_key'=>$pkey,
+					'unique_key'=>$ukey,
+					'auto_increment'=>$auto_increment, 
+					'type'=>$type, 
+					'int_digits'=>$numberIntDigits, 
+					'decimal_digits'=>$numberDecimalDigits, 
+					'order'=>$order, 
+					'default'=>$default, 
+					'required'=>$null=='NO' ? true : false, 
+					'extra'=>$extra, 
+					'enum'=>$enum, 
+					'label'=>$label, 
+				);
+				
+				$structure[$key] = loader::load('fields/'.$dataType, array($options_field));
+				/*if(!class_exists($dataType))
+					error::syserrorMessage('Model', 'structure', sprintf(_("Il tipo di dato del campo %s non è riconoscibile automaticamente"), $key));
+				
+				$structure[$key] = new $dataType($options_field);*/
+			}
+		}
+		return $structure;
+	}
+
+  /**
+   * Update della struttura da chiamare manualmente quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina
+   * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
+   * viene gestito da AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
+   * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
+   * metodo modelAction di AdminTable
+   */
+	public function updateStructure() {
+		$this->_structure = $this->structure($this->id);
+	}
+	
+ 	/**
+	 * Uniforma il tipo di dato di un campo definito dal metodo DbManager::getTableStructure() 
+	 * e ritorna il nome della classe che gestisce il modello del tipo di campo
+	 * 
+	 * @param string $type tipo di dato
+	 * @return string
+	 */
+	private function dataType($type) {
+		
+		if($type == 'tinyint' || $type == 'smallint' || $type == 'int' || $type == 'mediumint' || $type == 'bigint')
+		{
+			$dataType = 'integer';
+		}
+		elseif($type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'numeric')
+		{
+			$dataType = 'float';
+		}
+		elseif($type == 'mediumtext' || $type == 'longtext')
+		{
+			$dataType = 'text';
+		}
+		elseif($type == 'varchar')
+		{
+			$dataType = 'char';
+		}
+		else
+		{
+			$dataType = $type;
+		}
+		
+		$dataType = ucfirst($dataType).'Field';
+		
+		return $dataType;
+	}
+=======
     /**
      * @brief Update della struttura da chiamare manualmente
      *
@@ -772,4 +980,5 @@
 
         return $dataType;
     }
+>>>>>>> 96826c90023264dbaa327e20b4a3cf5152881b73
 }

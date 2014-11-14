@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\PhpModuleView;
 
 // Include il file class.PhpModule.php
 require_once('class.PhpModule.php');
@@ -30,7 +31,7 @@ require_once('class.PhpModule.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class phpModuleView extends Controller {
+class phpModuleView extends \Gino\Controller {
 
   private $_tbl_opt, $_tbl_usr;
   private $_blackList;
@@ -52,18 +53,18 @@ class phpModuleView extends Controller {
     $this->_tbl_usr = "php_module_usr";
 
     // options
-    $this->_title = htmlChars($this->setOption('title', true));
-    $this->_title_visible = htmlChars($this->setOption('title_vis'));
+    $this->_title = \Gino\htmlChars($this->setOption('title', true));
+    $this->_title_visible = \Gino\htmlChars($this->setOption('title_vis'));
 
     // the second paramether will be the class instance
-    $this->_options = loader::load('Options', array($this->_class_name, $this->_instance));
+    $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
     $this->_optionsLabels = array(
     "title"=>_("Titolo"),
     "title_vis"=>_("Titolo visibile")
     );
 
-    $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-    $this->_block = cleanVar($_REQUEST, 'block', 'string', '');
+    $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
+    $this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
 
     $this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
   }
@@ -150,7 +151,7 @@ class phpModuleView extends Controller {
    */
   public function viewList() {
 
-    $registry = registry::instance();
+    $registry = \Gino\registry::instance();
 
     $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
     $registry->addCss($this->_class_www."/phpModule_".$this->_instance_name.".css");
@@ -165,7 +166,7 @@ class phpModuleView extends Controller {
     }
     else eval($phpMdl->content);
 
-    $view = new View();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $view->assign('id', 'phpModuleView_'.$this->_instance_name);
     $view->assign('class', 'public');
@@ -226,7 +227,7 @@ class phpModuleView extends Controller {
       'content' => $GINO
     );
 
-    $view = new View(null, 'tab');
+    $view = new \Gino\View(null, 'tab');
     return $view->render($dict);
   }
 
@@ -236,7 +237,7 @@ class phpModuleView extends Controller {
     $buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
     $buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
     
-    $view =   new View(null, 'section');
+    $view =   new \Gino\View(null, 'section');
     $dict = array(
       'title' => _('Informazioni'),
       'class' => 'admin',

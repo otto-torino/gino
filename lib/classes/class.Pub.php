@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Metodi generali
@@ -675,7 +676,7 @@ class pub {
     if(empty($from)) $from = $this->_email_from;
     $m_from = "From: ".$from;
     
-    mail($m_to, $m_subject, $m_object, $m_from);
+    \mail($m_to, $m_subject, $m_object, $m_from);
   }
   
   /**

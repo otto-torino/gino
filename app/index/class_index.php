@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Index;
 
 /**
  * @brief 
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class index extends Controller{
+class index extends \Gino\Controller{
 
   private $_page;
   
@@ -58,13 +59,13 @@ class index extends Controller{
       $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
       foreach($sysMdls as $sm) {
         $GINO .= "<tr>";
-        $GINO .= "<th><a href=\"$this->_home?evt[".$sm['name']."-manage".ucfirst($sm['name'])."]\">".htmlChars($sm['label'])."</a></th>";
-        $GINO .= "<td class=\"mdlDescription\">".htmlChars($sm['description'])."</td>";
+        $GINO .= "<th><a href=\"$this->_home?evt[".$sm['name']."-manage".ucfirst($sm['name'])."]\">".\Gino\htmlChars($sm['label'])."</a></th>";
+        $GINO .= "<td class=\"mdlDescription\">".\Gino\htmlChars($sm['description'])."</td>";
         $GINO .= "</tr>";
       }
       $GINO .= "</table>\n";
 
-      $view = new View();
+      $view = new \Gino\View();
       $view->setViewTpl('section');
       $view->assign('class', 'admin');
       $view->assign('title', _("Amministrazione sistema"));
@@ -77,13 +78,13 @@ class index extends Controller{
       $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
       foreach($mdls as $m) {
         $GINO .= "<tr>";
-        $GINO .= "<th><a href=\"$this->_home?evt[".$m['name']."-manageDoc]\">".htmlChars($m['label'])."</a></th>";
-        $GINO .= "<td>".htmlChars($m['description'])."</td>";
+        $GINO .= "<th><a href=\"$this->_home?evt[".$m['name']."-manageDoc]\">".\Gino\htmlChars($m['label'])."</a></th>";
+        $GINO .= "<td>".\Gino\htmlChars($m['description'])."</td>";
         $GINO .= "</tr>";
       }
       $GINO .= "</table>\n";
 
-      $view = new View();
+      $view = new \Gino\View();
       $view->setViewTpl('section');
       $view->assign('class', 'admin');
       $view->assign('title', _("Amministrazione moduli istanziabili"));
@@ -102,14 +103,14 @@ class index extends Controller{
    */
   public function sysModulesManageArray() {
 
-    loader::import('sysClass', 'ModuleApp');
+    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
     $list = array();
-    $modules_app = ModuleApp::get(array('where' => "active='1' AND instantiable='0'"));
+    $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "active='1' AND instantiable='0'"));
     if(count($modules_app)) {
       foreach($modules_app as $module_app) {
         if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->name, 'manage'.ucfirst($module_app->name))) {
@@ -128,14 +129,14 @@ class index extends Controller{
    */
   public function modulesManageArray() {
 
-    loader::import('module', 'ModuleInstance');
+    \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
     $list = array();
-    $modules = ModuleInstance::get(array('where' => "active='1'"));
+    $modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'"));
     if(count($modules)) {
       foreach($modules as $module) {
         if($this->_registry->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->className(), 'manageDoc')) {

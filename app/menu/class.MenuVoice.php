@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Menu;
 
 /**
  * @brief Fornisce gli strumenti alla classe menu per la gestione amministrativa
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class MenuVoice extends Model {
+class MenuVoice extends \Gino\Model {
 	
 	public static $tbl_voices = "sys_menu_voices";
 	private static $_tbl_user_role = "user_role";
@@ -41,13 +42,13 @@ class MenuVoice extends Model {
 	 */
 	public static function deleteInstanceVoices($instance) {
 
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		$query = "SELECT id FROM ".self::$tbl_voices." WHERE instance='$instance' AND parent='0'";
 		$a = $db->selectquery($query);
 		if(sizeof($a)>0) {
 			foreach($a as $b) {
-				language::deleteTranslations(self::$tbl_voices, $b['id']);
-				$mv = new menuVoice($b['id']);
+				\Gino\App\Language\Language::deleteTranslations(self::$tbl_voices, $b['id']);
+				$mv = new MenuVoice($b['id']);
 				$mv->deleteVoice();
 			}
 		}
@@ -104,9 +105,9 @@ class MenuVoice extends Model {
   public static function get($options=null) {
     
   	$res = array();
-    $where = gOpt('where', $options, null);
-    $order = gOpt('order', $options, null);
-    $db = db::instance();
+    $where = \Gino\gOpt('where', $options, null);
+    $order = \Gino\gOpt('order', $options, null);
+    $db = \Gino\db::instance();
     $rows = $db->select('id', self::$tbl_voices, $where, array('order' => $order));
     if($rows and count($rows)) {
       foreach($rows as $row) {
@@ -121,11 +122,11 @@ class MenuVoice extends Model {
     if(!$this->perms) {
       return true;
     }
-    Loader::import('auth', 'Permission');
+    \Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
 
     foreach(explode(';', $this->perms) as $p) {
       $values = explode(',', $p);
-      $perm = new Permission($values[0]);
+      $perm = new \Gino\App\Auth\Permission($values[0]);
       $instance = $values[1];
       if($this->_registry->user->hasPerm($perm->class, $perm->code, $instance)) {
         return true;
@@ -144,22 +145,22 @@ class MenuVoice extends Model {
 	 */
 	public function formVoice($formaction, $parent) {
 
-    Loader::import('auth', array('Permission'));
+		\Gino\Loader::import('auth', array('\Gino\App\Auth\Permission'));
 	
-		$gform = Loader::load('Form', array('gform', 'post', true));
+		$gform = \Gino\Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
-		$parentVoice = new menuVoice($parent);
+		$parentVoice = new MenuVoice($parent);
 
 		if($this->_p['id']) {$title = _("Modifica voce"); $submit = _("modifica");$action='modify';}
 		else {
-			$title = ($parent)? _("Nuova voce sotto ")."\"".htmlChars($parentVoice->label)."\"":_("Nuova voce principale");
+			$title = ($parent)? _("Nuova voce sotto ")."\"".\Gino\htmlChars($parentVoice->label)."\"":_("Nuova voce principale");
 			$submit = _("inserisci");
 			$action='insert';
 		}
 		$title = $title."<a name=\"top\"> </a>";
 
-		$pub = new pub;
+		$pub = new \Gino\Pub;
 		
 		$required = 'label,type,voice';	
 
@@ -170,25 +171,25 @@ class MenuVoice extends Model {
 		if($this->_p['id'])
 			$buffer .= $gform->hidden('id', $this->_p['id']);
 
-		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->_p['label'])), _("Voce"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>self::$tbl_voices, "field"=>"label", "trnsl_id"=>$this->_p['id']));
+		$buffer .= $gform->cinput('label', 'text', $gform->retvar('label', \Gino\htmlInput($this->_p['label'])), _("Voce"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>self::$tbl_voices, "field"=>"label", "trnsl_id"=>$this->_p['id']));
 
-		$buffer .= $gform->cinput('url', 'text', $gform->retvar('url', htmlInput($this->_p['url'])), _("url"), array("size"=>40, "maxlength"=>200, "id"=>"url"));
+		$buffer .= $gform->cinput('url', 'text', $gform->retvar('url', \Gino\htmlInput($this->_p['url'])), _("url"), array("size"=>40, "maxlength"=>200, "id"=>"url"));
 
-		$buffer .= $gform->cradio('type', $gform->retvar('type', htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare la ricerca viste)"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
+		$buffer .= $gform->cradio('type', $gform->retvar('type', \Gino\htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare la ricerca viste)"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
 
-    $buffer .= $gform->multipleCheckbox('perm[]', explode(';', $this->perms), Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
+		$buffer .= $gform->multipleCheckbox('perm[]', explode(';', $this->perms), \Gino\App\Auth\Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
 
 		$buffer .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new View(null, 'section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new \Gino\View(null, 'section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
 
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 	
 	/**
@@ -199,10 +200,10 @@ class MenuVoice extends Model {
 	 */
 	public static function getSelectedVoice($instance) {
 	
-    $db = db::instance();
-		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5" 
-    $result_link = null;
-    $result = null;
+		$db = \Gino\db::instance();
+		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5"
+		$result_link = null;
+		$result = null;
 
     if(preg_match("/\[(.+)\]/is", $query_string, $matches)) {
       $result = '';
@@ -226,7 +227,7 @@ class MenuVoice extends Model {
     in quanto l'eventuale permalink è già stato convertito (class Document).
     Nella tabella del menu i link sono registrati nel formato permalink.
     */
-    $obj = new Link();
+    $obj = new \Gino\Link();
     $plink = $obj->convertLink($query_string);	// => page/displayItem/5
     $search_link = $obj->alternativeLink($plink);
     

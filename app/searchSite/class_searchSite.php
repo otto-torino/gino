@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\SearchSite;
 
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class searchSite extends Controller {
+class searchSite extends \Gino\Controller {
 
     public $_optionsLabels;
     protected $_view_dir;
@@ -37,7 +38,7 @@ class searchSite extends Controller {
         $this->_sys_mdl = $this->setOption('sys_mdl', '');
         $this->_inst_mdl = $this->setOption('inst_mdl', '');
 
-        $this->_options = Loader::load('Options', array($this->_class_name, $this->_instance));
+        $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
         $this->_optionsLabels = array(
             "sys_mdl"=>array(
                 "label"=>array(
@@ -103,7 +104,7 @@ class searchSite extends Controller {
     
         $this->requirePerm('can_admin');
 
-        $block = cleanVar($_REQUEST, 'block', 'string', '');
+        $block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
         
         $link_frontend = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=frontend\">"._("Frontend")."</a>";
         $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageSearchSite]&block=options\">"._("Opzioni")."</a>";
@@ -129,7 +130,7 @@ class searchSite extends Controller {
             'content' => $GINO
         );
 
-        $view = new view(null, 'tab');
+        $view = new \Gino\View(null, 'tab');
         return $view->render($dict);
     }
 
@@ -140,14 +141,14 @@ class searchSite extends Controller {
      */
     public function form() {
 
-        $registry = registry::instance();
+        $registry = \Gino\registry::instance();
         $registry->addCss($this->_class_www."/searchSite.css");
         $registry->addJs($this->_class_www."/searchSite.js");
 
         $choices = ($this->_sys_mdl || $this->_inst_mdl) ? true : false;
         $check_options = $this->checkOptions();
 
-        $view = new view($this->_view_dir, 'form');
+        $view = new \Gino\View($this->_view_dir, 'form');
         $dict = array(
             'form_action' => $this->_home."?evt[".$this->_class_name."-results]",
             'choices' => $choices,
@@ -201,12 +202,12 @@ class searchSite extends Controller {
      */
     public function results() {
 
-        Loader::import('class', 'Search');
+        \Gino\Loader::import('class', '\Gino\Search');
 
-        $keywords = cleanVar($_POST, 'search_site', 'string', '');
-        $keywords = cutHtmlText($keywords, 500, '', true, false, true);
-        $sysmdl = cleanVar($_POST, 'sysmdl', 'array', '');
-        $instmdl = cleanVar($_POST, 'instmdl', 'array', '');
+        $keywords = \Gino\cleanVar($_POST, 'search_site', 'string', '');
+        $keywords = \Gino\cutHtmlText($keywords, 500, '', true, false, true);
+        $sysmdl = \Gino\cleanVar($_POST, 'sysmdl', 'array', '');
+        $instmdl = \Gino\cleanVar($_POST, 'instmdl', 'array', '');
 
         $opt = (!count($sysmdl) && !count($instmdl)) ? false : true;
         $results = array();
@@ -218,23 +219,23 @@ class searchSite extends Controller {
                 if(method_exists($classname, "searchSite")) {
                     $obj = new $classname();
                     $data = $obj->searchSite();
-                    $searchObj = new search($data['table']);
+                    $searchObj = new \Gino\search($data['table']);
                     foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$classname] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                    $results[$classname] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
                 }
             }
         }
         foreach(explode(",", $this->_inst_mdl) as $mdlid) {
             if(!$opt || in_array($mdlid, $instmdl)) {
-                $module = new ModuleInstance($mdlid);
+                $module = new \Gino\App\Module\ModuleInstance($mdlid);
                 $instancename = $module->name;
                 $classname = $module->className();
                 if(method_exists($classname, "searchSite")) {
                     $obj = new $classname($mdlid);
                     $data = $obj->searchSite();
-                    $searchObj = new search($data['table']);
+                    $searchObj = new \Gino\search($data['table']);
                     foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$classname."||".$mdlid] = $searchObj->getSearchResults(db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                    $results[$classname."||".$mdlid] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
                 }
             }
         }
@@ -273,7 +274,7 @@ class searchSite extends Controller {
         }
         else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
 
-        $view = new view($this->_view_dir, 'results');
+        $view = new \Gino\View($this->_view_dir, 'results');
         $dict = array(
             'title' => $title,
             'results_num' => $results_num,
@@ -293,7 +294,7 @@ class searchSite extends Controller {
         $buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
         $buffer .= "</ul>";
 
-        $view = new view(null, 'section');
+        $view = new \Gino\View(null, 'section');
         $dict = array(
             'title' => _("Modulo di ricerca nel sito"),
             'class' => 'admin',

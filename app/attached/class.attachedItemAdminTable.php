@@ -7,11 +7,12 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Attached;
 
 /**
  * @brief Estende la classe adminTable base di Gino per permettere l'inserimento di file all'interno della directory della categoria
  */
-class attachedItemAdminTable extends adminTable {
+class attachedItemAdminTable extends \Gino\AdminTable {
 
 	/**
 	 * @brief Costruttore
@@ -31,25 +32,25 @@ class attachedItemAdminTable extends adminTable {
 
 		// $this->permission($options_view);
 		
-		$db = db::instance();
+		$db = \Gino\db::instance();
 
 		$model_structure = $model->getStructure();
 		$model_table = $model->getTable();
 
 		// some options
-		$this->_filter_fields = gOpt('filter_fields', $options_view, array());
-		$this->_list_display = gOpt('list_display', $options_view, array());
-		$this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
-		$this->_ifp = gOpt('items_for_page', $options_view, 20);
-		$list_title = gOpt('list_title', $options_view, ucfirst($model->getModelLabel()));
-		$list_description = gOpt('list_description', $options_view, "<p>"._("Lista record registrati")."</p>");
-		$list_where = gOpt('list_where', $options_view, array());
-		$link_fields = gOpt('link_fields', $options_view, array());
-		$addParamsUrl = gOpt('add_params_url', $options_view, array());
-		$add_buttons = gOpt('add_buttons', $options_view, array());
-		$view_export = gOpt('view_export', $options_view, false);
-		$name_export = gOpt('name_export', $options_view, 'export_items.csv');
-		$export = gOpt('export', $options_view, false);
+		$this->_filter_fields = \Gino\gOpt('filter_fields', $options_view, array());
+		$this->_list_display = \Gino\gOpt('list_display', $options_view, array());
+		$this->_list_remove = \Gino\gOpt('list_remove', $options_view, array('instance'));
+		$this->_ifp = \Gino\gOpt('items_for_page', $options_view, 20);
+		$list_title = \Gino\gOpt('list_title', $options_view, ucfirst($model->getModelLabel()));
+		$list_description = \Gino\gOpt('list_description', $options_view, "<p>"._("Lista record registrati")."</p>");
+		$list_where = \Gino\gOpt('list_where', $options_view, array());
+		$link_fields = \Gino\gOpt('link_fields', $options_view, array());
+		$addParamsUrl = \Gino\gOpt('add_params_url', $options_view, array());
+		$add_buttons = \Gino\gOpt('add_buttons', $options_view, array());
+		$view_export = \Gino\gOpt('view_export', $options_view, false);
+		$name_export = \Gino\gOpt('name_export', $options_view, 'export_items.csv');
+		$export = \Gino\gOpt('export', $options_view, false);
 
 		// fields to be shown
 		$fields_loop = array();
@@ -67,7 +68,7 @@ class attachedItemAdminTable extends adminTable {
 			}
 		}
 		
-		$order = cleanVar($_GET, 'order', 'string', '');
+		$order = \Gino\cleanVar($_GET, 'order', 'string', '');
 		if(!$order) $order = 'id DESC';
 		// get order field and direction
 		preg_match("#^([^ ,]*)\s?((ASC)|(DESC))?.*$#", $order, $matches);
@@ -104,7 +105,7 @@ class attachedItemAdminTable extends adminTable {
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
+		$pagelist = \Gino\Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
 
 		$limit = $export ? null: array($pagelist->start(), $pagelist->rangeNumber);
 
@@ -166,7 +167,7 @@ class attachedItemAdminTable extends adminTable {
 
 		$rows = array();
 		foreach($records as $r) {
-				
+			
 			$record_model = new $model($r['id'], $this->_controller);
 			$record_model_structure = $record_model->getStructure();
 
@@ -183,7 +184,7 @@ class attachedItemAdminTable extends adminTable {
 						$record_value = (string) $record_model_structure[$field_name];
 					}
 					$export_row[] = $record_value;
-					$record_value = htmlChars($record_value);
+					$record_value = \Gino\htmlChars($record_value);
 					
 					if(isset($link_fields[$field_name]) && $link_fields[$field_name])
 					{
@@ -242,10 +243,10 @@ class attachedItemAdminTable extends adminTable {
 			}
 			
 			if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify')."</a>";
+				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\pub::icon('modify')."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete')."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".\Gino\pub::icon('delete')."</a>";
 			}
 			$buttons = array(
 				array('text' => implode(' ', $links), 'class' => 'nowrap')
@@ -259,7 +260,7 @@ class attachedItemAdminTable extends adminTable {
 		{
 			require_once(CLASSES_DIR.OS.'class.export.php');
 			
-			$obj_export = new export();
+			$obj_export = new \Gino\export();
 			$obj_export->setData($items);
 			$obj_export->exportData($name_export, 'csv');
 			return null;
@@ -281,20 +282,20 @@ class attachedItemAdminTable extends adminTable {
 		$table = $this->_view->render();
 
 		if($this->_allow_insertion) {
-			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert', array('scale' => 2))."</a>";
+			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".\Gino\pub::icon('insert', array('scale' => 2))."</a>";
 		}
 		else {
 			$link_insert = "";
 		}
 		
-		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".pub::icon('export')."</a>" : null;
+		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".\Gino\pub::icon('export')."</a>" : null;
 
 		$this->_view->setViewTpl('admin_table_list');
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
 		$this->_view->assign('link_export', $link_export);
-		$this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
+		$this->_view->assign('search_icon', \Gino\pub::icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));
@@ -325,7 +326,7 @@ class attachedItemAdminTable extends adminTable {
     $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
     $viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
 
-    $gform = new Form($formId, $method, $validation);
+    $gform = new \Gino\Form($formId, $method, $validation);
     $gform->save($session_value);
     $req_error = $gform->arequired();
 

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\Sysfunc;
 
 /**
  * @brief Metodi personalizzati e interfacce a metodi utilizzati da classi molteplici per espandarne le funzionalità
@@ -15,7 +16,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class sysfunc extends Controller {
+class sysfunc extends \Gino\Controller {
 
 	function __construct(){
 
@@ -43,7 +44,7 @@ class sysfunc extends Controller {
 			$message = _("Il contenuto cercato non esiste, è stato rimosso oppure spostato.");
 		}
 
-		$view = new view();
+		$view = new \Gino\View();
 
 		$view->setViewTpl('404');
 		$view->assign('title', $title);
@@ -72,7 +73,7 @@ class sysfunc extends Controller {
 			$message = _("Non sei autorizzato a visualizzare il contenuto richiesto.");
 		}
 
-		$view = new view();
+		$view = new \Gino\View();
 
 		$view->setViewTpl('403');
 		$view->assign('title', $title);

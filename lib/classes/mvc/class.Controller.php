@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Classe astratta primitiva Controller, dalla quale tutti i controller delle singole app discendono
@@ -16,6 +17,7 @@
  * @author abidibo abidibo@gmail.com
  */
 abstract class Controller {
+
 
     protected $_registry,
               $_db,
@@ -42,23 +44,23 @@ abstract class Controller {
      */
     function __construct($instance_id = 0) {
 
-      $this->_registry = registry::instance();
+        $this->_registry = registry::instance();
 
-      // alias
-      $this->_db = $this->_registry->db;
-      $this->_access = $this->_registry->access;
-      $this->_session = $this->_registry->session;
-      $this->_plink = $this->_registry->plink;
-      $this->_trd = $this->_registry->trd;
+        // alias
+        $this->_db = $this->_registry->db;
+        $this->_access = $this->_registry->access;
+        $this->_session = $this->_registry->session;
+        $this->_plink = $this->_registry->plink;
+        $this->_trd = $this->_registry->trd;
 
-      $this->_class_name = get_class($this);
-      $this->setInstanceProperties($instance_id);
+        $this->_class_name = get_name_class($this);
+        $this->setInstanceProperties($instance_id);
 
-      $this->_locale = locale::instance_to_class($this->_class_name);
+        $this->_locale = locale::instance_to_class($this->_class_name);
 
-      $this->setPaths();
+        $this->setPaths();
 
-    }
+      }
 
     /**
      * @brief Funzione chiamata quando si cerca di chiamare un metodo inaccessibile

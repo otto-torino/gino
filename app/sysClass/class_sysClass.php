@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino\App\SysClass;
 
 require_once('class.ModuleApp.php');
 
@@ -17,7 +18,7 @@ require_once('class.ModuleApp.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class sysClass extends Controller {
+class sysClass extends \Gino\Controller {
 
   private $_title;
   private $_action;
@@ -29,7 +30,7 @@ class sysClass extends Controller {
 
     $this->_title = _("Gestione classi di sistema");
 
-    $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
+    $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
 
     $this->_archive_extensions = array('zip');
   }
@@ -44,8 +45,8 @@ class sysClass extends Controller {
     
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_GET, 'id', 'int', '');
-    $block = cleanVar($_GET, 'block', 'string', null);
+    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
+    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
 
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]\">"._("Informazioni")."</a>";
     $link_list = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=list\">"._("Gestione moduli installati")."</a>";
@@ -54,7 +55,7 @@ class sysClass extends Controller {
     $sel_link = $link_dft;
 
     if($block == 'list') {
-      $action = cleanVar($_GET, 'action', 'string', null);
+      $action = \Gino\cleanVar($_GET, 'action', 'string', null);
       if(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
         if(isset($_GET['save']) and $_GET['save'] == '1') {
           $this->_trd->actionTranslation();
@@ -88,7 +89,7 @@ class sysClass extends Controller {
       $GINO = $this->info();
     }
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('tab');
     $dict = array(
       'title' => _('Moduli di sistema'),
@@ -107,7 +108,7 @@ class sysClass extends Controller {
    */
   private function sysClassList() {
 
-    $view_table = new view();
+    $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
 
     $modules_app = ModuleApp::get();
@@ -124,8 +125,8 @@ class sysClass extends Controller {
       $tbl_rows = array();
       foreach($modules_app as $module_app) {
 
-        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=modify\">".pub::icon('modify', _("modifica/upgrade"))."</a>";
-        $link_delete = $module_app->removable ? "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=delete\">".pub::icon('delete', _("elimina"))."</a>" : "";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=modify\">".\Gino\pub::icon('modify', _("modifica/upgrade"))."</a>";
+        $link_delete = $module_app->removable ? "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=delete\">".\Gino\pub::icon('delete', _("elimina"))."</a>" : "";
 
         $tbl_rows[] = array(
           $module_app->id,
@@ -147,7 +148,7 @@ class sysClass extends Controller {
       $GINO = _('Non risultano moduli di sistema');
     }
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco moduli installati'),
@@ -165,7 +166,7 @@ class sysClass extends Controller {
    */
   private function formInsertSysClass() {
     
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = "<p class=\"backoffice-info\">"._("Caricare il pacchetto del modulo. Se la procedura di installazione va a buon fine modificare il modulo appena inserito per personalizzarne l'etichetta ed eventualmente altri parametri.")."</p>\n";
@@ -176,7 +177,7 @@ class sysClass extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _("Installazione modulo di sistema"),
@@ -199,7 +200,7 @@ class sysClass extends Controller {
 
     $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&block=install";
 
-    if(!pub::enabledZip())
+    if(!\Gino\pub::enabledZip())
       exit(error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
     
     $archive_name = $_FILES['archive']['name'];
@@ -229,7 +230,7 @@ class sysClass extends Controller {
     if(move_uploaded_file($archive_tmp, $uploadfile)) $up = 'ok';
     else $up = 'ko';
     
-    $zip = new ZipArchive;
+    $zip = new \ZipArchive;
     $res = $zip->open($uploadfile);
     if($res === true) {
       $zip->extractTo($class_dir);
@@ -345,7 +346,7 @@ class sysClass extends Controller {
       @unlink($class_dir.OS.$class_name.".sql");
     }
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
   }
   
   /**
@@ -355,7 +356,7 @@ class sysClass extends Controller {
    */
   private function formManualSysClass() {
     
-    $gform = loader::load('Form', array('mform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('mform', 'post', true));
     $gform->load('mdataform');
 
     $GINO = "<div class=\"backoffice-info\">";
@@ -384,7 +385,7 @@ class sysClass extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Installazione manuale'),
@@ -400,13 +401,12 @@ class sysClass extends Controller {
    * 
    * Il modulo viene attivato nell'installazione
    * 
-   * @see $_access_admin
    */
   public function actionManualSysClass() {
     
     $this->requirePerm('can_admin');
     
-    $gform = Loader::load('Form', array('mform', 'post', false));
+    $gform = \Gino\Loader::load('Form', array('mform', 'post', false));
     $gform->save('mdataform');
     $req_error = $gform->arequired();
 
@@ -415,7 +415,7 @@ class sysClass extends Controller {
     if($req_error > 0) 
       exit(error::errorMessage(array('error'=>1), $link_error));
 
-    $name = cleanVar($_POST, 'name', 'string', '');
+    $name = \Gino\cleanVar($_POST, 'name', 'string', '');
     // name check
     if(preg_match("/[\.\/\\\]/", $name)) exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
     $res = ModuleApp::get(array('where' => "name='$name'"));
@@ -424,14 +424,14 @@ class sysClass extends Controller {
     }
 
     $module_app = new ModuleApp(null);
-    $module_app->label = cleanVar($_POST, 'label', 'string', '');
+    $module_app->label = \Gino\cleanVar($_POST, 'label', 'string', '');
     $module_app->name = $name;
     $module_app->active = 1;
-    $module_app->tbl_name = cleanVar($_POST, 'tblname', 'string', '');
-    $module_app->instantiable = cleanVar($_POST, 'instantiable', 'int', '');
-    $module_app->description = cleanVar($_POST, 'description', 'string', '');
+    $module_app->tbl_name = \Gino\cleanVar($_POST, 'tblname', 'string', '');
+    $module_app->instantiable = \Gino\cleanVar($_POST, 'instantiable', 'int', '');
+    $module_app->description = \Gino\cleanVar($_POST, 'description', 'string', '');
     $module_app->removable = 1;
-    $module_app->class_version = cleanVar($_POST, 'version', 'string', '');
+    $module_app->class_version = \Gino\cleanVar($_POST, 'version', 'string', '');
 
     $res = $module_app->updateDbData();
 
@@ -439,7 +439,7 @@ class sysClass extends Controller {
       exit(error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
     }
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
   }
 
   /**
@@ -452,7 +452,7 @@ class sysClass extends Controller {
    */
   private function formEditSysClass($id) {
     
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $module_app = new ModuleApp($id);
@@ -472,7 +472,7 @@ class sysClass extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Modifica il modulo di sistema "%s"'), htmlChars($module_app->ml('label'))),
@@ -497,7 +497,7 @@ class sysClass extends Controller {
       exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = "<p class=\"lead\">"._("Attenzione! La disattivazione di alcuni moduli potrebbe causare malfunzionamenti nel sistema")."</p>";
@@ -507,7 +507,7 @@ class sysClass extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', $module_app->active ? _('disattiva') : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module_app->active ? _('Disattivazione') : _('Attivazione'),
@@ -532,7 +532,7 @@ class sysClass extends Controller {
       exit(error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
     
     $GINO = "<div class=\"backoffice-info\">";
@@ -550,7 +550,7 @@ class sysClass extends Controller {
 
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Upgrade'),
@@ -570,15 +570,15 @@ class sysClass extends Controller {
   
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $model_app = new ModuleApp($id);
 
-    $model_app->label = cleanVar($_POST, 'label', 'string', '');
-    $model_app->description = cleanVar($_POST, 'description', 'string', '');
+    $model_app->label = \Gino\cleanVar($_POST, 'label', 'string', '');
+    $model_app->description = \Gino\cleanVar($_POST, 'description', 'string', '');
 
     $model_app->updateDbData();
     
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
   }
 
   /**
@@ -590,14 +590,14 @@ class sysClass extends Controller {
   
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $model_app = new ModuleApp($id);
 
     $model_app->active = $model_app->active == 1 ? 0 : 1;
 
     $model_app->updateDbData();
   
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
   }
 
   /**
@@ -609,7 +609,7 @@ class sysClass extends Controller {
     
     $this->accessType($this->_access_admin);
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
@@ -652,7 +652,7 @@ class sysClass extends Controller {
     if(move_uploaded_file($archive_tmp, $uploadfile)) $up = 'ok';
     else $up = 'ko';
     
-    $zip = new ZipArchive;
+    $zip = new \ZipArchive;
     $res = $zip->open($uploadfile);
     if ($res === true) {
       $zip->extractTo($class_dir);
@@ -750,13 +750,13 @@ class sysClass extends Controller {
      */
     $this->_registry->pub->deleteFileDir($class_dir, true);
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
   }
 
   private function upgradeFolders($files_dir, $module_dir, $noCopyFiles) {
 
     $res = true;
-    $files = searchNameFile($files_dir);
+    $files = \Gino\searchNameFile($files_dir);
     foreach($files as $file) {
       if(!in_array($file, $noCopyFiles)) {
         if(is_file($files_dir.OS.$file)) {
@@ -782,7 +782,7 @@ class sysClass extends Controller {
    */
   private function formRemoveSysClass($id) {
     
-    $gform = loader::load('Form', array('gform', 'post', true));
+    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $module_app = new ModuleApp($id);
@@ -795,7 +795,7 @@ class sysClass extends Controller {
     if($module_app->instantiable) {
       $GINO .= "<p>".sprintf(_("Il modulo %s prevede la creazione di istanze, per tanto la sua eliminazione determina l'eliminazione di ogni istanza e dei dati associati."), $module_app->label)."</p>\n";
       loader::import('module', 'ModuleInstance');
-      $mdl_instances = ModuleInstance::getFromModuleApp($module_app->id);
+      $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
       if(count($mdl_instances)) {
         $GINO .= "<p>"._("Attualmente nel sitema sono presenti le seguenti istanze:")."</p>\n";
         $GINO .= "<ul>";
@@ -816,7 +816,7 @@ class sysClass extends Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("disinstalla"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Disinstallazione modulo di sistema "%s"'), $module_app->label),
@@ -836,19 +836,19 @@ class sysClass extends Controller {
     
     $this->requirePerm('can_admin');
 
-    $id = cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
 
     $module_app = new ModuleApp($id);
 
-    $instance = cleanVar($_POST, 'instance', 'string', ''); // @QUI
+    $instance = \Gino\cleanVar($_POST, 'instance', 'string', ''); // @QUI
     $className = $this->_db->getFieldFromId($this->_tbl_module_app, 'name', 'id', $id);
 
     /*
      * Removing instances if any 
      */
     if($module_app->instantiable) {
-      loader::import('module', 'ModuleInstance');
-      $mdl_instances = ModuleInstance::getFromModuleApp($module_app->id);
+      \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
+      $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
       foreach($mdl_instances as $mi) {
         $class_obj = new ${$module_app->name}($mi->id);
         $class_obj->deleteInstance();
@@ -878,7 +878,7 @@ class sysClass extends Controller {
      */
     $module_app->deleteDbData();
 
-    Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
   }
 
   private function info() {
@@ -902,7 +902,7 @@ class sysClass extends Controller {
     $buffer .= "<li>"._("altri file di complemento (es. class_newsItem.php)")."</li>";
     $buffer .= "</ul>";
     
-    $view = new view();
+    $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Informazioni'),

@@ -3,6 +3,7 @@
  * @file MobileDetect.php
  * @brief Contiene la classe MobileDetect
  */
+namespace Gino;
 
 /**
  * @brief Verifica se una richiesta HTTP è stata effettuata da un dispositivo mobile

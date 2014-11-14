@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Gestisce i form e il back-office di un modello
@@ -134,7 +135,7 @@ class AdminTable {
    */
   function __construct($instance, $opts = array()) {
 
-    loader::import('class', array('Form', 'InputForm'));
+    loader::import('class', array('\Gino\Form', '\Gino\InputForm'));
 
     $this->_registry = registry::instance();
     $this->_controller = $instance;

@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+namespace Gino;
 
 /**
  * @brief Renderizza la pagina richiesta
@@ -25,47 +26,47 @@ class core {
   function __construct() {
 
     loader::import('class', array(
-      'Logger', 
-      'Singleton', 
-      'Db', 
-      'Locale', 
-      'Translation', 
-      'Error', 
-      'Session',
-      'EventDispatcher', 
-      'GImage',
-      'GTag'
+      '\Gino\Logger', 
+      '\Gino\Singleton', 
+      '\Gino\Db', 
+      '\Gino\Locale', 
+      '\Gino\Translation', 
+      '\Gino\Error', 
+      '\Gino\Session',
+      '\Gino\EventDispatcher', 
+      '\Gino\GImage',
+      '\Gino\GTag'
     ));
 
     loader::import('class/mvc', array(
-      'Model', 
-      'Controller', 
-      'View'
+      '\Gino\Model', 
+      '\Gino\Controller', 
+      '\Gino\View'
     ));
 
     loader::import('class/fields', array(
-      'Field',
-      'BooleanField', 
-      'CharField', 
-      'ConstantField', 
-      'DateField', 
-      'DatetimeField', 
-      'DirectoryField', 
-      'EmailField', 
-      'EnumField', 
-      'FileField', 
-      'FloatField', 
-      'ForeignKeyField', 
-      'HiddenField',
-      'ImageField',
-      'IntegerField',
-      'ManyToManyField', 
-      'ManyToManyThroughField', 
-      'ManyToManyInlineField', 
-      'TextField', 
-      'TimeField', 
-      'YearField',
-      'TagField'
+      '\Gino\Field',
+      '\Gino\BooleanField', 
+      '\Gino\CharField', 
+      '\Gino\ConstantField', 
+      '\Gino\DateField', 
+      '\Gino\DatetimeField', 
+      '\Gino\DirectoryField', 
+      '\Gino\EmailField', 
+      '\Gino\EnumField', 
+      '\Gino\FileField', 
+      '\Gino\FloatField', 
+      '\Gino\ForeignKeyField', 
+      '\Gino\HiddenField',
+      '\Gino\ImageField',
+      '\Gino\IntegerField',
+      '\Gino\ManyToManyField', 
+      '\Gino\ManyToManyThroughField', 
+      '\Gino\ManyToManyInlineField', 
+      '\Gino\TextField', 
+      '\Gino\TimeField', 
+      '\Gino\YearField',
+      '\Gino\TagField'
     ));
 
     // gettext
@@ -88,16 +89,16 @@ class core {
    */
   private function initRegistry() {
 
-    Loader::import('sysconf', 'Conf');
-    $this->_registry = loader::singleton('Registry');
+    Loader::import('sysconf', '\Gino\App\Sysconf\Conf');
+    $this->_registry = Loader::singleton('\Gino\Registry');
 
     // core
-    $this->_registry->session = loader::singleton('Session');
-    $this->_registry->pub = loader::load('Pub');
-    $this->_registry->access = loader::load('Access');
-    $this->_registry->db = loader::singleton('Db');
-    $this->_registry->plink = loader::load('Link');
-    $this->_registry->sysconf = new Conf(1);
+    $this->_registry->session = Loader::singleton('\Gino\Session');
+    $this->_registry->pub = Loader::load('Pub');
+    $this->_registry->access = Loader::load('Access');
+    $this->_registry->db = Loader::singleton('\Gino\Db');
+    $this->_registry->plink = Loader::load('Link');
+    $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
 
     // layout
     $this->_registry->css = array();
@@ -137,7 +138,7 @@ class core {
    */
   private function detectMobile() {
 
-    $detect = loader::load('MobileDetect');
+    $detect = Loader::load('MobileDetect');
 
     if($detect->isMobile()) {
       $this->_registry->session->L_mobile = 1;
@@ -162,7 +163,7 @@ class core {
   public function renderApp() {
 
     ob_start();
-    $doc = loader::load('Document');
+    $doc = Loader::load('Document');
     $buffer = $doc->render();
     ob_end_flush();
   }

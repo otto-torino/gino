@@ -8,6 +8,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
+namespace Gino\App\Page;
 
 /**
  * \ingroup page
@@ -18,7 +19,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class PageComment extends Model {
+class PageComment extends \Gino\Model {
 
 	public static $tbl_comment = 'page_comment';
 
@@ -70,7 +71,7 @@ class PageComment extends Model {
 		
 		$structure = parent::structure($id);
 
-		$structure['published'] = new booleanField(array(
+		$structure['published'] = new \Gino\BooleanField(array(
 			'name'=>'published', 
 			'model'=>$this,
 			'required'=>true,
@@ -78,7 +79,7 @@ class PageComment extends Model {
 			'default'=>0,
 		));
 
-		$structure['notification'] = new booleanField(array(
+		$structure['notification'] = new \Gino\BooleanField(array(
 			'name'=>'notification', 
 			'model'=>$this,
 			'required'=>true,
@@ -86,7 +87,7 @@ class PageComment extends Model {
 			'default'=>0, 
 		));
 
-		$structure['datetime'] = new datetimeField(array(
+		$structure['datetime'] = new \Gino\DatetimeField(array(
 			'name'=>'datetime', 
 			'model'=>$this,
 			'required'=>true,
@@ -94,7 +95,7 @@ class PageComment extends Model {
 			'auto_now_add'=>true, 
 		));
 
-		$structure['entry'] = new foreignKeyField(array(
+		$structure['entry'] = new \Gino\ForeignKeyField(array(
 			'name'=>'entry', 
 			'model'=>$this,
 			'lenght'=>255, 
@@ -102,7 +103,7 @@ class PageComment extends Model {
 			'foreign_order'=>'last_edit_date',
 		));
 
-		$structure['reply'] = new foreignKeyField(array(
+		$structure['reply'] = new \Gino\ForeignKeyField(array(
 			'name'=>'reply', 
 			'model'=>$this,
 			'lenght'=>255, 
@@ -123,7 +124,7 @@ class PageComment extends Model {
 	public static function getCountFromEntry($entry_id) {
 		
 		$res = 0;
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		$rows = $db->select('COUNT(id) AS tot', self::$tbl_comment, "entry='".$entry_id."' AND published='1'");
 		if($rows and count($rows)) {
 			$res = $rows[0]['tot'];
@@ -145,18 +146,18 @@ class PageComment extends Model {
 
 		$res = array();
 
-		$controller = gOpt('controller', $options, null);
-		$entry_id = gOpt('entry_id', $options, null);
+		$controller = \Gino\gOpt('controller', $options, null);
+		$entry_id = \Gino\gOpt('entry_id', $options, null);
 		
 		if(!$controller || !$entry_id)
 			return $res;
 		
-		$published = gOpt('published', $options, true);
-		$reply = gOpt('reply', $options, null);
-		$order = gOpt('order', $options, 'creation_date');
-		$limit = gOpt('limit', $options, null);
+		$published = \Gino\gOpt('published', $options, true);
+		$reply = \Gino\gOpt('reply', $options, null);
+		$order = \Gino\gOpt('order', $options, 'creation_date');
+		$limit = \Gino\gOpt('limit', $options, null);
 
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		$selection = 'id';
 		$table = self::$tbl_comment;
 		$where_arr = array("entry='".$entry_id."'");
@@ -187,7 +188,7 @@ class PageComment extends Model {
 	 */
 	public static function getTree($entry_id, $reply = 0, $tree = array(), $recursion = 0) {
 
-		$db = db::instance();
+		$db = \Gino\db::instance();
 
 		if(!$reply) {
 			$reply_q = "(reply='0' OR reply IS NULL)";
@@ -218,7 +219,7 @@ class PageComment extends Model {
 	 */
 	public static function deleteFromEntry($controller, $entry_id) {
 
-		$db = db::instance();
+		$db = \Gino\db::instance();
 		$query = "DELETE FROM ".self::$tbl_comment." WHERE entry='".$entry_id."'";
 		
 		return $db->actionquery($query);
@@ -281,11 +282,11 @@ class PageComment extends Model {
 	 */
 	private function notifyComment() {
 
-		$db = db::instance();
+		$db = \Gino\db::instance();
 
 		$entry = new pageEntry($this->entry, $this->_controller);
 
-		$plink = new link();	
+		$plink = new \Gino\Link();	
 		$link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$plink->aLink($this->_controller->getInstanceName(), 'view', array("id"=>$entry->slug)).'#comment'.$this->id;
 
 		// notify other commentors
@@ -296,9 +297,9 @@ class PageComment extends Model {
 				if($email != $this->email) {
 					$subject = sprintf(_("Notifica nuovo commento alla pagina \"%s\""), $entry->title);
 					$object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $row['author'], $this->author, $link);
-					$from = "From: ".pub::variable('email_from_app');
+					$from = "From: ".\Gino\Pub::variable('email_from_app');
 
-					mail($email, $subject, $object, $from);
+					\mail($email, $subject, $object, $from);
 				}
 			}
 		}
@@ -313,7 +314,7 @@ class PageComment extends Model {
 				$subject = sprintf(_("Nuovo commento al post \"%s\""), $entry->title);
 				$object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $author_name, $this->author, $link);
 				$from = "From: ".pub::variable('email_from_app');
-				mail($author_email, $subject, $object, $from);
+				\mail($author_email, $subject, $object, $from);
 			}
 		}
 
