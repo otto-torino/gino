@@ -30,7 +30,6 @@ class User extends \Gino\Model {
 	public static $table = TBL_USER;
 	public static $table_more = TBL_USER_ADD;
 	
-	private $_controller;
 	private static $extension_media;
 	
 	/**

@@ -18,8 +18,6 @@ namespace Gino\App\Attached;
  */
 class AttachedCtg extends \Gino\Model {
 
-  private $_controller;
-
   public static $tbl_ctg = 'attached_ctg';
 
   /**

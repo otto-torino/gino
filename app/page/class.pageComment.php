@@ -21,8 +21,6 @@ namespace Gino\App\Page;
  */
 class PageComment extends \Gino\Model {
 
-	private $_controller;
-
 	public static $tbl_comment = 'page_comment';
 
 	/**

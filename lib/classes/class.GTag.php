@@ -134,7 +134,7 @@ class GTag {
                         if(!isset($res[$module->label])) {
                             $res[$module->label] = array();
                         }
-                        $object = new $content_class($content_id, $controller_instance);
+                        $object = new $content_class($content_id, new $controller_name($controller_instance));
                         if(method_exists($object, 'gtagOutput')) {
                             $res[$module->label][] = $object->gtagOutput();
                         }

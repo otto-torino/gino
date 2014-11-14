@@ -21,7 +21,6 @@ namespace Gino\App\Page;
  */
 class PageCategory extends \Gino\Model {
 
-	private $_controller;
 	public static $_tbl_item = "page_category";
 	
 	/**
