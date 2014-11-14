@@ -15,12 +15,12 @@
     <?=  $registry->variables('css') ?>
     <!-- system js -->
     <?=  $registry->variables('js') ?>
-    <?= Document::errorMessages() ?>
+    <?= \Gino\Document::errorMessages() ?>
     <link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
     <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->
-    <?= Javascript::vendor() ?>  </head>
-    <?= Javascript::analytics() ?>  </head>
+    <?= \Gino\Javascript::vendor() ?>  </head>
+    <?= \Gino\Javascript::analytics() ?>  </head>
   <body>
     <!-- top bar -->
     <nav class="navbar-wrapper navbar-default navbar-fixed-top" role="navigation">

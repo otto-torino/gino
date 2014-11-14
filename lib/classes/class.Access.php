@@ -58,7 +58,7 @@ class Access {
    */
   public function Authentication(){
 
-    Loader::import('auth', 'Gino\App\Auth\User');
+    Loader::import('auth', 'User');
     
     if((isset($_POST['action']) && $_POST['action']=='auth')) {
       $user = cleanVar($_POST, 'user', 'string', '');
@@ -72,7 +72,6 @@ class Access {
     else {
       $registry = registry::instance();
       if(isset($this->_session->user_id)) {
-        Loader::import('auth', 'Gino\App\Auth\User');
         $registry->user = new \Gino\App\Auth\User($this->_session->user_id);
       }
       else {

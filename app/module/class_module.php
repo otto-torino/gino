@@ -95,7 +95,7 @@ class module extends \Gino\Controller {
 
     $link_1 = '';
 
-    $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&amp;action=insert\">".pub::icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
+    $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&amp;action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
 
     $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
@@ -103,7 +103,7 @@ class module extends \Gino\Controller {
     $modules = ModuleInstance::get(array('order' => 'label'));
 
     if(count($modules)) {
-      \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+      \Gino\Loader::import('sysClass', 'ModuleApp');
       $GINO = "<p class=\"backoffice-info\">"._('Di seguito l\'elenco di tutte le istanze di moduli presenti nel sistema. Cliccare l\'icona di modifica per cambiare l\'etichetta e la descrizione del modulo. In caso di eliminazione tutti i dati ed i file verrano cancellati definitivamente.')."</p>";
       $heads = array(
         _('id'),
@@ -236,9 +236,9 @@ class module extends \Gino\Controller {
    */
   private function formModule($module) {
 
-    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    \Gino\Loader::import('sysClass', 'ModuleApp');
     $module_app = $module->moduleApp();
-    $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
+    $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
 
     $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id)));
     $gform->load('dataform');

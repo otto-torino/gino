@@ -76,14 +76,14 @@ class instruments extends \Gino\Controller {
 	 */
 	private function links(){
 
-		\Gino\Loader::import('page', '\Gino\App\Page\PageEntry');
-		\Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
-		\Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
-		\Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
+		\Gino\Loader::import('page', 'PageEntry');
+		\Gino\Loader::import('module', 'ModuleInstance');
+		\Gino\Loader::import('sysClass', 'ModuleApp');
+		\Gino\Loader::import('auth', 'Permission');
 		
 		$GINO = "<p class=\"backoffice-info\">"._('Elenco di tutte le pagine presenti e di tutti gli output dei moduli, con relativi url e permessi di visualizzazione. Quelle elencate qui non sono le uniche viste disponibili dei moduli, ma quelle che non necessitano di parametri e sono quindi includibili in ogni layout.')."</p>";
 		
-		$rows = $this->_db->select('id', PageEntry::$tbl_entry, "published='1'", array('order' => 'title'));
+		$rows = $this->_db->select('id', \Gino\App\Page\PageEntry::$tbl_entry, "published='1'", array('order' => 'title'));
 		if($rows and count($rows))
 		{
 			$GINO .= "<h2>"._("Pagine")."</h2>";
@@ -115,8 +115,8 @@ class instruments extends \Gino\Controller {
 			$GINO .= $view_table->render();
 		}
 
-		$modules = \Gino\App\Module\ModuleInstance::get();
-		$modules = array_merge($modules, \Gino\App\SysClass\ModuleApp::get());
+		$modules = \Gino\App\Module\ModuleInstance::objects();
+		$modules = array_merge($modules, \Gino\App\SysClass\ModuleApp::objects());
 		
 		if(count($modules)) {
 			$GINO .= "<h2>"._("Moduli di sistema e istanze")."</h2>";
@@ -130,10 +130,10 @@ class instruments extends \Gino\Controller {
 			));
 			$tbl_rows = array();
 			foreach($modules as $module) {
-				$class_name = $module->className();
-				if(method_exists($class_name, 'outputFunctions'))
+				$class = $module->classNameNs();
+				if(method_exists($class, 'outputFunctions'))
 				{
-					$list = call_user_func(array($class_name, 'outputFunctions'));
+					$list = call_user_func(array($class, 'outputFunctions'));
 					foreach($list as $func => $desc)
 					{
 						$description = $desc['label'];

@@ -670,15 +670,16 @@ class AdminTable {
    * @see adminForm()
    * @see adminDelete()
    * @see adminList()
-   * @param string $model_class nome della classe del modello
+   * @param string $model_class_name nome della classe del modello
    * @param array $options_view opzioni della vista (comprese le autorizzazioni a visualizzare singoli campi)
    * @param array $options_form opzioni del form (comprese le autorizzazioni a mostrare l'input di singoli campi e a salvarli)
    * @param array $inputs opzioni degli elementi nel form
    * @return string
    */
-  public function backOffice($model_class, $options_view=array(), $options_form=array(), $inputs=array()) {
+  public function backOffice($model_class_name, $options_view=array(), $options_form=array(), $inputs=array()) {
 
     $id = cleanVar($_REQUEST, 'id', 'int', '');
+    $model_class = get_model_app_name_class_ns(get_name_class($this->_controller), $model_class_name);
     $model_obj = new $model_class($id, $this->_controller);
 
     $insert = cleanVar($_GET, 'insert', 'int', '');
@@ -768,7 +769,7 @@ class AdminTable {
       $link_return = $this->editUrl(array(), array('edit', 'insert', 'id'));
 
     $form_description = gOpt('form_description', $options_form, null);
-    
+
     if(count($_POST)) {
       $popup = cleanVar($_POST, '_popup', 'int', '');
       $link_error = $this->editUrl(null, null);

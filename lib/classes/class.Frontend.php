@@ -30,32 +30,30 @@ class Frontend {
 	/**
 	 * Costruttore
 	 * 
-	 * @param array $params
-	 *   array associativo di opzioni
-	 *   - @b class (string): nome della classe
-	 *   - @b module_id (integer): valore ID del modulo
+	 * @param mixed $controller istanza della classe controller
 	 * @return void
 	 */
-	function __construct($params) {
+	function __construct($controller) {
 		
 		$db = db::instance();
 
-    Loader::import('sysClass', '\Gino\App\ModuleApp');
-    Loader::import('module', '\Gino\App\ModuleInstance');
+    Loader::import('sysClass', 'ModuleApp');
+    Loader::import('module', 'ModuleInstance');
 		
-		$this->_class = $params['class'];
-    $this->_module_id = $params['module_id'];
+		$this->_class_name = $controller->getClassName();
+		$this->_class = get_class($controller);
+    $this->_module_id = $controller->getInstance();
 
     if($this->_module_id) {
-      $this->_module = new ModuleInstance($this->_module_id);
+      $this->_module = new \Gino\App\Module\ModuleInstance($this->_module_id);
     }
     else {
-      $this->_module = ModuleApp::getFromName($this->_class);
+      $this->_module = \Gino\App\SysClass\ModuleApp::getFromName($this->_class_name);
     }
 
     $this->setLists();
 
-    $method = $this->_module_id ? 'manageDoc' : 'manage'.ucfirst($this->_class);
+    $method = $this->_module_id ? 'manageDoc' : 'manage'.ucfirst($this->_class_name);
     $this->_mdlLink = HOME_FILE."?evt[{$this->_module->name}-{$method}]&block=frontend";
 
   }
@@ -107,7 +105,7 @@ class Frontend {
 	 */
 	private function pathToFile($code) {
 		
-		$dir = APP_DIR.OS.$this->_class.OS;
+		$dir = APP_DIR.OS.$this->_class_name.OS;
 		
 		if($code == 'css')
 		{

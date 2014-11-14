@@ -72,7 +72,7 @@ class auth extends \Gino\Controller {
 		$this->_pwd_length_max = $this->setOption('pwd_max_length');
 		$this->_pwd_numeric_number = $this->setOption('pwd_numeric_number');
 		
-		$this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+		$this->_options = \Gino\Loader::load('Options', array($this));
 		$this->_optionsLabels = array(
 			"title"=>_("Titolo"), 
 			"users_for_page"=>_("Utenti per pagina"),
@@ -260,9 +260,9 @@ class auth extends \Gino\Controller {
 			'list_display' => array('id', 'firstname', 'lastname', 'email', 'active'),
 			'list_description' => $info, 
 			'add_buttons' => array(
-				array('label'=>pub::icon('group', array('scale' => 1)), 'link'=>$link_button."&op=jug", 'param_id'=>'ref'), 
-				array('label'=>pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
-				array('label'=>pub::icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-manageAuth]&block=password", 'param_id'=>'ref')
+				array('label'=>\Gino\pub::icon('group', array('scale' => 1)), 'link'=>$link_button."&op=jug", 'param_id'=>'ref'), 
+				array('label'=>\Gino\pub::icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
+				array('label'=>\Gino\pub::icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-manageAuth]&block=password", 'param_id'=>'ref')
 			)
 		);
 		
@@ -901,13 +901,12 @@ class auth extends \Gino\Controller {
 	private function formGroup($obj_form, $checked=array()) {
 		
 		$group = Group::getList();
+		$items = array();
 		
 		$a_checked = array();
 		
 		if(count($group))
 		{
-			$items = array();
-			
 			foreach($group AS $g)
 			{
 				$group_id = $g['id'];

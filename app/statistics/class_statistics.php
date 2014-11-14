@@ -71,7 +71,7 @@ class statistics extends \Gino\Controller {
 	 */
 	private function viewlogAccess() {
 
-		\Gino\Loader::import('auth', '\Gino\App\Auth\User');
+		\Gino\Loader::import('auth', 'User');
 	
 		$link_export = "<a href=\"$this->_home?evt[$this->_class_name-export]\">".\Gino\pub::icon('export', array('text' => 'esporta log completo', 'scale' => 2))."</a>";
 
@@ -94,7 +94,7 @@ class statistics extends \Gino\Controller {
 			$tbl_rows[] = array(
 				\Gino\htmlChars($user->lastname.' '.$user->firstname),
 				$tot_accesses,
-				\Gino\dbDatetimeToDate($last_access->date).' '.\Gino\dbDatetimeToTime($last_access->date)
+				is_null($last_access) ? '' : \Gino\dbDatetimeToDate($last_access->date).' '.\Gino\dbDatetimeToTime($last_access->date)
 			);
 		}
 		$view_table->assign('rows', $tbl_rows);

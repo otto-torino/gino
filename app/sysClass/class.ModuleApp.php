@@ -19,35 +19,22 @@ class ModuleApp extends \Gino\Model {
 	/**
 	 * Nome della classe
 	 * 
-	 * @param boolean $ns mostra o meno il nome della classe completo di namespace (default true)
 	 * @return string
 	 */
-	public function className($ns=true) {
+	public function className() {
 		
-		$ns = $ns ? get_app_mamespace($this->name).'\\' : '';
+		return $this->name;
 		
-		$class = $ns.$this->name;
-		
-		return $class;
 	}
 
-  public static function get($options = array()) {
-
-    $where = \Gino\gOpt('where', $options, null);
-    $order = \Gino\gOpt('order', $options, null);
-
-    $res = array();
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, $where, array('order' => $order));
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new ModuleApp($row['id']);
-      }
-    }
-
-    return $res;
-  }
+    /**
+	 * Nome della classe con namespace completo
+	 * 
+	 * @return string
+	 */
+	public function classNameNs($ns=true) {
+		return get_app_name_class_ns($this->name);
+	}
 
   public static function getFromName($name) {
 

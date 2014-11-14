@@ -16,37 +16,24 @@ class ModuleInstance extends \Gino\Model {
 	/**
 	 * Nome della classe
 	 * 
-	 * @param boolean $ns mostra o meno il nome della classe completo di namespace (default true)
 	 * @return string
 	 */
-	public function className($ns=true) {
+	public function className() {
 		
 		$module_app = $this->moduleApp();
+		return $module_app->name;
 		
-		$ns = $ns ? get_app_mamespace($module_app->name).'\\' : '';
-		
-		$class = $ns.$module_app->name;
-		
-		return $class;
 	}
 
-  public static function get($options = array()) {
-
-    $where = \Gino\gOpt('where', $options, null);
-    $order = \Gino\gOpt('order', $options, null);
-
-    $res = array();
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, $where, array('order' => $order));
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new ModuleInstance($row['id']);
-      }
-    }
-
-    return $res;
-  }
+    /**
+	 * Nome della classe con namespace completo
+	 * 
+	 * @return string
+	 */
+	public function classNameNs($ns=true) {
+		$module_app = $this->moduleApp();
+		return get_app_name_class_ns($module_app->name);
+	}
 
   public static function getFromName($name) {
 
@@ -76,7 +63,7 @@ class ModuleInstance extends \Gino\Model {
 
 	public function moduleApp() {
 		
-		\Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+		\Gino\Loader::import('sysClass', 'ModuleApp');
 		return new ModuleApp($this->module_app);
 	}
 }

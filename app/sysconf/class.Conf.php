@@ -64,7 +64,7 @@ class Conf extends \Gino\Model {
       'model'=>$this,
       'required'=>true,
       'lenght'=>3, 
-      'foreign'=>'Lang', 
+      'foreign'=>'\Gino\App\Language\Lang', 
       'foreign_order'=>'language', 
     ));
 

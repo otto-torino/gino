@@ -23,7 +23,7 @@ require_once('class.GraphicsItem.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class Graphics extends \Gino\Controller {
+class graphics extends \Gino\Controller {
 
 	private $_title;
 	private $_tbl_graphics;

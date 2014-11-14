@@ -153,7 +153,7 @@ class User extends \Gino\Model {
 			'name'=>'group', 
 			'model'=>$this,
 			'required'=>false, 
-			'm2m'=>'Group', 
+			'm2m'=>'\Gino\App\Auth\Group', 
 			'm2m_where'=>null, 
 			'm2m_order'=>'name ASC', 
 			'join_table'=>Group::$table_group_user
@@ -174,9 +174,9 @@ class User extends \Gino\Model {
 	  */
 	 public function formPassword($options=array()) {
 	 	
-	 	$form_action = gOpt('form_action', $options, null);
-	 	$rules = gOpt('rules', $options, null);
-	 	$maxlength = gOpt('maxlength', $options, null);
+	 	$form_action = \Gino\gOpt('form_action', $options, null);
+	 	$rules = \Gino\gOpt('rules', $options, null);
+	 	$maxlength = \Gino\gOpt('maxlength', $options, null);
 	 	
 	 	$gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 	 	
@@ -528,12 +528,12 @@ class User extends \Gino\Model {
 	
     /**
      * Verifica se l'utente ha uno dei permessi della classe
-     * @param string $class la classe
+     * @param string $class_name nome della classe
      * @param int|array $perms id o array di id dei permessi da verificare
      * @param int $instance istanza della classe (0 per classi non istanziabili)
      * @return boolean
      */
-    public function hasPerm($class, $perms, $instance = 0) {
+    public function hasPerm($class_name, $perms, $instance = 0) {
         if(!$this->id) {
             return false;
         }
@@ -550,7 +550,7 @@ class User extends \Gino\Model {
                 ".TBL_USER_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
                 ".TBL_USER_PERMISSION.".user_id = '".$this->id."' AND 
                 ".TBL_USER_PERMISSION.".instance = '".$instance."' AND 
-                ".TBL_PERMISSION.".class = '".$class."' AND 
+                ".TBL_PERMISSION.".class = '".$class_name."' AND 
                 ".TBL_PERMISSION.".code = '$perm_code'");
             if($rows and count($rows)) {
                 return true;
@@ -558,7 +558,7 @@ class User extends \Gino\Model {
             // check user group permission
             $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_GROUP_USER, TBL_PERMISSION), "
                 ".TBL_GROUP_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
-                ".TBL_PERMISSION.".class = '".$class."' AND 
+                ".TBL_PERMISSION.".class = '".$class_name."' AND 
                 ".TBL_PERMISSION.".code = '".$perm_code." AND 
                 ".TBL_GROUP_PERMISSION.".instance = '".$instance."' AND 
                 ".TBL_GROUP_PERMISSION.".group_id = ".TBL_GROUP_USER.".group_id AND
@@ -573,11 +573,11 @@ class User extends \Gino\Model {
 
     /**
      * Verifica se l'utente ha uno dei permessi amministrativi della classe
-     * @param string $class la classe
+     * @param string $class_name il nome della classe
      * @param int $instance istanza della classe (0 per classi non istanziabili)
      * @return boolean
      */
-    public function hasAdminPerm($class, $instance = 0) {
+    public function hasAdminPerm($class_name, $instance = 0) {
 
         $perms = array();
         $rows = $this->_db->select('code', TBL_PERMISSION, "admin='1'");
@@ -586,7 +586,7 @@ class User extends \Gino\Model {
                 $perms[] = $row['code'];
             }
         }
-        if($this->hasPerm($class, $perms, $instance)) {
+        if($this->hasPerm($class_name, $perms, $instance)) {
             return true;
         }
 

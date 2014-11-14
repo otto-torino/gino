@@ -72,10 +72,31 @@ namespace {
 	 * @param string $controller_name nome della classe controller
 	 * @return string
 	 */
-	function get_app_mamespace($controller_name) {
+	function get_app_namespace($controller_name) {
 		
 		$ns = '\Gino\App\\'.ucfirst($controller_name);
 		return $ns;
+	}
+
+	/**
+	 * Ritorna il nome della classe di tipo application con namespace completo
+	 * 
+	 * @param string $controller_name nome della classe controller
+	 * @return string
+	 */
+	function get_app_name_class_ns($controller_name) {
+		
+		return get_app_namespace($controller_name).'\\'.$controller_name;
+	}
+
+    /**
+	 * Ritorna il nome della classe di tipo application con namespace completo
+	 * 
+	 * @param string $controller_name nome della classe controller
+	 * @return string
+	 */
+	function get_model_app_name_class_ns($controller_name, $model_name) {
+		return get_app_namespace($controller_name).'\\'.$model_name;
 	}
 }
 ?>
