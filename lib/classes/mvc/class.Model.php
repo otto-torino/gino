@@ -719,8 +719,7 @@ namespace Gino;
         }
         return $structure;
     }
-
-<<<<<<< HEAD
+    
     return true;
   }
 	
