@@ -122,7 +122,7 @@ class MenuVoice extends \Gino\Model {
     if(!$this->perms) {
       return true;
     }
-    \Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
+    \Gino\Loader::import('auth', 'Permission');
 
     foreach(explode(';', $this->perms) as $p) {
       $values = explode(',', $p);
@@ -145,7 +145,7 @@ class MenuVoice extends \Gino\Model {
 	 */
 	public function formVoice($formaction, $parent) {
 
-		\Gino\Loader::import('auth', array('\Gino\App\Auth\Permission'));
+		\Gino\Loader::import('auth', array('Permission'));
 	
 		$gform = \Gino\Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');

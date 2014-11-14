@@ -202,8 +202,13 @@ abstract class Controller {
      * @return interfaccia di amministrazione opzioni
      */
     public function manageOptions() {
-        $options = new options($this->_class_name, $this->_instance);
-        return $options->manageDoc();
+        try {
+            $options = new options($this);
+            return $options->manageDoc();
+        }
+        catch(\Exception $e) {
+            Logger::manageException($e);
+        }
     }
 
     /**
@@ -212,7 +217,7 @@ abstract class Controller {
      * @return interfaccia di amministrazione frontend (viste, css...)
      */
     public function manageFrontend() {
-        $frontend = Loader::load('Frontend', array(array("class"=>$this->_class_name, "module_id"=>$this->_instance)));
+        $frontend = Loader::load('Frontend', array($this));
         return $frontend->manageFrontend();
     }
 

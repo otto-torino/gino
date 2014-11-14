@@ -797,20 +797,20 @@ class Template extends Model {
 					$jsurl = $page->getIdUrl(true);
 				}
 				elseif($mdlType=='class' || $mdlType=='class') {
-					$module = new ModuleInstance($mdlId);
+					$module = new \Gino\App\Module\ModuleInstance($mdlId);
 					$classname = $module->className();
 					$title = $module->label;
 					$mdlFunc = $m[4];
-					$output_functions = (method_exists($classname, 'outputFunctions')) ? call_user_func(array($classname, 'outputFunctions')):array();
+					$output_functions = (method_exists($module->classNameNs(), 'outputFunctions')) ? call_user_func(array($module->classNameNs(), 'outputFunctions')):array();
 					$title .= " - ".$output_functions[$mdlFunc]['label'];
 					$jsurl = $this->_home."?pt[".$module->name."-$mdlFunc]";
 				}
 				elseif($mdlType=='class' || $mdlType=='sysclass') {
-					$module_app = new ModuleApp($mdlId);
+					$module_app = new \Gino\App\SysClass\ModuleApp($mdlId);
 					$classname = $module_app->className();
 					$title = $module_app->label;
 					$mdlFunc = $m[4];
-					$output_functions = (method_exists($classname, 'outputFunctions'))? call_user_func(array($classname, 'outputFunctions')):array();
+					$output_functions = (method_exists($module_app->classNameNs(), 'outputFunctions'))? call_user_func(array($module_app->classNameNs(), 'outputFunctions')):array();
 					$title .= " - ".$output_functions[$mdlFunc]['label'];
 					$jsurl = $this->_home."?pt[$classname-$mdlFunc]";
 				}

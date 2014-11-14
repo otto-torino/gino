@@ -45,8 +45,8 @@ class Document {
         $this->_db = db::instance();
         $this->session = session::instance();
 
-        Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
-        Loader::import('module', '\Gino\App\Module\ModuleInstance');
+        Loader::import('sysClass', 'ModuleApp');
+        Loader::import('module', 'ModuleInstance');
         
         $this->_plink = new link();
         $this->_tbl_module_app = 'sys_module_app';
@@ -331,7 +331,6 @@ class Document {
         
         if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
         {
-            Loader::import('page', '\Gino\App\Page\page');	//////////
             $this->_instances['page'] = new page();
         }
 
@@ -347,40 +346,33 @@ class Document {
         }
 
         $obj = $mdlType=='sysclass' ? new ModuleApp($mdlId) : new ModuleInstance($mdlId);
-    
-        $class_ns = $obj->className();	//////////
-        Loader::import('menu', $class_ns);	//////////
-        
-        $class_name = get_name_class($class_ns);
+
+        $class = $obj->classNameNs();
+        $class_name = $obj->className();
 
         if(!isset($this->_instances[$class_name."_".$mdlId]) || !is_object($this->_instances[$class_name."_".$mdlId])) {
-            $this->_instances[$class_name."_".$mdlId] = new $class_ns($mdlId);
+            $this->_instances[$class_name."_".$mdlId] = new $class($mdlId);
         }
-     
-        $classObj = $this->_instances[$class_name."_".$mdlId];		
+
+        $classObj = $this->_instances[$class_name."_".$mdlId];
         $ofs = call_user_func(array($classObj, 'outputFunctions'));
         $ofp = isset($ofs[$mdlFunc]['permissions'])? $ofs[$mdlFunc]['permissions']:array();
 
         if($mdlType=='sysclass') {
 
-            $rows = $this->_db->select("name", TBL_MODULE_APP, "id='$mdlId'");
-            if(count($rows))
-            {
-                $name = htmlChars($rows[0]['name']);
-                if(!$this->checkOutputFunctionPermissions($ofp, $name, 0)) {
-                        return '';
-                }
-             $buffer = $classObj->$mdlFunc();
+            $module_app = new ModuleApp($mdlId);
+            if(!$this->checkOutputFunctionPermissions($ofp, $module_app->name, 0)) {
+                return '';
             }
-            else return '';
+            $buffer = $classObj->$mdlFunc();
         }
         elseif($mdlType=='class') {
 
             $rows = $this->_db->select("class", $this->_tbl_module, "id='$mdlId'");
             if(count($rows))
             {
-                $class = htmlChars($rows[0]['class']);
-                if(!$this->checkOutputFunctionPermissions($ofp, $class, $mdlId)) {
+                $class_name = htmlChars($rows[0]['class']);
+                if(!$this->checkOutputFunctionPermissions($ofp, $class_name, $mdlId)) {
                     return '';
                 }
             }
@@ -435,12 +427,10 @@ class Document {
         $publicMethod = @$methodCheck['PUBLIC_METHODS'][$function];
 
         if(isset($publicMethod)) return $instance->$function();
-        else header("Location: ".HOME_FILE);
+        //else header("Location: ".HOME_FILE);
     }
 
     private function getEvent() {
-        Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
-        Loader::import('module', '\Gino\App\Module\ModuleInstance');
 
         $evtKey = isset($_GET[EVT_NAME])
             ? is_array($_GET[EVT_NAME])
@@ -461,26 +451,22 @@ class Document {
         if(is_null($module_app) and is_null($module)) {
             Error::raise404();
         }
-
-		if(is_dir(APP_DIR.OS.$mdl) && class_exists($mdl) && $module_app && !$module_app->instantiable) {
+		if(is_dir(APP_DIR.OS.$mdl) && class_exists(get_app_name_class_ns($mdl)) && $module_app && !$module_app->instantiable) {
       
     		$mdlId = $module_app->id;
-			$class = $module_app->className();
+			$class = $module_app->classNameNs();
+			$class_name = $module_app->className();
 			
 			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
 				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
 
 			$instance = $this->_instances[$class."_".$mdlId];
 		}
-		elseif(class_exists($module->className())) {
+		elseif(class_exists($module->classNameNs())) {
 			$mdlId = $module->id;
-			$class = $module->className();
+			$class = $module->classNameNs();
+			$class_name = $module->className();
 			
-			/*$class_ns = $obj->className();	//////////
-			Loader::import('menu', $class_ns);	//////////
-			
-			$class_name = get_name_class($class_ns);
-			*/
 			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId]))
 				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
 
@@ -488,7 +474,7 @@ class Document {
 		}
 		else { $class=null; $instance=null; }
 		
-		return array($class, $instance, $function);
+		return array($class_name, $instance, $function);
 	}
 
     private function google_analytics(){

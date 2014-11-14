@@ -89,7 +89,7 @@ class PageEntry extends \Gino\Model {
             'model'=>$this,
             'required'=>true,
             'lenght'=>3, 
-            'foreign'=>'pageCategory', 
+            'foreign'=>'\Gino\App\Page\pageCategory', 
             'foreign_order'=>'name ASC',
             'add_related' => true,
             'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-managePage]&block=ctg&insert=1',
@@ -122,7 +122,7 @@ class PageEntry extends \Gino\Model {
         $structure['users'] = new \Gino\ManyToManyInlineField(array(
             'name'=>'users', 
             'model'=>$this,
-            'm2m'=>'User', 
+            'm2m'=>'\Gino\App\Auth\User', 
             'm2m_where'=>"active='1'", 
             'm2m_order'=>"lastname ASC, firstname", 
         ));

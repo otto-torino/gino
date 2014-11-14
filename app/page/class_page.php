@@ -211,7 +211,7 @@ class page extends \Gino\Controller {
             $newsletter_module = false;
         }
 
-        $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+        $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
             "showcase_title"=>array(
                 'label'=>_("Titolo vetrina pagine più lette"),

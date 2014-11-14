@@ -38,39 +38,41 @@ class options {
 
 	private $_action;
 	
-	function __construct($class, $instance){
+	function __construct($controller){
+
+        if(!$controller instanceof \Gino\Controller) {
+            throw new \Exception(_('Il primo argomento deve essere una classe di tipo Controller'));
+        }
 		
-		Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+		Loader::import('sysClass', 'ModuleApp');
 		
 		$this->_db = db::instance();
 		$this->_title = _("Opzioni");
 
-		$this->setData($instance, $class);
+		$this->setData($controller);
 		
 		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 		
 		$this->_home = HOME_FILE;
 	}
 	
-	private function setData($instance, $class) {
+	private function setData($controller) {
 		
-		$class = get_name_class($class);
-		
-		$this->_instance = $instance;
-		$this->_instance_name = $this->_db->getFieldFromId(TBL_MODULE, 'name', 'id', $instance);
+		$this->_instance = $controller->getInstance();
+		$this->_instance_name = $controller->getInstanceName();
+        $class_name = $controller->getClassName();
 
-		if($this->_instance && empty($this->_instance_name)) exit(error::syserrorMessage("options", "setData", "Istanza di ".$class." non trovata", __LINE__));
+        if($class_name) {
+            $this->_class_name = $class_name;
+            $this->_class = get_app_name_class_ns($class_name);
+        }
+		else exit(error::syserrorMessage("options", "setData", "Classe ".$class_name." inesistente", __LINE__));
 
-		if($class) $this->_class = $class;
-		else exit(error::syserrorMessage("options", "setData", "Classe ".$class." inesistente", __LINE__));
-
-		if(!$this->_instance) $this->_instance_name = $this->_class;
-		
-		$this->_module_app = ModuleApp::getFromName($this->_class);
+		$this->_module_app = \Gino\App\SysClass\ModuleApp::getFromName($class_name);
 		$this->_class_prefix = $this->_module_app->tbl_name;
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 
-		$this->_return_link = method_exists($class, "manageDoc")? $this->_instance_name."-manageDoc": $this->_instance_name."-manage".ucfirst($class);
+		$this->_return_link = method_exists($this->_class, "manageDoc") ? $this->_instance_name."-manageDoc" : $this->_instance_name."-manage".ucfirst($class_name);
 	}
 
 	private function editableField($field) {
@@ -106,13 +108,12 @@ class options {
 		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
-		$class_instance = ($this->_instance)?new $this->_class($this->_instance):new $this->_class();
+		$class_instance = ($this->_instance) ? new $this->_class($this->_instance) : new $this->_class();
 		$table_info = $this->_db->fieldInformations($this->_tbl_options);
 		$required = '';
 
-		$query = "SELECT * FROM ".$this->_tbl_options." WHERE instance='".$this->_instance."'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
+        $a = $this->_db->select('*', $this->_tbl_options, "instance='".$this->_instance."'");
+		if($a and sizeof($a)>0) {
 			foreach($a as $b) {
 				$id = $b['id'];
 				foreach($table_info AS $f) {
@@ -160,7 +161,7 @@ class options {
 		$label = $this->_module_app->ml('label');
 
 		if(method_exists($this->_class, 'manageDoc')) $function = 'manageDoc';
-		else $function = 'manage'.ucfirst($this->_class);
+		else $function = 'manage'.ucfirst($this->_class_name);
 
 		if($required) $required = substr($required, 0, strlen($required)-1);
 		$GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", '', $required);

@@ -481,7 +481,7 @@ class mysql implements \Gino\DbManager {
 	 */
 	public function distinct($fields, $options=array()) {
 		
-		$alias = gOpt('alias', $options, null);
+		$alias = \Gino\gOpt('alias', $options, null);
 		
 		if(!$fields) return null;
 		

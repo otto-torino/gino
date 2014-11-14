@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use \Gino\App\Language\language;
+
 /**
  * @brief Interfaccia agli elementi di un form
  * 
@@ -274,7 +276,7 @@ class Form {
 
     include(SITE_ROOT."/ckeditor/ckeditor.php");
 
-    $oCKeditor = new CKeditor(SITE_WWW.'/ckeditor/');
+    $oCKeditor = new \CKeditor(SITE_WWW.'/ckeditor/');
 
     $oCKeditor->returnOutput = true;
 
@@ -2002,13 +2004,13 @@ class Form {
 	 */
 	private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
 
-		loader::import('language', '\Gino\App\Lang');
+		loader::import('language', 'Lang');
 
 		$GINO = '';
 
 		if(empty($id_name)) $id_name = 'id';
 
-		$langs = Lang::get(array(
+		$langs = \Gino\App\Language\Lang::get(array(
 			'where' => "main='0' AND active='1'"
 		));
 		if($langs)

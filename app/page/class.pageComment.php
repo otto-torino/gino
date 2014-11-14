@@ -99,7 +99,7 @@ class PageComment extends \Gino\Model {
 			'name'=>'entry', 
 			'model'=>$this,
 			'lenght'=>255, 
-			'foreign'=>'PageEntry', 
+			'foreign'=>'\Gino\App\Page\PageEntry', 
 			'foreign_order'=>'last_edit_date',
 		));
 
@@ -107,7 +107,7 @@ class PageComment extends \Gino\Model {
 			'name'=>'reply', 
 			'model'=>$this,
 			'lenght'=>255, 
-			'foreign'=>'pageComment', 
+			'foreign'=>'\Gino\App\Page\PageComment', 
 			'foreign_where'=>'entry=\''.$this->entry.'\'', 
 			'foreign_order'=>'datetime',
 		));

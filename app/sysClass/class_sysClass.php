@@ -111,7 +111,7 @@ class sysClass extends \Gino\Controller {
     $view_table = new \Gino\View();
     $view_table->setViewTpl('table');
 
-    $modules_app = ModuleApp::get();
+    $modules_app = ModuleApp::objects(null);
     if(count($modules_app)) {
       $GINO = "<p class=\"backoffice-info\">"._('Di seguito l\'elenco di tutti i moduli installati sul sistema. Cliccare l\'icona di modifica per cambiare l\'etichetta e la descrizione del modulo, effettuare un upgrade o cambiare lo stato di attivazione.  In caso di eliminazione di un modulo istanziabile verranno eliminate anche tutte le sue istanze.')."</p>";
       $heads = array(
@@ -475,7 +475,7 @@ class sysClass extends \Gino\Controller {
     $view = new \Gino\View();
     $view->setViewTpl('section');
     $dict = array(
-      'title' => sprintf(_('Modifica il modulo di sistema "%s"'), htmlChars($module_app->ml('label'))),
+      'title' => sprintf(_('Modifica il modulo di sistema "%s"'), \Gino\htmlChars($module_app->ml('label'))),
       'class' => 'admin',
       'content' => $GINO
     );

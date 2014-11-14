@@ -146,8 +146,8 @@ class Permission extends \Gino\Model {
 
   public static function getForMulticheck() {
 
-    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
-    \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
+    \Gino\Loader::import('sysClass', 'ModuleApp');
+    \Gino\Loader::import('module', 'ModuleInstance');
 
     $res = array();
     $grouped_permissions = self::getGroupedPermissions();

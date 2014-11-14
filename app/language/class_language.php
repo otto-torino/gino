@@ -52,7 +52,7 @@ class language extends \Gino\Controller {
 		$this->_flag_prefix = "flag_";
 		$this->_flag_suffix = ".gif";
 
-		$this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+		$this->_options = \Gino\Loader::load('Options', array($this));
 		$this->_optionsLabels = array("title"=>_("Titolo"), "opt_flag"=>_("Bandiere come etichette"));
 	}
 	

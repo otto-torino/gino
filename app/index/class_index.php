@@ -103,17 +103,17 @@ class index extends \Gino\Controller{
    */
   public function sysModulesManageArray() {
 
-    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
+    \Gino\Loader::import('sysClass', 'ModuleApp');
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
     $list = array();
-    $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "active='1' AND instantiable='0'"));
+    $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1' AND instantiable='0'"));
     if(count($modules_app)) {
       foreach($modules_app as $module_app) {
-        if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->name, 'manage'.ucfirst($module_app->name))) {
+        if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->classNameNs(), 'manage'.ucfirst($module_app->name))) {
           $list[$module_app->id] = array("label"=>$module_app->ml('label'), "name"=>$module_app->name, "description"=>$module_app->ml('description'));
         }
       }
@@ -129,17 +129,17 @@ class index extends \Gino\Controller{
    */
   public function modulesManageArray() {
 
-    \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
+    \Gino\Loader::import('module', 'ModuleInstance');
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
     $list = array();
-    $modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'"));
+    $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'"));
     if(count($modules)) {
       foreach($modules as $module) {
-        if($this->_registry->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->className(), 'manageDoc')) {
+        if($this->_registry->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->classNameNs(), 'manageDoc')) {
           $list[$module->id] = array("label"=>$module->ml('label'), "name"=>$module->name, "class"=>$module->className(), "description"=>$module->ml('description'), $module->id);
         }
       }

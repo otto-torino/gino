@@ -89,16 +89,16 @@ class AttachedItem extends \Gino\Model {
    * @return string tipologia dell'allegato
    */
   public function type() {
-    if(extension($this->file, $this->_img_extension)) {
+    if(\Gino\extension($this->file, $this->_img_extension)) {
       return 'img';
     }
-    elseif(extension($this->file, $this->_xls_extension)) {
+    elseif(\Gino\extension($this->file, $this->_xls_extension)) {
       return 'xls';
     }
-    elseif(extension($this->file, $this->_doc_extension)) {
+    elseif(\Gino\extension($this->file, $this->_doc_extension)) {
       return 'doc';
     }
-    elseif(extension($this->file, $this->_pdf_extension)) {
+    elseif(\Gino\extension($this->file, $this->_pdf_extension)) {
       return 'pdf';
     }
     else {
@@ -120,7 +120,7 @@ class AttachedItem extends \Gino\Model {
     $structure['category'] = new \Gino\ForeignKeyField(array(
       'name'=>'category',
       'model'=>$this,
-      'foreign'=>'attachedCtg',
+      'foreign'=>'\Gino\App\Attached\attachedCtg',
       'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
       'add_related' => true,

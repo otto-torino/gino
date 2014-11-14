@@ -79,7 +79,7 @@ class View {
 		elseif(is_readable($this->_dft_view_folder.OS.$view_name.".php")) {
 			$this->_view_tpl = $this->_dft_view_folder.OS.$view_name.".php";
 		}
-		else exit(Error::syserrorMessage('view', 'setViewTpl', sprintf(_("Impossibile caricare la vista %s"), $view_name), __LINE__));
+		else exit(Error::syserrorMessage('view', 'setViewTpl', sprintf(_("Impossibile caricare la vista %s, view folder: %s"), $view_name, $this->_view_folder), __LINE__));
 	}
 
 	/**

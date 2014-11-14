@@ -57,7 +57,7 @@ class phpModuleView extends \Gino\Controller {
     $this->_title_visible = \Gino\htmlChars($this->setOption('title_vis'));
 
     // the second paramether will be the class instance
-    $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+    $this->_options = \Gino\Loader::load('Options', array($this));
     $this->_optionsLabels = array(
     "title"=>_("Titolo"),
     "title_vis"=>_("Titolo visibile")

@@ -633,7 +633,7 @@ namespace Gino;
             exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
         }
 
-        loader::import('class', array('Cache'));
+        loader::import('class', array('\Gino\Cache'));
         if($id)
         {
             $records = $this->_db->select('*', $this->_tbl_data, "id='$id'");

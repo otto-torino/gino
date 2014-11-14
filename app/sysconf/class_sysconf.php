@@ -78,7 +78,7 @@ class sysconf extends \Gino\Controller {
         fwrite($fp, $robots);
         fclose($fp);
       }
-      $this->_registry->plink->redirect($this->_class_name, 'manageSysconf');
+      $this->_registry->plink->redirect($this->_class_name, 'manageSysconf', null, null, array('permalink' => false));
     }
     elseif(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
       if(isset($_GET['save']) and $_GET['save'] == '1') {

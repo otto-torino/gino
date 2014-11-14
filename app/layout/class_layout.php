@@ -337,7 +337,7 @@ class layout extends \Gino\Controller {
 
 	private function cssList() {
 	
-		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&action=insert\">".pub::icon('insert', array('text' => _("nuovo file css"), 'scale'=>2))."</a>";
+		$link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuovo file css"), 'scale'=>2))."</a>";
 
 		$view_table = new \Gino\View();
 		$view_table->setViewTpl('table');

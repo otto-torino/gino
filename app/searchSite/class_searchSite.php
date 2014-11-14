@@ -38,7 +38,7 @@ class searchSite extends \Gino\Controller {
         $this->_sys_mdl = $this->setOption('sys_mdl', '');
         $this->_inst_mdl = $this->setOption('inst_mdl', '');
 
-        $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+        $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
             "sys_mdl"=>array(
                 "label"=>array(

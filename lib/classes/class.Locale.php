@@ -182,7 +182,7 @@ class locale extends singleton {
 		$session = $registry->session;
 		$db = $registry->db;
 
-		Loader::import('language', '\Gino\App\Language\Lang');
+		Loader::import('language', 'Lang');
 		$dft_lang = new \Gino\App\Language\Lang($registry->sysconf->dft_language);
 
 		$dft_language = $dft_lang->code();

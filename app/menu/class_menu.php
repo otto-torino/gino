@@ -19,7 +19,7 @@ require_once('class.MenuVoice.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class Menu extends \Gino\Controller {
+class menu extends \Gino\Controller {
 
   private static $_menu_functions_list = 'menuFunctionsList';
 
@@ -47,7 +47,7 @@ class Menu extends \Gino\Controller {
     $this->_cache = $this->setOption('cache', array("value"=>0));
 
     // the second paramether will be the class instance
-    $this->_options = \Gino\Loader::load('Options', array($this->_class_name, $this->_instance));
+    $this->_options = \Gino\Loader::load('Options', array($this));
     $this->_optionsLabels = array(
       "title"=>_("Titolo"),
       "cache"=>array("label"=>array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")), "required"=>false)
@@ -292,6 +292,7 @@ class Menu extends \Gino\Controller {
     $link_insert = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&amp;action=insert\">".$this->_registry->pub->icon('insert', array('scale' => 2, 'text' => _("nuova voce")))."</a>";
 
     $GINO = $this->jsSortLib();
+    $GINO .= '<p>'.sprintf(_('Per modificare l\'ordinamento delle voci di menu trascinare l\'icona %s nella posizione desiderata'), $this->_registry->pub->icon('sort')).'</p>';
     $GINO .= $this->renderMenuAdmin(0);
     
     $view = new \Gino\View(null, 'section');
@@ -316,7 +317,6 @@ class Menu extends \Gino\Controller {
   private function renderMenuAdmin($parent=0) {
 
     $GINO = '';
-
     $rows = $this->_registry->db->select('id', MenuVoice::$tbl_voices, "instance='$this->_instance' AND parent='$parent'", array('order' => 'order_list'));
     $sort = count($rows)>1 ? true : false;
     if($rows and count($rows)) {
@@ -326,7 +326,7 @@ class Menu extends \Gino\Controller {
         $link_modify = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}\">".\Gino\pub::icon('modify')."</a>";
         $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=delete'\">".\Gino\pub::icon('delete')."</a>";
         $link_subvoice = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=insert&parent={$voice->id}\">".\Gino\pub::icon('insert', array('text' => _("nuova sottovoce")))."</a>";
-        $handle = $sort ? "<a href=\"#\" class=\"sort_handler\">".$this->_registry->pub->icon('sort')."</a> ":"";
+        $handle = $sort ? "<span class=\"link\" class=\"sort_handler\">".$this->_registry->pub->icon('sort')."</span> ":"";
         $links = $sort ? array($handle) : array();
         $links[] = $link_subvoice;
         $links[] = $link_modify;

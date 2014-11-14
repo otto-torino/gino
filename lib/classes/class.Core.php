@@ -89,7 +89,7 @@ class core {
    */
   private function initRegistry() {
 
-    Loader::import('sysconf', '\Gino\App\Sysconf\Conf');
+    Loader::import('sysconf', 'Conf');
     $this->_registry = Loader::singleton('\Gino\Registry');
 
     // core
