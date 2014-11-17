@@ -98,7 +98,7 @@ class TagField extends Field {
      * @return void
      */
     public function save($event_name, $params) {
-        GTag::saveContentTags($this->_model_controller_class, $this->_model_controller_instance, get_class($this->_model), $this->_model->id, $this->_model->tags);
+        GTag::saveContentTags($this->_model_controller_class, $this->_model_controller_instance, get_name_class($this->_model), $this->_model->id, $this->_model->tags);
     }
 
     /**

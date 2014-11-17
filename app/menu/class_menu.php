@@ -326,7 +326,7 @@ class menu extends \Gino\Controller {
         $link_modify = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}\">".\Gino\pub::icon('modify')."</a>";
         $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=delete'\">".\Gino\pub::icon('delete')."</a>";
         $link_subvoice = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=insert&parent={$voice->id}\">".\Gino\pub::icon('insert', array('text' => _("nuova sottovoce")))."</a>";
-        $handle = $sort ? "<span class=\"link\" class=\"sort_handler\">".$this->_registry->pub->icon('sort')."</span> ":"";
+        $handle = $sort ? "<span class=\"link sort_handler\">".$this->_registry->pub->icon('sort')."</span> ":"";
         $links = $sort ? array($handle) : array();
         $links[] = $link_subvoice;
         $links[] = $link_modify;
@@ -542,9 +542,9 @@ class menu extends \Gino\Controller {
    */
   public function printItemsList() {
 
-    \Gino\Loader::import('sysClass', '\Gino\App\SysClass\ModuleApp');
-    \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
-    \Gino\Loader::import('page', '\Gino\App\Page\PageEntry');
+    \Gino\Loader::import('sysClass', 'ModuleApp');
+    \Gino\Loader::import('module', 'ModuleInstance');
+    \Gino\Loader::import('page', 'PageEntry');
 
     $this->requirePerm(array('can_admin', 'can_edit'));
 
@@ -569,8 +569,8 @@ class menu extends \Gino\Controller {
       $pages = \Gino\App\Page\PageEntry::getAll(array('where' => "published='1'"));
       $GINO .= $this->printItemsPage($pages);
 
-      $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "active='1'"));
-      $modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'"));
+      $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1'"));
+      $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'"));
       $GINO .= $this->printItemsClass($modules_app, $modules);
     }
 
@@ -589,7 +589,7 @@ class menu extends \Gino\Controller {
    */
   private function printItemsPage($pages){
 
-    \Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
+    \Gino\Loader::import('auth', 'Permission');
 
     if(count($pages)) {
       $GINO = "<h3>"._("Pagine")."</h3>";
@@ -612,6 +612,7 @@ class menu extends \Gino\Controller {
 
         $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
           $('url').set('value', '".$page->getUrl()."');
+          $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
           var private = $(this).get('data-private');
           if(private.toInt()) {
             $$('input[value=".$p->id.",0]').setProperty('checked', 'checked');
@@ -648,7 +649,7 @@ class menu extends \Gino\Controller {
    */
   private function printItemsClass($modules_app, $modules){
 
-    \Gino\Loader::import('auth', '\Gino\App\Auth\Permission');
+    \Gino\Loader::import('auth', 'Permission');
 
     $GINO = '';
 
@@ -667,7 +668,8 @@ class menu extends \Gino\Controller {
       $cnt = 0;
       foreach($modules_app AS $module_app) {
         
-      	$class = $module_app->className();
+      	$class = $module_app->classNameNs();
+      	$class_name = $module_app->className();
         
         if(method_exists($class, 'outputFunctions')) {
           $list = call_user_func(array($class, 'outputFunctions'));
@@ -680,7 +682,7 @@ class menu extends \Gino\Controller {
             if($permissions_code and count($permissions_code)) {
               foreach($permissions_code as $permission_code) {
                 if(!preg_match('#\.#', $permission_code)) {
-                	$permission_code = $class.'.'.$permission_code;
+                	$permission_code = $class_name.'.'.$permission_code;
                 }
               	$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
                 $permissions[] = $p->label;
@@ -688,9 +690,10 @@ class menu extends \Gino\Controller {
               }
             }
 
-            $url = $this->_registry->plink->aLink($class, $func);
+            $url = $this->_registry->plink->aLink($class_name, $func);
             $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
               $('url').set('value', '".$url."');
+              $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
               perms = $(this).get('data-perm');
               if(perms) {
                 perms.split(';').each(function(p) {
@@ -729,7 +732,8 @@ class menu extends \Gino\Controller {
       $cnt = 0;
       foreach($modules AS $module) {
         
-      	$class = $module->className();
+      	$class = $module->classNameNs();
+      	$class_name = $module->className();
         $module_name = $module->name;
         
 		if(method_exists($class, 'outputFunctions')) {
@@ -753,6 +757,7 @@ class menu extends \Gino\Controller {
 				$button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
 				$('url').set('value', '".$url."');
 				perms = $(this).get('data-perm');
+                $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
 				if(perms) {
 					perms.split(';').each(function(p) {
 						$$('input[value=' + p + ',".$module->id."]').setProperty('checked', 'checked');

@@ -9,6 +9,9 @@
  */
 namespace Gino\App\SearchSite;
 
+use \Gino\Loader;
+use \Gino\App\SysClass\ModuleApp;
+
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
  * 
@@ -38,7 +41,7 @@ class searchSite extends \Gino\Controller {
         $this->_sys_mdl = $this->setOption('sys_mdl', '');
         $this->_inst_mdl = $this->setOption('inst_mdl', '');
 
-        $this->_options = \Gino\Loader::load('Options', array($this));
+        $this->_options = Loader::load('Options', array($this));
         $this->_optionsLabels = array(
             "sys_mdl"=>array(
                 "label"=>array(
@@ -174,7 +177,7 @@ class searchSite extends \Gino\Controller {
         {
         foreach(explode(",", $this->_sys_mdl) as $smid) {
             $label = $this->_db->getFieldFromId(TBL_MODULE_APP, 'label', 'id', $smid);
-            $buffer .= "<label for=\"sysmdl_$smid\"><input id=\"sysmdl_$smid\" type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".htmlChars($label)."</label>";
+            $buffer .= "<label for=\"sysmdl_$smid\"><input id=\"sysmdl_$smid\" type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".\Gino\htmlChars($label)."</label>";
             if($i++%3==0) $buffer .= "<br />";
         }
         }
@@ -182,7 +185,7 @@ class searchSite extends \Gino\Controller {
         {
         foreach(explode(",", $this->_inst_mdl) as $mid) {
             $label = $this->_db->getFieldFromId(TBL_MODULE, 'label', 'id', $mid);
-            $buffer .= "<label for=\"mdl_$mid\"><input id=\"mdl_$mid\" type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".htmlChars($label)."</label>";
+            $buffer .= "<label for=\"mdl_$mid\"><input id=\"mdl_$mid\" type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".\Gino\htmlChars($label)."</label>";
             if($i++%3==0) $buffer .= "<br />";
         }
         }
@@ -202,9 +205,9 @@ class searchSite extends \Gino\Controller {
      */
     public function results() {
 
-        \Gino\Loader::import('class', '\Gino\Search');
+        Loader::import('class', '\Gino\Search');
 
-        $keywords = \Gino\cleanVar($_POST, 'search_site', 'string', '');
+        $keywords = \htmlspecialchars(\Gino\cleanVar($_POST, 'search_site', 'string', ''));
         $keywords = \Gino\cutHtmlText($keywords, 500, '', true, false, true);
         $sysmdl = \Gino\cleanVar($_POST, 'sysmdl', 'array', '');
         $instmdl = \Gino\cleanVar($_POST, 'instmdl', 'array', '');
@@ -215,13 +218,14 @@ class searchSite extends \Gino\Controller {
 
         foreach(explode(",", $this->_sys_mdl) as $smdlid) {
             if(!$opt || in_array($smdlid, $sysmdl)) {
-                $classname = $this->_db->getFieldFromId(TBL_MODULE_APP, 'name', 'id', $smdlid);
-                if(method_exists($classname, "searchSite")) {
-                    $obj = new $classname();
+                $module_app = new ModuleApp($smdlid);
+                $class = $module_app->classNameNs();
+                if(method_exists($class, "searchSite")) {
+                    $obj = new $class();
                     $data = $obj->searchSite();
                     $searchObj = new \Gino\search($data['table']);
                     foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$classname] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                    $results[$class] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
                 }
             }
         }
@@ -229,13 +233,13 @@ class searchSite extends \Gino\Controller {
             if(!$opt || in_array($mdlid, $instmdl)) {
                 $module = new \Gino\App\Module\ModuleInstance($mdlid);
                 $instancename = $module->name;
-                $classname = $module->className();
-                if(method_exists($classname, "searchSite")) {
-                    $obj = new $classname($mdlid);
+                $class = $module->classNameNs();
+                if(method_exists($class, "searchSite")) {
+                    $obj = new $class($mdlid);
                     $data = $obj->searchSite();
                     $searchObj = new \Gino\search($data['table']);
                     foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$classname."||".$mdlid] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                    $results[$class."||".$mdlid] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
                 }
             }
         }

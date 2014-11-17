@@ -13,6 +13,9 @@
  */
 namespace Gino;
 
+use \Gino\App\SysClass\ModuleApp;
+use \Gino\App\Module\ModuleInstance;
+
 if(isset($_REQUEST['pt'])) {
 
 	Loader::import('sysClass', 'ModuleApp');
@@ -25,15 +28,16 @@ if(isset($_REQUEST['pt'])) {
 	if(preg_match('#^[^a-zA-Z0-9_-]+?#', $mypointer)) return null;
 	
 	list($mdl, $function) = explode("-", key($_REQUEST['pt']));
-	$module_app = \Gino\App\SysClass\ModuleApp::getFromName($mdl);
+	$module_app = ModuleApp::getFromName($mdl);
 	if($module_app && !$module_app->instantiable) {
         $class_name = $mdl;
         $class = get_app_name_class_ns($mdl);
 		$instance = new $class();
 	}
-	elseif($module = \Gino\App\Module\ModuleInstance::getFromName($mdl)) {
+	elseif($module = ModuleInstance::getFromName($mdl)) {
 		$class_name = $module->className();
-        $class = get_app_name_class_ns($mdl);
+        $module_app = new ModuleApp($module->module_app);
+        $class = $module_app->classNameNs();
 		$instance = new $class($module->id);
 	}
 	else {
