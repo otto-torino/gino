@@ -386,7 +386,7 @@ class User extends \Gino\Model {
 		$email = \Gino\cleanVar($_POST, 'email', 'string', '');
 		$check_email = \Gino\cleanVar($_POST, 'check_email', 'string', '');
 		
-		if($email && !checkEmail($email, true))
+		if($email && !\Gino\checkEmail($email, true))
 			return array('error'=>7);
 		
 		if($db->columnHasValue(self::$table, 'email', $email, array('except_id'=>$id)))

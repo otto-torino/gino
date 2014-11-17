@@ -9,6 +9,9 @@
  */
 namespace Gino;
 
+use \Gino\App\SysClass\ModuleApp;
+use \Gino\App\Module\ModuleInstance;
+
 /**
  * @brief Classe per il trattamento di tag
  *
@@ -134,7 +137,9 @@ class GTag {
                         if(!isset($res[$module->label])) {
                             $res[$module->label] = array();
                         }
-                        $object = new $content_class($content_id, new $controller_name($controller_instance));
+                        $class = get_model_app_name_class_ns($controller_name, $content_class);
+                        $controller_class = get_app_name_class_ns($controller_name);
+                        $object = new $class($content_id, new $controller_class($controller_instance));
                         if(method_exists($object, 'gtagOutput')) {
                             $res[$module->label][] = $object->gtagOutput();
                         }
@@ -152,7 +157,8 @@ class GTag {
                         if(!isset($res[$module_app->label])) {
                             $res[$module_app->label] = array();
                         }
-                        $object = new $content_class($content_id);
+                        $class = get_model_app_name_class_ns($controller_name, $content_class);
+                        $object = new $class($content_id);
                         if(method_exists($object, 'gtagOutput')) {
                             $res[$module_app->label][] = $object->gtagOutput();
                         }

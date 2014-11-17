@@ -234,7 +234,7 @@ class translation
 	 * @param integer $tbl_id valore dell'ID del record di riferimento per la traduzione
 	 * @return boolean
 	 */
-	public function deleteTranslations($tbl, $tbl_id) {
+	public static function deleteTranslations($tbl, $tbl_id) {
 	 	
 		$db = db::instance();
 		$result = $tbl_id == 'all'

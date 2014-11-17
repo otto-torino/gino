@@ -619,7 +619,7 @@ class pub {
    * 
    * @return boolean
    */
-  public function enabledPng(){
+  public static function enabledPng(){
     
     if (function_exists('gd_info'))
     {
@@ -634,7 +634,7 @@ class pub {
    * 
    * @return boolean
    */
-  public function enabledZip(){
+  public static function enabledZip(){
     
     if (class_exists('ZipArchive'))
       return true;

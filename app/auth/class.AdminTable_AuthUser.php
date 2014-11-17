@@ -93,8 +93,8 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 		/*
 		 * Personalizzazioni
 		 */
-		$username_as_email = gOpt('username_as_email', $options, false);
-		$user_more_info = gOpt('user_more_info', $options, false);
+		$username_as_email = \Gino\gOpt('username_as_email', $options, false);
+		$user_more_info = \Gino\gOpt('user_more_info', $options, false);
 		
 		$insert = $model->id ? false : true;
 		

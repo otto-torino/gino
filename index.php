@@ -73,7 +73,12 @@ $core = Loader::load('Core');
 include(LIB_DIR.OS.'methodPointer.php');
 
 // renderizza il documento
-$core->renderApp();
+try {
+    $core->renderApp();
+}
+catch(Exception $e) {
+    Logger::manageException($e);
+}
 
 // debug database
 $db = db::instance();
