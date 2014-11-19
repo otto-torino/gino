@@ -69,15 +69,14 @@ class Request extends Singleton {
             'HTTP_USER_AGENT' => $this->valueOrNull($_SERVER, 'HTTP_USER_AGENT'),
             'HTTP_REFERER' => $this->valueOrNull($_SERVER, 'HTTP_REFERER'),
             'HTTP_COOKIE' => $this->valueOrNull($_SERVER, 'HTTP_COOKIE'),
-
         );
 
         $this->request_uri = $_SERVER['REQUEST_URI'];
         $this->query_string = $_SERVER['QUERY_STRING'];
         $this->path = preg_replace("#".preg_quote(SITE_WWW)."#", '', $this->request_uri);
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'], $this->META['HTTP_HOST'], $this->request_uri);
-        $this->root_absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'], $this->META['HTTP_HOST'], SITE_WWW);
+        $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], $this->request_uri);
+        $this->root_absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], SITE_WWW);
 
         $this->session = Session::instance();
 
