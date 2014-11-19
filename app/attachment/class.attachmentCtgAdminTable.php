@@ -1,18 +1,18 @@
 <?php
 /**
- * @file class.attachedCtgAdminTable.php
- * @brief Contiene la classe attachedCtgAdminTable
+ * @file class.attachmentCtgAdminTable.php
+ * @brief Contiene la classe attachmentCtgAdminTable
  *
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-namespace Gino\App\Attached;
+namespace Gino\App\Attachment;
 
 /**
  * @brief Estende la classe adminTable base di Gino per permettere la creazione, modifica ed eliminazione di cartelle su filesystem
  */
-class attachedCtgAdminTable extends \Gino\AdminTable {
+class attachmentCtgAdminTable extends \Gino\AdminTable {
 
   /**
    * @brief Costruttore
@@ -38,8 +38,8 @@ class attachedCtgAdminTable extends \Gino\AdminTable {
     if($insert) {
       $model->directory = 'c'.$model->id;
       if($model->updateDbData()) {
-        $attached_controller = new attached();
-        mkdir($attached_controller->getDataDir().OS.$model->directory);
+        $attachment_controller = new attachment();
+        mkdir($attachment_controller->getDataDir().OS.$model->directory);
       }
 
     }
@@ -54,10 +54,10 @@ class attachedCtgAdminTable extends \Gino\AdminTable {
    */
   public function adminDelete($model, $options_form) {
 
-    attachedItem::deleteFromCtg($model->id, $this->_controller);
+    AttachmentItem::deleteFromCtg($model->id, $this->_controller);
 
-    $attached_controller = new attached();
-    $attached_controller->deleteFileDir($attached_controller->getDataDir().OS.$model->directory, true);
+    $attachment_controller = new attachment();
+    $attachment_controller->deleteFileDir($attachment_controller->getDataDir().OS.$model->directory, true);
 
     parent::adminDelete($model, $options_form);
 

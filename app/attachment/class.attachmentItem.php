@@ -1,13 +1,13 @@
 <?php
 /**
- * \file class.attachedItem.php
- * @brief Contiene la definizione ed implementazione della classe AttachedItem.
+ * \file class.attachmentItem.php
+ * @brief Contiene la definizione ed implementazione della classe AttachmentItem.
  *
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-namespace Gino\App\Attached;
+namespace Gino\App\attachment;
 
 /**
  * Classe tipo model che rappresenta una singolo allegato
@@ -16,12 +16,12 @@ namespace Gino\App\Attached;
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class AttachedItem extends \Gino\Model {
+class AttachmentItem extends \Gino\Model {
 
   /**
    * @brief tabella del modello
    */
-  public static $tbl_item = 'attached';
+  public static $tbl_item = 'attachment';
 
   /**
    * @brief estensioni associate a icone immagini
@@ -120,11 +120,11 @@ class AttachedItem extends \Gino\Model {
     $structure['category'] = new \Gino\ForeignKeyField(array(
       'name'=>'category',
       'model'=>$this,
-      'foreign'=>'\Gino\App\Attached\attachedCtg',
+      'foreign'=>'\Gino\App\Attachment\attachmentCtg',
       'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
       'add_related' => true,
-      'add_related_url' => $this->_home.'?evt['.\get_class($this->_controller).'-manageAttached]&block=ctg&insert=1',
+      'add_related_url' => $this->_home.'?evt['.\get_class($this->_controller).'-manageAttachment]&block=ctg&insert=1',
     ));
 
     $structure['insertion_date'] = new \Gino\DatetimeField(array(
@@ -145,7 +145,7 @@ class AttachedItem extends \Gino\Model {
 
     // se esiste l'id costruisce il path, in inserimento lo costruisce la subclass di adminTable
     if($id) {
-    	$ctg = new attachedCtg($this->category, $this->_controller);
+    	$ctg = new AttachmentCtg($this->category, $this->_controller);
     	$base_path = $ctg->path('abs');
     }
     else {
@@ -166,11 +166,11 @@ class AttachedItem extends \Gino\Model {
   }
 
   /**
-   * Restituisce oggetti di tipo attachedItem
+   * Restituisce oggetti di tipo AttachmentItem
    * 
    * @param news $controller istanza del controller
    * @param array $options array associativo di opzioni (where, order e limit)
-   * @return array di istanze di tipo attachedItem
+   * @return array di istanze di tipo attachmentItem
    */
   public static function get($controller, $options = null) {
 
@@ -187,7 +187,7 @@ class AttachedItem extends \Gino\Model {
     $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
-        $res[] = new attachedItem($row['id'], $controller);
+        $res[] = new attachmentItem($row['id'], $controller);
       }
     }
 
@@ -206,7 +206,7 @@ class AttachedItem extends \Gino\Model {
     $rows = $db->select('id', self::$tbl_item, "category='".$ctg_id."'");
     if($rows and count($rows)) {
       foreach($rows as $row) {
-        $item = new attachedItem($row['id'], $controller);
+        $item = new AttachmentItem($row['id'], $controller);
         $item->delete();
       }
     }
@@ -231,7 +231,7 @@ class AttachedItem extends \Gino\Model {
 		}
 		else {
 			
-			$ctg = new attachedCtg($this->category, $this->_controller);
+			$ctg = new AttachmentCtg($this->category, $this->_controller);
 			return $ctg->path($type).$this->file;
 		}
 	}
@@ -254,7 +254,7 @@ class AttachedItem extends \Gino\Model {
 		}
 		else {
 			$link = new \Gino\Link();
-			return "<a href=\"".$link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
+			return "<a href=\"".$link->aLink(\get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
 	 	}
 	}
 
