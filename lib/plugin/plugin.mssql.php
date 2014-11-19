@@ -1050,7 +1050,7 @@ class mssql implements \Gino\DbManager {
 
 		if(!$table) return false;
 		
-		$query = "DROP $table";
+		$query = "DROP TABLE $table";
 		
 		return $this->actionquery($query);
 	}
