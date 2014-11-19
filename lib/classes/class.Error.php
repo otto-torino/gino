@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use \Gino\Http\Redirect;
+
 /**
  * @brief Classe per la gestione centralizzata degli errori
  * 
@@ -80,7 +82,7 @@ class Error {
      * 
      * Esempio
      * @code
-     * exit(error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
+     * exit(Error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
      * @endcode
      */
     public static function errorMessage($message, $link) {
@@ -96,7 +98,7 @@ class Error {
         $session = session::instance();
         $session->GINOERRORMSG = $buffer;
 
-        return new HttpRedirect($link);
+        return new Redirect($link);
     }
 
     /**

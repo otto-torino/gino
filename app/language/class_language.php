@@ -123,7 +123,7 @@ class language extends \Gino\Controller {
 		}
 	}
 	
-  public function manageLanguage(\Gino\HttpRequest $request) {
+  public function manageLanguage(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
 
@@ -159,7 +159,7 @@ class language extends \Gino\Controller {
 
   }
 
-    private function manageLang(\Gino\HttpRequest $request) {
+    private function manageLang(\Gino\Http\Request $request) {
 
         $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
         $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
