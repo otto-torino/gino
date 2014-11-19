@@ -68,7 +68,7 @@ class sysconf extends \Gino\Controller {
 
     if(isset($request->POST['empty_cache'])) {
       $this->_registry->pub->deleteFileDir(CACHE_DIR, false);
-      return new HttpRedirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+      return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
     }
     elseif(isset($request->POST['id'])) {
       $result = $admin_table->modelAction($conf);
@@ -77,7 +77,7 @@ class sysconf extends \Gino\Controller {
         fwrite($fp, $robots);
         fclose($fp);
       }
-      return new HttpRedirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+      return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
     }
     elseif($request->checkGETKey('trnsl', '1')) {
       if($request->checkGETKey('save', 1)) {

@@ -13,7 +13,8 @@ namespace Gino;
 use \Gino\Loader;
 use \Gino\Singleton;
 use \Gino\Registry;
-use \Gino\Exception404;
+use \Gino\Exception\Exception404;
+use \Gino\Http\Response;
 use \Gino\App\SysClass\ModuleApp;
 use \Gino\App\Module\ModuleInstance;
 
@@ -130,7 +131,7 @@ class Router extends Singleton {
             return call_user_func($this->_controller_view, $this->_registry->request);
         }
         else {
-            return new \Gino\Http\Response('');
+            return new Response('');
         }
     }
 

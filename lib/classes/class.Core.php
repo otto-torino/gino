@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use \Gino\Http\ResponseNotFound;
+
 /**
  * @brief Gestisce una HttpRequest ed invia una HttpResponse adeguata
  *
@@ -181,7 +183,7 @@ class Core {
             $response();
         }
         else {
-            $response = new \Gino\Http\ResponseNotFound();
+            $response = new ResponseNotFound();
             $response();
         }
 
