@@ -693,12 +693,15 @@ class AdminTable {
     $trnsl = cleanVar($this->_request->GET, 'trnsl', 'int', '');
 
     if($trnsl) {
-      Loader::import('class/http', '\Gino\HttpResponseAjax');
+      Loader::import('class/http', '\Gino\Http\ResponseAjax');
       if($this->_request->checkGETKey('save', '1')) {
-        $this->_registry->trd->actionTranslation();
+        $res = $this->_registry->trd->actionTranslation();
+        
+        $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+       	return new \Gino\Http\ResponseAjax($content);
       }
       else {
-        return new HttpResponseAjax($this->_registry->trd->formTranslation());
+        return new \Gino\Http\ResponseAjax($this->_registry->trd->formTranslation());
       }
     }
     elseif($insert or $edit) {
@@ -736,7 +739,7 @@ class AdminTable {
             $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
                 ? $options_form['link_delete']
                 : $this->editUrl(array(), array('delete', 'id'));
-            return new HttpRedirect($link_return);
+            return new \Gino\Http\Redirect($link_return);
         }
         else {
             return Error::errorMessage($result, $link_return);
@@ -772,10 +775,10 @@ class AdminTable {
             $action_result = $this->modelAction($model_obj, $options_form, $inputs);
             if($action_result === TRUE and $popup) {
                 $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
-                return new HttpResponse($script, array('wrap_in_document' => FALSE));
+                return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
             }
             elseif($action_result === true) {
-                return new \Gino\HttpRedirect($link_return);
+                return new \Gino\Http\Redirect($link_return);
             }
             else {
                 return Error::errorMessage($action_result, $link_error);

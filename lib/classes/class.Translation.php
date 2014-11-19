@@ -201,27 +201,29 @@ class translation
 	 	$tbl = cleanVar($_POST, 'tbl', 'string', '');
 	 	$field = cleanVar($_POST, 'field', 'string', '');
 	 	$id_value = cleanVar($_POST, 'id_value', 'int', '');
+	 	
+	 	$res = false;
 
 	 	if($action == 'insert') {
-      $res = $this->_registry->db->insert(array(
-        'tbl_id_value' => $id_value,
-        'tbl' => $tbl,
-        'field' => $field,
-        'language' => $lng_code,
-        'text' => $text
-      ), TBL_TRANSLATION);
+	 		$res = $this->_registry->db->insert(array(
+	 		'tbl_id_value' => $id_value,
+	 		'tbl' => $tbl,
+	 		'field' => $field,
+	 		'language' => $lng_code,
+	 		'text' => $text
+	 		), TBL_TRANSLATION);
 	 	}
 	 	elseif($action == 'modify') {
-      $res = $this->_registry->db->update(array(
-        'tbl_id_value' => $id_value,
-        'tbl' => $tbl,
-        'field' => $field,
-        'language' => $lng_code,
-        'text' => $text
-      ), TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
+	 		$res = $this->_registry->db->update(array(
+	 		'tbl_id_value' => $id_value,
+	 		'tbl' => $tbl,
+	 		'field' => $field,
+	 		'language' => $lng_code,
+	 		'text' => $text
+	 		), TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
 	 	}
 	 	
-	 	exit();
+	 	return $res;
 	}
 
 
