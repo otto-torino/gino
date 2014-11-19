@@ -40,21 +40,23 @@ class GTag {
         // insert new tags
         $cleaned_tags = array_map('trim', explode(',', $tags));
         foreach($cleaned_tags as $tag) {
-            $rows = $db->select('id', self::$_table_tag, "tag='".$tag."'");
-            if($rows and count($rows)) {
-                $tag_id = $rows[0]['id'];
+            if($tag != '') {
+                $rows = $db->select('id', self::$_table_tag, "tag='".$tag."'");
+                if($rows and count($rows)) {
+                    $tag_id = $rows[0]['id'];
+                }
+                else {
+                    $db->insert(array('tag' => $tag), self::$_table_tag, true);
+                    $tag_id = $db->getlastid(self::$_table_tag);
+                }
+                $db->insert(array(
+                    'content_controller_class' => $content_controller_class,
+                    'content_controller_instance' => $content_controller_instance,
+                    'content_class' => $content_class,
+                    'content_id' => $content_id,
+                    'tag_id' => $tag_id
+                ), self::$_table_tag_taggeditem);
             }
-            else {
-                $db->insert(array('tag' => $tag), self::$_table_tag, true);
-                $tag_id = $db->getlastid(self::$_table_tag);
-            }
-            $db->insert(array(
-                'content_controller_class' => $content_controller_class,
-                'content_controller_instance' => $content_controller_instance,
-                'content_class' => $content_class,
-                'content_id' => $content_id,
-                'tag_id' => $tag_id
-            ), self::$_table_tag_taggeditem);
         }
         return true;
     }
