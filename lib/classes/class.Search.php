@@ -161,9 +161,9 @@ class search {
 		$res = array();
 
 		$query = $this->makeQuery($selected_fields, $required_clauses, $weight_clauses);
-		if($query===false) return array();
+		if($query === false) return array();
 		$rows = $dbObj->selectquery($query);
-		if(sizeof($rows)>0) {
+		if($rows and sizeof($rows)>0) {
 			$i = 0;
 			foreach($rows as $row) {
 				$res[$i] = array(); 

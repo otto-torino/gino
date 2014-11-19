@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class.registry.php
+ * @file class.Registry.php
  * @brief Contiene la classe registry
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -28,7 +28,7 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class registry extends singleton {
+class Registry extends singleton {
 
     /*
      * @the vars array
@@ -64,7 +64,7 @@ class registry extends singleton {
      * @endcode
      */
     public function __get($index) {
-        return $this->vars[$index];
+        return isset($this->vars[$index]) ? $this->vars[$index] : null;
     }
 
     /**

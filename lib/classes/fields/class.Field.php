@@ -428,8 +428,9 @@ class Field {
 	 */
 	public function clean($options=null) {
 		
+        $request = HttpRequest::instance();
 		$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-		$method = isset($options['method']) ? $options['method'] : $_POST;
+		$method = isset($options['method']) ? $options['method'] : $request->POST;
 		$escape = gOpt('escape', $options, true);
 		
 		return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));

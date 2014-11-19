@@ -140,11 +140,12 @@ class locale extends singleton {
 	 */
 	public static function init() {
 
-		$registry = registry::instance();
+        $registry = Registry::instance();
+		$session = Session::instance();
 
 		self::setLanguage();
 
-		$registry->trd = new translation($registry->session->lng, $registry->session->lngDft);
+		$registry->trd = new translation($session->lng, $session->lngDft);
 
 		return true;
 	}
@@ -178,8 +179,8 @@ class locale extends singleton {
 
 	private static function setLanguage(){
 
-		$registry = registry::instance();
-		$session = $registry->session;
+		$registry = Registry::instance();
+		$session = Session::instance();
 		$db = $registry->db;
 
 		Loader::import('language', 'Lang');

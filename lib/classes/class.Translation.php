@@ -125,7 +125,6 @@ class translation
 	 * Il metodo viene richiamato da una request ajax avviata dalla funzione javascript prepareTrlForm().
 	 */
 	public function formTranslation() {
-	 	
 	 	$lng_code = cleanVar($_POST, 'lng_code', 'string', '');
 	 	$tbl = cleanVar($_POST, 'tbl', 'string', '');
 	 	$field = cleanVar($_POST, 'field', 'string', '');
@@ -153,7 +152,7 @@ class translation
 	 	$GINO = "<div style=\"margin-top:10px;\">";
     	$GINO .= "<p>";
 	 	
-		$url = $this->_registry->pub->getPtUrl().'&save=1';
+		$url = $this->_registry->request->absolute_url.'&save=1';
 		$onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', false, '$lng_code', '$action')";
 	 	
 	 	if($type == 'input') {
@@ -176,8 +175,7 @@ class translation
 
 		$GINO .= "</div>";
 
-	 	echo $GINO;
-	 	exit();
+	 	return $GINO;
 	 }
 
   /**

@@ -73,7 +73,7 @@ class ManyToManyField extends Field {
 		$this->_join_table = $options['join_table'];
 
 		$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
-		$this->_join_table_m2m_id = strtolower($this->_m2m).'_id';
+		$this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
 
 		$db = db::instance();
 		$rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_model->id."'");

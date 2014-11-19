@@ -816,7 +816,7 @@ class layout extends \Gino\Controller {
       array('text' =>_('permessi'), 'header' => true)
     );
 
-        $modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1'", 'order' => 'label'));
+        $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'", 'order' => 'label'));
         if(count($modules)) {
             foreach($modules as $module) {
                 $class = $module->classNameNs();
@@ -842,7 +842,7 @@ class layout extends \Gino\Controller {
                             count($permissions) ? implode(', ', $permissions) : _('pubblico')
                         );
                         if($first) {
-                            $tbl_rows[] = array_merge(array(array('text' => htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
                             $first = false;
                         }
                         else {
@@ -865,7 +865,7 @@ class layout extends \Gino\Controller {
       array('text' =>_('permessi'), 'header' => true)
     );
 
-        $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+        $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
         if(count($modules_app)) {
             foreach($modules_app as $module_app) {
                 $class = $module_app->classNameNs();

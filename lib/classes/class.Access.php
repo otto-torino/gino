@@ -69,15 +69,6 @@ class Access {
       $this->_session->destroy();
       header("Location: ".$this->_home);
     }
-    else {
-      $registry = registry::instance();
-      if(isset($this->_session->user_id)) {
-        $registry->user = new \Gino\App\Auth\User($this->_session->user_id);
-      }
-      else {
-        $registry->user = new \Gino\App\Auth\User(null);
-      }
-    }
   }
   
   /**
@@ -175,11 +166,12 @@ class Access {
 	 */
 	public function requirePerm($class, $perm, $instance = 0) {
 
-		$registry = registry::instance();
-		if(!$registry->user->hasPerm($class, $perm, $instance)) {
+		$request = HttpRequest::instance();
+		if(!$request->user->hasPerm($class, $perm, $instance)) {
 			
-			if($this->session->user_id)
-				Error::raise403();
+            if($this->session->user_id) {
+                throw Exception403();
+            }
 			else
 			{
 				header("Location: ".$this->_home."?evt[auth-login]");

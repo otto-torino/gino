@@ -2,12 +2,17 @@
 /**
  * @file class_sysconf.php
  * @brief Contiene la classe sysconf
- * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ *
+ * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino\App\Sysconf;
+
+use \Gino\View;
+use \Gino\HttpResponseView;
+use \Gino\HttpRedirect;
+use \Gino\HttpRequest;
 
 require_once('class.Conf.php');
 
@@ -31,6 +36,7 @@ require_once('class.Conf.php');
  *   - Chiave pubblica reCAPTCHA
  *   - Chiave privata reCAPTCHA
  *   - Chiave pubblica ShareThis
+ *   - Shortname Disqus
  *   - Email amministratore di sistema
  *   - Email invio automatico comunicazioni
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
@@ -38,50 +44,43 @@ require_once('class.Conf.php');
  */
 class sysconf extends \Gino\Controller {
 
-  private $_title;
-
+  /**
+   * @brief Costruttore
+   */
   function __construct(){
 
     parent::__construct();
 
-    $this->_instance = 0;
-    $this->_instanceName = $this->_class_name;
-
-    $this->_title = _("Impostazioni");
-
-    $this->_permissions = array('can_admin');
   }
 
-  public function manageSysconf() {
+  /**
+   * @brief Amministrazione modulo
+   * @return \Gino\HttpResponse backend di amministrazione del modulo
+   */
+  public function manageSysconf(HttpRequest $request) {
 
     $this->requirePerm('can_admin');
 
-    $opts = array();
-
-    $admin_table = \Gino\Loader::load('AdminTable', array(
-      $this,
-      $opts
-    ));
-
+    $admin_table = \Gino\Loader::load('AdminTable', array($this));
     $conf = new Conf(1);
 
     $myform = \Gino\Loader::load('Form', array(null, null, null));
 
-    if(isset($_POST['empty_cache'])) {
+    if(isset($request->POST['empty_cache'])) {
       $this->_registry->pub->deleteFileDir(CACHE_DIR, false);
-      $this->_registry->plink->redirect($this->_class_name, 'manageSysconf');
+      return new HttpRedirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
     }
-    elseif(isset($_POST['id'])) {
+    elseif(isset($request->POST['id'])) {
       $result = $admin_table->modelAction($conf);
       $robots = filter_input(INPUT_POST, 'robots');
       if($fp = @fopen(SITE_ROOT.OS."robots.txt", "wb")) {
         fwrite($fp, $robots);
         fclose($fp);
       }
-      $this->_registry->plink->redirect($this->_class_name, 'manageSysconf', null, null, array('permalink' => false));
+      return new HttpRedirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
     }
-    elseif(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
-      if(isset($_GET['save']) and $_GET['save'] == '1') {
+    elseif($request->checkGETKey('trnsl', '1')) {
+      if($request->checkGETKey('save', 1)) {
         $this->_trd->actionTranslation();
       }
       else {
@@ -127,9 +126,11 @@ class sysconf extends \Gino\Controller {
       'content' => $content
     );
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
-    return $view->render($dict);
+
+    return new HttpResponseView($view, $dict);
+
   }
 
 }

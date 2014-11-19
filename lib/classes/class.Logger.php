@@ -1,21 +1,22 @@
 <?php
-
-namespace Gino;
-
 /**
  * @file class.Logger.php
- * @brief Contiene la definizione ed implementazione della classe Logger
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Logger
  * 
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
+namespace Gino;
+
 /**
  * @brief Classe per la notifica di log di sistema
  * @description Gestisce un logger per errori e warning. Se la costante DEBUG è settata a TRUE stampa a video errori e warnings.
  *              Se DEBUG è impostata a FALSE invia una mai agli amministratori di sistema.
- * 
+ *              Gestisce il comportamento a seguito del throw di una exception. La risposta si diifferenzia a seconda del valore
+ *              della costante DEBUG.
+ *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -84,7 +85,8 @@ class Logger {
 
     /**
      * @brief Gestore di eccezioni
-     * @description in DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS
+     * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS e ritorna una \Gino\HttpResponse
+     *              propria della exception oppure una \Gino\HttpResponseServerError
      * @param Exception $exception oggetto Exception
      * return void
      */
@@ -95,7 +97,14 @@ class Logger {
         }
         else {
             self::exceptionReportAdmins($exception);
-            Error::raise500();
+            if($method_exists($exception, 'httpResponse')) {
+                $response = $exception->response();
+            }
+            else {
+                $response = HttpResponseServerError();
+            }
+
+            $response();
         }
     }
 
@@ -112,6 +121,5 @@ class Logger {
             'system_variables_html' => self::systemVariablesHtml()
         );
         return $view->render($dict);
-
     }
 }

@@ -1110,4 +1110,200 @@ function traslitterazione($numero, $decimale=false)
             return  $risultato;
     }
 }
+
+/**
+   * Elimina ricorsivamente i file e le directory
+   *
+   * @param string $dir percorso assoluto alla directory
+   * @param boolean $delete_dir per eliminare o meno le directory
+   * @return void
+   */
+  public function deleteFileDir($dir, $delete_dir=true){
+  
+    if(is_dir($dir))
+    {
+      if(substr($dir, -1) != '/') $dir .= OS;	// Append slash if necessary
+      
+      if($dh = opendir($dir))
+      {
+        while(($file = readdir($dh)) !== false)
+        {
+          if($file == "." || $file == "..") continue;
+          
+          if(is_file($dir.$file)) unlink($dir.$file);
+          else $this->deleteFileDir($dir.$file, true);
+        }
+        
+        if($delete_dir)
+        {
+          closedir($dh);
+          rmdir($dir);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Elimina il file indicato
+   * 
+   * Viene richiamato dalla classe mFile.
+   *
+   * @param string $path_to_file percorso assoluto al file
+   * @param string $home (proprietà @a $_home)
+   * @param string $redirect (class-function)
+   * @param string $param_link parametri url (es. id=3&ref=12&)
+   * @return boolean
+   */
+  public function deleteFile($path_to_file, $home, $redirect, $param_link){
+    
+    if(is_file($path_to_file))
+    {
+      if(!@unlink($path_to_file))
+      {
+        if(!empty($redirect)) EvtHandler::HttpCall($home, $redirect, $param_link.'error=17');
+        else return false;
+      }
+    }
+    return true;
+  }
+  
+  /**
+   * Dimensione in KB di un file
+   * @param string $bytes numero di byte con virgola (,)
+   * @return integer
+   */
+  protected function dimensionFile($bytes){
+  
+    $kb = (int)($bytes);
+    if($kb == 0) $kb = 1;
+    
+    return $kb;
+  }
+  
+  /**
+   * Nome dell'estensione di un file
+   *
+   * @param string $filename nome del file
+   * @return string
+   */
+  protected function extensionFile($filename){
+    
+    $extension = strtolower(str_replace('.','',strrchr($filename, '.')));
+    // $extension = end(explode('.', $filename))
+    return $extension;
+  }
+  
+  /**
+   * Controlla se l'estensione di un file è valida
+   *
+   * @param string $filename nome del file
+   * @param array $extensions elenco dei formati di file permessi
+   * @return boolean
+   */
+  protected function verifyExtension($filename, $extensions){
+    
+    $ext = $this->extensionFile($filename);
+    
+    if(sizeof($extensions) > 0 AND !empty($ext))
+    {
+      if(in_array($ext, $extensions)) return true; else return false;
+    }
+    else return false;
+  }
+  
+  /**
+   * Verifica la validità del supporto PNG
+   * 
+   * @return boolean
+   */
+  public static function enabledPng(){
+    
+    if (function_exists('gd_info'))
+    {
+      $array = gd_info();
+      return $array['PNG Support'];
+    }
+    else return false;
+  }
+  
+  /**
+   * Verifica la validità della classe @a ZipArchive
+   * 
+   * @return boolean
+   */
+  public static function enabledZip(){
+    
+    if (class_exists('ZipArchive'))
+      return true;
+    else
+      return false;
+  }
+  
+  /**
+   * Cripta la password dell'utente
+   * 
+   * @param string $string
+   * @param string $crypt metodo di criptazione; default: proprietà @a _crypt (impostazioni di sistema) 
+   * @return string
+   */
+  public function cryptMethod($string, $crypt){
+
+    $method = $crypt;
+    $crypt_string = $method($string);
+
+    return $crypt_string;
+  }
+
+
+  
+  /**
+   * Testo della policy di una email
+   * 
+   * @return string
+   */
+  protected function emailPolicy(){
+    
+    $GINO = "\n\n"._("Indirizzo web").": http://".$_SERVER['HTTP_HOST'].$this->_site_www."\n---------------------------------------------------------------\n"._("La presente email è stata inviata con procedura automatica. Si prega di non rispondere alla presente email.")."\n\n"._("Per problemi o segnalazioni potete scrivere a ").$this->_email_send;
+    return $GINO;
+  }
+
+  /**
+   * Operazione di serializzazione
+   * 
+   * Viene creato nella directory dei contenuti dell'istanza il file @a ser_nomeistanza.txt
+   * 
+   * @param string $instanceName nome dell'istanza
+   * @param object $object oggetto da serializzare
+   * @return void
+   */
+  protected function obj_serialize($instanceName, $object){
+    
+    $filename = $this->pathData('abs', $instanceName).OS.'ser_'.$instanceName.'.txt';
+    
+    $file = fopen($filename, "w");
+    $ser = serialize($object);
+    fwrite($file, $ser);
+    fclose($file);
+  }
+  
+  /**
+   * Operazione di deserializzazione
+   * 
+   * @param string $instanceName nome dell'istanza
+   * @return void
+   */
+  protected function obj_unserialize($instanceName){
+    
+    $filename = $this->pathData('abs', $instanceName).OS.'ser_'.$instanceName.'.txt';
+    
+    $file = fopen($filename, "r");
+    $content = file_get_contents($filename);
+    $object = unserialize($content);
+    fclose($file);
+    
+    return $object;
+  }
+
+  
+
 ?>

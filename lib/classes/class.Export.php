@@ -206,5 +206,85 @@ class Export {
 
 		return $head_fields;
 	}
+  
+    /**
+   * Crea un file con caratteristiche specifiche di encoding
+   *
+   * @param string $filename percorso assoluto al file
+   * @param string $content contenuto del file
+   * @param string $type tipologia di file
+   *   - @b utf8
+   *   - @b iso8859
+   *   - @b csv: in questo caso utilizzare la funzione utf8_encode() sui valori da DB
+   * @return void
+   * 
+   * -- Procedura di esportazione di un file
+   * 
+   * 1. I valori da database devono passare attraverso le funzioni utf8_encode() e enclosedField():
+   * 
+   * @code
+   * $firstname = enclosedField(utf8_encode($b['firstname']));	//-> TESTO
+   * $date = utf8_encode($b['date']);								//-> DATA
+   * $number = $b['number'];										//-> NUMERO
+   * @endcode
+   * 
+   * 2. Creare il file sul filesystem:
+   * 
+   * @code
+   * $filename = $this->_doc_dir.'/'.$filename;
+   * if(file_exists($filename)) unlink($filename);
+   * $this->writeFile($filename, $output, 'csv');
+   * @endcode
+   * 
+   * 3. Effettuare il download del file:
+   * 
+   * @code
+   * $filename = 'export.csv';
+   * header("Content-type: application/csv \r \n");
+   * header("Content-Disposition: inline; filename=$filename");
+   * echo $output;
+   * exit();
+   * @endcode
+   */
+  protected function writeFile($filename, $content, $type) {
+    
+    $dhandle = fopen($filename, "wb");
+    
+    if($type == 'utf8')
+    {
+      # Add byte order mark
+      fwrite($dhandle, pack("CCC",0xef,0xbb,0xbf));
+    }
+    else 
+    {
+      if($type == 'iso8859')
+      {
+        # From UTF-8 to ISO-8859-1
+        $content = mb_convert_encoding($content, "ISO-8859-1", "UTF-8");
+      }
+      elseif($type == 'csv')
+      {
+        # UTF-8 Unicode CSV file that opens properly in Excel
+        $content = chr(255).chr(254).mb_convert_encoding( $content, 'UTF-16LE', 'UTF-8');
+      }
+    }
+    
+    fwrite($dhandle, $content);
+    fclose($dhandle);
+  }
+  
+  /**
+   * Rimuove il BOM (Byte Order Mark)
+   * 
+   * @param string $str
+   * @return string
+   */
+  protected function removeBOM($str=''){
+    
+    if(substr($str, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
+      $str = substr($str, 3);
+    }
+    return $str;
+  }
 }
 ?>

@@ -10,6 +10,7 @@
 namespace Gino\App\SysClass;
 
 use \Gino\Error;
+use \Gino\Loader;
 
 require_once('class.ModuleApp.php');
 
@@ -168,7 +169,7 @@ class sysClass extends \Gino\Controller {
    */
   private function formInsertSysClass() {
     
-    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+    $gform = Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = "<p class=\"backoffice-info\">"._("Caricare il pacchetto del modulo. Se la procedura di installazione va a buon fine modificare il modulo appena inserito per personalizzarne l'etichetta ed eventualmente altri parametri.")."</p>\n";
@@ -358,7 +359,7 @@ class sysClass extends \Gino\Controller {
    */
   private function formManualSysClass() {
     
-    $gform = \Gino\Loader::load('Form', array('mform', 'post', true));
+    $gform = Loader::load('Form', array('mform', 'post', true));
     $gform->load('mdataform');
 
     $GINO = "<div class=\"backoffice-info\">";
@@ -408,7 +409,7 @@ class sysClass extends \Gino\Controller {
     
     $this->requirePerm('can_admin');
     
-    $gform = \Gino\Loader::load('Form', array('mform', 'post', false));
+    $gform = Loader::load('Form', array('mform', 'post', false));
     $gform->save('mdataform');
     $req_error = $gform->arequired();
 
@@ -454,7 +455,7 @@ class sysClass extends \Gino\Controller {
    */
   private function formEditSysClass($id) {
     
-    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+    $gform = Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $module_app = new ModuleApp($id);
@@ -498,7 +499,7 @@ class sysClass extends \Gino\Controller {
       exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
-    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+    $gform = Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $GINO = "<p class=\"lead\">"._("Attenzione! La disattivazione di alcuni moduli potrebbe causare malfunzionamenti nel sistema")."</p>";
@@ -533,7 +534,7 @@ class sysClass extends \Gino\Controller {
       exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
     }
 
-    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+    $gform = Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
     
     $GINO = "<div class=\"backoffice-info\">";
@@ -783,7 +784,7 @@ class sysClass extends \Gino\Controller {
    */
   private function formRemoveSysClass($id) {
     
-    $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+    $gform = Loader::load('Form', array('gform', 'post', true));
     $gform->load('dataform');
 
     $module_app = new ModuleApp($id);
@@ -795,7 +796,7 @@ class sysClass extends \Gino\Controller {
     $GINO = "<p class=\"lead\">"._("Attenzione! La disinstallazione di un modulo di sistema potrebbe provocare dei malfunzionamenti ed è un'operazione irreversibile.")."</p>\n";
     if($module_app->instantiable) {
       $GINO .= "<p>".sprintf(_("Il modulo %s prevede la creazione di istanze, per tanto la sua eliminazione determina l'eliminazione di ogni istanza e dei dati associati."), $module_app->label)."</p>\n";
-      loader::import('module', 'ModuleInstance');
+      Loader::import('module', 'ModuleInstance');
       $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
       if(count($mdl_instances)) {
         $GINO .= "<p>"._("Attualmente nel sitema sono presenti le seguenti istanze:")."</p>\n";
@@ -842,16 +843,16 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     $instance = \Gino\cleanVar($_POST, 'instance', 'string', ''); // @QUI
-    $className = $this->_db->getFieldFromId($this->_tbl_module_app, 'name', 'id', $id);
 
     /*
      * Removing instances if any 
      */
     if($module_app->instantiable) {
-      \Gino\Loader::import('module', '\Gino\App\Module\ModuleInstance');
+      Loader::import('module', 'ModuleInstance');
       $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
       foreach($mdl_instances as $mi) {
-        $class_obj = new ${$module_app->name}($mi->id);
+        $class = $module_app->classNameNs();
+        $class_obj = new $class($mi->id);
         $class_obj->deleteInstance();
         $mi->deleteDbData();
       }
@@ -860,7 +861,7 @@ class sysClass extends \Gino\Controller {
     /*
      * Drop class tables and removing contents folders
      */
-    $class_elements = call_user_func(array($module_app->name, 'getClassElements'));
+    $class_elements = call_user_func(array($module_app->classNameNs(), 'getClassElements'));
     foreach($class_elements['tables'] as $tbl) {
       $result = $this->_db->drop($tbl);
       $this->_trd->deleteTranslations($tbl, 'all');
@@ -868,11 +869,15 @@ class sysClass extends \Gino\Controller {
     foreach($class_elements['folderStructure'] as $fld=>$sub) {
       $this->_registry->pub->deleteFileDir($fld, true);
     }
+    /*
+     * Drop permissions
+     */
+    $this->_db->delete(TBL_PERMISSION, "class='".$module_app->name."'");
 
     /*
      * Removing class directory
      */
-    $this->_registry->pub->deleteFileDir(APP_DIR.OS.$className, true);
+    $this->_registry->pub->deleteFileDir(APP_DIR.OS.$module_app->name, true);
     
     /*
      * Removing sysclass

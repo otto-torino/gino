@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Index;
 
+use \Gino\HttpResponse;
+
 /**
  * @brief 
  * 
@@ -42,10 +44,11 @@ class index extends \Gino\Controller{
 
   /**
    * Home page amministrazione
+   * @param \Gino\HttpRequest $request
    * 
    * @return string
    */
-  public function admin_page(){
+  public function admin_page($request){
 
     if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
       $this->_session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
@@ -93,7 +96,7 @@ class index extends \Gino\Controller{
       $buffer .= $view->render();
 
     }
-    return $buffer;
+    return new HttpResponse($buffer);
   }
 
   /**

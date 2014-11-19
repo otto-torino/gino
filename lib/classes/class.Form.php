@@ -70,7 +70,7 @@ class Form {
   function __construct($formId, $method, $validation, $options=null){
 
     $this->_registry = registry::instance();
-    $this->session = $this->_registry->session;
+    $this->session = Session::instance();
 
     $this->_formId = $formId;
     $this->setMethod($method);
@@ -2004,7 +2004,7 @@ class Form {
 	 */
 	private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
 
-		loader::import('language', 'Lang');
+		Loader::import('language', 'Lang');
 
 		$GINO = '';
 
@@ -2019,7 +2019,7 @@ class Form {
 			foreach($langs AS $lang) {
 				$label = htmlChars($lang->label);
 				$code = $lang->language_code.'_'.$lang->country_code;
-				$GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->pub->getPtUrl()."&trnsl=1')\">".$label."</span> &#160;";
+				$GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
 				$first = false; 
 			}	
 			$GINO .= " &nbsp; <span id=\"".$tbl.$field."\"></span>\n";

@@ -60,7 +60,7 @@ class ManyToManyThroughField extends Field {
 		$this->_m2m = $options['m2m'];
 		$this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
 
-    $this->_model_table_id = strtolower(get_class($this->_model)).'_id';
+    $this->_model_table_id = strtolower(get_name_class($this->_model)).'_id';
 
     $values = array();
     $db = db::instance();

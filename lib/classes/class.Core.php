@@ -1,170 +1,191 @@
 <?php
 /**
  * @file class.Core.php
- * @brief File che genera il documento
+ * @brief Contiene la definizione ed implementazione della class \Gino\Core
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
- * @brief Renderizza la pagina richiesta
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Gestisce una HttpRequest ed invia una HttpResponse adeguata
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class core {
+class Core {
 
-  private $_registry, $_base_path;
+    private $_registry, $_db;
 
-  /**
-   * Inizializza le variabili di registro
-   */
-  function __construct() {
+    /**
+     * @brief Costruttore
+     * @description Include le classi fondamentali per il funzionamento del sistema,
+     *              setta il locale corretto ed inizializza il registro
+     */
+    function __construct() {
 
-    loader::import('class', array(
-      '\Gino\Logger', 
-      '\Gino\Singleton', 
-      '\Gino\Db', 
-      '\Gino\Locale', 
-      '\Gino\Translation', 
-      '\Gino\Error', 
-      '\Gino\Session',
-      '\Gino\EventDispatcher', 
-      '\Gino\GImage',
-      '\Gino\GTag'
-    ));
+        Loader::import('class', array(
+            '\Gino\Logger', 
+            '\Gino\Singleton', 
+            '\Gino\Db', 
+            '\Gino\Locale', 
+            '\Gino\Translation', 
+            '\Gino\Error', 
+            '\Gino\Session',
+            '\Gino\Router',
+            '\Gino\EventDispatcher', 
+            '\Gino\GImage',
+            '\Gino\GTag'
+        ));
 
-    loader::import('class/mvc', array(
-      '\Gino\Model', 
-      '\Gino\Controller', 
-      '\Gino\View'
-    ));
+        Loader::import('class/exceptions', array(
+            '\Gino\Exception404',
+            '\Gino\Exception403',
+            '\Gino\Exception500',
+        ));
 
-    loader::import('class/fields', array(
-      '\Gino\Field',
-      '\Gino\BooleanField', 
-      '\Gino\CharField', 
-      '\Gino\ConstantField', 
-      '\Gino\DateField', 
-      '\Gino\DatetimeField', 
-      '\Gino\DirectoryField', 
-      '\Gino\EmailField', 
-      '\Gino\EnumField', 
-      '\Gino\FileField', 
-      '\Gino\FloatField', 
-      '\Gino\ForeignKeyField', 
-      '\Gino\HiddenField',
-      '\Gino\ImageField',
-      '\Gino\IntegerField',
-      '\Gino\ManyToManyField', 
-      '\Gino\ManyToManyThroughField', 
-      '\Gino\ManyToManyInlineField', 
-      '\Gino\TextField', 
-      '\Gino\TimeField', 
-      '\Gino\YearField',
-      '\Gino\TagField'
-    ));
+        Loader::import('class/http', array(
+            '\Gino\HttpRequest',
+            '\Gino\HttpResponse',
+            '\Gino\HttpRedirect',
+            '\Gino\HttpResponseView',
+            '\Gino\HttpResponseNotFound',
+            '\Gino\HttpResponseForbidden',
+            '\Gino\HttpResponseServerError'
+        ));
 
-    // gettext
-    locale::initGettext();
-    // registro di sistema
-    $this->initRegistry();
-    // locale
-    locale::init();
-    // mobile
-    $this->initMobile();
-    // headers
-    $this->setHeaders();
-    // check authentication
-    $this->_registry->access->authentication();
+        Loader::import('class/mvc', array(
+            '\Gino\Model', 
+            '\Gino\Controller', 
+            '\Gino\View'
+        ));
 
-  }
+        Loader::import('class/fields', array(
+            '\Gino\Field',
+            '\Gino\BooleanField', 
+            '\Gino\CharField', 
+            '\Gino\ConstantField', 
+            '\Gino\DateField', 
+            '\Gino\DatetimeField', 
+            '\Gino\DirectoryField', 
+            '\Gino\EmailField', 
+            '\Gino\EnumField', 
+            '\Gino\FileField', 
+            '\Gino\FloatField', 
+            '\Gino\ForeignKeyField', 
+            '\Gino\HiddenField',
+            '\Gino\ImageField',
+            '\Gino\IntegerField',
+            '\Gino\ManyToManyField', 
+            '\Gino\ManyToManyThroughField', 
+            '\Gino\ManyToManyInlineField', 
+            '\Gino\TextField', 
+            '\Gino\TimeField', 
+            '\Gino\YearField',
+            '\Gino\TagField'
+        ));
 
-  /**
-   * Inizializza il registro di sitema
-   */
-  private function initRegistry() {
-
-    Loader::import('sysconf', 'Conf');
-    $this->_registry = Loader::singleton('\Gino\Registry');
-
-    // core
-    $this->_registry->session = Loader::singleton('\Gino\Session');
-    $this->_registry->pub = Loader::load('Pub');
-    $this->_registry->access = Loader::load('Access');
-    $this->_registry->db = Loader::singleton('\Gino\Db');
-    $this->_registry->plink = Loader::load('Link');
-    $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
-
-    // layout
-    $this->_registry->css = array();
-    $this->_registry->js = array();
-    $this->_registry->meta = array();
-    $this->_registry->head_links = array();
-
-  }
-
-  /**
-   * Esegue operazioni relative ai dispositivi mobile
-   */
-  private function initMobile() {
-
-    /* mobile detection */
-    $avoid_mobile = preg_match("#(&|\?)avoid_mobile=(\d)#", $_SERVER['REQUEST_URI'], $matches)
-      ? (int) $matches[2]
-      : null;
-
-    if($avoid_mobile) {
-      unset($this->_registry->session->L_mobile);
-      $this->_registry->session->L_avoid_mobile = 1;
-    }
-    elseif($avoid_mobile === 0) {
-      unset($this->_registry->session->L_avoid_mobile);
+        // gettext
+        Locale::initGettext();
+        // registro di sistema
+        $this->initRegistry();
+        // locale, setta l'oggetto trd per le traduzioni nel registro
+        Locale::init();
+        // mobile
+        $this->initMobile();
+        // check authentication
+        $this->_registry->access->authentication();
+        // set the request object
+        $this->_registry->request = HttpRequest::instance();
+        // set the router object
+        $this->_registry->router = Router::instance();
     }
 
-    if(!(isset($this->_registry->session->L_avoid_mobile) && $this->_registry->session->L_avoid_mobile)) {
-      $this->detectMobile();
+    /**
+     * @brief Inizializza il registro di sitema
+     * @return void
+     */
+    private function initRegistry() {
+
+        Loader::import('sysconf', 'Conf');
+        $this->_registry = Loader::singleton('\Gino\Registry');
+
+        // core
+        $this->_registry->pub = Loader::load('Pub');
+        $this->_registry->access = Loader::load('Access');
+        $this->_registry->db = Loader::singleton('\Gino\Db');
+        $this->_registry->plink = Loader::load('Link');
+        $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
+
+        // layout
+        $this->_registry->css = array();
+        $this->_registry->js = array();
+        $this->_registry->meta = array();
+        $this->_registry->head_links = array();
+
     }
 
-  }
+    /**
+     * @brief Esegue operazioni relative ai dispositivi mobile
+     * @description Controlla ed imposta la variabile di sessione che gestisce risposte adatte per il mobile
+     * @return void
+     */
+    private function initMobile() {
 
-  /**
-   * Esegue il detect di dispositivi mobile, setta una variabile di sessione se il detect è positivo
-   * @return void
-   */
-  private function detectMobile() {
+        /* mobile detection */
+        $avoid_mobile = preg_match("#(&|\?)avoid_mobile=(\d)#", $_SERVER['REQUEST_URI'], $matches)
+            ? (int) $matches[2]
+            : null;
 
-    $detect = Loader::load('MobileDetect');
+        if($avoid_mobile) {
+            unset($this->_registry->session->L_mobile);
+            $this->_registry->session->L_avoid_mobile = 1;
+        }
+        elseif($avoid_mobile === 0) {
+            unset($this->_registry->session->L_avoid_mobile);
+        }
 
-    if($detect->isMobile()) {
-      $this->_registry->session->L_mobile = 1;
+        if(!(isset($this->_registry->session->L_avoid_mobile) && $this->_registry->session->L_avoid_mobile)) {
+            $this->detectMobile();
+        }
+
     }
-  }
 
+    /**
+     * Esegue il detect di dispositivi mobile, setta una variabile di sessione se il detect è positivo
+     * @return void
+     */
+    private function detectMobile() {
 
-  /**
-   * Setta gli header php
-   */
-  private function setHeaders() {
-    if(isset($_REQUEST['logout'])) {
-      header('cache-control: no-cache,no-store,must-revalidate'); // HTTP 1.1.
-      header('pragma: no-cache'); // HTTP 1.0.
-      header('expires: 0');
+        $detect = Loader::load('MobileDetect');
+
+        if($detect->isMobile()) {
+            $this->_registry->session->L_mobile = 1;
+        }
     }
-  }
 
-  /**
-   * Effettua il render della pagina e invia l'output buffering
-   */
-  public function renderApp() {
+    /**
+     * @brief Invia la risposta HTTP al client e chiude la connessione al DB
+     * @description Se la risposta ricevuta dal @ref \Gino\Router non è una \Gino\HttpResponse
+     *              invia una \Gino\HttpResponseNotFound (404)
+     * @return void
+     */
+    public function answer() {
 
-    ob_start();
-    $doc = Loader::load('Document');
-    $buffer = $doc->render();
-    ob_end_flush();
-  }
+        $response = $this->_registry->router->route();
+
+        // risposta valida
+        if(is_a($response, "\Gino\HttpResponse")) {
+            $response();
+        }
+        else {
+            $response = new HttpResponseNotFound();
+            $response();
+        }
+
+        $this->_registry->db->closeConnection();
+    }
 }

@@ -32,7 +32,7 @@ class sysfunc extends \Gino\Controller {
 	 * @access public
 	 * @return pagina di errore
 	 */
-	public function page404($title = '', $message = '') {
+	public static function page404($title = '', $message = '') {
 
         header("HTTP/1.0 404 Not Found");
 
@@ -61,7 +61,7 @@ class sysfunc extends \Gino\Controller {
 	 * @access public
 	 * @return pagina di errore
 	 */
-	public function page403($title = '', $message = '') {
+	public static function page403($title = '', $message = '') {
 
         header("HTTP/1.1 403 Unauthorized");
 
@@ -90,7 +90,7 @@ class sysfunc extends \Gino\Controller {
 	 * @access public
 	 * @return pagina di errore
 	 */
-	public function page500($title = '', $message = '') {
+	public static function page500($title = '', $message = '') {
 
         header("HTTP/1.0 500 Internal Server Error");
 

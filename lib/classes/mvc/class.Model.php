@@ -47,71 +47,72 @@ namespace Gino;
  */
  abstract class Model {
 
-	protected $_registry;
-	protected $_db;
-	protected $_tbl_data;
-	protected $_model_label;
-	
-	/**
-	 * Struttura della tabella
-	 * @var array
-	 */
-	protected $_structure;
-	
-	protected $_controller;
-	
-	/**
-	 * Oggetto della localizzazione
-	 * @var object
-	 */
-	protected $_locale;
-	
-	//protected $_main_class;
-	
-	/**
-	 * Intestazioni dei campi del database nel form
-	 * @var array
-	 */
-	protected $_fields_label=array();
-	protected $_p, $_chgP = array();
-	protected $_m2m = array(), $_m2mt = array();
+    protected $_registry,
+               $_request,
+               $_db;
+    protected $_tbl_data;
+    protected $_model_label;
+    
+    /**
+     * Struttura della tabella
+     * @var array
+     */
+    protected $_structure;
+    
+    protected $_controller;
+    
+    /**
+     * Oggetto della localizzazione
+     * @var object
+     */
+    protected $_locale;
+    
+    //protected $_main_class;
+    
+    /**
+     * Intestazioni dei campi del database nel form
+     * @var array
+     */
+    protected $_fields_label=array();
+    protected $_p, $_chgP = array();
+    protected $_m2m = array(), $_m2mt = array();
 
-	protected $_is_constraint = array();
-	protected $_check_is_constraint = true;
-	
-	protected $_lng_dft, $_lng_nav;
-	private $_trd;
+    protected $_is_constraint = array();
+    protected $_check_is_constraint = true;
+    
+    protected $_lng_dft, $_lng_nav;
+    private $_trd;
 
-	/**
-	 * Costruttore
-	 *
-	 * @param integer $id valore ID del record dell'oggetto
-	 * @return void
-	 */
-	function __construct($id) {
+    /**
+     * Costruttore
+     *
+     * @param integer $id valore ID del record dell'oggetto
+     * @return void
+     */
+    function __construct($id) {
 
-		$this->_registry = registry::instance();
-		$session = $this->_registry->session;
-		$this->_db = $this->_registry->db;
-		$this->_lng_dft = $session->lngDft;
-		$this->_lng_nav = $session->lng;
-		$this->_structure = $this->structure($id);
-		$this->_p['instance'] = null;
+        $this->_registry = registry::instance();
+        $session = Session::instance();
+        $this->_db = $this->_registry->db;
+        $this->_lng_dft = $session->lngDft;
+        $this->_lng_nav = $session->lng;
+        $this->_structure = $this->structure($id);
+        $this->_p['instance'] = null;
 
-		$this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
-	}
-	
-	/**
+        $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+    }
+    
+    /**
      * @brief Rappresentazione a stringa dell'oggetto
      * @description Sovrascrivere questo metodo nella classe figlia per restituire un valore parlante
      * @return id
      */
- 	public function __toString() {
+    public function __toString() {
 
-		return $this->id;
-	}
-	
-	/**
+        return $this->id;
+    }
+    
+    /**
      * @brief Etichetta del campo
      * @param string $field nome campo
      * @return etichetta
@@ -120,7 +121,7 @@ namespace Gino;
 
         return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
     }
-	
+    
      /**
      * @brief Setter per la variabile di controllo del check constraint
      * @param bool $check
@@ -145,7 +146,7 @@ namespace Gino;
         $this->_is_consraint = $is_constraint;
     }
 
-	/**
+    /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
      * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
      * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db.
@@ -163,7 +164,7 @@ namespace Gino;
         elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
         else return $null;
     }
-	
+    
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita
      * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
@@ -379,7 +380,7 @@ namespace Gino;
     public function savem2m() {
         foreach($this->_m2m as $field => $values) {
             $obj = $this->_structure[$field];
-            if(is_a($obj, 'ManyToManyField')) {
+            if(is_a($obj, '\Gino\ManyToManyField')) {
                 $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
                 foreach($values as $fid) {
                     $this->_db->insert(array(

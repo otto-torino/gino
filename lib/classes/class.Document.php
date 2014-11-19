@@ -1,71 +1,49 @@
 <?php
 /**
- * @file class.document.php
- * @brief Contiene la classe Document
+ * @file class.Document.php
+ * @brief Contiene la definizione ed implementazione della class \Gino\Document
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
+
+use \Gino\Registry;
+use \Gino\Loader;
+use \Gino\OutputCache;
 use \Gino\App\SysClass\ModuleApp;
 use \Gino\App\Module\ModuleInstance;
 use \Gino\App\Page\page;
 
 /**
- * @brief Libreria che si preoccupa di costruire la pagina richiesta e di stamparla utilizzando il metodo render()
- * 
- * Procedura eseguita dalla libreria:
- *     - se sono attivi i permalink, converte l'indirizzo dal permalink recuperando la REQUEST_URI (metodo convertLink)
- *     - verifica la corrispondenza dell'url con una skin (skin::getSkin()) e recupera i riferimenti della skin dal record della tabella sys_layout_skin
- *     - verifica se la pagina è in cache (outputCache->start)
- *     - carica la parte iniziale della pagina con i file css e javascript (header html, head e avvio body). I valori di default indicati nella sezione head sono definiti in Impostazioni. E' tuttavia possibile personalizzare questi valori sovrascrivendoli nel registro
- *     - istanzia il template associato alla skin e recupera il nome del file del template
- *     - effettua il parser del file di template e sostituisce ai marcatori dei moduli di classe, pagina e funzione il contenuto associato
- *     - chiude la connessione al database
- *     - carica i tag di chiusura del file html (body, html)
- *     - stampa la pagina
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Crea il documento html da inviare come corpo della risposta HTTP
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class Document {
 
-    private $_registry, $_db, $session, $_plink;
-    private $_tbl_module_app, $_tbl_module;
-    private $_instances;
-    private $_outputs;
+    private $_registry,
+            $_request,
+            $_url_content;
 
-    private $_mdl_url_content;
-
-    function __construct() {
-    
-        $this->_registry = registry::instance();
-        $this->_db = db::instance();
-        $this->session = session::instance();
+    /**
+     * @brief Costruttore
+     */
+    function __construct($url_content) {
+        $this->_registry = Registry::instance();
+        $this->_request = $this->_registry->request;
+        $this->_url_content = $url_content;
 
         Loader::import('sysClass', 'ModuleApp');
         Loader::import('module', 'ModuleInstance');
-        
-        $this->_plink = new link();
-        $this->_tbl_module_app = 'sys_module_app';
-        $this->_tbl_module = 'sys_module';
-
     }
 
     /**
-     * Crea il documento
-     * 
-     * @see renderNave()
-     * @return string
-     * 
-     * Esempi di contenuti delle variabili $_SERVER:
-     * @code
-     * $_SERVER["QUERY_STRING"]=> string(18) "articoli/viewList/"
-     * $_SERVER["REQUEST_URI"]=> string(41) "/gino/articoli/viewList/?b3JkZXI9dGl0bGU="
-     * $_SERVER["SCRIPT_NAME"]=> string(15) "/gino/index.php"
-     * @endcode
+     * @brief Crea il corpo della risposta HTTP
+     * @return documento html
      */
     public function render() {
 
@@ -78,28 +56,19 @@ class Document {
             )
         );
 
-        $query_string = $this->_plink->convertLink($_SERVER['REQUEST_URI'], array('setServerVar'=>true, 'setDataVar'=>true, 'pToLink'=>true, 'vserver'=>'REQUEST_URI'));		// index.php?evt[index-admin_page]
-        
-        $script = substr(preg_replace("#^".preg_quote(SITE_WWW)."#", '', $_SERVER['SCRIPT_NAME']), 1);	// index.php
-        $query_string = preg_replace("#^(".preg_quote($script).")?\??#", "", $query_string);	// evt[index-admin_page]
-        $relativeUrl = preg_replace("#".preg_quote(SITE_WWW.'/')."#", "", $_SERVER['SCRIPT_NAME']).((!empty($query_string))?"?$query_string":"");	//index.php?evt[index-admin_page]
-        
-        $skinObj = skin::getSkin(urldecode($relativeUrl));
-        if($skinObj===false) exit(error::syserrorMessage("document", "render", _("skin inesistente"), __LINE__));
-        
-        $this->initHeadVariables($skinObj);
-        
-        $this->_mdl_url_content = $this->modUrl();
+        $skin = $this->getSkin();
+
+        // set dei meta, css, scripts
+        $this->setHeadVariables($skin);
 
         $buffer = '';
+        $cache = new OutputCache($buffer, $skin->cache ? true : false);
+        if($cache->start('skin', $this->_request->path.$this->_request->session->lng.$skin->id, $skin->cache)) {
 
-        $cache = new OutputCache($buffer, $skinObj->cache ? true : false);
-        if($cache->start('skin', $query_string.$this->session->lng.$skinObj->id, $skinObj->cache)) {
+            $tpl = Loader::load('Template', array($skin->template));
+            $template = TPL_DIR.OS.$tpl->filename;
 
-            $tplObj = Loader::load('Template', array($skinObj->template));
-            $template = TPL_DIR.OS.$tplObj->filename;
-
-            if($tplObj->free) {
+            if($tpl->free) {
                 // Il template viene parserizzato 2 volte. La prima volta vengono eseguiti i metodi (definiti nei tag {module...}), 
                 // in questo modo vengono salvate eventuali modifiche al registry che viene utilizzato per includere js e css e meta nell'head del documento.
                 // L'output viene quindi tenuto in memoria, mentre il template non viene toccato.
@@ -108,31 +77,86 @@ class Document {
                 // Non si possono sostituire gli output già alla prima parserizzazione, e poi fare un eval del template perché altrimenti eventuali contenuti
                 // degli output potrebbero causare errori di interpretazione dell'eval, è sufficiente una stringa '<?' a far fallire l'eval.
                 // parse modules first time to update registry
-                $tplContent = file_get_contents($template);
+                $tpl_content = file_get_contents($template);
                 $regexp = "#{module(.*?)}#";
-                preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent);
+                preg_replace_callback($regexp, array($this, 'parseModules'), $tpl_content);
                 $registry = $this->_registry;
                 ob_start();
                 include($template);
-                $tplContent = ob_get_contents();
+                $tpl_content = ob_get_contents();
                 ob_clean();
                 // parse second time to replace codes
-                $cache->stop(preg_replace_callback($regexp, array($this, 'parseModules'), $tplContent));
+                $cache->stop(preg_replace_callback($regexp, array($this, 'parseModules'), $tpl_content));
             }
             else {
-                $tplContent = file_get_contents($template);
+                $tpl_content = file_get_contents($template);
                 $regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
-                $content = preg_replace_callback($regexp, array($this, 'renderNave'), $tplContent);
-                if($content === null) exit("PCRE Error! Subject too large or complex.");
+                $content = preg_replace_callback($regexp, array($this, 'renderNave'), $tpl_content);
 
-                $headline = $this->headLine($skinObj);
+                $headline = $this->headLine($skin);
                 $footline = $this->footLine();
 
                 $cache->stop($headline.$content.$footline);
             }
         }
 
-        echo $buffer;
+        return $buffer;
+
+    }
+
+    private function getSkin() {
+
+        Loader::import('class', '\Gino\Skin');
+        $skin = Skin::getSkin($this->_request->path);
+
+        if($skin === FALSE or !$skin->id) {
+            throw new \Exception(_('Skin inesistente'));
+        }
+
+        return $skin;
+    }
+
+    private function setHeadVariables($skin) {
+
+        // meta
+        $this->setIfEmpty($this->_registry->title, $this->_registry->sysconf->head_title);
+        $this->setIfEmpty($this->_registry->description, $this->_registry->sysconf->head_description);
+        $this->setIfEmpty($this->_registry->keywords, $this->_registry->sysconf->head_keywords);
+        $this->setIfEmpty($this->_registry->favicon, SITE_WWW."/favicon.ico");
+
+        // css
+        $stylesheets = array(
+            CSS_WWW."/styles.css",
+            CSS_WWW."/datepicker_jqui.css",
+            CSS_WWW."/slimbox.css",
+        );
+
+        if($skin->css) {
+            $css = Loader::load('Css', array('layout', array('id'=>$skin->css)));
+            $stylesheets[] = CSS_WWW."/".$css->filename;
+        }
+
+        $this->_registry->css = array_merge($stylesheets, $this->_registry->css);
+
+        // js
+        $scripts = array(
+            SITE_JS."/mootools-1.4.0-yc.js",
+            SITE_JS."/modernizr.js",
+            SITE_JS."/gino-min.js",
+        );
+        $browser = get_browser_info();
+        if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
+            $scripts[] = SITE_JS."/respond.js";
+        }
+        if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
+            $scripts[] = "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js";
+        }
+
+        $this->_registry->js = array_merge($scripts, $this->_registry->js);
+    }
+
+    private function setIfEmpty($prop, $value) {
+        if(!$prop) $prop = $value;
     }
 
     private function parseModules($m) {
@@ -153,7 +177,7 @@ class Document {
                     Logger::manageException($e);
             }
         }
-        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_mdl_url_content;
+        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
         else return $matches[0];
 
         return $mdlContent;
@@ -169,45 +193,10 @@ class Document {
         return $buffer;
     }
 
-    /**
-     * Caricamento nel registro dei parametri base
-     * 
-     * @param object $skinObj
-     */
-    private function initHeadVariables($skinObj) {
 
-        $this->_registry->title = htmlChars(pub::getConf('head_title'));
-        $this->_registry->description = htmlChars(pub::getConf('head_description'));
-        $this->_registry->keywords = htmlChars(pub::getConf('head_keywords'));
-        $this->_registry->favicon = SITE_WWW."/favicon.ico";
-        
-        $this->_registry->addCss(CSS_WWW."/styles.css");
-        $this->_registry->addCss(CSS_WWW."/datepicker_jqui.css");
-        $this->_registry->addCss(CSS_WWW."/slimbox.css");
-        
-        if($skinObj->css) {
-            $cssObj = loader::load('Css', array('layout', array('id'=>$skinObj->css)));
-            $this->_registry->addCss(CSS_WWW."/".$cssObj->filename);
-        }
-        
-        $this->_registry->addJs(SITE_JS."/mootools-1.4.0-yc.js");
-        $this->_registry->addJs(SITE_JS."/modernizr.js");
-        $this->_registry->addJs(SITE_JS."/gino-min.js");
-
-        $browser = get_browser_info();
-        if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
-            $this->_registry->addJs(SITE_JS."/respond.js");
-        }
-
-        if(pub::getConf("captcha_public") && pub::getConf("captcha_private"))
-            $this->_registry->addJs("http://www.google.com/recaptcha/api/js/recaptcha_ajax.js");
-    }
-
-    private function headLine($skinObj) {
+    private function headLine($skin) {
 
         Loader::import('class', '\Gino\Javascript');
-        $evt = $this->getEvent();
-        $instance = is_null($evt) ? null : $evt[1];
 
         if(pub::getConf('mobile')=='yes' && isset($this->session->L_mobile)) { 
             $headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
@@ -234,7 +223,7 @@ class Document {
         $headline .= $this->_registry->variables('css');
         $headline .= $this->_registry->variables('js');
         $headline .= javascript::vendor();
-        $headline .= javascript::onLoadFunction($skinObj);
+        $headline .= javascript::onLoadFunction($skin);
         
         $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
         $headline .= "<link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
@@ -249,7 +238,6 @@ class Document {
     private function footLine() {
 
         $footline = $this->errorMessages();
-        $this->_db->closeConnection();
         $footline .= "</body>";
         $footline .= "</html>";
 
@@ -310,7 +298,7 @@ class Document {
                     Logger::manageException($e);
             }
         }
-        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_mdl_url_content;
+        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
         else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
 
         return $mdlContent;
@@ -341,6 +329,8 @@ class Document {
 
     private function modClass($mdlId, $mdlFunc, $mdlType){
 
+        $db = Db::instance();
+
         if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
             return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
         }
@@ -368,15 +358,11 @@ class Document {
         }
         elseif($mdlType=='class') {
 
-            $rows = $this->_db->select("class", $this->_tbl_module, "id='$mdlId'");
-            if(count($rows))
-            {
-                $class_name = htmlChars($rows[0]['class']);
-                if(!$this->checkOutputFunctionPermissions($ofp, $class_name, $mdlId)) {
-                    return '';
-                }
+            $module = new ModuleInstance($mdlId);
+            $class_name = $module->className();
+            if(!$this->checkOutputFunctionPermissions($ofp, $class_name, $mdlId)) {
+                return '';
             }
-            else return '';
 
             $buffer = $classObj->$mdlFunc();
         }
@@ -416,66 +402,8 @@ class Document {
     }
     
     private function modUrl() {
-
-        $evt = $this->getEvent();
-        if(is_null($evt)) return null;
-        list($class, $instance, $function) = $evt;
-
-        if(is_null($instance)) exit(error::syserrorMessage("document", "modUrl", "Modulo sconosciuto", __LINE__));
-
-        $methodCheck = parse_ini_file(APP_DIR.OS.$class.OS.$class.".ini", true);
-        $publicMethod = @$methodCheck['PUBLIC_METHODS'][$function];
-
-        if(isset($publicMethod)) return $instance->$function();
-        //else header("Location: ".HOME_FILE);
+        return $this->_url_content;
     }
-
-    private function getEvent() {
-
-        $evtKey = isset($_GET[EVT_NAME])
-            ? is_array($_GET[EVT_NAME])
-                ? key($_GET[EVT_NAME])
-                : false
-            : false;
-
-        if(!$evtKey) return null;
-
-        if(preg_match('#^[^a-zA-Z0-9_-]+?#', $evtKey)) return null;
-        
-        list($mdl, $function) = explode("-", $evtKey);
-
-        $module_app = ModuleApp::getFromName($mdl);
-        $module = ModuleInstance::getFromName($mdl);
-
-        // se da url non viene chiamato un modulo né un'istanza restituiamo un 404
-        if(is_null($module_app) and is_null($module)) {
-            Error::raise404();
-        }
-		if(is_dir(APP_DIR.OS.$mdl) && class_exists(get_app_name_class_ns($mdl)) && $module_app && !$module_app->instantiable) {
-      
-    		$mdlId = $module_app->id;
-			$class = $module_app->classNameNs();
-			$class_name = $module_app->className();
-			
-			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId])) 
-				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
-
-			$instance = $this->_instances[$class."_".$mdlId];
-		}
-		elseif(class_exists($module->classNameNs())) {
-			$mdlId = $module->id;
-			$class = $module->classNameNs();
-			$class_name = $module->className();
-			
-			if(!isset($this->_instances[$class."_".$mdlId]) || !is_object($this->_instances[$class."_".$mdlId]))
-				$this->_instances[$class."_".$mdlId] = new $class($mdlId);
-
-			$instance = $this->_instances[$class."_".$mdlId];
-		}
-		else { $class=null; $instance=null; }
-		
-		return array($class_name, $instance, $function);
-	}
 
     private function google_analytics(){
         

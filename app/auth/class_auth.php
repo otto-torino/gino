@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Auth;
 
+use \Gino\HttpResponse;
+
 require_once('class.User.php');
 require_once('class.Group.php');
 require_once('class.Permission.php');
@@ -969,6 +971,6 @@ class auth extends \Gino\Controller {
 			'form' => $form,
 			'title' => _('Login')
 		);
-		return $view->render($dict);
+		return new HttpResponse($view->render($dict));
 	}
 }

@@ -69,7 +69,7 @@ abstract class Controller {
      * @return Exception
      */
     function __call($name, $arguments) {
-        throw new Exception(sprintf(_('"%s" is not a method of "%s" class'), $name, get_class($this)));
+        throw new \Exception(sprintf(_('"%s" is not a method of "%s" class'), $name, get_class($this)));
     }
 
     /**

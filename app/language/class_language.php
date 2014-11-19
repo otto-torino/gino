@@ -3,7 +3,7 @@
  * @file class_language.php
  * @brief Contiene la classe language
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ require_once('class.Lang.php');
 /**
  * @brief Libreria per la gestione delle lingue disponibili per le traduzioni
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -123,60 +123,62 @@ class language extends \Gino\Controller {
 		}
 	}
 	
-  public function manageLanguage() {
+  public function manageLanguage(\Gino\HttpRequest $request) {
 
     $this->requirePerm('can_admin');
 
-    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
+    $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
     $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageLanguage]&block=options\">"._("Opzioni")."</a>";
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]\">"._("Gestione")."</a>";
     $sel_link = $link_dft;
 
     if($block=='options') {
-      $content = $this->manageOptions();
+      $backend = $this->manageOptions();
       $sel_link = $link_options;
     }
     else {
-      $content = $this->manageLang();
+      $backend = $this->manageLang($request);
+    }
+
+    if(is_a($backend, '\Gino\HttpResponse')) {
+        return $backend;
     }
 
     $dict = array(
       'title' => _('Lingue di sistema'),
       'links' => array($link_options, $link_dft),
       'selected_link' => $sel_link,
-      'content' => $content
+      'content' => $backend
     );
 
     $view = new \Gino\View();
     $view->setViewTpl('tab');
 
-    return $view->render($dict);
+    return new \Gino\HttpResponseView($view, $dict);
 
   }
 
-  private function manageLang() {
+    private function manageLang(\Gino\HttpRequest $request) {
 
-    $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
-    $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
+        $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+        $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
 
-    $opts = array(
-      'list_description' => $info
-    );
+        $opts = array(
+            'list_description' => $info
+        );
 
-    $admin_table = \Gino\Loader::load('AdminTable', array(
-    	$this
-    ));
+        $admin_table = \Gino\Loader::load('AdminTable', array($this));
 
-    if(isset($_POST['id'])) {
-      if($_POST['main']) {
-        Lang::resetMain();
-      }
+        if(isset($request->POST['id'])) {
+            if($request->POST['main']) {
+                Lang::resetMain();
+            }
+        }
+
+        return $admin_table->backoffice('Lang', $opts);
+
     }
-
-    return $admin_table->backoffice('Lang', $opts);
-
-  }
 	
 	/**
 	 * Sostituisce un campo input con un campo editor

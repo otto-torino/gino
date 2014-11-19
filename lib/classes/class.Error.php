@@ -67,55 +67,6 @@ class Error {
     }
 
     /**
-     * @brief Gestione dell'errore con reindirizzamento alla pagina costruita nel metodo
-     * 
-     * Da utilizzare essenzialmente per gli errori di sistema
-     * 
-     * @param string $class nome della classe che genera l'errore
-     * @param string $function nome del metodo che genera l'errore
-     * @param string $message testo dell'errore
-     * @param integer $line numero di linea dell'errore (la costante magica __LINE__ riporta il numero di linea corrente del file)
-     * @return print page
-     * 
-     * Esempio
-     * @code
-     * exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
-     * @endcode
-     */
-    public static function syserrorMessage($class, $function, $message, $line=null) {
-
-        $object = sprintf(_('Classe: %s, Funzione: %s, Linea: %s'), $class, $function, $line);
-        Logger::messageReportAdmins($message, $object);
-
-        $buffer = "<html>\n";
-        $buffer .= "<head>\n";
-        $buffer .= "<meta charset=\"utf-8\" />\n";
-        $buffer .= "<style type=\"text/css\">";
-        $buffer .= "@import url('".CSS_WWW."/syserror.css')";
-        $buffer .= "</style>\n";
-        $buffer .= "</head>\n\n";
-        $buffer .= "<body>\n";
-        $buffer .= "<div>\n";
-        $buffer .= "<div id=\"errorImg\">\n";
-        $buffer .= "</div>\n";
-        $buffer .= "<table border=\"1\">\n";
-        $buffer .= "<tr>";
-        $buffer .= "<th>"._("Classe")."</th><th>"._("Funzione")."</th><th>"._("Messaggio")."</th>";
-        if($line) $buffer .= "<th>"._("Linea")."</th>";
-        $buffer .= "</tr>\n";
-        $buffer .= "<tr>";
-        $buffer .= "<td>".$class."</td><td>".$function."</td><td>".$message."</td>";
-        if($line) $buffer .= "<td>".$line."</td>";
-        $buffer .= "</tr>\n";
-        $buffer .= "</table>\n";
-        $buffer .= "</div>\n";
-        $buffer .= "</body>\n";
-        $buffer .= "</html>";
-
-        echo $buffer;
-    }
-    
-    /**
      * Gestione dell'errore con reindirizzamento a un indirizzo indicato
      * 
      * @param array $message
@@ -145,7 +96,7 @@ class Error {
         $session = session::instance();
         $session->GINOERRORMSG = $buffer;
 
-        header("Location: $link");
+        return new HttpRedirect($link);
     }
 
     /**
@@ -169,64 +120,6 @@ class Error {
 
             echo $buffer;
         }
-    }
-
-    /**
-     * Genera un errore 404 
-     * 
-     * @static
-     * @access public
-     * @return reindirizza alla pagina 404
-     */
-    public static function raise404() {
-
-        $site = (substr(SITE_WWW, -1) != '/' && SITE_WWW != '') ? SITE_WWW.'/' : SITE_WWW;
-        
-        if(substr($site, 0, 1) != '/')
-            $site = '/'.$site;
-        
-        $plink = new link();
-        header("Location: "."http://".$_SERVER['HTTP_HOST'].$site.$plink->alink('sysfunc', 'page404'));
-        exit();
-    }
-
-    /**
-     * Genera un errore 403 
-     * 
-     * @static
-     * @access public
-     * @return reindirizza alla pagina 403
-     */
-    public static function raise403() {
-
-        $site = (substr(SITE_WWW, -1) != '/' && SITE_WWW != '') ? SITE_WWW.'/' : SITE_WWW;
-        
-        if(substr($site, 0, 1) != '/')
-            $site = '/'.$site;
-        
-        $registry = registry::instance();
-        $plink = loader::load('Link');
-
-        header("Location: ".$registry->pub->getRootUrl().$plink->alink('sysfunc', 'page403'));
-        exit();
-    }
-
-    /**
-     * Genera un errore 500 
-     * 
-     * @static
-     * @access public
-     * @return reindirizza alla pagina 500
-     */
-    public static function raise500() {
-
-        $site = (substr(SITE_WWW, -1) != '/' && SITE_WWW != '') ? SITE_WWW.'/' : SITE_WWW;
-        if(substr($site, 0, 1) != '/')
-            $site = '/'.$site;
-
-        $plink = new link();
-        header("Location: "."http://".$_SERVER['HTTP_HOST'].$site.$plink->alink('sysfunc', 'page500'));
-        exit();
     }
 
     /**

@@ -125,11 +125,12 @@ class menu extends \Gino\Controller {
    */
   public function render() {
 
+      $session = \Gino\Session::instance();
       $sel_voice = MenuVoice::getSelectedVoice($this->_instance);
       $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
 
       $cache = new \Gino\OutputCache($buffer, $this->_cache ? true : false);
-      if($cache->start($this->_instance_name, "view".$sel_voice.$this->_registry->session->lng, $this->_cache)) {
+      if($cache->start($this->_instance_name, "view".$sel_voice.$session->lng, $this->_cache)) {
 
       $tree = $this->getTree();
       $view = new \Gino\View($this->_view_dir);
