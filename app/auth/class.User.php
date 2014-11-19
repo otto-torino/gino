@@ -156,7 +156,9 @@ class User extends \Gino\Model {
 			'm2m'=>'\Gino\App\Auth\Group', 
 			'm2m_where'=>null, 
 			'm2m_order'=>'name ASC', 
-			'join_table'=>Group::$table_group_user
+			'join_table'=>Group::$table_group_user,
+            'add_related' => true,
+            'add_related_url' => $this->_home.'?evt['.get_name_class($this->_controller).'-manageAuth]&block=group&insert=1',
 		));
 		
 		return $structure;

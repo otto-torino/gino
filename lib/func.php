@@ -1109,3 +1109,265 @@ function obj_unserialize($instanceName){
 
     return $object;
 }
+
+/**
+ * Icone
+ * 
+ * @param string $name codice dell'icona
+ *   - @b admin
+ *   - @b attach
+ *   - @b back
+ *   - @b cart
+ *   - @b check
+ *   - @b close
+ *   - @b config
+ *   - @b content
+ *   - @b duplicate
+ *   - @b css
+ *   - @b delete
+ *   - @b detail
+ *   - @b download
+ *   - @b email
+ *   - @b export
+ *   - @b feed
+ *   - @b group
+ *   - @b help
+ *   - @b home
+ *   - @b input
+ *   - @b insert
+ *   - @b language
+ *   - @b layout
+ *   - @b link
+ *   - @b list
+ *   - @b minimize
+ *   - @b modify
+ *   - @b new
+ *   - @b newpdf
+ *   - @b palette
+ *   - @b password
+ *   - @b pdf
+ *   - @b permission
+ *   - @b print
+ *   - @b return
+ *   - @b revision
+ *   - @b search
+ *   - @b sort
+ *   - @b view
+ * @param string $text testo della proprietà @a title del tag IMG (sostituisce il testo di default)
+ * @param string $tiptype col valore @a full si attiva il selettore @a icon_tooltipfull che richiama il javascript associato
+ * @return string
+ */
+function icon($name, $options = array()){
+
+    $text = gOpt('text', $options, '');
+    $tiptype = gOpt('text', $options, 'base');
+    $scale = gOpt('scale', $options, '1');
+
+    $class = ''; // @todo only fa
+
+    switch ($name) {
+        // Ordine alfabetico
+        case 'admin':
+            $icon = 'ico_admin.gif';
+            $title = _("amministrazione");
+            break;
+        case 'attach':
+            $icon = 'ico_attach.gif';
+            $title = _("allegati");
+            break;
+        case 'back':
+            $icon = 'ico_back.gif';
+            $title = _("inizio");
+            break;
+        case 'cart':
+            $icon = 'ico_cart.gif';
+            $title = _("metti nel carrello");
+            break;
+        case 'check':
+            $icon = 'ico_check.gif';
+            $title = _("check");
+            break;
+        case 'code':
+            $class = 'fa fa-code';
+            $title = _("codice");
+            break;
+        case 'close':
+            $icon = 'ico_close.gif';
+            $title = _("chiudi");
+            break;
+        case 'config':
+            $icon = 'ico_config.gif';
+            $title = _("opzioni");
+            break;
+        case 'content':
+            $icon = 'ico_content.gif';
+            $title = _("contenuti");
+            break;
+        case 'copy':
+            $icon = 'ico_duplicate.gif';
+            $class = 'fa-copy';
+            $title = _("duplica");
+            break;
+        case 'css':
+            $icon = 'ico_CSS.gif';
+            $title = _("css");
+            break;
+        case 'delete':
+            $icon = 'ico_trash.gif';
+            $class = 'fa-trash-o';
+            $title = _("elimina");
+            break;
+        case 'detail':
+            $icon = 'ico_detail.gif';
+            $title = _("dettaglio");
+            break;
+        case 'download':
+            $icon = 'ico_download.gif';
+            $title = _("download");
+            break;
+        case 'email':
+            $icon = 'ico_email.gif';
+            $title = _("email");
+            break;
+        case 'export':
+            $icon = 'ico_export.gif';
+            $class = 'fa-save';
+            $title = _("esporta");
+            break;
+        case 'feed':
+            $icon = 'icoRSS_black.png';
+            $title = _("feed rss");
+            break;
+        case 'group':
+            $icon = 'ico_group.gif';
+            $class = 'fa-group';
+            $title = _("gruppi");
+            break;
+        case 'help':
+            $icon = 'ico_help.gif';
+            $class = 'fa-question';
+            $title = _("help in linea");
+            break;
+        case 'home':
+            $icon = 'ico_home.gif';
+            $title = _("home");
+            break;
+        case 'input':
+            $icon = 'ico_input.gif';
+            $title = _("input");
+            break;
+        case 'insert':
+            $icon = 'ico_insert.gif';
+            $class = 'fa-plus-circle';
+            $title = _("nuovo");
+            break;
+        case 'language':
+            $icon = 'ico_language.gif';
+            $title = _("traduzione");
+            break;
+        case 'layout':
+            $icon = 'ico_layout.gif';
+            $class = 'fa-th';
+            $title = _("layout");
+            break;
+        case 'link':
+            $icon = 'ico_link.gif';
+            $title = _("link");
+            break;
+        case 'list':
+            $icon = 'ico_list.gif';
+            $title = _("elenco");
+            break;
+        case 'minimize':
+            $icon = 'ico_minimize.gif';
+            $title = _("riduci a icona");
+            break;
+        case 'modify':
+            $icon = 'ico_modify.gif';
+            $class = 'fa-edit';
+            $title = _("modifica");
+            break;
+        case 'new':
+            $icon = 'ico_new.gif';
+            $title = _("novità");
+            break;
+        case 'newpdf':
+            $icon = 'ico_newPDF.gif';
+            $title = _("crea PDF");
+            break;
+        case 'palette':
+            $icon = 'ico_palette.gif';
+            $title = _("palette colori");
+            break;
+        case 'password':
+            $icon = 'ico_password.gif';
+            $class = 'fa-key';
+            $title = _("password");
+            break;
+        case 'pdf':
+            $icon = 'ico_pdf.gif';
+            $title = _("pdf");
+            break;
+        case 'permission':
+            $icon = 'ico_permission.gif';
+            $class = 'fa-gears';
+            $title = _("permessi");
+            break;
+        case 'print':
+            $icon = 'ico_print.gif';
+            $title = _("stampa");
+            break;
+        case 'return':
+            $icon = 'ico_return.gif';
+            $title = _("indietro");
+            break;
+        case 'revision':
+            $icon = 'ico_revision.gif';
+            $title = _("revisione");
+            break;
+        case 'search':
+            $icon = 'ico_search.gif';
+            $class = 'fa-search';
+            $title = _("ricerca");
+            break;
+        case 'sort':
+            $icon = 'ico_sort.gif';
+            $class = 'fa-sort';
+            $title = _("ordina");
+            break;
+        case 'sort-up':
+            $class = 'fa-sort-up';
+            $title = _("sposta in alto");
+            break;
+        case 'write':
+            $class = 'fa-file-text-o';
+            $title = _("scrivi");
+            break;
+        case 'view':
+            $icon = 'ico_view.gif';
+            $title = _("visualizza");
+            break;
+        default:
+            $icon = '';
+            $title = '';
+    }
+
+    $GINO = '';
+    if($class) {
+        if(!empty($text)) $alt_text = $text; else $alt_text = $title;
+        if($scale != 1) {
+            $class .= " fa-".$scale.'x';
+        }
+        $GINO .= "<span class=\"icon fa $class icon-tooltip".($tiptype=='full'?_("full"):"")."\" title=\"$alt_text\" ></span>";
+    }
+    else {
+    if(!empty($icon))
+        {
+            if(!empty($text)) $alt_text = $text; else $alt_text = $title;
+            $GINO .= "<img class=\"icon icon_tooltip".($tiptype=='full'?_("full"):"")."\" src=\"".SITE_IMG."/$icon\" title=\"$alt_text\" />";
+        }
+    }
+
+    return $GINO;
+}
+

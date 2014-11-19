@@ -884,7 +884,7 @@ class AdminTable {
    *     - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
    *     esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_plink->aLink($this->_instanceName, 'view')))
    *   - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record
-   *   - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>pub::icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
+   *   - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>\Gino\icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
    *     - @a label (string), nome del bottone
    *     - @a link (string), indirizzo del collegamento
    *     - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
@@ -1111,10 +1111,10 @@ class AdminTable {
       }
       
       if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-        $links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".pub::icon('modify', array('scale' => 1))."</a>";
+        $links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\icon('modify', array('scale' => 1))."</a>";
       }
       if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-        $links[] = "<a href=\"javascript: if(confirm('".jsVar(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model))."')) location.href='".$this->editUrl($add_params_delete)."';\">".pub::icon('delete', array('scale' => 1))."</a>";
+        $links[] = "<a href=\"javascript: if(confirm('".jsVar(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model))."')) location.href='".$this->editUrl($add_params_delete)."';\">".\Gino\icon('delete', array('scale' => 1))."</a>";
       }
       $buttons = array(
         array('text' => implode(' &#160; ', $links), 'class' => 'nowrap')
@@ -1150,20 +1150,20 @@ class AdminTable {
     $table = $this->_view->render();
 
     if($this->_allow_insertion) {
-      $link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".pub::icon('insert', array('scale' => 2))."</a>";
+      $link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".\Gino\icon('insert', array('scale' => 2))."</a>";
     }
     else {
       $link_insert = "";
     }
     
-    $link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".pub::icon('export')."</a>" : null;
+    $link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".\Gino\icon('export')."</a>" : null;
 
     $this->_view->setViewTpl('admin_table_list');
     $this->_view->assign('title', $list_title);
     $this->_view->assign('description', $list_description);
     $this->_view->assign('link_insert', $link_insert);
     $this->_view->assign('link_export', $link_export);
-    $this->_view->assign('search_icon', pub::icon('search', array('scale' => 2)));
+    $this->_view->assign('search_icon', \Gino\icon('search', array('scale' => 2)));
     $this->_view->assign('table', $table);
     $this->_view->assign('tot_records', $tot_records);
     $this->_view->assign('form_filters_title', _("Filtri"));
