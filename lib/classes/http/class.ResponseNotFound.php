@@ -1,45 +1,47 @@
 <?php
 /**
- * @file class.HttpResponseForbidden.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponseForbidden
+ * @file class.ResponseNotFound.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseNotFound
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
+
+use \Gino\Loader;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte a seguito di errori 403
+ * @brief Subclass di \Gino\Http\Response per gestire risposte a seguito di errori 404
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponseForbidden extends HttpResponse {
+class ResponseNotFound extends Response {
 
     /**
      * @brief Costruttore
      * @param array $kwargs
-     * @return istanza di \Gino\HttpResponseForbidden
+     * @return istanza di \Gino\Http\ResponseNotFound
      */
     function __construct(array $kwargs = array()) {
 
         parent::__construct('', $kwargs);
 
-        $this->setStatus(403, 'Forbidden');
+        $this->setStatus(404, 'Not Found');
 
     }
 
     /**
      * @brief Corpo della risposta HTTP
-     * @description Mostra la pagina 403 di gino
+     * @description Mostra la pagina 404 di gino
      * @return void
      */
     protected function sendContent() {
 
-        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page403()));
+        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page404()));
         $buffer = $document->render();
 
         ob_start();

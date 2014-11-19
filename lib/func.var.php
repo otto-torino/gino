@@ -726,34 +726,33 @@ function htmlToEntities($string){
 }
 
 /**
-   * Codifica i parametri url
-   * 
-   * @param string $params parametri url
-   * @return string
-   */
-  protected function encode_params($params){
-    
+ * Codifica i parametri url
+ * 
+ * @param string $params parametri url
+ * @return string
+ */
+function encode_params($params){
+
     if(!empty($params))
     {
-      $params = preg_replace('/=/', ':', $params);
-      $params = preg_replace('/&/', ';;', $params);
+        $params = preg_replace('/=/', ':', $params);
+        $params = preg_replace('/&/', ';;', $params);
     }
     return $params;
-  }
-  
-  /**
-   * Decodifica i parametri url
-   * 
-   * @param string $params parametri url
-   * @return string
-   */
-  protected function decode_params($params){
-    
+}
+
+/**
+ * Decodifica i parametri url
+ * 
+ * @param string $params parametri url
+ * @return string
+ */
+function decode_params($params){
+
     if(!empty($params))
     {
-      $params = preg_replace('/:/', '=', $params);
-      $params = preg_replace('/;;/', '&', $params);
+        $params = preg_replace('/:/', '=', $params);
+        $params = preg_replace('/;;/', '&', $params);
     }
     return $params;
-  }
-?>
+}

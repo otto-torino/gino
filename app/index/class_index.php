@@ -48,16 +48,16 @@ class index extends \Gino\Controller{
    * 
    * @return string
    */
-  public function admin_page($request){
+  public function admin_page(\Gino\Http\Request $request){
 
-    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
+    if(!$request->user->hasPerm('core', 'is_staff')) {
       $this->_session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
       $this->_registry->plink->redirect('auth', 'login');
     }
 
     $buffer = '';
-    $sysMdls = $this->sysModulesManageArray();
-    $mdls = $this->modulesManageArray();
+    $sysMdls = $this->sysModulesManageArray($request);
+    $mdls = $this->modulesManageArray($request);
     if(count($sysMdls)) {
       $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
       foreach($sysMdls as $sm) {
@@ -96,7 +96,7 @@ class index extends \Gino\Controller{
       $buffer .= $view->render();
 
     }
-    return new HttpResponse($buffer);
+    return new \Gino\Http\Response($buffer);
   }
 
   /**
@@ -104,11 +104,11 @@ class index extends \Gino\Controller{
    * 
    * @return array
    */
-  public function sysModulesManageArray() {
+  public function sysModulesManageArray($request) {
 
     \Gino\Loader::import('sysClass', 'ModuleApp');
 
-    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
+    if(!$request->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
@@ -116,7 +116,7 @@ class index extends \Gino\Controller{
     $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1' AND instantiable='0'"));
     if(count($modules_app)) {
       foreach($modules_app as $module_app) {
-        if($this->_registry->user->hasAdminPerm($module_app->name) and method_exists($module_app->classNameNs(), 'manage'.ucfirst($module_app->name))) {
+        if($request->user->hasAdminPerm($module_app->name) and method_exists($module_app->classNameNs(), 'manage'.ucfirst($module_app->name))) {
           $list[$module_app->id] = array("label"=>$module_app->ml('label'), "name"=>$module_app->name, "description"=>$module_app->ml('description'));
         }
       }
@@ -130,11 +130,11 @@ class index extends \Gino\Controller{
    * 
    * @return array
    */
-  public function modulesManageArray() {
+  public function modulesManageArray($request) {
 
     \Gino\Loader::import('module', 'ModuleInstance');
 
-    if(!$this->_registry->user->hasPerm('core', 'is_staff')) {
+    if(!$request->user->hasPerm('core', 'is_staff')) {
       return array();
     }
 
@@ -142,7 +142,7 @@ class index extends \Gino\Controller{
     $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'"));
     if(count($modules)) {
       foreach($modules as $module) {
-        if($this->_registry->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->classNameNs(), 'manageDoc')) {
+        if($request->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->classNameNs(), 'manageDoc')) {
           $list[$module->id] = array("label"=>$module->ml('label'), "name"=>$module->name, "class"=>$module->className(), "description"=>$module->ml('description'), $module->id);
         }
       }

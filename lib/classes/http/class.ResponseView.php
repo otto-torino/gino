@@ -1,23 +1,25 @@
 <?php
 /**
- * @file class.HttpResponseView.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponseView
+ * @file class.ResponseView.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseView
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
+
+use \Gino\Loader;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte a partire da una \Gino\View ed un context
+ * @brief Subclass di \Gino\Http\Response per gestire risposte a partire da una \Gino\View ed un context
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponseView extends HttpResponse {
+class ResponseView extends Response {
 
     private $_view,
             $_context;
@@ -26,7 +28,7 @@ class HttpResponseView extends HttpResponse {
      * @brief Costruttore
      * @param \Gino\View $view
      * @param array $context context da passare al template della view
-     * @return istanza di \Gino\HttpResponseView
+     * @return istanza di \Gino\Http\ResponseView
      */
     function __construct(\Gino\View $view, array $context = array()) {
 

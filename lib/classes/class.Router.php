@@ -121,16 +121,16 @@ class Router extends Singleton {
 
     /**
      * @brief Esegue il route della request HTTP
-     * @description Passa la \Gino\HttpRequest alla callable che deve gestirla e ritornare una \Gino\HttpResponse
-     *              Se non è definita una callable, ritorna una \Gino\HttpResponse con contenuto vuoto
-     * @return \Gino\HttpResponse
+     * @description Passa la \Gino\HttpRequest alla callable che deve gestirla e ritornare una \Gino\Http\Response
+     *              Se non è definita una callable, ritorna una \Gino\Http\Response con contenuto vuoto
+     * @return \Gino\Http\Response
      */
     public function route() {
         if(!is_null($this->_controller_view)) {
             return call_user_func($this->_controller_view, $this->_registry->request);
         }
         else {
-            return new HttpResponse('');
+            return new \Gino\Http\Response('');
         }
     }
 

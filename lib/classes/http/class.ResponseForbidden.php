@@ -1,45 +1,45 @@
 <?php
 /**
- * @file class.HttpResponseServerError.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponseServerError
+ * @file class.ResponseForbidden.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseForbidden
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte a seguito di errori interni (code 500)
+ * @brief Subclass di \Gino\Http\Response per gestire risposte a seguito di errori 403
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponseServerError extends HttpResponse {
+class ResponseForbidden extends Response {
 
     /**
      * @brief Costruttore
      * @param array $kwargs
-     * @return istanza di \Gino\HttpResponseServerError
+     * @return istanza di \Gino\Http\ResponseForbidden
      */
     function __construct(array $kwargs = array()) {
 
         parent::__construct('', $kwargs);
 
-        $this->setStatus(500, 'Internal Server Error');
+        $this->setStatus(403, 'Forbidden');
 
     }
 
     /**
      * @brief Corpo della risposta HTTP
-     * @description Mostra la pagina 500 di gino
+     * @description Mostra la pagina 403 di gino
      * @return void
      */
     protected function sendContent() {
 
-        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page500()));
+        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page403()));
         $buffer = $document->render();
 
         ob_start();

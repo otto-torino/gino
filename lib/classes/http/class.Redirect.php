@@ -1,23 +1,23 @@
 <?php
 /**
- * @file class.HttpRedirect.php
- * @brief Contiene la definizione ed implementazione della classe HttpRedirect
+ * @file class.Redirect.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\Redirect
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire reindirizzamenti
+ * @brief Subclass di \Gino\Http\Response per gestire reindirizzamenti
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpRedirect extends \Gino\HttpResponse {
+class Redirect extends Response {
 
     private $_url;
 
@@ -25,7 +25,7 @@ class HttpRedirect extends \Gino\HttpResponse {
      * @brief Costruttore
      * @param string $url redirect url
      * @param array $kwargs
-     * @return istanza di \Gino\HttpRedirect
+     * @return istanza di \Gino\Http\Redirect
      */
     function __construct($url, array $kwargs = array()) {
         $this->_url = $url;

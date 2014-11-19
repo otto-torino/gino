@@ -29,7 +29,7 @@ class Cache {
 		$this->_ds = OS;
 		$this->_fld = CACHE_DIR;
 		$this->_prefix = 'cache_';
-		$this->_enabled = pub::getConf('enable_cache');
+		$this->_enabled = $this->_registry->db->getFieldFromId(TBL_SYS_CONF, 'enable_cache', 'id', 1);
 	}
 
 	protected function write($data) {

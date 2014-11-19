@@ -119,6 +119,7 @@ class MenuVoice extends \Gino\Model {
 
   public function userCanSee() {
 
+    $request = \Gino\Http\Request::instance();
     if(!$this->perms) {
       return true;
     }
@@ -128,7 +129,7 @@ class MenuVoice extends \Gino\Model {
       $values = explode(',', $p);
       $perm = new \Gino\App\Auth\Permission($values[0]);
       $instance = $values[1];
-      if($this->_registry->user->hasPerm($perm->class, $perm->code, $instance)) {
+      if($request->user->hasPerm($perm->class, $perm->code, $instance)) {
         return true;
       }
     }

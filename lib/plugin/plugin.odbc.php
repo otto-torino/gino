@@ -907,7 +907,7 @@ class odbc implements \Gino\DbManager {
 
 		if(!$table) return false;
 		
-		$query = "DROP TABLE $table";
+		$query = "DROP $table";
 		
 		return $this->actionquery($query);
 	}

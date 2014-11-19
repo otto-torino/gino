@@ -2,7 +2,7 @@
 <html lang="<?= LANG ?>">
   <head>
     <meta charset="utf-8" />
-    <base href="<?= $registry->pub->getRootUrl() ?>" />
+    <base href="<?= $registry->request->root_absolute_url ?>" />
     <title><?= $registry->title ?></title>
     <meta name="description" content="<?= $registry->description ?>" />
     <meta name="keywords" content="<?= $registry->keywords ?>" />

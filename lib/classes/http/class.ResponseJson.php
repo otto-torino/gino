@@ -1,29 +1,29 @@
 <?php
 /**
- * @file class.HttpResponseJson.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponseJson
+ * @file class.ResponseJson.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseJson
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte in formato json
+ * @brief Subclass di \Gino\Http\Response per gestire risposte in formato json
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponseJson extends HttpResponse {
+class ResponseJson extends Response {
 
     /**
      * @brief Costruttore
      * @param mixed $content contenuto della risposta. Se diverso da stringa viene codificato in json
      * @param array $kwargs
-     * @return istanza di \Gino\HttpResponseJson
+     * @return istanza di \Gino\Http\ResponseJson
      */
     function __construct($content, array $kwargs = array()) {
 

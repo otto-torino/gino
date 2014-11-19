@@ -68,7 +68,7 @@ class User extends \Gino\Model {
 		$this->_controller = $controller;
 		
 		$registry = \Gino\registry::instance();
-		self::$extension_media = !$registry->pub->enabledPng() ? array('jpg') : array('png', 'jpg');
+		self::$extension_media = \Gino\enabledPng() ? array('jpg') : array('png', 'jpg');
 		
 		parent::__construct($id);
 	}
@@ -439,10 +439,10 @@ class User extends \Gino\Model {
 
     $user = null;
 
-    $registry = \Gino\registry::instance();
-    $crypt_method = $registry->pub->getConf('password_crypt');
+    $registry = \Gino\Registry::instance();
+    $crypt_method = $registry->sysconf->password_crypt;
     
-    $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $pwd;
+    $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $pwd;
     
     $rows = $db->select('id', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
     if($rows and count($rows) == 1) {

@@ -92,7 +92,8 @@ class Skin extends Model {
 	 */
 	public static function getSkin($relativeUrl) {
 
-    $registry = registry::instance();
+    $registry = Registry::instance();
+    $request = \Gino\Http\Request::instance();
 		$db = $registry->db;
 		$session = $registry->session;
 		$plink = new Link();
@@ -117,7 +118,7 @@ class Skin extends Model {
 							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
 					
 							if($url == $relativeUrl) { 
-								if($b['auth']=='' || ($registry->user->id && $b['auth']=='yes') || (!$registry->user->id && $b['auth']=='no'))
+								if($b['auth']=='' || ($request->user->id && $b['auth']=='yes') || (!$request->user->id && $b['auth']=='no'))
 									return new skin($b['id']);
 							}
 						}
@@ -128,7 +129,7 @@ class Skin extends Model {
 					
 							if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
 							{
-								if($b['auth']=='' || ($registry->user->id && $b['auth']=='yes') || (!$registry->user->id && $b['auth']=='no'))
+								if($b['auth']=='' || ($request->user->id && $b['auth']=='yes') || (!$request->user->id && $b['auth']=='no'))
 									return new skin($b['id']);
 							}
 						}
@@ -147,7 +148,7 @@ class Skin extends Model {
 							$url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
 					
 						if($url == $relativeUrl) { 
-							if($b['auth']=='' || ($registry->user->id && $b['auth']=='yes') || (!$registry->user->id && $b['auth']=='no'))
+							if($b['auth']=='' || ($request->user->id && $b['auth']=='yes') || (!$request->user->id && $b['auth']=='no'))
 								return new skin($b['id']);
 						}
 					}
@@ -161,7 +162,7 @@ class Skin extends Model {
 					
 					if(preg_match($b['rexp'], $relativeUrl) || preg_match($b['rexp'], $p_relativeUrl))
 					{
-						if($b['auth']=='' || ($registry->user->id && $b['auth']=='yes') || (!$registry->user->id && $b['auth']=='no'))
+						if($b['auth']=='' || ($request->user->id && $b['auth']=='yes') || (!$request->user->id && $b['auth']=='no'))
 							return new skin($b['id']);
 					}
 				}

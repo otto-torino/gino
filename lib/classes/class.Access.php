@@ -21,7 +21,6 @@ namespace Gino;
 class Access {
   
   protected $_home;
-  protected $_crypt;
   protected $_db, $_session;
 
   private $_block_page;
@@ -35,7 +34,6 @@ class Access {
     $this->_session = session::instance();
 
     $this->_home = HOME_FILE;
-    $this->_crypt = pub::getConf('password_crypt');
     
     $this->_block_page = $this->_home."?evt[auth-login]";
   }
@@ -166,10 +164,10 @@ class Access {
 	 */
 	public function requirePerm($class, $perm, $instance = 0) {
 
-		$request = HttpRequest::instance();
+		$request = \Gino\Http\Request::instance();
 		if(!$request->user->hasPerm($class, $perm, $instance)) {
 			
-            if($this->session->user_id) {
+            if($this->_session->user_id) {
                 throw Exception403();
             }
 			else

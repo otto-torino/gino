@@ -1,16 +1,17 @@
 <?php
 /**
- * @file class.HttpResponse.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponse
+ * @file class.Response.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\Response
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
-use \Gino\HttpRequest;
+use \Gino\Http\Request;
+use \Gino\Loader;
 use \Gino\Logger;
 use \Gino\OutputCache;
 use \Gino\Document;
@@ -19,14 +20,14 @@ use \Gino\Document;
  * @brief Wrapper di una risposta HTTP
  *
  * Tutti i metodi dei @ref \Gino\Controller eseguiti da @ref \Gino\Router in risposta ad un url,
- * ritornano un oggetto HttpResponse o una sua sottoclasse. Questo oggetto si preoccupa di
+ * ritornano un oggetto \Gino\Http\Response o una sua sottoclasse. Questo oggetto si preoccupa di
  * settare gli header e di inviare il contenuto della risposta HTTP
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponse {
+class Response {
 
     protected $_request,
               $_content,
@@ -34,7 +35,8 @@ class HttpResponse {
               $_status_code,
               $_status_text,
               $_content_type,
-              $_encoding;
+              $_encoding,
+              $_headers;
 
     /**
      * @brief Costruttore
@@ -42,11 +44,11 @@ class HttpResponse {
      * @param array $kwargs array associativo di argomenti
      *                       - wrap_in_document: bool, default TRUE. Se vero il contenuto passato viene inserito all'interno del
      *                                           documento (@ref \Gino\Document)
-     * @return istanza di \Gino\HttpResponse
+     * @return istanza di \Gino\Http\Response
      */
     function __construct($content, array $kwargs = array()) {
 
-        $this->_request = HttpRequest::instance();
+        $this->_request = Request::instance();
 
         $this->_wrap_in_document = isset($kwargs['wrap_in_document']) ? $kwargs['wrap_in_document'] : TRUE;
 
@@ -56,6 +58,7 @@ class HttpResponse {
         $this->_version = 'HTTP/1.0' != $this->_request->META['SERVER_PROTOCOL'] ? '1.1' : '1.0';
         $this->_content_type = 'text/html';
         $this->_encoding = 'utf-8';
+        $this->_headers = array();
     }
 
     /**
@@ -106,6 +109,15 @@ class HttpResponse {
     }
 
     /**
+     * @bief Setter di headers ulteriori
+     * @param array headers array associativo di headers nella forma chiave=>valore
+     * @return void
+     */
+    public function setHeaders($headers) {
+        $this->_headers = $headers;
+    }
+
+    /**
      * @brief Invia la risposta HTTP
      * @return void
      */
@@ -124,6 +136,10 @@ class HttpResponse {
         header(sprintf('HTTP/%s %s %s', $this->_version, $this->_status_code, $this->_status_text), true, $this->_status_code);
         // content type, encoding
         header(sprintf('Content-Type: %s; charset=%s', $this->_content_type, $this->_encoding), false, $this->_status_code);
+
+        foreach($this->_headers as $key => $value) {
+            header(sprintf('%s: %s', $key, $value));
+        }
 
     }
 

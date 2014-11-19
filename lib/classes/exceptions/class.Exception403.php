@@ -1,6 +1,6 @@
 <?php
 
-namespace Gino;
+namespace Gino\Exception;
 
 class Exception403 extends \Exception {
 

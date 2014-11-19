@@ -10,9 +10,9 @@
 namespace Gino\App\Sysconf;
 
 use \Gino\View;
-use \Gino\HttpResponseView;
-use \Gino\HttpRedirect;
-use \Gino\HttpRequest;
+use \Gino\Http\ResponseView;
+use \Gino\Http\Redirect;
+use \Gino\Http\Request;
 
 require_once('class.Conf.php');
 
@@ -57,7 +57,7 @@ class sysconf extends \Gino\Controller {
    * @brief Amministrazione modulo
    * @return \Gino\HttpResponse backend di amministrazione del modulo
    */
-  public function manageSysconf(HttpRequest $request) {
+  public function manageSysconf(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
 
@@ -129,7 +129,7 @@ class sysconf extends \Gino\Controller {
     $view = new View();
     $view->setViewTpl('section');
 
-    return new HttpResponseView($view, $dict);
+    return new ResponseView($view, $dict);
 
   }
 

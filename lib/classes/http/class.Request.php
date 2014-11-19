@@ -1,14 +1,14 @@
 <?php
 /**
- * @file class.HttpRequest.php
- * @brief Contiene la definizione ed implementazione della classe HttpRequest
+ * @file class.Request.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\Request
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
 use \Gino\Loader;
 use \Gino\Singleton;
@@ -25,7 +25,7 @@ use \Gino\App\Auth\User;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpRequest extends Singleton {
+class Request extends Singleton {
 
     public $GET,
            $POST,
@@ -45,7 +45,7 @@ class HttpRequest extends Singleton {
     /**
      * @brief Costruttore
      * @description Il costruttore è protetto in modo da garantire il pattern Singleton
-     * @return nuova istanza di HttpRequest
+     * @return nuova istanza di \Gino\Http\Request
      */
     protected function __construct() {
 
@@ -85,22 +85,6 @@ class HttpRequest extends Singleton {
         $this->user = new User($this->session->user_id ? $this->session->user_id : null);
 
     }
-  /**
-   * Url assoluto/relativo alla ROOT del sito
-   * @param bool $abs ritorna il percorso assoluto se settato a vero
-   */
-  public function getRootUrl($abs = true) {
-
-    $root_url = SITE_WWW;
-    if(substr($root_url, -1) !== '/') {
-      $root_url .= '/';
-    }
-    if($abs) {
-      $root_url = "http://".$_SERVER['HTTP_HOST'].$root_url;
-    }
-
-    return $root_url;
-  }
 
     /**
      * @brief Connessione sicura https

@@ -936,7 +936,7 @@ class auth extends \Gino\Controller {
 	 * @see Access::Authentication()
 	 * @return string
 	 */
-	public function login(){
+	public function login(\Gino\Http\Request $request){
 
 		$link_interface = $_SERVER['REQUEST_URI'];	// /git/gino/index.php?evt[auth-login]
 
@@ -947,7 +947,7 @@ class auth extends \Gino\Controller {
             : ((isset($_SERVER['HTTP_REFERER']) and $_SERVER['HTTP_REFERER'])
                 ? $_SERVER['HTTP_REFERER']
                 : $this->_home);
-		$this->_registry->session->auth_redirect = $referer;
+		$request->session->auth_redirect = $referer;
 		
 		if(isset($_POST['submit_login']))
 		{
@@ -971,6 +971,6 @@ class auth extends \Gino\Controller {
 			'form' => $form,
 			'title' => _('Login')
 		);
-		return new HttpResponse($view->render($dict));
+		return new \Gino\Http\Response($view->render($dict));
 	}
 }

@@ -42,19 +42,19 @@ class Core {
         ));
 
         Loader::import('class/exceptions', array(
-            '\Gino\Exception404',
-            '\Gino\Exception403',
-            '\Gino\Exception500',
+            '\Gino\Exception\Exception404',
+            '\Gino\Exception\Exception403',
+            '\Gino\Exception\Exception500',
         ));
 
         Loader::import('class/http', array(
-            '\Gino\HttpRequest',
-            '\Gino\HttpResponse',
-            '\Gino\HttpRedirect',
-            '\Gino\HttpResponseView',
-            '\Gino\HttpResponseNotFound',
-            '\Gino\HttpResponseForbidden',
-            '\Gino\HttpResponseServerError'
+            '\Gino\Http\Request',
+            '\Gino\Http\Response',
+            '\Gino\Http\Redirect',
+            '\Gino\Http\ResponseView',
+            '\Gino\Http\ResponseNotFound',
+            '\Gino\Http\ResponseForbidden',
+            '\Gino\Http\ResponseServerError'
         ));
 
         Loader::import('class/mvc', array(
@@ -99,7 +99,7 @@ class Core {
         // check authentication
         $this->_registry->access->authentication();
         // set the request object
-        $this->_registry->request = HttpRequest::instance();
+        $this->_registry->request = \Gino\Http\Request::instance();
         // set the router object
         $this->_registry->router = Router::instance();
     }
@@ -114,7 +114,6 @@ class Core {
         $this->_registry = Loader::singleton('\Gino\Registry');
 
         // core
-        $this->_registry->pub = Loader::load('Pub');
         $this->_registry->access = Loader::load('Access');
         $this->_registry->db = Loader::singleton('\Gino\Db');
         $this->_registry->plink = Loader::load('Link');
@@ -178,11 +177,11 @@ class Core {
         $response = $this->_registry->router->route();
 
         // risposta valida
-        if(is_a($response, "\Gino\HttpResponse")) {
+        if(is_a($response, "\Gino\Http\Response")) {
             $response();
         }
         else {
-            $response = new HttpResponseNotFound();
+            $response = new \Gino\Http\ResponseNotFound();
             $response();
         }
 

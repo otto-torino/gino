@@ -1,45 +1,45 @@
 <?php
 /**
- * @file class.HttpResponseNotFound.php
- * @brief Contiene la definizione ed implementazione della classe HttpResponseNotFound
+ * @file class.ResponseServerError.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseServerError
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino;
+namespace Gino\Http;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte a seguito di errori 404
+ * @brief Subclass di \Gino\HttpResponse per gestire risposte a seguito di errori interni (code 500)
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class HttpResponseNotFound extends HttpResponse {
+class ResponseServerError extends Response {
 
     /**
      * @brief Costruttore
      * @param array $kwargs
-     * @return istanza di \Gino\HttpResponseNotFound
+     * @return istanza di \Gino\Http\ResponseServerError
      */
     function __construct(array $kwargs = array()) {
 
         parent::__construct('', $kwargs);
 
-        $this->setStatus(404, 'Not Found');
+        $this->setStatus(500, 'Internal Server Error');
 
     }
 
     /**
      * @brief Corpo della risposta HTTP
-     * @description Mostra la pagina 404 di gino
+     * @description Mostra la pagina 500 di gino
      * @return void
      */
     protected function sendContent() {
 
-        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page404()));
+        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page500()));
         $buffer = $document->render();
 
         ob_start();
