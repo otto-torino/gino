@@ -10,9 +10,11 @@
 namespace Gino\App\Auth;
 
 use \Gino\Loader;
+use \Gino\View;
 use \Gino\Http\Response;
 use \Gino\Http\ResponseView;
 use \Gino\Http\ResponseAjax;
+use \Gino\Http\Redirect;
 
 require_once('class.User.php');
 require_once('class.Group.php');
@@ -95,29 +97,21 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Elenco dei metodi che possono essere richiamati dal menu e dal template
-     * 
+     * @brief Elenco dei metodi che possono essere richiamati dal menu e dal template
      * @return array
      */
     public static function outputFunctions() {
 
         $list = array(
             'login' => array('label'=>_("Box di login"), 'permissions'=>array())
-            /*"blockList" => array("label"=>_("Elenco utenti"), "role"=>'1'),
-            "viewList" => array("label"=>_("Elenco utenti e schede informazioni"), "role"=>'1'),
-            "userCard" => array("label"=>_("Scheda utente connesso"), "role"=>'3'),
-            "registration" => array("label"=>_("Form di registrazione autonoma"), "role"=>'2'),
-            "personal" => array("label"=>_("Modifica dati personali"), "role"=>'3')*/
         );
 
         return $list;
     }
 
     /**
-     * Restituisce alcune proprietà della classe
-     *
-     * @static
-     * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+     * @brief Restituisce alcune proprietà della classe
+     * @return array associativo contenente le tabelle, viste e struttura directory contenuti
      */
     public static function getClassElements() {
 
@@ -143,32 +137,32 @@ class auth extends \Gino\Controller {
         );
     }
 
-
     /**
-     * Percorso base della directory dei contenuti
+     * @brief Percorso base della directory dei contenuti
      *
      * @param string $path tipo di percorso (default abs)
      *   - abs, assoluto
      *   - rel, relativo
      * @return string
      */
-    public function getBasePath($path='abs'){
+    public function getBasePath($path = 'abs'){
 
         $directory = '';
 
-        if($path == 'abs')
+        if($path == 'abs') {
             $directory = $this->_data_dir.OS;
-        elseif($path == 'rel')
+        }
+        elseif($path == 'rel') {
             $directory = $this->_data_www.'/';
+        }
 
         return $directory;
     }
 
     /**
-     * Percorso della directory dei contenuti (una directory per ogni utente)
-     * 
+     * @brief Percorso della directory dei contenuti (una directory per ogni utente)
      * @param integer $id valore ID dell'utente
-     * @return string
+     * @return path directory
      */
     public function getAddPath($id) {
 
@@ -226,7 +220,7 @@ class auth extends \Gino\Controller {
         else {
 
             if($op == 'jug')
-                $backend = $this->joinUserGroup();
+                $backend = $this->joinUserGroup($request);
             elseif($op == 'jup')
                 $backend = $this->joinUserPermission();
             else
@@ -535,9 +529,7 @@ class auth extends \Gino\Controller {
     private function returnJoinLink($block, $option, $ref_id) {
 
         $link_interface = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=$block&op=$option&ref=$ref_id";
-
-        header("Location: "."http://".$_SERVER['HTTP_HOST'].$link_interface);
-        exit();
+        return new Redirect("http://".$_SERVER['HTTP_HOST'].$link_interface);
     }
 
     /**
@@ -753,8 +745,9 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Associazione utente-gruppi
+     * @brief Associazione utente-gruppi
      * 
+     * @param \Gino\Http\Request $request
      * @see User::getGroups()
      * @see formGroup()
      * @return string
@@ -762,17 +755,17 @@ class auth extends \Gino\Controller {
      * Parametri GET: \n
      *   - ref (integer), valore ID dell'utente
      */
-    private function joinUserGroup() {
+    private function joinUserGroup(\Gino\Http\Request $request) {
 
         // PERM
 
-        $id = \Gino\cleanVar($_GET, 'ref', 'int', '');
+        $id = \Gino\cleanVar($request->GET, 'ref', 'int', '');
         if(!$id) return null;
 
         $obj_user = new User($id);
         $checked = $obj_user->getGroups();
 
-        $gform = \Gino\Loader::load('Form', array('j_usergroup', 'post', false));
+        $gform = Loader::load('Form', array('j_usergroup', 'post', false));
 
         $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]';
 
@@ -788,7 +781,7 @@ class auth extends \Gino\Controller {
             'content' => $content
         );
 
-        $view = new \Gino\View();
+        $view = new View();
         $view->setViewTpl('section');
 
         return $view->render($dict);
@@ -844,7 +837,7 @@ class auth extends \Gino\Controller {
             $this->_db->delete(Group::$table_group_user, "user_id='$id'");
         }
 
-        $this->returnJoinLink('user', 'jug', $id);
+        return $this->returnJoinLink('user', 'jug', $id);
     }
 
     /**
@@ -928,7 +921,7 @@ class auth extends \Gino\Controller {
             }
         }
 
-        $content = $obj_form->multipleCheckbox('group[]', $a_checked, $items, '', null);
+        $content = $obj_form->multipleCheckbox('group[]', $a_checked, $items, _('Gruppi'), null);
 
         return $content;
     }

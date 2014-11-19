@@ -27,406 +27,406 @@ class User extends \Gino\Model {
    * @param integer $id valore ID del record
    * @param object $instance istanza del controller
    */
-	public static $table = TBL_USER;
-	public static $table_more = TBL_USER_ADD;
-	
-	private static $extension_media;
-	
-	/**
-	 * Costruttore
-	 * 
-	 * @param integer $id valore ID del record
-	 * @param object $instance istanza del controller
-	 */
-	function __construct($id) {
+    public static $table = TBL_USER;
+    public static $table_more = TBL_USER_ADD;
 
-		$this->_fields_label = array(
-			'firstname' => _('Nome'), 
-			'lastname' => _('Cognome'), 
-			'company' => _('Società'), 
-			'phone' => _("Telefono"), 
-			'email' => _("Email"), 
-			'username' => _("Username"), 
-			'userpwd' => _('Password'), 
-			'is_admin' => _('Super-amministratore'),
-			'address' => _("Indirizzo"), 
-			'cap' => _("CAP"), 
-			'city' => _("Città"), 
-			'nation' => _('Nazione'), 
-			'text' => _("Informazioni"), 
-			'photo' => _("Foto"), 
-			'publication' => _('Pubblicazione dati'), 
-			'active' => _('Attivo'), 
-			'group' => _("Gruppi")
-		);
-		
-		$this->_tbl_data = self::$table;
-		
-		require_once 'class_auth.php';
-		
-		$controller = new auth();
-		$this->_controller = $controller;
-		
-		$registry = \Gino\registry::instance();
-		self::$extension_media = \Gino\enabledPng() ? array('jpg') : array('png', 'jpg');
-		
-		parent::__construct($id);
-	}
+    private static $extension_media;
 
-	function __toString() {
-		return $this->lastname.' '.$this->firstname;
-	}
-	
-	public function getModelLabel() {
-		return _('utente');
-	}
+    /**
+     * Costruttore
+     * 
+     * @param integer $id valore ID del record
+     * @param object $instance istanza del controller
+     */
+    function __construct($id) {
 
-	/*
-	 * Sovrascrive la struttura di default
-	 * 
-	 * @see Model::structure()
-	 * @param integer $id
-	 * @return array
-	 */
-	 public function structure($id) {
+        $this->_fields_label = array(
+            'firstname' => _('Nome'), 
+            'lastname' => _('Cognome'), 
+            'company' => _('Società'), 
+            'phone' => _("Telefono"), 
+            'email' => _("Email"), 
+            'username' => _("Username"), 
+            'userpwd' => _('Password'), 
+            'is_admin' => _('Super-amministratore'),
+            'address' => _("Indirizzo"), 
+            'cap' => _("CAP"), 
+            'city' => _("Città"), 
+            'nation' => _('Nazione'), 
+            'text' => _("Informazioni"), 
+            'photo' => _("Foto"), 
+            'publication' => _('Pubblicazione dati'), 
+            'active' => _('Attivo'), 
+            'group' => _("Gruppi")
+        );
 
-		$structure = parent::structure($id);
+        $this->_tbl_data = self::$table;
 
-		$structure['email'] = new \Gino\EmailField(array(
-			'name'=>'email', 
-			'model'=>$this,
-			'required'=>true,
-			'trnsl'=>false,
-		));
-		
-		$structure['is_admin'] = new \Gino\BooleanField(array(
-			'name'=>'is_admin', 
-			'model'=>$this,
-			'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')), 
-			'default'=>0,
-		));
-		
-		$nations = array();
-		$rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
-		foreach($rows as $row) {
-			$nations[$row['id']] = \Gino\htmlChars($row[$this->_lng_nav]);
-		}
+        require_once 'class_auth.php';
 
-		$structure['nation'] = new \Gino\EnumField(array(
-			'name'=>'nation', 
-			'model'=>$this,
-			'widget'=>'select',
-			'lenght'=>4, 
-			'enum'=>$nations, 
-		));
-		
-		$base_path = $this->_controller->getBasePath();
-		$add_path = $this->_controller->getAddPath($this->id);
-		
-		$structure['photo'] = new \Gino\ImageField(array(
-			'name'=>'photo', 
-			'model'=>$this,
-			'required'=>false, 
-			'extensions'=>self::$extension_media, 
-			'path'=>$base_path, 
-			//'add_path'=>$add_path, 
-		));
+        $controller = new auth();
+        $this->_controller = $controller;
 
-		$structure['publication'] = new \Gino\BooleanField(array(
-			'name'=>'publication', 
-			'model'=>$this,
-			'required'=>false, 
-			'enum'=>array(1=>_('si'), 0=>_('no')), 
-			'default'=>0,
-		));
-		
-		$structure['active'] = new \Gino\BooleanField(array(
-			'name'=>'active', 
-			'model'=>$this,
-			'required'=>true, 
-			'enum'=>array(1=>_('si'), 0=>_('no')), 
-			'default'=>0,
-		));
-		
-		$structure['group'] = new \Gino\ManyToManyField(array(
-			'name'=>'group', 
-			'model'=>$this,
-			'required'=>false, 
-			'm2m'=>'\Gino\App\Auth\Group', 
-			'm2m_where'=>null, 
-			'm2m_order'=>'name ASC', 
-			'join_table'=>Group::$table_group_user,
+        $registry = \Gino\registry::instance();
+        self::$extension_media = \Gino\enabledPng() ? array('jpg') : array('png', 'jpg');
+
+        parent::__construct($id);
+    }
+
+    function __toString() {
+        return $this->lastname.' '.$this->firstname;
+    }
+
+    public function getModelLabel() {
+        return _('utente');
+    }
+
+    /*
+     * Sovrascrive la struttura di default
+     * 
+     * @see Model::structure()
+     * @param integer $id
+     * @return array
+     */
+     public function structure($id) {
+
+        $structure = parent::structure($id);
+
+        $structure['email'] = new \Gino\EmailField(array(
+            'name'=>'email', 
+            'model'=>$this,
+            'required'=>true,
+            'trnsl'=>false,
+        ));
+
+        $structure['is_admin'] = new \Gino\BooleanField(array(
+            'name'=>'is_admin', 
+            'model'=>$this,
+            'required'=>true,
+            'enum'=>array(1 => _('si'), 0 => _('no')), 
+            'default'=>0,
+        ));
+
+        $nations = array();
+        $rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
+        foreach($rows as $row) {
+            $nations[$row['id']] = \Gino\htmlChars($row[$this->_lng_nav]);
+        }
+
+        $structure['nation'] = new \Gino\EnumField(array(
+            'name'=>'nation', 
+            'model'=>$this,
+            'widget'=>'select',
+            'lenght'=>4, 
+            'enum'=>$nations, 
+        ));
+
+        $base_path = $this->_controller->getBasePath();
+        $add_path = $this->_controller->getAddPath($this->id);
+
+        $structure['photo'] = new \Gino\ImageField(array(
+            'name'=>'photo', 
+            'model'=>$this,
+            'required'=>false, 
+            'extensions'=>self::$extension_media, 
+            'path'=>$base_path, 
+            //'add_path'=>$add_path, 
+        ));
+
+        $structure['publication'] = new \Gino\BooleanField(array(
+            'name'=>'publication', 
+            'model'=>$this,
+            'required'=>false, 
+            'enum'=>array(1=>_('si'), 0=>_('no')), 
+            'default'=>0,
+        ));
+
+        $structure['active'] = new \Gino\BooleanField(array(
+            'name'=>'active', 
+            'model'=>$this,
+            'required'=>true, 
+            'enum'=>array(1=>_('si'), 0=>_('no')), 
+            'default'=>0,
+        ));
+
+        $structure['group'] = new \Gino\ManyToManyField(array(
+            'name'=>'group', 
+            'model'=>$this,
+            'required'=>false, 
+            'm2m'=>'\Gino\App\Auth\Group', 
+            'm2m_where'=>null, 
+            'm2m_order'=>'name ASC', 
+            'join_table'=>Group::$table_group_user,
             'add_related' => true,
             'add_related_url' => $this->_home.'?evt['.get_name_class($this->_controller).'-manageAuth]&block=group&insert=1',
-		));
-		
-		return $structure;
-	 }
-	 
-	 /**
-	  * Form per cambiare la password
-	  * 
-	  * @param array $options
-	  *   array associativo di opzioni
-	  *   - @b form_action (string): indirizzo del form action
-	  *   - @b rules (string): descrizione delle regole alle quali è sottoposta la password
-	  *   - @b maxlength (integer): numero massimo di caratteri
-	  * @return string
-	  */
-	 public function formPassword($options=array()) {
-	 	
-	 	$form_action = \Gino\gOpt('form_action', $options, null);
-	 	$rules = \Gino\gOpt('rules', $options, null);
-	 	$maxlength = \Gino\gOpt('maxlength', $options, null);
-	 	
-	 	$gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
-	 	
-		$gform->load('pwdform');
+        ));
 
-		$required = 'userpwd,check_userpwd';
-		
-		$buffer = $gform->open($form_action, '', $required);
-		$buffer .= $gform->hidden('id', $this->id);
+        return $structure;
+     }
 
-		$buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
-		$buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
+     /**
+      * Form per cambiare la password
+      * 
+      * @param array $options
+      *   array associativo di opzioni
+      *   - @b form_action (string): indirizzo del form action
+      *   - @b rules (string): descrizione delle regole alle quali è sottoposta la password
+      *   - @b maxlength (integer): numero massimo di caratteri
+      * @return string
+      */
+     public function formPassword($options=array()) {
 
-		$buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
+         $form_action = \Gino\gOpt('form_action', $options, null);
+         $rules = \Gino\gOpt('rules', $options, null);
+         $maxlength = \Gino\gOpt('maxlength', $options, null);
 
-		$buffer .= $gform->close();
-		
-		return $buffer;
-	}
-	
-	/**
-	 * Salva la nuova password
-	 * 
-	 * @see checkPassword()
-	 * @see setPassword()
-	 * @param array $options
-	 *   array associativo di opzioni (per il metodo checkPassword())
-	 *   - @b pwd_length_min (integer): numero minimo di caratteri della password
-	 *   - @b pwd_length_max (integer): numero massimo di caratteri della password
-	 *   - @b pwd_numeric_number (integer): numero di caratteri numerici da inserire nella password
-	 * @return boolean
-	 */
-	public function savePassword($options=array()) {
-	 	
-	 	$gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
-	 	
-		$gform->save('pwdform');
-		$req_error = $gform->arequired();
-		
-		if($req_error > 0) 
-			return array('error'=>1);
+         $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 
-		$password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
-	 	$options['password'] = $password;
-	 	
-		$check_password = self::checkPassword($options);
-		
-		if(is_array($check_password))
-			return $check_password;
-		
-		$password = self::setPassword($password);
-		
-		$result = $this->_db->update(array('userpwd'=>$password), self::$table, "id='".$this->id."'");
-		
-		return $result;
-	 }
-	 
-	 /**
-	  * Imposta la password (dal form di inserimento utente)
-	  * 
-	  * @see generatePassword()
-	  * @see pub::cryptMethod()
-	  * @param string $password
-	  * @param array $options
-	  *   array associativo di opzioni
-	  *   - @b aut_password (boolean): la password è generata dal sistema (default false)
-	  * @return string (password) or array (error)
-	  */
-	 public static function setPassword($password, $options=array()) {
-	 	
-	 	$aut_password = \Gino\gOpt('aut_password', $options, false);
-		
-		if(is_null($password) && $aut_password)
-		{
-			$password = self::generatePassword($options);
-		}
-		else
-		{
-			$registry = \Gino\registry::instance();
-    		$crypt_method = $registry->pub->getConf('password_crypt');
-    		
-    		$password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $password;
-		}
-		return $password;
-	 }
-	 
-	/**
-	 * Verifica la conformità di una password
-	 * 
-	 * @param array $options
-	 *   array associativo di opzioni
-	 *   - @b password (string): valore della password (se non indicato viene recuperato il valore dal POST)
-	 *   - @b check_password (string): valore di controllo della password (se non indicato viene recuperato il valore dal POST)
-	 *   - @b pwd_length_min (integer): numero minimo di caratteri della password
-	 *   - @b pwd_length_max (integer): numero massimo di caratteri della password
-	 *   - @b pwd_numeric_number (integer): numero di caratteri numerici da inserire nella password
-	 * @return array (error) or true
-	 * 
-	 * Parametri POST: \n
-	 *   - userpwd (string)
-	 *   - check_userpwd (string)
-	 * 
-	 * Se è presente l'input form @a check_userpwd viene controllata la corrispondenza con l'input form @a userpwd.
-	 */
-	public static function checkPassword($options=array()){
-		
-		$password = \Gino\gOpt('password', $options, null);
-		$password_check = \Gino\gOpt('password_check', $options, null);
-		$pwd_length_min = \Gino\gOpt('pwd_length_min', $options, null);
-		$pwd_length_max = \Gino\gOpt('pwd_length_max', $options, null);
-		$pwd_numeric_number = \Gino\gOpt('pwd_numeric_number', $options, null);
-		
-		if(is_null($password)) $password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
-		if(is_null($password_check)) $password_check = \Gino\cleanVar($_POST, 'check_userpwd', 'string', '');
-		
-		if($password_check && $password != $password_check)
-			return array('error'=>6);
-		
-		$regex = '';
-		$base = "[0-9]{1}.*";
-		if($pwd_numeric_number > 0)
-		{
-			$regex .= '/^.*';
-			
-			for($i=0; $i<$pwd_numeric_number; $i++)
-			{
-				$regex .= $base;
-			}
-			$regex .= '$/';
-			
-			$check = true;
-		}
-		else $check = false;
-		
-		if($check)
-		{
-			if((strlen($password) < $pwd_length_min OR strlen($password) > $pwd_length_max) || !preg_match($regex, $password))
-				return array('error'=>19);
-		}
-		else
-		{
-			if(strlen($password) < $pwd_length_min OR strlen($password) > $pwd_length_max)
-				return array('error'=>19);
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Genera una password (random)
-	 * 
-	 * @param array $options
-	 *   array associativo di opzioni
-	 *   - @b aut_password_length (integer): numero di caratteri della password automatica
-	 * @return string
-	 */
-	public static function generatePassword($options=array()){
+        $gform->load('pwdform');
 
-		$password_length = \Gino\gOpt('aut_password_length', $options, null);
-		
-		if(!$password_length) return null;
-		
-		//set alphabet arrays
-		$char_alpha_lower = array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-		$char_alpha_upper = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
-		$char_numeric  = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
-		$char_special = array('_', '!', '?', '@');
-		// end
+        $required = 'userpwd,check_userpwd';
 
-		$alpha_pwd = array_merge($char_alpha_lower, $char_alpha_upper);
-		$other_pwd = array_merge($char_numeric, $char_special);
-		$name_pwd = array('alpha_pwd', 'other_pwd');
+        $buffer = $gform->open($form_action, '', $required);
+        $buffer .= $gform->hidden('id', $this->id);
 
-		$password = '';
+        $buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
+        $buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
 
-		for($i = 0; $i < $password_length; $i++)
-		{
-			// scelta random tra $alpha_pwd e $other_pwd (50%)
-			$key_choice = mt_rand(0, sizeof($name_pwd)-1);
-			$choice = $name_pwd[$key_choice];
-			$choice_array = $$choice;
+        $buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
 
-			$key_rand = mt_rand(0, sizeof($choice_array)-1);
-			$char = $choice_array[$key_rand];
+        $buffer .= $gform->close();
 
-			$password .= $char;
-		}
+        return $buffer;
+    }
 
-		return $password;
-	}
-	
-	/**
-	 * Verifica la conformità e validità di un indirizzo email
-	 * 
-	 * @see function checkEmail()
-	 * @param integer $id valore ID del record sul quale non si effettua il controllo (per le operazioni di modifica)
-	 * @return array (error) or true
-	 * 
-	 * Parametri POST: \n
-	 *   - email (string)
-	 *   - check_email (string)
-	 */
-	public static function checkEmail($id=null){
-		
-		$db = \Gino\db::instance();
-		
-		$email = \Gino\cleanVar($_POST, 'email', 'string', '');
-		$check_email = \Gino\cleanVar($_POST, 'check_email', 'string', '');
-		
-		if($email && !\Gino\checkEmail($email, true))
-			return array('error'=>7);
-		
-		if($db->columnHasValue(self::$table, 'email', $email, array('except_id'=>$id)))
-			return array('error'=>20);
-		
-		if($check_email && $email != $check_email)
-			return array('error'=>25);
-		
-		return true;
-	}
-	
-	/**
-	 * Verifica l'unicità dello username
-	 * 
-	 * @param array $options
-	 *   array associativo di opzioni
-	 *   - @b username_as_email (boolean): indica se come username viene utilizzata l'email (default false)
-	 * @return array (error) or true
-	 * 
-	 * Parametri POST: \n
-	 *   - username (string)
-	 *   - email (string)
-	 */
-	public static function checkUsername($options) {
-		
-		$username_as_email = \Gino\gOpt('username_as_email', $options, false);
-		
-		$db = \Gino\db::instance();
-		
-		$input_name = $username_as_email ? 'email' : 'username';
-		
-		$username = \Gino\cleanVar($_POST, $input_name, 'string', '');
-		
-		if($db->columnHasValue(self::$table, 'username', $username))
-			return array('error'=>8);
-		
-		return true;
-	}
+    /**
+     * Salva la nuova password
+     * 
+     * @see checkPassword()
+     * @see setPassword()
+     * @param array $options
+     *   array associativo di opzioni (per il metodo checkPassword())
+     *   - @b pwd_length_min (integer): numero minimo di caratteri della password
+     *   - @b pwd_length_max (integer): numero massimo di caratteri della password
+     *   - @b pwd_numeric_number (integer): numero di caratteri numerici da inserire nella password
+     * @return boolean
+     */
+    public function savePassword($options=array()) {
+
+         $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
+
+        $gform->save('pwdform');
+        $req_error = $gform->arequired();
+
+        if($req_error > 0) 
+            return array('error'=>1);
+
+        $password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
+         $options['password'] = $password;
+
+        $check_password = self::checkPassword($options);
+
+        if(is_array($check_password))
+            return $check_password;
+
+        $password = self::setPassword($password);
+
+        $result = $this->_db->update(array('userpwd'=>$password), self::$table, "id='".$this->id."'");
+
+        return $result;
+     }
+
+     /**
+      * Imposta la password (dal form di inserimento utente)
+      * 
+      * @see generatePassword()
+      * @see pub::cryptMethod()
+      * @param string $password
+      * @param array $options
+      *   array associativo di opzioni
+      *   - @b aut_password (boolean): la password è generata dal sistema (default false)
+      * @return string (password) or array (error)
+      */
+     public static function setPassword($password, $options=array()) {
+
+         $aut_password = \Gino\gOpt('aut_password', $options, false);
+
+        if(is_null($password) && $aut_password)
+        {
+            $password = self::generatePassword($options);
+        }
+        else
+        {
+            $registry = \Gino\registry::instance();
+            $crypt_method = $registry->pub->getConf('password_crypt');
+
+            $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $password;
+        }
+        return $password;
+     }
+
+    /**
+     * Verifica la conformità di una password
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b password (string): valore della password (se non indicato viene recuperato il valore dal POST)
+     *   - @b check_password (string): valore di controllo della password (se non indicato viene recuperato il valore dal POST)
+     *   - @b pwd_length_min (integer): numero minimo di caratteri della password
+     *   - @b pwd_length_max (integer): numero massimo di caratteri della password
+     *   - @b pwd_numeric_number (integer): numero di caratteri numerici da inserire nella password
+     * @return array (error) or true
+     * 
+     * Parametri POST: \n
+     *   - userpwd (string)
+     *   - check_userpwd (string)
+     * 
+     * Se è presente l'input form @a check_userpwd viene controllata la corrispondenza con l'input form @a userpwd.
+     */
+    public static function checkPassword($options=array()){
+
+        $password = \Gino\gOpt('password', $options, null);
+        $password_check = \Gino\gOpt('password_check', $options, null);
+        $pwd_length_min = \Gino\gOpt('pwd_length_min', $options, null);
+        $pwd_length_max = \Gino\gOpt('pwd_length_max', $options, null);
+        $pwd_numeric_number = \Gino\gOpt('pwd_numeric_number', $options, null);
+
+        if(is_null($password)) $password = \Gino\cleanVar($_POST, 'userpwd', 'string', '');
+        if(is_null($password_check)) $password_check = \Gino\cleanVar($_POST, 'check_userpwd', 'string', '');
+
+        if($password_check && $password != $password_check)
+            return array('error'=>6);
+
+        $regex = '';
+        $base = "[0-9]{1}.*";
+        if($pwd_numeric_number > 0)
+        {
+            $regex .= '/^.*';
+
+            for($i=0; $i<$pwd_numeric_number; $i++)
+            {
+                $regex .= $base;
+            }
+            $regex .= '$/';
+
+            $check = true;
+        }
+        else $check = false;
+
+        if($check)
+        {
+            if((strlen($password) < $pwd_length_min OR strlen($password) > $pwd_length_max) || !preg_match($regex, $password))
+                return array('error'=>19);
+        }
+        else
+        {
+            if(strlen($password) < $pwd_length_min OR strlen($password) > $pwd_length_max)
+                return array('error'=>19);
+        }
+
+        return true;
+    }
+
+    /**
+     * Genera una password (random)
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b aut_password_length (integer): numero di caratteri della password automatica
+     * @return string
+     */
+    public static function generatePassword($options=array()){
+
+        $password_length = \Gino\gOpt('aut_password_length', $options, null);
+
+        if(!$password_length) return null;
+
+        //set alphabet arrays
+        $char_alpha_lower = array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+        $char_alpha_upper = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+        $char_numeric  = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+        $char_special = array('_', '!', '?', '@');
+        // end
+
+        $alpha_pwd = array_merge($char_alpha_lower, $char_alpha_upper);
+        $other_pwd = array_merge($char_numeric, $char_special);
+        $name_pwd = array('alpha_pwd', 'other_pwd');
+
+        $password = '';
+
+        for($i = 0; $i < $password_length; $i++)
+        {
+            // scelta random tra $alpha_pwd e $other_pwd (50%)
+            $key_choice = mt_rand(0, sizeof($name_pwd)-1);
+            $choice = $name_pwd[$key_choice];
+            $choice_array = $$choice;
+
+            $key_rand = mt_rand(0, sizeof($choice_array)-1);
+            $char = $choice_array[$key_rand];
+
+            $password .= $char;
+        }
+
+        return $password;
+    }
+
+    /**
+     * Verifica la conformità e validità di un indirizzo email
+     * 
+     * @see function checkEmail()
+     * @param integer $id valore ID del record sul quale non si effettua il controllo (per le operazioni di modifica)
+     * @return array (error) or true
+     * 
+     * Parametri POST: \n
+     *   - email (string)
+     *   - check_email (string)
+     */
+    public static function checkEmail($id=null){
+
+        $db = \Gino\db::instance();
+
+        $email = \Gino\cleanVar($_POST, 'email', 'string', '');
+        $check_email = \Gino\cleanVar($_POST, 'check_email', 'string', '');
+
+        if($email && !\Gino\checkEmail($email, true))
+            return array('error'=>7);
+
+        if($db->columnHasValue(self::$table, 'email', $email, array('except_id'=>$id)))
+            return array('error'=>20);
+
+        if($check_email && $email != $check_email)
+            return array('error'=>25);
+
+        return true;
+    }
+
+    /**
+     * Verifica l'unicità dello username
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b username_as_email (boolean): indica se come username viene utilizzata l'email (default false)
+     * @return array (error) or true
+     * 
+     * Parametri POST: \n
+     *   - username (string)
+     *   - email (string)
+     */
+    public static function checkUsername($options) {
+
+        $username_as_email = \Gino\gOpt('username_as_email', $options, false);
+
+        $db = \Gino\db::instance();
+
+        $input_name = $username_as_email ? 'email' : 'username';
+
+        $username = \Gino\cleanVar($_POST, $input_name, 'string', '');
+
+        if($db->columnHasValue(self::$table, 'username', $username))
+            return array('error'=>8);
+
+        return true;
+    }
 
   /**
    * Restituisce l'utente dati i valori username e password
@@ -443,9 +443,9 @@ class User extends \Gino\Model {
 
     $registry = \Gino\Registry::instance();
     $crypt_method = $registry->sysconf->password_crypt;
-    
+
     $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $pwd;
-    
+
     $rows = $db->select('id', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
     if($rows and count($rows) == 1) {
       $user = new User($rows[0]['id']);
@@ -471,63 +471,63 @@ class User extends \Gino\Model {
     return $res;
   }
 
-	/**
-	 * Elenco degli utenti associati a uno o più permessi
-	 * 
-	 * @param string!array $code codice o codici del permesso
-	 * @param object $controller controller
-	 * @return array (valori id)
-	 */
-	public static function getUsersFromPermissions($code, $controller) {
-		
-		$db = \Gino\db::instance();
-		
-		$array = array();
-		
-		$class = get_class($controller);
-		$instance = $controller->getInstance();
-		
-		if(is_array($code) && count($code))
-		{
-			foreach ($code AS $value)
-			{
-				$res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
-				if($res && count($res))
-				{
-					$perm_id = $res[0];
-					$records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
-					if($records && count($records))
-					{
-						foreach ($records AS $r)
-						{
-							if(!in_array($r['user_id'], $array))
-								$array[] = $r['user_id'];
-						}
-					}
-				}
-			}
-		}
-		elseif(is_string($code))
-		{
-			$res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
-			if($res && count($res))
-			{
-				$perm_id = $res[0];
-				$records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
-				if($records && count($records))
-				{
-					foreach ($records AS $r)
-					{
-						if(!in_array($r['user_id'], $array))
-							$array[] = $r['user_id'];
-					}
-				}
-			}
-		}
-		
-		return $array;
-	}
-	
+    /**
+     * Elenco degli utenti associati a uno o più permessi
+     * 
+     * @param string!array $code codice o codici del permesso
+     * @param object $controller controller
+     * @return array (valori id)
+     */
+    public static function getUsersFromPermissions($code, $controller) {
+
+        $db = \Gino\db::instance();
+
+        $array = array();
+
+        $class = get_class($controller);
+        $instance = $controller->getInstance();
+
+        if(is_array($code) && count($code))
+        {
+            foreach ($code AS $value)
+            {
+                $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+                if($res && count($res))
+                {
+                    $perm_id = $res[0];
+                    $records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
+                    if($records && count($records))
+                    {
+                        foreach ($records AS $r)
+                        {
+                            if(!in_array($r['user_id'], $array))
+                                $array[] = $r['user_id'];
+                        }
+                    }
+                }
+            }
+        }
+        elseif(is_string($code))
+        {
+            $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+            if($res && count($res))
+            {
+                $perm_id = $res[0];
+                $records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
+                if($records && count($records))
+                {
+                    foreach ($records AS $r)
+                    {
+                        if(!in_array($r['user_id'], $array))
+                            $array[] = $r['user_id'];
+                    }
+                }
+            }
+        }
+
+        return $array;
+    }
+
     /**
      * Verifica se l'utente ha uno dei permessi della classe
      * @param string $class_name nome della classe
@@ -595,146 +595,146 @@ class User extends \Gino\Model {
         return false;
     }
 
-	/**
-	 * Valore che raggruppa permesso e istanza
-	 * 
-	 * @param integer $permission_id valore ID del permesso
-	 * @param integer $instance_id valore ID dell'istanza
-	 * @return string
-	 */
-	public static function setMergeValue($permission_id, $instance_id) {
-		
-		return $permission_id.'_'.$instance_id;
-	}
-	
-	/**
-	 * Splitta i valori di permesso e istanza
-	 * 
-	 * @param string $value valore da splittare
-	 * @return array array(permission_id, instance_id)
-	 */
-	public static function getMergeValue($value) {
-		
-		$split = explode('_', $value);
-		$permission_id = $split[0];
-		$instance_id = $split[1];
-		
-		return array($permission_id, $instance_id);
-	}
-	
-	/**
-	 * Elenco dei permessi di un utente
-	 * 
-	 * @see setMergeValue()
-	 * @param integer $id valore ID dell'utente
-	 * @return array
-	 */
-	public function getPermissions() {
-		
-		$items = array();
-		
-		$records = $this->_db->select('instance, perm_id', Permission::$table_perm_user, "user_id='".$this->id."'");
-		if($records && count($records))
-		{
-			foreach($records AS $r)
-			{
-				$items[] = self::setMergeValue($r['perm_id'], $r['instance']);
-			}
-		}
-		return $items;
-	}
-	
-	/**
-	 * Elenco dei gruppi di un utente
-	 * 
-	 * @param integer $id valore ID dell'utente
-	 * @return array
-	 */
-	public function getGroups() {
-		
-		$items = array();
-		
-		$records = $this->_db->select('group_id', Group::$table_group_user, "user_id='".$this->id."'");
-		if($records && count($records))
-		{
-			foreach($records AS $r)
-			{
-				$items[] = $r['group_id'];
-			}
-		}
-		return $items;
-	}
-	
-	/**
-	 * Gestisce i record della tabella aggiuntiva degli utenti
-	 * 
-	 * @param integer $id valore ID dell'utente
-	 * @return boolean
-	 */
-	public static function setMoreInfo($id) {
-		
-		$db = \Gino\db::instance();
+    /**
+     * Valore che raggruppa permesso e istanza
+     * 
+     * @param integer $permission_id valore ID del permesso
+     * @param integer $instance_id valore ID dell'istanza
+     * @return string
+     */
+    public static function setMergeValue($permission_id, $instance_id) {
 
-		$field1 = \Gino\cleanVar($_POST, 'field1', 'int', '');
-		$field2 = \Gino\cleanVar($_POST, 'field2', 'int', '');
-		$field3 = \Gino\cleanVar($_POST, 'field3', 'int', '');
-		
-		$res = false;
-		
-		if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
-		{
-			$res = $db->update(array('field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more, "user_id='$id'");
-		}
-		else
-		{
-			$res = $db->insert(array('user_id'=>$id, 'field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more);
-		}
-		return $res;
-	}
-	
-	/**
-	 * Eimina i record della tabella aggiuntiva degli utenti
-	 * 
-	 * @param integer $id valore ID dell'utente
-	 * @return boolean
-	 */
-	public static function deleteMoreInfo($id) {
-		
-		$db = \Gino\db::instance();
+        return $permission_id.'_'.$instance_id;
+    }
 
-		if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
-		{
-			return $db->delete(self::$table_more, "user_id='$id'");
-		}
-		else return true;
-	}
-	
-	/**
-	 * @see Model::delete()
-	 */
-	public function delete() {
+    /**
+     * Splitta i valori di permesso e istanza
+     * 
+     * @param string $value valore da splittare
+     * @return array array(permission_id, instance_id)
+     */
+    public static function getMergeValue($value) {
 
-		$pathToDel = $this->_controller->getBasePath();
-		
-		$parent = parent::delete();
-		if($parent !== true) return $parent;
-		
-		if(file_exists($pathToDel.$this->photo))
-			@unlink($pathToDel.$this->photo);
-		
-		return self::deleteMoreInfo($this->id);
-		
-		/*
-		// Nel caso di una directory per ogni utente
-		
-		$pathToDel = $this->_controller->getBasePath().$this->_controller->getAddPath($this->id)
-		
-		if($pathToDel)
-		{
-			$registry = registry::instance();
-			$registry->pub->deleteFileDir($pathToDel);
-		}*/
-	}
+        $split = explode('_', $value);
+        $permission_id = $split[0];
+        $instance_id = $split[1];
+
+        return array($permission_id, $instance_id);
+    }
+
+    /**
+     * Elenco dei permessi di un utente
+     * 
+     * @see setMergeValue()
+     * @param integer $id valore ID dell'utente
+     * @return array
+     */
+    public function getPermissions() {
+
+        $items = array();
+
+        $records = $this->_db->select('instance, perm_id', Permission::$table_perm_user, "user_id='".$this->id."'");
+        if($records && count($records))
+        {
+            foreach($records AS $r)
+            {
+                $items[] = self::setMergeValue($r['perm_id'], $r['instance']);
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Elenco dei gruppi di un utente
+     * 
+     * @param integer $id valore ID dell'utente
+     * @return array
+     */
+    public function getGroups() {
+
+        $items = array();
+
+        $records = $this->_db->select('group_id', Group::$table_group_user, "user_id='".$this->id."'");
+        if($records && count($records))
+        {
+            foreach($records AS $r)
+            {
+                $items[] = $r['group_id'];
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Gestisce i record della tabella aggiuntiva degli utenti
+     * 
+     * @param integer $id valore ID dell'utente
+     * @return boolean
+     */
+    public static function setMoreInfo($id) {
+
+        $db = \Gino\db::instance();
+
+        $field1 = \Gino\cleanVar($_POST, 'field1', 'int', '');
+        $field2 = \Gino\cleanVar($_POST, 'field2', 'int', '');
+        $field3 = \Gino\cleanVar($_POST, 'field3', 'int', '');
+
+        $res = false;
+
+        if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
+        {
+            $res = $db->update(array('field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more, "user_id='$id'");
+        }
+        else
+        {
+            $res = $db->insert(array('user_id'=>$id, 'field1'=>$field1, 'field2'=>$field2, 'field3'=>$field3), self::$table_more);
+        }
+        return $res;
+    }
+
+    /**
+     * Eimina i record della tabella aggiuntiva degli utenti
+     * 
+     * @param integer $id valore ID dell'utente
+     * @return boolean
+     */
+    public static function deleteMoreInfo($id) {
+
+        $db = \Gino\db::instance();
+
+        if($db->getFieldFromId(self::$table_more, 'user_id', 'user_id', $id))
+        {
+            return $db->delete(self::$table_more, "user_id='$id'");
+        }
+        else return true;
+    }
+
+    /**
+     * @see Model::delete()
+     */
+    public function delete() {
+
+        $pathToDel = $this->_controller->getBasePath();
+
+        $parent = parent::delete();
+        if($parent !== true) return $parent;
+
+        if(file_exists($pathToDel.$this->photo))
+            @unlink($pathToDel.$this->photo);
+
+        return self::deleteMoreInfo($this->id);
+
+        /*
+        // Nel caso di una directory per ogni utente
+
+        $pathToDel = $this->_controller->getBasePath().$this->_controller->getAddPath($this->id)
+
+        if($pathToDel)
+        {
+            $registry = registry::instance();
+            $registry->pub->deleteFileDir($pathToDel);
+        }*/
+    }
 
 }
 
