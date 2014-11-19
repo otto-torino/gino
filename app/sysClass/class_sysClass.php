@@ -11,6 +11,7 @@ namespace Gino\App\SysClass;
 
 use \Gino\Error;
 use \Gino\Loader;
+use \Gino\View;
 
 require_once('class.ModuleApp.php');
 
@@ -41,10 +42,10 @@ class sysClass extends \Gino\Controller {
   /**
    * Interfaccia amministrativa per la gestione dei moduli di sistema
    * 
-   * @see $_access_admin
+   * 
    * @return string
    */
-  public function manageSysClass() {
+  public function manageSysClass(\Gino\Http\Request $request) {
     
     $this->requirePerm('can_admin');
 
@@ -68,39 +69,43 @@ class sysClass extends \Gino\Controller {
         }
       }
       elseif($action == 'modify') {
-        $GINO = $this->formEditSysClass($id);
-        $GINO .= $this->formUpgradeSysClass($id);
-        $GINO .= $this->formActivateSysClass($id);
+        $backend = $this->formEditSysClass($id);
+        $backend .= $this->formUpgradeSysClass($id);
+        $backend .= $this->formActivateSysClass($id);
       }
       elseif($action == 'delete') {
-        $GINO = $this->formRemoveSysClass($id);
+        $backend = $this->formRemoveSysClass($id);
       }
       else {
-        $GINO = $this->sysClassList();
+        $backend = $this->sysClassList();
       }
       $sel_link = $link_list;
     }
     elseif($block == 'install') {
-      $GINO = $this->formInsertSysClass();
+      $backend = $this->formInsertSysClass();
       $sel_link = $link_install;
     }
     elseif($block == 'minstall') {
-      $GINO = $this->formManualSysClass();
+      $backend = $this->formManualSysClass();
       $sel_link = $link_minstall;
     }
     else {
-      $GINO = $this->info();
+      $backend = $this->info();
     }
+    
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('tab');
     $dict = array(
       'title' => _('Moduli di sistema'),
       'links' => array($link_minstall, $link_install, $link_list, $link_dft),
       'selected_link' => $sel_link,
-      'content' => $GINO
+      'content' => $backend
     );
-    return $view->render($dict);
+    return new \Gino\Http\ResponseView($view, $dict);
   }
 
   /**

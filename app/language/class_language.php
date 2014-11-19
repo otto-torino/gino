@@ -141,7 +141,7 @@ class language extends \Gino\Controller {
       $backend = $this->manageLang($request);
     }
 
-    if(is_a($backend, '\Gino\HttpResponse')) {
+    if(is_a($backend, '\Gino\Http\Response')) {
         return $backend;
     }
 
@@ -155,7 +155,7 @@ class language extends \Gino\Controller {
     $view = new \Gino\View();
     $view->setViewTpl('tab');
 
-    return new \Gino\HttpResponseView($view, $dict);
+    return new \Gino\Http\ResponseView($view, $dict);
 
   }
 
