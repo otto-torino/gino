@@ -1,13 +1,13 @@
 <?php
 /**
- * \file class.attachedCtg.php
- * @brief Contiene la definizione ed implementazione della classe AttachedCtg.
+ * \file class.attachmentCtg.php
+ * @brief Contiene la definizione ed implementazione della classe attachmentCtg.
  * 
  * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-namespace Gino\App\Attached;
+namespace Gino\App\Attachment;
 
 /**
  * Classe tipo model che rappresenta una categoria di allegati.
@@ -16,9 +16,9 @@ namespace Gino\App\Attached;
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-class AttachedCtg extends \Gino\Model {
+class AttachmentCtg extends \Gino\Model {
 
-  public static $tbl_ctg = 'attached_ctg';
+  public static $tbl_ctg = 'attachment_ctg';
 
   /**
    * Costruttore
@@ -72,11 +72,11 @@ class AttachedCtg extends \Gino\Model {
   }
 
   /**
-   * Restituisce oggetti di tipo attachedCtg
+   * Restituisce oggetti di tipo AttachmentCtg
    * 
    * @param news $controller istanza del controller
    * @param array $options array associativo di opzioni (where, order e limit)
-   * @return array di istanze di tipo attachedCtg
+   * @return array di istanze di tipo AttachmentCtg
    */
   public static function get($controller, $options = null) {
 
@@ -93,7 +93,7 @@ class AttachedCtg extends \Gino\Model {
     $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
-        $res[] = new attachedCtg($row['id'], $controller);
+        $res[] = new AttachmentCtg($row['id'], $controller);
       }
     }
 
@@ -112,9 +112,9 @@ class AttachedCtg extends \Gino\Model {
 
     $res = array();
 
-    $where = gOpt('where', $options, '');
-    $order = gOpt('order', $options, 'name');
-    $limit = gOpt('limit', $options, null);
+    $where = \Gino\gOpt('where', $options, '');
+    $order = \Gino\gOpt('order', $options, 'name');
+    $limit = \Gino\gOpt('limit', $options, null);
 
     $db = \Gino\db::instance();
     $selection = 'id, name';

@@ -10,10 +10,10 @@ GO
 -- --------------------------------------------------------
 
 --
--- Table structure for table attached
+-- Table structure for table attachment
 --
 
-CREATE TABLE attached (
+CREATE TABLE attachment (
   id			int IDENTITY(1, 1),
   category		int NOT NULL,
   [file]		nvarchar(100) NOT NULL,
@@ -23,35 +23,35 @@ CREATE TABLE attached (
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT attached ON
+SET IDENTITY_INSERT attachment ON
 
-INSERT INTO attached ([id], [category], [file], [notes], [insertion_date], [last_edit_date]) VALUES
+INSERT INTO attachment ([id], [category], [file], [notes], [insertion_date], [last_edit_date]) VALUES
 (1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (3, 1, 'github.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (4, 1, 'plugin.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37');
 
-SET IDENTITY_INSERT attached OFF
+SET IDENTITY_INSERT attachment OFF
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table attached_ctg
+-- Table structure for table attachment_ctg
 --
 
-CREATE TABLE attached_ctg (
+CREATE TABLE attachment_ctg (
   id			int IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   directory nvarchar(20) NOT NULL,
   PRIMARY KEY (id)
 )
 
-SET IDENTITY_INSERT attached_ctg ON
+SET IDENTITY_INSERT attachment_ctg ON
 
-INSERT INTO attached_ctg (id, name, directory) VALUES
+INSERT INTO attachment_ctg (id, name, directory) VALUES
 (1, 'various', 'c1');
 
-SET IDENTITY_INSERT attached_ctg OFF
+SET IDENTITY_INSERT attachment_ctg OFF
 
 -- --------------------------------------------------------
 

@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `attached`
 --
 
-CREATE TABLE IF NOT EXISTS `attached` (
+CREATE TABLE IF NOT EXISTS `attachment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` int(11) NOT NULL,
   `file` varchar(100) NOT NULL,
@@ -37,10 +37,10 @@ CREATE TABLE IF NOT EXISTS `attached` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 --
--- Dumping data for table `attached`
+-- Dumping data for table `attachment`
 --
 
-INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
+INSERT INTO `attachment` (`id`, `category`, `file`, `notes`, `insertion_date`, `last_edit_date`) VALUES
 (1, 1, 'lamp.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (2, 1, 'OSI_logo.jpg', NULL, '2013-04-03 16:20:37', '2013-04-03 16:20:37'),
 (3, 1, 'brightness_controller.png', '', '2013-04-03 16:20:37', '2013-12-06 16:51:55'),
@@ -49,10 +49,10 @@ INSERT INTO `attached` (`id`, `category`, `file`, `notes`, `insertion_date`, `la
 -- --------------------------------------------------------
 
 --
--- Table structure for table `attached_ctg`
+-- Table structure for table `attachment_ctg`
 --
 
-CREATE TABLE IF NOT EXISTS `attached_ctg` (
+CREATE TABLE IF NOT EXISTS `attachment_ctg` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `directory` varchar(20) NOT NULL,
@@ -60,10 +60,10 @@ CREATE TABLE IF NOT EXISTS `attached_ctg` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `attached_ctg`
+-- Dumping data for table `attachment_ctg`
 --
 
-INSERT INTO `attached_ctg` (`id`, `name`, `directory`) VALUES
+INSERT INTO `attachment_ctg` (`id`, `name`, `directory`) VALUES
 (1, 'various', 'c1');
 
 -- --------------------------------------------------------

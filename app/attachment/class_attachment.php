@@ -1,16 +1,19 @@
 <?php
 /**
- * @file class_attached.php
- * @brief Contiene la definizione ed implementazione del controller del modulo attached
+ * @file class_attachment.php
+ * @brief Contiene la definizione ed implementazione del controller del modulo attachment
  * 
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-namespace Gino\App\Attached;
+namespace Gino\App\Attachment;
 
-require_once('class.attachedItem.php');
-require_once('class.attachedCtg.php');
+use \Gino\View;
+use \Gino\HttpResponseView;
+
+require_once('class.attachmentItem.php');
+require_once('class.attachmentCtg.php');
 
 /**
  * @brief Classe controller del modulo di gestione di archivi di file categorizzati
@@ -19,7 +22,7 @@ require_once('class.attachedCtg.php');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class attached extends \Gino\Controller {
+class attachment extends \Gino\Controller {
 
   /**
    * @brief titolo del modulo
@@ -110,10 +113,10 @@ class attached extends \Gino\Controller {
 
 		if($doc_id) {
 
-			$rows = $db->select('category, file', attachedItem::$tbl_item, "id='$doc_id'", array('limit'=>array(0, 1)));
+			$rows = $db->select('category, file', attachmentItem::$tbl_item, "id='$doc_id'", array('limit'=>array(0, 1)));
 			if($rows and count($rows)) {
 				$category = $rows[0]['category'];
-				$ctg = new attachedCtg($category, $this);
+				$ctg = new attachmentCtg($category, $this);
 				$filename = $rows[0]['file'];
 				$full_path = $ctg->path('abs').$filename;
 
@@ -127,15 +130,17 @@ class attached extends \Gino\Controller {
 
   /**
    * @brief interfaccia backoffice del modulo
-   * @return interfaccia di backoffice
+   * 
+   * @param object $request oggetto \Gino\HttpRequest
+   * @return \Gino\HttpResponse backend di amministrazione del modulo
    */
-  public function manageAttached() {
+  public function manageAttachment(\Gino\HttpRequest $request) {
 
     $this->requirePerm('can_admin');
 
     \Gino\Loader::import('class', '\Gino\AdminTable');
 
-    $method = 'manageAttached';
+    $method = 'manageAttachment';
     $link_ctg = "<a href=\"".$this->_home."?evt[$this->_instance_name-$method]&block=ctg\">"._("Categorie")."</a>";
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-$method]\">"._("File")."</a>";
     $sel_link = $link_dft;
@@ -146,23 +151,26 @@ class attached extends \Gino\Controller {
     // end
 
     if($this->_block == 'ctg') {
-      $buffer = $this->manageCategory();
+      $backend = $this->manageCategory();
       $sel_link = $link_ctg;
     }
     else {
-      $buffer = $this->manageItem();
+      $backend = $this->manageItem();
     }
+    
+	if(is_a($backend, '\Gino\HttpResponse')) {
+		return $backend;
+	}
 
     $dict = array(
       'title' => $this->_title,
       'links' => array($link_ctg, $link_dft),
       'selected_link' => $sel_link,
-      'content' => $buffer
+      'content' => $backend
     );
 
-    $view = new \Gino\View(null, 'tab');
-    return $view->render($dict);
-
+    $view = new View(null, 'tab');
+    return new HttpResponseView($view, $dict);
   }
 
   /**
@@ -171,12 +179,12 @@ class attached extends \Gino\Controller {
    */
   private function manageCategory() {
 
-    require_once('class.attachedCtgAdminTable.php');
+    require_once('class.attachmentCtgAdminTable.php');
 
-    $admin_table = new attachedCtgAdminTable($this, array());
+    $admin_table = new attachmentCtgAdminTable($this, array());
 
     $buffer = $admin_table->backOffice(
-      'attachedCtg', 
+      'AttachmentCtg', 
       array(
         'list_display' => array('id', 'name', 'directory'),
         'list_title' => _("Elenco categorie"), 
@@ -196,17 +204,17 @@ class attached extends \Gino\Controller {
 	/**
 	 * @brief Interfaccia di amministrazione dei file
 	 * 
-	 * @see attachedItemAdminTable::backOffice()
+	 * @see attachmentItemAdminTable::backOffice()
 	 * @return backoffice file
 	*/
 	private function manageItem() {
 
-		require_once('class.attachedItemAdminTable.php');
+		require_once('class.attachmentItemAdminTable.php');
 
-		$admin_table = new attachedItemAdminTable($this, array());
+		$admin_table = new attachmentItemAdminTable($this, array());
 
 		$buffer = $admin_table->backOffice(
-			'attachedItem', 
+			'AttachmentItem', 
 			array(
 				'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date'),
 				'list_title' => _("Elenco files"), 
@@ -226,25 +234,25 @@ class attached extends \Gino\Controller {
    */
   public function editorList() {
 
-    $myform = \Gino\Loader::load('Form', array('attached_list', 'post', false, array('tblLayout'=>false)));
+    $myform = \Gino\Loader::load('Form', array('attachment_list', 'post', false, array('tblLayout'=>false)));
 
-    $ctgs = attachedCtg::getForSelect($this);
+    $ctgs = attachmentCtg::getForSelect($this);
 
-    $onchange = "gino.ajaxRequest('post', '".$this->_home."?pt[".$this->_class_name."-editorAttachedList]', 'ctg_id='+$(this).value, 'attached_table', {'load': 'attached_table'})";
+    $onchange = "gino.ajaxRequest('post', '".$this->_home."?pt[".$this->_class_name."-editorAttachmentList]', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
     $buffer = "
-      <p class=\"attached-filter-ctg\">
-        <label for=\"attached_ctg\">"._('Seleziona la categoria ')."</label>
-        ".$myform->select('attached_ctg', '', $ctgs, array(
-          'id' => 'attached_ctg', 
+      <p class=\"attachment-filter-ctg\">
+        <label for=\"attachment_ctg\">"._('Seleziona la categoria ')."</label>
+        ".$myform->select('attachment_ctg', '', $ctgs, array(
+          'id' => 'attachment_ctg', 
           'js' => "onchange=\"$onchange\"",
           'noFirst' => true,
           'firstVoice' => _('tutte le categorie'),
           'firstValue' => 0
         ))."
-        <span class=\"right link\" onclick=\"$('attached-list-help').toggleClass('hidden')\">".pub::icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
+        <span class=\"right link\" onclick=\"$('attachment-list-help').toggleClass('hidden')\">".pub::icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
       </p>";
 
-    $buffer .= "<div id=\"attached-list-help\" class=\"hidden\">";
+    $buffer .= "<div id=\"attachment-list-help\" class=\"hidden\">";
     $buffer .= "<p>"._('Puoi effettuare il "drag and drop" degli allegati direttamente dentro all\'editor:')."</p>";
     $buffer .= "
       <dl>
@@ -256,7 +264,7 @@ class attached extends \Gino\Controller {
     ";
     $buffer .= "</div>";
 
-    $buffer .= "<div id=\"attached_table\">".$this->editorAttachedList()."</div>";
+    $buffer .= "<div id=\"attachment_table\">".$this->editorAttachmentList()."</div>";
 
     return $buffer;
 
@@ -266,7 +274,7 @@ class attached extends \Gino\Controller {
    * @brief Tabella di allegati con funzionalità per i drag and drop all'interno di CKEDITOR
    * @return tabella allegati
    */
-  public function editorAttachedList() {
+  public function editorAttachmentList() {
 
     $ctg_id = \Gino\cleanVar($_POST, 'ctg_id', 'int', '');
 
@@ -277,7 +285,7 @@ class attached extends \Gino\Controller {
       $where = null;
     }
 
-    $items = attachedItem::get($this, array('where' => $where));
+    $items = AttachmentItem::get($this, array('where' => $where));
 
     $buffer = "
       <table class=\"table table-striped table-bordered\">
@@ -292,7 +300,7 @@ class attached extends \Gino\Controller {
       if($item->type() == 'img') {
         $drag_view = "<img src=\"".$item->path('view')."\" />";
         $icon = "<img src=\"".$this->_class_img."/mark_IMG.jpg\" alt=\"".$item->file."\" title=\"".$item->file."\" />";
-        $drag_download = "<a href=\"".$item->path('download')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('download')."\">".htmlChars($item->file)."</a>";
+        $drag_download = "<a href=\"".$item->path('download')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('download')."\">".\Gino\htmlChars($item->file)."</a>";
       }
       else {
         if($item->type() == 'doc') {
@@ -309,17 +317,17 @@ class attached extends \Gino\Controller {
         }
 
         $drag_view = "<a href=\"".$item->path('view')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('view')."\">".$item->file."</a>";
-        $drag_download = "<a href=\"".$item->path('download')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('download')."\">".htmlChars($item->file)."</a>";
+        $drag_download = "<a href=\"".$item->path('download')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('download')."\">".\Gino\htmlChars($item->file)."</a>";
       }
 
-      $ctg = new attachedCtg($item->category, $this);
+      $ctg = new AttachmentCtg($item->category, $this);
       $buffer .= "
         <tr>
-          <td>".htmlChars($ctg->name)."</td>
+          <td>".\Gino\htmlChars($ctg->name)."</td>
           <td>".$item->previewLink('path')."</td>
-          <td>".htmlChars($item->notes)."</td>
-          <td class=\"drag-attached-view\">".$drag_view."</td>
-          <td class=\"drag-attached-download\">".$drag_download."</td>
+          <td>".\Gino\htmlChars($item->notes)."</td>
+          <td class=\"drag-attachment-view\">".$drag_view."</td>
+          <td class=\"drag-attachment-download\">".$drag_download."</td>
         </tr>
       ";
     }
@@ -332,11 +340,11 @@ class attached extends \Gino\Controller {
 
   public function jsonImageList()
   {
-      $items = attachedItem::get($this);
+      $items = AttachmentItem::get($this);
       $images = array();
       foreach($items as $item) {
           if(preg_match('#(\.png|\.jpg|\.jpeg|\.tif|\.gif)$#', $item->file)) {
-              $ctg = new AttachedCtg($item->category, $this);
+              $ctg = new AttachmentCtg($item->category, $this);
               $images[] = array(
                   'image' => $item->path('rel'),
                   'folder' => $ctg->name

@@ -1,18 +1,18 @@
 <?php
 /**
- * @file class.attachedItemAdminTable.php
- * @brief Contiene la classe attachedItemAdminTable
+ * @file class.attachmentItemAdminTable.php
+ * @brief Contiene la classe attachmentItemAdminTable
  *
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-namespace Gino\App\Attached;
+namespace Gino\App\Attachment;
 
 /**
  * @brief Estende la classe adminTable base di Gino per permettere l'inserimento di file all'interno della directory della categoria
  */
-class attachedItemAdminTable extends \Gino\AdminTable {
+class attachmentItemAdminTable extends \Gino\AdminTable {
 
 	/**
 	 * @brief Costruttore
@@ -337,7 +337,7 @@ class attachedItemAdminTable extends \Gino\AdminTable {
     foreach($model->getStructure() as $field=>$object) {
 
       if($field == 'file') {
-        $ctg = new attachedCtg($model->category, $this->_controller);
+        $ctg = new AttachmentCtg($model->category, $this->_controller);
         $object->setDirectory($ctg->path('abs'));
       }
 
