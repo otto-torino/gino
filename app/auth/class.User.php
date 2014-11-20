@@ -28,6 +28,7 @@ class User extends \Gino\Model {
    * @param object $instance istanza del controller
    */
     public static $table = TBL_USER;
+    public static $table_groups = TBL_USER_GROUP;
     public static $table_more = TBL_USER_ADD;
 
     private static $extension_media;
@@ -57,7 +58,7 @@ class User extends \Gino\Model {
             'photo' => _("Foto"), 
             'publication' => _('Pubblicazione dati'), 
             'active' => _('Attivo'), 
-            'group' => _("Gruppi")
+            'groups' => _("Gruppi"),
         );
 
         $this->_tbl_data = self::$table;
@@ -74,11 +75,7 @@ class User extends \Gino\Model {
     }
 
     function __toString() {
-        return $this->lastname.' '.$this->firstname;
-    }
-
-    public function getModelLabel() {
-        return _('utente');
+        return (string) ($this->lastname.' '.$this->firstname);
     }
 
     /*
@@ -149,14 +146,14 @@ class User extends \Gino\Model {
             'default'=>0,
         ));
 
-        $structure['group'] = new \Gino\ManyToManyField(array(
-            'name'=>'group', 
+        $structure['groups'] = new \Gino\ManyToManyField(array(
+            'name'=>'groups', 
             'model'=>$this,
             'required'=>false, 
             'm2m'=>'\Gino\App\Auth\Group', 
             'm2m_where'=>null, 
             'm2m_order'=>'name ASC', 
-            'join_table'=>Group::$table_group_user,
+            'join_table'=>self::$table_groups,
             'add_related' => true,
             'add_related_url' => $this->_home.'?evt['.get_name_class($this->_controller).'-manageAuth]&block=group&insert=1',
         ));
@@ -258,9 +255,9 @@ class User extends \Gino\Model {
         else
         {
             $registry = \Gino\registry::instance();
-            $crypt_method = $registry->pub->getConf('password_crypt');
+            $crypt_method = $registry->sysconf->password_crypt;
 
-            $password = $crypt_method ? $registry->pub->cryptMethod($password, $crypt_method) : $password;
+            $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $password;
         }
         return $password;
      }
@@ -453,24 +450,6 @@ class User extends \Gino\Model {
     return $user;
   }
 
-  public static function get($options = array()) {
-
-    $where = \Gino\gOpt('where', $options, null);
-    $order = \Gino\gOpt('order', $options, null);
-
-    $res = array();
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, $where, array('order' => $order));
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new User($row['id']);
-      }
-    }
-
-    return $res;
-  }
-
     /**
      * Elenco degli utenti associati a uno o più permessi
      * 
@@ -558,13 +537,13 @@ class User extends \Gino\Model {
                 return true;
             }
             // check user group permission
-            $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_GROUP_USER, TBL_PERMISSION), "
+            $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_USER_GROUP, TBL_PERMISSION), "
                 ".TBL_GROUP_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
                 ".TBL_PERMISSION.".class = '".$class_name."' AND 
                 ".TBL_PERMISSION.".code = '".$perm_code." AND 
                 ".TBL_GROUP_PERMISSION.".instance = '".$instance."' AND 
-                ".TBL_GROUP_PERMISSION.".group_id = ".TBL_GROUP_USER.".group_id AND
-                ".TBL_GROUP_USER.".user_id = '".$this->id."'");
+                ".TBL_GROUP_PERMISSION.".group_id = ".TBL_USER_GROUP.".group_id AND
+                ".TBL_USER_GROUP.".user_id = '".$this->id."'");
             if($rows and count($rows)) {
                 return true;
             }
@@ -639,27 +618,6 @@ class User extends \Gino\Model {
             foreach($records AS $r)
             {
                 $items[] = self::setMergeValue($r['perm_id'], $r['instance']);
-            }
-        }
-        return $items;
-    }
-
-    /**
-     * Elenco dei gruppi di un utente
-     * 
-     * @param integer $id valore ID dell'utente
-     * @return array
-     */
-    public function getGroups() {
-
-        $items = array();
-
-        $records = $this->_db->select('group_id', Group::$table_group_user, "user_id='".$this->id."'");
-        if($records && count($records))
-        {
-            foreach($records AS $r)
-            {
-                $items[] = $r['group_id'];
             }
         }
         return $items;

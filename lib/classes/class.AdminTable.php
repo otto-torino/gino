@@ -407,7 +407,9 @@ class AdminTable {
         $form_content .= "<fieldset>\n";
         $form_content .= "<legend>$legend</legend>\n";
         foreach($fields as $field) {
-          $form_content .= $structure[$field];
+            if(isset($structure[$field])) {
+                $form_content .= $structure[$field];
+            }
         }
         $form_content .= "</fieldset>";
       }
@@ -626,8 +628,6 @@ class AdminTable {
                         $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
                         $value = $object->clean($opt_element);
                         $result = $object->validate($value);
-
-                        var_dump($value);
 
                         if($result === true) {
                             $m2m_model->{$field} = $value;

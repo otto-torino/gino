@@ -11,6 +11,7 @@ namespace Gino\App\Auth;
 
 use \Gino\Loader;
 use \Gino\View;
+use \Gino\Error;
 use \Gino\Http\Response;
 use \Gino\Http\ResponseView;
 use \Gino\Http\ResponseAjax;
@@ -214,20 +215,17 @@ class auth extends \Gino\Controller {
             $sel_link = $link_perm;
         }
         elseif($block=='password') {
-            $backend = $this->changePassword();
+            $backend = $this->changePassword($request);
             $sel_link = $link_dft;
         }
         else {
-
-            if($op == 'jug')
-                $backend = $this->joinUserGroup($request);
-            elseif($op == 'jup')
-                $backend = $this->joinUserPermission();
+            if($op == 'jup')
+                $backend = $this->joinUserPermission($request);
             else
                 $backend = $this->manageUser($request);
         }
 
-        if(is_a($backend, '\Gino\HttpResponse')) {
+        if(is_a($backend, '\Gino\Http\Response')) {
             return $backend;
         }
 
@@ -258,10 +256,9 @@ class auth extends \Gino\Controller {
         $link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=user";
 
         $opts = array(
-            'list_display' => array('id', 'firstname', 'lastname', 'email', 'active'),
+            'list_display' => array('id', 'firstname', 'lastname', 'email', 'active', 'groups'),
             'list_description' => $info, 
             'add_buttons' => array(
-                array('label'=>\Gino\icon('group', array('scale' => 1)), 'link'=>$link_button."&op=jug", 'param_id'=>'ref'), 
                 array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
                 array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-manageAuth]&block=password", 'param_id'=>'ref')
             )
@@ -284,12 +281,27 @@ class auth extends \Gino\Controller {
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
         $edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
 
+        if($this->_username_as_email) {
+            $fieldsets = array(
+                _('Anagrafica') => array('id', 'firstname', 'lastname', 'company', 'phone', 'address', 'cap', 'city', 'nation'),
+                _('Utenza') => array('email', 'check_email', 'userpwd', 'active'),
+                _('Informazioni') => array('text', 'photo', 'publication'),
+                _('Privilegi') => array('is_admin', 'groups')
+            );
+        }
+        else {
+            $fieldsets = array(
+                _('Anagrafica') => array('id', 'firstname', 'lastname', 'company', 'phone', 'email', 'check_email', 'address', 'cap', 'city', 'nation'),
+                _('Utenza') => array('username', 'check_username', 'userpwd', 'active'),
+                _('Informazioni') => array('text', 'photo', 'publication'),
+                _('Privilegi') => array('is_admin', 'groups')
+            );
+        }
+
         if($id && $edit)    // modify
         {
             $removeFields = array('username', 'userpwd');
-
             if($this->_username_as_email) $removeFields[] = 'email';
-
             $addCell = null;
         }
         else
@@ -329,42 +341,43 @@ class auth extends \Gino\Controller {
             'aut_password_length' => $this->_aut_pwd_length, 
             'pwd_length_min' => $this->_pwd_length_min, 
             'pwd_length_max' => $this->_pwd_length_max, 
-            'pwd_numeric_number' => $this->_pwd_numeric_number
+            'pwd_numeric_number' => $this->_pwd_numeric_number,
+            'fieldsets' => $fieldsets
         );
 
         $opts_input = array(
             'email' => array(
                 'size'=>40, 
                 'trnsl'=>false
-            ), 
+            ),
             'username' => array(
                 'id'=>'username'
-            ), 
+            ),
             'userpwd' => array(
                 'text_add'=>$this->passwordRules($id), 
                 'widget'=>'password'
-            ), 
+            ),
             'firstname' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'lastname' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'company' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'phone' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'fax' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'address' => array(
                 'trnsl'=>false
-            ), 
+            ),
             'cap' => array(
                 'size'=>5
-            ), 
+            ),
             'city' => array(
                 'trnsl'=>false
             )
@@ -385,7 +398,7 @@ class auth extends \Gino\Controller {
 
         $text = '';
 
-        if($id || (!$id && !$this->_aut_pwd))
+        if($id || !$this->_aut_pwd)
         {
             $text = sprintf(_("La password deve contenere un numero di caratteri da %s a %s."), $this->_pwd_length_min, $this->_pwd_length_max);
 
@@ -420,6 +433,7 @@ class auth extends \Gino\Controller {
     /**
      * Interfaccia di sostituzione della password
      * 
+     * @param \Gino\Http\Request $request
      * @see User::savePassword()
      * @see User::formPassword()
      * @see passwordRules()
@@ -432,13 +446,13 @@ class auth extends \Gino\Controller {
      * Parametri POST (per l'action del form): \n
      *   - id (integer), valore ID dell'utente
      */
-    private function changePassword() {
+    private function changePassword(\Gino\Http\Request $request) {
 
         // PERM ??
 
-        if(isset($_POST['submit_action']))
+        if($request->method == 'POST')
         {
-            $user_id = \Gino\cleanVar($_POST, 'id', 'int', '');
+            $user_id = \Gino\cleanVar($request->POST, 'id', 'int', '');
             $obj_user = new User($user_id);
 
             $action_result = $obj_user->savePassword(array(
@@ -448,16 +462,15 @@ class auth extends \Gino\Controller {
             ));
 
             if($action_result === true) {
-                header("Location: ".$this->_home."?evt[".$this->_class_name."-manageAuth]");
-                exit();
+                return new Redirect($this->_home."?evt[".$this->_class_name."-manageAuth]");
             }
             else {
-                exit(error::errorMessage($action_result, $this->_home."?evt[".$this->_class_name."-manageAuth]&block=password&ref=$user_id"));
+                return Error::errorMessage($action_result, $this->_home."?evt[".$this->_class_name."-manageAuth]&block=password&ref=$user_id");
             }
         }
 
-        $user_id = \Gino\cleanVar($_GET, 'ref', 'int', '');
-        $change = \Gino\cleanVar($_GET, 'c', 'int', '');
+        $user_id = \Gino\cleanVar($request->GET, 'ref', 'int', '');
+        $change = \Gino\cleanVar($request->GET, 'c', 'int', '');
 
         $obj_user = new User($user_id);
 
@@ -533,8 +546,9 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Associazione utente-permessi
+     * @brief Interfaccia di associazione utente-permessi
      * 
+     * @param \Gino\Http\Request $request
      * @see User::getPermissions()
      * @see formPermission()
      * @return string
@@ -542,11 +556,9 @@ class auth extends \Gino\Controller {
      * Parametri GET: \n
      *   - ref (integer), valore ID dell'utente
      */
-    private function joinUserPermission() {
+    private function joinUserPermission(\Gino\Http\Request $request) {
 
-        // PERM
-
-        $id = \Gino\cleanVar($_GET, 'ref', 'int', '');
+        $id = \Gino\cleanVar($request->GET, 'ref', 'int', '');
         if(!$id) return null;
 
         $obj_user = new User($id);
@@ -568,32 +580,34 @@ class auth extends \Gino\Controller {
             'content' => $content
         );
 
-        $view = new \Gino\View();
-        $view->setViewTpl('section');
-
+        $view = new View(null, 'section');
         return $view->render($dict);
     }
 
     /**
-     * Gestisce l'action dell'associazione degli utenti ai permessi
+     * @brief Gestisce l'action dell'associazione degli utenti ai permessi
      * 
-     * @see User::getPermissions()
-     * @see User::getMergeValue()
-     * @see returnJoinLink()
+     * @param \Gino\Http\Request $request
+     * @see user::getpermissions()
+     * @see user::getmergevalue()
+     * @see returnjoinlink()
      * @return redirect
      * 
-     * Parametri POST: \n
-     *   - id (integer), valore ID dell'utente
+     * parametri post: \n
+     *   - id (integer), valore id dell'utente
      *   - perm (array), permessi selezionati
      */
-    public function actionJoinUserPermission() {
+    public function actionJoinUserPermission(\Gino\Http\Request $request) {
 
-        // PERM
+        // perm
 
-        $id = \Gino\cleanVar($_POST, 'id', 'integer', '');
-        if(!$id) return null;
+        $id = \gino\cleanvar($request->POST, 'id', 'int', '');
 
-        $perm = $_POST['perm'];
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        $perm = $request->POST['perm'];
 
         $obj_user = new User($id);
         $existing_perms = $obj_user->getPermissions();
@@ -602,57 +616,57 @@ class auth extends \Gino\Controller {
         {
             $array_delete = array_diff($existing_perms, $perm);
 
-            // Valori da eliminare
+            // valori da eliminare
             if(count($array_delete))
             {
-                foreach($array_delete AS $value)
+                foreach($array_delete as $value)
                 {
-                    $split = User::getMergeValue($value);
+                    $split = user::getmergevalue($value);
 
                     $permission_id = $split[0];
                     $instance_id = $split[1];
 
-                    $this->_db->delete(Permission::$table_perm_user, "user_id='$id' AND instance='$instance_id' AND perm_id='$permission_id'");
+                    $this->_db->delete(Permission::$table_perm_user, "user_id='$id' and instance='$instance_id' and perm_id='$permission_id'");
                 }
             }
 
-            // Valori da aggiungere
-            foreach($perm AS $value)
+            // valori da aggiungere
+            foreach($perm as $value)
             {
                 if(!in_array($value, $existing_perms))
                 {
-                    $split = User::getMergeValue($value);
+                    $split = user::getmergevalue($value);
 
                     $permission_id = $split[0];
                     $instance_id = $split[1];
 
-                    $this->_db->insert(array('instance'=>$instance_id, 'user_id'=>$id, 'perm_id'=>$permission_id), Permission::$table_perm_user);
+                    $this->_db->insert(array('instance'=>$instance_id, 'user_id'=>$id, 'perm_id'=>$permission_id), permission::$table_perm_user);
                 }
             }
         }
         else    // elimina tutto
         {
-            $this->_db->delete(Permission::$table_perm_user, "user_id='$id'");
+            $this->_db->delete(permission::$table_perm_user, "user_id='$id'");
         }
 
-        $this->returnJoinLink('user', 'jup', $id);
+        return $this->returnjoinlink('user', 'jup', $id);
     }
 
     /**
-     * Associazione gruppo-permessi
+     * associazione gruppo-permessi
      * 
-     * @see Group::getPermissions()
-     * @see formPermission()
+     * @see group::getpermissions()
+     * @see formpermission()
      * @return string
      * 
-     * Parametri GET: \n
-     *   - ref (integer), valore ID del gruppo
+     * parametri get: \n
+     *   - ref (integer), valore id del gruppo
      */
-    private function joinGroupPermission() {
+    private function joingrouppermission() {
 
-        // PERM
+        // perm
 
-        $id = \Gino\cleanVar($_GET, 'ref', 'int', '');
+        $id = \gino\cleanvar($_GET, 'ref', 'int', '');
         if(!$id) return null;
 
         $obj_group = new Group($id);
@@ -742,102 +756,6 @@ class auth extends \Gino\Controller {
         }
 
         $this->returnJoinLink('group', 'jgp', $id);
-    }
-
-    /**
-     * @brief Associazione utente-gruppi
-     * 
-     * @param \Gino\Http\Request $request
-     * @see User::getGroups()
-     * @see formGroup()
-     * @return string
-     * 
-     * Parametri GET: \n
-     *   - ref (integer), valore ID dell'utente
-     */
-    private function joinUserGroup(\Gino\Http\Request $request) {
-
-        // PERM
-
-        $id = \Gino\cleanVar($request->GET, 'ref', 'int', '');
-        if(!$id) return null;
-
-        $obj_user = new User($id);
-        $checked = $obj_user->getGroups();
-
-        $gform = Loader::load('Form', array('j_usergroup', 'post', false));
-
-        $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserGroup]';
-
-        $content = $gform->open($form_action, false, '');
-        $content .= $gform->hidden('id', $obj_user->id);
-        $content .= $this->formGroup($gform, $checked);
-
-        $content .= $gform->input('submit', 'submit', _("associa"), null);
-        $content .= $gform->close();
-
-        $dict = array(
-            'title' => sprintf(_('Utente "%s" - gruppi'), $obj_user),
-            'content' => $content
-        );
-
-        $view = new View();
-        $view->setViewTpl('section');
-
-        return $view->render($dict);
-    }
-
-    /**
-     * Gestisce l'action dell'associazione degli utenti ai gruppi
-     * 
-     * @see User::getGroups()
-     * @see returnJoinLink()
-     * @return redirect
-     * 
-     * Parametri POST: \n
-     *   - id (integer), valore ID dell'utente
-     *   - group (array), gruppi selezionati
-     */
-    public function actionJoinUserGroup() {
-
-        // PERM
-
-        $id = \Gino\cleanVar($_POST, 'id', 'integer', '');
-        if(!$id) return null;
-
-        $group = $_POST['group'];
-
-        $obj_user = new User($id);
-        $existing_groups = $obj_user->getGroups();
-
-        if(is_array($group) && count($group))
-        {
-            $array_delete = array_diff($existing_groups, $group);
-
-            // Valori da eliminare
-            if(count($array_delete))
-            {
-                foreach($array_delete AS $value)
-                {
-                    $this->_db->delete(Group::$table_group_user, "user_id='$id' AND group_id='$value'");
-                }
-            }
-
-            // Valori da aggiungere
-            foreach($group AS $value)
-            {
-                if(!in_array($value, $existing_groups))
-                {
-                    $this->_db->insert(array('group_id'=>$value, 'user_id'=>$id), Group::$table_group_user);
-                }
-            }
-        }
-        else    // elimina tutto
-        {
-            $this->_db->delete(Group::$table_group_user, "user_id='$id'");
-        }
-
-        return $this->returnJoinLink('user', 'jug', $id);
     }
 
     /**

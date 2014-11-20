@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.ResponseAjax.php
- * @brief Contiene la definizione ed implementazione della classe \GinoHttp\ResponseAjax
+ * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseAjax
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

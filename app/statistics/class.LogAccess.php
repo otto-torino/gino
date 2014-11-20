@@ -1,53 +1,64 @@
 <?php
+/**
+ * @file class.LogAccess.php
+ * @brief Contiene la definizione ed implementazione della classe \Gino\App\Statistics\LogAccess
+ * 
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
 namespace Gino\App\Statistics;
 
+/**
+ * @brief Modello che rappresenta un login sul sistema
+ * 
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class LogAccess extends \Gino\Model {
 
-  public static $table = TBL_LOG_ACCESS;
+    public static $table = TBL_LOG_ACCESS;
 
-  function __construct($id) {
-    $this->_tbl_data = TBL_LOG_ACCESS;
-    parent::__construct($id);
-  }
-
-  public static function getCountForUser($user_id) {
-
-    $db = \Gino\db::instance();
-    return $db->getNumRecords(self::$table, "user_id='$user_id'");
-
-  }
-
-  public static function get($options = array()) {
-
-    $where = \Gino\gOpt('where', $options, null);
-    $order = \Gino\gOpt('order', $options, null);
-
-    $res = array();
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, $where, array('order' => $order));
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new LogAccess($row['id']);
-      }
+    /**
+     * @brief Costruttore
+     * @return istanza di \Gino\App\Statistics\LogAccess
+     */
+    function __construct($id) {
+        $this->_tbl_data = TBL_LOG_ACCESS;
+        parent::__construct($id);
     }
 
-    return $res;
+    /**
+     * @brief Totale di accessi utente
+     * @param int $user_id id utente
+     * @return numero di accessi
+     */
+    public static function getCountForUser($user_id) {
 
-  }
+        $db = \Gino\Db::instance();
+        return $db->getNumRecords(self::$table, "user_id='$user_id'");
 
-  public static function getLastForUser($user_id) {
-
-    $res = null;
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, "user_id='$user_id'", array('order'=>'date DESC', 'limit' => array(1, 1)));
-    if($rows and count($rows)) {
-      $res = new LogAccess($rows[0]['id']);
     }
 
-    return $res;
+    /**
+     * @brief Ultimo accesso di un utente
+     * @param int $user_id id utente
+     * @return \Gino\App\Statistics\LogAccess dell'ultimo accesso
+     */
+    public static function getLastForUser($user_id) {
 
-  }
+        $res = null;
+
+        $db = \Gino\Db::instance();
+        $rows = $db->select('id', self::$table, "user_id='$user_id'", array('order'=>'date DESC', 'limit' => array(1, 1)));
+        if($rows and count($rows)) {
+            $res = new LogAccess($rows[0]['id']);
+        }
+
+        return $res;
+
+    }
 
 }

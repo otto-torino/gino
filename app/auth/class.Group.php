@@ -22,7 +22,6 @@ namespace Gino\App\Auth;
 class Group extends \Gino\Model {
 
 	public static $table = TBL_GROUP;
-	public static $table_group_user = TBL_GROUP_USER;
 	public static $table_group_perm = TBL_GROUP_PERMISSION;
 	
 	/**

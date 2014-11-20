@@ -190,7 +190,7 @@ class ManyToManyField extends Field {
 		
 		$value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
 
-		return $value;
+		return is_null($value) ? array() : $value;
 	}
 
 	/**

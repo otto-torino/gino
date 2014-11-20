@@ -18,7 +18,7 @@ define("TBL_LOG_ACCESS", 'sys_log_access');
 // auth
 define("TBL_USER", 'auth_user');
 define("TBL_USER_ADD", 'auth_user_add');
-define("TBL_GROUP_USER", 'auth_group_user');
+define("TBL_USER_GROUP", 'auth_user_group');
 define("TBL_GROUP", 'auth_group');
 define("TBL_GROUP_PERMISSION", 'auth_group_perm');
 define("TBL_PERMISSION", 'auth_permission');

@@ -28,6 +28,7 @@ use \Gino\App\Module\ModuleInstance;
 class Router extends Singleton {
 
     private $_registry,
+            $_request,
             $_url_class,
             $_url_instance,
             $_url_method,
@@ -41,6 +42,7 @@ class Router extends Singleton {
     protected function __construct() {
 
         $this->_registry = Registry::instance();
+        $this->_request = $this->_registry->request;
         $this->urlRewrite();
         $this->setUrlParams();
     }
@@ -52,12 +54,27 @@ class Router extends Singleton {
      */
     private function urlRewrite() {
 
+        // exploded url
         if(preg_match("#^.*?".EVT_NAME."\[(.+)-(.+)\](.*)$#is", $this->_registry->request->path)) {
             return FALSE;
         }
         // rewrite
         else {
-            return TRUE;
+            $parts = array_values(array_filter(explode('/', $this->_request->path), function($v) { return !!$v; }));
+            var_dump($parts);
+            $parts_cnt = count($parts);
+            if($parts_cnt < 2) {
+                $this->urlRewriteAlias();
+            }
+            $instance_name = $parts[0];
+            $method_name = $parts[1];
+            // il terzo elemento è l'id
+            if($parts_cnt == 3) {
+                
+            }
+            elseif($parts_cnt > 3) {
+
+            }
         }
     }
 
@@ -128,7 +145,7 @@ class Router extends Singleton {
      */
     public function route() {
         if(!is_null($this->_controller_view)) {
-            return call_user_func($this->_controller_view, $this->_registry->request);
+            return call_user_func($this->_controller_view, $this->_request);
         }
         else {
             return new Response('');
