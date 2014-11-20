@@ -35,6 +35,7 @@ class Request extends Singleton {
            $META,
            $method,
            $path,
+           $url,
            $request_uri,
            $query_string,
            $absolute_url,
@@ -74,6 +75,7 @@ class Request extends Singleton {
         $this->request_uri = $_SERVER['REQUEST_URI'];
         $this->query_string = $_SERVER['QUERY_STRING'];
         $this->path = preg_replace("#".preg_quote(SITE_WWW)."#", '', $this->request_uri);
+        $this->url = $this->path; // viene ridefinito dalla classe \Gino\Router che chiama self::updateUrl se si esegue l'url rewriting
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], $this->request_uri);
         $this->root_absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], SITE_WWW);
@@ -83,6 +85,17 @@ class Request extends Singleton {
         Loader::import('auth', 'User');
         $this->user = new User($this->session->user_id ? $this->session->user_id : null);
 
+    }
+
+    public function updateUrl() {
+        $this->url = $this->META['SCRIPT_NAME'];
+        if(count($this->GET)) {
+            if(isset($this->GET['evt'])) {
+                $this->url .= '?evt['.key($this->GET['evt']).']';
+            }
+        }
+
+        var_dump($this->url);
     }
 
     /**

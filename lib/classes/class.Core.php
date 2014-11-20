@@ -40,7 +40,8 @@ class Core {
             '\Gino\Router',
             '\Gino\EventDispatcher', 
             '\Gino\GImage',
-            '\Gino\GTag'
+            '\Gino\GTag',
+            '\Gino\Document'
         ));
 
         Loader::import('class/exceptions', array(

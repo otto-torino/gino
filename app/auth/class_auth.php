@@ -885,6 +885,8 @@ class auth extends \Gino\Controller {
             'form' => $form,
             'title' => _('Login')
         );
-        return new \Gino\Http\Response($view->render($dict));
+
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
     }
 }
