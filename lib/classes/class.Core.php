@@ -53,7 +53,6 @@ class Core {
             '\Gino\Http\Request',
             '\Gino\Http\Response',
             '\Gino\Http\Redirect',
-            '\Gino\Http\ResponseView',
             '\Gino\Http\ResponseNotFound',
             '\Gino\Http\ResponseForbidden',
             '\Gino\Http\ResponseServerError'
