@@ -31,9 +31,7 @@ class ResponseJson extends Response {
             $content = json_encode($content);
         }
 
-        $kwargs['wrap_in_document'] = FALSE;
         parent::__construct($content, $kwargs);
-
         $this->setContentType('application/json');
 
     }

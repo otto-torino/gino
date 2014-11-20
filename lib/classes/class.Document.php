@@ -40,10 +40,12 @@ class Document {
         Loader::import('sysClass', 'ModuleApp');
         Loader::import('module', 'ModuleInstance');
     }
-    
+
+    /**
+     * @brief Risposta HTTP con il documento
+     */
     public function __invoke() {
-    	
-    	return $this->render();
+        return new \Gino\Http\Response($this->render());
     }
 
     /**
@@ -105,7 +107,7 @@ class Document {
             }
         }
 
-        return new \Gino\Http\Response($buffer);
+        return $buffer;
     }
 
     private function getSkin() {

@@ -40,10 +40,9 @@ class ResponseServerError extends Response {
     protected function sendContent() {
 
         $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page500()));
-        $buffer = $document->render();
 
         ob_start();
-        echo $buffer;
+        echo $document->render();
         ob_end_flush();
     }
 

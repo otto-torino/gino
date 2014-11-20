@@ -32,7 +32,7 @@ class ResponseFile extends Response {
      * @return istanza di \Gino\Http\ResponseAjax
      */
     function __construct($content, $content_type, $filename, array $kwargs = array()) {
-        $kwargs['wrap_in_document'] = FALSE;
+
         parent::__construct($content, $kwargs);
 
         $this->_disposition_type = isset($kwargs['disposition_type']) ? $kwargs['disposition_type'] : 'inline';
