@@ -12,6 +12,9 @@ namespace Gino\App\SysClass;
 use \Gino\Error;
 use \Gino\Loader;
 use \Gino\View;
+use \Gino\App\Module\ModuleInstance;
+use \Gino\Http\ResponseView;
+use \Gino\Http\Redirect;
 
 require_once('class.ModuleApp.php');
 
@@ -42,71 +45,77 @@ class sysClass extends \Gino\Controller {
   /**
    * Interfaccia amministrativa per la gestione dei moduli di sistema
    * 
-   * 
    * @return string
    */
-  public function manageSysClass(\Gino\Http\Request $request) {
-    
-    $this->requirePerm('can_admin');
+	public function manageSysClass(\Gino\Http\Request $request) {
+		
+		$this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
-    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
+		$id = \Gino\cleanVar($request->GET, 'id', 'int', '');
+		$block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]\">"._("Informazioni")."</a>";
-    $link_list = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=list\">"._("Gestione moduli installati")."</a>";
-    $link_install = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=install\">"._("Installazione pacchetto")."</a>";
-    $link_minstall = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=minstall\">"._("Installazione manuale")."</a>";
-    $sel_link = $link_dft;
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]\">"._("Informazioni")."</a>";
+		$link_list = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=list\">"._("Gestione moduli installati")."</a>";
+		$link_install = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=install\">"._("Installazione pacchetto")."</a>";
+		$link_minstall = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=minstall\">"._("Installazione manuale")."</a>";
+		$sel_link = $link_dft;
 
-    if($block == 'list') {
-      $action = \Gino\cleanVar($_GET, 'action', 'string', null);
-      if(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
-        if(isset($_GET['save']) and $_GET['save'] == '1') {
-          $this->_trd->actionTranslation();
-        }
-        else {
-          $this->_trd->formTranslation();
-        }
-      }
-      elseif($action == 'modify') {
-        $backend = $this->formEditSysClass($id);
-        $backend .= $this->formUpgradeSysClass($id);
-        $backend .= $this->formActivateSysClass($id);
-      }
-      elseif($action == 'delete') {
-        $backend = $this->formRemoveSysClass($id);
-      }
-      else {
-        $backend = $this->sysClassList();
-      }
-      $sel_link = $link_list;
-    }
-    elseif($block == 'install') {
-      $backend = $this->formInsertSysClass();
-      $sel_link = $link_install;
-    }
-    elseif($block == 'minstall') {
-      $backend = $this->formManualSysClass();
-      $sel_link = $link_minstall;
-    }
-    else {
-      $backend = $this->info();
-    }
+		if($block == 'list') {
+			$action = \Gino\cleanVar($request->GET, 'action', 'string', null);
+			if($request->checkGETKey('trnsl', '1')) {
+				
+				\Gino\Loader::import('class/http', '\Gino\Http\ResponseAjax');
+				if($request->checkGETKey('save', '1')) {
+					
+					$res = $this->_trd->actionTranslation();
+					$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+					return new \Gino\Http\ResponseAjax($content);
+				}
+				else {
+					return new \Gino\Http\ResponseAjax($this->_trd->formTranslation());
+				}
+			}
+			elseif($action == 'modify') {
+				$backend = $this->formEditSysClass($id);
+				$backend .= $this->formUpgradeSysClass($id);
+				$backend .= $this->formActivateSysClass($id);
+			}
+			elseif($action == 'delete') {
+				$backend = $this->formRemoveSysClass($id);
+			}
+			else {
+				$backend = $this->sysClassList();
+			}
+			$sel_link = $link_list;
+		}
+		elseif($block == 'install') {
+			$backend = $this->formInsertSysClass();
+			$sel_link = $link_install;
+		}
+		elseif($block == 'minstall') {
+			$backend = $this->formManualSysClass();
+			$sel_link = $link_minstall;
+		}
+		else {
+			$backend = $this->info();
+		}
     
 		if(is_a($backend, '\Gino\Http\Response')) {
 			return $backend;
 		}
 
-    $view = new View();
-    $view->setViewTpl('tab');
-    $dict = array(
-      'title' => _('Moduli di sistema'),
-      'links' => array($link_minstall, $link_install, $link_list, $link_dft),
-      'selected_link' => $sel_link,
-      'content' => $backend
-    );
-    return new \Gino\Http\ResponseView($view, $dict);
-  }
+		$view = new View();
+		$view->setViewTpl('tab');
+		$dict = array(
+		'title' => _('Moduli di sistema'),
+		'links' => array($link_minstall, $link_install, $link_list, $link_dft),
+		'selected_link' => $sel_link,
+		'content' => $backend
+		);
+		
+		$document = new Document($view->render($dict));
+		return $document();
+	}
 
   /**
    * Elenco dei moduli di sistema
@@ -116,7 +125,7 @@ class sysClass extends \Gino\Controller {
    */
   private function sysClassList() {
 
-    $view_table = new \Gino\View();
+    $view_table = new View();
     $view_table->setViewTpl('table');
 
     $modules_app = ModuleApp::objects(null);
@@ -133,8 +142,8 @@ class sysClass extends \Gino\Controller {
       $tbl_rows = array();
       foreach($modules_app as $module_app) {
 
-        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=modify\">".\Gino\pub::icon('modify', _("modifica/upgrade"))."</a>";
-        $link_delete = $module_app->removable ? "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=delete\">".\Gino\pub::icon('delete', _("elimina"))."</a>" : "";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=modify\">".\Gino\icon('modify', array('text'=>_("modifica/upgrade")))."</a>";
+        $link_delete = $module_app->removable ? "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=delete\">".\Gino\icon('delete', array('text'=>_("elimina")))."</a>" : "";
 
         $tbl_rows[] = array(
           $module_app->id,
@@ -156,7 +165,7 @@ class sysClass extends \Gino\Controller {
       $GINO = _('Non risultano moduli di sistema');
     }
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco moduli installati'),
@@ -185,7 +194,7 @@ class sysClass extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _("Installazione modulo di sistema"),
@@ -200,27 +209,26 @@ class sysClass extends \Gino\Controller {
    * 
    * Il modulo viene attivato nell'installazione
    * 
-   * @see $_access_admin
    */
-  public function actionInsertSysClass() {
+  public function actionInsertSysClass(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
 
     $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&block=install";
 
-    if(!\Gino\pub::enabledZip())
-      exit(Error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error));
+    if(!\Gino\enabledZip())
+      return Error::errorMessage(array('error'=>_("la classe ZipArchive non è supportata"), 'hint'=>_("il pacchetto deve essere installato con procedura manuale")), $link_error);
     
     $archive_name = $_FILES['archive']['name'];
     $archive_tmp = $_FILES['archive']['tmp_name'];
 
     if(empty($archive_tmp)) {
-      exit(Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
+      return Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error);
     }
     
     $class_name = preg_replace("/[^a-zA-Z0-9].*?.zip/", "", $archive_name);
     if(preg_match("/[\.\/\\\]/", $class_name)) {
-      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+      return Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error);
     }
     
     /*
@@ -229,7 +237,8 @@ class sysClass extends \Gino\Controller {
     $this->_db->dumpDatabase(SITE_ROOT.OS.'backup'.OS.'dump_'.date("d_m_Y_H_i_s").'.sql');
 
     $class_dir = APP_DIR.OS.$class_name;
-    @mkdir($class_dir, 0755) || exit(Error::errorMessage(array('error'=>_("impossibile creare la cartella base del modulo"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+    if(!@mkdir($class_dir, 0755))
+    	return Error::errorMessage(array('error'=>_("impossibile creare la cartella base del modulo"), 'hint'=>_("controllare i permessi di scrittura")), $link_error);
 
     /*
      * Extract archive
@@ -245,16 +254,16 @@ class sysClass extends \Gino\Controller {
       $zip->close();
     } 
     else {
-      $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("impossibile scompattare il pacchetto")), $link_error));
+      \Gino\deleteFileDir($class_dir, true);
+      return Error::errorMessage(array('error'=>_("impossibile scompattare il pacchetto")), $link_error);
     }
 
     /*
      * Parsering config file
      */
     if(!is_readable($class_dir.OS."config.txt")) {
-      $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
+      \Gino\deleteFileDir($class_dir, true);
+      return Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error);
     }
 
     $config = file_get_contents($class_dir.OS."config.txt");
@@ -278,13 +287,13 @@ class sysClass extends \Gino\Controller {
     if(!in_array($db_conf['instantiable'], array('1', '0'))) $dbConfError = true;
     if(!in_array($db_conf['removable'], array('1', '0'))) $dbConfError = true;
     if($dbConfError) {
-      $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche.")), $link_error));
+      \Gino\deleteFileDir($class_dir, true);
+      return Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche.")), $link_error);
     }
     // name check
     $res = ModuleApp::objects(null, array('where' => "name='".$db_conf['name']."'"));
     if($res and count($res)) {
-      exit(Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
+      return Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error);
     }
 
     /*
@@ -303,8 +312,8 @@ class sysClass extends \Gino\Controller {
     $result = $module_app->updateDbData();
 
     if(!$result) {
-      $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
+      \Gino\deleteFileDir($class_dir, true);
+      return Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error);
     }
     
     /*
@@ -319,12 +328,12 @@ class sysClass extends \Gino\Controller {
           $created_flds[] = SITE_ROOT.OS.$fld;
         }
         else {
-          $this->_registry->pub->deleteFileDir($class_dir, true);
+          \Gino\deleteFileDir($class_dir, true);
           $module_app->deleteDbData();
           foreach(array_reverse($created_flds) as $created_fld) {
-            $this->_registry->pub->deleteFileDir($created_fld, true);
+            \Gino\deleteFileDir($created_fld, true);
           }
-          exit(Error::errorMessage(array('error'=>_("impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+          return Error::errorMessage(array('error'=>_("impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error);
         }
       }
     }
@@ -336,12 +345,12 @@ class sysClass extends \Gino\Controller {
       $sql = file_get_contents($class_dir.OS.$class_name.".sql");
       $res = $this->_db->multiActionquery($sql);
       if(!$res) {
-        $this->_registry->pub->deleteFileDir($class_dir, true);
+        \Gino\deleteFileDir($class_dir, true);
         $module_app->deleteDbData();
         foreach(array_reverse($created_flds) as $created_fld) {
-          $this->_registry->pub->deleteFileDir($created_fld, true);
+          \Gino\deleteFileDir($created_fld, true);
         }
-        exit(Error::errorMessage(array('error'=>_("impossibile creare le tabelle")), $link_error));
+        return Error::errorMessage(array('error'=>_("impossibile creare le tabelle")), $link_error);
       }
     }	
     
@@ -354,7 +363,7 @@ class sysClass extends \Gino\Controller {
       @unlink($class_dir.OS.$class_name.".sql");
     }
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass', 'block=list'));
   }
   
   /**
@@ -393,7 +402,7 @@ class sysClass extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Installazione manuale'),
@@ -410,7 +419,7 @@ class sysClass extends \Gino\Controller {
    * Il modulo viene attivato nell'installazione
    * 
    */
-  public function actionManualSysClass() {
+  public function actionManualSysClass(\Gino\Http\Request $request) {
     
     $this->requirePerm('can_admin');
     
@@ -421,33 +430,33 @@ class sysClass extends \Gino\Controller {
     $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&action=insert";
     
     if($req_error > 0) 
-      exit(Error::errorMessage(array('error'=>1), $link_error));
+      return Error::errorMessage(array('error'=>1), $link_error);
 
-    $name = \Gino\cleanVar($_POST, 'name', 'string', '');
+    $name = \Gino\cleanVar($request->POST, 'name', 'string', '');
     // name check
-    if(preg_match("/[\.\/\\\]/", $name)) exit(error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+    if(preg_match("/[\.\/\\\]/", $name)) return error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error);
     $res = ModuleApp::get(array('where' => "name='$name'"));
     if($res and count($res)) {
-      exit(Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error));
+      return Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error);
     }
 
     $module_app = new ModuleApp(null);
-    $module_app->label = \Gino\cleanVar($_POST, 'label', 'string', '');
+    $module_app->label = \Gino\cleanVar($request->POST, 'label', 'string', '');
     $module_app->name = $name;
     $module_app->active = 1;
-    $module_app->tbl_name = \Gino\cleanVar($_POST, 'tblname', 'string', '');
-    $module_app->instantiable = \Gino\cleanVar($_POST, 'instantiable', 'int', '');
-    $module_app->description = \Gino\cleanVar($_POST, 'description', 'string', '');
+    $module_app->tbl_name = \Gino\cleanVar($request->POST, 'tblname', 'string', '');
+    $module_app->instantiable = \Gino\cleanVar($request->POST, 'instantiable', 'int', '');
+    $module_app->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
     $module_app->removable = 1;
-    $module_app->class_version = \Gino\cleanVar($_POST, 'version', 'string', '');
+    $module_app->class_version = \Gino\cleanVar($request->POST, 'version', 'string', '');
 
     $res = $module_app->updateDbData();
 
     if(!$res) {
-      exit(Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error));
+      return Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error);
     }
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass'));
   }
 
   /**
@@ -465,7 +474,7 @@ class sysClass extends \Gino\Controller {
 
     $module_app = new ModuleApp($id);
     if(!$module_app->id) {
-      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      throw new \Exception("ID non associato ad alcuna classe di sistema");
     }
 
     $required = 'label';
@@ -479,7 +488,7 @@ class sysClass extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Modifica il modulo di sistema "%s"'), \Gino\htmlChars($module_app->ml('label'))),
@@ -501,7 +510,7 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      throw new \Exception("ID non associato ad alcuna classe di sistema");
     }
 
     $gform = Loader::load('Form', array('gform', 'post', true));
@@ -514,7 +523,7 @@ class sysClass extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', $module_app->active ? _('disattiva') : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module_app->active ? _('Disattivazione') : _('Attivazione'),
@@ -529,14 +538,13 @@ class sysClass extends \Gino\Controller {
    * Form di aggiornamento del modulo
    * 
    * @param integer $id valore ID del modulo
-   * @param string $version versione del modulo
    * @return string
    */
   private function formUpgradeSysClass($id) {
 
     $module_app = new ModuleApp($id);
     if(!$module_app->id) {
-      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      throw new \Exception("ID non associato ad alcuna classe di sistema");
     }
 
     $gform = Loader::load('Form', array('gform', 'post', true));
@@ -557,7 +565,7 @@ class sysClass extends \Gino\Controller {
 
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Upgrade'),
@@ -571,56 +579,55 @@ class sysClass extends \Gino\Controller {
   /**
    * Modifica del modulo
    * 
-   * @see $_access_admin
    */
-  public function actionEditSysClass() {
+  public function actionEditSysClass(\Gino\Http\Request $request) {
   
     $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
     $model_app = new ModuleApp($id);
 
-    $model_app->label = \Gino\cleanVar($_POST, 'label', 'string', '');
-    $model_app->description = \Gino\cleanVar($_POST, 'description', 'string', '');
+    $model_app->label = \Gino\cleanVar($request->POST, 'label', 'string', '');
+    $model_app->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
 
     $model_app->updateDbData();
     
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass', 'block=list'));
   }
 
   /**
    * Modifica dello stato dell'attivazione del modulo
    * 
-   * @see $_access_admin
+   * 
    */
-  public function actionEditSysClassActive() {
+  public function actionEditSysClassActive(\Gino\Http\Request $request) {
   
     $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
     $model_app = new ModuleApp($id);
 
     $model_app->active = $model_app->active == 1 ? 0 : 1;
 
     $model_app->updateDbData();
   
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', '');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass'));
   }
 
   /**
    * Aggiornamento del modulo
    * 
-   * @see $_access_admin
+   * 
    */
-  public function actionUpgradeSysClass() {
+  public function actionUpgradeSysClass(\Gino\Http\Request $request) {
     
-    $this->accessType($this->_access_admin);
+    $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(Error::syserrorMessage("sysClass", "actionUpgradeSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      throw new Exception("ID non associato ad alcuna classe di sistema");
     }
 
     $module_class_name = $module_app->name;
@@ -630,15 +637,15 @@ class sysClass extends \Gino\Controller {
     $archive_tmp = $_FILES['archive']['tmp_name'];
 
     if(empty($archive_tmp)) {
-      exit(Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error));
+      return Error::errorMessage(array('error'=>_("file mancante"), 'hint'=>_("controllare di aver selezionato un file")), $link_error);
     }
 
     $class_name = preg_replace("/[^a-zA-Z0-9].*?upgrade.*?.zip/", "", $archive_name);
     if($class_name!=$module_class_name) {
-      exit(Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("il pacchetto non pare essere un upgrade del modulo esistente")), $link_error));
+      return Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("il pacchetto non pare essere un upgrade del modulo esistente")), $link_error);
     }
     if(preg_match("/[\.\/\\\]/", $class_name)) {
-      exit(Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error));
+      return Error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error);
     }
 
     /*
@@ -648,7 +655,8 @@ class sysClass extends \Gino\Controller {
 
     $class_dir = APP_DIR.OS.$class_name."_inst_tmp";
     $module_dir = APP_DIR.OS.$class_name;
-    @mkdir($class_dir, 0755) || exit(Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("controllare i permessi di scrttura")), $link_error));
+    if(!@mkdir($class_dir, 0755))
+    	return Error::errorMessage(array('error'=>_("upgrade fallito"), 'hint'=>_("controllare i permessi di scrttura")), $link_error);
 
     $db_conf = array('name'=>$class_name, 'version'=>null, 'tbl_name'=>null, 'instantiable'=>null, 'description'=>null, 'folders'=>null);
     $noCopyFiles = array('config.txt', $class_name.'.sql');
@@ -666,7 +674,7 @@ class sysClass extends \Gino\Controller {
       $zip->close();
     } else {
     $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("Impossibile scompattare il pacchetto")), $link_error));
+      return Error::errorMessage(array('error'=>_("Impossibile scompattare il pacchetto")), $link_error);
     }
     
     /*
@@ -674,7 +682,7 @@ class sysClass extends \Gino\Controller {
      */
     if(!is_readable($class_dir.OS."config.txt")) {
       $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error));
+      return Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche. File di configurazione mancante.")), $link_error);
     }
 
     $config = file_get_contents($class_dir.OS."config.txt");
@@ -695,8 +703,8 @@ class sysClass extends \Gino\Controller {
     if($db_conf['name'] != $class_name) $dbConfError = true;
     if(!in_array($db_conf['instantiable'], array('1', '0', null))) $dbConfError = true;
     if($dbConfError) {
-      $this->_registry->pub->deleteFileDir($class_dir, true);
-      exit(Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche.")), $link_error));
+      \Gino\deleteFileDir($class_dir, true);
+      return Error::errorMessage(array('error'=>_("Pacchetto non conforme alle specifiche.")), $link_error);
     }
 
     /*
@@ -710,11 +718,11 @@ class sysClass extends \Gino\Controller {
           $created_flds[] = SITE_ROOT.OS.$fld;
         }
         else {
-          $this->_registry->pub->deleteFileDir($class_dir, true);
+          \Gino\deleteFileDir($class_dir, true);
           foreach(array_reverse($created_flds) as $created_fld) {
-            $this->_registry->pub->deleteFileDir($created_fld, true);
+            \Gino\deleteFileDir($created_fld, true);
           }
-          exit(Error::errorMessage(array('error'=>_("upgrade fallito - impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error));
+          return Error::errorMessage(array('error'=>_("upgrade fallito - impossibile creare le cartelle dei contenuti"), 'hint'=>_("controllare i permessi di scrittura")), $link_error);
         }
       }
     }
@@ -726,11 +734,11 @@ class sysClass extends \Gino\Controller {
       $sql = file_get_contents($class_dir.OS.$class_name.".sql");
       $res = $this->_db->multiActionquery($sql);
       if(!$res) {
-        $this->_registry->pub->deleteFileDir($class_dir, true);
+        \Gino\deleteFileDir($class_dir, true);
         foreach(array_reverse($created_flds) as $created_fld) {
-          $this->_registry->pub->deleteFileDir($created_fld, true);
+          \Gino\deleteFileDir($created_fld, true);
         }
-        exit(Error::errorMessage(array('error'=>_("Upgrade fallito - impossibile creare le tabelle")), $link_error));
+        return Error::errorMessage(array('error'=>_("Upgrade fallito - impossibile creare le tabelle")), $link_error);
       }
     }	
 
@@ -750,14 +758,14 @@ class sysClass extends \Gino\Controller {
      */
     @unlink($class_dir.OS.$archive_name);
     $res = $this->upgradeFolders($class_dir, $module_dir, $noCopyFiles);
-    if(!$res) exit(Error::errorMessage(array('error'=>_("Si è verificato un errore durante l'upgrade. Uno o più file non sono stati copiati correttamente. Contattare l'amministratore del sistema per risolvere il problema.")), $link_error));
+    if(!$res) return Error::errorMessage(array('error'=>_("Si è verificato un errore durante l'upgrade. Uno o più file non sono stati copiati correttamente. Contattare l'amministratore del sistema per risolvere il problema.")), $link_error);
     
     /*
      * Removing tmp install folder
      */
-    $this->_registry->pub->deleteFileDir($class_dir, true);
+    \Gino\deleteFileDir($class_dir, true);
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass', 'block=list'));
   }
 
   private function upgradeFolders($files_dir, $module_dir, $noCopyFiles) {
@@ -795,14 +803,14 @@ class sysClass extends \Gino\Controller {
     $module_app = new ModuleApp($id);
 
     if(!$module_app->id) {
-      exit(Error::syserrorMessage("sysClass", "formEditSysClass", "ID non associato ad alcuna classe di sistema", __LINE__));
+      throw new \Exception("ID non associato ad alcuna classe di sistema");
     }
 
     $GINO = "<p class=\"lead\">"._("Attenzione! La disinstallazione di un modulo di sistema potrebbe provocare dei malfunzionamenti ed è un'operazione irreversibile.")."</p>\n";
     if($module_app->instantiable) {
       $GINO .= "<p>".sprintf(_("Il modulo %s prevede la creazione di istanze, per tanto la sua eliminazione determina l'eliminazione di ogni istanza e dei dati associati."), $module_app->label)."</p>\n";
       Loader::import('module', 'ModuleInstance');
-      $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
+      $mdl_instances = ModuleInstance::getFromModuleApp($module_app->id);
       if(count($mdl_instances)) {
         $GINO .= "<p>"._("Attualmente nel sitema sono presenti le seguenti istanze:")."</p>\n";
         $GINO .= "<ul>";
@@ -823,7 +831,7 @@ class sysClass extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("disinstalla"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Disinstallazione modulo di sistema "%s"'), $module_app->label),
@@ -837,24 +845,23 @@ class sysClass extends \Gino\Controller {
   /**
    * Eliminazione di un modulo di sistema
    * 
-   * @see $_access_admin
    */
-  public function actionRemoveSysClass() {
+  public function actionRemoveSysClass(\Gino\Http\Request $request) {
     
     $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
 
     $module_app = new ModuleApp($id);
 
-    $instance = \Gino\cleanVar($_POST, 'instance', 'string', ''); // @QUI
+    $instance = \Gino\cleanVar($request->POST, 'instance', 'string', ''); // @QUI
 
     /*
      * Removing instances if any 
      */
     if($module_app->instantiable) {
       Loader::import('module', 'ModuleInstance');
-      $mdl_instances = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
+      $mdl_instances = ModuleInstance::getFromModuleApp($module_app->id);
       foreach($mdl_instances as $mi) {
         $class = $module_app->classNameNs();
         $class_obj = new $class($mi->id);
@@ -872,7 +879,7 @@ class sysClass extends \Gino\Controller {
       $this->_trd->deleteTranslations($tbl, 'all');
     }
     foreach($class_elements['folderStructure'] as $fld=>$sub) {
-      $this->_registry->pub->deleteFileDir($fld, true);
+      \Gino\deleteFileDir($fld, true);
     }
     /*
      * Drop permissions
@@ -882,14 +889,14 @@ class sysClass extends \Gino\Controller {
     /*
      * Removing class directory
      */
-    $this->_registry->pub->deleteFileDir(APP_DIR.OS.$module_app->name, true);
+    \Gino\deleteFileDir(APP_DIR.OS.$module_app->name, true);
     
     /*
      * Removing sysclass
      */
     $module_app->deleteDbData();
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageSysClass', 'block=list');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass', 'block=list'));
   }
 
   private function info() {
@@ -913,7 +920,7 @@ class sysClass extends \Gino\Controller {
     $buffer .= "<li>"._("altri file di complemento (es. class_newsItem.php)")."</li>";
     $buffer .= "</ul>";
     
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Informazioni'),
