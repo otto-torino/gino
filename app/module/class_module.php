@@ -39,12 +39,12 @@ class module extends \Gino\Controller {
    * 
    * @return string
    */
-  public function manageModule(){
+  public function manageModule(\Gino\Http\Request $request){
 
     $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
-    $block = \Gino\cleanVar($_GET, 'block', 'string', null);
+    $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
+    $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
     $module = new ModuleInstance($id);
 

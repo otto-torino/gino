@@ -31,7 +31,6 @@ class Response {
 
     protected $_request,
               $_content,
-              $_wrap_in_document,
               $_status_code,
               $_status_text,
               $_content_type,
@@ -42,15 +41,11 @@ class Response {
      * @brief Costruttore
      * @param string $content contenuto della risposta
      * @param array $kwargs array associativo di argomenti
-     *                       - wrap_in_document: bool, default TRUE. Se vero il contenuto passato viene inserito all'interno del
-     *                                           documento (@ref \Gino\Document)
      * @return istanza di \Gino\Http\Response
      */
     function __construct($content, array $kwargs = array()) {
 
         $this->_request = Request::instance();
-
-        $this->_wrap_in_document = isset($kwargs['wrap_in_document']) ? $kwargs['wrap_in_document'] : TRUE;
 
         $this->_content = $content;
         $this->_status_code = 200;
@@ -149,16 +144,8 @@ class Response {
      */
     protected function sendContent() {
 
-        if($this->_wrap_in_document) {
-            $document = Loader::load('Document', array($this->_content)); 
-            $buffer = $document->render();
-        }
-        else {
-            $buffer = $this->_content;
-        }
-
         ob_start();
-        echo $buffer;
+        echo $this->_content;
         ob_end_flush();
 
     }
