@@ -40,7 +40,8 @@ class Core {
             '\Gino\Router',
             '\Gino\EventDispatcher', 
             '\Gino\GImage',
-            '\Gino\GTag'
+            '\Gino\GTag',
+            '\Gino\Document'
         ));
 
         Loader::import('class/exceptions', array(
@@ -53,7 +54,6 @@ class Core {
             '\Gino\Http\Request',
             '\Gino\Http\Response',
             '\Gino\Http\Redirect',
-            '\Gino\Http\ResponseView',
             '\Gino\Http\ResponseNotFound',
             '\Gino\Http\ResponseForbidden',
             '\Gino\Http\ResponseServerError'

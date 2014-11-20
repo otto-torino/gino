@@ -54,27 +54,87 @@ class Router extends Singleton {
      */
     private function urlRewrite() {
 
-        // exploded url
-        if(preg_match("#^.*?".EVT_NAME."\[(.+)-(.+)\](.*)$#is", $this->_registry->request->path)) {
+        // normal url, no rewriting needed
+        if(preg_match("#^/(index.php\??.*)?$#is", $this->_registry->request->path)) {
             return FALSE;
         }
-        // rewrite
+        // beautiful url
         else {
-            $parts = array_values(array_filter(explode('/', $this->_request->path), function($v) { return !!$v; }));
-            var_dump($parts);
-            $parts_cnt = count($parts);
-            if($parts_cnt < 2) {
-                $this->urlRewriteAlias();
-            }
-            $instance_name = $parts[0];
-            $method_name = $parts[1];
-            // il terzo elemento è l'id
-            if($parts_cnt == 3) {
-                
-            }
-            elseif($parts_cnt > 3) {
+            // ripuliamo da schifezze
+            $this->_request->GET = array();
+            $query_string = '';
+            $path_info = preg_replace_callback("#\?(.*)$#", function($matches) use(&$query_string) { $query_string = $matches[1]; return ''; }, $this->_request->path);
 
+            if($path_info !== '/') {
+                $this->rewritePathInfo(array_values(array_filter(explode('/', $path_info), function($v) { return !!$v; })));
             }
+
+            if($query_string !== '') {
+                $this->rewriteQueryString(explode('&', $query_string));
+            }
+
+            $this->_request->updateUrl();
+        }
+    }
+
+    /**
+     * @brief Riscrittura URL path info
+     * @param array $paths parti del path info
+     * @return TRUE
+     */
+    private function rewritePathInfo(array $paths) {
+
+        $tot = count($paths);
+
+        /**
+         * http://example.com/admin
+         */
+        if($tot === 1) {
+            // admin porta alla home di amministrazione
+            if($paths[0] === 'admin') {
+                $this->_request->GET['evt'] = array('index-admin_page' => '');
+            }
+            // il path viene interpretato come <nome-istanza>/index
+            elseif($paths[0] !== 'home') {
+                $this->_request->GET['evt'] = array(sprintf('%s-index', $paths[0]) => '');
+            }
+            return TRUE;
+        }
+
+        // esistono due o più path, i primi due sono nome istanza e metodo
+        $this->_request->GET['evt'] = array(sprintf('%s-%s', $paths[0], $paths[1]) => '');
+
+        // ulteriori path sono normali coppie chiave/valore da inserire nella proprietà GET
+        if($tot > 2) {
+            // numero dispari di path, il terzo è un id
+            if($tot % 2 !== 0) {
+                $this->_request->GET['id'] = $paths[2];
+                // e lo rimuovo
+                unset($paths[2]);
+                // e rimetto a posto le chiavi
+                $paths = array_values($paths);
+            }
+
+            // devo ricontare i paths
+            for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
+                $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? $paths[$i + 1] : '';
+            }
+        }
+
+        return TRUE;
+
+    }
+
+    /**
+     * @brief Riscrittura URL della query_string
+     * @param array $pairs coppie chiave-valore
+     * @return void
+     */
+    private function rewriteQueryString(array $pairs) {
+
+        foreach($pairs as $pair) {
+            $pair_parts = explode('=', $pair);
+            $this->_request->GET[$pair_parts[0]] = isset($pair_parts[1]) ? $pair_parts[1] : '';
         }
     }
 
