@@ -207,7 +207,7 @@ class Frontend {
       foreach($items as $k=>$v) {
         $filename = $this->fileName($v['filename'], $ext);
         $description = $v['description'];
-        $link_modify = "<a href=\"$this->_mdlLink&key=$k&code=$code&action=modify\">".pub::icon('modify')."</a>";
+        $link_modify = "<a href=\"$this->_mdlLink&key=$k&code=$code&action=modify\">".\Gino\icon('modify')."</a>";
         $tbl_rows[] = array(
           $filename,
           $description,

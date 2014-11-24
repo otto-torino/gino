@@ -61,85 +61,80 @@ class Skin extends Model {
     /**
      * @brief Ricerca la corrispondenza dell'url con una skin
      *
-     * @param string $path percorso relativo
-     * @return object o false
+     * @param \Gino\Http\Request $request
+     * @return skin trovata oppure FALSE
      */
-    public static function getSkin($path) {
+    public static function getSkin(\Gino\Http\Request $request) {
 
-        var_dump($path);
         $registry = Registry::instance();
         $session = $registry->session;
-        $plink = new Link();
 
         $rows = $registry->db->select('id, session, rexp, urls, auth', self::$_tbl_skin, null, array('order' => 'priority ASC'));
         if($rows and count($rows)) {
+            /**
+             * Variabile di sessione -> urls -> rexp
+             */
             foreach($rows as $row) {
                 $session_array = explode("=", trim($row['session']));
-
-                if(count($session_array)==2) {
-
+                if(count($session_array) == 2) {
                     if(isset($session->$session_array[0]) && $session->$session_array[0] == $session_array[1]) {
-
                         $urls = explode(",", $row['urls']);
-
-                        foreach($urls as $url) 
-                        {    
-                            if(!preg_match('#\?(evt|pt)\[#', $url))
-                            $url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
-
-                            if($url == $relativeUrl) { 
-                                if($row['auth']=='' || ($request->user->id && $row['auth']=='yes') || (!$request->user->id && $row['auth']=='no'))
-                                    return new skin($row['id']);
+                        // url esatto nella forma abbellita o espansa
+                        foreach($urls as $url)
+                        {
+                            if($url == $request->url or $url == $request->path) {
+                                if($row['auth'] == '' or ($request->user->id and $row['auth']=='yes') or (!$request->user->id and $row['auth'] == 'no'))
+                                    return new Skin($row['id']);
                             }
                         }
 
                         if(!empty($row['rexp']))
                         {
-                            $p_relativeUrl = $plink->convertLink($relativeUrl, array('pToLink'=>false));
-
-                            if(preg_match($row['rexp'], $relativeUrl) || preg_match($row['rexp'], $p_relativeUrl))
+                            if(preg_match($row['rexp'], $request->url) || preg_match($row['rexp'], $request->path))
                             {
-                                if($row['auth']=='' || ($request->user->id && $row['auth']=='yes') || (!$request->user->id && $row['auth']=='no'))
-                                    return new skin($row['id']);
+                                if($row['auth'] == '' or ($request->user->id and $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
+                                    return new Skin($row['id']);
                             }
                         }
                     }
                 }
             }
 
+            /**
+             * Urls
+             */
             foreach($rows as $row) {
 
                 if(!$row['session']) {
                     $urls = explode(",", $row['urls']);
-
                     foreach($urls as $url) 
-                    {    
-                        if(!preg_match('#\?(evt|pt)\[#', $url))
-                            $url = $plink->convertLink($url, array('pToLink'=>true, 'basename'=>true));
-
-                        if($url == $relativeUrl) { 
-                            if($row['auth']=='' || ($request->user->id && $row['auth']=='yes') || (!$request->user->id && $row['auth']=='no'))
-                                return new skin($row['id']);
+                    {
+                        if($url == $request->url or $url == $request->path) { 
+                            if($row['auth'] == '' or ($request->user->id && $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
+                                return new Skin($row['id']);
                         }
                     }
                 }
             }
+
+            /**
+             * Rexp
+             */
             foreach($rows as $row) {
 
                 if(!$row['session'] && !empty($row['rexp']))
                 {
-                    $p_relativeUrl = $plink->convertLink($relativeUrl, array('pToLink'=>false));
-
-                    if(preg_match($row['rexp'], $relativeUrl) || preg_match($row['rexp'], $p_relativeUrl))
+                    if(preg_match($row['rexp'], $request->url) or preg_match($row['rexp'], $request->path))
                     {
-                        if($row['auth']=='' || ($request->user->id && $row['auth']=='yes') || (!$request->user->id && $row['auth']=='no'))
-                            return new skin($row['id']);
+                        if($row['auth'] == '' or ($request->user->id and $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
+                            return new Skin($row['id']);
                     }
                 }
             }
-            return false;
+            return FALSE;
         }
-        else return false;
+
+        return FALSE;
     }
 
     /**

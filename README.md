@@ -1,5 +1,28 @@
-===================================================================
-gino CMS by Otto Srl, MIT license
-===================================================================
-Version 1.5.1   
-gino is developed with technology PHP and provides all the necessary instruments to create a web site and to manage its contents in a simple and effective way.
+# gino CMS {#mainpage}
+
+gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessari a creare un sito web e gestirne i contenuti in modo semplice ed efficace, svincolando l'amministratore da conoscenze tecniche di programmazione.
+
+# Caratteristiche
+- utilizzo di patterns di programmazione, MVC, Mediator, Factory Method, Singleton
+- gestione multilingua
+- gestione utenti e gruppi di utenti
+- gestione layout libero e a blocchi con interfaccia di manipolazione
+- gestione di layout legati a singoli url o gruppi di url attraverso espressioni regolari
+- gestione cache contenuti
+- modulo pagine
+- modulo allegati
+- modulo gestione header/footer
+- modulo lingue
+- modulo menu
+- modulo per la gestione di codice custom php
+- modulo statistiche di accesso
+- gestione errori http 404, 403, 500
+- ricerca full-text
+- installazione di pacchetti aggiuntivi con un click
+- integrazione bootstrap 3 (less) e font-awesome, possibilità di creare layout responsive
+- integrazione mootools > 1.4
+- gestione dispositivi mobile separata se necessario
+- moduli aggiuntivi disponibili sull'[account github di Otto](http://github.com/otto-torino)
+
+## Copyright
+Copyright © 2005-2014 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)

@@ -61,7 +61,7 @@ class Permission extends \Gino\Model {
   }
 
 	function __toString() {
-		return $this->label;
+		return (string) $this->label;
 	}
 	
 	public function getModelLabel() {

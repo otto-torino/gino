@@ -78,7 +78,7 @@ class Access {
 
     $self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
 
-    exit(Error::errorMessage(array('error'=>$message), $self));
+    return Error::errorMessage(array('error'=>$message), $self);
   }
 
   /**

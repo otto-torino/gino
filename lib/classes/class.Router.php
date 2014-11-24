@@ -27,6 +27,8 @@ use \Gino\App\Module\ModuleInstance;
  */
 class Router extends Singleton {
 
+    const EVT_NAME = 'evt';
+
     private $_registry,
             $_request,
             $_url_class,
@@ -49,7 +51,7 @@ class Router extends Singleton {
 
     /**
      * @brief Url rewriting
-     * @description Se l'url non è nella forma permalink ritorna FALSE, altrimenti riscrive le proprietà dell'oggetto
+     * @description Se l'url non è nella forma permalink ritorna FALSE, altrimenti riscrive le proprietà GET e REQUEST dell'oggetto
      *              @ref \Gino\HttpRequest parserizzando l'url
      */
     private function urlRewrite() {
@@ -58,7 +60,7 @@ class Router extends Singleton {
         if(preg_match("#^/(index.php\??.*)?$#is", $this->_registry->request->path)) {
             return FALSE;
         }
-        // beautiful url
+        // pretty url
         else {
             // ripuliamo da schifezze
             $this->_request->GET = array();
@@ -72,6 +74,8 @@ class Router extends Singleton {
             if($query_string !== '') {
                 $this->rewriteQueryString(explode('&', $query_string));
             }
+
+            $this->_request->REQUEST = array_merge($this->_request->POST, $this->_request->GET);
 
             $this->_request->updateUrl();
         }
@@ -146,8 +150,8 @@ class Router extends Singleton {
      */
     private function setUrlParams() {
 
-        $evt_key = (isset($this->_registry->request->GET[EVT_NAME]) and is_array($this->_registry->request->GET[EVT_NAME]))
-            ? key($this->_registry->request->GET[EVT_NAME])
+        $evt_key = (isset($this->_registry->request->GET[self::EVT_NAME]) and is_array($this->_registry->request->GET[self::EVT_NAME]))
+            ? key($this->_registry->request->GET[self::EVT_NAME])
             : false;
 
         if($evt_key === FALSE or preg_match('#^[^a-zA-Z0-9_-]+?#', $evt_key)) {
@@ -210,6 +214,52 @@ class Router extends Singleton {
         else {
             return new Response('');
         }
+    }
+
+    /**
+     * @brief Url che linka un metodo di una istanza di controller con parametri dati
+     * @param string $instance_name nome istanza del @ref \Gino\Controller
+     * @param string $method nome metodo
+     * @param array $params parametri da aggiungere come path info nel caso di pretty url
+     * @param array|string $query_string parametri aggiuntivi da trattare come query_string in entrambi i casi (pretty, espanso)
+     * @param array $kwargs array associativo
+     *                      - pretty: bool, default TRUE. Creare un pretty url o un url espanso
+     *                      - abs: bool, default FALSE. Se TRUE viene ritornato un url assoluto
+     * @return url
+     */
+    public function link($instance_name, $method, array $params = array(), $query_string = '', array $kwargs = array()) {
+
+        $pretty = isset($kwargs['pretty']) ? $kwargs['pretty'] : TRUE;
+        $abs = isset($kwargs['abs']) ? $kwargs['abs'] : FALSE;
+        $query_string = is_array($query_string)
+            ? implode('&', array_map(function($k, $v) { return $v === '' ? $k :sprintf('%s=%s', $k, $v); }, array_keys($query_string), array_values($query_string)))
+            : $query_string;
+
+        $tot_params = count($params);
+
+        // pretty url
+        if($pretty) {
+            $url = sprintf('/%s/%s/', $instance_name, $method);
+            // params dispari
+            if(isset($params['id'])) {
+                $url .= sprintf('%s/', $params['id']);
+            }
+
+            foreach($params as $k => $v) {
+                if($k !== 'id') $url .= sprintf('%s/%s/', $k, $v);
+            }
+
+            if($query_string) $url .= '?' . $query_string;
+
+            return $abs ? $this->_request->root_absolute_url . $url : $url;
+        }
+
+        // url espansi
+        $url = sprintf('/%s?evt[%s-%s]', $this->_request->META['SCRIPT_NAME'], $instance_name, $method);
+        if($tot_params) $query_string = implode('&', array_map(function($k, $v) { return sprintf('%s=%s', $k, $v); }, array_keys($params), array_values($params))) . ($query_string ? '&' . $query_string : '');
+        if($query_string) $url .= '?' . $query_string;
+
+        return $abs ? $this->_request->root_absolute_url . $url : $url;
     }
 
 }

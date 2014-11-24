@@ -1,27 +1,21 @@
 <?php
 /**
  * @file func.php
- * @brief Racchiude le funzioni generali utilizzate da gino
+ * @brief Racchiude funzioni generali utilizzate da gino
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
-/**
- * Include le librerie per il trattamento dei valori da e per un input/database
- */
+// Include le librerie per il trattamento di stringhe e dei valori da e per un input/database
 include(LIB_DIR.OS.'func.var.php');
 
-/**
- * Include le librerie per il trattamento dei valori da e per un input/database
- */
+// Include le librerie per il trattamento di file
 include(LIB_DIR.OS.'func.file.php');
 
-/**
- * Include le librerie per il riconoscimento browser
- */
+// Include le librerie per il riconoscimento browser
 include(LIB_DIR.OS.'func.browser.php');
 
 /**
@@ -79,10 +73,10 @@ function arrayToObject(array $array) {
 }
 
 /**
- * Verifica la validità dell'indirizzo email
- * 
+ * @brief Verifica la validità dell'indirizzo email
+ *
  * Di default verifica la corrispondenza dell'indirizzo email alle specifiche dello standard RFC-2822. 
- * 
+ *
  * @param string $value indirizzo email
  * @param mixed $regexp se presente verifica la corrispondenza di un indirizzo con una espressione regolare
  *   - tipo boolean, se vero attiva una espressione regolare restrittiva
@@ -107,8 +101,8 @@ function checkEmail($value, $regexp=null) {
 }
 
 /**
- * Formatta la data per il database (YYYY-MM-DD)
- * 
+ * @brief Formatta la data per il database (YYYY-MM-DD)
+ *
  * @param string $date valore della data (DD/MM/YYYY), generalmente da input form
  * @param string $s separatore utilizzato nella data
  * @return string
@@ -126,8 +120,8 @@ function dateToDbDate($date, $s='/') {
 }
 
 /**
- * Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (DD/MM[/YYYY])
- * 
+ * @brief Converte il formato della data da database (campo DATE) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ *
  * @param mixed $db_date valore del campo date; string (YYYY-MM-DD) or object(DateTime)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
@@ -145,8 +139,8 @@ function dbDateToDate($db_date, $s='/', $num_year=4) {
 }
 
 /**
- * Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (DD/MM[/YYYY])
- * 
+ * @brief Converte il formato della data da database (campo DATETIME) in un formato di facile visualizzazione (DD/MM[/YYYY])
+ *
  * @param mixed $datetime valore del campo datetime; string (YYYY-MM-DD HH:MM:SS) or object(DateTime)
  * @param string $s separatore utilizzato nella data
  * @param integer $num_year numero di cifre dell'anno da mostrare
@@ -168,8 +162,8 @@ function dbDatetimeToDate($datetime, $s='/', $num_year=4) {
 }
 
 /**
- * Riporta l'orario di un campo DATETIME (HH:MM:SS)
- * 
+ * @brief Riporta l'orario di un campo DATETIME (HH:MM:SS)
+ *
  * @param mixed $datetime valore del campo datetime; string (YYYY-MM-DD HH:MM:SS) or object(DateTime)
  * @return string
  */
@@ -189,8 +183,8 @@ function dbDatetimeToTime($datetime) {
 }
 
 /**
- * Mostra l'orario (HH:MM[:SS])
- * 
+ * @brief Mostra l'orario (HH:MM[:SS])
+ *
  * @param mixed $db_time valore del campo time o dell'output della funzione dbDatetimeToTime; string (HH:MM:SS) or object(DateTime)
  * @param boolean $seconds visualizzazione dei secondi
  * @return string
@@ -207,8 +201,8 @@ function dbTimeToTime($db_time, $seconds=false) {
 }
 
 /**
- * Formatta l'orario per il database (HH:MM:SS)
- * 
+ * @brief Formatta l'orario per il database (HH:MM:SS)
+ *
  * @param string $time orario ([00][{,|:}00][{,|:}00])
  * @return string
  */
@@ -240,15 +234,15 @@ function timeToDbTime($time) {
 }
 
 /**
- * Formatta un numero con il raggruppamento delle centinaia
+ * @brief Formatta un numero con il raggruppamento delle centinaia
  * 
  * @code
  * number_format(float $number, int $decimals = 0, string $dec_point = ',', string $thousands_sep = '.')
  * @endcode
- * 
+ *
  * @param float $number numero
- * @param integer $decimals numero di decimali
- * @return string
+ * @param int $decimals numero di decimali
+ * @return numero formattato
  */
 function dbNumberToNumber($number, $decimals=2)
 {
@@ -259,10 +253,10 @@ function dbNumberToNumber($number, $decimals=2)
 }
 
 /**
- * Formatta un numero per il database (il separatore decimale è il punto)
- * 
+ * @brief Formatta un numero per il database (il separatore decimale è il punto)
+ *
  * @param string $number numero
- * @return float
+ * @return numero formattato
  */
 function numberToDB($number)
 {
@@ -271,8 +265,8 @@ function numberToDB($number)
 }
 
 /**
- * Controlla se una variabile è un numero o una stringa numerica
- * 
+ * @brief Controlla se una variabile è un numero o una stringa numerica
+ *
  * @param mixed $variable valore della variabile (string|integer|float)
  * @return boolean
  */
@@ -280,17 +274,17 @@ function isNumeric($variable)
 {
     if(empty($variable)) return true;
 
-    if(!ereg("^[0-9\,\.]+$", $variable)) return false;
+    if(!ereg("^[0-9\,\.]+$", $variable)) return FALSE;
 
-    if(is_numeric(numberToDB($variable))) return true; else return false;
+    if(is_numeric(numberToDB($variable))) return TRUE; else return FALSE;
 }
 
 /**
- * Calcola l'intervallo di tempo in secondi tra due valori datetime
- * 
+ * @brief Calcola l'intervallo di tempo in secondi tra due valori datetime
+ *
  * @param string $firstTime datetime iniziale
  * @param string $lastTime datetime finale
- * @return integer
+ * @return intervallo di tempo
  */
 function timeDiff($firstTime, $lastTime){
 
@@ -307,8 +301,8 @@ function timeDiff($firstTime, $lastTime){
 }
 
 /**
- * Calcola la differenza di tempo tra due datetime in più formati
- * 
+ * @brief Calcola la differenza di tempo tra due datetime in più formati
+ *
  * @param string $interval indica il tipo di numero da ricavare, accetta i valori:
  *   - @b yyyy - numero totale di anni
  *   - @b q - numero totale di quarti
@@ -323,7 +317,7 @@ function timeDiff($firstTime, $lastTime){
  * @param string $datefrom datetime iniziale
  * @param string $dateto datetime finale
  * @param boolean $using_timestamps indica se i valori di $datefrom e $dateto sono in formato timestamp (default false)
- * @return integer
+ * @return differenza di tempo
  */
 function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
 
@@ -402,13 +396,13 @@ function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
     default:
         $datediff = $difference;
         break;
-    }    
+    }
 
     return $datediff;
 }
 
 /**
- * Calcola la differenza di tempo tra due datetime in più formati
+ * @brief Calcola la differenza di tempo tra due datetime in più formati
  * 
  * @param string $start_date datetime iniziale
  * @param string $end_date datetime finale (default now)
@@ -418,9 +412,9 @@ function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
  *     - @a s, differenza in secondi (default)
  *     - @a i, differenza in minuti
  *     - @a h. differenza in ore
- * @return integer
- * 
- * Utilizza la classe DateTime.
+ * @return differenza di tempo
+ *
+ * Utilizza la classe \DateTime.
  */
 function getDateDiff($start_date, $end_date=null, $options=array()) {
 
@@ -457,8 +451,8 @@ function getDateDiff($start_date, $end_date=null, $options=array()) {
 }
 
 /**
- * Verifica se il valore della variabile è conforme al tipo di controllo indicato
- * 
+ * @brief Verifica se il valore della variabile è conforme al tipo di controllo indicato
+ *
  * @param string $type tipo di controllo da eseguire
  *   - @b IP: indirizzo IP
  *   - @b URL: indirizzo URL
@@ -491,13 +485,13 @@ function isValid($type, $var)
             return !!preg_match('#^\#?([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$#',$var);
     }
 
-    return false;
+    return FALSE;
 }
 
 /**
  * @brief Accorcia un testo HTML alla lunghezza desiderata (length)
  *
- * Inoltre sostituisce l'ultimo carattere con il valore ending se il testo è più lungo di length. Può strippare i TAG.
+ * Sostituisce l'ultimo carattere con il valore ending se il testo è più lungo di length. Può strippare i TAG.
  *
  * @param string $html stringa HTML da accorciare
  * @param integer $length lunghezza della stringa da riportare, incluse le ellissi
@@ -508,7 +502,7 @@ function isValid($type, $var)
  * @param array $options
  *   array associativo di opzioni
  *   - @b endingPosition (string) [in|out]: posizionamento dei caratteri dell'ending nella struttura html o al di fuori della struttura html (dopo che sono stati chiusi tutti i TAG)
- * @return string
+ * @return stringa accorciata
  */
 function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_images, $options=null) {
 
@@ -519,7 +513,7 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
     $closed_tag = "<\/\w+\s*[^>]*>";                // i.e. </p> </b> ...
     $openended_tag = "<\w+\s*[^>]*\/>";            // i.e. <br/> <img /> ...    
     $cutten_tag = "<\w+\s*[^>]*$";                // i.e. <img src="" 
-    $reg_expr_img = "/<img\s*[^>]*\/>/is";      
+    $reg_expr_img = "/<img\s*[^>]*\/>/is";
     /* 
         Check: if text is shorter than length (tags excluded) return $html
         with or without tags
@@ -543,37 +537,36 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
 
         // splits all html-tags to scanable lines
         $reg_expr = "/(<\/?\w+\s*[^>]*\/?>)?([^<>]*)/is";
-         preg_match_all($reg_expr, $html, $lines, PREG_SET_ORDER);
-         /*
-             now 
-             - in $lines[$i] are listed all the matches with the regular expression:
-               $lines[0]: first match
-               $lines[1]: second match ...
+        preg_match_all($reg_expr, $html, $lines, PREG_SET_ORDER);
+        /*
+            now 
+            - in $lines[$i] are listed all the matches with the regular expression:
+              $lines[0]: first match
+              $lines[1]: second match ...
 
-             - $lines[$i][0] contains the wide matching string
-             - $lines[$i][1] contains the matching with (<\/?\w+\s*[^>]*\/?>), that is opened or    
-               closed ore openclosed tags
-             - $lines[$i][2]contains the matching with ([^<>]*) that is the text inside the tag
-               or between a tag and another
+            - $lines[$i][0] contains the wide matching string
+            - $lines[$i][1] contains the matching with (<\/?\w+\s*[^>]*\/?>), that is opened or    
+              closed ore openclosed tags
+            - $lines[$i][2]contains the matching with ([^<>]*) that is the text inside the tag
+              or between a tag and another
+        */
+        $total_length = 0;
+        $tags_opened = array();
+        $partial_html = '';
+
+        foreach ($lines as $line_matchings) {
+        /*
+          $line_matchings[1] contains tags
+          $line_matchings[2] contains text contained in tags
+          Check: what kind of tag is? open, close, openclose?
          */
-         $total_length = 0;
-         $tags_opened = array();
-          $partial_html = '';
-
-         foreach ($lines as $line_matchings) {
-            /*
-                $line_matchings[1] contains tags
-                $line_matchings[2] contains text contained in tags
-
-                Check: what kind of tag is? open, close, openclose?
-            */
-               if (!empty($line_matchings[1])) {
-                   $strip_this_tag = 0;
-                   $reg_expr_oc = "/".$openended_tag."$/is";
-                   $reg_expr_o = "/<(\w+)\s*([^>]*[^\/>]){0,1}>$/is";
-                   $reg_expr_c = "/<\/(\w+)>$/is";
-                   // search img tags
-                   if(preg_match($reg_expr_img, $line_matchings[1]) && $cut_images) {
+            if(!empty($line_matchings[1])) {
+                $strip_this_tag = 0;
+                $reg_expr_oc = "/".$openended_tag."$/is";
+                $reg_expr_o = "/<(\w+)\s*([^>]*[^\/>]){0,1}>$/is";
+                $reg_expr_c = "/<\/(\w+)>$/is";
+                // search img tags
+                if(preg_match($reg_expr_img, $line_matchings[1]) && $cut_images) {
                     $strip_this_tag = 1;
                 }
                 // search openended tags
@@ -599,19 +592,19 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
                 // add html-tag to $truncate'd text
                 if(!$strip_this_tag) $partial_html .= $line_matchings[1];
 
-               }
-               /*
-                   Calculate the lenght of the text inside tags and replace considering html entities one size characters
-               */
-               $reg_exp_entities = '/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i';
-               $content_length = strlen(preg_replace($reg_exp_entities, ' ', $line_matchings[2]));
+            }
+            /*
+               Calculate the lenght of the text inside tags and replace considering html entities one size characters
+            */
+            $reg_exp_entities = '/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i';
+            $content_length = strlen(preg_replace($reg_exp_entities, ' ', $line_matchings[2]));
 
-               if ($total_length+$content_length> $length) {
+            if($total_length+$content_length> $length) {
 
-                   $left = $length - $total_length;
-                   $entities_length = 0;
+                $left = $length - $total_length;
+                $entities_length = 0;
 
-                   // search for html entities (l'entities conta come un carattere, ma nell'html ne uccupa di più, quindi dobbiamo fare in modo di includere completament l'entities, cioè il suo codice e contarlo interamente come un singolo carattere: scaliamo uno da $left ed aggiungiamo $entities_length all alunghezza della substring)
+                // search for html entities (l'entities conta come un carattere, ma nell'html ne uccupa di più, quindi dobbiamo fare in modo di includere completament l'entities, cioè il suo codice e contarlo interamente come un singolo carattere: scaliamo uno da $left ed aggiungiamo $entities_length all alunghezza della substring)
                 if(preg_match_all($reg_exp_entities, $line_matchings[2], $entities, PREG_OFFSET_CAPTURE)) {
                     // calculate the real length of all entities in the legal range
                     foreach ($entities[0] as $entity) {
@@ -628,63 +621,60 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
 
                 $partial_html .= substr($line_matchings[2], 0, $left+$entities_length);
                 // maximum lenght is reached, so get off the loop
-                  break;
-
-               }
-               else {
+                break;
+            }
+            else {
                 $partial_html .= $line_matchings[2];
-                  $total_length += $content_length;
+                $total_length += $content_length;
             }
 
-               // if the maximum length is reached, get off the loop
+            // if the maximum length is reached, get off the loop
             if($total_length>= $length) break;
 
         }
     }
     else {
         // considero solamente il testo puro
-             $partial_html = substr($text, 0, $length);
+        $partial_html = substr($text, 0, $length);
     }
 
     // if the words shouldn't be cut in the middle...
-        if (!$cut_words) {
-               //search the last occurance of a space or an end tag
-               $spacepos = strrpos($partial_html, ' ');
-               $endtagpos = strrpos($partial_html, '>');
-               if(isset($spacepos) || isset($endtagpos)) {
-                   //cut the text in this position
-                   $cutpos = ($spacepos<$endtagpos)? ($endtagpos+1) : $spacepos;
-                   $partial_html = substr($partial_html, 0, $cutpos);
-               }
+    if (!$cut_words) {
+        //search the last occurance of a space or an end tag
+        $spacepos = strrpos($partial_html, ' ');
+        $endtagpos = strrpos($partial_html, '>');
+        if(isset($spacepos) || isset($endtagpos)) {
+            //cut the text in this position
+            $cutpos = ($spacepos<$endtagpos)? ($endtagpos+1) : $spacepos;
+            $partial_html = substr($partial_html, 0, $cutpos);
         }
+    }
 
     if(isset($options['endingPosition']) && $options['endingPosition']=='in')
         $partial_html .= $ending;
 
-    /*
-        Se non ho strippato i tag devo chiudere tutti quelli rimasti aperti
-    */
+    // Se non ho strippato i tag devo chiudere tutti quelli rimasti aperti
     if(!$strip_tags) 
-            // close all unclosed html tags
-            foreach ($tags_opened as $tag) 
-                $partial_html .= '</' . $tag . '>';
+        // close all unclosed html tags
+        foreach ($tags_opened as $tag) 
+            $partial_html .= '</' . $tag . '>';
 
     // add the ending characters to the partial text
     if(!isset($options['endingPosition']) || $options['endingPosition']=='out')
         $partial_html .= $ending;
 
-        return $partial_html;    
+    return $partial_html;
 
 }
 
 /**
- * Limita i caratteri di una stringa
+ * @brief Limita i caratteri di una stringa
  *
  * @param string $string testo da accorciare
  * @param integer $max_char numero massimo di caratteri
  * @param boolean $word_complete se vero, mantiene l'ultima parola completa (utile nei select)
  * @param boolean $file se vero, mostra l'estensione finale del file
- * @return string
+ * @return stringa ridotta
  */
 function cutString($string, $max_char, $word_complete=true, $file=false)
 {
@@ -717,7 +707,7 @@ function cutString($string, $max_char, $word_complete=true, $file=false)
 }
 
 /**
- * Elenco delle province
+ * @brief Elenco delle province
  * @return array (sigla=>capoluogo)
  */
 function listProv() {
@@ -839,13 +829,13 @@ function listProv() {
 }
 
 /**
- * Ritorna un indirizzo della condivisione per i social network
- * 
+ * @brief Codice html di condivisione social network
+ *
  * @param string $site tipo di condivisione (facebook, twitter, linkedin, googleplus)
  * @param string $url indirizzo da condividere
  * @param string $title titolo della condivisione
  * @param string $description descrizione
- * @return string
+ * @return codice
  */
 function share($site, $url, $title=null, $description=null) {
 
@@ -869,13 +859,13 @@ function share($site, $url, $title=null, $description=null) {
 }
 
 /**
- * Ritorna gli indirizzi delle condivisioni per i social network
- * 
+ * @brief Codice condivisione social network con integrazione sharethis
+ *
  * @param array $social elenco delle tipologie di condivisione (facebook, twitter, linkedin, googleplus, digg); col valore @a all vengono mostrate tutte le condivisioni
  * @param string $url indirizzo da condividere
  * @param string $title titolo della condivisione
  * @param string $description descrizione
- * @return string
+ * @return codice
  */
 function shareAll($social, $url, $title=null, $description=null) {
 
@@ -944,11 +934,11 @@ function shareAll($social, $url, $title=null, $description=null) {
 }
 
 /**
- * Converte un numero in cifre
- * 
+ * @brief Converte un numero in cifre
+ *
  * @param mixed $numero valore da convertire (float|integer)
  * @param boolean $decimale se vero, mostra il decimale ([/00])
- * @return string
+ * @return numero in cifre
  */
 function traslitterazione($numero, $decimale=false)
 {
@@ -1026,7 +1016,7 @@ function traslitterazione($numero, $decimale=false)
 
 /**
  * @brief Verifica la validità del supporto PNG
- * 
+ *
  * @return TRUE se supportato, FALSE atrimenti
  */
 function enabledPng(){
@@ -1042,7 +1032,7 @@ function enabledPng(){
 
 /**
  * @brief Verifica la validità della classe @a ZipArchive
- * 
+ *
  * @return TRUE se abilitato, FALSE altrimenti
  */
 function enabledZip(){
@@ -1051,7 +1041,7 @@ function enabledZip(){
 
 /**
  * @brief Cripta la password dell'utente
- * 
+ *
  * @param string $string
  * @param string $crypt metodo di criptazione; default: proprietà @a _crypt (impostazioni di sistema) 
  * @return password criptata
@@ -1065,10 +1055,10 @@ function cryptMethod($string, $crypt){
 }
 
 /**
-* @brief Testo della policy di una email
-* 
-* @return policy
-*/
+ * @brief Testo della policy di una email
+ *
+ * @return policy
+ */
 function emailPolicy(){
 
     $GINO = "\n\n"._("Indirizzo web").": http://".$_SERVER['HTTP_HOST'].$this->_site_www."\n---------------------------------------------------------------\n"._("La presente email è stata inviata con procedura automatica. Si prega di non rispondere alla presente email.")."\n\n"._("Per problemi o segnalazioni potete scrivere a ").$this->_email_send;
@@ -1077,8 +1067,8 @@ function emailPolicy(){
 
 /**
  * @brief Operazione di serializzazione
+ *
  * @description Viene creato nella directory dei contenuti dell'istanza il file @a ser_nomeistanza.txt
- * 
  * @param string $instanceName nome dell'istanza
  * @param object $object oggetto da serializzare
  * @return void
@@ -1096,7 +1086,7 @@ function obj_serialize($instanceName, $object){
 /**
  * @brief Operazione di deserializzazione
  * @param string $instanceName nome dell'istanza
- * @return void
+ * @return object
  */
 function obj_unserialize($instanceName){
 
@@ -1155,7 +1145,7 @@ function obj_unserialize($instanceName){
  *   - @b view
  * @param string $text testo della proprietà @a title del tag IMG (sostituisce il testo di default)
  * @param string $tiptype col valore @a full si attiva il selettore @a icon_tooltipfull che richiama il javascript associato
- * @return string
+ * @return codice html icona
  */
 function icon($name, $options = array()){
 
@@ -1370,4 +1360,3 @@ function icon($name, $options = array()){
 
     return $GINO;
 }
-

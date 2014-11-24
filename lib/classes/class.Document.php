@@ -113,7 +113,7 @@ class Document {
     private function getSkin() {
 
         Loader::import('class', '\Gino\Skin');
-        $skin = Skin::getSkin($this->_request->path);
+        $skin = Skin::getSkin($this->_request);
 
         if($skin === FALSE or !$skin->id) {
             throw new \Exception(_('Skin inesistente'));

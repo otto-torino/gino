@@ -1,6 +1,6 @@
 <?php
 /**
- * @file func.filephp
+ * @file func.file.php
  * @brief Racchiude le funzioni generali di manipolazione file e directory utilizzate da gino
  * 
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -11,9 +11,9 @@ namespace Gino;
 
 /**
  * @brief Lista files contenuti in una directory
- * 
+ *
  * @param string $dir percorso della directory (se @a dir è un percorso relativo, verrà aperta la directory relativa alla directory corrente)
- * @return array
+ * @return array di nomi di file
  */
 function searchNameFile($dir){
     $filenames = array();
@@ -34,9 +34,9 @@ function searchNameFile($dir){
 
 /**
  * @brief Forza il download di un file
- * 
+ *
  * @param string $full_path percorso del file
- * @return stream del file o falso se il file non si apre in lettura
+ * @return stream del file o FALSE se il file non si apre in lettura
  */
 function download($full_path)
 {
@@ -61,20 +61,19 @@ function download($full_path)
         fclose($fp);
     }
     else {
-        return false;
+        return FALSE;
     }
 }
 
 /**
  * @brief Controlla le estensioni dei file
- * 
+ *
  * @description Verifica se il file ha una estensione valida, ovvero presente nell'elenco delle estensioni.
  *
  * @param string $filename nome del file
  * @param array $extensions elenco delle estensioni valide
- * @return boolean
- * 
- * se $extensions è vuoto => true
+ * @return TRUE se $extension è vuoto o se il file ha un'estensione valida
+ *
  */
 function extension($filename, $extensions){
     $ext = str_replace('.','',strrchr($filename, '.'));
@@ -87,15 +86,15 @@ function extension($filename, $extensions){
             $count++;
         }
 
-        if($count > 0) return true; else return false;
+        if($count > 0) return TRUE; else return FALSE;
     }
-    else return true;
+    else return TRUE;
 }
 
 /**
- * Ricava il nome del file senza l'estensione
+ * @brief Ricava il nome del file senza l'estensione
  * @param string $filename nome del file
- * @return string
+ * @return nome file senza estensione
  */
 function baseFileName($filename) {
     return substr($filename, 0, strrpos($filename, '.'));
@@ -134,34 +133,10 @@ function deleteFileDir($dir, $delete_dir=true){
 }
 
 /**
- * Elimina il file indicato
- * 
- * Viene richiamato dalla classe mFile.
- *
- * @param string $path_to_file percorso assoluto al file
- * @param string $home (proprietà @a $_home)
- * @param string $redirect (class-function)
- * @param string $param_link parametri url (es. id=3&ref=12&)
- * @return boolean
- */
-function deleteFile($path_to_file, $home, $redirect, $param_link){
-
-    if(is_file($path_to_file))
-    {
-        if(!@unlink($path_to_file))
-        {
-            if(!empty($redirect)) EvtHandler::HttpCall($home, $redirect, $param_link.'error=17');
-            else return FALSE;
-        }
-    }
-    return TRUE;
-}
-
-/**
- * Nome dell'estensione di un file
+ * @brief Estensione di un file
  *
  * @param string $filename nome del file
- * @return string
+ * @return estensione
  */
 function extensionFile($filename){
     $extension = strtolower(str_replace('.','',strrchr($filename, '.')));
@@ -169,11 +144,11 @@ function extensionFile($filename){
 }
 
 /**
- * Controlla se l'estensione di un file è valida
+ * @brief Controlla se l'estensione di un file è valida
  *
  * @param string $filename nome del file
  * @param array $extensions elenco dei formati di file permessi
- * @return boolean
+ * @return TRUE se l'estensione è compresa in quelle date, FALSE altrimenti
  */
 function verifyExtension($filename, $extensions){
 

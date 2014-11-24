@@ -87,15 +87,22 @@ class Request extends Singleton {
 
     }
 
+    /**
+     * @brief Calcola l'url nella forma espansa a partire dai parametri GET
+     * @description Quando viene effettuato url rewriting da parte di \Gino\Router
+     *              viene chimato questo metodo per calcolare l'url non espanso
+     *              utilizzando la proprietà GET che è stata opportunamente modificata
+     * @return void
+     */
     public function updateUrl() {
-        $this->url = $this->META['SCRIPT_NAME'];
-        if(count($this->GET)) {
-            if(isset($this->GET['evt'])) {
-                $this->url .= '?evt['.key($this->GET['evt']).']';
-            }
-        }
 
-        var_dump($this->url);
+        $params = implode('&', array_map(function($k, $v) {
+            if($k === 'evt') return 'evt[' . key($v) . ']';
+            return $v !== '' ? sprintf('%s=%s', $k, $v) : $k;
+        }, array_keys($this->GET), array_values($this->GET)));
+
+        $this->url = $this->META['SCRIPT_NAME'] . ($params ? '?' . $params : '');
+
     }
 
     /**

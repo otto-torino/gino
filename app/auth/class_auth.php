@@ -10,6 +10,7 @@
 namespace Gino\App\Auth;
 
 use \Gino\Loader;
+use \Gino\Document;
 use \Gino\View;
 use \Gino\Error;
 use \Gino\Http\Response;
@@ -186,11 +187,11 @@ class auth extends \Gino\Controller {
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
         $op = \Gino\cleanVar($request->GET, 'op', 'string', null);
 
-        $link_frontend = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=frontend\">"._("Frontend")."</a>";
-        $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=options\">"._("Opzioni")."</a>";
-        $link_group = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=group\">"._("Gruppi")."</a>";
-        $link_perm = "<a href=\"".$this->_home."?evt[$this->_class_name-manageAuth]&block=perm\">"._("Permessi")."</a>";
-        $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageAuth]\">"._("Utenti")."</a>";
+        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=frontend'), _('Frontend'));
+        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=options'), _('Opzioni'));
+        $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=group'), _('Gruppi'));
+        $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=perm'), _('Permessi'));
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Utenti'));
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -236,10 +237,11 @@ class auth extends \Gino\Controller {
             'content' => $backend
         );
 
-        $view = new \Gino\View(null, 'tab');
+        $view = new View(null, 'tab');
         $view->setViewTpl('tab');
 
-        return new ResponseView($view, $dict);
+        $document = new Document($view->render($dict));
+        return $document();
     }
 
     /**
@@ -250,18 +252,16 @@ class auth extends \Gino\Controller {
      */
     private function manageUser(\Gino\Http\Request $request) {
 
-        //Loader::import('class', '\Gino\AdminTable');
-
         $info = _("Elenco degli utenti del sistema.");
-        $link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=user";
 
         $opts = array(
             'list_display' => array('id', 'firstname', 'lastname', 'email', 'active', 'groups'),
             'list_description' => $info, 
             'add_buttons' => array(
-                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jup", 'param_id'=>'ref'), 
-                array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->_home."?evt[".$this->_class_name."-manageAuth]&block=password", 'param_id'=>'ref')
+                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin([], 'block=user&op=jup'), 'param_id'=>'ref'),
+                array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->linkAdmin([], 'block=password'), 'param_id'=>'ref')
             )
+
         );
 
         /*
@@ -866,7 +866,7 @@ class auth extends \Gino\Controller {
         if(isset($_POST['submit_login']))
         {
             if($this->_access->Authentication()) exit();
-            else exit(error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface));
+            else return error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface);
         }
 
         $gform = \Gino\Loader::load('Form', array('login', 'post', true));
