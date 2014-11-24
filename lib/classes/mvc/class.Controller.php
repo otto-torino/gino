@@ -156,6 +156,25 @@ abstract class Controller {
     }
 
     /**
+     * @brief Shortcut link per classi di tipo \Gino\Controller
+     * @see \Gino\Router::link
+     */
+    public function link($instance_name, $method, array $params = array(), $query_string = '', array $kwargs = array()) {
+        return $this->_registry->router->link($instance_name, $method, $params, $query_string, $kwargs);
+    }
+
+    /**
+     * @brief Shortcut link area amministrativa per classi di tipo \Gino\Controller
+     * @see \Gino\Router::link
+     */
+    public function linkAdmin(array $params = array(), $query_string = '', array $kwargs = array()) {
+
+        $method = $this->_instance ? 'manageDoc' : 'manage' . ucfirst($this->_instance_name);
+
+        return $this->_registry->router->link($this->_instance_name, $method, $params, $query_string, $kwargs);
+    }
+
+    /**
      * @brief Opzioni di classe
      *
      * @param string $option nome del campo dell'opzione di classe

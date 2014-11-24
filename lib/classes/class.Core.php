@@ -1,8 +1,8 @@
 <?php
 /**
  * @file class.Core.php
- * @brief Contiene la definizione ed implementazione della class \Gino\Core
- * 
+ * @brief Contiene la definizione ed implementazione della classe Gino.Core
+ *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -12,7 +12,7 @@ namespace Gino;
 use \Gino\Http\ResponseNotFound;
 
 /**
- * @brief Gestisce una HttpRequest ed invia una HttpResponse adeguata
+ * @brief Gestisce una Gino.Http.Request ed invia una Gino.Http.Response adeguata
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -30,15 +30,15 @@ class Core {
     function __construct() {
 
         Loader::import('class', array(
-            '\Gino\Logger', 
-            '\Gino\Singleton', 
-            '\Gino\Db', 
-            '\Gino\Locale', 
-            '\Gino\Translation', 
-            '\Gino\Error', 
+            '\Gino\Logger',
+            '\Gino\Singleton',
+            '\Gino\Db',
+            '\Gino\Locale',
+            '\Gino\Translation',
+            '\Gino\Error',
             '\Gino\Session',
             '\Gino\Router',
-            '\Gino\EventDispatcher', 
+            '\Gino\EventDispatcher',
             '\Gino\GImage',
             '\Gino\GTag',
             '\Gino\Document'
@@ -60,32 +60,32 @@ class Core {
         ));
 
         Loader::import('class/mvc', array(
-            '\Gino\Model', 
-            '\Gino\Controller', 
+            '\Gino\Model',
+            '\Gino\Controller',
             '\Gino\View'
         ));
 
         Loader::import('class/fields', array(
             '\Gino\Field',
-            '\Gino\BooleanField', 
-            '\Gino\CharField', 
-            '\Gino\ConstantField', 
-            '\Gino\DateField', 
-            '\Gino\DatetimeField', 
-            '\Gino\DirectoryField', 
-            '\Gino\EmailField', 
-            '\Gino\EnumField', 
-            '\Gino\FileField', 
-            '\Gino\FloatField', 
-            '\Gino\ForeignKeyField', 
+            '\Gino\BooleanField',
+            '\Gino\CharField',
+            '\Gino\ConstantField',
+            '\Gino\DateField',
+            '\Gino\DatetimeField',
+            '\Gino\DirectoryField',
+            '\Gino\EmailField',
+            '\Gino\EnumField',
+            '\Gino\FileField',
+            '\Gino\FloatField',
+            '\Gino\ForeignKeyField',
             '\Gino\HiddenField',
             '\Gino\ImageField',
             '\Gino\IntegerField',
-            '\Gino\ManyToManyField', 
-            '\Gino\ManyToManyThroughField', 
-            '\Gino\ManyToManyInlineField', 
-            '\Gino\TextField', 
-            '\Gino\TimeField', 
+            '\Gino\ManyToManyField',
+            '\Gino\ManyToManyThroughField',
+            '\Gino\ManyToManyInlineField',
+            '\Gino\TextField',
+            '\Gino\TimeField',
             '\Gino\YearField',
             '\Gino\TagField'
         ));
@@ -156,7 +156,7 @@ class Core {
     }
 
     /**
-     * Esegue il detect di dispositivi mobile, setta una variabile di sessione se il detect è positivo
+     * @brief Esegue il detect di dispositivi mobile, setta una variabile di sessione se il detect è positivo
      * @return void
      */
     private function detectMobile() {
@@ -170,8 +170,8 @@ class Core {
 
     /**
      * @brief Invia la risposta HTTP al client e chiude la connessione al DB
-     * @description Se la risposta ricevuta dal @ref \Gino\Router non è una \Gino\HttpResponse
-     *              invia una \Gino\HttpResponseNotFound (404)
+     * @description Se la risposta ricevuta dal @ref Gino.Router non è una Gino.Http.Response
+     *              invia una Gino.Http.ResponseNotFound (404)
      * @return void
      */
     public function answer() {

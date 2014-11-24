@@ -68,7 +68,7 @@ class options {
         }
 		else exit(error::syserrorMessage("options", "setData", "Classe ".$class_name." inesistente", __LINE__));
 
-		$this->_module_app = \Gino\App\SysClass\ModuleApp::getFromName($class_name);
+		$this->_module_app = \Gino\App\SysClass\ModuleApp::getFromName(get_name_class($class_name));
 		$this->_class_prefix = $this->_module_app->tbl_name;
 		$this->_tbl_options = $this->_class_prefix.'_opt';
 

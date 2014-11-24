@@ -76,7 +76,7 @@ class Link {
 	public function aLink($class, $method, $params1=null, $params2=null, $options=array()){
 		
 		$absolute = array_key_exists('absolute', $options) ? $options['absolute'] : false;
-		$code = array_key_exists('code', $options) ? $options['code'] : EVT_NAME;
+		$code = array_key_exists('code', $options) ? $options['code'] : 'evt';
 		$basename = array_key_exists('basename', $options) ? $options['basename'] : true;
 		$permalink = array_key_exists('permalink', $options) ? $options['permalink'] : $this->_permalinks;
 		
@@ -355,7 +355,7 @@ class Link {
 		
 		$link = $query_string;
 		
-		if(preg_match("#^.*".EVT_NAME."\[(.+)-(.+)\](.*)#is", $query_string, $matches))
+		if(preg_match("#^.*".'evt'."\[(.+)-(.+)\](.*)#is", $query_string, $matches))
 		{
 			$link = $matches[1].'/'.$matches[2];
 			$link .= $this->opLinkToPerm($matches[3]);

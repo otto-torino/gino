@@ -1,8 +1,8 @@
 <?php
 /**
  * @file class.Logger.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Logger
- * 
+ * @brief Contiene la definizione ed implementazione della classe Gino.Logger
+ *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -12,9 +12,10 @@ namespace Gino;
 
 /**
  * @brief Classe per la notifica di log di sistema
- * @description Gestisce un logger per errori e warning. Se la costante DEBUG è settata a TRUE stampa a video errori e warnings.
- *              Se DEBUG è impostata a FALSE invia una mai agli amministratori di sistema.
- *              Gestisce il comportamento a seguito del throw di una exception. La risposta si diifferenzia a seconda del valore
+ *
+ * @description Gestisce un logger per errori e warning. Se la costante DEBUG definita in @ref configuration.php è settata a TRUE stampa a video errori e warnings.
+ *              Se DEBUG è impostata a FALSE invia una mail agli amministratori di sistema definiti dalla costante ADMIN in @ref configuration.php.
+ *              Gestisce il comportamento a seguito del throw di una exception. La risposta si differenzia a seconda del valore
  *              della costante DEBUG.
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -24,7 +25,8 @@ namespace Gino;
 class Logger {
 
     /**
-     * @brief Invia un messaggio agli amministratori del sistema se DEBUG è FALSE
+     * @brief Invia un messaggio agli amministratori del sistema se la costante DEBUG in @ref configuration.php è FALSE
+     *
      * @param string $subject titolo messaggio da inviare
      * @param string $message corpo messaggio da inviare
      * @return vero se la mail è stata correttamente spedita, falso altrimenti
@@ -51,9 +53,10 @@ class Logger {
     }
 
     /**
-     * @brief Invia lo stack trace di una exception agli amministratori del sistema se DEBUG è FALSE
-     * @param \Exception $exception oggetto Exception
-     * @return vero se la mail è stata correttamente spedita, falso altrimenti
+     * @brief Invia lo stack trace di una exception agli amministratori del sistema se la costante DEBUG in @ref configuration.php è FALSE
+     *
+     * @param Exception $exception oggetto Exception
+     * @return TRUE se la mail è stata correttamente spedita, FALSE altrimenti
      */
     public static function exceptionReportAdmins($exception) {
 
@@ -75,7 +78,7 @@ class Logger {
     }
 
     /**
-     * @brief Html che mostra il valore di variabili di sistema SESSION, SERVER, REQUEST
+     * @brief Html che mostra il valore di variabili di sistema $_SESSION, $_SERVER, $_REQUEST
      * @return html
      */
     private static function systemVariablesHtml() {
@@ -85,9 +88,11 @@ class Logger {
 
     /**
      * @brief Gestore di eccezioni
-     * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS e ritorna una \Gino\HttpResponse
-     *              propria della exception oppure una \Gino\HttpResponseServerError
-     * @param Exception $exception oggetto Exception
+     *
+     * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS definiti
+     *              nel file @ref configuration.php e ritorna una Gino.Http.Response definita dalla classe Exception oppure 
+     *              una Gino.Http.ResponseServerError
+     * @param \Exception $exception oggetto Exception
      * return void
      */
     public static function manageException($exception) {
@@ -110,7 +115,7 @@ class Logger {
 
     /**
      * @brief Html che mostra lo stack trace di una Exception
-     * @param Exception $exception oggetto Exception
+     * @param \Exception $exception
      * @return documento html con stack trace
      */
     private static function stackTraceHtml($exception) {
