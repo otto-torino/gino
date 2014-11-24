@@ -187,10 +187,10 @@ class auth extends \Gino\Controller {
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
         $op = \Gino\cleanVar($request->GET, 'op', 'string', null);
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=options'), _('Opzioni'));
-        $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=group'), _('Gruppi'));
-        $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin([], 'block=perm'), _('Permessi'));
+        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
+        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
+        $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=group'), _('Gruppi'));
+        $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=perm'), _('Permessi'));
         $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Utenti'));
         $sel_link = $link_dft;
 
@@ -258,8 +258,8 @@ class auth extends \Gino\Controller {
             'list_display' => array('id', 'firstname', 'lastname', 'email', 'active', 'groups'),
             'list_description' => $info, 
             'add_buttons' => array(
-                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin([], 'block=user&op=jup'), 'param_id'=>'ref'),
-                array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->linkAdmin([], 'block=password'), 'param_id'=>'ref')
+                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=user&op=jup'), 'param_id'=>'ref'),
+                array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=password'), 'param_id'=>'ref')
             )
 
         );

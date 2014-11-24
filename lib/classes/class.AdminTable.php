@@ -693,15 +693,15 @@ class AdminTable {
         $trnsl = cleanVar($this->_request->GET, 'trnsl', 'int', '');
 
         if($trnsl) {
-            Loader::import('class/http', '\Gino\Http\ResponseAjax');
+            Loader::import('class/http', '\Gino\Http\Response');
             if($this->_request->checkGETKey('save', '1')) {
                 $res = $this->_registry->trd->actionTranslation();
                 
                 $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-             	return new \Gino\Http\ResponseAjax($content);
+             	return new \Gino\Http\Response($content);
             }
             else {
-                return new \Gino\Http\ResponseAjax($this->_registry->trd->formTranslation());
+                return new \Gino\Http\Response($this->_registry->trd->formTranslation());
             }
         }
         elseif($insert or $edit) {
@@ -1478,7 +1478,7 @@ class AdminTable {
     protected function editUrl($add_params, $remove_params=null) {
 
         $request = \Gino\Http\Request::instance();
-        $url = $request->path;
+        $url = SITE_WWW.$request->path;
 
         if($remove_params) {
             foreach($remove_params as $key) {

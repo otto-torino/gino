@@ -9,7 +9,11 @@
  */
 namespace Gino\App\Module;
 
+use \Gino\View;
+use \Gino\Document;
 use \Gino\Error;
+use \Gino\Http\Response;
+use \Gino\Http\Redirect;
 
 require_once('class.ModuleInstance.php');
 
@@ -51,14 +55,18 @@ class module extends \Gino\Controller {
     $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageModule]\">"._("Gestione istanze")."</a>";
     $sel_link = $link_dft;
 
-    $action = \Gino\cleanVar($_GET, 'action', 'string', null);
-    if(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
-      if(isset($_GET['save']) and $_GET['save'] == '1') {
-        $this->_trd->actionTranslation();
-      }
-      else {
-        $this->_trd->formTranslation();
-      }
+    $action = \Gino\cleanVar($request->GET, 'action', 'string', null);
+    
+	if($request->checkGETKey('trnsl', '1')) {
+    	
+		if($request->checkGETKey('save', 1)) {
+			$res = $this->_trd->actionTranslation();
+			$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+			return new Response($content);
+    	}
+    	else {
+    		return new Response($this->_trd->formTranslation());
+    	}
     }
     elseif($action == 'insert') {
       $GINO = $this->formModule($module);
@@ -74,18 +82,23 @@ class module extends \Gino\Controller {
     else {
       $GINO = $this->listModule();
     }
- 
-    $view = new \Gino\View();
-    $view->setViewTpl('tab');
-    $dict = array(
-      'title' => _('Moduli istanziabili'),
-      'links' => $link_dft,
-      'selected_link' => $sel_link,
-      'content' => $GINO
-    );
-
-    return $view->render($dict);
-  }
+    
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
+		
+		$view = new View();
+		$view->setViewTpl('tab');
+		$dict = array(
+		'title' => _('Moduli istanziabili'),
+		'links' => $link_dft,
+		'selected_link' => $sel_link,
+		'content' => $GINO
+		);
+		
+		$document = new Document($view->render($dict));
+		return $document();
+	}
 
   /**
    * Elenco dei moduli
@@ -97,9 +110,9 @@ class module extends \Gino\Controller {
 
     $link_1 = '';
 
-    $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&amp;action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
+    $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&amp;action=insert\">".\Gino\icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
 
-    $view_table = new \Gino\View();
+    $view_table = new View();
     $view_table->setViewTpl('table');
 
     $modules = ModuleInstance::objects(null, array('order' => 'label'));
@@ -116,8 +129,8 @@ class module extends \Gino\Controller {
       );
       $tbl_rows = array();
       foreach($modules as $module) {
-        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".\Gino\Pub::icon('modify')."</a>";
-        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".\Gino\Pub::icon('delete')."</a>";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".\Gino\icon('modify')."</a>";
+        $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".\Gino\icon('delete')."</a>";
         $module_app = $module->moduleApp();
         $tbl_rows[] = array(
           $module->id,
@@ -138,7 +151,7 @@ class module extends \Gino\Controller {
       $GINO = _('Non risultano istanze di moduli di sistema.');
     }
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco moduli installati'),
@@ -169,7 +182,7 @@ class module extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => sprintf(_('Eliminazione istanza "%s"'), $module->label),
@@ -185,11 +198,11 @@ class module extends \Gino\Controller {
    * 
    * 
    */
-  public function actionRemoveModule() {
+  public function actionRemoveModule(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
     $module = new ModuleInstance($id);
 
     $class = $module->classNameNs();
@@ -202,7 +215,7 @@ class module extends \Gino\Controller {
     $module->deleteDbData();
     $this->_trd->deleteTranslations(TBL_MODULE, $id);
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageModule'));
   }
 
   /**
@@ -227,7 +240,7 @@ class module extends \Gino\Controller {
     }
     // delete contents
     foreach($class_elements['folderStructure'] as $fld=>$fldStructure) {
-      $this->_registry->pub->deleteFileDir($fld.OS.$module->name, true);
+      \Gino\deleteFileDir($fld.OS.$module->name, true);
     }
   }
 
@@ -256,7 +269,7 @@ class module extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module->id ? sprintf(_('Modifica istanza "%s"'), $module->label) : _('Nuova istanza'),
@@ -267,10 +280,11 @@ class module extends \Gino\Controller {
     return $view->render($dict);
   }
 
-  public function actionModule() {
+  public function actionModule(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
-    $id = \Gino\cleanVar($_POST, 'id', 'int', null);
+    
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', null);
     $module = new ModuleInstance($id);
 
     if($module->id) {
@@ -280,14 +294,14 @@ class module extends \Gino\Controller {
       $this->actionInsertModule();
     }
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageModule'));
   }
 
   /**
    * Inserimento di un nuovo modulo
    * 
    */
-  private function actionInsertModule() {
+  private function actionInsertModule(\Gino\Http\Request $request) {
 
     \Gino\Loader::import('sysClass', 'ModuleApp');
 
@@ -295,10 +309,10 @@ class module extends \Gino\Controller {
     $gform->save('dataform');
     $req_error = $gform->arequired();
 
-    $name = \Gino\cleanVar($_POST, 'name', 'string', '');
-    $module_app_id = \Gino\cleanVar($_POST, 'module_app', 'string', '');
-    $label = \Gino\cleanVar($_POST, 'label', 'string', '');
-    $description = \Gino\cleanVar($_POST, 'description', 'string', '');
+    $name = \Gino\cleanVar($request->POST, 'name', 'string', '');
+    $module_app_id = \Gino\cleanVar($request->POST, 'module_app', 'string', '');
+    $label = \Gino\cleanVar($request->POST, 'label', 'string', '');
+    $description = \Gino\cleanVar($request->POST, 'description', 'string', '');
 
     $module = new ModuleInstance(null);
     $module_app = new \Gino\App\SysClass\ModuleApp($module_app_id);
@@ -306,16 +320,16 @@ class module extends \Gino\Controller {
     $link_error = $this->_home."?evt[$this->_class_name-manageModule]&action=insert";
 
     if($req_error > 0) {
-      exit(error::errorMessage(array('error'=>1), $link_error));
+      return error::errorMessage(array('error'=>1), $link_error);
     }
 
     // check name
     if(ModuleInstance::getFromName($name)) {
-      exit(error::errorMessage(array('error'=>_("è già presente un modulo con lo stesso nome")), $link_error));
+      return error::errorMessage(array('error'=>_("è già presente un modulo con lo stesso nome")), $link_error);
     }
 
     if(preg_match("/[^\w]/", $name)) {
-      exit(error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error));
+      return error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error);
     }
 
     $class = $module_app->classNameNs();
@@ -332,7 +346,7 @@ class module extends \Gino\Controller {
       $base_css_name = \Gino\baseFileName($css_file);
 
       if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.$base_css_name.'_'.$name.'.css', 'wb'))) {
-        exit(Error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
+        return Error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error);
       }
 
       $reg_exp = "/#(.*?)".$class_name." /";
@@ -353,7 +367,7 @@ class module extends \Gino\Controller {
       $base_view_name = \Gino\baseFileName($view_file);
 
       if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
-        exit(Error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
+        return Error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error);
       }
 
       $content = $view_content;
@@ -399,23 +413,23 @@ class module extends \Gino\Controller {
    * Modifica di un modulo
    * 
    */
-  private function actionEditModule() {
+  private function actionEditModule(\Gino\Http\Request $request) {
 
     $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
     $gform->save('dataform');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
     $module = new ModuleInstance($id);
 
     $link_error = $this->_home."?evt[$this->_class_name-manageModule]&id=$id&action=modify";
 
-    $label = \Gino\cleanVar($_POST, 'label', 'string', '');
+    $label = \Gino\cleanVar($request->POST, 'label', 'string', '');
     if(!$label) {
-      exit(error::errorMessage(array('error'=>1), $link_error));
+      return error::errorMessage(array('error'=>1), $link_error);
     }
 
     $module->label = $label;
-    $module->description = \Gino\cleanVar($_POST, 'description', 'string', '');
+    $module->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
 
     return $module->updateDbData();
 
@@ -443,7 +457,7 @@ class module extends \Gino\Controller {
     $GINO .= $gform->cinput('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
     $GINO .= $gform->close();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $module->active ? _('Disattivazione') : _('Attivazione'),
@@ -457,18 +471,18 @@ class module extends \Gino\Controller {
   /**
    * Attivazione e disattivazione di un modulo
    */
-  public function actionEditModuleActive() {
+  public function actionEditModuleActive(\Gino\Http\Request $request) {
 
     $this->require_pem('can_admin');
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
 
     $module = new ModuleInstance($id);
 
     $module->active = $module->active ? 0 : 1;
     $module->updateDbData();
 
-    \Gino\Link::HttpCall($this->_home, $this->_class_name.'-manageModule', '');
+    return new Redirect($this->_plink->aLink($this->_class_name, 'manageModule'));
   }
 }
 ?>

@@ -243,10 +243,10 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
 			}
 			
 			if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
-				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\pub::icon('modify')."</a>";
+				$links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\icon('modify')."</a>";
 			}
 			if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {
-				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".\Gino\pub::icon('delete')."</a>";
+				$links[] = "<a href=\"javascript: if(confirm('".htmlspecialchars(sprintf(_("Sicuro di voler eliminare \"%s\"?"), $record_model), ENT_QUOTES)."')) location.href='".$this->editUrl($add_params_delete)."';\">".\Gino\icon('delete')."</a>";
 			}
 			$buttons = array(
 				array('text' => implode(' ', $links), 'class' => 'nowrap')
@@ -282,20 +282,20 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
 		$table = $this->_view->render();
 
 		if($this->_allow_insertion) {
-			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".\Gino\pub::icon('insert', array('scale' => 2))."</a>";
+			$link_insert = "<a href=\"".$this->editUrl(array('insert'=>1))."\">".\Gino\icon('insert', array('scale' => 2))."</a>";
 		}
 		else {
 			$link_insert = "";
 		}
 		
-		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".\Gino\pub::icon('export')."</a>" : null;
+		$link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".\Gino\icon('export')."</a>" : null;
 
 		$this->_view->setViewTpl('admin_table_list');
 		$this->_view->assign('title', $list_title);
 		$this->_view->assign('description', $list_description);
 		$this->_view->assign('link_insert', $link_insert);
 		$this->_view->assign('link_export', $link_export);
-		$this->_view->assign('search_icon', \Gino\pub::icon('search', array('scale' => 2)));
+		$this->_view->assign('search_icon', \Gino\icon('search', array('scale' => 2)));
 		$this->_view->assign('table', $table);
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));

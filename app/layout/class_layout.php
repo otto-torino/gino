@@ -9,6 +9,9 @@
  */
 namespace Gino\App\Layout;
 
+use \Gino\view;
+use \Gino\Document;
+
 /**
  * @brief Gestisce il layout dell'applicazione raggruppando le funzionalità fornite dalle librerie dei css, template e skin
  * 
@@ -74,11 +77,11 @@ class layout extends \Gino\Controller {
      * @see template::manageTemplate()
      * @return string
      */
-    public function manageLayout() {
+    public function manageLayout(\Gino\Http\Request $request) {
 
         $this->requirePerm('can_admin');
         
-        $block = \Gino\cleanVar($_GET, 'block', 'string', null);
+        $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
         $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]\">"._("Informazioni")."</a>";
         $link_tpl = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=template\">"._("Template")."</a>";
@@ -88,26 +91,26 @@ class layout extends \Gino\Controller {
         $sel_link = $link_dft;
 
     if($block == 'template') {
-      $GINO = $this->manageTemplate();
+      $GINO = $this->manageTemplate($request);
       $sel_link = $link_tpl;
     }
     elseif($block == 'skin') {
-      $GINO = $this->manageSkin();
+      $GINO = $this->manageSkin($request);
       $sel_link = $link_skin;
     }
     elseif($block == 'css') {
-      $GINO = $this->manageCss();
+      $GINO = $this->manageCss($request);
       $sel_link = $link_css;
     }
     elseif($block == 'view') {
-      $GINO = $this->manageView();
+      $GINO = $this->manageView($request);
       $sel_link = $link_view;
     }
     else {
       $GINO = $this->info();
     }
 
-        $view = new \Gino\View();
+        $view = new View();
         $view->setViewTpl('tab');
         $dict = array(
             'title' => _('Layout'),
@@ -115,11 +118,13 @@ class layout extends \Gino\Controller {
             'selected_link' => $sel_link,
             'content' => $GINO
         );
-        return $view->render($dict);
+        
+        $document = new Document($view->render($dict));
+        return $document();
 
     }
 
-    private function manageTemplate() {
+    private function manageTemplate($request) {
         
         $id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
         $tpl = \Gino\Loader::load('Template', array($id));
@@ -166,7 +171,7 @@ class layout extends \Gino\Controller {
     return $buffer;
   }
 
-  private function manageSkin() {
+  private function manageSkin($request) {
 
     $id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
     $skin = \Gino\Loader::load('Skin', array($id));
@@ -188,7 +193,7 @@ class layout extends \Gino\Controller {
     return $buffer;
   }
 
-  private function manageCss() {
+  private function manageCss($request) {
 
     $id = \Gino\cleanVar($_REQUEST, 'id', 'int', '');
     $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
@@ -210,7 +215,7 @@ class layout extends \Gino\Controller {
     return $buffer;
   }
 
-  private function manageView() {
+  private function manageView($request) {
 
     if($this->_action == 'edit') {
       $fname = \Gino\cleanVar($_GET, 'fname', 'string', null);
@@ -232,15 +237,15 @@ class layout extends \Gino\Controller {
 
         $skin_list = \Gino\Skin::getAll();
         if(count($skin_list)) {
-            $view_table = new \Gino\View();
+            $view_table = new View();
             $view_table->setViewTpl('table');
             $view_table->assign('heads', array(
-            _('etichetta'),
-            _('template'),
-            _('css'),
-            _('autenticazione'),
-            _('cache'),
-            ''
+            	_('etichetta'),
+            	_('template'),
+            	_('css'),
+            	_('autenticazione'),
+            	_('cache'),
+            	''
             ));
             $tbl_rows = array();
 
@@ -270,7 +275,7 @@ class layout extends \Gino\Controller {
             $buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
         }
 
-        $view = new \Gino\View();
+        $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco skin'),
@@ -323,7 +328,7 @@ class layout extends \Gino\Controller {
             $buffer = "<p>"._("Non risultano template registrati")."</p>\n";
         }
         
-        $view = new \Gino\View();
+        $view = new View();
         $view->setViewTpl('section');
         $dict = array(
         'title' => _('Elenco template'),
@@ -339,7 +344,7 @@ class layout extends \Gino\Controller {
     
         $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=css&action=insert\">".\Gino\pub::icon('insert', array('text' => _("nuovo file css"), 'scale'=>2))."</a>";
 
-        $view_table = new \Gino\View();
+        $view_table = new View();
         $view_table->setViewTpl('table');
         $view_table->assign('heads', array(
             _('etichetta'),
@@ -393,7 +398,7 @@ class layout extends \Gino\Controller {
         $buffer .= "</div>";
         $buffer .= $view_table->render();
 
-        $view = new \Gino\View();
+        $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco fogli di stile'),
@@ -407,7 +412,7 @@ class layout extends \Gino\Controller {
 
   private function viewList() {
     
-    $view_table = new \Gino\View();
+    $view_table = new View();
     $view_table->setViewTpl('table');
     $view_table->assign('heads', array(
       _('file'),
@@ -445,7 +450,7 @@ class layout extends \Gino\Controller {
     $buffer .= "</div>";
     $buffer .= $view_table->render();
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => _('Elenco viste generali di sistema'),
@@ -456,7 +461,9 @@ class layout extends \Gino\Controller {
     return $view->render($dict);
     }
 
-    private function info() {
+	private function info() {
+    	
+    	\Gino\Loader::import('class', array('\Gino\Css', '\Gino\Template', '\Gino\Skin'));
 
     $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguenti:")."</p>";
     $GINO .= "<ul>";
@@ -471,15 +478,15 @@ class layout extends \Gino\Controller {
     $GINO .= "<h2>"._('Viste')."</h2>";
     $GINO .= "<p>"._('In questa sezione si possono modificare le viste di sistema di gino. Sono viste generali utilizzate da buona parte dei moduli e dalla stessa area amministrativa.')."</p>";
 
-    $view = new \Gino\View();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => _('Layout'),
-      'class' => 'admin',
-      'content' => $GINO
-    );
+    	$view = new View();
+    	$view->setViewTpl('section');
+    	$dict = array(
+    		'title' => _('Layout'),
+    		'class' => 'admin',
+    		'content' => $GINO
+    	);
     
-    return $view->render($dict);
+    	return $view->render($dict);
     }
     
     public function actionSkin() {

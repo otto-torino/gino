@@ -18,6 +18,8 @@ namespace Gino;
  */
 class Link {
 	
+	const EVT_NAME = 'evt';
+	
 	private $_permalinks;
 	
 	/**
@@ -390,7 +392,7 @@ class Link {
 		$array_size = count($array);
 
 		if($array_size >= 2) {
-			$link = $basename.EVT_NAME."[$array[0]-$array[1]]";
+			$link = $basename.self::EVT_NAME."[$array[0]-$array[1]]";
 			$string_get = '';
 		
 			if($secondary_params)	// parametri secondari
@@ -428,8 +430,8 @@ class Link {
 			// Ridefinizione delle variabili GET / REQUEST
 			if($setDataVar)
 			{
-				$_GET[EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
-				$_REQUEST[EVT_NAME] = array("$array[0]-$array[1]"=>1);
+				$_GET[self::EVT_NAME] = array("$array[0]-$array[1]"=>1);	// $_GET['evt'][classe-metodo] = 1
+				$_REQUEST[self::EVT_NAME] = array("$array[0]-$array[1]"=>1);
 			}
 			
 			if($string_get != '')

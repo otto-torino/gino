@@ -89,17 +89,6 @@ CREATE TABLE auth_group_perm  (
 -- --------------------------------------------------------
 
 --
--- Table structure for table auth_group_user
---
-
-CREATE TABLE auth_group_user (
-  group_id smallint NOT NULL,
-  user_id int NOT NULL
-)
-
--- --------------------------------------------------------
-
---
 -- Table structure for table auth_opt
 --
 
@@ -218,6 +207,19 @@ CREATE TABLE auth_user_add (
   field2 tinyint NOT NULL DEFAULT '0',
   field3 tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (user_id)
+)
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table auth_user_group
+--
+
+CREATE TABLE auth_user_group (
+  id int IDENTITY(1, 1),
+  user_id int NOT NULL,
+  group_id int NOT NULL,
+  PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------

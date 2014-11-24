@@ -10,7 +10,8 @@
 namespace Gino\App\Attachment;
 
 use \Gino\View;
-use \Gino\HttpResponseView;
+use \Gino\Document;
+use \Gino\Http\Response;
 
 require_once('class.attachmentItem.php');
 require_once('class.attachmentCtg.php');
@@ -106,9 +107,9 @@ class attachment extends \Gino\Controller {
 	 *
 	 * @return void
 	 */
-	public function downloader(){
+	public function downloader(\Gino\Http\Request $request){
 
-		$doc_id = \Gino\cleanVar($_GET, 'id', 'int', '');
+		$doc_id = \Gino\cleanVar($request->GET, 'id', 'int', '');
 		$db = \Gino\db::instance();
 
 		if($doc_id) {
@@ -134,7 +135,7 @@ class attachment extends \Gino\Controller {
    * @param object $request oggetto \Gino\HttpRequest
    * @return \Gino\HttpResponse backend di amministrazione del modulo
    */
-  public function manageAttachment(\Gino\HttpRequest $request) {
+  public function manageAttachment(\Gino\Http\Request $request) {
 
     $this->requirePerm('can_admin');
 
@@ -146,8 +147,8 @@ class attachment extends \Gino\Controller {
     $sel_link = $link_dft;
 
     // Variables
-    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
-    $start = \Gino\cleanVar($_GET, 'start', 'int', '');
+    $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
+    $start = \Gino\cleanVar($request->GET, 'start', 'int', '');
     // end
 
     if($this->_block == 'ctg') {
@@ -158,7 +159,7 @@ class attachment extends \Gino\Controller {
       $backend = $this->manageItem();
     }
     
-	if(is_a($backend, '\Gino\HttpResponse')) {
+	if(is_a($backend, '\Gino\Http\Response')) {
 		return $backend;
 	}
 
@@ -170,7 +171,8 @@ class attachment extends \Gino\Controller {
     );
 
     $view = new View(null, 'tab');
-    return new HttpResponseView($view, $dict);
+    $document = new Document($view->render($dict));
+    return $document();
   }
 
   /**
@@ -229,7 +231,7 @@ class attachment extends \Gino\Controller {
 	}
 
   /**
-   * @brief Interfaccia per l'inserimento di allegati all'interno dell'edito CKEDITOR
+   * @brief Interfaccia per l'inserimento di allegati all'interno dell'editor CKEDITOR
    * @return lista allegati
    */
   public function editorList() {
@@ -238,7 +240,7 @@ class attachment extends \Gino\Controller {
 
     $ctgs = attachmentCtg::getForSelect($this);
 
-    $onchange = "gino.ajaxRequest('post', '".$this->_home."?pt[".$this->_class_name."-editorAttachmentList]', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
+    $onchange = "gino.ajaxRequest('post', '".$this->_home."?evt[".$this->_class_name."-editorAttachmentList]', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
     $buffer = "
       <p class=\"attachment-filter-ctg\">
         <label for=\"attachment_ctg\">"._('Seleziona la categoria ')."</label>
@@ -274,9 +276,9 @@ class attachment extends \Gino\Controller {
    * @brief Tabella di allegati con funzionalità per i drag and drop all'interno di CKEDITOR
    * @return tabella allegati
    */
-  public function editorAttachmentList() {
+  public function editorAttachmentList(\Gino\Http\Request $request) {
 
-    $ctg_id = \Gino\cleanVar($_POST, 'ctg_id', 'int', '');
+    $ctg_id = \Gino\cleanVar($request->POST, 'ctg_id', 'int', '');
 
     if($ctg_id) {
       $where = "category='$ctg_id'";

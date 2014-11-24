@@ -9,6 +9,9 @@
  */
 namespace Gino\App\Language;
 
+use \Gino\View;
+use \Gino\Document;
+
 require_once('class.Lang.php');
 
 /**
@@ -152,11 +155,11 @@ class language extends \Gino\Controller {
       'content' => $backend
     );
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('tab');
-
-    return new \Gino\Http\ResponseView($view, $dict);
-
+    
+    $document = new Document($view->render($dict));
+	return $document();
   }
 
     private function manageLang(\Gino\Http\Request $request) {
@@ -177,7 +180,6 @@ class language extends \Gino\Controller {
         }
 
         return $admin_table->backoffice('Lang', $opts);
-
     }
 	
 	/**
