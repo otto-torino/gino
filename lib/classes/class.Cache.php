@@ -136,7 +136,7 @@ class OutputCache extends Cache {
      * @param bool $enabled abilitazione cache, default TRUE
      * @return istanza di Gino.OutputCache
      */
-    function __construct(&$buffer, $enabled = true) {
+    function __construct(&$buffer, $enabled = TRUE) {
 
         parent::__construct();
         $this->_buffer = &$buffer;
@@ -145,6 +145,10 @@ class OutputCache extends Cache {
 
     /**
      * @brief Inizia il processo di cache
+     * @description Se il contenuto è in cache lo accoda a $buffer e ritorna FALSE, altrimenti ritorna TRUE (e si entra nell'if statement)
+     * @param string $grp gruppo
+     * @param string $id
+     * @return TRUE se il file è in cache, FALSE altrimenti
      */
     public function start($grp, $id, $tc) {
 
@@ -154,12 +158,17 @@ class OutputCache extends Cache {
 
         if($this->isCached()) {
             $this->_buffer .= $this->read();
-            return false;
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
 
+    /**
+     * @brief Finalizza il processo di cache
+     * @description Se la cache è abilitata salva il contenuto in un file, appende il contenuto alla variabile $buffer
+     * @return void
+     */
     public function stop($data) {
 
         if($this->_enabled) $this->write($data);
@@ -169,10 +178,6 @@ class OutputCache extends Cache {
 
 /**
  * @brief Memorizza le strutture dati scrivendo su file
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  *
  * Esempio di utilizzo
  * @code
@@ -182,16 +187,32 @@ class OutputCache extends Cache {
  *   $cache->save($data);
  * }
  * @endcode
- * 
- * if data is stored it's returned by get method and if statement is not processed, otherwise data is calculated and saved in cache
+ *
+ * Se i dati sono in cache sono ritornati dal metodo self::get e l'if statement viene skippato, altrimenti i dati sono ricavati e salvati nella cache
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ *
  */
 class DataCache extends cache {
 
-    function __construct() {
+    /*
+     * @brief Costruttore
+     * @param bool $enabled abilitazione cache, default TRUE
+     * @return istanza di Gino.DataCache
+     */
+    function __construct($enabled = TRUE) {
 
         parent::__construct();
+        $this->_enabled = $enabled;
     }
 
+    /**
+     * @brief Fornisce i dati in cache o ritorna FALSE se non presenti o scaduti
+     * @param string $grp gruppo
+     * @param string $id
+     * @return dati deserializzati o FALSE
+     */
     public function get($grp, $id, $tc) {
 
         $this->_grp = $grp;
@@ -199,12 +220,15 @@ class DataCache extends cache {
         $this->_tc = $tc;
 
         if($this->isCached()) return unserialize($this->read());
-        return false;
+        return FALSE;
     }
 
+    /**
+     * @brief Salva i dati serializzati su file se la cache è abilitata
+     * @return void
+     */
     public function save($data) {
 
         if($this->_enabled) $this->write(serialize($data));
     }
 }
-?>

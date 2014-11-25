@@ -1,12 +1,14 @@
 <?php
 /**
  * @file class.Compressor.php
- * @brief Contiene la classe Compressor
+ * @brief Contiene la definizione ed implementazione della classe Gino.Compressor,  Gino.JSMin e Gino.JSMinException
  * 
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
+namespace Gino;
 
 /**
  * @brief Classe per la compressione di css e js (merge e minify)
@@ -25,7 +27,7 @@ class Compressor {
      * @param array $params Array associativo di parametri
      *                      - css: path o array di path relativi di css
      *                      - js: path o array di path relativi di js
-     * @return istanza Compressor
+     * @return istanza di Gino.Compressor
      */
     function __construct($params = array()) {
         // paths
@@ -292,7 +294,7 @@ class Compressor {
 }
 
 /**
- * jsmin.php - PHP implementation of Douglas Crockford's JSMin.
+ * @brief PHP implementation of Douglas Crockford's JSMin.
  *
  * This is pretty much a direct port of jsmin.c to PHP with just a few
  * PHP-specific performance tweaks. Also, whereas jsmin.c reads from stdin and
@@ -336,7 +338,6 @@ class Compressor {
  * @version 1.1.2 (2012-05-01)
  * @link https://github.com/rgrove/jsmin-php
  */
-
 class JSMin {
   const ORD_LF            = 10;
   const ORD_SPACE         = 32;
@@ -672,6 +673,7 @@ class JSMin {
   }
 }
 
-// -- Exceptions ---------------------------------------------------------------
+/**
+ * @brief JSMinException
+ */
 class JSMinException extends Exception {}
-?>

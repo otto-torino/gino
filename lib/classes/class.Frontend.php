@@ -1,95 +1,106 @@
 <?php
 /**
- * @file class.frontend.php
- * @brief Contiene la classe Frontend
+ * @file class.Frontend.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.Frontend
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
 namespace Gino;
 
 /**
  * @brief Libreria per la gestione dei file di front-end dei singoli moduli (css e viste)
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
+ *
  * Possono essere selezionati e modificati i file con le seguenti caratteristiche: \n
  *   - i file css definiti nel metodo getClassElements() della classe del modulo
  *   - i file delle viste presenti nella directory @a views presente nella directory dell'applicazione 
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ *
  */
 class Frontend {
 
-    private $_class, $_module_id;
-  private $_module;
+    private $_registry, $_class, $_module_id;
+    private $_module;
     private $_css_list, $_view_list;
     private $_mdlLink;
 
     /**
-     * Costruttore
-     * 
-     * @param mixed $controller istanza della classe controller
-     * @return void
+     * @brief Costruttore
+     *
+     * @param \Gino\Controller $controller istanza della classe di tipo Gino.Controller
+     * @return istanza di Gino.Frontend
      */
     function __construct($controller) {
 
-        $db = db::instance();
+        $db = Db::instance();
+        $this->_registry = Registry::instance();
 
-    Loader::import('sysClass', 'ModuleApp');
-    Loader::import('module', 'ModuleInstance');
+        Loader::import('sysClass', 'ModuleApp');
+        Loader::import('module', 'ModuleInstance');
 
         $this->_class_name = $controller->getClassName();
         $this->_class = get_class($controller);
-    $this->_module_id = $controller->getInstance();
+        $this->_module_id = $controller->getInstance();
 
-    if($this->_module_id) {
-      $this->_module = new \Gino\App\Module\ModuleInstance($this->_module_id);
-    }
-    else {
-      $this->_module = \Gino\App\SysClass\ModuleApp::getFromName($this->_class_name);
-    }
+        if($this->_module_id) {
+            $this->_module = new \Gino\App\Module\ModuleInstance($this->_module_id);
+        }
+        else {
+            $this->_module = \Gino\App\SysClass\ModuleApp::getFromName($this->_class_name);
+        }
 
-    $this->setLists();
+        $this->setLists();
 
-    $method = $this->_module_id ? 'manageDoc' : 'manage'.ucfirst($this->_class_name);
-    $this->_mdlLink = HOME_FILE."?evt[{$this->_module->name}-{$method}]&block=frontend";
+        $method = $this->_module_id ? 'manageDoc' : 'manage'.ucfirst($this->_class_name);
+        $this->_mdlLink = $this->_registry->router->link($this->_module->name, $method, array(), array('block' => 'frontend'));
 
-  }
-
-  private function setLists() {
-
-    $this->_css_list = array();
-    $this->_view_list = array();
-
-    $classElements = call_user_func(array($this->_class, 'getClassElements'));
-
-    if(isset($classElements['css'])) {
-      foreach($classElements['css'] as $file) {
-        $this->_css_list[] = array(
-          'filename' => $file,
-          'description' => ''
-        );
-      }
     }
 
-    if(isset($classElements['views'])) {
-      foreach($classElements['views'] as $file => $description) {
-        $this->_view_list[] = array(
-          'filename' => $file,
-          'description' => $description
-        );
-      }
-    }
-
-  }
     /**
-     * Nome del file
-     * 
+     * @brief Imposta le liste di file css e viste
+     * @return void
+     */
+    private function setLists() {
+
+        $this->_css_list = array();
+        $this->_view_list = array();
+
+        $classElements = call_user_func(array($this->_class, 'getClassElements'));
+
+        if(isset($classElements['css'])) {
+            foreach($classElements['css'] as $file) {
+                $this->_css_list[] = array(
+                    'filename' => $file,
+                    'description' => ''
+                );
+            }
+        }
+
+        if(isset($classElements['views'])) {
+            foreach($classElements['views'] as $file => $description) {
+                $this->_view_list[] = array(
+                    'filename' => $file,
+                    'description' => $description
+                );
+            }
+        }
+
+    }
+
+    /**
+     * @brief Nome del file
+     *
+     * @description I Css e le viste vengono copiate quando si crea una nuova istanza di un modulo.
+     *              Il nome viene modificato per comprendere anche il nome dell'istanza.
+     *
      * @param string $file nome del file
      * @param string $ext estensione del file
-     * @return string
+     * @return nome file
      */
     private function fileName($file, $ext) {
 
@@ -98,10 +109,10 @@ class Frontend {
     }
 
     /**
-     * Percorso assoluto della directory dei file di front-end
-     * 
+     * @brief Percorso assoluto della directory dei file di front-end
+     *
      * @param string $code
-     * @return string
+     * @return percorso
      */
     private function pathToFile($code) {
 
@@ -109,7 +120,7 @@ class Frontend {
 
         if($code == 'css')
         {
-            //
+            // stessa dir
         }
         elseif($code == 'view')
         {
@@ -119,65 +130,50 @@ class Frontend {
         return $dir;
     }
 
-    private function getFileList($code) {
-
-        /*$dir = $this->pathToFile($code);
-        $ext = 'php';
-
-        $array = array();
-        $buffer = '';
-
-        if(is_dir($dir))
-        {
-            if($dh = opendir($dir)) {
-                while (($file = readdir($dh)) !== false) {
-                    if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.'.$ext.'$#', $file))
-                    {
-                        $array[] = $file;
-                    }
-                }
-                closedir($dh);
-            }
-        }
-    return $array;*/
-    }
-
     /**
-     * Interfaccia per la gestione dei file di front-end dei moduli
-     * 
-     * @see moduleList()
-     * @see formModuleFile()
-     * @see actionModuleFile()
-     * @return string
+     * @brief Interfaccia per la gestione dei file di front-end dei moduli
+     *
+     * @see self::moduleList()
+     * @see self::formModuleFile()
+     * @see self::actionModuleFile()
+     * @return interfaccia
      */
     public function manageFrontend() {
 
-        $action = cleanVar($_GET, 'action', 'string', '');
-        $code = cleanVar($_GET, 'code', 'string', '');
+        $request = \Gino\Http\Request::instance();
+        $action = cleanVar($request->GET, 'action', 'string', '');
+        $code = cleanVar($request->GET, 'code', 'string', '');
 
-    if($action == 'modify') {
-      $buffer = $this->formModuleFile($code);
-    }
-    elseif($action == 'save') {
-      $buffer .= $this->actionModuleFile($code);
-    }
-    else {
-      $buffer = "<p class=\"backoffice-info\">"._('In questa sezione si può decidere l\'aspetto ed il modo di visualizzare le informazioni, modificando direttamente i fogli di stile e le viste utilizzati dal modulo.')."</p>";
-      $buffer .= $this->moduleList('view');
-      $buffer .= $this->moduleList('css');
-    }
+        if($action == 'modify') {
+            $buffer = $this->formModuleFile($code);
+        }
+        elseif($action == 'save') {
+            $buffer .= $this->actionModuleFile($code);
+        }
+        else {
+            $buffer = "<p class=\"backoffice-info\">"._('In questa sezione si può decidere l\'aspetto ed il modo di visualizzare le informazioni, modificando direttamente i fogli di stile e le viste utilizzati dal modulo.')."</p>";
+            $buffer .= $this->moduleList('view');
+            $buffer .= $this->moduleList('css');
+        }
 
-    $view = new View();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => 'Frontend',
-      'class' => 'admin',
-      'content' => $buffer
-    );
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => 'Frontend',
+            'class' => 'admin',
+            'content' => $buffer
+        );
 
         return $view->render($dict);
     }
 
+    /**
+     * @brief Tabella con lista elementi del modulo, css o viste
+     *
+     * @description Utilizza la libraria javascript CodeMirror
+     * @param string $code 'css' o 'view'
+     * @return codice html
+     */
     private function moduleList($code) {
 
         if($code == 'css')
@@ -194,39 +190,44 @@ class Frontend {
         }
 
         $num_items = count($items);
-    if($num_items) {
-      $buffer = "<h2>".$title."</h2>";
-      $view_table = new View(null, 'table');
-      $view_table->assign('class', 'table table-striped table-hover');
-      $tbl_rows = array();
-      $tb_rows[] = array(
-        'text' => 'Viste',
-        'header' => true,
-        'colspan' => 3
-      );
-      foreach($items as $k=>$v) {
-        $filename = $this->fileName($v['filename'], $ext);
-        $description = $v['description'];
-        $link_modify = "<a href=\"$this->_mdlLink&key=$k&code=$code&action=modify\">".\Gino\icon('modify')."</a>";
-        $tbl_rows[] = array(
-          $filename,
-          $description,
-          $link_modify
-        );
-      }
-      $view_table->assign('rows', $tbl_rows);
-      $buffer .= $view_table->render();
+        if($num_items) {
+            $buffer = "<h2>".$title."</h2>";
+            $view_table = new View(null, 'table');
+            $view_table->assign('class', 'table table-striped table-hover');
+            $tbl_rows = array();
+            $tb_rows[] = array(
+                'text' => 'Viste',
+                'header' => true,
+                'colspan' => 3
+            );
+            foreach($items as $k=>$v) {
+                $filename = $this->fileName($v['filename'], $ext);
+                $description = $v['description'];
+                $link_modify = "<a href=\"$this->_mdlLink&key=$k&code=$code&action=modify\">".\Gino\icon('modify')."</a>";
+                $tbl_rows[] = array(
+                    $filename,
+                    $description,
+                    $link_modify
+                );
+            }
+            $view_table->assign('rows', $tbl_rows);
+            $buffer .= $view_table->render();
         }
         else {
             return '';
+        }
+
+        return $buffer;
     }
 
-    return $buffer;
-    }
-
+    /**
+     * @brief Form di modifica file
+     * @param string $code 'css' o 'view'
+     * @return codice html form
+     */
     private function formModuleFile($code) {
 
-    $registry = registry::instance();
+        $registry = registry::instance();
         $registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
         $registry->addCss(CSS_WWW."/codemirror.css");
         $gform = Loader::load('Form', array('gform', 'post', true));
@@ -236,40 +237,40 @@ class Frontend {
 
         if($code == 'css')
         {
-          $registry->addJs(SITE_JS."/CodeMirror/css.js");
-      $options = "{
-        lineNumbers: true,
-        matchBrackets: true,
-        indentUnit: 4,
-        indentWithTabs: true,
-        enterMode: \"keep\",
-        tabMode: \"shift\"
-      }";
+            $registry->addJs(SITE_JS."/CodeMirror/css.js");
+            $options = "{
+                lineNumbers: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                indentWithTabs: true,
+                enterMode: \"keep\",
+                tabMode: \"shift\"
+            }";
             $list = $this->_css_list;
             $ext = 'css';
-          $filename = $this->fileName($list[$key]['filename'], $ext);
+            $filename = $this->fileName($list[$key]['filename'], $ext);
             $title = sprintf(_("Modifica il foglio di stile \"%s\""), $filename);
         }
         elseif($code == 'view')
         {
-          $registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-          $registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-          $registry->addJs(SITE_JS."/CodeMirror/css.js");
-          $registry->addJs(SITE_JS."/CodeMirror/xml.js");
-          $registry->addJs(SITE_JS."/CodeMirror/clike.js");
-          $registry->addJs(SITE_JS."/CodeMirror/php.js");
-      $options = "{
-        lineNumbers: true,
-        matchBrackets: true,
-        mode: \"application/x-httpd-php\",
-        indentUnit: 4,
-        indentWithTabs: true,
-        enterMode: \"keep\",
-        tabMode: \"shift\"
-      }";
+            $registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+            $registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+            $registry->addJs(SITE_JS."/CodeMirror/css.js");
+            $registry->addJs(SITE_JS."/CodeMirror/xml.js");
+            $registry->addJs(SITE_JS."/CodeMirror/clike.js");
+            $registry->addJs(SITE_JS."/CodeMirror/php.js");
+            $options = "{
+                lineNumbers: true,
+                matchBrackets: true,
+                mode: \"application/x-httpd-php\",
+                indentUnit: 4,
+                indentWithTabs: true,
+                enterMode: \"keep\",
+                tabMode: \"shift\"
+            }";
             $list = $this->_view_list;
             $ext = 'php';
-          $filename = $this->fileName($list[$key]['filename'], $ext);
+            $filename = $this->fileName($list[$key]['filename'], $ext);
             $title = sprintf(_("Modifica la vista \"%s\""), $filename);
         }
 
@@ -280,26 +281,29 @@ class Frontend {
 
         $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
 
-    $buffer .= "<div class=\"form-row\">";
-    $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-    $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
-    $buffer .= "</div>";
-
+        $buffer .= "<div class=\"form-row\">";
+        $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+        $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+        $buffer .= "</div>";
         $buffer .= $gform->close();
 
-    $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+        $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
-    $view = new View(null, 'section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
-
+        $view = new View(null, 'section');
+        $dict = array(
+            'title' => $title,
+            'class' => 'admin',
+            'content' => $buffer
+        );
 
         return $view->render($dict);
     }
 
+    /**
+     * @brief Processa il form di modifica di un file
+     * @param string $code 'css' o 'view'
+     * @return Gino.Http.Redirect
+     */
     private function actionModuleFile($code) {
 
         $key = cleanVar($_GET, 'key', 'int', '');
@@ -322,9 +326,6 @@ class Frontend {
         fwrite($fo, $file_content);
         fclose($fo);
 
-        header("Location: ".$this->_mdlLink);
-    exit();
+        return \Gino\Http\Redirect($this->_mdlLink);
     }
-
 }
-?>
