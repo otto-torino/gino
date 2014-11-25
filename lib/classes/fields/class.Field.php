@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.Field.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Field
+ * @brief Contiene la definizione ed implementazione della classe Gino.Field
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -36,7 +36,7 @@ class Field {
 
     /**
      * @brief Istanza del modello cui il campo appartiene
-     * @var \Gino\Model
+     * @var Gino.Model
      */
     protected $_model;
 
@@ -70,7 +70,7 @@ class Field {
      *   - @b primary_key (boolean): campo chiave primaria
      *   - @b unique_key (boolean): campo chiave unica
      *   - @b required (boolean): valore indicatore del campo obbligatorio
-     * @return istanza di \Gino\Field
+     * @return istanza di Gino.Field
      */
     function __construct($options) {
 
@@ -498,7 +498,7 @@ class Field {
      * 
      * @see adminTable::modelForm()
      * @see formElementWidget()
-     * @param object $form oggetto del form
+     * @param \Gino\Form $form istanza di Gino.Form
      * @param array $options opzioni dell'elemento del form
      *   - opzioni dei metodi della classe Form
      *   - @b widget (string): tipo di input
@@ -510,9 +510,9 @@ class Field {
      *   - @b seconds (boolean): mostra i secondi
      *   - @b default (mixed): valore di default (input radio)
      *   - @b checked (boolean): valore selezionato (input checkbox)
-     * @return string
+     * @return controllo del campo, html
      */
-    public function formElement($form, $options) {
+    public function formElement(\Gino\Form $form, $options) {
 
         $this->_inputForm = new InputForm($form);
 
@@ -531,29 +531,30 @@ class Field {
     }
 
     /**
-     * @brief Formatta un elemento input per l'inserimento in database
-     * 
-     * @see cleanVar()
+     * @brief Ripulisce un input per l'inserimento in database
+     *
+     * @see Gino.cleanVar()
      * @param array $options
      *   array associativo di opzioni
      *   - @b value_type (string): tipo di valore
      *   - @b method (array): metodo di recupero degli elementi del form
      *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     * @return mixed
+     * @return input ripulito
      */
     public function clean($options=null) {
 
         $request = Request::instance();
         $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
         $method = isset($options['method']) ? $options['method'] : $request->POST;
-        $escape = gOpt('escape', $options, true);
+        $escape = gOpt('escape', $options, TRUE);
 
         return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
     }
 
     /**
      * @brief Valida il valore del campo
-     * @description Il metodo deve essere sovrascritto dalla subclasses
+     *
+     * @description Il metodo deve essere sovrascritto dalle subclasses
      * @param mixed $value
      * @return TRUE
      */
@@ -562,4 +563,3 @@ class Field {
         return TRUE;
     }
 }
-?>

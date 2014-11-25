@@ -351,30 +351,30 @@ interface DbManager {
      */
     public function delete($table, $where, $debug);
 
-  /**
-     * Eliminazione di una tabella
-     * 
+   /**
+     * @brief Eliminazione di una tabella
+     *
      * @param string $table nome della tabella
-     * @return boolean
+     * @return risultato dell'operazione, bool
      */
     public function drop($table);
 
     /**
-     * Controlla che il valore del campo non sia gia presente in tabella
-     * 
+     * @brief Controlla che il valore del campo non sia gia presente in tabella
+     *
      * @param string $table nome della tabella
      * @param string $field campo da cercare
      * @param string $value valore da confrontare
      * @param array $options
      *   array associativo di opzioni
      *   - except_id (integer): valore ID del record per il quale non effettuare il controllo
-     * @return boolean
+     * @return TRUE se presente, FALSE altrimenti
      */
   public function columnHasValue($table, $field, $value, $options=array());
 
     /**
-     * Definizione delle Join
-     * 
+     * @brief Definizione delle Join
+     *
      * @param string $table nome della tabella
      * @param string $condition condizione della join
      * @param string $option opzione della join
@@ -384,30 +384,30 @@ interface DbManager {
      *   - inner
      *   - left outer
      *   - right outer
-     * @return string
+     * @return join clause
      */
     public function join($table, $condition, $option);
 
     /**
-     * Permette di combinare delle istruzioni SELECT
-     * 
+     * @brief Permette di combinare delle istruzioni SELECT
+     *
+     * Le regole di base per la combinazione dei set di risultati di più query tramite l'istruzione UNION: \n
+     * - Tutte le query devono includere lo stesso numero di colonne nello stesso ordine. \n
+     * - I tipi di dati devono essere compatibili.
+     *
      * @see selectquery()
      * @param array $queries query da unire (viene seguito l'ordine nell'array)
      * @param array $options
      *   array associativo di opzioni
      *   - @b debug (boolean):  se vero stampa a video la query
      *   - @b instruction (string): istruzione (default UNION)
-     * @return array
-     * 
-     * Le regole di base per la combinazione dei set di risultati di più query tramite l'istruzione UNION: \n
-     * - Tutte le query devono includere lo stesso numero di colonne nello stesso ordine. \n
-     * - I tipi di dati devono essere compatibili.
+     * @return array di risultati
      */
     public function union($queries, $options=array());
 
     /**
-     * Restore di un file (ad es. di un backup)
-     * 
+     * @brief Restore di un file (ad es. di un backup)
+     *
      * @param string $table nome della tabella
      * @param string $filename nome del file da importare
      * @param array $options
@@ -418,13 +418,13 @@ interface DbManager {
      *   - @b escaped (string): carattere di escape, cioè quello utilizzato prima dei caratteri speciali
      *   - @b lineend (string): stringa utilizzata come separatore tra i record
      *   - @b hasheader (boolean): se il file comincia con una riga contenente i nomi dei campi
-     * @return boolean
+     * @return risultato dell'operazione, bool
      */
     public function restore($table, $filename, $options=array());
 
     /**
-     * Dump di una tabella
-     * 
+     * @brief Dump di una tabella
+     *
      * @param string $table nome della tabella
      * @param string $filename nome del file completo di percorso
      * @param array $options
@@ -432,29 +432,29 @@ interface DbManager {
      *   - @b where (string): condizioni della query
      *   - @b delim (string): stringa che viene usata per separare tra loro i valori dei campi
      *   - @b enclosed (string): stringa utilizzata per racchiudere i valori di tipo stringa
-     * @return string (nome del file di dump)
+     * @return stringa (nome del file di dump)
      */
     public function dump($table, $filename, $options=array());
 
     /**
-     * Aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL, tenendo conto dell'attuale set di caratteri della connessione
-     * 
-     * @param mixed $string 
-     * @return mixed
+     * @brief Aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL, tenendo conto dell'attuale set di caratteri della connessione
+     *
+     * @param mixed $string
+     * @return stringa
      */
     public function escapeString($string);
 }
 
 /**
- * @brief Classe dalla quale vengono creati gli oggetti che si interfacciano al database
- * 
+ * @brief Classe Factory e Singleton usata per creare oggetti che si interfacciano al database
+ *
  * Le librerie di connessione al database sono sottoclassi di questa (che funziona come "scheletro") e vengono instanziate nel metodo instance()
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-abstract class db extends singleton {
+abstract class Db extends singleton {
 
     /* DB Configuration Paramethers */
     private static $_db_host = DB_HOST;
@@ -465,7 +465,8 @@ abstract class db extends singleton {
     private static $_db_schema = DB_SCHEMA;
 
     /**
-     * Istanzia la classe che si occupa della connessione al database
+     * @brief Istanzia la classe che si occupa della connessione al database
+     * @description Garantisce che tutti gli oggetti ricevano sempre la stessa istanza Singleton.
      * @return object
      */
     public static function instance() {
@@ -502,4 +503,3 @@ abstract class db extends singleton {
         return self::$_instances[$class];
     }
 }
-?>

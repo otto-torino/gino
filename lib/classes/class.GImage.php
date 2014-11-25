@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.GImage.php
- * @brief Contiene la classe GImage per il trattamento di immagini
+ * @brief Contiene la definizione ed implementazione della classe Gino.GImage
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -33,11 +33,12 @@ class GImage {
     /**
      * @brief Costruttore
      * @param string $abspath percorso assoluto del file
+     * @return istanza di Gino.GImage
      */
     public function __construct($abspath) {
 
         if(!is_file($abspath)) {
-            throw new Exception(sprintf('File with path %s doesn\'t exists', $abspath));
+            throw new Exception(sprintf('Il file con path %s non esiste', $abspath));
         }
 
         $image_info = getimagesize($abspath);
@@ -56,16 +57,17 @@ class GImage {
             $this->_image = imagecreatefrompng($abspath);
         }
         else {
-            throw new Exception('Unsupported image type');
+            throw new Exception('Formato immagine non supportato');
         }
 
-        imagealphablending($this->_image, false);
-        imagesavealpha($this->_image, true);
+        imagealphablending($this->_image, FALSE);
+        imagesavealpha($this->_image, TRUE);
     }
 
     /**
      * @brief Ritorna il percorso relativo dell'immagine (da usare come attributo src del tag img)
-     * @return string path relativo immagine
+     * @see Gino.relativePath
+     * @return path relativo immagine
      */
     public function getPath() {
         return relativePath($this->_abspath);
@@ -73,7 +75,7 @@ class GImage {
 
     /**
      * @brief Ritorna la larghezza dell'immagine
-     * @return int larghezza immagine in px
+     * @return larghezza immagine in px
      */
     public function getWidth() {
         return $this->_width;
@@ -81,7 +83,7 @@ class GImage {
 
     /**
      * @brief Ritorna l'altezza dell'immagine
-     * @return int altezza immagine in px
+     * @return altezza immagine in px
      */
     public function getHeight() {
         return $this->_width;
@@ -125,13 +127,15 @@ class GImage {
 
     /**
      * @brief Output dell'immagine
-     * @param int $compression compressione, default 75
-     * @return stream immagine
-     * @example 
+     *
+     * @code
      *   ob_start();
      *   $image->stream();
      *   $i = ob_get_clean();
      *   echo "<img src='data:image/jpeg;base64," . base64_encode( $i )."'>";
+     * @endcode
+     * @param int $compression compressione, default 75
+     * @return stream immagine
      */
     public function stream($compression=75) {
 
@@ -149,11 +153,12 @@ class GImage {
 
     /*
      * @brief Resize dell'immagine
+     *
      * @param int|null $width Larghezza della thumb
      * @param int|null $height Altezza della thumb
      * @param array $options Opzioni.
-     *                       Array associativo di opzioni:
-     *                       - 'allow_enlarge': default true. Consente l'allargamento di immagini per soddisfare le dimensioni richieste.
+     *              Array associativo di opzioni:
+     *              - 'allow_enlarge': default true. Consente l'allargamento di immagini per soddisfare le dimensioni richieste.
      * @return void
      */
     public function resize($width, $height, $options) {
@@ -213,7 +218,7 @@ class GImage {
      * @param array $options Opzioni.
      *                       Array associativo di opzioni:
      *                       - 'allow_enlarge': default false. Consente l'allargamento di immagini per soddisfare le dimensioni richieste.
-     * @return GImage nuovo oggetto immagine wrapper della thumb generata
+     * @return Gino.GImage nuovo oggetto immagine wrapper della thumb generata
      */
     public function thumb($width, $height, $options = array()) {
 
@@ -230,7 +235,7 @@ class GImage {
      * @param int $width Larghezza dell'immagine dopo l'operazione
      * @param int $height Altezza dell'immagine dopo l'operazione
      * @params array $options Opzioni
-     * @return string chiave univoca
+     * @return chiave univoca
      */
     private function toKey($abspath, $width, $height, $options) {
         $json_obj = array(
@@ -247,7 +252,7 @@ class GImage {
     /**
      * @brief Recupera il path dell'immagine se già stata sottoposta alla stessa operazione (cache)
      * @param string $key chiave univoca dell'operazione
-     * @return GImage|false oggetto GImage dell'immagine in cache o false
+     * @return Gino.GImage|FALSE oggetto GImage dell'immagine in cache o false
      */
     private function getThumbFromKey($key) {
         $db = db::instance();
@@ -256,7 +261,7 @@ class GImage {
             return new GImage(absolutePath($rows[0]['path']));
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -269,7 +274,7 @@ class GImage {
      * @param array $options Opzioni.
      *                       Array associativo di opzioni:
      *                       - 'allow_enlarge': default false. Consente l'allargamento di immagini per soddisfare le dimensioni richieste.
-     * @return GImage nuovo oggetto GImage della thumb generata
+     * @return Gino.GImage nuovo oggetto GImage della thumb generata
      */
     private function makeThumb($key, $width, $height, $options) {
         // simple resize or enlargement
@@ -293,7 +298,7 @@ class GImage {
 
     /**
      * @brief Salva l'immagine temporanea su filesystem e su db
-     * @return GImage oggetto GImage della nuova immagine salvata
+     * @return Gino.GImage oggetto GImage della nuova immagine salvata
      */
     private function saveTmpImage($key, $compression=75) {
 
@@ -410,7 +415,7 @@ class GImage {
      * @param resource $image
      * @param int $target_size dimensione finale
      * @param string $axis asse h=orizzontale, v=verticale
-     * @return int coordinata dall quale tagliare
+     * @return coordinata dalla quale tagliare
      */
     private function slice($image, $target_size, $axis) {
 
@@ -531,8 +536,4 @@ class GImage {
         // $value is always 0.0 or negative, so transform into positive scalar value
         return -$value;
     }
-
-
 }
-
-?>

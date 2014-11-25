@@ -1,23 +1,22 @@
 <?php
 /**
  * @file class.controller.php
- * @brief Contiene la classe Controller
+ * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
- * @brief Classe astratta primitiva Controller, dalla quale tutti i controller delle singole app discendono
- * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
+ *
+ * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 abstract class Controller {
-
 
     protected $_registry,
               $_db,
@@ -40,7 +39,7 @@ abstract class Controller {
     /**
      * @brief Inizializza il controller
      * @param int $instance_id id modulo, se diverso da zero il modulo è un'istanza di una classe, altrimenti è la classe di sistema
-     * @return void
+     * @return istanza di Gino.Controller
      */
     function __construct($instance_id = 0) {
 
@@ -106,6 +105,7 @@ abstract class Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe
+     *
      * @description Le informazioni vengono utilizzate per creare o eliminare istanze. Questo metodo dev'essere sovrascritto da tutte le classi figlie.
      * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
      */
@@ -118,7 +118,7 @@ abstract class Controller {
      * @return id
      */
     public function getInstance() {
-      return $this->_instance;
+        return $this->_instance;
     }
 
     /**
@@ -126,7 +126,7 @@ abstract class Controller {
      * @return nome istanza
      */
     public function getInstanceName() {
-      return $this->_instance_name;
+        return $this->_instance_name;
     }
 
     /**
@@ -134,7 +134,7 @@ abstract class Controller {
      * @return nome classe
      */
     public function getClassName() {
-      return $this->_class_name;
+        return $this->_class_name;
     }
 
     /**
@@ -143,7 +143,7 @@ abstract class Controller {
      * @return void
      */
     public function requirePerm($perm) {
-      $this->_access->requirePerm($this->_class_name, $perm, $this->_instance);
+        $this->_access->requirePerm($this->_class_name, $perm, $this->_instance);
     }
 
     /**
@@ -152,20 +152,20 @@ abstract class Controller {
      * @return void
      */
     public function userHasPerm($perm) {
-      return $this->_registry->user->hasPerm($this->_class_name, $perm, $this->_instance);
+        return $this->_registry->request->user->hasPerm($this->_class_name, $perm, $this->_instance);
     }
 
     /**
-     * @brief Shortcut link per classi di tipo \Gino\Controller
-     * @see \Gino\Router::link
+     * @brief Shortcut link per classi di tipo Gino.Controller
+     * @see Gino.Router::link
      */
     public function link($instance_name, $method, array $params = array(), $query_string = '', array $kwargs = array()) {
         return $this->_registry->router->link($instance_name, $method, $params, $query_string, $kwargs);
     }
 
     /**
-     * @brief Shortcut link area amministrativa per classi di tipo \Gino\Controller
-     * @see \Gino\Router::link
+     * @brief Shortcut link area amministrativa per classi di tipo Gino.Controller
+     * @see Gino.Router::link
      */
     public function linkAdmin(array $params = array(), $query_string = '', array $kwargs = array()) {
 
@@ -178,12 +178,12 @@ abstract class Controller {
      * @brief Opzioni di classe
      *
      * @param string $option nome del campo dell'opzione di classe
-     * @param mixed $options
+     * @param mixed $options default FALSE.
      *   - (array): chiavi value (valore di default), translation (traduzione)
      *   - (boolean): indica se è prevista la traduzione (compatibilità con precedenti versioni di gino)
      * @return mixed
      */
-    protected function setOption($option, $options=false) {
+    protected function setOption($option, $options = FALSE) {
 
         $tbl_name = $this->_db->getFieldFromId(TBL_MODULE_APP, 'tbl_name', 'name', $this->_class_name);
         $tbl_name = $tbl_name."_opt";
@@ -193,9 +193,9 @@ abstract class Controller {
         {
             foreach($records AS $r)
             {
-                if(is_bool($options)) $trsl = $options;	// for compatibility with old version
+                if(is_bool($options)) $trsl = $options; // for compatibility with old version
                 elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
-                else $trsl = false;
+                else $trsl = FALSE;
 
                 if($trsl && $this->_registry->sysconf->multi_language)
                     $value = $this->_trd->selectTXT($tbl_name, $option, $r['id']);
@@ -214,20 +214,13 @@ abstract class Controller {
 
     /**
      * @brief Interfaccia per la gestione delle opzioni dei moduli
-     * 
-     * @see options::manageDoc()
-     * @param integer $mdl valore ID del modulo
-     * @param string $class nome della classe
+     *
+     * @see Gino.Options::manageDoc()
      * @return interfaccia di amministrazione opzioni
      */
     public function manageOptions() {
-        try {
-            $options = new options($this);
-            return $options->manageDoc();
-        }
-        catch(\Exception $e) {
-            Logger::manageException($e);
-        }
+        $options = new \Gino\Options($this);
+        return $options->manageDoc();
     }
 
     /**
@@ -243,10 +236,10 @@ abstract class Controller {
     /**
      * @brief Eliminazione istanza del modulo
      * @description Questo metodo deve essere sovrascritto dalle classi istanziabili per permettere l'eliminazione delle istanze.
-     *              Se non sovrascritto viene chiamato e restituisce un errore
+     *              Se non sovrascritto viene chiamato e getta una Exception
      */
     public function deleteInstance() {
-        exit(error::syserrorMessage('Controller', 'deleteInstance', sprintf(_('La classe %s non implementa il metodo deleteInstance'), get_class($this)), __LINE__));
+        throw new \Exception(sprintf(_('La classe %s non implementa il metodo deleteInstance'), get_class($this)));
     }
 
 }

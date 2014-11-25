@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.GTag.php
- * @brief Contiene la classe GTag per la gestione di tag
+ * @brief Contiene la definizione ed implementazione della classe Gino.GTag
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -13,7 +13,7 @@ use \Gino\App\SysClass\ModuleApp;
 use \Gino\App\Module\ModuleInstance;
 
 /**
- * @brief Classe per il trattamento di tag
+ * @brief Classe per il trattamento di campi di tipo tag
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -31,7 +31,7 @@ class GTag {
      * @param string $content_class la classe del modello cui i tag sono associati
      * @param int $content_id l'id del oggetto cui i tag sono associati
      * @param string $tags stringa di tag separati da virgole
-     * @return true
+     * @return TRUE
      */
     public static function saveContentTags($content_controller_class, $content_controller_instance, $content_class, $content_id, $tags) {
         $db = db::instance();
@@ -58,7 +58,7 @@ class GTag {
                 ), self::$_table_tag_taggeditem);
             }
         }
-        return true;
+        return TRUE;
     }
 
     /**

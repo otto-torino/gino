@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.Router.php
- * @brief Contiene la definizione ed implementazione della class \Gino\Router
+ * @brief Contiene la definizione ed implementazione della class Gino.Router
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -38,7 +38,7 @@ class Router extends Singleton {
 
     /**
      * @brief Costruttore
-     * @description Esegue l'url rewriting quando si utilizzano permalinks e setta le variabili che 
+     * @description Esegue l'url rewriting quando si utilizzano pretty urls e setta le variabili che 
      *              contengono le informazioni della classe e metodo chiamati da url
      */
     protected function __construct() {
@@ -52,7 +52,7 @@ class Router extends Singleton {
     /**
      * @brief Url rewriting
      * @description Se l'url non è nella forma permalink ritorna FALSE, altrimenti riscrive le proprietà GET e REQUEST dell'oggetto
-     *              @ref \Gino\HttpRequest parserizzando l'url
+     *              @ref Gino.Http.Request parserizzando l'url
      */
     private function urlRewrite() {
 
@@ -145,7 +145,7 @@ class Router extends Singleton {
     /**
      * @brief Setta le proprietà che contengono le informazioni della classe e metodo chiamati da url
      * @description Se i parametri ricavati dall'url tentano di chiamare una callable (classe + metodo) non chiamabile
-     *              per qualunque motivo, viene generata una \Gino\Exception404
+     *              per qualunque motivo, viene generata una @ref Gino.Exception.Exception404
      * @return TRUE
      */
     private function setUrlParams() {
@@ -163,6 +163,7 @@ class Router extends Singleton {
             list($mdl, $method) = explode("-", $evt_key);
 
             Loader::import('module', 'ModuleInstance');
+            Loader::import('sysClass', 'ModuleApp');
             $module_app = ModuleApp::getFromName($mdl);
             $module = ModuleInstance::getFromName($mdl);
 
@@ -203,9 +204,9 @@ class Router extends Singleton {
 
     /**
      * @brief Esegue il route della request HTTP
-     * @description Passa la \Gino\HttpRequest alla callable che deve gestirla e ritornare una \Gino\Http\Response
-     *              Se non è definita una callable, ritorna una \Gino\Http\Response con contenuto vuoto
-     * @return \Gino\Http\Response
+     * @description Passa la @ref Gino.Http.Request alla callable che deve gestirla e ritornare una Gino.Http.Response.
+     *              Se non è definita una callable, ritorna una Gino.Http.Response con contenuto vuoto
+     * @return Gino.Http.Response
      */
     public function route() {
         if(!is_null($this->_controller_view)) {
@@ -218,7 +219,7 @@ class Router extends Singleton {
 
     /**
      * @brief Url che linka un metodo di una istanza di controller con parametri dati
-     * @param string $instance_name nome istanza del @ref \Gino\Controller
+     * @param string $instance_name nome istanza del @ref Gino.Controller
      * @param string $method nome metodo
      * @param array $params parametri da aggiungere come path info nel caso di pretty url
      * @param array|string $query_string parametri aggiuntivi da trattare come query_string in entrambi i casi (pretty, espanso)

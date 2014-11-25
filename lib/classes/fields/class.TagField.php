@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.TagField.php
- * @brief Contiene la classe TagField per la gestione di campi per inserimento tag
+ * @brief Contiene la definizione ed implementazione della classe Gino.TagField
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -26,7 +26,8 @@ class TagField extends Field {
      * @description Opzioni ulteriori al parent: 
      *              - model_controller_class: nome classe del controller
      *              - model_controller_instance: id istanza del controller
-     * @see Field::__construct
+     * @see Gino.Field::__construct()
+     * @return istanza di Gino.TagField
      */
     function __construct($options) {
         parent::__construct($options);
@@ -37,12 +38,12 @@ class TagField extends Field {
 
     /**
      * @brief Widget html per il form
-     * @param Form $form istanza del form
+     * @param \Gino\Form $form istanza di Gino.Form
      * @param array $options opzioni
-     * @see Field::formElement
-     * @return widget
+     * @see Gino.Field::formElement()
+     * @return widget html
      */
-    public function formElement($form, $options) {
+    public function formElement(\Gino\Form $form, $options) {
         // moocomplete
         $registry = registry::instance();
         $registry->addJs(SITE_JS.'/MooComplete.js');
@@ -81,7 +82,7 @@ class TagField extends Field {
 
     /**
      * @brief Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
-     * @see Field::clean
+     * @see Gino.Field::clean()
      * @return valore ripulito
      */
     public function clean($options=null) {
@@ -117,7 +118,5 @@ class TagField extends Field {
 
         return $buffer;
     }
-
-
 
 }

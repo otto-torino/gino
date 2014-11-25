@@ -27,7 +27,7 @@ use \Gino\App\SysClass\ModuleApp;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class options {
+class Options {
 
 	private $_db;
 	private $_class, $_module_app, $_class_prefix;

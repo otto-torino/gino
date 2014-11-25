@@ -1,9 +1,9 @@
 <?php
 /**
- * @file class.emailField.php
- * @brief Contiene la classe emailField
+ * @file class.EmailField.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.EmailField
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -11,44 +11,50 @@ namespace Gino;
 
 /**
  * @brief Campo di tipo EMAIL
- * 
+ *
  * Tipologie di input associabili: testo in formato email.
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class emailField extends Field {
+class EmailField extends Field {
 
-	/**
-	 * Costruttore
-	 * 
-	 * @param array $options array associativo di opzioni del campo del database
-	 *   - opzioni generali definite come proprietà nella classe field()
-	 * @return void
-	 */
-	function __construct($options) {
+    /**
+     * @brief Costruttore
+     *
+     * @see Gino.Field::__construct()
+     * @param array $options array associativo di opzioni del campo del database
+     *   - opzioni generali definite come proprietà nella classe field()
+     * @return istanza di Gino.EmailField
+     */
+    function __construct($options) {
 
-		parent::__construct($options);
-		
-		$this->_default_widget = 'email';
-		$this->_value_type = 'string';
-	}
-	
-	/**
-	 * @see Field::clean()
-	 */
-	public function clean($options=array()) {
-		
-		$method = isset($options['method']) ? $options['method'] : $_POST;
-		return \filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
-	}
+        parent::__construct($options);
 
-	/**
-	 * @see Field::validate()
-	 */
-	public function validate($value) {
-		
+        $this->_default_widget = 'email';
+        $this->_value_type = 'string';
+    }
+
+    /**
+     * @brief Ripulisce un input per l'inserimento in database
+     * @see Gino.Field::clean()
+     */
+    public function clean($options=array()) {
+
+        $request = Request::instance();
+        $method = isset($options['method']) ? $options['method'] : $request->POST;
+        return \filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
+     * @brief Valida il valore del campo
+     * @see Gino.Field::validate()
+     * @param string $value
+     * @return True o errore
+     */
+    public function validate($value) {
+
         if($value) {
             $result = checkEmail($value, true);
             if(!$result) {
@@ -57,7 +63,6 @@ class emailField extends Field {
             return $result;
         }
 
-        return true;
-	}
+        return TRUE;
+    }
 }
-?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.ResponseServerError.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseServerError
+ * @brief Contiene la definizione ed implementazione della classe Gino.Http.ResponseServerError
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -11,7 +11,7 @@
 namespace Gino\Http;
 
 /**
- * @brief Subclass di \Gino\HttpResponse per gestire risposte a seguito di errori interni (code 500)
+ * @brief Subclass di Gino.Http.Response per gestire risposte a seguito di errori interni (code 500)
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -22,7 +22,7 @@ class ResponseServerError extends Response {
     /**
      * @brief Costruttore
      * @param array $kwargs
-     * @return istanza di \Gino\Http\ResponseServerError
+     * @return istanza di Gino.Http.ResponseServerError
      */
     function __construct(array $kwargs = array()) {
 

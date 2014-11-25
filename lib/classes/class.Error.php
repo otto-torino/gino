@@ -1,8 +1,8 @@
 <?php
 /**
- * @file class.error.php
- * @brief Contiene la classe Error
- * 
+ * @file class.Error.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.Error
+ *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -12,17 +12,19 @@ namespace Gino;
 use \Gino\Http\Redirect;
 
 /**
- * @brief Classe per la gestione centralizzata degli errori
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Classe per la gestione di errori da mostrare all'utente
+ * @description E' possibile anche mostrare dei warning per facilitare il debug. I warning
+ * vengono mostrati solamente se la costante DEBUG in @ref configuration.php è settata a FALSE.
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class Error {
 
     /**
-     * @brief Elenco dei codici di errore
-     * @return array
+     * @brief Elenco dei codici di errore numerici
+     * @return array associativo codice-errore => stringa-errore
      */
     public static function codeMessages() {
 
@@ -69,8 +71,14 @@ class Error {
     }
 
     /**
-     * Gestione dell'errore con reindirizzamento a un indirizzo indicato
-     * 
+     * @brief Gestione dell'errore con reindirizzamento a un indirizzo indicato
+     * @description L'errore viene salvato in sessione, avviene quindi il reindirizzamento. L'errore viene mostrato
+     *              al nuovo url e poi tolto dalla sessione per evitare ripetizioni.
+     * Esempio
+     * @code
+     * exit(Error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
+     * @endcode
+     *
      * @param array $message
      *     array associativo di opzioni
      *     - @b error (mixed)
@@ -78,17 +86,13 @@ class Error {
      *         - @a integer: codice di errore
      *     - @b hint (string): testo dei suggerimenti
      * @param string $link collegamento al quale reindirizzare a seguito dell'errore
-     * @return redirect
-     * 
-     * Esempio
-     * @code
-     * exit(Error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
-     * @endcode
+     * @return Gino.Http.Redirect alla pagina di errore
+     *
      */
     public static function errorMessage($message, $link) {
 
         $codeMessages = self::codeMessages();
-        $msg = (is_int($message['error']))? $codeMessages[$message['error']]:$message['error'];
+        $msg = is_int($message['error']) ? $codeMessages[$message['error']] : $message['error'];
 
         $buffer = $msg;
         if(isset($message['hint'])) {
@@ -104,13 +108,13 @@ class Error {
     /**
      * @brief Stampa warning se si è in DEBUG TRUE
      *
-     * @param string $message messaggio
-     * @return void
-     * 
      * Esempio
      * @code
      * error::warning('modello inesistente');
      * @endcode
+     *
+     * @param string $message messaggio
+     * @return void
      */
     public static function warning($message) {
 
@@ -125,22 +129,20 @@ class Error {
     }
 
     /**
-     * Recupera il messaggio di errore
-     * 
-     * @return string
+     * @brief Recupera il messaggio di errore e lo toglie dalla sessione
+     * @return messaggio di errore se presente, stringa vuota altrimenti
      */
     public static function getErrorMessage() {
 
         $session = session::instance();
-        
+
         if(isset($session->GINOERRORMSG))
         {
             $errorMsg = $session->GINOERRORMSG;
             unset($session->GINOERRORMSG);
         }
         else $errorMsg = '';
-        
+
         return $errorMsg;
     }
 }
-?>

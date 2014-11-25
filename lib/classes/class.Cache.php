@@ -1,67 +1,96 @@
 <?php
 /**
  * @file cache.php
- * @brief Contiene le classi cache, outputCache, dataCache
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione delle classi Gino.Cache, Gino.OutputCache, Gino.DataCache
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
- * @brief Libreria che fornisce gli strumenti alle classi outputCache() e dataCache()
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Classe che viene esteda da Gino.OutputCache() e Gino.DataCache()
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class Cache {
 
     protected $_registry;
-	protected $_ds, $_fld, $_prefix;
-	protected $_grp, $id, $_tc;
-	protected $_enabled;
+    protected $_ds, $_fld, $_prefix;
+    protected $_grp, $id, $_tc;
+    protected $_enabled;
 
-	function __construct() {
+    /**
+     * @brief Costtruttore
+     * @return istanza di Gino.Cache
+     */
+    function __construct() {
 
         $this->_registry = registry::instance();
-		$this->_ds = OS;
-		$this->_fld = CACHE_DIR;
-		$this->_prefix = 'cache_';
-		$this->_enabled = $this->_registry->db->getFieldFromId(TBL_SYS_CONF, 'enable_cache', 'id', 1);
-	}
+        $this->_ds = OS;
+        $this->_fld = CACHE_DIR;
+        $this->_prefix = 'cache_';
+        $this->_enabled = $this->_registry->db->getFieldFromId(TBL_SYS_CONF, 'enable_cache', 'id', 1);
+    }
 
-	protected function write($data) {
+    /**
+     * @brief Scrive i dati sul file self::getFilename()
+     * @see self::getFilename()
+     * @param string $data
+     * @return void
+     */
+    protected function write($data) {
 
-		$filename = $this->getFilename();
+        $filename = $this->getFilename();
 
-		if($fp = @fopen($filename, "xb")) {
-			if(flock($fp, LOCK_EX)) fwrite($fp, $data);
-			fclose($fp);
-			touch($filename, time());
-		}
-	}
+        if($fp = @fopen($filename, "xb")) {
+            if(flock($fp, LOCK_EX)) fwrite($fp, $data);
+            fclose($fp);
+            touch($filename, time());
+        }
+    }
 
-	protected function read() {
-		
-		return file_get_contents($this->getFilename());
-	}
+    /**
+     * @brief Legge il contenuto del file self::getFilename()
+     * @see self::getFilename()
+     * @return contenuto file
+     */
+    protected function read() {
 
-	protected function getFilename() {
+        return file_get_contents($this->getFilename());
+    }
 
-		return $this->_fld . $this->_ds . $this->_prefix . $this->_grp ."_". md5($this->_id);
-	}
+    /**
+     * @brief Nome file di cache
+     * @return nome file
+     */
+    protected function getFilename() {
 
-	protected function isCached() {
+        return $this->_fld . $this->_ds . $this->_prefix . $this->_grp ."_". md5($this->_id);
+    }
 
-		$filename = $this->getFilename();
-		if($this->_enabled && file_exists($filename) && time() < (filemtime($filename) + $this->_tc)) return true; 
-		else @unlink($filename);
-			
-		return false;
-	}
+    /**
+     * @brief Controlla se il file di cache esiste ed è valido
+     * @return TRUE se il file di cache è presente e valido, FALSE altrimenti (e lo elimina se presente)
+     */
+    protected function isCached() {
 
+        $filename = $this->getFilename();
+        if($this->_enabled && file_exists($filename) && time() < (filemtime($filename) + $this->_tc)) return TRUE; 
+        else @unlink($filename);
+
+        return FALSE;
+    }
+
+    /**
+     * @brief Elimina il file di cache corrsipondente al gruppo e id dati
+     * @param string $grp gruppo
+     * @param string $id
+     * @return risultato operazione, bool
+     */
     public function delete($grp, $id) {
         $this->_grp = $grp;
         $this->_id = $id;
@@ -70,26 +99,22 @@ class Cache {
         if(is_file($filename)) {
             return @unlink($filename);
         }
-        return true;
+        return TRUE;
     }
 }
 
 /**
  * @brief Memorizza gli output (text, html, xml) scrivendo su file
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- *
  * Esempio di utilizzo
  * @code
  * $GINO = "previous text-";
  * $cache = new outputCache($GINO);
  * if($cache->start("group_name", "id", 3600)) {
- *	
- *	$buffer = "some content-";
  *
- *	$cache->stop($buffer);
+ *    $buffer = "some content-";
+ *
+ *    $cache->stop($buffer);
  *
  * }
  * $GINO .= "next text";
@@ -97,37 +122,49 @@ class Cache {
  *
  * --> result: $GINO = "previous text-somec content-next text";
  *
- * if the content is cached the if statement is skipped and the content is concatenated to $GINO
- * if content is not cached the if statemet runs, the content is prepared and then saved in cache and added to $GINO (through stop method)
+ * se il contenuto è in cache l'if statement viene skippato ed il contenuto è concatenato alla variabile $buffer (attraverso il metodo self::stop)
+ * se il contenuto non è in cache viene eseguito il codice interno all'if statement, il contenuto viene preparato e salvato in cache e quindi aggiunto alla variabile $buffer (attraverso il metodo self::stop)
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 class OutputCache extends Cache {
 
-	function __construct(&$buffer, $enabled = true) {
+    /**
+     * @brief Costruttore
+     * @param string $buffer contenuto al quale appendere il contenuto da mettere/prelevare dalla cache
+     * @param bool $enabled abilitazione cache, default TRUE
+     * @return istanza di Gino.OutputCache
+     */
+    function __construct(&$buffer, $enabled = true) {
 
-		parent::__construct();
+        parent::__construct();
         $this->_buffer = &$buffer;
         $this->_enabled = $enabled;
-	}
+    }
 
-	public function start($grp, $id, $tc) {
-	
-		$this->_grp = $grp;
-		$this->_id = $id;
-		$this->_tc = $tc;
+    /**
+     * @brief Inizia il processo di cache
+     */
+    public function start($grp, $id, $tc) {
 
-		if($this->isCached()) {
-			$this->_buffer .= $this->read();
-			return false;
-		}
-		
-		return true;
-	}
+        $this->_grp = $grp;
+        $this->_id = $id;
+        $this->_tc = $tc;
 
-	public function stop($data) {
-		
-		if($this->_enabled) $this->write($data);
-		$this->_buffer .= $data;
-	}
+        if($this->isCached()) {
+            $this->_buffer .= $this->read();
+            return false;
+        }
+
+        return true;
+    }
+
+    public function stop($data) {
+
+        if($this->_enabled) $this->write($data);
+        $this->_buffer .= $data;
+    }
 }
 
 /**
@@ -150,24 +187,24 @@ class OutputCache extends Cache {
  */
 class DataCache extends cache {
 
-	function __construct() {
+    function __construct() {
 
-		parent::__construct();
-	}
+        parent::__construct();
+    }
 
-	public function get($grp, $id, $tc) {
-	
-		$this->_grp = $grp;
-		$this->_id = $id;
-		$this->_tc = $tc;
+    public function get($grp, $id, $tc) {
 
-		if($this->isCached()) return unserialize($this->read());
-		return false;
-	}
+        $this->_grp = $grp;
+        $this->_id = $id;
+        $this->_tc = $tc;
 
-	public function save($data) {
-		
-		if($this->_enabled) $this->write(serialize($data));
-	}
+        if($this->isCached()) return unserialize($this->read());
+        return false;
+    }
+
+    public function save($data) {
+
+        if($this->_enabled) $this->write(serialize($data));
+    }
 }
 ?>

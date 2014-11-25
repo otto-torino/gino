@@ -98,12 +98,6 @@ class Core {
         Locale::init();
         // mobile
         $this->initMobile();
-        // check authentication
-        $this->_registry->access->authentication();
-        // set the request object
-        $this->_registry->request = \Gino\Http\Request::instance();
-        // set the router object
-        $this->_registry->router = Router::instance();
     }
 
     /**
@@ -176,7 +170,15 @@ class Core {
      */
     public function answer() {
 
-        $response = $this->_registry->router->route();
+        // set the request object
+        $this->_registry->request = \Gino\Http\Request::instance();
+        // set the router object
+        $this->_registry->router = Router::instance();
+
+        // check authentication
+        if(!($response = $this->_registry->access->authentication($this->_registry->request))) {
+            $response = $this->_registry->router->route();
+        }
 
         // risposta valida
         if(is_a($response, "\Gino\Http\Response")) {

@@ -7,6 +7,11 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
+/**
+ * @namespace Gino.Plugin
+ * @description Namespace che comprende classi di tipo plugin
+ */
 namespace Gino\Plugin;
 
 /**

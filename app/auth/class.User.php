@@ -540,7 +540,7 @@ class User extends \Gino\Model {
             $rows = $this->_db->select(TBL_GROUP_PERMISSION.'.perm_id', array(TBL_GROUP_PERMISSION, TBL_USER_GROUP, TBL_PERMISSION), "
                 ".TBL_GROUP_PERMISSION.".perm_id = ".TBL_PERMISSION.".id AND 
                 ".TBL_PERMISSION.".class = '".$class_name."' AND 
-                ".TBL_PERMISSION.".code = '".$perm_code." AND 
+                ".TBL_PERMISSION.".code = '".$perm_code."' AND 
                 ".TBL_GROUP_PERMISSION.".instance = '".$instance."' AND 
                 ".TBL_GROUP_PERMISSION.".group_id = ".TBL_USER_GROUP.".group_id AND
                 ".TBL_USER_GROUP.".user_id = '".$this->id."'");

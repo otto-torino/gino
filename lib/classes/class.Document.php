@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.Document.php
- * @brief Contiene la definizione ed implementazione della class \Gino\Document
+ * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -31,6 +31,8 @@ class Document {
 
     /**
      * @brief Costruttore
+     * @param string $url_content contenuto fornito dal metodo chiamato via url
+     * @return istanza di Gino.Document
      */
     function __construct($url_content) {
         $this->_registry = Registry::instance();
@@ -43,6 +45,7 @@ class Document {
 
     /**
      * @brief Risposta HTTP con il documento
+     * @return Gino.Http.Response il cui corpo è il documento
      */
     public function __invoke() {
         return new \Gino\Http\Response($this->render());
@@ -110,6 +113,12 @@ class Document {
         return $buffer;
     }
 
+    /**
+     * @brief Recupera la skin da utilizzare per generare il documento
+     *
+     * @description La scelta della skin dipende dall'url
+     * @return Gino.Skin oppure una Exception se la skin non viene trovata
+     */
     private function getSkin() {
 
         Loader::import('class', '\Gino\Skin');
@@ -122,6 +131,13 @@ class Document {
         return $skin;
     }
 
+    /**
+     * @brief Imposta le variabili del Gino.Registry utilizzate all'interno del template
+     *
+     * @description Il registro contiene informazioni per i meta tag, css e javascript
+     * @param \Gino\Skin $skin
+     * @return void
+     */
     private function setHeadVariables($skin) {
 
         // meta
@@ -161,10 +177,21 @@ class Document {
         $this->_registry->js = array_merge($scripts, $this->_registry->js);
     }
 
+    /**
+     * @brief Setta il valore di una proprietà solo se vuota
+     * @param mixed $prop
+     * @param mixed $value
+     * @return void
+     */
     private function setIfEmpty($prop, $value) {
         if(!$prop) $prop = $value;
     }
 
+    /**
+     * @brief Parserizza un placeholder del template ritornando la pagina o istanza/metodo corrispondenti
+     * @param string $m placeholder
+     * @return contenuto corrispondente
+     */
     private function parseModules($m) {
         $mdlMarker = $m[0];
         preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
@@ -189,6 +216,10 @@ class Document {
         return $mdlContent;
     }
 
+    /**
+     * @brief Codice javascript che mostra, se presente, l'errore in sessione
+     * @return codice javascript
+     */
     private function errorMessages() {
 
         $buffer = '';
@@ -199,7 +230,10 @@ class Document {
         return $buffer;
     }
 
-
+    /**
+     * @brief Headline per template non free
+     * @return headline
+     */
     private function headLine($skin) {
 
         Loader::import('class', '\Gino\Javascript');
@@ -214,9 +248,9 @@ class Document {
         $headline .= "<head>\n";
         $headline .= "<meta charset=\"utf-8\" />\n";
         $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
-        
+
         $headline .= $this->_registry->variables('meta');
-        
+
         if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
         if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
         if($this->_registry->sysconf->mobile && isset($this->session->L_mobile)) {
@@ -224,22 +258,26 @@ class Document {
         }
         $headline .= $this->_registry->variables('head_links');
         $headline .= "<title>".$this->_registry->title."</title>\n";
-        
+
         $headline .= $this->_registry->variables('css');
         $headline .= $this->_registry->variables('js');
         $headline .= javascript::vendor();
         $headline .= javascript::onLoadFunction($skin);
-        
+
         $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
         $headline .= "<link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
-        
+
         if($this->_registry->sysconf->google_analytics) $headline .= $this->google_analytics();
         $headline .= "</head>\n";
         $headline .= "<body>\n";
-        
+
         return $headline;
     }
 
+    /**
+     * @brief Footline per template non free
+     * @return footline
+     */
     private function footLine() {
 
         $footline = $this->errorMessages();
@@ -250,7 +288,7 @@ class Document {
     }
 
     /**
-     * Gestisce gli elementi del layout ricavati dal file di template
+     * @brief Gestisce gli elementi del layout ricavati dal file di template non free
      * 
      * @see renderModule()
      * @param array $matches
@@ -277,13 +315,13 @@ class Document {
     }
 
     /**
-     * Gestisce il tipo di elemento da richiamare 
-     * 
+     * @brief Gestisce il tipo di elemento da richiamare
+     
      * @see modPage()
      * @see modClass()
      * @see modUrl()
-     * @param string $mdlMarker
-     * @return string
+     * @param string $mdlMarker placeholder
+     * @return contenuto o Exception se il modulo non viene riconosciuto
      */
     private function renderModule($mdlMarker) {
 
@@ -304,34 +342,44 @@ class Document {
             }
         }
         elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
-        else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
+        else {
+            throw new \Exception('Tipo di modulo sconosciuto');
+        }
 
         return $mdlContent;
     }
 
     /**
-     * Elemento pagina
-     * 
+     * @brief Contenuto modulo di tipo pagina
+     *
      * @see page::box()
-     * @param integer $mdlId valore ID della pagina
-     * @return string
+     * @param int $mdlId valore ID della pagina
+     * @return contenuto pagina
      */
     private function modPage($mdlId){
 
         if(isset($this->_outputs['page-'.$mdlId])) {
             return $this->_outputs['page-'.$mdlId];
         }
-        
-        if(!isset($this->_instances['page']) || !is_object($this->_instances['page'])) 
+
+        if(!isset($this->_instances['page']) or !is_object($this->_instances['page'])) 
         {
             $this->_instances['page'] = new page();
         }
 
         $page = $this->_instances['page'];
         $this->_outputs['page-'.$mdlId] = $page->box($mdlId);
+
         return $this->_outputs['page-'.$mdlId];
     }
 
+    /**
+     * @brief Contenuto modulo di tipo classe
+     * @param int $mdlId id istanza/classe
+     * @param string $mdlFunc metodo
+     * @param string $mdlType tipo modulo (sysclass|class)
+     * @return contenuto
+     */
     private function modClass($mdlId, $mdlFunc, $mdlType){
 
         $db = Db::instance();
@@ -371,48 +419,59 @@ class Document {
 
             $buffer = $classObj->$mdlFunc();
         }
-        
+
         $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc] = $buffer;
 
         return $buffer;
     }
 
     /**
-     * Output function permissions:
+     * @brief Check dei permessi di accesso ad un metodo di tipo output
+     *
      * formati:
      *     sysclass_name.perm_name => cerca il permesso perm_name della classe sysclass_name con istanza 0 (compresa la sysclass fittizia 'core')
      *     perm_name => cerca il permesso perm_name della classe che definisce outputFunctions con istanza corrente (0 se si tratta di una sysclass)
+     * @return bool
      */
     private function checkOutputFunctionPermissions($perms, $class_name, $instance) {
-         if(!count($perms)) {
-                return true;
-         }
 
-        foreach($perms as $perm) {
-                if(strpos($perm, '.') !== false) {
-                        list($class_name_perm, $perm_name) = explode('.', $perm);
-                        if($this->_registry->user->hasPerm($class_name_perm, $perm_name, 0)) {
-                                return true;
-                        }
-                }
-                else {
-                        if($this->_registry->user->hasPerm($class_name, $perm, $instance)) {
-                                return true;
-                        }
-                }
+        if(!count($perms)) {
+            return TRUE;
         }
 
-        return false;
+        foreach($perms as $perm) {
+            if(strpos($perm, '.') !== FALSE) {
+                list($class_name_perm, $perm_name) = explode('.', $perm);
+                if($this->_registry->user->hasPerm($class_name_perm, $perm_name, 0)) {
+                    return TRUE;
+                }
+            }
+            else {
+                if($this->_registry->user->hasPerm($class_name, $perm, $instance)) {
+                    return TRUE;
+                }
+            }
+        }
+
+        return FALSE;
 
     }
-    
+
+    /**
+     * @brief Contenuto modulo/pagina richiamato da url
+     * @return contenuto
+     */
     private function modUrl() {
         return $this->_url_content;
     }
 
+    /**
+     * @brief Codice google analytics
+     * @return codice javascript
+     */
     private function google_analytics(){
-        
-        $code = pub::getConf('google_analytics');
+
+        $code = $this->_registry->sysconf->google_analytics;
         $buffer = "<script type=\"text/javascript\">";
             $buffer .= "var _gaq = _gaq || [];";
         $buffer .= "_gaq.push(['_setAccount', '".$code."']);";

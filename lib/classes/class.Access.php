@@ -1,182 +1,199 @@
 <?php
 /**
- * @file class.access.php
- * @brief Contiene la classe Access
+ * @file class.Access.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.Access
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
 namespace Gino;
+
+use \Gino\App\Auth\User;
+use \Gino\Http\Redirect;
 
 /**
  * @brief Classe per la gestione dell'autenticazione ed accesso alla funzionalità
  * 
  * La classe gestisce il processo di autenticazione e l'accesso al sito e alle sue funzionalità
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class Access {
-  
-  protected $_home;
-  protected $_db, $_session;
 
-  private $_block_page;
+    protected $_home;
+    protected $_db, $_session;
 
-  /**
-   * Costruttore
-   */
-  function __construct(){
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.Access
+     */
+    function __construct(){
 
-    $this->_db = db::instance();
-    $this->_session = session::instance();
+        $this->_db = Db::instance();
+        $this->_session = Session::instance();
 
-    $this->_home = HOME_FILE;
-    
-    $this->_block_page = $this->_home."?evt[auth-login]";
-  }
-
-  /**
-   * Autenticazione all'applicazione
-   * 
-   * @see AuthenticationMethod()
-   * @see loginSuccess()
-   * @see loginError()
-   * @return void
-   * 
-   * Parametri POST: \n
-   *   - @a action (string), con valore auth (procedura di autenticazione)
-   *   - @a user (string), lo username
-   *   - @a pwd (string), la password
-   * 
-   * Parametri GET: \n
-   *   - @a action (string), con valore logout (procedura di logout)
-   */
-  public function Authentication(){
-
-    Loader::import('auth', 'User');
-    
-    if((isset($_POST['action']) && $_POST['action']=='auth')) {
-      $user = cleanVar($_POST, 'user', 'string', '');
-      $password = cleanVar($_POST, 'pwd', 'string', '');
-      $this->AuthenticationMethod($user, $password) ? $this->loginSuccess() : $this->loginError(_("autenticazione errata"));
-    }
-    elseif((isset($_GET['action']) && $_GET['action']=='logout')) {
-      $this->_session->destroy();
-      header("Location: ".$this->_home);
-    }
-  }
-  
-  /**
-   * Reindirizza a seguito di una autenticazione non valida
-   * 
-   * @param string $message
-   */
-  private function loginError($message) {
-
-    $self = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING'] ? "?".$_SERVER['QUERY_STRING']:'');
-
-    return Error::errorMessage(array('error'=>$message), $self);
-  }
-
-  /**
-   * Reindirizza a seguito di una autenticazione valida
-   * 
-   * Reindirizza alla home page o alla pagina indicata nell'HTTP_REFERER.
-   */
-  private function loginSuccess() {
-
-    $redirect = isset($this->_session->auth_redirect) ? $this->_session->auth_redirect : $this->_home;
-
-    header("Location: ".$redirect);
-    exit();
-  }
-
-  /**
-   * Verifica utente/password
-   * 
-   * Imposta le variabili di sessione user_id, user_name, e richiama il metodo logAccess()
-   * 
-   * @see User::getFromUserPwd()
-   * @see logAccess()
-   * @param string $user
-   * @param string $pwd
-   * @return boolean
-   */
-  private function AuthenticationMethod($user, $pwd){
-
-    $registry = registry::instance();
-
-    /*include_once(PLUGIN_DIR.OS."plugin.ldap.php");
-    
-    $ldap = new \Gino\Plugin\Ldap($user, $pwd);
-    if(!$ldap->authentication())
-      return false;*/
-    
-    $user = \Gino\App\Auth\User::getFromUserPwd($user, $pwd);
-    if($user) {
-      $this->_session->user_id = $user->id;
-      $this->_session->user_name = htmlChars($user->firstname.' '.$user->lastname);
-      if($registry->sysconf->log_access) {
-        $this->logAccess($user->id);
-      }
-      return true;
+        $this->_home = HOME_FILE;
     }
 
-    return false;
-  }
-  
-  /**
-   * Registra il log dell'accesso all'applicazione
-   * 
-   * @param integer $userid valore ID dell'utente
-   * @return boolean
-   */
-  private function logAccess($userid) {
+    /**
+     * @brief Autenticazione all'applicazione
+     *
+     * Parametri POST: \n
+     *     - @a action (string), con valore auth (procedura di autenticazione)
+     *     - @a user (string), lo username
+     *     - @a pwd (string), la password
+     *
+     * Parametri GET: \n
+     *     - @a action (string), con valore logout (procedura di logout)
+     *
+     * @see AuthenticationMethod()
+     * @see loginSuccess()
+     * @see loginError()
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Redirect o FALSE se non avvengono autenticazione e logout
+     */
+    public function Authentication(\Gino\Http\Request $request){
 
-    Loader::import('statistics', 'LogAccess');
+        Loader::import('auth', 'User');
 
-    \date_default_timezone_set('Europe/Rome');
+        if($request->checkPOSTKey('action', 'auth')) {
+            $user = cleanVar($request->POST, 'user', 'string', '');
+            $password = cleanVar($request->POST, 'pwd', 'string', '');
+            $result = $this->AuthenticationMethod($user, $password);
+            $request->user = new User($this->session->user_id);
+            return $result ? $this->loginSuccess() : $this->loginError();
+        }
+        elseif($request->checkGETKey('action', 'logout')) {
+            $this->_session->destroy();
+            return new \Gino\Http\Redirect($this->_home);
+        }
+        else {
+            $request->user = new User($this->_session->user_id);
+            return FALSE;
+        }
+    }
 
-    $log_access = new \Gino\App\Statistics\LogAccess(null);
-    $log_access->user_id = $userid;
-    $log_access->date = date("Y-m-d H:i:s");
+    /**
+     * @brief Autenticazione errata
+     *
+     * @descriptin Setta l'errore in sessione e ritorna una Gino.Http.Redirect
+     * @return Gino.Http.Redirect alla pagina di autenticazione
+     */
+    private function loginError() {
 
-    return $log_access->updateDbData();
+        $registry = registry::instance();
+        $url = $registry->router->link('auth', 'login');
+        return Error::errorMessage(array('error'=>_("autenticazione errata")), $url);
+    }
 
-  }
+    /**
+     * @brief Autenticazione valida
+     *
+     * @description Reindirizza alla home page o all'url impostato in sessione (auth_redirect).
+     * @return Gino.Http.Redirect
+     */
+    private function loginSuccess() {
 
-	/**
-	 * Raise 403 se l'utente non è amministratore
-	 */
-	public function requireAdmin() {
-		
-		$registry = registry::instance();
-		if(!$registry->user->is_admin) {
-			Error::raise403();
-		}
-	}
-	
-	/**
-	 * Raise 403 se l'utente non ha almeno uno dei permessi dati
-	 */
-	public function requirePerm($class, $perm, $instance = 0) {
+        $url = $this->_session->auth_redirect ? $this->_session->auth_redirect : $this->_home;
+        return Redirect($url);
+    }
 
-		$request = \Gino\Http\Request::instance();
-		if(!$request->user->hasPerm($class, $perm, $instance)) {
-			
-            if($this->_session->user_id) {
-                throw Exception403();
+    /**
+     * @brief Verifica utente/password
+     *
+     * @description Imposta le variabili di sessione user_id, user_name, e richiama il metodo logAccess()
+     *
+     * @see User::getFromUserPwd()
+     * @see logAccess()
+     * @param string $user
+     * @param string $pwd
+     * @return risultato autenticazione, bool
+     */
+    private function AuthenticationMethod($user, $pwd){
+
+        $registry = registry::instance();
+
+        // Uncomment fo ldap
+        /*
+        include_once(PLUGIN_DIR.OS."plugin.ldap.php");
+        $ldap = new \Gino\Plugin\Ldap($user, $pwd);
+        if(!$ldap->authentication()) {
+            return FALSE;
+        }
+        */
+
+        $user = \Gino\App\Auth\User::getFromUserPwd($user, $pwd);
+        if($user) {
+            $this->_session->user_id = $user->id;
+            $this->_session->user_name = \Gino\htmlChars($user->firstname.' '.$user->lastname);
+
+            if($registry->sysconf->log_access) {
+                $this->logAccess($user->id);
             }
-			else
-			{
-				header("Location: ".$this->_home."?evt[auth-login]");
-				exit();
-			}
-		}
-	}
+            return TRUE;
+        }
 
+        return FALSE;
+    }
+
+    /**
+     * @brief Registra il log dell'accesso all'applicazione
+     *
+     * @param integer $userid valore ID dell'utente
+     * @return risultato operazione, bool
+     */
+    private function logAccess($userid) {
+
+        Loader::import('statistics', 'LogAccess');
+
+        \date_default_timezone_set('Europe/Rome');
+
+        $log_access = new \Gino\App\Statistics\LogAccess(null);
+        $log_access->user_id = $userid;
+        $log_access->date = date("Y-m-d H:i:s");
+
+        return $log_access->updateDbData();
+
+    }
+
+    /**
+     * @brief Verifica che l'utente si amministratore del sito
+     *
+     * @description Se la condizione non è verificata getta una Gino.Exception.Exception403
+     * @return void
+     */
+    public function requireAdmin() {
+        $request = \Gino\Http\Request::instance();
+        if(!$request->user->is_admin) {
+            throw new \Gino\Exception\Exception403();
+        }
+    }
+
+    /**
+     * @brief Verifica se l'utente non ha almeno uno dei permessi dati
+     *
+     * @description Se la condizione non è verificata getta una Gino.Exception.Exception403 se l'utente è autenticato,
+     *              altrimenti reindirizza alla pagina di login e ferma l'esecuzione
+     * @param string $class nome classe senza namespace
+     * @param string $perm codice permesso
+     * @param int $instance id istanza modulo
+     * @return void
+     */
+    public function requirePerm($class, $perm, $instance = 0) {
+
+        $request = \Gino\Http\Request::instance();
+        if(!$request->user->hasPerm($class, $perm, $instance)) {
+            if($this->_session->user_id) {
+                throw new \Gino\Exception\Exception403();
+            }
+            else
+            {
+                throw new \Gino\Exception\Exception403(array('redirect' => TRUE));
+            }
+        }
+    }
 }
-?>

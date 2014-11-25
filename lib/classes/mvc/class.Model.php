@@ -1,8 +1,8 @@
 <?php
 /**
  * @file class.Model.php
- * @brief Contiene la classe Model
- * 
+ * @brief Contiene la definizione ed implementazione della classe Gino.Model
+ *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -11,39 +11,40 @@ namespace Gino;
 
 /**
  * @brief Classe astratta che definisce un modello, cioè un oggetto che rappresenta una tabella su database
+ *
  * @description La classe permette di descrivere la struttura dei dati del modello. Sono supportati molti tipi di dati, compresi le relazioni molti a molti, comprensive se il caso di campi aggiuntivi.
  *              La classe gestisce il salvataggio del modello su db e l'eliminazione, controllando, se specificato, che le constraint siano rispettate.
  *              Sono presenti metodi di generico utilizzo quali un selettore di oggetti, un selettore attraverso slug.
- * 
+ *
+ *              Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe. \n
+ *              Le proprietà su DB possono essere impostate attraverso il metodo __set, possono essere definiti setter specifici definendo dei metodi setFieldname \n
+ *
+ *              La classe figlia che istanzia il parent passa il valore ID del record dell'oggetto direttamente nel costruttore:
+ *              @code
+ *              parent::__construct($id);
+ *              @endcode
+ *
+ *              ##Criteri di costruzione di una tabella per la definizione della struttura
+ *              Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a adminTable. \n
+ *              I modelli delle tabelle estendono la classe @a Model che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
+ *                - i campi obbligatori devono essere 'not null'
+ *                - un campo auto-increment viene gestito automaticamente come input di tipo hidden
+ *                - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
+ *
+ *              ##Ulteriori elementi che contribuiscono alla definizione della struttura
+ *              Le label dei campi devono essere definite nel modello nella proprietà @a $_fields_label. Una label non definita prende il nome del campo. \n
+ *              Esempio:
+ *              @code
+ *              $this->_fields_label = array(
+ *                'ctg'=>_("Categoria"),
+ *                'name'=>_("Titolo"),
+ *                'private'=>array(_("Tipologia"), _("privato: visibile solo dal relativo gruppo"))
+ *              );
+ *              @endcode
+ *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
- * 
- * Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe. \n
- * Le proprietà su DB possono essere impostate attraverso il metodo __set, possono essere definiti setter specifici definendo dei metodi setFieldname \n
- * 
- * La classe figlia che istanzia il parent passa il valore ID del record dell'oggetto direttamente nel costruttore:
- * @code
- * parent::__construct($id);
- * @endcode
- * 
- * ###Criteri di costruzione di una tabella per la definizione della struttura
- * Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a adminTable. \n
- * I modelli delle tabelle estendono la classe @a Model che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
- *   - i campi obbligatori devono essere 'not null'
- *   - un campo auto-increment viene gestito automaticamente come input di tipo hidden
- *   - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
- * 
- * ###Ulteriori elementi che contribuiscono alla definizione della struttura
- * Le label dei campi devono essere definite nel modello nella proprietà @a $_fields_label. Una label non definita prende il nome del campo. \n
- * Esempio:
- * @code
- * $this->_fields_label = array(
- *   'ctg'=>_("Categoria"),
- *   'name'=>_("Titolo"),
- *   'private'=>array(_("Tipologia"), _("privato: visibile solo dal relativo gruppo"))
- * );
- * @endcode
  */
  abstract class Model {
 
@@ -52,23 +53,23 @@ namespace Gino;
                $_db;
     protected $_tbl_data;
     protected $_model_label;
-    
+
     /**
      * Struttura della tabella
      * @var array
      */
     protected $_structure;
-    
+
     protected $_controller;
-    
+
     /**
      * Oggetto della localizzazione
      * @var object
      */
     protected $_locale;
-    
+
     //protected $_main_class;
-    
+
     /**
      * Intestazioni dei campi del database nel form
      * @var array
@@ -79,7 +80,7 @@ namespace Gino;
 
     protected $_is_constraint = array();
     protected $_check_is_constraint = true;
-    
+
     protected $_lng_dft, $_lng_nav;
     private $_trd;
 
@@ -87,7 +88,7 @@ namespace Gino;
      * Costruttore
      *
      * @param integer $id valore ID del record dell'oggetto
-     * @return void
+     * @return istanza di Gino.Model
      */
     function __construct($id) {
 
@@ -101,7 +102,7 @@ namespace Gino;
 
         $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
     }
-    
+
     /**
      * @brief Rappresentazione a stringa dell'oggetto
      * @description Sovrascrivere questo metodo nella classe figlia per restituire un valore parlante
@@ -111,7 +112,7 @@ namespace Gino;
 
         return $this->id;
     }
-    
+
     /**
      * @brief Etichetta del campo
      * @param string $field nome campo
@@ -121,7 +122,7 @@ namespace Gino;
 
         return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
     }
-    
+
      /**
      * @brief Setter per la variabile di controllo del check constraint
      * @param bool $check
@@ -139,6 +140,7 @@ namespace Gino;
      *                  'MyModelClass'=>'field_name',
      *                  'MyModelClassWithInstanceController'=>array('field' => 'field_name', 'controller' => new mycontroller())
      *              );
+     *              @endcode
      * @param array $is_constraint
      * @return void
      */
@@ -148,6 +150,7 @@ namespace Gino;
 
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
+     *
      * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
      * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db.
      * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati.
@@ -164,9 +167,10 @@ namespace Gino;
         elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
         else return $null;
     }
-    
+
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita
+     *
      * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
      *
      * @param string $pName nome della proprietà
@@ -192,7 +196,7 @@ namespace Gino;
     /**
      * @brief Eliminazione di tutti i record legati all'istanza del controller passato come argomento
      * @param mixed $controller istanza del controller
-     * @return true
+     * @return TRUE
      */
     public static function deleteInstance($controller) {
 
@@ -205,7 +209,7 @@ namespace Gino;
                 $obj->delete();
             }
         }
-        return true;
+        return TRUE;
     }
 
     /**
@@ -375,7 +379,7 @@ namespace Gino;
 
     /**
      * @brief Salvataggio dei m2m
-     * @return true
+     * @return TRUE
      */
     public function savem2m() {
         foreach($this->_m2m as $field => $values) {
@@ -391,7 +395,7 @@ namespace Gino;
                 }
             }
         }
-        return true;
+        return TRUE;
     }
 
     /**
@@ -409,7 +413,7 @@ namespace Gino;
      * @description Elimina i dati su db, le traduzioni, e le associazioni m2m e m2mt
      *              Controlla che non ci siano regole di constraint che impediscano l'eliminazione, in caso
      *              ce ne fossero di non rispettate ritorna un elenco di regole che impediscono l'eliminazione.
-     * @return boolean
+     * @return risultato dell'operazione (bool) o un errore
      */
     public function delete() {
 
@@ -425,20 +429,20 @@ namespace Gino;
         $this->deletem2mthrough();
 
         $result = $this->deleteDbData();
-        if($result !== true) {
+        if($result !== TRUE) {
             return array("error"=>37);
         }
 
         foreach($this->_structure as $field) {
             if(method_exists($field, 'delete')) {
                 $result = $field->delete();
-                if($result !== true) {
+                if($result !== TRUE) {
                     return $result;
                 }
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -517,7 +521,7 @@ namespace Gino;
             }
         }
 
-        return count($res) ? $res : true;
+        return count($res) ? $res : TRUE;
 
     }
 
@@ -528,7 +532,7 @@ namespace Gino;
     public function deletem2m() {
         $result = true;
         foreach($this->_structure as $field => $obj) {
-            if(get_class($obj) == 'ManyToManyField') {
+            if(is_a($obj, 'ManyToManyField')) {
                 $result = $result and $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
             }
         }
@@ -542,7 +546,7 @@ namespace Gino;
     public function deletem2mthrough() {
         $result = true;
         foreach($this->_structure as $field => $obj) {
-            if(get_class($obj) == 'ManyToManyThroughField') {
+            if(is_a($obj, 'ManyToManyThroughField')) {
                 $result = $result and $this->deletem2mthroughField($field);
             }
         }
@@ -559,10 +563,10 @@ namespace Gino;
         $class = $obj->getM2m();
         foreach($this->_m2mt[$field_name] as $id) {
             $m2m_obj = new $class($id, $obj->getController());
-            $m2m_obj->delete();
+            return $m2m_obj->delete();
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -576,14 +580,13 @@ namespace Gino;
     /**
      * @brief Tabella principale dei dati
      * @return nome tabella
-     * @return string
      */
     public function getTable() {
         return $this->_tbl_data;
     }
 
     /**
-     * Definisce la struttura dei campi di una tabella del database
+     * @brief Struttura dei campi di una tabella del database
      * 
      * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende model. \n
      * 
@@ -594,9 +597,6 @@ namespace Gino;
      * @see DbManager::getTableStructure()
      * @see dataCache::get()
      * @see dataCache::save()
-     * @param integer $id valore ID del record di riferimento
-     * @return array
-     * 
      * Esempio di riscrittura del metodo structure():
      * @code
      * public function structure($id) {
@@ -627,11 +627,15 @@ namespace Gino;
      *   ));
      * }
      * @endcode
+     *
+     * @param integer $id valore ID del record di riferimento
+     * @return array
+     *
      */
     public function structure($id) {
 
         if(!$this->_tbl_data) {
-            exit(error::syserrorMessage('Model', 'structure', _('La tabella _tbl_data del modello non è definita')));
+            throw new \Exception('La tabella _tbl_data del modello non è definita');
         }
 
         loader::import('class', array('\Gino\Cache'));
@@ -648,7 +652,7 @@ namespace Gino;
             }
         }
 
-        $cache = new DataCache();
+        $cache = new \Gino\DataCache();
         if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600)) {
             $fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
             $cache->save($fieldsTable);
@@ -659,7 +663,7 @@ namespace Gino;
         {
             $primary_key = $fieldsTable['primary_key'];
             $fields = $fieldsTable['fields'];
-            $keys = $fieldsTable['keys'];	// array delle chiavi uniche
+            $keys = $fieldsTable['keys']; // array delle chiavi uniche
 
             foreach($fields AS $key=>$value)
             {
@@ -675,9 +679,9 @@ namespace Gino;
                 $extra = $value['extra'];
                 $enum = $value['enum'];
 
-                $pkey = $key == $primary_key ? true : false;
-                $ukey = in_array($key, $keys) ? true : false;
-                $auto_increment = $extra == 'auto_increment' ? true : false;
+                $pkey = $key == $primary_key ? TRUE : FALSE;
+                $ukey = in_array($key, $keys) ? TRUE : FALSE;
+                $auto_increment = $extra == 'auto_increment' ? TRUE : FALSE;
 
                 $dataType = $this->dataType($type);
 
@@ -709,7 +713,7 @@ namespace Gino;
                     'decimal_digits'=>$numberDecimalDigits, 
                     'order'=>$order, 
                     'default'=>$default, 
-                    'required'=>$null=='NO' ? true : false, 
+                    'required'=>$null=='NO' ? TRUE : FALSE, 
                     'extra'=>$extra, 
                     'enum'=>$enum, 
                     'label'=>$label, 
@@ -718,6 +722,7 @@ namespace Gino;
                 $structure[$key] = loader::load('fields/'.$dataType, array($options_field));
             }
         }
+
         return $structure;
     }
 
@@ -728,7 +733,7 @@ namespace Gino;
      * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
      * viene gestito da AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
      * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
-     * metodo modelAction di AdminTable
+     * metodo modelAction di Gino.AdminTable
      *
      * @return void
      */
@@ -737,10 +742,10 @@ namespace Gino;
     }
 
     /**
-     * @brief Uniforma il tipo di dato di un campo definito dal metodo DbManager::getTableStructure() 
+     * @brief Uniforma il tipo di dato di un campo definito dal metodo Gino.DbManager::getTableStructure()
      * @description ritorna il nome della classe che gestisce il modello del tipo di campo
      * @param string $type tipo di dato
-     * @return string
+     * @return tipo di dato
      */
     private function dataType($type) {
 

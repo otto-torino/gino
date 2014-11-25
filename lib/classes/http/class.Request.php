@@ -1,19 +1,22 @@
 <?php
 /**
  * @file class.Request.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Http\Request
+ * @brief Contiene la definizione ed implementazione della classe Gino.Http.Request
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
+/**
+ * @namespace Gino.Http
+ * @description Namespace che comprende tutte le classi per la gestione di rischieste e risposte http
+ */
 namespace Gino\Http;
 
 use \Gino\Loader;
 use \Gino\Singleton;
 use \Gino\Session;
-use \Gino\App\Auth\User;
 
 /**
  * @brief Wrapper di una richiesta HTTP
@@ -41,12 +44,12 @@ class Request extends Singleton {
            $absolute_url,
            $root_absolute_url,
            $session,
-           $user;
+           $user = null; // viene impostato dalla classe Gino.Access quando controlla l'autenticazione
 
     /**
      * @brief Costruttore
      * @description Il costruttore è protetto in modo da garantire il pattern Singleton
-     * @return nuova istanza di \Gino\Http\Request
+     * @return nuova istanza di Gino.Http.Request
      */
     protected function __construct() {
 
@@ -81,15 +84,11 @@ class Request extends Singleton {
         $this->root_absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], SITE_WWW);
 
         $this->session = Session::instance();
-
-        Loader::import('auth', 'User');
-        $this->user = new User($this->session->user_id ? $this->session->user_id : null);
-
     }
 
     /**
      * @brief Calcola l'url nella forma espansa a partire dai parametri GET
-     * @description Quando viene effettuato url rewriting da parte di \Gino\Router
+     * @description Quando viene effettuato url rewriting da parte di Gino.Router
      *              viene chimato questo metodo per calcolare l'url non espanso
      *              utilizzando la proprietà GET che è stata opportunamente modificata
      * @return void

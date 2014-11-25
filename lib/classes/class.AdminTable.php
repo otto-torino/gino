@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.AdminTable.php
- * @brief Contiene la classe AdminTable
+ * @brief Contiene la definizione ed implementazione della classe Gino.AdminTable
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,23 +10,19 @@
 namespace Gino;
 
 /**
- * @brief Gestisce i form e il back-office di un modello
+ * @brief Gestisce l'interfaccia di amministrazione di un modello con iserimento, modifica ed eliminazione
  *
  * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione). \n
  * Nel metodo backOffice() viene ricercato automaticamente il parametro 'id' come identificatore del record sul quale interagire. Non utilizzare il parametro 'id' per altri riferimenti.
  *
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- *
  * Il campo di nome @a instance viene trattato diversamente dagli altri campi: non compare nel form e il valore gli viene passato direttamente dall'istanza. \n
  *
  * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
- * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a canBeOrdered() ritorna il valore @a true. \n    
+ * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a Gino.Field::canBeOrdered() ritorna il valore @a true. \n    
  *
  * Per attivare l'importazione dei file utilizzare l'opzione @a import_file come specificato nel metodo modelAction() e sovrascrivere il metodo readFile(). \n
  *
- * ###Gestione dei permessi
+ * ##Gestione dei permessi
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
  * @code
@@ -48,8 +44,9 @@ namespace Gino;
  *         'permission'=>array(
  *             'view'=>group, 
  *             'fields'=>array(
- *             'field1'=>group, 
- *             'field2'=>group)
+ *                'field1'=>group, 
+ *                'field2'=>group
+ *             )
  *         )
  *     )
  * );
@@ -57,7 +54,7 @@ namespace Gino;
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  *
- * ###Tabella delle associazioni del tipo di campo con il tipo input di default
+ * ##Tabella delle associazioni del tipo di campo con il tipo input di default
  *
  * <table>
  * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
@@ -78,13 +75,9 @@ namespace Gino;
  * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
  *
- * ###Problemi
- * Nella visualizzazione degli elenchi (metodo adminList()) gli eventuali link sui valori dei record non funzionano con i permalinks
- * @code
- * //$plink = new Link();
- * //$link_field = $plink->addParams($link_field, $link_field_param."=".$r['id'], false);
- * $link_field = $link_field.'&'.$link_field_param."=".$r['id'];
- * @endcode
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 class AdminTable {
 
@@ -123,9 +116,9 @@ class AdminTable {
         protected $_ifp;
 
         /**
-         * Costruttore
+         * @brief Costruttore
          *
-         * @param object $controller controller che gestisce il backend
+         * @param \Gino\Controller $controller istanza di Gino.Controller che gestisce il backend
          * @param array $opts
          *         array associativo di opzioni
          *         - @b view_folder (string): percorso della directory contenente la vista da caricare
@@ -136,6 +129,7 @@ class AdminTable {
          *         - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
          *                 - @a string, 'all' -> tutti
          *                 - @a array, elenco ID
+         * @return istanza di Gino.AdminTable
          */
         function __construct($controller, $opts = array()) {
 
@@ -158,53 +152,20 @@ class AdminTable {
         }
 
     /**
-     * Carica i valori dei campi hidden del form
-     *
+     * @brief Setta la proprietà _hidden (campi hidden del form)
      * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente 
+     * @return void
      */
     public function hidden($hidden=array()) {
         $this->_hidden = $hidden;
     }
 
     /**
-     * Stampa il form
+     * @brief Generazione automatica del form di inserimento/modifica di un Gino.Model
      *
-     * Cicla sulla struttura di model e per ogni field costruisce l'elemento del form. \n
+     * Cicla sulla struttura del modello e per ogni field costruisce l'elemento del form. \n
      * L'elemento del form di base lo prende da $model->structure[nome_campo]->formElement(opzioni);
      *
-     * @see permission()
-     * @param object $model oggetto dell'elemento (record da processare)
-     * @param array $options
-     *     - opzioni del form
-     *     - opzioni per modificare la struttura del form
-     *         - @b removeFields (array): elenco dei campi da non mostrare nel form
-     *         - @b viewFields (array): elenco dei campi da mostrare nel form
-     *         - @b addCell (array): elementi html da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
-     *         Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
-     *             - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
-     *             - @a field, codice da aggiungere
-     *         Riassumento, la struttura di addCell è la seguente:
-     *         @code
-     *         array(
-     *             'field_table'=>array(
-     *                 'name'=>'name_item_add', 
-     *                 'field'=>'content_item_add'
-     *             )
-     *         )
-     *         @endcode
-     *     - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
-     * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
-     *     opzioni valide
-     *     - opzioni dei metodi della classe Form()
-     *     - @b widget (string): tipo di input
-     *     - @b enum (mixed): recupera gli elementi che popolano gli input radio, select, multicheck
-     *         - @a string, query per recuperare gli elementi (select di due campi)
-     *         - @a array, elenco degli elementi (key=>value)
-     *     - @b seconds (boolean): mostra i secondi
-     *     - @b default (mixed): valore di default (input radio)
-     *     - @b checked (boolean): valore selezionato (input checkbox)
-     * @return form di inserimento/modifica
-     * 
      * Nella costruzione del form vengono impostati i seguenti parametri di default:
      * - @b formId, valore generato
      * - @b method, post
@@ -212,7 +173,7 @@ class AdminTable {
      * - @b trnsl_table, il nome della tabella viene recuperato dal modello
      * - @b trnsl_id, il valore del record id viene recuperato dal modello
      * - @b session_value, valore generato
-     * - @b upload, viene impostato a true se l'oggetto di un campo del form appartiene almeno a una classe fileField() o imageField()
+     * - @b upload, viene impostato a TRUE se l'oggetto di un campo del form appartiene almeno a una classe fileField() o imageField()
      * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
      * - @b s_name, il nome del submit è 'submit'
      * - @b s_value, il valore del submit è 'modifica' o 'inserisci'
@@ -267,6 +228,40 @@ class AdminTable {
      *     )
      * );
      * @endcode
+     *
+     * @see permission()
+     * @param object $model oggetto dell'elemento (record da processare)
+     * @param array $options
+     *     - opzioni del form
+     *     - opzioni per modificare la struttura del form
+     *         - @b removeFields (array): elenco dei campi da non mostrare nel form
+     *         - @b viewFields (array): elenco dei campi da mostrare nel form
+     *         - @b addCell (array): elementi html da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
+     *         Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
+     *             - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
+     *             - @a field, codice da aggiungere
+     *         Riassumento, la struttura di addCell è la seguente:
+     *         @code
+     *         array(
+     *             'field_table'=>array(
+     *                 'name'=>'name_item_add', 
+     *                 'field'=>'content_item_add'
+     *             )
+     *         )
+     *         @endcode
+     *     - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
+     * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
+     *     opzioni valide
+     *     - opzioni dei metodi della classe Form()
+     *     - @b widget (string): tipo di input
+     *     - @b enum (mixed): recupera gli elementi che popolano gli input radio, select, multicheck
+     *         - @a string, query per recuperare gli elementi (select di due campi)
+     *         - @a array, elenco degli elementi (key=>value)
+     *     - @b seconds (boolean): mostra i secondi
+     *     - @b default (mixed): valore di default (input radio)
+     *     - @b checked (boolean): valore selezionato (input checkbox)
+     * @return form di inserimento/modifica
+     *
      */
     public function modelForm($model, $options=array(), $inputs=array()) {
 
@@ -283,12 +278,12 @@ class AdminTable {
         $verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
         $only_inputs = array_key_exists('only_inputs', $options) ? $options['only_inputs'] : false;
         $inputs_prefix = array_key_exists('inputs_prefix', $options) ? $options['inputs_prefix'] : '';
-        
+
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
 
         // popup
         $popup = cleanVar($this->_request->GET, '_popup', 'int', '');
-        
+
         $gform = new Form($formId, $method, $validation, 
             array(
                 "trnsl_table"=>$trnsl_table,
@@ -385,7 +380,7 @@ class AdminTable {
             );
             $buffer .= $gform->hidden('_popup', $popup);
         }
-        
+
         if(sizeof($this->_hidden) > 0)
         {
             foreach($this->_hidden AS $key=>$value)
@@ -422,9 +417,9 @@ class AdminTable {
         else {
             $form_content = implode('', $structure);
         }
-        
+
         $buffer .= $form_content;
-        
+
         if(!$only_inputs) {
             $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField));
             $buffer .= $gform->close();
@@ -432,13 +427,33 @@ class AdminTable {
 
         return $buffer;
     }
-    
+
     /**
-     * Gestisce l'azione del form
-     * 
-     * @see readFile()
-     * @see Model::updateDbData()
-     * @see field::clean()
+     * @brief Salvataggio dei dati a seguito del submit di un form di inserimento/modifica
+     *
+     * Per recuperare i dati dal form vengono impostati i seguenti parametri di default:
+     * - @b formId, valore generato
+     * - @b method, post
+     * - @b validation, true
+     * - @b session_value, valore generato
+     *
+     * Esempio:
+     * @code
+     * $id = cleanVar($this->_request->POST, 'id', 'int', '');
+     * $start = cleanVar($this->_request->POST, 'start', 'int', '');
+     *
+     * $item = new eventItem($id, $this);
+     * $options_form = array(
+     *     'removeFields'=>null
+     * );
+     * $options_element = array('code'=>array('value_type'=>'int'));
+     *
+     * $admin_table = new adminTable();
+     * $admin_table->modelAction($item, $options_form, $options_element);
+     * @endcode
+     *
+     * @see Gino.Model::updateDbData()
+     * @see Gino.Field::clean()
      * @param object $model
      * @param array $options
      *     - opzioni per il recupero dei dati dal form
@@ -452,31 +467,10 @@ class AdminTable {
      *         - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
      *         - @a dump_path (string): percorso del file di dump
      * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
-     * @return void
-     * 
-     * Per recuperare i dati dal form vengono impostati i seguenti parametri di default:
-     * - @b formId, valore generato
-     * - @b method, post
-     * - @b validation, true
-     * - @b session_value, valore generato
-     * 
-     * Esempio:
-     * @code
-     * $id = cleanVar($this->_request->POST, 'id', 'int', '');
-     * $start = cleanVar($this->_request->POST, 'start', 'int', '');
-     * 
-     * $item = new eventItem($id, $this);
-     * $options_form = array(
-     *     'removeFields'=>null
-     * );
-     * $options_element = array('code'=>array('value_type'=>'int'));
-     * 
-     * $admin_table = new adminTable();
-     * $admin_table->modelAction($item, $options_form, $options_element);
-     * @endcode
+     * @return risultato operazione, bool o errori
      */
     public function modelAction($model, $options=array(), $options_element=array()) {
-        
+
         // Importazione di un file
         $import = false;
         if(isset($options['import_file']) && is_array($options['import_file']))
@@ -486,34 +480,34 @@ class AdminTable {
             $field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
             $dump = array_key_exists('dump', $options['import_file']) ? $options['import_file']['dump'] : false;
             $dump_path = array_key_exists('dump_path', $options['import_file']) ? $options['import_file']['dump_path'] : null;
-            
-            if($field_import) $import = true;
+
+            if($field_import) $import = TRUE;
         }
-        
+
         // Valori di default di form e sessione
         $default_formid = 'form'.$model->getTable().$model->id;
         $default_session = 'dataform'.$model->getTable().$model->id;
-        
+
         // Opzioni generali per il recupero dei dati dal form
         $formId = array_key_exists('formId', $options) ? $options['formId'] : $default_formid;
         $method = array_key_exists('method', $options) ? $options['method'] : 'post';
-        $validation = array_key_exists('validation', $options) ? $options['validation'] : true;
+        $validation = array_key_exists('validation', $options) ? $options['validation'] : TRUE;
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
-        
+
         // Opzioni per selezionare gli elementi da recuperare dal form
         $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
         $viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
-        
+
         $gform = new Form($formId, $method, $validation);
         $gform->save($session_value);
         $req_error = $gform->arequired();
-        
+
         if($req_error > 0) 
             return array('error'=>1);
-        
+
         $m2mt = array();
         foreach($model->getStructure() as $field=>$object) {
-            
+
             if($this->permission($options, $field) &&
             (
                 ($removeFields && !in_array($field, $removeFields)) || 
@@ -525,7 +519,7 @@ class AdminTable {
                     $opt_element = $options_element[$field];
                 else 
                     $opt_element = array();
-                
+
                 if($field == 'instance' && is_null($model->instance))
                 {
                     $model->instance = $this->_controller->getInstance();
@@ -542,13 +536,13 @@ class AdminTable {
                     $value = $object->clean($opt_element);
                     $result = $object->validate($value);
 
-                    if($result === true) {
+                    if($result === TRUE) {
                         $model->{$field} = $value;
                     }
                     else {
                         return array('error'=>$result['error']);
                     }
-                    
+
                     if($import)
                     {
                         if($field == $field_import)
@@ -557,14 +551,14 @@ class AdminTable {
                 }
             }
         }
-        
+
         if($import)
         {
             $result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump, 'dump_path'=>$dump_path));
             if($field_log)
                 $model->{$field_log} = $result;
         }
-        
+
         $result = $model->updateDbData();
 
         // error
@@ -583,102 +577,114 @@ class AdminTable {
         return $result;
     }
 
-        protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
-        
-                $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-                $m2m_class = $m2m_field_object->getM2m();
-
-                $check_ids = array();
-
-                $m2m_m2m = array();
-                $indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
-                if(!is_array($indexes)) $indexes = array();
-                $object_names = array();
-                foreach($indexes as $index) {
-                        $id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_id_'.$index, 'int', '');
-                        // oggetto pronto per edit or insert
-                        $m2m_model = new $m2m_class($id, $m2m_field_object->getController());
-                        foreach($m2m_model->getStructure() as $field=>$object) {
-
-                                if(!isset($object_names[$field])) {
-                                        $object_names[$field] = $object->getName();
-                                }
-                        
-                                if($this->permission($options, $field) &&
-                                (
-                                        ($removeFields && !in_array($field, $removeFields)) || 
-                                        (!$removeFields)
-                                ))
-                                {
-                                        if(isset($options_element[$field]))
-                                                $opt_element = $options_element[$field];
-                                        else 
-                                                $opt_element = array();
-                                        
-                                        if($field == 'instance' && is_null($m2m_model->instance))
-                                        {
-                                                $m2m_model->instance = $this->_controller->getInstance();
-                                        }
-                                        elseif(is_a($object, '\Gino\ManyToManyThroughField'))
-                                        {
-                                                $this->m2mthroughAction($object, $m2m_model);
-                                        }
-                                        else
-                                        {
-                                                $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
-                                                $value = $object->clean($opt_element);
-                                                $result = $object->validate($value);
-
-                                                if($result === true) {
-                                                        $m2m_model->{$field} = $value;
-                                                }
-                                                else {
-                                                        return array('error'=>$result['error']);
-                                                }
-                                                
-                                                if(isset($import) and $import)
-                                                {
-                                                        if($field == $field_import)
-                                                                $path_to_file = $object->getPath();
-                                                }
-                                        }
-                                }
-                        }
-                        $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
-                        $m2m_model->updateDbData();
-                        $check_ids[] = $m2m_model->id;
-                }
-
-                // eliminazione tutti m2mt che non ci sono piu
-                $db = Db::instance();
-                $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
-                $objs = $m2m_class::objects($m2m_field_object->getController(), array('where' => $where));
-
-                if($objs and count($objs)) {
-                        foreach($objs as $obj) {
-                                $obj->delete();
-                        }
-                }
-
-                // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-                $model->updateStructure();
-
-                return true;
-
-        }
-        
     /**
-     * Gestisce il backoffice completo di un modello (wrapper)
+     * @brief Salvataggio dei campi Gino.ManyToManyThroughField
+     *
+     * @description Il salvataggio di questi tipi di campi avviene in automatico utilizzando
+     *              la class Gino.AdminTable. Non è gestito dalla classe Gino.Model.
+     *
+     * @param string $m2m_field nome campo
+     * @param \Gino\ManyToManyThroughField $m2m_field_object istanza della classe di tipo Gino.Field che rappresenta il campo
+     * @param \Gino\Model $model istanza del model cui appartiene il campo
+     * @param $options array associativo di opzioni
+     * @return risultato operazione, bool o errori
+     */
+    protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
+
+        $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
+        $m2m_class = $m2m_field_object->getM2m();
+
+        $check_ids = array();
+
+        $m2m_m2m = array();
+        $indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
+        if(!is_array($indexes)) $indexes = array();
+        $object_names = array();
+        foreach($indexes as $index) {
+            $id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_id_'.$index, 'int', '');
+            // oggetto pronto per edit or insert
+            $m2m_model = new $m2m_class($id, $m2m_field_object->getController());
+            foreach($m2m_model->getStructure() as $field=>$object) {
+
+                if(!isset($object_names[$field])) {
+                    $object_names[$field] = $object->getName();
+                }
+
+                if($this->permission($options, $field) &&
+                (
+                    ($removeFields && !in_array($field, $removeFields)) || 
+                    (!$removeFields)
+                ))
+                {
+                    if(isset($options_element[$field]))
+                        $opt_element = $options_element[$field];
+                    else 
+                        $opt_element = array();
+
+                    if($field == 'instance' && is_null($m2m_model->instance))
+                    {
+                        $m2m_model->instance = $this->_controller->getInstance();
+                    }
+                    elseif(is_a($object, '\Gino\ManyToManyThroughField'))
+                    {
+                        $this->m2mthroughAction($object, $m2m_model);
+                    }
+                    else
+                    {
+                        $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
+                        $value = $object->clean($opt_element);
+                        $result = $object->validate($value);
+
+                        if($result === TRUE) {
+                            $m2m_model->{$field} = $value;
+                        }
+                        else {
+                            return array('error'=>$result['error']);
+                        }
+
+                        if(isset($import) and $import)
+                        {
+                            if($field == $field_import)
+                                $path_to_file = $object->getPath();
+                        }
+                    }
+                }
+            }
+            $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
+            $m2m_model->updateDbData();
+            $check_ids[] = $m2m_model->id;
+        }
+
+        // eliminazione tutti m2mt che non ci sono piu
+        $db = Db::instance();
+        $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
+        $objs = $m2m_class::objects($m2m_field_object->getController(), array('where' => $where));
+
+        if($objs and count($objs)) {
+            foreach($objs as $obj) {
+                $obj->delete();
+            }
+        }
+
+        // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
+        $model->updateStructure();
+
+        return TRUE;
+
+    }
+
+    /**
+     * @brief Gestisce il backoffice completo di un modello (wrapper)
      * 
-     * @see permission()
-     * @see adminForm()
-     * @see adminDelete()
-     * @see adminList()
+     * @see self::permission()
+     * @see self::adminForm()
+     * @see self::adminDelete()
+     * @see self::adminList()
      * @param string $model_class_name nome della classe del modello
      * @param array $options_view opzioni della vista (comprese le autorizzazioni a visualizzare singoli campi)
      * @param array $options_form opzioni del form (comprese le autorizzazioni a mostrare l'input di singoli campi e a salvarli)
      * @param array $inputs opzioni degli elementi nel form
-     * @return string
+     * @return interfaccia di amministrazione
      */
     public function backOffice($model_class_name, $options_view=array(), $options_form=array(), $inputs=array()) {
 
@@ -696,9 +702,9 @@ class AdminTable {
             Loader::import('class/http', '\Gino\Http\ResponseAjax');
             if($this->_request->checkGETKey('save', '1')) {
                 $res = $this->_registry->trd->actionTranslation();
-                
+
                 $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-             	return new \Gino\Http\ResponseAjax($content);
+                return new \Gino\Http\ResponseAjax($content);
             }
             else {
                 return new \Gino\Http\ResponseAjax($this->_registry->trd->formTranslation());
@@ -717,106 +723,106 @@ class AdminTable {
 
     }
 
-        /**
-         * Eliminazione di un record (richiesta di conferma soltanto da javascript)
-         * 
-         * @see backOffice()
-         * @param object $model
-         * @param array $options_form
-         *     array associativo di opzioni
-         *     - @b link_delete (string): indirizzo al quale si viene rimandati dopo la procedura di eliminazione del record (se non presente viene costruito automaticamente)
-         * @return redirect
-         */
-        public function adminDelete($model, $options_form) {
+    /**
+     * @brief Eliminazione di un record (richiesta di conferma soltanto da javascript)
+     *
+     * @see self::backOffice()
+     * @param \Gino\Model $model modello da eliminare
+     * @param array $options_form
+     *   array associativo di opzioni
+     *   - @b link_delete (string): indirizzo al quale si viene rimandati dopo la procedura di eliminazione del record (se non presente viene costruito automaticamente)
+     * @return Gino.Http.Redirect
+     */
+    public function adminDelete($model, $options_form) {
 
-                if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
-                        throw new \Gino\Exception403();
-                }
-
-                $result = $model->delete();
-
-                if($result === TRUE) {
-                        $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
-                                ? $options_form['link_delete']
-                                : $this->editUrl(array(), array('delete', 'id'));
-                        return new \Gino\Http\Redirect($link_return);
-                }
-                else {
-                        return Error::errorMessage($result, $link_return);
-                }
-    }
-
-        /**
-         * Wrapper per mostrare e processare il form
-         * 
-         * @see modelForm()
-         * @see modelAction()
-         * @see editUrl()
-         * @param object $model_obj
-         * @param array $options_form
-         *         array associativo di opzioni
-         *         - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
-         *         - @b form_description (string): testo che compare tra il titolo ed il form
-         * @param array $inputs
-         * @return redirect or string
-         */
-        public function adminForm($model_obj, $options_form, $inputs) {
-
-                $link_return = (isset($options_form['link_return']) && $options_form['link_return'])
-                        ? $options_form['link_return']
-                        : $this->editUrl(array(), array('edit', 'insert', 'id'));
-
-                $form_description = gOpt('form_description', $options_form, null);
-
-                if(count($this->_request->POST)) {
-                        $popup = cleanVar($this->_request->POST, '_popup', 'int', '');
-                        $link_error = $this->editUrl(null, null);
-                        $options_form['link_error'] = $link_error ;
-                        $action_result = $this->modelAction($model_obj, $options_form, $inputs);
-                        if($action_result === TRUE and $popup) {
-                                $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
-                                return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
-                        }
-                        elseif($action_result === true) {
-                                return new \Gino\Http\Redirect($link_return);
-                        }
-                        else {
-                                return Error::errorMessage($action_result, $link_error);
-                        }
-                }
-                else {
-
-                        // edit
-                        if($model_obj->id) {
-                                if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
-                                        throw new \Gino\Exception403();
-                                }
-                                $title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
-                        }
-                        // insert
-                        else {
-                                if(!$this->_allow_insertion) {
-                                        throw new \Gino\Exception403();
-                                }
-                                $title = sprintf(_("Inserimento %s"), $model_obj->getModelLabel());
-                        }
-
-                        $form = $this->modelForm($model_obj, $options_form, $inputs);
-
-                        $this->_view->setViewTpl('admin_table_form');
-                        $this->_view->assign('title', $title);
-                        $this->_view->assign('form_description', $form_description);
-                        $this->_view->assign('form', $form);
-                        $this->_view->assign('link_return', $link_return);
-
-                        return $this->_view->render();
-                }
+        if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
+            throw new \Gino\Exception403();
         }
 
+        $result = $model->delete();
+
+        if($result === TRUE) {
+            $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
+                ? $options_form['link_delete']
+                : $this->editUrl(array(), array('delete', 'id'));
+            return new \Gino\Http\Redirect($link_return);
+        }
+        else {
+            return Error::errorMessage($result, $link_return);
+        }
+    }
+
     /**
-     * Lista dei record
+     * @brief Wrapper per mostrare e processare il form
+     *
+     * @see self::modelForm()
+     * @see self::modelAction()
+     * @see self::editUrl()
+     * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
+     * @param array $options_form
+     *     array associativo di opzioni
+     *     - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
+     *     - @b form_description (string): testo che compare tra il titolo ed il form
+     * @param array $inputs
+     * @return Gino.Http.Redirect se viene richiesta una action o si verifica un errore, form html altrimenti
+     */
+    public function adminForm($model_obj, $options_form, $inputs) {
+
+        $link_return = (isset($options_form['link_return']) && $options_form['link_return'])
+            ? $options_form['link_return']
+            : $this->editUrl(array(), array('edit', 'insert', 'id'));
+
+        $form_description = gOpt('form_description', $options_form, null);
+
+        if(count($this->_request->POST)) {
+            $popup = cleanVar($this->_request->POST, '_popup', 'int', '');
+            $link_error = $this->editUrl(null, null);
+            $options_form['link_error'] = $link_error ;
+            $action_result = $this->modelAction($model_obj, $options_form, $inputs);
+            if($action_result === TRUE and $popup) {
+                $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
+                return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
+            }
+            elseif($action_result === true) {
+                return new \Gino\Http\Redirect($link_return);
+            }
+            else {
+                return Error::errorMessage($action_result, $link_error);
+            }
+        }
+        else {
+
+            // edit
+            if($model_obj->id) {
+                if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
+                    throw new \Gino\Exception403();
+                }
+                $title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
+            }
+            // insert
+            else {
+                if(!$this->_allow_insertion) {
+                    throw new \Gino\Exception403();
+                }
+                $title = sprintf(_("Inserimento %s"), $model_obj->getModelLabel());
+            }
+
+            $form = $this->modelForm($model_obj, $options_form, $inputs);
+
+            $this->_view->setViewTpl('admin_table_form');
+            $this->_view->assign('title', $title);
+            $this->_view->assign('form_description', $form_description);
+            $this->_view->assign('form', $form);
+            $this->_view->assign('link_return', $link_return);
+
+            return $this->_view->render();
+        }
+    }
+
+    /**
+     * @brief Lista dei record del modello
      * 
-     * @see backOffice()
+     * @see self::backOffice()
      * @param object $model
      * @param array $options_view
      *     array associativo di opzioni
@@ -894,11 +900,10 @@ class AdminTable {
      *     - @b view_export (boolean): attiva il collegamento per l'esportazione dei record (default false)
      *     - @b name_export (string): nome del file di esportazione
      *     - @b export (integer): valore che indica la richiesta del file di esportazione (il parametro viene passato dal metodo backOffice)
-     * @return string
+     * @return lista record paginata e ordinabile
      */
     public function adminList($model, $options_view=array()) {
 
-        // $this->permission($options_view);
         $db = Db::instance();
         $model_structure = $model->getStructure();
         $model_table = $model->getTable();
@@ -943,7 +948,7 @@ class AdminTable {
                     unset($fields_loop[$value]);
             }
         }
-        
+
         $order = cleanVar($this->_request->GET, 'order', 'string', '');
         if(!$order) $order = 'id DESC';
         // get order field and direction
@@ -954,10 +959,10 @@ class AdminTable {
         // filter form
         $tot_ff = count($this->_filter_fields);
         if($tot_ff) $this->setSessionSearch($model);
-        
+
         $tot_ff_join = count($this->_filter_join);
         if($tot_ff_join) $this->setSessionSearchAdd($model, $this->_filter_join);
-        
+
         $tot_ff_add = count($this->_filter_add);
         if($tot_ff_add) $this->setSessionSearchAdd($model, $this->_filter_add);
 
@@ -966,7 +971,7 @@ class AdminTable {
         if(array_key_exists('instance', $model_structure)) {
             $query_where[] = "instance='".$this->_controller->getInstance()."'";
         }
-        
+
         //prepare query
         $query_selection = $db->distinct($model_table.".id");
         $query_table = array($model_table);
@@ -1009,7 +1014,7 @@ class AdminTable {
                     $label = is_array($model_label) ? $model_label[0] : $model_label;
                 }
                 $export_header[] = $label;
-                
+
                 if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
 
                     $ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
@@ -1047,14 +1052,14 @@ class AdminTable {
 
         $rows = array();
         foreach($records as $r) {
-                
+
             $record_model = new $model($r['id'], $this->_controller);
             $record_model_structure = $record_model->getStructure();
 
             $row = array();
             $export_row = array();
             foreach($fields_loop as $field_name=>$field_obj) {
-                
+
                 if($this->permission($options_view, $field_name))
                 {
                     if(is_array($field_obj)) {
@@ -1063,26 +1068,26 @@ class AdminTable {
                     else {
                         $record_value = (string) $record_model_structure[$field_name];
                     }
-                    
+
                     $export_row[] = $record_value;
                     $record_value = htmlChars($record_value);
-                    
+
                     if(isset($link_fields[$field_name]) && $link_fields[$field_name])
                     {
                         $link_field = $link_fields[$field_name]['link'];
                         $link_field_param = array_key_exists('param_id', $link_fields[$field_name]) ? $link_fields[$field_name]['param_id'] : 'id';
-                        
+
                         $link_field = $link_field.'&'.$link_field_param."=".$r['id'];
-                        
+
                         $record_value = "<a href=\"".$link_field."\">$record_value</a>";
                     }
-                    
+
                     $row[] = $record_value;
                 }
             }
 
             $links = array();
-            
+
             if(count($add_buttons))
             {
                 foreach($add_buttons AS $value)
@@ -1092,7 +1097,7 @@ class AdminTable {
                         $label_button = array_key_exists('label', $value) ? $value['label'] : null;
                         $link_button = array_key_exists('link', $value) ? $value['link'] : null;
                         $param_id_button = array_key_exists('param_id', $value) ? $value['param_id'] : 'id';
-                        
+
                         if($label_button && $link_button && $param_id_button)
                         {
                             $link_button = $link_button.'&'.$param_id_button."=".$r['id'];
@@ -1101,7 +1106,7 @@ class AdminTable {
                     }
                 }
             }
-            
+
             $add_params_edit = array('edit'=>1, 'id'=>$r['id']);
             $add_params_delete = array('delete'=>1, 'id'=>$r['id']);
             if(count($addParamsUrl))
@@ -1112,7 +1117,7 @@ class AdminTable {
                     $add_params_delete[$key] = $value;
                 }
             }
-            
+
             if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
                 $links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\icon('modify', array('scale' => 1))."</a>";
             }
@@ -1126,15 +1131,14 @@ class AdminTable {
             if($export) $items[] = $export_row;
             $rows[] = array_merge($row, $buttons);
         }
-        
+
         if($export)
         {
-        	require_once(CLASSES_DIR.OS.'class.export.php');
-        	
-        	$obj_export = new export();
-        	$obj_export->setData($items);
-        	$obj_export->exportData($name_export, 'csv');
-        	return null;
+            require_once(CLASSES_DIR.OS.'class.export.php');
+            $obj_export = new export();
+            $obj_export->setData($items);
+            $obj_export->exportData($name_export, 'csv');
+            return null;
         }
 
         if($tot_ff) {
@@ -1158,7 +1162,7 @@ class AdminTable {
         else {
             $link_insert = "";
         }
-        
+
         $link_export = $view_export ? "<a href=\"".$this->editUrl(array('export'=>1))."\">".\Gino\icon('export')."</a>" : null;
 
         $this->_view->setViewTpl('admin_table_list');
@@ -1171,16 +1175,16 @@ class AdminTable {
         $this->_view->assign('tot_records', $tot_records);
         $this->_view->assign('form_filters_title', _("Filtri"));
         $this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);
-        $this->_view->assign('pnavigation', $pagelist->listReferenceGINO($_SERVER['REQUEST_URI'], false, '', '', '', false, null, null, array('add_no_permalink'=>true)));
+        $this->_view->assign('pnavigation', $pagelist->listReferenceGINO($_SERVER['REQUEST_URI'], FALSE, '', '', '', FALSE, null, null, array('add_no_permalink'=>true)));
         $this->_view->assign('psummary', $pagelist->reassumedPrint());
 
         return $this->_view->render();
     }
 
     /**
-     * Setta le variabili di sessione usate per filtrare i record nella lista amministrativa
+     * @brief Setta le variabili di sessione usate per filtrare i record nella lista amministrativa
      *
-     * @param object $model
+     * @param \Gino\Model $model istanza di Gino.Model
      * @return void
      */
     protected function setSessionSearch($model) {
@@ -1207,12 +1211,11 @@ class AdminTable {
             }
         }
     }
-    
+
     /**
-     * Setta le variabili di sessione usate per filtrare i record nella lista amministrativa (riferimento ai filtri non automatici)
+     * @brief Setta le variabili di sessione usate per filtrare i record nella lista amministrativa (riferimento ai filtri non automatici)
      * 
-     * @see clean()
-     * @param object $model
+     * @param \Gino\Model $model istanza di Gino.Model
      * @param array $filters elenco dei filtri
      * @return void
      */
@@ -1225,7 +1228,7 @@ class AdminTable {
             if(is_array($array) && array_key_exists('name', $array))
             {
                 $fname = $array['name'];
-                
+
                 if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
                     $this->session->{$class_name.'_'.$fname.'_filter'} = null;
                 }
@@ -1235,11 +1238,11 @@ class AdminTable {
         if(isset($this->_request->POST['ats_submit'])) {
 
             foreach($filters as $array) {
-                
+
                 if(is_array($array) and array_key_exists('name', $array))
                 {
                     $fname = $array['name'];
-                    
+
                     if(isset($this->_request->POST[$fname]) and $this->_request->POST[$fname] !== '') {
                         $this->session->{$class_name.'_'.$fname.'_filter'} = $this->clean($fname, $array);
                     }
@@ -1252,13 +1255,13 @@ class AdminTable {
     }
 
     /**
-     * Setta la condizione where usata per filtrare i record nella admin list
-     * 
-     * @see addWhereJoin()
-     * @see addWhereExtra()
-     * @param array $query_where
-     * @param object $model
-     * @return string (the where clause)
+     * @brief Aggiunge le condizioni where usate per filtrare i record nella admin list all'argomento $query_where passato per reference
+     *
+     * @see self::addWhereJoin()
+     * @see self::addWhereExtra()
+     * @param array $query_where reference all'array di where clauses già impostate
+     * @param \Gino\Model $model istanza di Gino.Model
+     * @return void
      */
     protected function addWhereClauses(&$query_where, $model) {
 
@@ -1267,7 +1270,7 @@ class AdminTable {
 
         foreach($this->_filter_fields as $fname) {
             if(isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
-                
+
                 // Filtri aggiuntivi associati ai campi automatici
                 if(count($this->_filter_join))
                 {
@@ -1280,12 +1283,12 @@ class AdminTable {
                 else $query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
             }
         }
-        
+
         // Filtri aggiuntivi non associati ai campi automatici
         if(count($this->_filter_add))
         {
             $where_add = $this->addWhereExtra($class_name);
-            
+
             if(count($where_add))
             {
                 foreach($where_add AS $value)
@@ -1295,65 +1298,65 @@ class AdminTable {
             }
         }
     }
-    
+
     /**
-     * Elementi che concorrono a determinare le condizioni di ricerca dei campi automatici
-     * 
+     * @brief Elementi che concorrono a determinare le condizioni di ricerca dei campi automatici
+     *
      * Ci può essere una solo campo input di tipo join.
-     * 
+     *
      * @param array $model_structure struttura del modello
      * @param string $class_name nome della classe
      * @param string $fname nome del campo della tabella al quale associare le condizioni aggiuntive
-     * @return array
+     * @return array di condizioni o null
      */
     private function addWhereJoin($model_structure, $class_name, $fname) {
-        
+
         foreach($this->_filter_join AS $array)
         {
             $field = gOpt('field', $array, null);
-            
+
             if(($field && $field == $fname))
             {
                 $ff_name = $array['name'];
                 $ff_where_clause = array();
-                
+
                 if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
                 {
                     $ff_data = $array['data'];
                     $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
-                    
+
                     if(array_key_exists('where_clause', $array))
                     {
                         $ff_where_clause_key = $array['where_clause'];
                         $ff_where_clause_value = array_key_exists($ff_value, $ff_data) ? $ff_data[$ff_value] : null;
-                        
+
                         $ff_where_clause = array($ff_where_clause_key=>$ff_where_clause_value);
                     }
                 }
-                
+
                 return $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
-     * Definizione delle condizioni di ricerca aggiuntive a quelle sui campi automatici
+     * @brief Definizione delle condizioni di ricerca aggiuntive a quelle sui campi automatici
      * 
      * La condizione da inserire nella query di ricerca viene definita nel metodo indicato come valore della chiave @a filter. Il metodo deve essere creato di volta in volta.
      * 
      * @param string $class_name nome della classe
-     * @return array
+     * @return array di condizioni
      */
     private function addWhereExtra($class_name) {
-        
+
         $where = array();
-        
+
         foreach($this->_filter_add AS $array)
         {
             $ff_name = $array['name'];
-            
+
             if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
             {
                 $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
@@ -1363,25 +1366,32 @@ class AdminTable {
                 $ff_value = null;
             }
             $ff_filter = $array['filter'];
-            
+
             if($ff_filter) $where[] = $this->{$ff_filter}($ff_value);
         }
-        
+
         return $where;
     }
 
-    public function permission() {
+    /**
+     * @brief Permessi di modifica dei campo
+     * @todo Implementare il metodo che restituisce TRUE se l'utente ha il permesso di agire sul campo, FALSE altrimenti.
+     * @param array $options array associativo di opzioni
+     * @param string $fname nome del campo
+     * @return TRUE
+     */
+    public function permission($options, $fname) {
         return true;
     }
-    
+
     /**
-     * Form per filtraggio record
+     * @brief Form per filtraggio record
      * 
-     * @see permission()
-     * @see formFiltersAdd()
-     * @param object $model
+     * @see self::permission()
+     * @see self::formFiltersAdd()
+     * @param \Gino\Model $model istanza di Gino.Model
      * @param array $options autorizzazioni alla visualizzazione dei singoli campi
-     * @return string (form)
+     * @return form html
      */
     protected function formFilters($model, $options) {
 
@@ -1393,7 +1403,7 @@ class AdminTable {
         $form = $gform->open($this->editUrl(array(), array('start')), false, '');
 
         foreach($this->_filter_fields as $fname) {
-            
+
             if($this->permission($options, $fname))
             {
                 $field = $model_structure[$fname];
@@ -1403,12 +1413,12 @@ class AdminTable {
                     $field->setLabel($field_label[0]);
                 }
                 $form .= $field->formElement($gform, array('required'=>false, 'default'=>null, 'is_filter'=>true));
-                
+
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);
             }
         }
-        
+
         $onclick = "onclick=\"$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {
             if(el.get('type')==='text') el.value='';
             else if(el.get('type')==='radio') el.removeProperty('checked');
@@ -1421,26 +1431,26 @@ class AdminTable {
 
         return $form;
     }
-    
+
     /**
-     * Input form dei filtri aggiuntivi
+     * @brief Input form dei filtri aggiuntivi
      * 
      * @param array $filters elenco dei filtri
      * @param string $fname nome del campo della tabella al quale far seguire gli eventuali filtri aggiuntivi
      * @param string $class_name nome della classe
-     * @param object $gform
-     * @return string
+     * @param \Gino\Form $gform istanza di Gino.Form
+     * @return elementi del form in html
      */
     private function formFiltersAdd($filters, $fname, $class_name, $gform) {
-        
+
         $form = '';
-        
+
         if(count($filters))
         {
             foreach($filters AS $array)
             {
                 $field = gOpt('field', $array, null);
-                
+
                 if(($field && $field == $fname))
                 {
                     $ff_name = $array['name'];
@@ -1449,7 +1459,7 @@ class AdminTable {
                     $ff_data = gOpt('data', $array, array());
                     $ff_default = gOpt('default', $array, '');
                     $ff_input = gOpt('input', $array, 'radio');
-                    
+
                     if($ff_input == 'radio')
                     {
                         $form .= $gform->cradio($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
@@ -1469,11 +1479,11 @@ class AdminTable {
     }
 
     /**
-     * Costruisce il percorso per il reindirizzamento
-     * 
-     * @param array $add_params elenco parametri da aggiungere alla REQUEST_URI (formato chiave=>valore)
-     * @param array $remove_params elenco parametri da rimuovere dalla REQUEST_URI
-     * @return string
+     * @brief Costruisce il percorso per il reindirizzamento
+     *
+     * @param array $add_params elenco parametri da aggiungere al path (Gino.Http.Request::path) (formato chiave=>valore)
+     * @param array $remove_params elenco parametri da rimuovere dal path (Gino.Http.Request::path)
+     * @return url ricostruito
      */
     protected function editUrl($add_params, $remove_params=null) {
 
@@ -1499,28 +1509,29 @@ class AdminTable {
     }
 
     /**
-     * Formatta un elemento input per l'inserimento in database
-     * 
+     * @brief Ripulisce un input per l'inserimento in database
+     *
      * @param string $name nome dell'input form
      * @param array $options array associativo di opzioni
      *     - @b value_type (string)
      *     - @b method (array)
      *     - @b escape (boolean)
-     * @return mixed
+     * @return valore ripulito
      */
     private function clean($name, $options=null) {
-        
+
         $value_type = isset($options['value_type']) ? $options['value_type'] : 'string';
         $method = isset($options['method']) ? $options['method'] : $this->_request->POST;
         $escape = gOpt('escape', $options, true);
-        
+
         return cleanVar($method, $name, $value_type, null, array('escape'=>$escape));
     }
-    
+
     /**
-     * Legge il file e ne importa il contenuto
+     * @brief Legge il file e ne importa il contenuto
      * 
-     * @param object $model
+     * @todo Implementare la funzionalità di importazione del file
+     * @param \Gino\Model $model Gino.Model
      * @param string $path_to_file
      * @param array $options
      *     array associativo di opzioni
@@ -1530,36 +1541,36 @@ class AdminTable {
      * @return string (log dell'importazione)
      */
     protected function readFile($model, $path_to_file, $options=array()) {
-        
+
         return null;
     }
-    
+
     /**
-     * Restore di un file
-     * 
-     * @see db::restore()
+     * @brief Restore di un file
+     * @todo Implementare la funzionalità di restore di un file
+     * @see Gino.Db::restore()
      * @param string $table nome della tabella
      * @param string $filename nome del file da importare
      * @param array $options array associativo di opzioni
      * @return boolean
      */
     protected function restore($table, $filename, $options=array()) {            
-    
+
         $db = Db::instance();
         return $db->restore($table, $filename, $options);
     }
-    
+
     /**
-     * Dump di una tabella
-     * 
-     * @see db::dump()
+     * @brief Dump di una tabella
+     *
+     * @see Gino.Db::dump()
      * @param string $table
      * @param string $filename nome del file completo di percorso
      * @param array $options array associativo di opzioni
      * @return string (nome del file di dump)
      */
     protected function dump($table, $filename, $options=array()) {
-        
+
         $db = Db::instance();
         return $db->dump($table, $filename, $options);
     }

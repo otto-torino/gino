@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.EventDispatcher.php
- * @brief Contiene la classe EventDispatcher per la gestione di segnali tra oggetti
+ * @brief Contiene la definizione ed implementazione della classe Gino.EventDispatcher
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,7 +10,7 @@
 namespace Gino;
 
 /**
- * @brief Classe per la gestione di segnali (eventi) tra oggetti
+ * @brief Classe di tipo Mediator e Singleton per la gestione di segnali (eventi) tra oggetti
  * @see Singleton
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -74,5 +74,4 @@ class EventDispatcher extends Singleton {
             }
         }
     }
-
 }
