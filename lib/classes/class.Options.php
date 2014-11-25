@@ -96,10 +96,13 @@ class Options {
 		$trnsl = cleanVar($_GET, 'trnsl', 'int', '');
 		if($trnsl) {
 			if(isset($_GET['save']) and $_GET['save'] == '1') {
-				$registry->trd->actionTranslation();
+				
+				$res = $registry->trd->actionTranslation();
+				$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+				return new \Gino\Http\Response($content);
 			}
 			else {
-				$registry->trd->formTranslation();
+				return new \Gino\Http\Response($registry->trd->formTranslation());
 			}
 		}
 

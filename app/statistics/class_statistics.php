@@ -11,7 +11,8 @@ namespace Gino\App\Statistics;
 
 use \Gino\Loader;
 use \Gino\View;
-use \Gino\Http\ResponseView;
+use \Gino\Document;
+use \Gino\Http\Response;
 
 require_once('class.LogAccess.php');
 
@@ -66,8 +67,9 @@ class statistics extends \Gino\Controller {
             'selected_link' => $sel_link,
             'content' => $backend
         );
-
-        return new ResponseView($view, $dict);
+        
+        $document = new Document($view->render($dict));
+        return $document();
     }
 
     /**

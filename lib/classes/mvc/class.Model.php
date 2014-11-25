@@ -360,7 +360,7 @@ namespace Gino;
                     if(!($pName == 'id' and $this->id === null))
                         $fields[$pName] = $this->_p[$pName];
                 }
-                $result = $this->_db->insert($fields, $this->_tbl_data, true);
+                $result = $this->_db->insert($fields, $this->_tbl_data);
             }
         }
 

@@ -81,75 +81,75 @@ namespace Gino;
  */
 class AdminTable {
 
-        protected $_controller;
-        protected $_registry,
-                            $_request,
-                            $_db,
-                            $session;
-        protected $_form,
-                            $_view,
-                            $_hidden;
+    protected $_controller;
+    protected $_registry,
+              $_request,
+              $_db,
+              $session;
+    protected $_form,
+              $_view,
+              $_hidden;
 
-        protected $_allow_insertion,
-                            $_edit_deny,
-                            $_delete_deny;
+    protected $_allow_insertion,
+              $_edit_deny,
+              $_delete_deny;
 
-        /**
-         * Filtri per la ricerca automatica (corrispondono ai nomi dei campi della tabella)
-         * @var array
-         */
-        protected $_filter_fields;
+    /**
+     * Filtri per la ricerca automatica (corrispondono ai nomi dei campi della tabella)
+     * @var array
+     */
+    protected $_filter_fields;
 
-        /**
-         * Filtri aggiuntivi associati ai campi della tabella di riferimento (concorrono alla definizione delle loro condizioni)
-         * @var array
-         */
-        protected $_filter_join;
+    /**
+     * Filtri aggiuntivi associati ai campi della tabella di riferimento (concorrono alla definizione delle loro condizioni)
+     * @var array
+     */
+    protected $_filter_join;
 
-        /**
-         * Filtri aggiuntivi non collegati ai campi della tabella di riferimento
-         * @var array
-         */
-        protected $_filter_add;
+    /**
+     * Filtri aggiuntivi non collegati ai campi della tabella di riferimento
+     * @var array
+     */
+    protected $_filter_add;
 
-        protected $_list_display, $_list_remove;
-        protected $_ifp;
+    protected $_list_display, $_list_remove;
+    protected $_ifp;
 
-        /**
-         * @brief Costruttore
-         *
-         * @param \Gino\Controller $controller istanza di Gino.Controller che gestisce il backend
-         * @param array $opts
-         *         array associativo di opzioni
-         *         - @b view_folder (string): percorso della directory contenente la vista da caricare
-         *         - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
-         *         - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
-         *                 - @a string, 'all' -> tutti
-         *                 - @a array, elenco ID
-         *         - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
-         *                 - @a string, 'all' -> tutti
-         *                 - @a array, elenco ID
-         * @return istanza di Gino.AdminTable
-         */
-        function __construct($controller, $opts = array()) {
+    /**
+     * @brief Costruttore
+     *
+     * @param \Gino\Controller $controller istanza di Gino.Controller che gestisce il backend
+     * @param array $opts
+     *         array associativo di opzioni
+     *         - @b view_folder (string): percorso della directory contenente la vista da caricare
+     *         - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
+     *         - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
+     *                 - @a string, 'all' -> tutti
+     *                 - @a array, elenco ID
+     *         - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
+     *                 - @a string, 'all' -> tutti
+     *                 - @a array, elenco ID
+     * @return istanza di Gino.AdminTable
+     */
+    function __construct($controller, $opts = array()) {
 
-                loader::import('class', array('\Gino\Form', '\Gino\InputForm'));
+        loader::import('class', array('\Gino\Form', '\Gino\InputForm'));
 
-                $this->_registry = registry::instance();
-                $this->_request = $this->_registry->request;
-                $this->_controller = $controller;
-                $this->_db = $this->_registry->db;
-                $this->session = $this->_registry->session;
+        $this->_registry = registry::instance();
+        $this->_request = $this->_registry->request;
+        $this->_controller = $controller;
+        $this->_db = $this->_registry->db;
+        $this->session = $this->_registry->session;
 
-                $view_folder = gOpt('view_folder', $opts, null);
+        $view_folder = gOpt('view_folder', $opts, null);
 
-                $this->_form = new Form('', '', '');
-                $this->_view = new view($view_folder);
+        $this->_form = new Form('', '', '');
+        $this->_view = new view($view_folder);
 
-                $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
-                $this->_edit_deny = gOpt('edit_deny', $opts, array());
-                $this->_delete_deny = gOpt('delete_deny', $opts, array());
-        }
+        $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
+        $this->_edit_deny = gOpt('edit_deny', $opts, array());
+        $this->_delete_deny = gOpt('delete_deny', $opts, array());
+    }
 
     /**
      * @brief Setta la proprietà _hidden (campi hidden del form)
@@ -699,15 +699,15 @@ class AdminTable {
         $trnsl = cleanVar($this->_request->GET, 'trnsl', 'int', '');
 
         if($trnsl) {
-            Loader::import('class/http', '\Gino\Http\ResponseAjax');
+            Loader::import('class/http', '\Gino\Http\Response');
             if($this->_request->checkGETKey('save', '1')) {
                 $res = $this->_registry->trd->actionTranslation();
 
                 $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-                return new \Gino\Http\ResponseAjax($content);
+                return new \Gino\Http\Response($content);
             }
             else {
-                return new \Gino\Http\ResponseAjax($this->_registry->trd->formTranslation());
+                return new \Gino\Http\Response($this->_registry->trd->formTranslation());
             }
         }
         elseif($insert or $edit) {
@@ -1488,7 +1488,7 @@ class AdminTable {
     protected function editUrl($add_params, $remove_params=null) {
 
         $request = \Gino\Http\Request::instance();
-        $url = $request->path;
+        $url = SITE_WWW.$request->path;
 
         if($remove_params) {
             foreach($remove_params as $key) {
@@ -1551,7 +1551,7 @@ class AdminTable {
      * @see Gino.Db::restore()
      * @param string $table nome della tabella
      * @param string $filename nome del file da importare
-     * @param array $options array associativo di opzioni
+     * @param array $options arra
      * @return boolean
      */
     protected function restore($table, $filename, $options=array()) {            

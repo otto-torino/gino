@@ -227,7 +227,7 @@ class AttachmentItem extends \Gino\Model {
 
 		if($type == 'download') {
 			$link = new \Gino\Link();
-			return $link->aLink(get_class($this->_controller), 'downloader', array('id'=>$this->id));
+			return $link->aLink(get_name_class(get_class($this->_controller)), 'downloader', array('id'=>$this->id));
 		}
 		else {
 			
@@ -254,7 +254,7 @@ class AttachmentItem extends \Gino\Model {
 		}
 		else {
 			$link = new \Gino\Link();
-			return "<a href=\"".$link->aLink(\get_class($this->_controller), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
+			return "<a href=\"".$link->aLink(get_name_class(get_class($this->_controller)), 'downloader', array('id'=>$this->id))."\">".$alabel."</a>";
 	 	}
 	}
 

@@ -16,6 +16,8 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+use Gino\Http\Redirect;
+
 class Skin extends Model {
 
     protected $_tbl_data;
@@ -131,10 +133,10 @@ class Skin extends Model {
                     }
                 }
             }
-            return FALSE;
+            return false;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -146,9 +148,9 @@ class Skin extends Model {
     public static function removeCss($id) {
 
         $db = db::instance();
-    $res = $db->update(array(
-      'css' => 0
-    ), self::$_tbl_skin, "css='$id'");
+        $res = $db->update(array(
+			'css' => 0
+        ), self::$_tbl_skin, "css='$id'");
 
         return $res;
     }
@@ -161,10 +163,10 @@ class Skin extends Model {
      */
     public static function removeTemplate($id) {
 
-        $db = db::instance();
-    $res = $db->update(array(
-      'template' => 0
-    ), self::$_tbl_skin, "template='$id'");
+		$db = db::instance();
+		$res = $db->update(array(
+			'template' => 0
+		), self::$_tbl_skin, "template='$id'");
 
         return $res;
     }
@@ -204,7 +206,9 @@ class Skin extends Model {
      */
     public function formSkin() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        Loader::import('class', array('\Gino\Css', '\Gino\Template'));
+    	
+    	$gform = Loader::load('Form', array('gform', 'post', true));
         $gform->load('dataform');
 
         $title = ($this->id)? _("Modifica")." ".htmlChars($this->label):_("Nuova skin");
@@ -218,12 +222,12 @@ class Skin extends Model {
         $buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
         $buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
         $css_list = array();
-        foreach(css::getAll() as $css) {
+        foreach(Css::getAll() as $css) {
             $css_list[$css->id] = htmlInput($css->label);
         }    
         $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
         $tpl_list = array();
-        foreach(template::getAll() as $tpl) {
+        foreach(Template::getAll() as $tpl) {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
         }    
         $buffer .= $gform->cselect('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
@@ -234,7 +238,7 @@ class Skin extends Model {
 
         $buffer .= $gform->close();
 
-        $view = new view();
+        $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
@@ -248,7 +252,7 @@ class Skin extends Model {
     /**
      * Inserimento e modifica di una skin
      */
-    public function actionSkin() {
+    public function actionSkin($request) {
 
         $gform = Loader::load('Form', array('gform', 'post', false));
         $gform->save('dataform');
@@ -258,23 +262,23 @@ class Skin extends Model {
 
         $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=skin&id=$this->id&action=$action";
 
-        if($req_error > 0) 
-            exit(error::errorMessage(array('error'=>1), $link_error));
+		if($req_error > 0) 
+            return error::errorMessage(array('error'=>1), $link_error);
 
-    $this->label = cleanVar($_POST, 'label', 'string', null);
-    $this->session = cleanVar($_POST, 'session', 'string', null);
-    $this->rexp = cleanVar($_POST, 'rexp', 'string', null);
-    $this->urls = cleanVar($_POST, 'urls', 'string', null);
-    $this->template = cleanVar($_POST, 'template', 'int', null);
-    $this->css = cleanVar($_POST, 'css', 'int', null);
-    $this->auth = cleanVar($_POST, 'auth', 'string', null);
-    $this->cache = cleanVar($_POST, 'cache', 'int', null);
+		$this->label = cleanVar($request->POST, 'label', 'string', null);
+		$this->session = cleanVar($request->POST, 'session', 'string', null);
+		$this->rexp = cleanVar($request->POST, 'rexp', 'string', null);
+		$this->urls = cleanVar($request->POST, 'urls', 'string', null);
+		$this->template = cleanVar($request->POST, 'template', 'int', null);
+		$this->css = cleanVar($request->POST, 'css', 'int', null);
+		$this->auth = cleanVar($request->POST, 'auth', 'string', null);
+		$this->cache = cleanVar($request->POST, 'cache', 'int', null);
 
         if(!$this->id) $this->priority = skin::newSkinPriority();
         $this->updateDbData();
 
-        header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-        exit();
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=skin"));
     }
 
     /**
@@ -296,7 +300,7 @@ class Skin extends Model {
     $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
     $buffer .= $gform->close();
 
-    $view = new view();
+    $view = new View();
     $view->setViewTpl('section');
     $dict = array(
       'title' => $title,
@@ -315,8 +319,8 @@ class Skin extends Model {
         $this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
         $this->deleteDbData();
 
-        header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=skin");
-        exit();
+        $plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=skin"));
     }
 
     /**

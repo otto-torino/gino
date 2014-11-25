@@ -16,6 +16,8 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+use Gino\Http\Redirect;
+
 class Template extends Model {
 	
 	protected $_tbl_data;
@@ -148,8 +150,10 @@ class Template extends Model {
 		$buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
 
 		if(!$free) {
+			
+			Loader::import('class', '\Gino\Css');
 			$css_list = array();
-			foreach(css::getAll() as $css) {
+			foreach(Css::getAll() as $css) {
 				$css_list[$css->id] = htmlInput($css->label);
 			}
 			$buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
@@ -212,7 +216,7 @@ class Template extends Model {
 		
 		$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
 
-		$view = new view();
+		$view = new View();
 		$view->setViewTpl('section');
 		$dict = array(
 			'title' => $title,
@@ -223,11 +227,12 @@ class Template extends Model {
 		return $view->render($dict);
 	}
 
-  public function actionFreeTemplate() {
-    $this->free = 1;
-		$this->label = cleanVar($_POST, 'label', 'string', '');
-		$this->description = cleanVar($_POST, 'description', 'string', '');
-		$tplFilename = cleanVar($_POST, 'filename', 'string', '');
+	public function actionFreeTemplate($request) {
+		
+		$this->free = 1;
+		$this->label = cleanVar($request->POST, 'label', 'string', '');
+		$this->description = cleanVar($request->POST, 'description', 'string', '');
+		$tplFilename = cleanVar($request->POST, 'filename', 'string', '');
 		if($tplFilename) $this->filename = $tplFilename.".php";
 
 		$action = ($this->id)? "modify" : "insert";
@@ -235,26 +240,28 @@ class Template extends Model {
 		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&action=$action&free=1";
 
 		if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".php")) 
-			exit(error::errorMessage(array('error'=>_("Nome file già presente")), $link_error));
+			return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
 		
 		if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
 		  $code = filter_input(INPUT_POST, 'code');
-			fwrite($fp, $code) || exit(error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error));
+			if(!fwrite($fp, $code))
+				return error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
+			
 			fclose($fp);
 		}
-		else exit(error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+		else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 		
 		$this->updateDbData();
+		
+		$plink = new Link();
 
-    if(isset($_POST['savecontinue_action'])) {
-      header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template&id=".$this->id."&action=modify&free=1");
-    }
-    else {
-      header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-    }
-    exit();
-  
-  }
+		if(isset($request->POST['savecontinue_action'])) {
+			return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template&id=".$this->id."&action=modify&free=1"));
+		}
+		else {
+			return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
+		}
+	}
 
 	/**
 	 * Form per la creazione e la modifica di un template
@@ -267,7 +274,7 @@ class Template extends Model {
 		$gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
 		$gform->load('dataform');
 
-    $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
+		$title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 
 		$buffer = $this->formData($gform);
 		if($this->id)
@@ -276,16 +283,15 @@ class Template extends Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new View();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
 
-    return $view->render($dict);
-
+		return $view->render($dict);
 	}
 	
 	/**
@@ -307,7 +313,7 @@ class Template extends Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-		$view = new view();
+		$view = new View();
 		$view->setViewTpl('section');
 		$dict = array(
 			'title' => $title,
@@ -340,15 +346,15 @@ class Template extends Model {
 
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new View();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
 
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 
 	/**
@@ -382,11 +388,13 @@ class Template extends Model {
 	 * 
 	 * @return string
 	 */
-	public function tplBlockForm() {
+	public function tplBlockForm($request=null) {
 	
 		$gform = Loader::load('Form', array('gform', 'post', false));
+		
+		$post_blocks_number = $request ? cleanVar($request->POST, 'blocks_number', 'int', '') : cleanVar($_POST, 'blocks_number', 'int', '');	
 
-		$blocks_number = $this->id ? $this->_blocks_number : cleanVar($_POST, 'blocks_number', 'int', '');
+		$blocks_number = $this->id ? $this->_blocks_number : $post_blocks_number;
 		
 		$buffer = '';
 		
@@ -402,12 +410,12 @@ class Template extends Model {
 			{
 				$name_select = 'addblocks_'.$i;
 				$div_id = 'addblocks_form'.$i;
-				$onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?pt[layout-manageLayout]&block=template&action=addblocks', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
+				$onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=addblocks', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
 				$test_add = $gform->cselect($name_select, '', array(1=>1, 2=>2), _('Numero blocchi da aggiungere'), array("js"=>$onchange));
 				$buffer .= $test_add;
 				
 				$buffer .= "<div id=\"$div_id\">";
-				$buffer .= $this->addBlockForm($i);
+				$buffer .= $this->addBlockForm($request, $i);
 				$buffer .= "</div>";
 			}
 			
@@ -428,7 +436,7 @@ class Template extends Model {
         $('block$i').getElements('input, select').each(function(el) { el.setProperty('disabled', 'disabled'); });
       };";
 
-			$text_block = "<legend>"._("Blocco")." $i <span onclick=\"$moo\" class=\"pull-right\" style=\"cursor: pointer\">".pub::icon('delete')."</span></legend>";
+			$text_block = "<legend>"._("Blocco")." $i <span onclick=\"$moo\" class=\"pull-right\" style=\"cursor: pointer\">".\Gino\icon('delete')."</span></legend>";
 			
 			if($this->id) {
 				
@@ -467,12 +475,13 @@ class Template extends Model {
 	/**
 	 * Stampa i blocchi che vogliono essere aggiunti nel template
 	 * 
+	 * @param object $request oggetto Request
 	 * @param integer $ref numero del blocco nella sequenza corretta
 	 * @return string
 	 */
-	public function addBlockForm($ref=null) {
+	public function addBlockForm($request, $ref=null) {
 		
-		if(is_null($ref)) $ref = cleanVar($_POST, 'ref', 'int', '');
+		if(is_null($ref)) $ref = cleanVar($request->POST, 'ref', 'int', '');
 		if(!$ref) return null;
 		
 		$gform = Loader::load('Form', array('gform', 'post', false));
@@ -533,19 +542,20 @@ class Template extends Model {
 	 */
 	public function actionDelTemplate() {
 
-    loader::import('class', 'Skin');
+		Loader::import('class', 'Skin');
 
 		if($this->filename) @unlink(TPL_DIR.OS.$this->filename);		
 
-		skin::removeTemplate($this->id);
+		Skin::removeTemplate($this->id);
 
 		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
-    if(!$this->free) {
-      $this->deleteBlocks();
-    }
+		if(!$this->free) {
+			$this->deleteBlocks();
+		}
 		$this->deleteDbData();
-
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
+		
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
 	}
 
 	/**
@@ -881,38 +891,40 @@ class Template extends Model {
 	/**
 	 * Crea e modifica un template
 	 */
-	public function actionTemplate() {
+	public function actionTemplate($request) {
 	
-		$tplContent = $_POST['tplform_text'];
+		$tplContent = $request->POST['tplform_text'];
 		if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);	// magic_quotes_gpc = On
 
 		$this->free = 0;
-		$this->label = cleanVar($_POST, 'label', 'string', '');
-		$this->description = cleanVar($_POST, 'description', 'string', '');
-		$tplFilename = cleanVar($_POST, 'filename', 'string', '');
+		$this->label = cleanVar($request->POST, 'label', 'string', '');
+		$this->description = cleanVar($request->POST, 'description', 'string', '');
+		$tplFilename = cleanVar($request->POST, 'filename', 'string', '');
 		if($tplFilename) $this->filename = $tplFilename.".tpl";
-		$modTpl = cleanVar($_POST, 'modTpl', 'int', '');
+		$modTpl = cleanVar($request->POST, 'modTpl', 'int', '');
 
 		$action = ($this->id)? "modify":"insert";
 
 		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&action=$action";
 
 		if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".tpl")) 
-			exit(error::errorMessage(array('error'=>_("Nome file già presente")), $link_error));
+			return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
 		
 		if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
-			fwrite($fp, $tplContent) || exit(error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error));
+			if(!fwrite($fp, $tplContent))
+				return error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
+			
 			fclose($fp);
 		}
-		else exit(error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+		else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 		
 		$this->updateDbData();
 
 		//if(($this->id && $modTpl == 1) || !$this->id)
 		if($this->id)
 		{
-			$blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
-			$blocks_del = cleanVar($_POST, 'blocks_del', 'string', '');
+			$blocks_number = cleanVar($request->POST, 'blocks_number', 'int', '');
+			$blocks_del = cleanVar($request->POST, 'blocks_del', 'string', '');
 			$blocks_del = json_decode(base64_decode($blocks_del));
 			
 			if(sizeof($blocks_del) > 0)
@@ -925,12 +937,12 @@ class Template extends Model {
 			
 			for($i=1; $i<=$blocks_number; $i++) {
 				
-				$bid = cleanVar($_POST, 'id_'.$i, 'int', '');
-				$width = cleanVar($_POST, 'width_'.$i, 'int', '');
-				$um = cleanVar($_POST, 'um_'.$i, 'int', '');
-				$align = cleanVar($_POST, 'align_'.$i, 'int', '');
-				$rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
-				$cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
+				$bid = cleanVar($request->POST, 'id_'.$i, 'int', '');
+				$width = cleanVar($request->POST, 'width_'.$i, 'int', '');
+				$um = cleanVar($request->POST, 'um_'.$i, 'int', '');
+				$align = cleanVar($request->POST, 'align_'.$i, 'int', '');
+				$rows = cleanVar($request->POST, 'rows_'.$i, 'int', '');
+				$cols = cleanVar($request->POST, 'cols_'.$i, 'int', '');
 				
 				if($width == 0) $um = 0;
 				if($rows > 0 && $cols > 0)
@@ -938,8 +950,8 @@ class Template extends Model {
 			}
 		}
 		
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-		exit();
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
 	}
 
 	private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
@@ -996,33 +1008,33 @@ class Template extends Model {
 	/**
 	 * Duplica un template
 	 */
-	public function actionCopyTemplate() {
+	public function actionCopyTemplate($request) {
 	
 		$gform = Loader::load('Form', array('gform', 'post', false));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
-		$ref = cleanVar($_POST, 'ref', 'int', '');
-		$label = cleanVar($_POST, 'label', 'string', '');
-		$filename = cleanVar($_POST, 'filename', 'string', '');
-		$description = cleanVar($_POST, 'description', 'string', '');
+		$ref = cleanVar($request->POST, 'ref', 'int', '');
+		$label = cleanVar($request->POST, 'label', 'string', '');
+		$filename = cleanVar($request->POST, 'filename', 'string', '');
+		$description = cleanVar($request->POST, 'description', 'string', '');
 		
 		if($filename) $filename = $filename.'.tpl';
 		
 		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&id=$ref&action=copy";
 		
 		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
+			return error::errorMessage(array('error'=>1), $link_error);
 		
 		// Valori del template da duplicare
 		$obj = new Template($ref);
 		
-		if(is_file(TPL_DIR.OS.$filename)) 
-			exit(error::errorMessage(array('error'=>_("Nome file già presente")), $link_error));
-		else
-		{
+		if(is_file(TPL_DIR.OS.$filename)) {
+			return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
+		}
+		else {
 			if(!copy(TPL_DIR.OS.$obj->filename, TPL_DIR.OS.$filename))
-				exit(error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error));
+				return error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 		}
 		
 		$db = db::instance();
@@ -1049,9 +1061,9 @@ class Template extends Model {
 				), self::$_tbl_tpl_block);
 			}
 		}
-
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=template");
-		exit();
+		
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
 	}
 }
 ?>

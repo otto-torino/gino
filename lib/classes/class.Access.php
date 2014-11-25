@@ -64,7 +64,7 @@ class Access {
             $user = cleanVar($request->POST, 'user', 'string', '');
             $password = cleanVar($request->POST, 'pwd', 'string', '');
             $result = $this->AuthenticationMethod($user, $password);
-            $request->user = new User($this->session->user_id);
+            $request->user = new User($this->_session->user_id);
             return $result ? $this->loginSuccess() : $this->loginError();
         }
         elseif($request->checkGETKey('action', 'logout')) {
@@ -99,7 +99,7 @@ class Access {
     private function loginSuccess() {
 
         $url = $this->_session->auth_redirect ? $this->_session->auth_redirect : $this->_home;
-        return Redirect($url);
+        return new Redirect($url);
     }
 
     /**

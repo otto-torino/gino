@@ -10,7 +10,7 @@
 namespace Gino\App\Sysconf;
 
 use \Gino\View;
-use \Gino\Http\ResponseView;
+use \Gino\Document;
 use \Gino\Http\Redirect;
 use \Gino\Http\Request;
 
@@ -66,28 +66,32 @@ class sysconf extends \Gino\Controller {
 
     $myform = \Gino\Loader::load('Form', array(null, null, null));
 
-    if(isset($request->POST['empty_cache'])) {
-      $this->_registry->pub->deleteFileDir(CACHE_DIR, false);
-      return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
-    }
-    elseif(isset($request->POST['id'])) {
-      $result = $admin_table->modelAction($conf);
-      $robots = filter_input(INPUT_POST, 'robots');
-      if($fp = @fopen(SITE_ROOT.OS."robots.txt", "wb")) {
-        fwrite($fp, $robots);
-        fclose($fp);
-      }
-      return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
-    }
-    elseif($request->checkGETKey('trnsl', '1')) {
-      if($request->checkGETKey('save', 1)) {
-        $this->_trd->actionTranslation();
-      }
-      else {
-        $this->_trd->formTranslation();
-      }
-    }
-    else {
+	if(isset($request->POST['empty_cache'])) {
+		$this->_registry->pub->deleteFileDir(CACHE_DIR, false);
+		return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+	}
+	elseif(isset($request->POST['id'])) {
+
+		$result = $admin_table->modelAction($conf);
+		$robots = filter_input(INPUT_POST, 'robots');
+		if($fp = @fopen(SITE_ROOT.OS."robots.txt", "wb")) {
+        	fwrite($fp, $robots);
+        	fclose($fp);
+		}
+		return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+	}
+	elseif($request->checkGETKey('trnsl', '1')) {
+		
+		if($request->checkGETKey('save', 1)) {
+			$res = $this->_trd->actionTranslation();
+			$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+			return new \Gino\Http\Response($content);
+		}
+		else {
+			return new \Gino\Http\Response($this->_trd->formTranslation());
+		}
+	}
+	else {
       $content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
       $content .= $admin_table->modelForm($conf, array(
         'addCell' => array(
@@ -129,7 +133,8 @@ class sysconf extends \Gino\Controller {
     $view = new View();
     $view->setViewTpl('section');
 
-    return new ResponseView($view, $dict);
+    $document = new Document($view->render($dict));
+	return $document();
 
   }
 

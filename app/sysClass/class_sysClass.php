@@ -12,8 +12,9 @@ namespace Gino\App\SysClass;
 use \Gino\Error;
 use \Gino\Loader;
 use \Gino\View;
+use \Gino\Document;
 use \Gino\App\Module\ModuleInstance;
-use \Gino\Http\ResponseView;
+use \Gino\Http\Response;
 use \Gino\Http\Redirect;
 
 require_once('class.ModuleApp.php');
@@ -64,15 +65,14 @@ class sysClass extends \Gino\Controller {
 			$action = \Gino\cleanVar($request->GET, 'action', 'string', null);
 			if($request->checkGETKey('trnsl', '1')) {
 				
-				\Gino\Loader::import('class/http', '\Gino\Http\ResponseAjax');
 				if($request->checkGETKey('save', '1')) {
 					
 					$res = $this->_trd->actionTranslation();
 					$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-					return new \Gino\Http\ResponseAjax($content);
+					return new Response($content);
 				}
 				else {
-					return new \Gino\Http\ResponseAjax($this->_trd->formTranslation());
+					return new Response($this->_trd->formTranslation());
 				}
 			}
 			elseif($action == 'modify') {
