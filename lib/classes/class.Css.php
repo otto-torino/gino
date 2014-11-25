@@ -16,6 +16,8 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+use Gino\Http\Redirect;
+
 class Css extends Model {
 
 	private static $_tbl_css = 'sys_layout_css';
@@ -144,21 +146,21 @@ class Css extends Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
-    
-    return $view->render($dict);
+		$view = new View();
+		$view->setViewTpl('section');
+		$dict = array(
+		'title' => $title,
+		'class' => 'admin',
+		'content' => $buffer
+		);
+		
+		return $view->render($dict);
 	}
 
 	/**
 	 * Inserimento e modifica di un file css (layout)
 	 */
-	public function actionCssLayout() {
+	public function actionCssLayout($request) {
 		
 		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->save('dataform');
@@ -168,10 +170,10 @@ class Css extends Model {
 		$link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=css&id=$this->id&action=$action";
 
 		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
+			return error::errorMessage(array('error'=>1), $link_error);
 
 		$filename_tmp = $_FILES['filename']['tmp_name'];
-		$old_filename = cleanVar($_POST, 'old_filename', 'string', '');
+		$old_filename = cleanVar($request->POST, 'old_filename', 'string', '');
 		
 		$directory = CSS_DIR.OS;
 		$redirect = $this->_interface.'-manageLayout';
@@ -179,14 +181,14 @@ class Css extends Model {
 		$link .= $this->id ? "&action=modify&id=$this->id" : "&action=insert";
 		
 		foreach($_POST as $k=>$v) {
-			$this->{$k} = cleanVar($_POST, $k, 'string', '');
+			$this->{$k} = cleanVar($request->POST, $k, 'string', '');
 		}
 		$this->updateDbData();
 
 		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css", "text/x-c", "text/plain")));
 
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-		exit();
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=css"));
 	}
 	
 	/**
@@ -208,15 +210,15 @@ class Css extends Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new view();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => $title,
+			'class' => 'admin',
+			'content' => $buffer
+		);
     
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 	
 	/**
@@ -226,13 +228,13 @@ class Css extends Model {
 		
 		if($this->filename) @unlink(CSS_DIR.OS.$this->filename);		
 
-		skin::removeCss($this->id);
+		Skin::removeCss($this->id);
 
 		$this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
 		$this->deleteDbData();
-
-		header("Location: $this->_home?evt[$this->_interface-manageLayout]&block=css");
-		exit();
+		
+		$plink = new Link();
+		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=css"));
 	}
 
 	/**
