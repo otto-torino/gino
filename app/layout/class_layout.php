@@ -96,25 +96,29 @@ class layout extends \Gino\Controller {
         $link_view = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLayout]&block=view\">"._("Viste")."</a>";
         $sel_link = $link_dft;
 
-    if($block == 'template') {
-      $GINO = $this->manageTemplate($request);
-      $sel_link = $link_tpl;
-    }
-    elseif($block == 'skin') {
-      $GINO = $this->manageSkin($request);
-      $sel_link = $link_skin;
-    }
-    elseif($block == 'css') {
-      $GINO = $this->manageCss($request);
-      $sel_link = $link_css;
-    }
-    elseif($block == 'view') {
-      $GINO = $this->manageView($request);
-      $sel_link = $link_view;
-    }
-    else {
-      $GINO = $this->info();
-    }
+        if($block == 'template') {
+        	$backend = $this->manageTemplate($request);
+        	$sel_link = $link_tpl;
+        }
+        elseif($block == 'skin') {
+        	$backend = $this->manageSkin($request);
+        	$sel_link = $link_skin;
+        }
+        elseif($block == 'css') {
+        	$backend = $this->manageCss($request);
+        	$sel_link = $link_css;
+        }
+        elseif($block == 'view') {
+        	$backend = $this->manageView($request);
+        	$sel_link = $link_view;
+        }
+        else {
+        	$backend = $this->info();
+        }
+    
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
         $view = new View();
         $view->setViewTpl('tab');
@@ -122,7 +126,7 @@ class layout extends \Gino\Controller {
             'title' => _('Layout'),
             'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
             'selected_link' => $sel_link,
-            'content' => $GINO
+            'content' => $backend
         );
         
         $document = new Document($view->render($dict));
@@ -133,20 +137,27 @@ class layout extends \Gino\Controller {
         
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
         $tpl = \Gino\Loader::load('Template', array($id));
-
-		if($this->_action == 'mngblocks') {
+        
+    	if($request->checkGETKey('trnsl', '1'))
+    	{
+			return $this->_trd->manageTranslation($request);
+		}
+		
+        if($this->_action == 'mngblocks') {
+			
 			$content = $tpl->tplBlockForm($request);
 			
-			$document = new Response($content);
-			return $document();
+			return new Response($content);
 		}
 		elseif($this->_action == 'mngtpl') {
+			
 			$css_id = \Gino\cleanVar($request->POST, 'css', 'int', '');
 			$css = \Gino\Loader::load('Css', array('layout', array('id'=>$css_id)));
-			echo $tpl->manageTemplate($css, $id);
-			exit();
+			
+			return new Response($tpl->manageTemplate($css, $id));
 		}
 		elseif($this->_action == 'insert' || $this->_action == 'modify') {
+			
 			$free = \Gino\cleanVar($request->GET, 'free', 'int', null);
 			if($free) {
 				$buffer = $tpl->formFreeTemplate();
@@ -154,7 +165,7 @@ class layout extends \Gino\Controller {
 			else {
 				$buffer = $tpl->formTemplate();
 			}
-    	}
+		}
     	elseif($this->_action == 'delete') {
     		$buffer = $tpl->formDelTemplate();
     	}
@@ -162,10 +173,10 @@ class layout extends \Gino\Controller {
     		$buffer = $tpl->formOutline();
     	}
     	elseif($this->_action=='addblocks') {
-    		$content = $tpl->addBlockForm($request);
     		
-    		$document = new Response($content);
-			return $document();
+    		$content = $tpl->addBlockForm(null, $request);
+    		
+    		return new Response($content);
     	}
     	elseif($this->_action=='copy') {
     		$buffer = $tpl->formCopyTemplate();
@@ -185,44 +196,60 @@ class layout extends \Gino\Controller {
     $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
     $skin = \Gino\Loader::load('Skin', array($id));
 
-    if($this->_action == 'insert' || $this->_action == 'modify') {
-      $buffer = $skin->formSkin();
-    }
-    elseif($this->_action == 'sortup') {
-      $skin->sortUp();
-      return new Redirect($this->_plink->aLink($this->_class_name, 'manageLayout', "block=skin"));
-    }
-    elseif($this->_action == 'delete') {
-      $buffer = $skin->formDelSkin();
-    }
-    else {
-      $buffer = $this->skinList();
-    }
+		if($this->_action == 'insert' || $this->_action == 'modify') {
+			
+			if($request->checkGETKey('trnsl', '1'))
+			{
+				return $this->_trd->manageTranslation($request);
+			}
+			else 
+			{
+				$buffer = $skin->formSkin();
+			}
+		}
+		elseif($this->_action == 'sortup') {
+			$skin->sortUp();
+			return new Redirect($this->_plink->aLink($this->_class_name, 'manageLayout', "block=skin"));
+		}
+		elseif($this->_action == 'delete') {
+			$buffer = $skin->formDelSkin();
+		}
+		else {
+			$buffer = $this->skinList();
+		}
 
-    return $buffer;
-  }
+		return $buffer;
+	}
 
-  private function manageCss($request) {
+	private function manageCss($request) {
 
-    $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
-    $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
+		$id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
+		$css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
 
-    if($this->_action == 'insert' || $this->_action == 'modify') {
-      $buffer = $css->formCssLayout();
-    }
-    elseif($this->_action == 'delete') {
-      $buffer = $css->formDelCssLayout();
-    }
-    elseif($this->_action == 'edit') {
-      $fname = \Gino\cleanVar($request->GET, 'fname', 'string', null);
-      $buffer = $this->formFiles($fname, 'css');
-    }
-    else {
-      $buffer = $this->cssList();
-    }
+		if($this->_action == 'insert' || $this->_action == 'modify') {
+			
+			if($request->checkGETKey('trnsl', '1'))
+			{
+				return $this->_trd->manageTranslation($request);
+			}
+			else 
+			{
+				$buffer = $css->formCssLayout();
+			}
+		}
+		elseif($this->_action == 'delete') {
+			$buffer = $css->formDelCssLayout();
+		}
+		elseif($this->_action == 'edit') {
+			$fname = \Gino\cleanVar($request->GET, 'fname', 'string', null);
+			$buffer = $this->formFiles($fname, 'css');
+		}
+		else {
+			$buffer = $this->cssList();
+		}
 
-    return $buffer;
-  }
+		return $buffer;
+	}
 
     private function manageView($request) {
 

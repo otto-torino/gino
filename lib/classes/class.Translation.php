@@ -82,6 +82,30 @@ class Translation {
 
         return $dft_text;
     }
+    
+    /**
+     * @brief Gestisce le traduzioni nei form
+     * 
+     * @param object $request oggetto Request
+     * @return oggetto Response o null
+     */
+    public function manageTranslation($request) {
+    	
+    	Loader::import('class/http', '\Gino\Http\ResponseNotFound');
+    	
+    	if(!$request->checkGETKey('trnsl', '1'))
+    		return new \Gino\Http\ResponseNotFound();
+		
+    	if($request->checkGETKey('save', '1')) {
+			
+			$res = $this->actionTranslation($request);
+			$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+			return new \Gino\Http\Response($content);
+		}
+		else {
+			return new \Gino\Http\Response($this->formTranslation());
+		}
+    }
 
     /**
      * @brief Ordina i risultati di una query facendo riferimento ai testi tradotti

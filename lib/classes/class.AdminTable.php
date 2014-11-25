@@ -701,7 +701,7 @@ class AdminTable {
         if($trnsl) {
             Loader::import('class/http', '\Gino\Http\Response');
             if($this->_request->checkGETKey('save', '1')) {
-                $res = $this->_registry->trd->actionTranslation();
+                $res = $this->_registry->trd->actionTranslation($this->_request);
 
                 $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
                 return new \Gino\Http\Response($content);

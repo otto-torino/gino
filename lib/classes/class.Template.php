@@ -138,7 +138,7 @@ class Template extends Model {
 			$formaction = $this->_home."?evt[".$this->_interface."-actionTemplate]&free=1";
 		}
 		else {
-			$formaction = $this->_home."?pt[".$this->_interface."-manageLayout]&block=template&action=mngtpl";
+			$formaction = $this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=mngtpl";
 		}
 		$required = 'label';
 		$buffer = $gform->open($formaction, '', $required);
@@ -201,7 +201,7 @@ class Template extends Model {
 		$buffer .= "<p>"._('Tutte le classi di GINO sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di GINO per maggiori informazioni.')."</p>";
 		$buffer .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), "var w = new gino.layerWindow({
 		'title': '"._('Moduli e pagine')."',
-		'url': '".$this->_home."?pt[".$this->_interface."-modulesCodeList]',
+		'url': '".$this->_home."?evt[".$this->_interface."-modulesCodeList]',
 		'width': 800,
 		'height': 500
 		}); w.display();")."</p>";
@@ -375,7 +375,7 @@ class Template extends Model {
 		else {
 			for($i=1, $blocks_list=array(); $i<11; $i++) $blocks_list[$i] = $i;
 
-			$onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?pt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
+			$onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
 			$buffer = $gform->cselect('blocks_number', $gform->retvar('blocks_number', $this->_blocks_number), $blocks_list, array(_("Numero blocchi"), _("Selezionare il numero di blocchi che devono comporre il layout")), array("js"=>$onchange));
 			$buffer .= "<div id=\"blocks_form\"></div>";
 		}
@@ -415,7 +415,7 @@ class Template extends Model {
 				$buffer .= $test_add;
 				
 				$buffer .= "<div id=\"$div_id\">";
-				$buffer .= $this->addBlockForm($request, $i);
+				$buffer .= $this->addBlockForm($i, $request);
 				$buffer .= "</div>";
 			}
 			
@@ -475,11 +475,11 @@ class Template extends Model {
 	/**
 	 * Stampa i blocchi che vogliono essere aggiunti nel template
 	 * 
-	 * @param object $request oggetto Request
 	 * @param integer $ref numero del blocco nella sequenza corretta
+	 * @param object $request oggetto Request
 	 * @return string
 	 */
-	public function addBlockForm($request, $ref=null) {
+	public function addBlockForm($ref=null, $request=null) {
 		
 		if(is_null($ref)) $ref = cleanVar($request->POST, 'ref', 'int', '');
 		if(!$ref) return null;
@@ -488,20 +488,20 @@ class Template extends Model {
 		
 		$buffer = '';
 		
-		$add_num = cleanVar($_POST, 'addblocks_'.$ref, 'int', '');
+		$add_num = is_null($request) ? cleanVar($_POST, 'addblocks_'.$ref, 'int', '') : cleanVar($request->POST, 'addblocks_'.$ref, 'int', '');
 		$buffer .= $gform->hidden('addblocks_'.$ref, $add_num);
 		
 		for($i=1; $i<$add_num+1; $i++) {
 			
 			$ref_name = $ref.'_'.$i;
-      $buffer .= "<fieldset>";
-      $buffer .= "<legend>"._('Nuovo blocco')."</legend>";
+			$buffer .= "<fieldset>";
+			$buffer .= "<legend>"._('Nuovo blocco')."</legend>";
 			$um = " ".$gform->select('um_add'.$ref_name, '', $this->_um_dict, array());
 			$buffer .= $gform->cinput('width_add'.$ref_name, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
 			$buffer .= $gform->cselect('align_add'.$ref_name, '', $this->_align_dict, _("Allineamento"), array());
 			$buffer .= $gform->cinput('rows_add'.$ref_name, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
 			$buffer .= $gform->cinput('cols_add'.$ref_name, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
-      $buffer .= "</fieldset>";
+			$buffer .= "</fieldset>";
 		}
 		
 		return $buffer;
@@ -517,22 +517,22 @@ class Template extends Model {
 		$gform = Loader::load('Form', array('gform', 'post', true));
 		$gform->load('dataform');
 
-    $buffer = "<p class=\"backoffice-info\">"._("L'eliminazione di un template determina l'eliminazione del template dalle skin che lo contengono!")."</p>";
+		$buffer = "<p class=\"backoffice-info\">"._("L'eliminazione di un template determina l'eliminazione del template dalle skin che lo contengono!")."</p>";
 		$required = '';
 		$buffer .= $gform->open($this->_home."?evt[".$this->_interface."-actionDelTemplate]", '', $required);
 		$buffer .= $gform->hidden('id', $this->id);
 		$buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-    $view = new view();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => sprintf(_('Elimina template "%s"'), htmlChars($this->label)),
-      'class' => 'admin',
-      'content' => $buffer
-    );
+		$view = new View();
+		$view->setViewTpl('section');
+		$dict = array(
+			'title' => sprintf(_('Elimina template "%s"'), htmlChars($this->label)),
+			'class' => 'admin',
+			'content' => $buffer
+		);
     
-    return $view->render($dict);
+		return $view->render($dict);
 	}
 	
 	/**
@@ -542,7 +542,7 @@ class Template extends Model {
 	 */
 	public function actionDelTemplate() {
 
-		Loader::import('class', 'Skin');
+		Loader::import('class', '\Gino\Skin');
 
 		if($this->filename) @unlink(TPL_DIR.OS.$this->filename);		
 
@@ -813,7 +813,7 @@ class Template extends Model {
 					$mdlFunc = $m[4];
 					$output_functions = (method_exists($module->classNameNs(), 'outputFunctions')) ? call_user_func(array($module->classNameNs(), 'outputFunctions')):array();
 					$title .= " - ".$output_functions[$mdlFunc]['label'];
-					$jsurl = $this->_home."?pt[".$module->name."-$mdlFunc]";
+					$jsurl = $this->_home."?evt[".$module->name."-$mdlFunc]";
 				}
 				elseif($mdlType=='class' || $mdlType=='sysclass') {
 					$module_app = new \Gino\App\SysClass\ModuleApp($mdlId);
@@ -822,7 +822,7 @@ class Template extends Model {
 					$mdlFunc = $m[4];
 					$output_functions = (method_exists($module_app->classNameNs(), 'outputFunctions'))? call_user_func(array($module_app->classNameNs(), 'outputFunctions')):array();
 					$title .= " - ".$output_functions[$mdlFunc]['label'];
-					$jsurl = $this->_home."?pt[$classname-$mdlFunc]";
+					$jsurl = $this->_home."?evt[$classname-$mdlFunc]";
 				}
 				elseif($mdlType=='' && $mdlId == 0) {
 					$title = _("Modulo da url");
