@@ -65,15 +65,7 @@ class sysClass extends \Gino\Controller {
 			$action = \Gino\cleanVar($request->GET, 'action', 'string', null);
 			if($request->checkGETKey('trnsl', '1')) {
 				
-				if($request->checkGETKey('save', '1')) {
-					
-					$res = $this->_trd->actionTranslation();
-					$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-					return new Response($content);
-				}
-				else {
-					return new Response($this->_trd->formTranslation());
-				}
+				return $this->_trd->manageTranslation($request);
 			}
 			elseif($action == 'modify') {
 				$backend = $this->formEditSysClass($id);

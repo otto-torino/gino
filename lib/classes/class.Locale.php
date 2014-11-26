@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use Gino\App\Sysconf\Conf;
+use Gino\App\Sysconf\sysconf;
 use \Gino\App\Language\Lang;
 
 /**
@@ -177,6 +179,8 @@ class Locale extends Singleton {
 
     /**
      * @brief Setta la lingua di navigazione e di default in sessione
+     * 
+     * @see Gino.App.Language.Lang::getMainLang()
      * @return void
      */
     private static function setLanguage(){
@@ -186,25 +190,13 @@ class Locale extends Singleton {
         $db = $registry->db;
 
         Loader::import('language', 'Lang');
-        $rows = $db->select('language_code, country_code', \Gino\App\Language\Lang::$table, "id='".$registry->sysconf->dft_language."'");
-        if($rows and count($rows)) {
-            $dft_language = sprintf('%s_%s', $rows[0]['language_code'], $rows[0]['country_code']);
-        }
+        $dft_language = \Gino\App\Language\Lang::getMainLang();
+        
+        $session->lngDft = $dft_language;
 
         /* default */
         if($registry->sysconf->multi_language)
         {
-            if(!$session->lngDft)
-            {
-                $main_lang = \Gino\App\Language\Lang::getMainLang();
-                if($main_lang) {
-                    $session->lngDft = $main_lang->code();
-                }
-                else {
-                    $session->lngDft = '';
-                }
-            }
-
             // language
             if(!$session->lng)
             {
@@ -225,7 +217,6 @@ class Locale extends Singleton {
         else
         {
             $session->lng = $dft_language;
-            $session->lngDft = $dft_language;
         }
     }
 

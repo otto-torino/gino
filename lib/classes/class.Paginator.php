@@ -124,7 +124,9 @@ class Paginator {
         if($sup_interval < $this->_pages_number - 1) {
             $pages[] = '...';
         }
-        $pages[] = array($this->_pages_number, $this->urlPage($this->_pages_number));
+        if($this->_pages_number > 1) {
+            $pages[] = array($this->_pages_number, $this->urlPage($this->_pages_number));
+        }
 
         // controllers
         $next = null;

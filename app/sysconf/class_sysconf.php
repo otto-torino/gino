@@ -67,7 +67,7 @@ class sysconf extends \Gino\Controller {
     $myform = \Gino\Loader::load('Form', array(null, null, null));
 
 	if(isset($request->POST['empty_cache'])) {
-		$this->_registry->pub->deleteFileDir(CACHE_DIR, false);
+		\Gino\deleteFileDir(CACHE_DIR, false);
 		return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
 	}
 	elseif(isset($request->POST['id'])) {
@@ -82,14 +82,7 @@ class sysconf extends \Gino\Controller {
 	}
 	elseif($request->checkGETKey('trnsl', '1')) {
 		
-		if($request->checkGETKey('save', 1)) {
-			$res = $this->_trd->actionTranslation();
-			$content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-			return new \Gino\Http\Response($content);
-		}
-		else {
-			return new \Gino\Http\Response($this->_trd->formTranslation());
-		}
+		return $this->_trd->manageTranslation($request);
 	}
 	else {
       $content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
@@ -135,7 +128,6 @@ class sysconf extends \Gino\Controller {
 
     $document = new Document($view->render($dict));
 	return $document();
-
   }
 
 }

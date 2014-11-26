@@ -98,6 +98,7 @@ namespace {
      * @brief Nome della classe di tipo Gino.Model con namespace completo
      *
      * @param string $controller_name nome della classe controller
+     * @param string $model_name nome del modello
      * @return nome classe completo di namespace
      */
     function get_model_app_name_class_ns($controller_name, $model_name) {

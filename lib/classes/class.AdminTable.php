@@ -699,8 +699,11 @@ class AdminTable {
         $trnsl = cleanVar($this->_request->GET, 'trnsl', 'int', '');
 
         if($trnsl) {
-            Loader::import('class/http', '\Gino\Http\Response');
-            if($this->_request->checkGETKey('save', '1')) {
+            //Loader::import('class/http', '\Gino\Http\Response');
+            
+            return $this->_registry->trd->manageTranslation($this->_request);
+            
+            /*if($this->_request->checkGETKey('save', '1')) {
                 $res = $this->_registry->trd->actionTranslation($this->_request);
 
                 $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
@@ -708,7 +711,7 @@ class AdminTable {
             }
             else {
                 return new \Gino\Http\Response($this->_registry->trd->formTranslation());
-            }
+            }*/
         }
         elseif($insert or $edit) {
             return $this->adminForm($model_obj, $options_form, $inputs);

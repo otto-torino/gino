@@ -165,19 +165,13 @@ class language extends \Gino\Controller {
     private function manageLang(\Gino\Http\Request $request) {
 
         $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
-        $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
+        $info .= "<p>"._("L'inserimento dei contenuti e la visualizzazione in assenza di traduzioni avviene nella lingua di default impostata nella sezione 'Impostazioni di sistema'.")."</p>\n";
 
         $opts = array(
             'list_description' => $info
         );
 
         $admin_table = \Gino\Loader::load('AdminTable', array($this));
-
-        if(isset($request->POST['id'])) {
-            if($request->POST['main']) {
-                Lang::resetMain();
-            }
-        }
 
         return $admin_table->backoffice('Lang', $opts);
     }

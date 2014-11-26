@@ -114,17 +114,9 @@ class Options {
 
         $registry = registry::instance();
         $request = $registry->request;
-        $trnsl = cleanVar($request->GET, 'trnsl', 'int', '');
-        if($trnsl) {
-            if($request->checkGETKey('save', '1')) {
-
-                $res = $registry->trd->actionTranslation();
-                $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-                return new \Gino\Http\Response($content);
-            }
-            else {
-                return new \Gino\Http\Response($registry->trd->formTranslation());
-            }
+        
+        if($request->checkGETKey('trnsl', '1')) {
+            return $registry->trd->manageTranslation($request);
         }
 
         if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
