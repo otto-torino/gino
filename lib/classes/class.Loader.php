@@ -67,7 +67,7 @@ namespace Gino {
             // classi core
             if(preg_match("#^class/?(.*)#", $app, $matches)) {
                 $dir = CLASSES_DIR.OS;
-                if(isset($matches[1])) {
+                if(isset($matches[1]) and $matches[1]) {
                     $subdir = preg_replace('#/#', OS, $matches[1]);
                     $dir = $dir . $subdir . OS;
                 }

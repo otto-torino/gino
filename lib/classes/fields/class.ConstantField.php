@@ -15,6 +15,7 @@ namespace Gino;
  * Tipologie di input associabili: campo nascosto
  * Il valore costante è il valore del campo di un record di un'altra tabella
  *
+ * @deprecated Gino.ConstantField Utilizzare il tipo di campo adeguato e lavorare sulla visibilità e editabilità del widget
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -27,9 +28,8 @@ class ConstantField extends Field {
     protected $_view_value, $_const_table, $_const_id, $_const_field;
 
     /**
-     * Costruttore
+     * @brief Costruttore
      *
-     * @deprecated Utilizzare il tipo di campo adeguato e lavorare sulla visibilità e editabilità del widget
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe field()

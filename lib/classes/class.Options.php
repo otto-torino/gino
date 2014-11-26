@@ -12,7 +12,7 @@ use \Gino\App\SysClass\ModuleApp;
 
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
- * 
+ *
  * Le opzioni che possono essere associate a ciascun campo sono:
  * 
  *   - @b label (string): nome della label
@@ -22,7 +22,7 @@ use \Gino\App\SysClass\ModuleApp;
  *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
- * 
+ *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -63,6 +63,7 @@ class Options {
 
     /**
      * @brief Imposta alcune variabili utilizzate dalla classe
+     * @throws \Exception se il nome della classe del Controller non è definita
      * @param \Gino\Controller $controller istanza di Gino.Controller
      * @return void
      */
@@ -268,6 +269,7 @@ class Options {
 
         $table_info = $this->_db->fieldInformations($this->_tbl_options);
 
+        $data = array();
         $par_query = $par1_query = $par2_query = '';
         foreach($table_info AS $f) {
             if($this->editableField($f->name)) {
@@ -278,23 +280,20 @@ class Options {
                     ${$f->name} = dateToDbDate(cleanVar($request->POST, $f->name, 'string', ''), '/');
                 }
                 else ${$f->name} = cleanVar($request->POST, $f->name, 'string', '');
-                if($action == 'insert') {
-                    $par1_query .= ", ".$f->name;
-                    $par2_query .= ", '".${$f->name}."'";
-                }
-                elseif($action == 'modify') {
-                    $par_query .= ($par_query)?",".$f->name."=":$f->name."=";
-                    $par_query .= "'".${$f->name}."'";
-                }
+
+                $data[$f->name] = ${$f->name};
             }
         }
 
-        if($req_error > 0) 
+        if($req_error > 0)
             return error::errorMessage(array('error'=>1), $this->_return_link);
 
-        if($action == 'insert') $query = "INSERT INTO ".$this->_tbl_options." (instance$par1_query) VALUES ('".$this->_instance."'$par2_query)";
-        elseif($action == 'modify') $query = "UPDATE ".$this->_tbl_options." SET $par_query WHERE instance='$this->_instance'";
-        $result = $this->_db->actionquery($query);
+        if($action == 'insert') {
+            $this->_db->insert(array_merge(array('instance' => $this->_instance), $data), $this->_tbl_options);
+        }
+        elseif($action == 'modify') {
+            $this->_db->update($data, $this->_tbl_options, "instance='".$this->_instance."'");
+        }
 
         return \Gino\Http\Redirect($this->_return_link);
     }

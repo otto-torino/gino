@@ -74,20 +74,20 @@ abstract class singleton {
      * @brief I Singleton non possono essere clonati
      */
     public function __clone() {
-        Error::syserrorMessage('singleton', '__clone', __("CannotCloneSingleton"), __LINE__);
+        throw new \Exception(_("Impossibile clonare un Singleton"));
     }
 
     /**
      * @brief I Singleton non possono essere serializzati
      */
     public function __sleep() {
-        Error::syserrorMessage('singleton', '__sleep', __("CannotSerializeSingleton").get_called_class(), __LINE__);
+        throw new \Exception(_("Impossibile serializzare Singleton"));
     }
 
     /**
      * @brief I Singleton non possono essere serializzati
      */
     public function __wakeup() {
-        Error::syserrorMessage('singleton', '__wakeup', __("CannotSerializeSingleton"), __LINE__);
+        throw new \Exception(_("Impossibile serializzare Singleton"));
     }
 }
