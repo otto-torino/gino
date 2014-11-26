@@ -691,7 +691,7 @@ class AdminTable {
         $id = cleanVar($this->_request->REQUEST, 'id', 'int', '');
         $model_class = get_model_app_name_class_ns(get_name_class($this->_controller), $model_class_name);
         $model_obj = new $model_class($id, $this->_controller);
-
+        
         $insert = cleanVar($this->_request->GET, 'insert', 'int', '');
         $edit = cleanVar($this->_request->GET, 'edit', 'int', '');
         $delete = cleanVar($this->_request->GET, 'delete', 'int', '');
@@ -1194,11 +1194,11 @@ class AdminTable {
 
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
-
+        
         foreach($this->_filter_fields as $fname) {
 
-            if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
-                $this->session->{$class_name.'_'.$fname.'_filter'} = null;
+        	if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
+        		$this->session->{$class_name.'_'.$fname.'_filter'} = null;
             }
         }
 
