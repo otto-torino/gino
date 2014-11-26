@@ -58,7 +58,7 @@ function gOpt($opt_name, $opt_array, $default) {
  * @return object
  */
 function arrayToObject(array $array) {
-    $object = new stdClass();
+    $object = new \stdClass();
     if (is_array($array) && count($array) > 0)
     {
         foreach ($array as $name=>$value)
@@ -422,8 +422,8 @@ function getDateDiff($start_date, $end_date=null, $options=array()) {
 
     if(!$end_date) $end_date = date("Y-m-d H:i:s");
 
-    $start_date = new DateTime($start_date);
-    $end_date = new DateTime($end_date);
+    $start_date = new \DateTime($start_date);
+    $end_date = new \DateTime($end_date);
 
     $since_start = $start_date->diff($end_date);    // DateInterval object
 

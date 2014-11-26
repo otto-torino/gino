@@ -136,7 +136,7 @@ class PhpModule extends \Gino\Model {
 			exit(error::errorMessage(array('error'=>1), $link_error));
 
 		$this->content = $content;
-		$this->updateDbData();
+		$this->save();
 
 		header("Location: $this->_home?evt[$this->_interface-manageDoc]");
 		exit();

@@ -355,7 +355,7 @@ class menu extends \Gino\Controller {
     foreach($items as $item) {
       $voice = new menuVoice($item);
       $voice->order_list = $i;
-      $voice->updateDbData();
+      $voice->save();
       $i++;
     }
   }
@@ -403,7 +403,7 @@ class menu extends \Gino\Controller {
     $perms = \Gino\cleanVar($_POST, 'perm', 'array', null);
     $menu_voice->perms = implode(';', $perms);
 
-    $menu_voice->updateDbData();
+    $menu_voice->save();
 
     \Gino\Link::HttpCall($this->_home, $this->_instance_name.'-manageDoc', '');
   }

@@ -80,7 +80,7 @@ class View {
             $this->_view_tpl = $this->_dft_view_folder.OS.$view_name.".php";
         }
         else {
-            throw new \Exception(sprintf(_("Impossibile caricare la vista %s, view folder: %s")));
+            throw new \Exception(sprintf(_("Impossibile caricare la vista %s"), $view_name));
         }
     }
 

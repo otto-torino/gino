@@ -183,7 +183,7 @@ class Css extends Model {
 		foreach($_POST as $k=>$v) {
 			$this->{$k} = cleanVar($request->POST, $k, 'string', '');
 		}
-		$this->updateDbData();
+		$this->save();
 
 		$gform->manageFile('filename', $old_filename, false, array('css'), $directory, $link_error, $this->_tbl_data, 'filename', 'id', $this->id, array("check_type"=>true, "types_allowed"=>array("text/css", "text/x-c", "text/plain")));
 

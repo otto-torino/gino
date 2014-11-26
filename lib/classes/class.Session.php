@@ -55,7 +55,7 @@ class Session extends Singleton {
             if($session_name)
                 session_name($session_name);
 
-            $this->sessionState = session_start();
+            $this->sessionState = @session_start();
         }
 
         return $this->sessionState;

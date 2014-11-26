@@ -379,7 +379,7 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
         $model->{$field_log} = $result;
     }
 
-    return $model->updateDbData();
+    return $model->save();
   }
 
 }

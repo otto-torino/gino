@@ -416,12 +416,12 @@ class PageEntry extends \Gino\Model {
         return $res;
     }
 
-    public function updateDbData()
+    public function save()
     {
         $session = \Gino\session::instance();
         $this->author = $session->user_id;
 
-        return parent::updateDbData();
+        return parent::save();
     }
     
 

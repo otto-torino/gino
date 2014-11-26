@@ -37,7 +37,7 @@ class attachmentCtgAdminTable extends \Gino\AdminTable {
 
     if($insert) {
       $model->directory = 'c'.$model->id;
-      if($model->updateDbData()) {
+      if($model->save()) {
         $attachment_controller = new attachment();
         mkdir($attachment_controller->getDataDir().OS.$model->directory);
       }

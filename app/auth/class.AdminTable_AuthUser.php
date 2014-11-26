@@ -22,7 +22,7 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
      * Gestisce l'azione del form
      * 
      * @see readFile()
-     * @see Model::updateDbData()
+     * @see Model::save()
      * @see field::clean()
      * @param object $model
      * @param array $options
@@ -168,7 +168,7 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 
         var_dump($model->groups);
 
-        $update_db = $model->updateDbData();
+        $update_db = $model->save();
 
         if($update_db && $user_more_info)
         {

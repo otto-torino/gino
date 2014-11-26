@@ -193,10 +193,10 @@ class Skin extends Model {
     $before_skins = self::get(array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
     $before_skin = $before_skins[0];
     $this->priority = $before_skin->priority;
-    $this->updateDbData();
+    $this->save();
 
     $before_skin->priority = $priority;
-    $before_skin->updateDbData();
+    $before_skin->save();
   }
 
     /**
@@ -275,7 +275,7 @@ class Skin extends Model {
 		$this->cache = cleanVar($request->POST, 'cache', 'int', null);
 
         if(!$this->id) $this->priority = skin::newSkinPriority();
-        $this->updateDbData();
+        $this->save();
 
 		$plink = new Link();
 		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=skin"));

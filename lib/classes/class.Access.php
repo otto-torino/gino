@@ -156,7 +156,7 @@ class Access {
         $log_access->user_id = $userid;
         $log_access->date = date("Y-m-d H:i:s");
 
-        return $log_access->updateDbData();
+        return $log_access->save();
 
     }
 

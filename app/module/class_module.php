@@ -392,7 +392,7 @@ class module extends \Gino\Controller {
     $module->active = 1;
     $module->description = $description;
 
-    return $module->updateDbData();
+    return $module->save();
 
   }
 
@@ -431,7 +431,7 @@ class module extends \Gino\Controller {
     $module->label = $label;
     $module->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
 
-    return $module->updateDbData();
+    return $module->save();
 
   }
 
@@ -480,7 +480,7 @@ class module extends \Gino\Controller {
     $module = new ModuleInstance($id);
 
     $module->active = $module->active ? 0 : 1;
-    $module->updateDbData();
+    $module->save();
 
     return new Redirect($this->_plink->aLink($this->_class_name, 'manageModule'));
   }

@@ -10,9 +10,7 @@
 namespace Gino;
 
 use Gino\App\Sysconf\Conf;
-
 use Gino\App\Sysconf\sysconf;
-
 use \Gino\App\Language\Lang;
 
 /**

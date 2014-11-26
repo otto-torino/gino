@@ -46,7 +46,6 @@ class Router extends Singleton {
         $this->_registry = Registry::instance();
         $this->_request = $this->_registry->request;
         $this->urlRewrite();
-        $this->setUrlParams();
     }
 
     /**
@@ -209,6 +208,7 @@ class Router extends Singleton {
      * @return Gino.Http.Response
      */
     public function route() {
+        $this->setUrlParams();
         if(!is_null($this->_controller_view)) {
             return call_user_func($this->_controller_view, $this->_request);
         }
@@ -233,6 +233,7 @@ class Router extends Singleton {
 
         $pretty = isset($kwargs['pretty']) ? $kwargs['pretty'] : TRUE;
         $abs = isset($kwargs['abs']) ? $kwargs['abs'] : FALSE;
+        // query string puo' essere array o stringa, normalizzo a stringa
         $query_string = is_array($query_string)
             ? implode('&', array_map(function($k, $v) { return $v === '' ? $k :sprintf('%s=%s', $k, $v); }, array_keys($query_string), array_values($query_string)))
             : $query_string;
@@ -242,7 +243,7 @@ class Router extends Singleton {
         // pretty url
         if($pretty) {
             $url = sprintf('/%s/%s/', $instance_name, $method);
-            // params dispari
+            // parametro id tattato diversamente, come 3 elemento
             if(isset($params['id'])) {
                 $url .= sprintf('%s/', $params['id']);
             }
@@ -262,6 +263,34 @@ class Router extends Singleton {
         if($query_string) $url .= '?' . $query_string;
 
         return $abs ? $this->_request->root_absolute_url . $url : SITE_WWW.$url;
+    }
+
+    /**
+     * @brief Trasformazione di un path con aggiunta o rimozione di parametri dalla query string
+     * @param array $add parametri da aggiungere nella forma parametro => valore
+     * @param array $remove parametri da riumuovere
+     * @return path trasformato
+     */
+    public function transformPathQueryString(array $add = array(), array $remove = array()) {
+        $url = $this->_request->path;
+        if(count($add)) {
+            foreach($add as $param => $value) {
+                // se presente va riscritto
+                if(preg_match("#\b".preg_quote($param)."(=[^&]*)#", $url, $matches)) {
+                    $url = preg_replace("#\b".preg_quote($param)."(?:=[^&]*)#", $param.'='.$value, $url);
+                }
+                else {
+                    $url .= ( strpos($url, '?') ? '&' : '?' ) . sprintf('%s=%s', $param, $value);
+                }
+            }
+        }
+        if(count($remove)) {
+            foreach($remove as $param) {
+                $url = preg_replace("#\b".preg_quote($param)."(=.*?)\b#", '', $url);
+            }
+        }
+
+        return $url;
     }
 
 }

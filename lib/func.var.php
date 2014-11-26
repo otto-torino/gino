@@ -213,7 +213,7 @@ function stripEditor($text)
  * @param array $options array associativo di opzioni
  * @return testo ripulito
  */
-function cleanVar($method, $name, $type, $strip_tags, $options=array())
+function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
 {
     if(isset($method[$name]) AND $method[$name] !== '')
     {

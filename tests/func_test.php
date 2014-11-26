@@ -1,8 +1,10 @@
 <?php
 
+namespace Gino;
+
 require_once('include.php');
 
-class FuncTest extends PHPUnit_Framework_TestCase {
+class FuncTest extends \PHPUnit_Framework_TestCase {
 
     public function test_relativePath() {
         $abs_path = __FILE__;

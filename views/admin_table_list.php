@@ -31,15 +31,7 @@
   <?php if(!$tot_records): ?>
     <p><?= _("Non sono stati trovati elementi") ?></p>
   <?php endif ?>
-  <div>
-    <div class="pull-left">
-      <?= $pnavigation ?>
-    </div>
-    <div class="pull-right">
-      <?= $psummary ?>
-    </div>
-    <div class="clear"></div>
-  </div>
+  <?= $pagination ?>
   <?php if($form_filters): ?>
   <script type="text/javascript">
     (function() {

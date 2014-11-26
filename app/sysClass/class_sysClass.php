@@ -301,7 +301,7 @@ class sysClass extends \Gino\Controller {
     $module_app->removable = $db_conf['removable'];
     $module_app->class_version = $db_conf['version'];
 
-    $result = $module_app->updateDbData();
+    $result = $module_app->save();
 
     if(!$result) {
       \Gino\deleteFileDir($class_dir, true);
@@ -442,7 +442,7 @@ class sysClass extends \Gino\Controller {
     $module_app->removable = 1;
     $module_app->class_version = \Gino\cleanVar($request->POST, 'version', 'string', '');
 
-    $res = $module_app->updateDbData();
+    $res = $module_app->save();
 
     if(!$res) {
       return Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error);
@@ -582,7 +582,7 @@ class sysClass extends \Gino\Controller {
     $model_app->label = \Gino\cleanVar($request->POST, 'label', 'string', '');
     $model_app->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
 
-    $model_app->updateDbData();
+    $model_app->save();
     
     return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass', 'block=list'));
   }
@@ -601,7 +601,7 @@ class sysClass extends \Gino\Controller {
 
     $model_app->active = $model_app->active == 1 ? 0 : 1;
 
-    $model_app->updateDbData();
+    $model_app->save();
   
     return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysClass'));
   }
@@ -743,7 +743,7 @@ class sysClass extends \Gino\Controller {
     $module_app->instantiable = $db_conf['instantiable'];
     $module_app->description = $db_conf['description'];
 
-    $module_app->updateDbData();
+    $module_app->save();
 
     /*
      * Move and overwrite files

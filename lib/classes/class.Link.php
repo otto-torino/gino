@@ -11,7 +11,7 @@ namespace Gino;
 
 /**
  * @brief Libreria che si occupa di convertire gli indirizzi nel formato permalink e viceversa
- * 
+ * @deprecated Gino.Link Utilizzare i metodi della classe Gino.Router
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com

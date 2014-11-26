@@ -90,7 +90,7 @@ namespace Gino;
      * @param integer $id valore ID del record dell'oggetto
      * @return istanza di Gino.Model
      */
-    function __construct($id) {
+    function __construct($id = null) {
 
         $this->_registry = registry::instance();
         $session = Session::instance();
@@ -339,7 +339,7 @@ namespace Gino;
      *              del modello.
      * @return il risultato dell'operazione o errori
      */
-    public function updateDbData() {
+    public function save() {
 
         $event_dispatcher = EventDispatcher::instance();
 
