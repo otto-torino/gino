@@ -339,7 +339,7 @@ namespace Gino;
      *              del modello.
      * @return il risultato dell'operazione o errori
      */
-    public function updateDbData() {
+    public function save() {
 
         $event_dispatcher = EventDispatcher::instance();
 

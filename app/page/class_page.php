@@ -644,7 +644,7 @@ class page extends \Gino\Controller {
         }
         if(!$this->_registry->session->user_id) {
             $item->read = $item->read + 1;
-            $item->updateDbData();
+            $item->save();
         }
 
         $view = new \Gino\View($this->_view_dir);
@@ -730,7 +730,7 @@ class page extends \Gino\Controller {
         $comment->reply = \Gino\cleanVar($_POST, 'form_reply', 'int', '');
         $comment->published = $published;
 
-        $comment->updateDbData();
+        $comment->save();
 
         // send mail to publishers
         if(!$published) {

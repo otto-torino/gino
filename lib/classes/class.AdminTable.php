@@ -452,7 +452,7 @@ class AdminTable {
      * $admin_table->modelAction($item, $options_form, $options_element);
      * @endcode
      *
-     * @see Gino.Model::updateDbData()
+     * @see Gino.Model::save()
      * @see Gino.Field::clean()
      * @param object $model
      * @param array $options
@@ -559,7 +559,7 @@ class AdminTable {
                 $model->{$field_log} = $result;
         }
 
-        $result = $model->updateDbData();
+        $result = $model->save();
 
         // error
         if(is_array($result)) {
@@ -651,7 +651,7 @@ class AdminTable {
                 }
             }
             $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
-            $m2m_model->updateDbData();
+            $m2m_model->save();
             $check_ids[] = $m2m_model->id;
         }
 

@@ -251,7 +251,7 @@ class Template extends Model {
 		}
 		else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 		
-		$this->updateDbData();
+		$this->save();
 		
 		$plink = new Link();
 
@@ -918,7 +918,7 @@ class Template extends Model {
 		}
 		else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 		
-		$this->updateDbData();
+		$this->save();
 
 		//if(($this->id && $modTpl == 1) || !$this->id)
 		if($this->id)

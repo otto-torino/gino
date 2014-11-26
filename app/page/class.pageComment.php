@@ -233,7 +233,7 @@ class PageComment extends \Gino\Model {
 	 *
 	 * @return boolean
 	 */
-	public function updateDbData() {
+	public function save() {
 
 		$db_object = new pageComment($this->_p['id'], $this->_controller);
 
