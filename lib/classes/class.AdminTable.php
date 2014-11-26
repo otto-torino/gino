@@ -1504,8 +1504,8 @@ class AdminTable {
                 $url = preg_replace("#(&|\?)".preg_quote($key)."=[^&]*#", '', $url);
                 $add_url .= '&'.$key.'='.$value;
             }
-            //$url .= strpos('?', $url) === FALSE ? '?' . substr($add_url, 1) : $add_url;
-            $url .= strpos('&', $url) === FALSE ? '&' . substr($add_url, 1) : $add_url;
+            
+            $url .= strpos('?', $url) === FALSE ? '?' . substr($add_url, 1) : $add_url;
         }
 
         return $url;
