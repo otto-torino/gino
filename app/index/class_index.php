@@ -14,7 +14,7 @@
  */
 namespace Gino\App\Index;
 
-use \Gino\HttpResponse;
+use \Gino\Http\Response;
 use \Gino\Document;
 use \Gino\View;
 use \Gino\Loader;
@@ -63,8 +63,8 @@ class index extends \Gino\Controller{
     public function admin_page(\Gino\Http\Request $request){
 
         if(!$request->user->hasPerm('core', 'is_staff')) {
-            $this->_session->auth_redirect = "$this->_home?evt[".$this->_class_name."-admin_page]";
-            $this->_registry->plink->redirect('auth', 'login');
+            $request->session->auth_redirect = $this->link($this->_class_name, 'admin_page');
+            return new \Gino\Http\Redirect($this->link('auth', 'login'));
         }
 
         $buffer = '';

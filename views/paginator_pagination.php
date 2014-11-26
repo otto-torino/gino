@@ -12,11 +12,11 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino\App\News; ?>
+<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
-    <div class="paginator">
-        <div class="left"><?= $navigator ?></div>
-        <div class="right"><ul class="pagination"><li><a><?= $summary ?></a></li></ul></div>
-        <div class="clear"></div>
-    </div>
+<div class="paginator">
+    <div class="left"><?= $navigator ?></div>
+    <div class="right"><ul class="pagination"><li><a><?= $summary ?></a></li></ul></div>
+    <div class="clear"></div>
+</div>
 <? // @endcond ?>

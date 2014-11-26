@@ -856,10 +856,10 @@ class auth extends \Gino\Controller {
 
         $link_interface = $this->_plink->convertLink($link_interface, array('vserver'=>'REQUEST_URI', 'pToLink'=>true, 'basename'=>true));
 
-        $referer = isset($this->_registry->session->auth_redirect)
-            ? $this->_registry->session->auth_redirect
-            : ((isset($_SERVER['HTTP_REFERER']) and $_SERVER['HTTP_REFERER'])
-                ? $_SERVER['HTTP_REFERER']
+        $referer = isset($request->session->auth_redirect)
+            ? $request->session->auth_redirect
+            : ((isset($request->META['HTTP_REFERER']) and $request->META['HTTP_REFERER'])
+                ? $request->META['HTTP_REFERER']
                 : $this->_home);
         $request->session->auth_redirect = $referer;
 

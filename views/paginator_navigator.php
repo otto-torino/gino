@@ -16,7 +16,7 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino\App\News; ?>
+<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <ul class="pagination">
 <?php if($prev): ?>

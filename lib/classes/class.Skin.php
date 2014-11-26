@@ -1,22 +1,27 @@
 <?php
 /**
- * @file class.skin.php
- * @brief Contiene la classe Skin
+ * @file class.Skin.php
+ * @brief Contiene la definizione ed implementazione della classe Skin
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
 namespace Gino;
 
+use Gino\Http\Redirect;
+
 /**
- * @brief Libreria per la gestione delle skin
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Libreria per la gestione delle Skin
+ *
+ * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
+ * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
+ * @see Gino.App.Layout
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-use Gino\Http\Redirect;
 
 class Skin extends Model {
 
@@ -25,10 +30,10 @@ class Skin extends Model {
     private $_home, $_interface;
 
     /**
-     * Costruttore
-     * 
+     * @brief Costruttore
+     *
      * @param integer $id valore ID del record
-     * @return void
+     * @return istanza di Gino.Skin
      */
     function __construct($id) {
 
@@ -41,19 +46,19 @@ class Skin extends Model {
     }
 
     /**
-     * Elenco delle skin in formato object
-     * 
-     * @param string $order per quale campo ordinare i risultati
-     * @return array
+     * @brief Lista oggetti
+     *
+     * @param string $order campo di ordinamento risultati
+     * @return array di oggetti Gino.Skin
      */
-    public static function getAll($order='priority') {
+    public static function getAll($order = 'priority') {
 
-        $db = db::instance();
+        $db = Db::instance();
         $res = array();
         $rows = $db->select('id', self::$_tbl_skin, null, array('order' => $order));
         if($rows and count($rows)) {
             foreach($rows as $row) {
-                $res[] = new skin($row['id']);
+                $res[] = new Skin($row['id']);
             }
         }
 
@@ -61,7 +66,7 @@ class Skin extends Model {
     }
 
     /**
-     * @brief Ricerca la corrispondenza dell'url con una skin
+     * @brief Recupera la skin corrispondente all'url della request
      *
      * @param \Gino\Http\Request $request
      * @return skin trovata oppure FALSE
@@ -69,7 +74,7 @@ class Skin extends Model {
     public static function getSkin(\Gino\Http\Request $request) {
 
         $registry = Registry::instance();
-        $session = $registry->session;
+        $session = $request->session;
 
         $rows = $registry->db->select('id, session, rexp, urls, auth', self::$_tbl_skin, null, array('order' => 'priority ASC'));
         if($rows and count($rows)) {
@@ -133,82 +138,84 @@ class Skin extends Model {
                     }
                 }
             }
-            return false;
+            return FALSE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
-     * Elimina dalla tabella delle skin il riferimento a uno specifico file css
-     * 
+     * @brief Elimina dalla tabella delle skin il riferimento a uno specifico file css
+     *
      * @param integer $id valore ID del css associato alla skin
-     * @return boolean
+     * @return risultato operazione, bool
      */
     public static function removeCss($id) {
 
-        $db = db::instance();
+        $db = Db::instance();
         $res = $db->update(array(
-			'css' => 0
+            'css' => 0
         ), self::$_tbl_skin, "css='$id'");
 
         return $res;
     }
 
     /**
-     * Elimina dalla tabella delle skin il riferimento a uno specifico template
-     * 
+     * @brief Elimina dalla tabella delle skin il riferimento a uno specifico template
+     *
      * @param integer $id valore ID del template associato alla skin
-     * @return boolean
+     * @return risultato operazione, bool
      */
     public static function removeTemplate($id) {
 
-		$db = db::instance();
-		$res = $db->update(array(
-			'template' => 0
-		), self::$_tbl_skin, "template='$id'");
+        $db = Db::instance();
+        $res = $db->update(array(
+            'template' => 0
+        ), self::$_tbl_skin, "template='$id'");
 
         return $res;
     }
 
     /**
-     * Riporta la priorità di una nuova skin
-     * 
-     * @return integer
+     * @brief Priorità di una nuova skin
+     *
+     * @return priorità
      */
     public static function newSkinPriority() {
 
-        $db = db::instance();
-        $query = "SELECT MAX(priority) as m FROM ".self::$_tbl_skin;
-        $a = $db->selectquery($query);
-        if(sizeof($a)>0) {
-            return ($a[0]['m']+1);
+        $db = Db::instance();
+        $rows = $db->select('MAX(priority) as m', self::$_tbl_skin);
+        if($rows and count($rows)) {
+            return ($rows[0]['m'] + 1);
         }
         return 1;
     }
 
-  public function sortUp() {
+    /**
+     * @brief Aumenta di 1 la priorità della skin e scala le altre
+     * @return risultato operazione, bool
+     */
+    public function sortUp() {
 
-    $priority = $this->priority;
-    $before_skins = self::get(array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
-    $before_skin = $before_skins[0];
-    $this->priority = $before_skin->priority;
-    $this->save();
+        $priority = $this->priority;
+        $before_skins = self::get(array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
+        $before_skin = $before_skins[0];
+        $this->priority = $before_skin->priority;
+        $this->save();
 
-    $before_skin->priority = $priority;
-    $before_skin->save();
-  }
+        $before_skin->priority = $priority;
+        $before_skin->save();
+    }
 
     /**
-     * Form per la creazione e la modifica di una skin
-     * 
-     * @return string
+     * @brief Form per la creazione e la modifica di una skin
+     * @return codice html form
      */
     public function formSkin() {
 
         Loader::import('class', array('\Gino\Css', '\Gino\Template'));
-    	
-    	$gform = Loader::load('Form', array('gform', 'post', true));
+
+        $gform = Loader::load('Form', array('gform', 'post', true));
         $gform->load('dataform');
 
         $title = ($this->id)? _("Modifica")." ".htmlChars($this->label):_("Nuova skin");
@@ -224,12 +231,12 @@ class Skin extends Model {
         $css_list = array();
         foreach(Css::getAll() as $css) {
             $css_list[$css->id] = htmlInput($css->label);
-        }    
+        }
         $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
         $tpl_list = array();
         foreach(Template::getAll() as $tpl) {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
-        }    
+        }
         $buffer .= $gform->cselect('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
         $buffer .= $gform->cradio('auth', $gform->retvar('auth', $this->auth), array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), '', array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), array("required"=>true));
         $buffer .= $gform->cinput('cache', 'text', $gform->retvar('cache', $this->cache), array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")), array("size"=>6, "maxlength"=>16, "pattern"=>"^\d*$"));
@@ -250,9 +257,12 @@ class Skin extends Model {
     }
 
     /**
-     * Inserimento e modifica di una skin
+     * @brief Processa il form di inserimento e modifica di una skin
+     * @see self::formSkin()
+     * @param \Gino\Http\Request $request istanza di Gino.Request
+     * @return Gino.Http.Response
      */
-    public function actionSkin($request) {
+    public function actionSkin(\Gino\Http\Request $request) {
 
         $gform = Loader::load('Form', array('gform', 'post', false));
         $gform->save('dataform');
@@ -262,71 +272,72 @@ class Skin extends Model {
 
         $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=skin&id=$this->id&action=$action";
 
-		if($req_error > 0) 
+        if($req_error > 0)
             return error::errorMessage(array('error'=>1), $link_error);
 
-		$this->label = cleanVar($request->POST, 'label', 'string', null);
-		$this->session = cleanVar($request->POST, 'session', 'string', null);
-		$this->rexp = cleanVar($request->POST, 'rexp', 'string', null);
-		$this->urls = cleanVar($request->POST, 'urls', 'string', null);
-		$this->template = cleanVar($request->POST, 'template', 'int', null);
-		$this->css = cleanVar($request->POST, 'css', 'int', null);
-		$this->auth = cleanVar($request->POST, 'auth', 'string', null);
-		$this->cache = cleanVar($request->POST, 'cache', 'int', null);
+        $this->label = cleanVar($request->POST, 'label', 'string', null);
+        $this->session = cleanVar($request->POST, 'session', 'string', null);
+        $this->rexp = cleanVar($request->POST, 'rexp', 'string', null);
+        $this->urls = cleanVar($request->POST, 'urls', 'string', null);
+        $this->template = cleanVar($request->POST, 'template', 'int', null);
+        $this->css = cleanVar($request->POST, 'css', 'int', null);
+        $this->auth = cleanVar($request->POST, 'auth', 'string', null);
+        $this->cache = cleanVar($request->POST, 'cache', 'int', null);
 
         if(!$this->id) $this->priority = skin::newSkinPriority();
         $this->save();
 
-		$plink = new Link();
-		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=skin"));
+        return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'skin')));
     }
 
     /**
-     * Form per l'eliminazione di una skin
-     * 
-     * @return string
+     * @brief Form per l'eliminazione di una skin
+     *
+     * @return codice html form
      */
     public function formDelSkin() {
 
-    $gform = Loader::load('Form', array('gform', 'post', false));
-    $gform->load('dataform');
+        $gform = Loader::load('Form', array('gform', 'post', false));
+        $gform->load('dataform');
 
-    $title = sprintf(_('Elimina skin "%s"'), $this->label);
+        $title = sprintf(_('Elimina skin "%s"'), $this->label);
 
-    $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione è definitiva')."</p>";
-    $required = '';
-    $buffer .= $gform->open($this->_home."?evt[$this->_interface-actionDelSkin]", '', $required);
-    $buffer .= $gform->hidden('id', $this->id);
-    $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
-    $buffer .= $gform->close();
+        $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione è definitiva')."</p>";
+        $required = '';
+        $buffer .= $gform->open($this->_home."?evt[$this->_interface-actionDelSkin]", '', $required);
+        $buffer .= $gform->hidden('id', $this->id);
+        $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        $buffer .= $gform->close();
 
-    $view = new View();
-    $view->setViewTpl('section');
-    $dict = array(
-      'title' => $title,
-      'class' => 'admin',
-      'content' => $buffer
-    );
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+          'title' => $title,
+          'class' => 'admin',
+          'content' => $buffer
+        );
 
-    return $view->render($dict);
-  }
+        return $view->render($dict);
+    }
 
     /**
-     * Eliminazione di una skin
+     * @bief Processa il form di eliminazione di una skin
+     * @see self::formDelSkin()
+     * @param \Gino\Http\Request $request istanza di Gino.Request
+     * @return Gino.Http.Response
      */
-    public function actionDelSkin() {
+    public function actionDelSkin(\Gino\Http\Request $request) {
 
         $this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);
         $this->deleteDbData();
 
-        $plink = new Link();
-		return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=skin"));
+        return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'skin')));
     }
 
     /**
-     * Descrizione della procedura
-     * 
-     * @return string
+     * @brief Descrizione della procedura
+     *
+     * @return informazioni, codice html
      */
     public static function layoutInfo() {
 
@@ -353,5 +364,3 @@ class Skin extends Model {
         return $buffer;
     }
 }
-
-?>
