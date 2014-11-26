@@ -186,10 +186,10 @@ class Locale extends Singleton {
         $db = $registry->db;
 
         Loader::import('language', 'Lang');
-        $dft_lang = new \Gino\App\Language\Lang($registry->sysconf->dft_language);
-
-        $dft_language = $dft_lang->code();
-        $tbl_language = 'language';
+        $rows = $db->select('language_code, country_code', \Gino\App\Language\Lang::$table, "id='".$registry->sysconf->dft_language."'");
+        if($rows and count($rows)) {
+            $dft_language = sprintf('%s_%s', $rows[0]['language_code'], $rows[0]['country_code']);
+        }
 
         /* default */
         if($registry->sysconf->multi_language)

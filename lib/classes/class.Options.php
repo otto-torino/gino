@@ -87,8 +87,8 @@ class Options {
 
         $registry = Registry::instance();
         $this->_return_link = method_exists($this->_class, "manageDoc") 
-            ? $this->_registry->router->link($this->_instance_name, "manageDoc", array(), array('block' => 'options'))
-            : $this->_registry->router->link($this->_instance_name, "manage".ucfirst($class_name), array(), array('block' => 'options'));
+            ? $registry->router->link($this->_instance_name, "manageDoc", array(), array('block' => 'options'))
+            : $registry->router->link($this->_instance_name, "manage".ucfirst($class_name), array(), array('block' => 'options'));
     }
 
     /**
