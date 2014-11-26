@@ -12,7 +12,6 @@ class Lang extends \Gino\Model {
       'language' => _('lingua'),
       'language_code' => _('codice lingua'),
       'country_code' => _('codice stato'),
-      'main' => _('principale'),
       'active' => _('attiva'),
     );
 
@@ -21,19 +20,19 @@ class Lang extends \Gino\Model {
 
   }
 
-  function __toString() {
-    return $this->language;
-  }
+	function __toString() {
+		return $this->language;
+	}
 
-  public function getModelLabel() {
-      return _('lingua');
-  }
+	public function getModelLabel() {
+		return _('lingua');
+	}
 
-  public function code() {
-    return $this->language_code.'_'.$this->country_code;
-  }
+	public function code() {
+		return $this->language_code.'_'.$this->country_code;
+	}
 
-  /*
+  /**
    * Sovrascrive la struttura di default
    * 
    * @see propertyObject::structure()
@@ -43,14 +42,6 @@ class Lang extends \Gino\Model {
   public function structure($id) {
 
     $structure = parent::structure($id);
-
-    $structure['main'] = new \Gino\BooleanField(array(
-      'name'=>'main', 
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array(1 => _('si'), 0 => _('no')), 
-      'default'=>0,
-    ));
 
     $structure['active'] = new \Gino\BooleanField(array(
       'name'=>'active', 
@@ -79,42 +70,45 @@ class Lang extends \Gino\Model {
     return $structure;
   }
 
-	public static function resetMain() {
+	public static function get($options=null) {
 		
+		$where = \Gino\gOpt('where', $options, null);
+		$order = \Gino\gOpt('order', $options, null);
+		
+		$res = array();
+
 		$db = \Gino\db::instance();
-		$result = $db->update(array('main' => '0'), self::$table);
-		return $result;
+		$rows = $db->select('id', self::$table, $where, array('order' => $order));
+		if($rows and count($rows)) {
+			foreach($rows as $row) {
+				$res[] = new Lang($row['id']);
+			}
+		}
+
+		return $res;
 	}
 
-  public static function get($options=null) {
+	/**
+	 * @brief Lingua di default
+	 * 
+	 * La lingua di default viene impostata nelle Impostazioni di sistema (tabella sys_conf)
+	 * 
+	 * @return string (codice della lingua)
+	 */
+	public static function getMainLang() {
+		
+		$db = \Gino\db::instance();
+		\Gino\Loader::import('sysconf', 'Conf');
 
-    $where = \Gino\gOpt('where', $options, null);
-    $order = \Gino\gOpt('order', $options, null);
-
-    $res = array();
-
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, $where, array('order' => $order));
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new Lang($row['id']);
-      }
-    }
-
-    return $res;
-  }
-
-  public static function getMainLang() {
-    $langs = self::get(array(
-      'where' => "main='1'"
-    ));
-    if(count($langs)) {
-      return $langs[0];
-    }
-
-    return null;
-  }
-
+		$dft_lang = $db->getFieldFromId(\Gino\App\Sysconf\Conf::$table, 'dft_language', 'id', 1);
+		
+		$res = $db->select('language_code, country_code', self::$table, "id='$dft_lang'");
+		if($res && count($res))
+		{
+			return $res[0]['language_code'].'_'.$res[0]['country_code'];
+		}
+		else return '';
+	}
 
 	/**
 	 * Codici lingua

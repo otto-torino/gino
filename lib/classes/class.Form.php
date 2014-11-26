@@ -195,8 +195,11 @@ class Form {
      */
     public function load($session_value, $clear = TRUE){
 
-        $this->session->form[$this->_method] = array();
-        if(isset($this->session->$session_value))
+		$this->session->form = array($this->_method=>array());
+		
+		//$this->session->form[$this->_method] = array();	// @todo implementare a partire dalla versione 5.4
+		
+		if(isset($this->session->$session_value))
         {
             if(isset($this->session->GINOERRORMSG) AND !empty($this->session->GINOERRORMSG))
             {

@@ -9,6 +9,9 @@
  */
 namespace Gino\App\Graphics;
 
+use \Gino\View;
+use \Gino\Document;
+
 require_once('class.GraphicsItem.php');
 
 /**
@@ -215,54 +218,58 @@ class graphics extends \Gino\Controller {
 		return $view->render($dict);
 	}
 
-  public function manageGraphics() {
+	public function manageGraphics() {
 
-    $this->requirePerm('can_admin');
+		$this->requirePerm('can_admin');
 
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]\">"._("Gestione")."</a>";
-    $link_views = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]&block=frontend\">"._("Frontend")."</a>";
-    $sel_link = $link_dft;
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]\">"._("Gestione")."</a>";
+		$link_views = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]&block=frontend\">"._("Frontend")."</a>";
+		$sel_link = $link_dft;
 
-    if($this->_block == 'frontend') {
-      $buffer = $this->manageFrontend();
-      $sel_link = $link_views;
-    }
-    else {
-      $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
-      $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
+		if($this->_block == 'frontend') {
+			$backend = $this->manageFrontend();
+			$sel_link = $link_views;
+		}
+		else {
+			$info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+			$info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
 
-      $opts = array(
-        'list_display' => array('id', 'description', 'type', 'image'),
-        'list_description' => $info
-      );
+			$opts = array(
+				'list_display' => array('id', 'description', 'type', 'image'),
+				'list_description' => $info
+			);
 
-      $opts_form = array(
-        'removeFields' => array('name')
-      );
+			$opts_form = array(
+				'removeFields' => array('name')
+			);
 
-      $admin_table = \Gino\Loader::load('AdminTable', array(
-        $this,
-        array(
-          'allow_insertion' => false,
-          'delete_deny' => 'all',
-        )
-      ));
+			$admin_table = \Gino\Loader::load('AdminTable', array(
+				$this,
+				array(
+					'allow_insertion' => false,
+					'delete_deny' => 'all',
+				)
+			));
 
-      $buffer = $admin_table->backoffice('GraphicsItem', $opts, $opts_form);
-    }
+			$backend = $admin_table->backoffice('GraphicsItem', $opts, $opts_form);
+		}
+    
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
-    $dict = array(
-      'title' => _('Header & Footer'),
-      'links' => array($link_views, $link_dft),
-      'selected_link' => $sel_link,
-      'content' => $buffer
-    );
+		$dict = array(
+			'title' => _('Header & Footer'),
+			'links' => array($link_views, $link_dft),
+			'selected_link' => $sel_link,
+			'content' => $backend
+		);
 
-    $view = new \Gino\View();
-    $view->setViewTpl('tab');
+		$view = new View();
+		$view->setViewTpl('tab');
 
-    return $view->render($dict);
-
-  }
+		$document = new Document($view->render($dict));
+        return $document();
+	}
 
 }

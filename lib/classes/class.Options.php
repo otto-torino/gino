@@ -85,9 +85,17 @@ class Options {
         $this->_tbl_options = $this->_class_prefix.'_opt';
 
         $registry = Registry::instance();
-        $this->_return_link = method_exists($this->_class, "manageDoc") 
-            ? $this->_registry->router->link($this->_instance_name, "manageDoc", array(), array('block' => 'options'))
-            : $this->_registry->router->link($this->_instance_name, "manage".ucfirst($class_name), array(), array('block' => 'options'));
+        
+		if(!is_null($registry->router))
+		{
+			$this->_return_link = method_exists($this->_class, "manageDoc")
+			? $registry->router->link($this->_instance_name, "manageDoc", array(), array('block' => 'options'))
+			: $registry->router->link($this->_instance_name, "manage".ucfirst($class_name), array(), array('block' => 'options'));
+		}
+		else 
+		{
+			$this->_return_link = '';
+		}
     }
 
     /**
@@ -113,17 +121,9 @@ class Options {
 
         $registry = registry::instance();
         $request = $registry->request;
-        $trnsl = cleanVar($request->GET, 'trnsl', 'int', '');
-        if($trnsl) {
-            if($request->checkGETKey('save', '1')) {
-
-                $res = $registry->trd->actionTranslation();
-                $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-                return new \Gino\Http\Response($content);
-            }
-            else {
-                return new \Gino\Http\Response($registry->trd->formTranslation());
-            }
+        
+        if($request->checkGETKey('trnsl', '1')) {
+            return $registry->trd->manageTranslation($request);
         }
 
         if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
