@@ -77,7 +77,7 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
 
 		// filter form
 		$tot_ff = count($this->_filter_fields);
-		if($tot_ff) $this->setSessionSearch($model);	
+		if($tot_ff) $this->setSessionSearch($model);
 
 		// managing instance
 		$query_where = array();

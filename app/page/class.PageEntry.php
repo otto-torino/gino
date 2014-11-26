@@ -208,15 +208,13 @@ class PageEntry extends \Gino\Model {
         if($box)
         {
             $method = 'box';
-            $call = 'pt';
         }
         else
         {
             $method = 'view';
-            $call = 'evt';
         }
         
-        $link = "index.php?".$call."[page-$method]&id=$this->id";
+        $link = "index.php?evt[page-$method]&id=$this->id";
 
         return $link;
     }

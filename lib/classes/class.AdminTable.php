@@ -691,7 +691,7 @@ class AdminTable {
         $id = cleanVar($this->_request->REQUEST, 'id', 'int', '');
         $model_class = get_model_app_name_class_ns(get_name_class($this->_controller), $model_class_name);
         $model_obj = new $model_class($id, $this->_controller);
-
+        
         $insert = cleanVar($this->_request->GET, 'insert', 'int', '');
         $edit = cleanVar($this->_request->GET, 'edit', 'int', '');
         $delete = cleanVar($this->_request->GET, 'delete', 'int', '');
@@ -995,7 +995,7 @@ class AdminTable {
         $tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
         $tot_records = $tot_records_result[0]['tot'];
 
-        $paginator = loader::load('Paginator', array($tot_records, $this->_ifp));
+        $paginator = Loader::load('Paginator', array($tot_records, $this->_ifp));
 
         $limit = $export ? null: $paginator->limitQuery();
 
