@@ -995,7 +995,7 @@ class AdminTable {
         $tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
         $tot_records = $tot_records_result[0]['tot'];
 
-        $paginator = loader::load('Paginator', array($tot_records, $this->_ifp));
+        $paginator = Loader::load('Paginator', array($tot_records, $this->_ifp));
 
         $limit = $export ? null: $paginator->limitQuery();
 

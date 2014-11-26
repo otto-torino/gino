@@ -11,6 +11,9 @@
  */
 namespace Gino\App\Page;
 
+use \Gino\View;
+use \Gino\Document;
+
 require_once('class.pageCategory.php');
 require_once('class.PageEntry.php');
 require_once('class.pageComment.php');
@@ -915,12 +918,12 @@ class page extends \Gino\Controller {
      * 
      * @return interfaccia di back office
      */
-    public function managePage() {
+    public function managePage(\Gino\Http\Request $request) {
 
 		\Gino\Loader::import('class', '\Gino\AdminTable');
 		
-		$block = \Gino\cleanVar($_GET, 'block', 'string', '');
-		$action = \Gino\cleanVar($_GET, 'action', 'string', '');
+		$block = \Gino\cleanVar($request->GET, 'block', 'string', '');
+		$action = \Gino\cleanVar($request->GET, 'action', 'string', '');
 
         $this->requirePerm(array('can_admin', 'can_publish', 'can_edit'));
         
@@ -935,44 +938,48 @@ class page extends \Gino\Controller {
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
-            $buffer = $this->manageFrontend();
+            $backend = $this->manageFrontend();
             $sel_link = $link_frontend;
         }
         elseif($block == 'options' && $this->userHasPerm('can_admin')) {
-            $buffer = $this->manageOptions();		
+            $backend = $this->manageOptions();		
             $sel_link = $link_options;
         }
         elseif($block == 'ctg') {
-            $buffer = $this->manageCtg();		
+            $backend = $this->manageCtg();		
             $sel_link = $link_ctg;
         }
         elseif($block == 'comment') {
-            $buffer = $this->manageComment();		
+            $backend = $this->manageComment();		
             $sel_link = $link_comment;
         }
-        else {
-            $buffer = $this->manageEntry();
+		else {
+            $backend = $this->manageEntry($request);
         }
 
-    $links_array = array($link_dft);
-    if($this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
-      $links_array = array_merge(array($link_comment), $links_array);
-    }
-    if($this->_registry->user->hasPerm(get_class($this), array('can_admin'))) {
-      $links_array = array_merge(array($link_frontend, $link_options, $link_ctg), $links_array);
-    }
+		$links_array = array($link_dft);
+		if($this->userHasPerm(array('can_admin', 'can_publish'))) {
+			$links_array = array_merge(array($link_comment), $links_array);
+		}
+		if($this->userHasPerm(array('can_admin'))) {
+			$links_array = array_merge(array($link_frontend, $link_options, $link_ctg), $links_array);
+		}
+		
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
-    $dict = array(
-      'title' => _('Pagine'),
-      'links' => $links_array,
-      'selected_link' => $sel_link,
-      'content' => $buffer
-    );
-
-    $view = new \Gino\View();
-    $view->setViewTpl('tab');
-
-    return $view->render($dict);
+        $view = new View();
+        $view->setViewTpl('tab');
+        $dict = array(
+			'title' => _('Pagine'),
+			'links' => $links_array,
+			'selected_link' => $sel_link,
+			'content' => $backend
+		);
+        
+        $document = new Document($view->render($dict));
+        return $document();
     }
 
     /**
@@ -984,14 +991,13 @@ class page extends \Gino\Controller {
      * Chiamate Ajax: \n
      *   - checkSlug()
      */
-    private function manageEntry() {
+    private function manageEntry($request) {
 
-        $edit = \Gino\cleanVar($_GET, 'edit', 'int', '');
+        $edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
         
-        $registry = \Gino\registry::instance();
-        $registry->addJs($this->_class_www.'/page.js');
+        $this->_registry->addJs($this->_class_www.'/page.js');
 
-        if(!$this->_registry->user->hasPerm(get_class($this), array('can_admin', 'can_publish'))) {
+        if(!$this->userHasPerm(array('can_admin', 'can_publish'))) {
             $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
             $remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
         }
@@ -1001,7 +1007,7 @@ class page extends \Gino\Controller {
         }
 
         // Controllo unicità slug
-        $url = $this->_home."?pt[".$this->_instance_name."-checkSlug]";
+        $url = $this->_home."?evt[".$this->_instance_name."-checkSlug]";
         $div_id = 'check_slug';
         $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
@@ -1108,19 +1114,16 @@ class page extends \Gino\Controller {
     /**
      * Controlla l'unicità del valore dello slug
      * 
-     * @param boolean $string determina il tipo di output
-     *   - @a true, stringa col risultato del controllo di validità dello slug (valore di default)
-     *   - @a false, valore booleano della validità dello slug
-     * @return mixed (boolean or string)
+     * @return string
      * 
      * Parametri POST: \n
      *   - id (integer), valore ID della pagina
      *   - slug (string), valore dello slug
      */
-    public function checkSlug($string=true) {
+    public function checkSlug(\Gino\Http\Request $request) {
         
-        $id = \Gino\cleanVar($_POST, 'id', 'int', '');
-        $slug = \Gino\cleanVar($_POST, 'slug', 'string', '');
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $slug = \Gino\cleanVar($request->POST, 'slug', 'string', '');
         
         if(!$slug)
         {
@@ -1129,19 +1132,14 @@ class page extends \Gino\Controller {
         else
         {
             $where_add = $id ? " AND id!='$id'" : '';
-            $query = "SELECT id FROM ".pageEntry::$tbl_entry." WHERE slug='$slug'".$where_add;
-            $a = $this->_db->selectquery($query);
-            $valid = sizeof($a) > 0 ? false : true;
+            
+            $res = $this->_db->select('id', pageEntry::$tbl_entry, "slug='$slug'".$where_add);
+            $valid = ($res && count($res)) ? false : true;
         }
         
-        if($valid && $string)
-            return _("valido");
-        elseif(!$valid && $string)
-            return _("non valido");
-        else
-            return $valid;
+        $content = $valid ? _("valido") : _("non valido");
         
-        return null;
+        return new \Gino\Http\Response($content);
     }
 
     /**
@@ -1241,7 +1239,7 @@ class page extends \Gino\Controller {
         header("Content-type: text/xml; charset=utf-8");
 
         $function = "feedRSS";
-        $title_site = \Gino\pub::variable('head_title');
+        $title_site = \Gino\htmlChars($this->_db->getFieldFromId(\Gino\App\Sysconf\Conf::$table, 'head_title', 'id', 1));
         $title = $title_site.' - '._('Pagine');
         $description = $this->_db->getFieldFromId(TBL_MODULE, 'description', 'id', $this->_instance);
 

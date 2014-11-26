@@ -105,9 +105,9 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
 		$tot_records_result = $db->select("COUNT(id) as tot", $query_table, implode(' AND ', $query_where));
 		$tot_records = $tot_records_result[0]['tot'];
 
-		$pagelist = \Gino\Loader::load('PageList', array($this->_ifp, $tot_records, 'array'));
+		$paginator = \Gino\Loader::load('Paginator', array($tot_records, $this->_ifp));
 
-		$limit = $export ? null: array($pagelist->start(), $pagelist->rangeNumber);
+		$limit = $export ? null: $paginator->limitQuery();
 
 		$records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
 		if(!$records) $records = array();
@@ -300,8 +300,7 @@ class attachmentItemAdminTable extends \Gino\AdminTable {
 		$this->_view->assign('tot_records', $tot_records);
 		$this->_view->assign('form_filters_title', _("Filtri"));
 		$this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);
-		$this->_view->assign('pnavigation', $pagelist->listReferenceGINO($_SERVER['REQUEST_URI'], false, '', '', '', false, null, null, array('add_no_permalink'=>true)));
-		$this->_view->assign('psummary', $pagelist->reassumedPrint());
+		$this->_view->assign('pagination', $paginator->pagination());
 
 		return $this->_view->render();
 	}

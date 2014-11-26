@@ -220,9 +220,8 @@ class PageComment extends \Gino\Model {
 	public static function deleteFromEntry($controller, $entry_id) {
 
 		$db = \Gino\db::instance();
-		$query = "DELETE FROM ".self::$tbl_comment." WHERE entry='".$entry_id."'";
 		
-		return $db->actionquery($query);
+		return $db->delete(self::$tbl_comment, "entry='".$entry_id."'");
 	}
 
 	/**
@@ -288,6 +287,8 @@ class PageComment extends \Gino\Model {
 
 		$plink = new \Gino\Link();	
 		$link = "http://".$_SERVER['HTTP_HOST'].SITE_WWW.'/'.$plink->aLink($this->_controller->getInstanceName(), 'view', array("id"=>$entry->slug)).'#comment'.$this->id;
+		
+		$email_from_app = \Gino\htmlChars($db->getFieldFromId(\Gino\App\Sysconf\Conf::$table, 'email_from_app', 'id', 1));
 
 		// notify other commentors
 		$rows = $db->select('DISTINCT(email), author, id', self::$tbl_comment, "entry='".$this->entry."' AND published='1' AND notification='1'");
@@ -297,7 +298,7 @@ class PageComment extends \Gino\Model {
 				if($email != $this->email) {
 					$subject = sprintf(_("Notifica nuovo commento alla pagina \"%s\""), $entry->title);
 					$object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $row['author'], $this->author, $link);
-					$from = "From: ".\Gino\Pub::variable('email_from_app');
+					$from = "From: ".$email_from_app;
 
 					\mail($email, $subject, $object, $from);
 				}
@@ -313,7 +314,7 @@ class PageComment extends \Gino\Model {
 			if($author_email) {
 				$subject = sprintf(_("Nuovo commento al post \"%s\""), $entry->title);
 				$object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $author_name, $this->author, $link);
-				$from = "From: ".pub::variable('email_from_app');
+				$from = "From: ".$email_from_app;
 				\mail($author_email, $subject, $object, $from);
 			}
 		}
