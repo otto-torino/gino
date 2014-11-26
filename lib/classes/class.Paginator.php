@@ -34,7 +34,7 @@ class Paginator {
      * @param int $items_number numero totale di item
      * @param $items_for_page numero di items per pagina
      * @param array $kwargs array associativo
-     *              - interval: int, default 5. Numero di pagine da mostrare nella navigazione nell'intorno di quella corrente
+     *              - interval: int, default 2. Numero di pagine da mostrare nella navigazione nell'intorno di quella corrente
      * @return istanza di Gino.Paginator
      */
     function __construct($items_number, $items_for_page, array $kwargs = array()) {
@@ -43,7 +43,7 @@ class Paginator {
         $this->_items_for_page = $items_for_page;
         $this->_pages_number = (int) ceil($items_number / $items_for_page);
 
-        $this->_interval = isset($kwargs['interval']) ? (int) $kwargs['interval'] : 5;
+        $this->_interval = isset($kwargs['interval']) ? (int) $kwargs['interval'] : 2;
 
         $this->setCurrentPage();
 
@@ -103,31 +103,13 @@ class Paginator {
      */
     public function navigator() {
 
-        $pages = array();
-        $pages[] = array(1, $this->urlPage(1));
-        // intervallo inferiore
-        $inf_interval = max($this->_current_page - $this->_interval, 2);
-        if($inf_interval > 2) {
-            $pages[] = '...';
+        $pages = $this->pages();
+        $pages_link = array();
+        foreach($pages as $page) {
+            $pages_link[] = is_int($page) 
+                ? array($page, $this->urlPage($page))
+                : $page;
         }
-        for($i = $inf_interval; $i < $this->_current_page; $i++) {
-            $pages[] = array($i, $this->urlPage($i));
-        }
-        if($this->_current_page !== 1 and $this->_current_page !== $this->_pages_number) {
-            $pages[] = array($this->_current_page, null);
-        }
-        // intervallo superiore
-        $sup_interval = min($this->_current_page + $this->_interval, $this->_pages_number - 1);
-        for($i = $this->_current_page + 1; $i <= $sup_interval; $i++) {
-            $pages[] = array($i, $this->urlPage($i));
-        }
-        if($sup_interval < $this->_pages_number - 1) {
-            $pages[] = '...';
-        }
-        if($this->_pages_number > 1) {
-            $pages[] = array($this->_pages_number, $this->urlPage($this->_pages_number));
-        }
-
         // controllers
         $next = null;
         $prev = null;
@@ -140,10 +122,45 @@ class Paginator {
 
         $view = new \Gino\View(null, 'paginator_navigator');
         return $view->render(array(
-            'pages' => $pages,
+            'pages' => $pages_link,
             'prev' => $prev,
             'next' => $next
         ));
+    }
+
+    /**
+     * @brief Ricava le pagine da mostrare nella navigazione e le mette in un array
+     * @description inserisce anche i 3 punti '...' quando due pagine non sono consecutive
+     * @return array di pagine
+     */
+    public function pages() {
+
+        $pages = array();
+        $pages[] = 1;
+        // intervallo inferiore
+        $inf_interval = max($this->_current_page - $this->_interval, 2);
+        if($inf_interval > 2) {
+            $pages[] = '...';
+        }
+        for($i = $inf_interval; $i < $this->_current_page; $i++) {
+            $pages[] = $i;
+        }
+        if($this->_current_page !== 1 and $this->_current_page !== $this->_pages_number) {
+            $pages[] = $this->_current_page;
+        }
+        // intervallo superiore
+        $sup_interval = min($this->_current_page + $this->_interval, $this->_pages_number - 1);
+        for($i = $this->_current_page + 1; $i <= $sup_interval; $i++) {
+            $pages[] = $i;
+        }
+        if($sup_interval < $this->_pages_number - 1) {
+            $pages[] = '...';
+        }
+        if($this->_pages_number > 1) {
+            $pages[] = $this->_pages_number;
+        }
+
+        return $pages;
     }
 
     /**

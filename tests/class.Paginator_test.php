@@ -83,4 +83,23 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase {
         $summary = $paginator->summary();
         $this->assertEquals('91-98 di 98', $summary, 'summary errato ultima pagina');
     }
+
+    /**
+     * Test metodo pages
+     * Il metdo pages ricava le pagine da mostrare nella navigazione, inserendo i tre puntini '...' tra 
+     * pagine non contigue. Di default l'intorno mostrato della pagina corrente è di 4 pagine, due per lato.
+     */
+    public function test_pages() {
+        // page 1
+        setPage(1);
+        $paginator = new Paginator(98, 10);
+        $pages = $paginator->pages();
+        $this->assertEquals(array('1', '2', '3', '...', '10'), $pages, 'pages errato pagina 1');
+
+        // page 5
+        setPage(5);
+        $paginator = new Paginator(98, 10);
+        $pages = $paginator->pages();
+        $this->assertEquals(array('1', '...', '3', '4', '5', '6', '7', '...', '10'), $pages, 'pages errato pagina 5');
+    }
 }
