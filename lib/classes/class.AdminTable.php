@@ -85,7 +85,7 @@ class AdminTable {
     protected $_registry,
               $_request,
               $_db,
-              $session;
+              $_session;
     protected $_form,
               $_view,
               $_hidden;
@@ -139,7 +139,7 @@ class AdminTable {
         $this->_request = $this->_registry->request;
         $this->_controller = $controller;
         $this->_db = $this->_registry->db;
-        $this->session = $this->_registry->session;
+        $this->_session = $this->_request->session;
 
         $view_folder = gOpt('view_folder', $opts, null);
 
@@ -1193,11 +1193,11 @@ class AdminTable {
 
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
-        
+
         foreach($this->_filter_fields as $fname) {
 
-        	if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
-        		$this->session->{$class_name.'_'.$fname.'_filter'} = null;
+            if(!isset($this->_session->{$class_name.'_'.$fname.'_filter'})) {
+                $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
             }
         }
 
@@ -1205,10 +1205,10 @@ class AdminTable {
 
             foreach($this->_filter_fields as $fname) {
                 if(isset($this->_request->POST[$fname]) && $this->_request->POST[$fname] !== '') {
-                    $this->session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false, "asforminput"=>true));
+                    $this->_session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false, "asforminput"=>true));
                 }
                 else {
-                    $this->session->{$class_name.'_'.$fname.'_filter'} = null;
+                    $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
                 }
             }
         }
@@ -1231,8 +1231,8 @@ class AdminTable {
             {
                 $fname = $array['name'];
 
-                if(!isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
-                    $this->session->{$class_name.'_'.$fname.'_filter'} = null;
+                if(!isset($this->_session->{$class_name.'_'.$fname.'_filter'})) {
+                    $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
                 }
             }
         }
@@ -1246,10 +1246,10 @@ class AdminTable {
                     $fname = $array['name'];
 
                     if(isset($this->_request->POST[$fname]) and $this->_request->POST[$fname] !== '') {
-                        $this->session->{$class_name.'_'.$fname.'_filter'} = $this->clean($fname, $array);
+                        $this->_session->{$class_name.'_'.$fname.'_filter'} = $this->clean($fname, $array);
                     }
                     else {
-                        $this->session->{$class_name.'_'.$fname.'_filter'} = null;
+                        $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
                     }
                 }
             }
@@ -1271,7 +1271,7 @@ class AdminTable {
         $class_name = get_class($model);
 
         foreach($this->_filter_fields as $fname) {
-            if(isset($this->session->{$class_name.'_'.$fname.'_filter'})) {
+            if(isset($this->_session->{$class_name.'_'.$fname.'_filter'})) {
 
                 // Filtri aggiuntivi associati ai campi automatici
                 if(count($this->_filter_join))
@@ -1280,9 +1280,9 @@ class AdminTable {
                     if(!is_null($where_join))
                         $query_where[] = $where_join;
                     else
-                        $query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
+                        $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
                 }
-                else $query_where[] = $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'});
+                else $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
             }
         }
 
@@ -1322,10 +1322,10 @@ class AdminTable {
                 $ff_name = $array['name'];
                 $ff_where_clause = array();
 
-                if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
+                if(isset($this->_session->{$class_name.'_'.$ff_name.'_filter'}))
                 {
                     $ff_data = $array['data'];
-                    $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+                    $ff_value = $this->_session->{$class_name.'_'.$ff_name.'_filter'};
 
                     if(array_key_exists('where_clause', $array))
                     {
@@ -1336,7 +1336,7 @@ class AdminTable {
                     }
                 }
 
-                return $model_structure[$fname]->filterWhereClause($this->session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
+                return $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
             }
         }
 
@@ -1359,9 +1359,9 @@ class AdminTable {
         {
             $ff_name = $array['name'];
 
-            if(isset($this->session->{$class_name.'_'.$ff_name.'_filter'}))
+            if(isset($this->_session->{$class_name.'_'.$ff_name.'_filter'}))
             {
-                $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+                $ff_value = $this->_session->{$class_name.'_'.$ff_name.'_filter'};
             }
             else
             {
@@ -1409,7 +1409,7 @@ class AdminTable {
             if($this->permission($options, $fname))
             {
                 $field = $model_structure[$fname];
-                $field->setValue($this->session->{$class_name.'_'.$fname.'_filter'});
+                $field->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
                 $field_label = $field->getLabel();
                 if(is_array($field_label)) {
                     $field->setLabel($field_label[0]);
@@ -1456,7 +1456,7 @@ class AdminTable {
                 if(($field && $field == $fname))
                 {
                     $ff_name = $array['name'];
-                    $ff_value = $this->session->{$class_name.'_'.$ff_name.'_filter'};
+                    $ff_value = $this->_session->{$class_name.'_'.$ff_name.'_filter'};
                     $ff_label = gOpt('label', $array, '');
                     $ff_data = gOpt('data', $array, array());
                     $ff_default = gOpt('default', $array, '');

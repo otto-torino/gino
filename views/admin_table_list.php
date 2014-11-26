@@ -1,3 +1,28 @@
+<?php
+/**
+* @file admin_table_list.php
+* @brief Template della lista record in area amministrativa
+*
+* Variabili disponibili:
+* - **title**: string, titolo.
+* - **search_icon**: html, icona ricerca
+* - **form_filters_title**: string, titolo form filtri
+* - **form_filters**: html, form filtri
+* - **link_insert**: html, link inserimento nuovo record
+* - **link_export**: html, link esportazione record
+* - **description**: html, testo informativo
+* - **table**: html, tabella con i record ed i bottoni di manipolazione
+* - **tot_records**: int, numero di record
+* - **pagination**: html, paginazione (sommario e navigazione)
+*
+* * @see Gino.Logger
+* @copyright 2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @authors Marco Guidotti guidottim@gmail.com
+* @authors abidibo abidibo@gmail.com
+*/
+?>
+<? namespace Gino; ?>
+<? //@cond no-doxygen ?>
 <section class="admin">
   <header>
     <h1 class="left"><?= $title ?></h1>
@@ -12,12 +37,12 @@
     <?php endif ?>
     <?php if($link_insert || $link_export): ?>
       <div class="right">
-        <? if($link_export): ?>
-			<?= $link_export.' ' ?>
-		<?php endif ?>
-		<? if($link_insert): ?>
-			<?= $link_insert ?>
-		<?php endif ?>
+        <?php if($link_export): ?>
+            <?= $link_export.' ' ?>
+            <?php endif ?>
+            <?php if($link_insert): ?>
+                <?= $link_insert ?>
+            <?php endif ?>
       </div>
     <?php endif ?>
     <div class="null"></div>
@@ -72,3 +97,4 @@
   </script>
   <?php endif ?>
 </section>
+<? // @endcond ?>
