@@ -11,6 +11,8 @@
  */
 namespace Gino\App\Page;
 
+use Gino\Http\Response;
+
 use \Gino\View;
 use \Gino\Document;
 

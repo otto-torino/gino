@@ -42,8 +42,8 @@ class Form {
     private $_input_size, $_input_max;
     private $_prefix_file, $_prefix_thumb;
 
-    private $_tbl_attached_ctg;
-    private $_tbl_attached;
+    private $_tbl_attachment_ctg;
+    private $_tbl_attachment;
 
     private $_extension_denied;
 
@@ -79,8 +79,10 @@ class Form {
         $this->setValidation($validation);    // js:validateForm();
         $this->_trnsl_table = isset($options['trnsl_table'])?$options['trnsl_table']:null;
         $this->_trnsl_id = isset($options['trnsl_id'])?$options['trnsl_id']:null;
-        if(isset($options['verifyToken']) && $options['verifyToken']) 
-            if(!$this->verifyFormToken($formId)) exit(error::syserrorMessage("form", "construct", _("Rilevato attacco CSRF o submit del form dall'esterno ")));
+        if(isset($options['verifyToken']) && $options['verifyToken']) {
+        	if(!$this->verifyFormToken($formId))
+        		throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
+        }
 
         $this->_max_file_size = MAX_FILE_SIZE;
 
@@ -91,15 +93,15 @@ class Form {
         $this->_prefix_file = 'img_';
         $this->_prefix_thumb = 'thumb_';
 
-        $this->_tbl_attached_ctg = "attached_ctg";
-        $this->_tbl_attached = "attached";
+        $this->_tbl_attachment_ctg = "attachment_ctg";
+        $this->_tbl_attachment = "attachment";
 
         $this->_input_field = 'input';
         $this->_textarea_field = 'textarea';
         $this->_fckeditor_field = 'fckeditor';
 
         $this->_extension_denied = array(
-        'php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin'
+        	'php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin'
         );
 
         $this->_ico_calendar_path = SITE_IMG."/ico_calendar.png";
@@ -850,7 +852,7 @@ class Form {
             'width': 1000,
             'overlay': false,
             'maxHeight': 600,
-            'url': '".HOME_FILE."?evt[attached-editorList]'
+            'url': '".HOME_FILE."?evt[attachment-editorList]'
             });
             window.att_win.display();
         }";
@@ -1600,7 +1602,7 @@ class Form {
 
             if($new_file_size > $max_file_size && !$this->option('ftp')) {
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>33), $link_error));
+                return error::errorMessage(array('error'=>33), $link_error);
             }
 
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -1612,13 +1614,13 @@ class Form {
             (($check_type || $check_type == 1) && !in_array($mime, $types_allowed))
             ) {
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>03), $link_error));
+                return error::errorMessage(array('error'=>03), $link_error);
             }
 
             $count = $this->countEqualName($new_file, $old_file, $resize, $prefix_file, $prefix_thumb, $directory);
             if($count > 0) {
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>04), $link_error));
+                return error::errorMessage(array('error'=>04), $link_error);
             }
         }
         else {$new_file = '';$new_file_tmp = '';}
@@ -1633,14 +1635,14 @@ class Form {
             if(is_file($directory.$prefix_file.$old_file)) 
                 if(!@unlink($directory.$prefix_file.$old_file)) {
                     if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                    exit(error::errorMessage(array('error'=>17), $link_error));
+                    return error::errorMessage(array('error'=>17), $link_error);
                 }
 
             if($thumb && !empty($prefix_thumb)) {
                 if(is_file($directory.$prefix_thumb.$old_file))
                     if(!@unlink($directory.$prefix_thumb.$old_file)) {
                         if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                        exit(error::errorMessage(array('error'=>17), $link_error));
+                        return error::errorMessage(array('error'=>17), $link_error);
                     }
             }
         }
@@ -1649,14 +1651,14 @@ class Form {
             if(is_file($directory.$old_file)) 
                 if(!@unlink($directory.$old_file)) {
                     if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                    exit(error::errorMessage(array('error'=>17), $link_error));
+                    return error::errorMessage(array('error'=>17), $link_error);
                 }
         }
 
         if($upload) {
             if(!$this->upload($tmp_file, $new_file, $directory)) {
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>16), $link_error));
+                return error::errorMessage(array('error'=>16), $link_error);
             }
             else $result = TRUE;
         }
@@ -1672,7 +1674,7 @@ class Form {
 
             if(!$this->saveImage($new_file, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height)) {
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>18), $link_error));
+                return error::errorMessage(array('error'=>18), $link_error);
             }
         }
 
@@ -1693,7 +1695,7 @@ class Form {
                     @unlink($directory.$prefix_thumb.$new_file);
                 }
                 if($this->option("errorQuery")) $db->actionquery($this->option("errorQuery"));
-                exit(error::errorMessage(array('error'=>16), $link_error));
+                return error::errorMessage(array('error'=>16), $link_error);
             }
         }
 
