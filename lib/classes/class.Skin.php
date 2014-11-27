@@ -26,7 +26,7 @@ use Gino\Http\Redirect;
 class Skin extends Model {
 
     protected $_tbl_data;
-    private static $table = 'sys_layout_skin';
+    public static $table = 'sys_layout_skin';
     private $_home, $_interface;
 
     /**
@@ -240,7 +240,7 @@ class Skin extends Model {
      * @brief Processa il form di inserimento e modifica di una skin
      * @see self::formSkin()
      * @param \Gino\Http\Request $request istanza di Gino.Request
-     * @return Gino.Http.Response
+     * @return Gino.Http.Redirect
      */
     public function actionSkin(\Gino\Http\Request $request) {
 

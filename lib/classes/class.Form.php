@@ -179,7 +179,7 @@ class Form {
         // There must be a token in the session
         if(!isset($this->session->$index)) return FALSE;
         // There must be a token in the form
-        if(!isset($_POST['token'])) return FALSE;
+        if(!isset($this->_requestVar['token'])) return FALSE;
         // The token must be identical
         if($this->session->$index !== $this->_requestVar['token']) return FALSE;
 
@@ -480,7 +480,7 @@ class Form {
 
         require_once(LIB_DIR.OS.'recaptchalib.php');
         $private_key = pub::getConf("captcha_private");
-        $resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+        $resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $this->_requestVar["recaptcha_challenge_field"], $this->_requestVar["recaptcha_response_field"]);
 
         $captcha = cleanVar($this->_requestVar, 'captcha_input', 'string', '');
         return $resp->is_valid ? TRUE : FALSE;

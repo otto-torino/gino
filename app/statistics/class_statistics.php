@@ -1,11 +1,16 @@
 <?php
 /**
  * @file class_statistics.php
- * @brief Contiene la classe statistics
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe statistics
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @namespace Gino.App.Statistics
+ * @description Namespace dell'applicazione Statistics, che gestisce le statistiche di accesso all'area privata
  */
 namespace Gino\App\Statistics;
 
@@ -18,8 +23,8 @@ require_once('class.LogAccess.php');
 
 /**
  * @brief Statistiche degli accessi all'area privata
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,6 +32,10 @@ class statistics extends \Gino\Controller {
 
     private $_tbl_log_access;
 
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.Statistics.statistics
+     */
     function __construct() {
 
         parent::__construct();
@@ -35,7 +44,8 @@ class statistics extends \Gino\Controller {
 
     /**
      * @brief Interfaccia di visualizzazione delle statistiche
-     * @return interfaccia
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
      */
     public function manageStatistics(\Gino\Http\Request $request) {
 
@@ -43,8 +53,8 @@ class statistics extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-        $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageStatistics]\">"._("Informazioni")."</a>";
-        $link_log_access = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageStatistics]&block=log_access\">"._("Accessi area privata")."</a>";
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $link_log_access = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=log_access'), _('Accessi area privata'));
         $sel_link = $link_dft;
 
         if($block == 'log_access') {
@@ -67,20 +77,20 @@ class statistics extends \Gino\Controller {
             'selected_link' => $sel_link,
             'content' => $backend
         );
-        
+
         $document = new Document($view->render($dict));
         return $document();
     }
 
     /**
-     * @brief Intestazione delle statistiche sugli accessi all'area privata
-     * @return statistiche
+     * @brief Statistiche sugli accessi all'area privata
+     * @return html, statistiche
      */
     private function viewlogAccess() {
 
         Loader::import('auth', 'User');
 
-        $link_export = "<a href=\"$this->_home?evt[$this->_class_name-export]\">".\Gino\icon('export', array('text' => 'esporta log completo', 'scale' => 2))."</a>";
+        $link_export = sprintf('<a href="%s">%s</a>', $this->link($this->_class_name, 'export'), \Gino\icon('export', array('text' => 'esporta log completo', 'scale' => 2)));
 
         $users = \Gino\App\Auth\User::objects(null, array('where' => "active='1'", 'order'=>'lastname, firstname'));
         $view_table = new View(null, 'table');
@@ -119,7 +129,7 @@ class statistics extends \Gino\Controller {
 
     /**
      * @brief Pagina di informazioni
-     * @return contenuto html
+     * @return html, informazioni
      */
     private function info(){
 
@@ -146,10 +156,8 @@ class statistics extends \Gino\Controller {
     }
 
     /**
-     * Esportazione delle statistiche sugli accessi all'area privata
-     * 
-     * @see $_access_admin
-     * @return file
+     * @brief Esportazione delle statistiche sugli accessi all'area privata
+     * @return Gino.Http.ResponseFile
      */
     public function export() {
 
@@ -178,4 +186,3 @@ class statistics extends \Gino\Controller {
         return $export->exportData($filename, 'csv');
     }
 }
-?>

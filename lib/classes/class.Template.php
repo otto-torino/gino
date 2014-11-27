@@ -140,7 +140,7 @@ class Template extends Model {
 
             Loader::import('class', '\Gino\Css');
             $css_list = array();
-            foreach(Css::objects(null, array('order' => 'label')) as $css) {
+            foreach(Css::getAll('label') as $css) {
                 $css_list[$css->id] = htmlInput($css->label);
             }
             $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
@@ -232,21 +232,21 @@ class Template extends Model {
         $tplFilename = cleanVar($request->POST, 'filename', 'string', '');
         if($tplFilename) $this->filename = $tplFilename.".php";
 
-        $action = ($this->id)? "modify" : "insert";
+        $action = ($this->id) ? 'modify' : 'insert';
+        $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template&action=$action&free=1');
 
-        $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&action=$action&free=1";
-
-        if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".php")) 
-            return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
+        if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".php")) {
+            return Error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
+        }
 
         if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
           $code = filter_input(INPUT_POST, 'code');
             if(!fwrite($fp, $code))
-                return error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
+                return Error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
 
             fclose($fp);
         }
-        else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+        else return Error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
 
         $this->save();
 
@@ -972,8 +972,7 @@ class Template extends Model {
             }
         }
 
-        $plink = new Link();
-        return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
+        return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template'));
     }
 
     /**
@@ -1061,7 +1060,7 @@ class Template extends Model {
 
         if($filename) $filename = $filename.'.tpl';
 
-        $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&id=$ref&action=copy";
+        $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template&id=$ref&action=copy');
 
         if($req_error > 0) 
             return error::errorMessage(array('error'=>1), $link_error);
@@ -1102,7 +1101,6 @@ class Template extends Model {
             }
         }
 
-        $plink = new Link();
-        return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
+        return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template'));
     }
 }

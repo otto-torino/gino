@@ -10,7 +10,7 @@
 
 /**
  * @namespace Gino.App.Sysconf
- * @description Namespace dell'applicazione Sysconf
+ * @description Namespace dell'applicazione Sysconf, che gestisce le impostazioni di sistema
  */
 namespace Gino\App\Sysconf;
 
@@ -73,7 +73,7 @@ class sysconf extends \Gino\Controller {
 
         if(isset($request->POST['empty_cache'])) {
             \Gino\deleteFileDir(CACHE_DIR, FALSE);
-            return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+            return new Redirect($this->linkAdmin());
         }
         elseif(isset($request->POST['id'])) {
             $result = $admin_table->modelAction($conf);
@@ -82,7 +82,7 @@ class sysconf extends \Gino\Controller {
                 fwrite($fp, $robots);
                 fclose($fp);
             }
-            return new Redirect($this->_plink->aLink($this->_class_name, 'manageSysconf', null, null, array('permalink' => FALSE)));
+            return new Redirect($this->linkAdmin());
         }
         elseif($request->checkGETKey('trnsl', '1')) {
             return $this->_trd->manageTranslation($request);

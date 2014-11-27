@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use \Gino\Http\Request;
+
 /**
  * @brief Campo di tipo EMAIL
  *

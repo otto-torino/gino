@@ -10,7 +10,7 @@
 
 /**
  * @namespace Gino.App.Language
- * @description Namespace dell'applicazione Language
+ * @description Namespace dell'applicazione Language, che gestisce le lingue installate sul sistema e disponibili per le traduzioni
  */
 namespace Gino\App\Language;
 

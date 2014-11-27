@@ -20,7 +20,7 @@ use Gino\Http\Redirect;
 
 class Css extends Model {
 
-    private static $table = 'sys_layout_css';
+    public static $table = 'sys_layout_css';
     protected $_tbl_data;
     private $_class, $_module, $_name, $_label, $_css_list;
     private $_instance_class;
@@ -69,6 +69,26 @@ class Css extends Model {
             $this->_home = 'index.php';
             $this->_interface = 'layout';
         }
+    }
+
+    /**
+     * @brief Lista oggetti
+     *
+     * @param string $order campo di ordinamento risultati
+     * @return array di oggetti Gino.Css
+     */
+    public static function getAll($order = 'label') {
+
+        $db = Db::instance();
+        $res = array();
+        $rows = $db->select('id', self::$table, '', array('order' => $order));
+        if($rows and count($rows)) {
+            foreach($rows as $row) {
+                $res[] = new Css('layout', array('id'=>$row['id']));
+            }
+        }
+
+        return $res;
     }
 
     /**

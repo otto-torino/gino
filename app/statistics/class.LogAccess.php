@@ -23,7 +23,7 @@ class LogAccess extends \Gino\Model {
 
     /**
      * @brief Costruttore
-     * @return istanza di \Gino\App\Statistics\LogAccess
+     * @return istanza di Gino.App.Statistics.LogAccess
      */
     function __construct($id) {
         $this->_tbl_data = TBL_LOG_ACCESS;
@@ -45,7 +45,7 @@ class LogAccess extends \Gino\Model {
     /**
      * @brief Ultimo accesso di un utente
      * @param int $user_id id utente
-     * @return \Gino\App\Statistics\LogAccess dell'ultimo accesso
+     * @return Gino.App.Statistics.LogAccess dell'ultimo accesso o null
      */
     public static function getLastForUser($user_id) {
 
