@@ -234,7 +234,7 @@ class attachment extends \Gino\Controller {
    * @brief Interfaccia per l'inserimento di allegati all'interno dell'editor CKEDITOR
    * @return lista allegati
    */
-  public function editorList() {
+  public function editorList(\Gino\Http\Request $request) {
 
     $myform = \Gino\Loader::load('Form', array('attachment_list', 'post', false, array('tblLayout'=>false)));
 
@@ -251,7 +251,7 @@ class attachment extends \Gino\Controller {
           'firstVoice' => _('tutte le categorie'),
           'firstValue' => 0
         ))."
-        <span class=\"right link\" onclick=\"$('attachment-list-help').toggleClass('hidden')\">".pub::icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
+        <span class=\"right link\" onclick=\"$('attachment-list-help').toggleClass('hidden')\">".\Gino\icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
       </p>";
 
     $buffer .= "<div id=\"attachment-list-help\" class=\"hidden\">";
@@ -336,7 +336,7 @@ class attachment extends \Gino\Controller {
     $buffer .= "
       </table>";
 
-    return $buffer;
+    return new Response($buffer);
 
   }
 

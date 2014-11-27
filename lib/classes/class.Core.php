@@ -114,8 +114,6 @@ class Core {
         $this->_registry->db = Loader::singleton('\Gino\Db');
         $this->_registry->plink = Loader::load('Link');
         $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
-        
-        //if(!isset($this->_registry->user)) $this->_registry->user = null;
 
         // layout
         $this->_registry->css = array();

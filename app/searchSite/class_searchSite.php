@@ -10,6 +10,8 @@
 namespace Gino\App\SearchSite;
 
 use \Gino\Loader;
+use \Gino\View;
+use \Gino\Document;
 use \Gino\App\SysClass\ModuleApp;
 
 /**
@@ -115,26 +117,32 @@ class searchSite extends \Gino\Controller {
         $sel_link = $link_dft;
         
         if($block == 'frontend') {
-            $GINO = $this->manageFrontend();
+            $backend = $this->manageFrontend();
             $sel_link = $link_frontend;
         }
         elseif($block == 'options') {
-            $GINO = $this->manageOptions();		
+            $backend = $this->manageOptions();		
             $sel_link = $link_options;
         }
         else {
-            $GINO = $this->info();
+            $backend = $this->info();
         }
 
-        $dict = array(
-            'title' => $this->_title,
-            'links' => array($link_frontend, $link_options, $link_dft),
-            'selected_link' => $sel_link,
-            'content' => $GINO
-        );
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
-        $view = new \Gino\View(null, 'tab');
-        return $view->render($dict);
+        $view = new View();
+        $view->setViewTpl('tab');
+        $dict = array(
+			'title' => $this->_title,
+			'links' => array($link_frontend, $link_options, $link_dft),
+			'selected_link' => $sel_link,
+			'content' => $backend
+		);
+        
+        $document = new Document($view->render($dict));
+        return $document();
     }
 
     /**
@@ -151,7 +159,7 @@ class searchSite extends \Gino\Controller {
         $choices = ($this->_sys_mdl || $this->_inst_mdl) ? true : false;
         $check_options = $this->checkOptions();
 
-        $view = new \Gino\View($this->_view_dir, 'form');
+        $view = new View($this->_view_dir, 'form');
         $dict = array(
             'form_action' => $this->_home."?evt[".$this->_class_name."-results]",
             'choices' => $choices,
@@ -278,7 +286,7 @@ class searchSite extends \Gino\Controller {
         }
         else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
 
-        $view = new \Gino\View($this->_view_dir, 'results');
+        $view = new View($this->_view_dir, 'results');
         $dict = array(
             'title' => $title,
             'results_num' => $results_num,
@@ -298,7 +306,7 @@ class searchSite extends \Gino\Controller {
         $buffer .= "<li>"._("nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>")."</li>";
         $buffer .= "</ul>";
 
-        $view = new \Gino\View(null, 'section');
+        $view = new View(null, 'section');
         $dict = array(
             'title' => _("Modulo di ricerca nel sito"),
             'class' => 'admin',

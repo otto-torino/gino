@@ -123,7 +123,7 @@ class AttachmentCtg extends \Gino\Model {
     $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
     if($rows and count($rows)) {
       foreach($rows as $row) {
-        $res[$row['id']] = htmlChars($row['name']);
+        $res[$row['id']] = \Gino\htmlChars($row['name']);
       }
     }
 
