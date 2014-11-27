@@ -145,10 +145,10 @@ class Frontend {
         $code = cleanVar($request->GET, 'code', 'string', '');
 
         if($action == 'modify') {
-            $buffer = $this->formModuleFile($code);
+            $buffer = $this->formModuleFile($code, $request);
         }
         elseif($action == 'save') {
-            $buffer .= $this->actionModuleFile($code);
+            $buffer .= $this->actionModuleFile($code, $request);
         }
         else {
             $buffer = "<p class=\"backoffice-info\">"._('In questa sezione si può decidere l\'aspetto ed il modo di visualizzare le informazioni, modificando direttamente i fogli di stile e le viste utilizzati dal modulo.')."</p>";
@@ -188,7 +188,7 @@ class Frontend {
             $ext = 'php';
             $title = _("Viste");
         }
-
+        
         $num_items = count($items);
         if($num_items) {
             $buffer = "<h2>".$title."</h2>";
@@ -223,18 +223,20 @@ class Frontend {
     /**
      * @brief Form di modifica file
      * @param string $code 'css' o 'view'
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
      * @return codice html form
      */
-    private function formModuleFile($code) {
+    private function formModuleFile($code, $request) {
 
         $registry = registry::instance();
+        
         $registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
         $registry->addCss(CSS_WWW."/codemirror.css");
         $gform = Loader::load('Form', array('gform', 'post', true));
         $gform->load('dataform');
 
-        $key = cleanVar($_GET, 'key', 'int', '');
-
+        $key = cleanVar($request->GET, 'key', 'int', '');
+        
         if($code == 'css')
         {
             $registry->addJs(SITE_JS."/CodeMirror/css.js");
@@ -302,11 +304,12 @@ class Frontend {
     /**
      * @brief Processa il form di modifica di un file
      * @param string $code 'css' o 'view'
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
      * @return Gino.Http.Redirect
      */
-    private function actionModuleFile($code) {
+    private function actionModuleFile($code, $request) {
 
-        $key = cleanVar($_GET, 'key', 'int', '');
+        $key = cleanVar($request->GET, 'key', 'int', '');
 
         if($code == 'css')
         {
