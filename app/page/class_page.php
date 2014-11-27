@@ -918,6 +918,7 @@ class page extends \Gino\Controller {
     /**
      * Interfaccia di amministrazione del modulo 
      * 
+     * @param \Gino\Http\Request $request oggetto Gino.Http.Request
      * @return interfaccia di back office
      */
     public function managePage(\Gino\Http\Request $request) {
@@ -988,6 +989,7 @@ class page extends \Gino\Controller {
      * Interfaccia di amministrazione delle pagine 
      * 
      * @see pageTag::getAllList()
+     * @param \Gino\Http\Request $request oggetto Gino.Http.Request
      * @return interfaccia di back office delle pagine
      * 
      * Chiamate Ajax: \n
