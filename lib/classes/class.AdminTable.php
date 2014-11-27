@@ -894,7 +894,7 @@ class AdminTable {
      *     - @b link_fields (array): campi sui quali impostare un collegamento, nel formato nome_campo=>array('link'=>indirizzo, 'param_id'=>'ref')
      *         - @a link (string), indirizzo del collegamento
      *         - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
-     *         esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_plink->aLink($this->_instanceName, 'view')))
+     *         esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_registry->router->link($this->_instance_name, 'view')))
      *     - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record
      *     - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>\Gino\icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
      *         - @a label (string), nome del bottone

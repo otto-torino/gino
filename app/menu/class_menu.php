@@ -204,7 +204,7 @@ class menu extends \Gino\Controller {
   }
 
   private function pathToSelectedVoice() {
-  
+
     $s = MenuVoice::getSelectedVoice($this->_instance);
     $sVoice = new MenuVoice($s);
     $buffer = $sVoice->url ?"<a href=\"".$this->_plink->linkFromDB($sVoice->url)."\">".\Gino\htmlChars($sVoice->ml('label'))."</a>" : \Gino\htmlChars($sVoice->ml('label'));
@@ -212,7 +212,7 @@ class menu extends \Gino\Controller {
     while($parent!=0) {
       $pVoice = new menuVoice($parent);
       $buffer = ($pVoice->url ? "<a href=\"".$this->_plink->linkFromDB($sVoice->url)."\">".\Gino\htmlChars($pVoice->ml('label'))."</a>" : \Gino\htmlChars($pVoice->ml('label')))." ".$this->_ico_more." ".$buffer;	
-      $parent = $pVoice->parent;	
+      $parent = $pVoice->parent;
     }
     return $buffer;
   }
@@ -290,10 +290,10 @@ class menu extends \Gino\Controller {
 
   private function listMenu($id) {
     
-    $link_insert = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&amp;action=insert\">".$this->_registry->pub->icon('insert', array('scale' => 2, 'text' => _("nuova voce")))."</a>";
+    $link_insert = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&amp;action=insert\">".\Gino\icon('insert', array('scale' => 2, 'text' => _("nuova voce")))."</a>";
 
     $GINO = $this->jsSortLib();
-    $GINO .= '<p>'.sprintf(_('Per modificare l\'ordinamento delle voci di menu trascinare l\'icona %s nella posizione desiderata'), $this->_registry->pub->icon('sort')).'</p>';
+    $GINO .= '<p>'.sprintf(_('Per modificare l\'ordinamento delle voci di menu trascinare l\'icona %s nella posizione desiderata'), \Gino\icon('sort')).'</p>';
     $GINO .= $this->renderMenuAdmin(0);
     
     $view = new \Gino\View(null, 'section');
@@ -324,10 +324,10 @@ class menu extends \Gino\Controller {
       $GINO = "<ul id=\"".($sort ? "sortContainer".$parent : "")."\" class=\"menu-admin list-group\">";
       foreach($rows as $row) {
         $voice = new MenuVoice($row['id']);
-        $link_modify = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}\">".\Gino\pub::icon('modify')."</a>";
-        $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=delete'\">".\Gino\pub::icon('delete')."</a>";
-        $link_subvoice = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=insert&parent={$voice->id}\">".\Gino\pub::icon('insert', array('text' => _("nuova sottovoce")))."</a>";
-        $handle = $sort ? "<span class=\"link sort_handler\">".$this->_registry->pub->icon('sort')."</span> ":"";
+        $link_modify = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}\">".\Gino\icon('modify')."</a>";
+        $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=delete'\">".\Gino\icon('delete')."</a>";
+        $link_subvoice = "<a href=\"$this->_home?evt[$this->_instance_name-manageDoc]&id={$voice->id}&action=insert&parent={$voice->id}\">".\Gino\icon('insert', array('text' => _("nuova sottovoce")))."</a>";
+        $handle = $sort ? "<span class=\"link sort_handler\">".\Gino\icon('sort')."</span> ":"";
         $links = $sort ? array($handle) : array();
         $links[] = $link_subvoice;
         $links[] = $link_modify;
@@ -563,11 +563,11 @@ class menu extends \Gino\Controller {
       $GINO .= $this->printItemsClass($modules_app, $modules);
     }
     elseif(!empty($page)) {
-      $pages = \Gino\App\Page\PageEntry::getAll(array('where' => "title LIKE '%$page%' AND published='1'"));
+      $pages = \Gino\App\Page\PageEntry::objects(null, array('where' => "title LIKE '%$page%' AND published='1'"));
       $GINO .= $this->printItemsPage($pages);
     }
     elseif(!empty($all) && $all=='all') {
-      $pages = \Gino\App\Page\PageEntry::getAll(array('where' => "published='1'"));
+      $pages = \Gino\App\Page\PageEntry::objects(null, array('where' => "published='1'"));
       $GINO .= $this->printItemsPage($pages);
 
       $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1'"));

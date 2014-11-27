@@ -22,7 +22,7 @@ namespace Gino\App\Page;
 class PageEntry extends \Gino\Model {
 
     protected static $_extension_img = array('jpg', 'jpeg', 'png');
-    public static $tbl_entry = 'page_entry';
+    public static $table = 'page_entry';
     
     protected $_main_class;
 
@@ -35,7 +35,7 @@ class PageEntry extends \Gino\Model {
     function __construct($id) {
 
         $this->_controller = new page();
-        $this->_tbl_data = self::$tbl_entry;
+        $this->_tbl_data = self::$table;
         
         $this->_fields_label = array(
             'category_id'=>_("Categoria"), 
@@ -194,7 +194,7 @@ class PageEntry extends \Gino\Model {
         }
         else
         {
-            $rows = $db->select('id', self::$tbl_entry, "slug='$slug'", array('limit'=>array(0, 1)));
+            $rows = $db->select('id', self::$table, "slug='$slug'", array('limit'=>array(0, 1)));
             if(count($rows)) {
                 $res = new pageEntry($rows[0]['id'], $controller);
             }
@@ -221,7 +221,7 @@ class PageEntry extends \Gino\Model {
 
     public function getUrl() {
         
-        return $this->_registry->plink->aLink('page', 'view', array('id'=>$this->slug));
+        return $this->_registry->router->link('page', 'view', array('id'=>$this->slug));
     }
 
     /**
@@ -302,7 +302,7 @@ class PageEntry extends \Gino\Model {
 
         $db = \Gino\db::instance();
         $selection = 'id';
-        $table = self::$tbl_entry;
+        $table = self::$table;
         $where_arr = array();
         if($published) {
             $where_arr[] = "published='1'";
@@ -311,7 +311,7 @@ class PageEntry extends \Gino\Model {
             $where_arr[] = "category_id='$category'";
         }
         if($tag) {
-            $where_arr[] = "id IN (SELECT entry FROM ".self::$tbl_entry_tag." WHERE tag='".$tag."')";
+            $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
         }
         
         $where = implode(' AND ', $where_arr);
@@ -327,31 +327,6 @@ class PageEntry extends \Gino\Model {
             $where = $where_add;
         
         $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
-        if(count($rows)) {
-            foreach($rows as $row) {
-                $res[] = new pageEntry($row['id']);
-            }
-        }
-
-        return $res;
-    }
-
-  /**
-     * Restituisce oggetti di tipo @ref pageEntry 
-     * 
-     * @return array di istanze di tipo pageEntry
-     */
-    public static function getAll($options = null) {
-
-        $res = array();
-
-        $order = \Gino\gOpt('order', $options, 'creation_date');
-        $limit = \Gino\gOpt('limit', $options, null);
-        $where = \Gino\gOpt('where', $options, null);
-        
-        $db = \Gino\db::instance();
-        
-        $rows = $db->select('id', self::$tbl_entry, $where, array('order'=>$order, 'limit'=>$limit));
         if(count($rows)) {
             foreach($rows as $row) {
                 $res[] = new pageEntry($row['id']);
@@ -386,7 +361,7 @@ class PageEntry extends \Gino\Model {
 
         $db = \Gino\db::instance();
         $selection = 'COUNT(id) AS tot';
-        $table = self::$tbl_entry;
+        $table = self::$table;
         $where_arr = array();
         if($published) {
             $where_arr[] = "published='1'";
@@ -395,7 +370,7 @@ class PageEntry extends \Gino\Model {
             $where_arr[] = "category_id='$category'";
         }
         if($tag) {
-            $where_arr[] = "id IN (SELECT entry FROM ".self::$tbl_entry_tag." WHERE tag='".$tag."')";
+            $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
         }
         
         $where = implode(' AND ', $where_arr);

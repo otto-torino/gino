@@ -21,8 +21,8 @@ use Gino\Http\Redirect;
 class Template extends Model {
 
     protected $_tbl_data;
-    private static $_tbl_tpl = 'sys_layout_tpl';
-    private static $_tbl_tpl_block = 'sys_layout_tpl_block';
+    private static $table = 'sys_layout_tpl';
+    private static $table_block = 'sys_layout_tpl_block';
     private $_home, $_interface;
 
     private $_blocks_number, $_blocks_properties;
@@ -37,7 +37,7 @@ class Template extends Model {
      */
     function __construct($id) {
 
-        $this->_tbl_data = self::$_tbl_tpl;
+        $this->_tbl_data = self::$table;
 
         parent::__construct($id);
 
@@ -60,12 +60,12 @@ class Template extends Model {
         $this->_blocks_properties = array();
         if(!$this->id) $this->_blocks_number = 0;
         else {
-            $rows = $this->_db->select("SELECT COUNT(id) as tot", self::$_tbl_tpl_block, "tpl='".$this->id."'");
+            $rows = $this->_db->select("SELECT COUNT(id) as tot", self::$table_block, "tpl='".$this->id."'");
             if($rows and count($rows)) $this->_blocks_number = $rows[0]['tot'];
             else $this->_blocks_number = 0;
         }
 
-        $rows = $this->_db->select('id, position, width, um, align, rows, cols', self::$_tbl_tpl_block, "tpl='".$this->id."'", array('order' => 'position ASC'));
+        $rows = $this->_db->select('id, position, width, um, align, rows, cols', self::$table_block, "tpl='".$this->id."'", array('order' => 'position ASC'));
         if($rows and count($rows)) {
             foreach($rows as $row) {
                 $this->_blocks_properties[$row['position']] = array(
@@ -92,27 +92,6 @@ class Template extends Model {
         $this->_p['filename'] = $value;
 
         return TRUE;
-    }
-
-    /**
-     * @brief Lista di oggetti Gino.Template
-     *
-     * @param string $order campo ordinamento risultati
-     * @return array di oggetti Gino.Template
-     */
-    public static function getAll($order='label') {
-
-        $db = Db::instance();
-        $res = array();
-        $query = "SELECT id, label, filename, description FROM ".self::$_tbl_tpl." ORDER BY $order";
-        $a = $db->selectquery($query);
-        if(sizeof($a)>0) {
-            foreach($a as $b) {
-                $res[] = new template($b['id']);
-            }
-        }
-
-        return $res;
     }
 
     /**
@@ -161,7 +140,7 @@ class Template extends Model {
 
             Loader::import('class', '\Gino\Css');
             $css_list = array();
-            foreach(Css::getAll() as $css) {
+            foreach(Css::objects(null, array('order' => 'label')) as $css) {
                 $css_list[$css->id] = htmlInput($css->label);
             }
             $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
@@ -692,6 +671,12 @@ class Template extends Model {
         return $buffer;
     }
 
+    /**
+     * @brief Creazione template interfaccia interattiva
+     * @param int $blocks_number numero blocchi
+     * @paqram string $template
+     * @return html
+     */
     private function createTemplate($blocks_number, $template='') {
 
         $buffer = '';
@@ -734,6 +719,18 @@ class Template extends Model {
         return $buffer;
     }
 
+    /**
+     * @brief Creazione blocco nell'interfaccia interattiva di gestione template a blocchi
+     * @param int $num numero blocco
+     * @param string $align allineamento (1: sinistra, 2: centrato, 3: destra)
+     * @param int $rows numero righe
+     * @param int $cols numero colonne
+     * @param string $um unita di misura (1: px, 2: %)
+     * @param int $width larghezza
+     * @param int $pos posizione
+     * @param string $template
+     * @return html
+     */
     private function printBlock($num, $align, $rows, $cols, $um, $width, $pos=0, $template='') {
 
         if($align==2) $margin = "margin: auto;";
@@ -749,11 +746,9 @@ class Template extends Model {
         $old = false;
         if($pos && $template)
         {
-            $db = db::instance();
-            $query = "SELECT rows, cols FROM ".self::$_tbl_tpl_block." WHERE tpl='$this->id' AND position='$pos'";
-            $a = $db->selectquery($query);
-            if(sizeof($a)>0)
-                $old = true;
+            $db = Db::instance();
+            $rows = $db->select('rows, cols', self::$table_block, "tpl='".$this->id."' AND position='".$pos."'");
+            if($rows and count($rows)) $old = true;
         }
 
         $buffer = "<div id=\"block_$num\" style=\"$block_style_width$margin\">\n";
@@ -789,23 +784,21 @@ class Template extends Model {
     }
 
     /**
-     * Blocco segnaposto nello schema del template
-     * 
-     * Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
-     * 
+     * @brief Crea una navata nell'interfaccia interattiva di gestione template a blocchi
+     *
      * @param array $matches
      *   - $matches[0] complete matching 
      *   - $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
      *   - $matches[3] match div id, es. nav_1_1
      *   - $matches[4] match div content, es. {module classid=20 func=blockList}
      *   - $matches[5] match close tag, es. </div>
-     * @return string
+     * @return html
      */
     private function renderNave($matches) {
 
-    loader::import('page', 'PageEntry');
-    loader::import('sysClass', 'ModuleApp');
-    loader::import('module', 'ModuleInstance');
+        Loader::import('page', 'PageEntry');
+        Loader::import('sysClass', 'ModuleApp');
+        Loader::import('module', 'ModuleInstance');
 
         $buffer = $matches[1];
         $buffer .= $this->cellCtrl($matches[3]);
@@ -887,6 +880,11 @@ class Template extends Model {
         return $buffer;
     }
 
+    /**
+     * @brief Controlli di una cella nell'interfaccia interattiva di gestione template a blocchi
+     * @param int $id id cella
+     * @return html
+     */
     private function cellCtrl($id) {
 
         $buffer = "<div class=\"navCtrl\">";
@@ -906,9 +904,12 @@ class Template extends Model {
     }
 
     /**
-     * Crea e modifica un template
+     * @brief Processa il form di inserimento/modifica template
+     * @see self::formTemplate()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
      */
-    public function actionTemplate($request) {
+    public function actionTemplate(\Gino\Http\Request $request) {
 
         $tplContent = $request->POST['tplform_text'];
         if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);    // magic_quotes_gpc = On
@@ -922,7 +923,7 @@ class Template extends Model {
 
         $action = ($this->id)? "modify":"insert";
 
-        $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=template&action=$action";
+        $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => $action));
 
         if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".tpl")) 
             return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
@@ -948,7 +949,7 @@ class Template extends Model {
             {
                 foreach($blocks_del AS $key=>$value)
                 {
-                    $this->_db->delete(self::$_tbl_tpl_block, "id='$key'");
+                    $this->_db->delete(self::$table_block, "id='$key'");
                 }
             }
 
@@ -971,11 +972,22 @@ class Template extends Model {
         return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
     }
 
+    /**
+     * @brief Salvataggio di un blocco
+     * @param int $id id blocco
+     * @param int $position posizione
+     * @param int $width larghezza
+     * @param string $um unita di misura (1: px, 2: %)
+     * @param string $align allineamento (1: sinistra, 2: centrato, 3: destra)
+     * @param int $rows numero righe
+     * @param int $cols numero colonne
+     * @return risultato, bool
+     */
     private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
 
         if($id)
         {
-            $cnt = $this->_db->getNumRecords(self::$_tbl_tpl_block, "id='$id' AND position='$position'");
+            $cnt = $this->_db->getNumRecords(self::$table_block, "id='$id' AND position='$position'");
             if($cnt)
             {
                 $res = $this->_db->update(array(
@@ -984,12 +996,12 @@ class Template extends Model {
                 'align' => $align,
                 'rows' => $rows,
                 'cols' => $cols
-                ), self::$_tbl_tpl_block, "id='$id'");
+                ), self::$table_block, "id='$id'");
                 return $res;
             }
             else
             {
-                $this->_db->delete(self::$_tbl_tpl_block, "id='$id'");
+                $this->_db->delete(self::$table_block, "id='$id'");
                 $res = $this->_db->insert(array(
                 'tpl' => $this->id,
                 'position' => $position,
@@ -998,7 +1010,7 @@ class Template extends Model {
                 'align' => $align,
                 'rows' => $rows,
                 'cols' => $cols
-                ), self::$_tbl_tpl_block);
+                ), self::$table_block);
                 return $res;
             }
         }
@@ -1012,20 +1024,27 @@ class Template extends Model {
             'align' => $align,
             'rows' => $rows,
             'cols' => $cols
-            ), self::$_tbl_tpl_block);
+            ), self::$table_block);
             return $res;
         }
     }
 
+    /**
+     * @brief Eliminazione blocchi template
+     * @return risultato operazione, bool
+     */
     private function deleteBlocks() {
 
-        return $this->_db->delete(self::$_tbl_tpl_block, "tpl='".$this->id."'");
+        return $this->_db->delete(self::$table_block, "tpl='".$this->id."'");
     }
 
     /**
-     * Duplica un template
+     * @brief Processa il form di duplicazione template a blocchi
+     * @see self::formCopyTemplate()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
      */
-    public function actionCopyTemplate($request) {
+    public function actionCopyTemplate(\Gino\Http\Request $request) {
 
         $gform = Loader::load('Form', array('gform', 'post', false));
         $gform->save('dataform');
@@ -1054,15 +1073,15 @@ class Template extends Model {
                 return error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
         }
 
-        $db = db::instance();
+        $db = Db::instance();
         $db->insert(array(
             'filename' => $filename,
             'label' => $label,
             'description' => $description
-        ), self::$_tbl_tpl);
-        $id = $db->getlastid(self::$_tbl_tpl);
+        ), self::$table);
+        $id = $db->getlastid(self::$table);
 
-        $rows = $db->select('*', self::$_tbl_tpl_block, "tpl='$ref'");
+        $rows = $db->select('*', self::$table_block, "tpl='$ref'");
         if($rows and count($rows))
         {
             foreach($rows AS $row)
@@ -1075,7 +1094,7 @@ class Template extends Model {
                 'align' => $row['align'],
                 'rows' => $row['rows'],
                 'cols' => $row['cols']
-                ), self::$_tbl_tpl_block);
+                ), self::$table_block);
             }
         }
 
@@ -1083,4 +1102,3 @@ class Template extends Model {
         return new Redirect($plink->aLink($this->_interface, 'manageLayout', "block=template"));
     }
 }
-?>

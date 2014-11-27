@@ -435,7 +435,7 @@ class page extends \Gino\Controller {
     public function getAddPath($id) {
         
         if(!$id)
-            $id = $this->_db->autoIncValue(pageEntry::$tbl_entry);
+            $id = $this->_db->autoIncValue(pageEntry::$table);
         
         $directory = $id.OS;
         
@@ -1135,7 +1135,7 @@ class page extends \Gino\Controller {
         {
             $where_add = $id ? " AND id!='$id'" : '';
             
-            $res = $this->_db->select('id', pageEntry::$tbl_entry, "slug='$slug'".$where_add);
+            $res = $this->_db->select('id', pageEntry::$table, "slug='$slug'".$where_add);
             $valid = ($res && count($res)) ? false : true;
         }
         
@@ -1156,7 +1156,7 @@ class page extends \Gino\Controller {
     public function searchSite() {
         
         return array(
-            "table"=>pageEntry::$tbl_entry, 
+            "table"=>pageEntry::$table, 
             "selected_fields"=>array("id", "slug", "creation_date", array("highlight"=>true, "field"=>"title"), array("highlight"=>true, "field"=>"text")), 
             "required_clauses"=>array("published"=>1), 
             "weight_clauses"=>array("title"=>array("weight"=>5), 'tags'=>array('weight'=>3), "text"=>array("weight"=>1))

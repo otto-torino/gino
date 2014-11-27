@@ -26,7 +26,7 @@ use Gino\Http\Redirect;
 class Skin extends Model {
 
     protected $_tbl_data;
-    private static $_tbl_skin = 'sys_layout_skin';
+    private static $table = 'sys_layout_skin';
     private $_home, $_interface;
 
     /**
@@ -37,32 +37,12 @@ class Skin extends Model {
      */
     function __construct($id) {
 
-        $this->_tbl_data = self::$_tbl_skin;
+        $this->_tbl_data = self::$table;
 
         parent::__construct($id);
 
         $this->_home = 'index.php';
         $this->_interface = 'layout';
-    }
-
-    /**
-     * @brief Lista oggetti
-     *
-     * @param string $order campo di ordinamento risultati
-     * @return array di oggetti Gino.Skin
-     */
-    public static function getAll($order = 'priority') {
-
-        $db = Db::instance();
-        $res = array();
-        $rows = $db->select('id', self::$_tbl_skin, null, array('order' => $order));
-        if($rows and count($rows)) {
-            foreach($rows as $row) {
-                $res[] = new Skin($row['id']);
-            }
-        }
-
-        return $res;
     }
 
     /**
@@ -76,7 +56,7 @@ class Skin extends Model {
         $registry = Registry::instance();
         $session = $request->session;
 
-        $rows = $registry->db->select('id, session, rexp, urls, auth', self::$_tbl_skin, null, array('order' => 'priority ASC'));
+        $rows = $registry->db->select('id, session, rexp, urls, auth', self::$table, null, array('order' => 'priority ASC'));
         if($rows and count($rows)) {
             /**
              * Variabile di sessione -> urls -> rexp
@@ -155,7 +135,7 @@ class Skin extends Model {
         $db = Db::instance();
         $res = $db->update(array(
             'css' => 0
-        ), self::$_tbl_skin, "css='$id'");
+        ), self::$table, "css='$id'");
 
         return $res;
     }
@@ -171,7 +151,7 @@ class Skin extends Model {
         $db = Db::instance();
         $res = $db->update(array(
             'template' => 0
-        ), self::$_tbl_skin, "template='$id'");
+        ), self::$table, "template='$id'");
 
         return $res;
     }
@@ -184,7 +164,7 @@ class Skin extends Model {
     public static function newSkinPriority() {
 
         $db = Db::instance();
-        $rows = $db->select('MAX(priority) as m', self::$_tbl_skin);
+        $rows = $db->select('MAX(priority) as m', self::$table);
         if($rows and count($rows)) {
             return ($rows[0]['m'] + 1);
         }
@@ -229,12 +209,12 @@ class Skin extends Model {
         $buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
         $buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
         $css_list = array();
-        foreach(Css::getAll() as $css) {
+        foreach(Css::objects(null, array('order' => 'label')) as $css) {
             $css_list[$css->id] = htmlInput($css->label);
         }
         $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
         $tpl_list = array();
-        foreach(Template::getAll() as $tpl) {
+        foreach(Template::objects(null, array('order' => 'label')) as $tpl) {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
         }
         $buffer .= $gform->cselect('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));

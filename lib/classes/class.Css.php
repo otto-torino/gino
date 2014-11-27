@@ -20,7 +20,7 @@ use Gino\Http\Redirect;
 
 class Css extends Model {
 
-    private static $_tbl_css = 'sys_layout_css';
+    private static $table = 'sys_layout_css';
     protected $_tbl_data;
     private $_class, $_module, $_name, $_label, $_css_list;
     private $_instance_class;
@@ -63,7 +63,7 @@ class Css extends Model {
         }
         elseif($type=='layout') {
             $id = $params['id'];
-            $this->_tbl_data = self::$_tbl_css;
+            $this->_tbl_data = self::$table;
             parent::__construct($id);
 
             $this->_home = 'index.php';
@@ -95,26 +95,6 @@ class Css extends Model {
     }
 
     /**
-     * @brief Lista oggetti
-     *
-     * @param string $order campo di ordinamento risultati
-     * @return array di oggetti Gino.Css
-     */
-    public static function getAll($order='label') {
-
-        $db = Db::instance();
-        $res = array();
-        $rows = $db->select('id', self::$_tbl_css, null, array('order' => $order));
-        if($rows and count($rows)) {
-            foreach($rows as $row) {
-                $res[] = new Css('layout', array('id'=>$row['id']));
-            }
-        }
-
-        return $res;
-    }
-
-    /**
      * @brief Recupera l'oggetto a partire dal mone del file
      * @return Gino.Css o null se non lo trova
      */
@@ -122,7 +102,7 @@ class Css extends Model {
 
         $db = Db::instance();
         $res = null;
-        $rows = $db->select('id', self::$_tbl_css, "filename='$filename'");
+        $rows = $db->select('id', self::$table, "filename='$filename'");
         if($rows and count($rows)) {
             $res = new Css('layout', array('id'=>$rows[0]['id']));
         }

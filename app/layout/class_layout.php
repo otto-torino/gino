@@ -56,7 +56,6 @@ use \Gino\App\Auth\Permission;
  */
 class layout extends \Gino\Controller {
 
-    private $_tbl_skin, $_tbl_css;
     private $_relativeUrl;
     private $_template;
     private $_css;
@@ -66,9 +65,6 @@ class layout extends \Gino\Controller {
     function __construct() {
 
         parent::__construct();
-
-        $this->_tbl_skin = 'sys_layout_skin';
-        $this->_tbl_css = 'sys_layout_css';
 
         $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
         $this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', 'skin');
@@ -271,7 +267,7 @@ class layout extends \Gino\Controller {
 
         $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=skin&action=insert\">".\Gino\icon('insert', array('text' => _("nuova skin"), 'scale'=>2))."</a>";
 
-        $skin_list = \Gino\Skin::getAll();
+        $skin_list = \Gino\Skin::objects(null, array('order' => 'priority'));
         if(count($skin_list)) {
             $view_table = new View();
             $view_table->setViewTpl('table');
@@ -328,7 +324,7 @@ class layout extends \Gino\Controller {
         $link_insert = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert\">".\Gino\icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2))."</a>";
         $link_insert_free = "<a href=\"$this->_home?evt[$this->_class_name-manageLayout]&block=template&action=insert&free=1\">".\Gino\icon('code', array('text' => _("nuovo template libero"), 'scale'=>2))."</a>";
     
-        $tpl_list = \Gino\Template::getAll();
+        $tpl_list = \Gino\Template::objects(null, array('order' => 'label'));
         if(count($tpl_list)) {
             $view_table = new View();
             $view_table->setViewTpl('table');

@@ -201,6 +201,7 @@ class MenuVoice extends \Gino\Model {
 	 */
 	public static function getSelectedVoice($instance) {
 	
+        $request = \Gino\Http\Request::instance();
 		$db = \Gino\db::instance();
 		$query_string = urldecode($_SERVER['QUERY_STRING']);	// "evt[page-displayItem]&id=5"
 		$result_link = null;
@@ -222,30 +223,12 @@ class MenuVoice extends \Gino\Model {
       }
     }
 
-    /*
-    L'indirizzo di base è nel formato di gino, ovvero ad esempio: 
-    urldecode($_SERVER['QUERY_STRING']) => string(26) "evt[page-displayItem]&id=5" 
-    in quanto l'eventuale permalink è già stato convertito (class Document).
-    Nella tabella del menu i link sono registrati nel formato permalink.
-    */
-    $obj = new \Gino\Link();
-    $plink = $obj->convertLink($query_string);	// => page/displayItem/5
-    $search_link = $obj->alternativeLink($plink);
+    $search_url = $request->path;
     
-    $query = "SELECT id, url FROM ".self::$tbl_voices." WHERE $search_link AND instance='$instance'";
-    $a = $db->selectquery($query);
-    if(sizeof($a)>0) {
-      foreach($a as $b) {
-        
-        $mlink = $b['url'];
-        $mlink = $obj->convertLink($mlink, array('pToLink'=>true));	// => evt[page-displayItem]&id=5
-        
-        if(preg_match("#".preg_quote(stristr($mlink, '?'))."(&.*)?$#", "?".$query_string) 
-        && strlen($result_link)<strlen($mlink))
-        {
-          $result = $b['id'];
-          $result_link = $mlink;
-        }
+    $rows = $db->select('id, url', self::$tbl_voices, "url='".$search_url."' AND instance='".$instance."'");
+    if($rows and count($rows)) {
+      foreach($rows as $row) {
+        // @todo
       }
     }
 		return $result;

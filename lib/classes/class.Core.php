@@ -112,7 +112,6 @@ class Core {
         // core
         $this->_registry->access = Loader::load('Access');
         $this->_registry->db = Loader::singleton('\Gino\Db');
-        $this->_registry->plink = Loader::load('Link');
         $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
 
         // layout
