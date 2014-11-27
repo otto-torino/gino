@@ -1487,28 +1487,11 @@ class AdminTable {
      * @param array $remove_params elenco parametri da rimuovere dal path (Gino.Http.Request::path)
      * @return url ricostruito
      */
-    protected function editUrl($add_params, $remove_params=null) {
+    protected function editUrl($add_params = array(), $remove_params = array()) {
 
-        $request = \Gino\Http\Request::instance();
-        $url = SITE_WWW.$request->path;
+        return $this->_registry->router->transformPathQueryString($add_params, $remove_params);
 
-        if($remove_params) {
-            foreach($remove_params as $key) {
-                $url = preg_replace("#(&|\?)?".preg_quote($key)."=[^&]*#", '', $url);
-            }
-        }
-
-        if($add_params) {
-            $add_url = '';
-            foreach($add_params as $key=>$value) {
-                $url = preg_replace("#(&|\?)".preg_quote($key)."=[^&]*#", '', $url);
-                $add_url .= '&'.$key.'='.$value;
-            }
-            $url .= strpos('?', $url) === FALSE ? '?' . substr($add_url, 1) : $add_url;
-        }
-
-        return $url;
-    }
+     }
 
     /**
      * @brief Ripulisce un input per l'inserimento in database
