@@ -1118,7 +1118,8 @@ class page extends \Gino\Controller {
     /**
      * Controlla l'unicità del valore dello slug
      * 
-     * @return string
+     * @param \Gino\Http\Request $request oggetto Gino.Http.Request
+     * @return \Gino\Http\Response
      * 
      * Parametri POST: \n
      *   - id (integer), valore ID della pagina

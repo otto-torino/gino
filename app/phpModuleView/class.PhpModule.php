@@ -9,6 +9,8 @@
  */
 namespace Gino\App\PhpModuleView;
 
+use \Gino\Http\Redirect;
+
 /**
  * @brief Fornisce gli strumenti alla classe phpModuleView per la gestione amministrativa
  * 
@@ -41,15 +43,18 @@ class PhpModule extends \Gino\Model {
 		$this->_interface = $interface;
 	}
 	
-	// Ricostruisce la struttura
+	/**
+	 * @see Gino.Model::structure()
+	 * 
+	 * Ricostruisce la struttura
+	 */
 	public function structure($id) {
 	
 		parent::structure(null);
 		if($id)
 		{
-			$query = "SELECT * FROM ".$this->_tbl_data." WHERE instance='$id'";
-			$a = $this->_db->selectquery($query);
-			if(sizeof($a)>0) $this->_p = $a[0];
+			$res = $this->_db->select('*', $this->_tbl_data, "instance='$id'");
+			if($res && count($res)) $this->_p = $res[0];
 		}
 		else $this->_p = array('id'=>null, 'instance'=>null, 'content'=>null);
 	}
@@ -121,25 +126,27 @@ class PhpModule extends \Gino\Model {
 
 	/**
 	 * Inserimento e modifica del codice php
+	 * 
+	 * @param \Gino\Http\Request $request oggetto Gino.Http.Request
+	 * @return \Gino\Http\Redirect
 	 */
-	public function actionPhpModule() {
+	public function actionPhpModule($request) {
 		
 		$gform = \Gino\Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
 		$gform->save('dataform');
 		$req_error = $gform->arequired();
 
-		$content = $this->_db->escapeString(htmlspecialchars_decode($_POST['content']));
+		$content = $this->_db->escapeString(htmlspecialchars_decode($request->POST['content']));
 		
 		$link_error = $this->_home."?evt[$this->_interface-manageDoc]&action=modify";
 
 		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
+			return error::errorMessage(array('error'=>1), $link_error);
 
 		$this->content = $content;
 		$this->save();
-
-		header("Location: $this->_home?evt[$this->_interface-manageDoc]");
-		exit();
+		
+		return new Redirect($this->_registry->router->link($this->_interface, 'manageDoc'));
 	}
 }
 ?>

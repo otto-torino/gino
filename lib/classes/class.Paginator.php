@@ -76,6 +76,8 @@ class Paginator {
         $inf = ($this->_current_page - 1) * $this->_items_for_page;
         $sup = min($inf + $this->_items_for_page, $this->_items_number);
 
+        $inf = $sup == 0 ? -1 : $inf;
+        
         return array($inf + 1, $sup);
     }
 
@@ -94,7 +96,8 @@ class Paginator {
      */
     public function summary() {
         $limit = $this->limit();
-        return sprintf("%s-%s di %s", $limit[0], $limit[1], $this->_items_number);
+        
+       	return sprintf("%s-%s di %s", $limit[0], $limit[1], $this->_items_number);
     }
 
     /**

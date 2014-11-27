@@ -9,6 +9,9 @@
  */
 namespace Gino\App\PhpModuleView;
 
+use \Gino\View;
+use \Gino\Document;
+
 // Include il file class.PhpModule.php
 require_once('class.PhpModule.php');
 
@@ -40,10 +43,6 @@ class phpModuleView extends \Gino\Controller {
   
   private $_options;
   public $_optionsLabels;
-  
-  private $_group_1;
-  
-  private $_action, $_block;
 
   function __construct($mdlId){
 
@@ -62,9 +61,6 @@ class phpModuleView extends \Gino\Controller {
     "title"=>_("Titolo"),
     "title_vis"=>_("Titolo visibile")
     );
-
-    $this->_action = \Gino\cleanVar($_REQUEST, 'action', 'string', '');
-    $this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
 
     $this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
   }
@@ -103,14 +99,12 @@ class phpModuleView extends \Gino\Controller {
     $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
     $this->_trd->deleteTranslations($this->_tbl_opt, $opt_id);
     
-    $query = "DELETE FROM ".$this->_tbl_opt." WHERE instance='$this->_instance'";	
-    $result = $this->_db->actionquery($query);
+    $result = $this->_db->delete($this->_tbl_opt, "instance='$this->_instance'");
 
     /*
      * delete group users association
      */
-    $query = "DELETE FROM ".$this->_tbl_usr." WHERE instance='$this->_instance'";	
-    $result = $this->_db->actionquery($query);
+    $result = $this->_db->delete($this->_tbl_usr, "instance='$this->_instance'");
 
     $classElements = $this->getClassElements();
     foreach($classElements['css'] as $css) {
@@ -123,11 +117,11 @@ class phpModuleView extends \Gino\Controller {
     return $result;
   }
 
-  public function permissions() {
-    return array(
-      'can_admin' => 'amministrazione completa modulo'
-    );
-  }
+	public function permissions() {
+		return array(
+			'can_admin' => 'amministrazione completa modulo'
+		);
+	}
   
   /**
    * Elenco dei metodi che possono essere richiamati dal menu e dal template
@@ -146,7 +140,6 @@ class phpModuleView extends \Gino\Controller {
   /**
    * Visualizzazione del modulo
    * 
-   * @see $_access_base
    * @return string
    */
   public function viewList() {
@@ -166,7 +159,7 @@ class phpModuleView extends \Gino\Controller {
     }
     else eval($phpMdl->content);
 
-    $view = new \Gino\View();
+    $view = new View();
     $view->setViewTpl('section');
     $view->assign('id', 'phpModuleView_'.$this->_instance_name);
     $view->assign('class', 'public');
@@ -180,56 +173,65 @@ class phpModuleView extends \Gino\Controller {
   /**
    * Interfaccia amministrativa per la gestione dei moduli di classe 'phpModuleView'
    * 
+   * @param \Gino\Http\Request $request oggetto Gino.Http.Request
    * @return string
    */
-  public function manageDoc() {
+	public function manageDoc(\Gino\Http\Request $request) {
 
-    $this->requirePerm('can_admin');
+		$this->requirePerm('can_admin');
 
-    $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+		$phpMdl = new PhpModule($this->_instance, $this->_instance_name);
 
-    $link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
-    $link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
-    $link_edit = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]&amp;action=modify\">"._("Contenuto")."</a>";
-    $link_info = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Informazioni")."</a>";
-    $sel_link = $link_info;
-    
-    $links_array = array($link_frontend, $link_options, $link_edit, $link_info);
+		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
+		$link_edit = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]&amp;action=modify\">"._("Contenuto")."</a>";
+		$link_info = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Informazioni")."</a>";
+		$sel_link = $link_info;
 
-    if($this->_block == 'frontend') {
-      $GINO = $this->manageFrontend();
-      $sel_link = $link_frontend;
-    }
-    elseif($this->_block == 'options') {
-      $GINO = $this->manageOptions();		
-      $sel_link = $link_options;
-    }
-    else {
+		$links_array = array($link_frontend, $link_options, $link_edit, $link_info);
 
-      if($this->_action == 'save') {
-        $phpMdl->actionPhpModule();
-        exit;
-      }
-      if($this->_action == 'modify') {
-        $sel_link = $link_edit;
-        $form = $phpMdl->formPhpModule();
-      }
-      else
-        $form = $this->info();
+		$block = \Gino\cleanVar($request->GET, 'block', 'string', '');
+		$action = \Gino\cleanVar($request->GET, 'action', 'string', '');
+	
+		if($block == 'frontend') {
+			$backend = $this->manageFrontend();
+			$sel_link = $link_frontend;
+		}
+		elseif($block == 'options') {
+			$backend = $this->manageOptions();		
+			$sel_link = $link_options;
+		}
+		else {
 
-      $GINO = $form;
-    }
+			if($action == 'save') {
+				return $phpMdl->actionPhpModule($request);
+			}
+			
+			if($action == 'modify') {
+				$sel_link = $link_edit;
+				$backend = $phpMdl->formPhpModule();
+			}
+			else {
+				$backend = $this->info();
+			}
+		}
 
-    $dict = array(
-      'title' => $this->_instance_label,
-      'links' => $links_array,
-      'selected_link' => $sel_link,
-      'content' => $GINO
-    );
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
 
-    $view = new \Gino\View(null, 'tab');
-    return $view->render($dict);
-  }
+        $view = new View();
+        $view->setViewTpl('tab');
+        $dict = array(
+			'title' => $this->_instance_label,
+			'links' => $links_array,
+			'selected_link' => $sel_link,
+			'content' => $backend
+		);
+        
+        $document = new Document($view->render($dict));
+        return $document();
+	}
 
   private function info(){
 
@@ -237,7 +239,7 @@ class phpModuleView extends \Gino\Controller {
     $buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
     $buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
     
-    $view =   new \Gino\View(null, 'section');
+    $view =   new View(null, 'section');
     $dict = array(
       'title' => _('Informazioni'),
       'class' => 'admin',
