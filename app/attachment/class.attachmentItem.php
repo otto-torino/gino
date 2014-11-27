@@ -124,7 +124,7 @@ class AttachmentItem extends \Gino\Model {
       'foreign_controller'=>$this->_controller,
       'foreign_order'=>'name',
       'add_related' => true,
-      'add_related_url' => $this->_home.'?evt['.\get_class($this->_controller).'-manageAttachment]&block=ctg&insert=1',
+      'add_related_url' => $this->_controller->linkAdmin(array(), "block=ctg&insert=1")
     ));
 
     $structure['insertion_date'] = new \Gino\DatetimeField(array(

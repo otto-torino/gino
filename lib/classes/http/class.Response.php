@@ -73,6 +73,15 @@ class Response {
     public function setContent($content) {
         $this->_content = $content;
     }
+    
+	/**
+     * @bief Getter del contenuto
+     * @param string $content contenuto della risposta http
+     * @return void
+     */
+    public function getContent() {
+        return $this->_content;
+    }
 
     /**
      * @brief Setter dello status della risposta

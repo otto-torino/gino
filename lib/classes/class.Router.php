@@ -290,7 +290,7 @@ class Router extends Singleton {
             }
         }
 
-        return $url;
+        return SITE_WWW.$url;
     }
 
 }
