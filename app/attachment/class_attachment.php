@@ -265,11 +265,12 @@ class attachment extends \Gino\Controller {
       </dl>
     ";
     $buffer .= "</div>";
+    
+    $content = $this->editorAttachmentList($request);
 
-    $buffer .= "<div id=\"attachment_table\">".$this->editorAttachmentList()."</div>";
+    $buffer .= "<div id=\"attachment_table\">".$content->getContent()."</div>";
 
-    return $buffer;
-
+    return new Response($buffer);
   }
 
   /**

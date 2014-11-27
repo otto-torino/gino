@@ -92,7 +92,7 @@ class PageEntry extends \Gino\Model {
             'foreign'=>'\Gino\App\Page\pageCategory', 
             'foreign_order'=>'name ASC',
             'add_related' => true,
-            'add_related_url' => $this->_home.'?evt['.get_class($this->_controller).'-managePage]&block=ctg&insert=1',
+            'add_related_url' => $this->_controller->linkAdmin(array(), "block=ctg&insert=1")
         ));
         
         $structure['published'] = new \Gino\BooleanField(array(
