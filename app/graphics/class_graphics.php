@@ -30,7 +30,6 @@ class graphics extends \Gino\Controller {
 
 	private $_title;
 	private $_tbl_graphics;
-	private $_block;
 	
 	function __construct(){
 		
@@ -38,8 +37,6 @@ class graphics extends \Gino\Controller {
 
 		$this->_title = _("Layout - header/footer");
 		$this->_tbl_graphics = 'sys_graphics';
-		
-		$this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
 	}
 
   public static function getClassElements() {
@@ -218,15 +215,17 @@ class graphics extends \Gino\Controller {
 		return $view->render($dict);
 	}
 
-	public function manageGraphics() {
+	public function manageGraphics(\Gino\Http\Request $request) {
 
 		$this->requirePerm('can_admin');
 
 		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]\">"._("Gestione")."</a>";
 		$link_views = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageGraphics]&block=frontend\">"._("Frontend")."</a>";
 		$sel_link = $link_dft;
+		
+		$block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-		if($this->_block == 'frontend') {
+		if($block == 'frontend') {
 			$backend = $this->manageFrontend();
 			$sel_link = $link_views;
 		}

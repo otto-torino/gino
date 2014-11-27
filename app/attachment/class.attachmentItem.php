@@ -226,8 +226,8 @@ class AttachmentItem extends \Gino\Model {
 	public function path($type) {
 
 		if($type == 'download') {
-			$link = new \Gino\Link();
-			return $link->aLink(get_name_class(get_class($this->_controller)), 'downloader', array('id'=>$this->id));
+			
+			return $this->_registry->router->link($this->_controller, 'downloader', array('id'=>$this->id));
 		}
 		else {
 			
