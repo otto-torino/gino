@@ -9,6 +9,13 @@
  */
 namespace Gino\App\Menu;
 
+use \Gino\View;
+use \Gino\Document;
+use \Gino\Http\Response;
+use \Gino\Http\Redirect;
+use \Gino\App\SysClass\ModuleApp;
+use \Gino\App\Module\ModuleInstance;
+
 // Include il file class_menuVoice.php
 require_once('class.MenuVoice.php');
 
@@ -30,8 +37,6 @@ class menu extends \Gino\Controller {
   private $_title;
   private $_cache;
   private $_ico_more;
-
-  private $_block;
 
   function __construct($instance) {
 
@@ -55,8 +60,6 @@ class menu extends \Gino\Controller {
     $this->_action = (isset($_POST['action']) || isset($_GET['action'])) ? $_REQUEST['action'] : null;
 
     $this->_ico_more = " / ";
-
-    $this->_block = \Gino\cleanVar($_REQUEST, 'block', 'string', '');
   }
   
   /**
@@ -94,10 +97,9 @@ class menu extends \Gino\Controller {
     $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
     \Gino\App\Language\Language::deleteTranslations($this->_tbl_opt, $opt_id);
     
-    $query = "DELETE FROM ".$this->_tbl_opt." WHERE instance='$this->_instance'";	
-    $result = $this->_db->actionquery($query);
+    $res = $this->_db->delete($this->_tbl_opt, "instance='$this->_instance'");
 
-    return $result;
+    return $res;
   }
 
   /**
@@ -133,7 +135,7 @@ class menu extends \Gino\Controller {
       if($cache->start($this->_instance_name, "view".$sel_voice.$session->lng, $this->_cache)) {
 
       $tree = $this->getTree();
-      $view = new \Gino\View($this->_view_dir);
+      $view = new View($this->_view_dir);
       $view->setViewTpl('render_'.$this->_instance_name);
       $dict = array(
         'instance_name' => $this->_instance_name,
@@ -189,7 +191,7 @@ class menu extends \Gino\Controller {
       $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
       $buffer = $this->pathToSelectedVoice();
 
-      $view = new \Gino\View(null, 'section');
+      $view = new View(null, 'section');
       $dict = array(
         'id' => "menu-breadcrumbs-".$this->_instance_name,
         'content' => $buffer
@@ -207,86 +209,88 @@ class menu extends \Gino\Controller {
 
     $s = MenuVoice::getSelectedVoice($this->_instance);
     $sVoice = new MenuVoice($s);
-    $buffer = $sVoice->url ?"<a href=\"".$this->_plink->linkFromDB($sVoice->url)."\">".\Gino\htmlChars($sVoice->ml('label'))."</a>" : \Gino\htmlChars($sVoice->ml('label'));
+    $buffer = $sVoice->url ?"<a href=\"".$sVoice->url."\">".\Gino\htmlChars($sVoice->ml('label'))."</a>" : \Gino\htmlChars($sVoice->ml('label'));
     $parent = $sVoice->parent;
     while($parent!=0) {
       $pVoice = new menuVoice($parent);
-      $buffer = ($pVoice->url ? "<a href=\"".$this->_plink->linkFromDB($sVoice->url)."\">".\Gino\htmlChars($pVoice->ml('label'))."</a>" : \Gino\htmlChars($pVoice->ml('label')))." ".$this->_ico_more." ".$buffer;	
+      $buffer = ($pVoice->url ? "<a href=\"".$sVoice->url."\">".\Gino\htmlChars($pVoice->ml('label'))."</a>" : \Gino\htmlChars($pVoice->ml('label')))." ".$this->_ico_more." ".$buffer;	
       $parent = $pVoice->parent;
     }
     return $buffer;
   }
 
-  /**
-   * Interfaccia amministrativa per la gestione del menu
-   * 
-   * @return string
-   */
-  public function manageDoc() {
+	/**
+	 * Interfaccia amministrativa per la gestione del menu
+	 * 
+	 * @return string
+	 */
+	public function manageDoc(\Gino\Http\Request $request) {
+		
+		$this->requirePerm(array('can_admin', 'can_edit'));
+		
+		$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
+
+		$link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=permissions\">"._("Permessi")."</a>";
+		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
+		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
+		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Gestione")."</a>";
+		$sel_link = $link_dft;
+
+		$block = \Gino\cleanVar($request->GET, 'block', 'string', '');
     
-    $this->requirePerm(array('can_admin', 'can_edit'));
+		if($block == 'frontend') {
+			$backend = $this->manageFrontend();		
+			$sel_link = $link_frontend;
+		}
+		elseif($block == 'options' && $this->userHasPerm('can_admin')) {
+			$backend = $this->manageOptions();
+			$sel_link = $link_options;
+		}
+		else {
 
-	$this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
+			$id = \Gino\cleanVar($request->GET, 'id', 'int', '');
+			$parent = \Gino\cleanVar($request->GET, 'parent', 'int', '');
+			$voice = ($parent)?null:$id;
+			$menuVoice = new MenuVoice($voice);
 
-    $link_admin = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=permissions\">"._("Permessi")."</a>";
-    $link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
-    $link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
-    $link_dft = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Gestione")."</a>";
-    $sel_link = $link_dft;
+			if($this->_action == 'delete') {
+				return $this->actionDelMenuVoice($request);
+			}
+			elseif($request->checkGETKey('trnsl', '1')) {
+				return $this->_trd->manageTranslation($request);
+			}
+			elseif($this->_action == 'insert') {
+				$backend = $this->formMenuVoice($menuVoice, $parent);
+			}
+			elseif($voice) {
+				$backend = $this->formMenuVoice($menuVoice, $menuVoice->parent);
+			}
+			else {
+				$backend = $this->listMenu($id);
+			}
+		}
     
-    if($this->_block == 'frontend') {
-      $GINO = $this->manageFrontend();		
-      $sel_link = $link_frontend;
-    }
-    elseif($this->_block == 'options') {
-      $GINO = $this->manageOptions();
-      $sel_link = $link_options;
-    }
-    else {
-
-      $id = \Gino\cleanVar($_GET, 'id', 'int', '');
-      $parent = \Gino\cleanVar($_GET, 'parent', 'int', '');
-      $voice = ($parent)?null:$id;
-      $menuVoice = new MenuVoice($voice);
-
-      if($this->_action == 'delete') {
-        $this->actionDelMenuVoice();
-        exit();
-      }
-      elseif(isset($_GET['trnsl']) and $_GET['trnsl'] == '1') {
-        if(isset($_GET['save']) and $_GET['save'] == '1') {
-          $this->_trd->actionTranslation();
-        }
-        else {
-          $this->_trd->formTranslation();
-        }
-      }
-      elseif($this->_action == 'insert') {
-        $GINO = $this->formMenuVoice($menuVoice, $parent);
-      }
-      elseif($voice) {
-        $GINO = $this->formMenuVoice($menuVoice, $menuVoice->parent);
-      }
-      else {
-        $GINO = $this->listMenu($id);
-      }
-    }
+		if(is_a($backend, '\Gino\Http\Response')) {
+			return $backend;
+		}
       
-    if($this->userHasPerm('can_admin'))
-      $links_array = array($link_frontend, $link_options, $link_dft);
-    else
-      $links_array = array($link_options, $link_dft);
+		if($this->userHasPerm('can_admin'))
+			$links_array = array($link_frontend, $link_options, $link_dft);
+		else
+			$links_array = array($link_dft);
 
-    $dict = array(
-      'title' => $this->_title,
-      'links' => $links_array,
-      'selected_link' => $sel_link,
-      'content' => $GINO
-    );
-
-    $view = new \Gino\View(null, 'tab');
-    return $view->render($dict);
-  }
+		$view = new View();
+        $view->setViewTpl('tab');
+		$dict = array(
+			'title' => $this->_title,
+			'links' => $links_array,
+			'selected_link' => $sel_link,
+			'content' => $backend
+		);
+		
+		$document = new Document($view->render($dict));
+        return $document();
+	}
 
   private function listMenu($id) {
     
@@ -296,7 +300,7 @@ class menu extends \Gino\Controller {
     $GINO .= '<p>'.sprintf(_('Per modificare l\'ordinamento delle voci di menu trascinare l\'icona %s nella posizione desiderata'), \Gino\icon('sort')).'</p>';
     $GINO .= $this->renderMenuAdmin(0);
     
-    $view = new \Gino\View(null, 'section');
+    $view = new View(null, 'section');
     $dict = array(
       'title' => _('Menu'),
       'header_links' => $link_insert,
@@ -341,38 +345,51 @@ class menu extends \Gino\Controller {
     return $GINO;
   }
 
-  /**
-   * Aggiorna l'ordinamento delle voci di menu
-   * 
-   */
-  public function actionUpdateOrder() {
-  
-    $this->requirePerm(array('can_admin', 'can_edit'));
+	/**
+	 * Aggiorna l'ordinamento delle voci di menu
+	 * 
+	 * @param \Gino\Http\Request $request oggetto Gino.Http.Request
+	 * @return \Gino\Http\Response
+	 */
+	public function actionUpdateOrder(\Gino\Http\Request $request) {
 
-    $order = \Gino\cleanVar($_POST, 'order', 'string', '');
-    $items = explode(",", $order);
-    $i=1;
-    foreach($items as $item) {
-      $voice = new menuVoice($item);
-      $voice->order_list = $i;
-      $voice->save();
-      $i++;
-    }
-  }
+		$this->requirePerm(array('can_admin', 'can_edit'));
+		
+		$res = true;
 
-  private function formMenuVoice($voice, $parent) {
-    
-    $buffer =  $voice->formVoice($this->_home."?evt[$this->_instance_name-actionMenuVoice]", $parent);
-    $buffer .=  $this->searchModules();
+		$order = \Gino\cleanVar($request->POST, 'order', 'string', '');
+		$items = explode(",", $order);
+		$i=1;
+		foreach($items as $item) {
+			$voice = new menuVoice($item);
+			$voice->order_list = $i;
+			if(!$voice->save()) $res = false;
+			
+			$i++;
+		}
+		
+		$content = $res ? _("Odrinamento effettuato con successo") : _("Ordinamento non effettuato");
+		
+		return new Response($content);
+	}
 
-    return $buffer;
-  }
+	private function formMenuVoice($voice, $parent) {
+		
+		$buffer =  $voice->formVoice($this->_home."?evt[$this->_instance_name-actionMenuVoice]", $parent);
+		
+		$content = $this->searchModules();
+		$buffer .= $content->getContent();
+
+		return $buffer;
+ 	}
 
   /**
    * Inserimento e modifica di una voce di menu
    * 
+   * @param \Gino\Http\Request $request oggetto Gino.Http.Request
+   * @return \Gino\Http\Redirect
    */
-  public function actionMenuVoice() {
+  public function actionMenuVoice(\Gino\Http\Request $request) {
     
     $this->requirePerm(array('can_admin', 'can_edit'));
 
@@ -380,7 +397,7 @@ class menu extends \Gino\Controller {
     $gform->save('dataform');
     $req_error = $gform->arequired();
 
-    $id = \Gino\cleanVar($_POST, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
 
     $link_params = "action=$this->_action";
     if($id) $link_params .= "&id=$id";
@@ -388,53 +405,54 @@ class menu extends \Gino\Controller {
     $link_error = $this->_home."?evt[$this->_instance_name-manageDoc]&$link_params";
 
     if($req_error > 0) 
-      exit(error::errorMessage(array('error'=>1), $link_error));
+      return error::errorMessage(array('error'=>1), $link_error);
 
     $menu_voice = new MenuVoice($id);
 
     $menu_voice->instance = $this->_instance;
-    $menu_voice->parent = \Gino\cleanVar($_POST, 'parent', 'int', null);
-    $menu_voice->label = \Gino\cleanVar($_POST, 'label', 'string', null);
-    $menu_voice->url = \Gino\cleanVar($_POST, 'url', 'string', null);
-    $menu_voice->type = \Gino\cleanVar($_POST, 'type', 'string', null);
+    $menu_voice->parent = \Gino\cleanVar($request->POST, 'parent', 'int', null);
+    $menu_voice->label = \Gino\cleanVar($request->POST, 'label', 'string', null);
+    $menu_voice->url = \Gino\cleanVar($request->POST, 'url', 'string', null);
+    $menu_voice->type = \Gino\cleanVar($request->POST, 'type', 'string', null);
 
     if(!$id) $menu_voice->initOrderList();
 
-    $perms = \Gino\cleanVar($_POST, 'perm', 'array', null);
+    $perms = \Gino\cleanVar($request->POST, 'perm', 'array', null);
     $menu_voice->perms = implode(';', $perms);
 
     $menu_voice->save();
-
-    \Gino\Link::HttpCall($this->_home, $this->_instance_name.'-manageDoc', '');
+    
+    return new Redirect($this->_registry->router->link($this->_instance_name, 'manageDoc'));
   }
   
   /**
    * Eliminazione di una voce di menu
    * 
+   * @param \Gino\Http\Request $request oggetto Gino.Http.Request
+   * @return \Gino\Http\Redirect
    */
-  public function actionDelMenuVoice() {
+  public function actionDelMenuVoice($request) {
     
     $this->requirePerm(array('can_admin', 'can_edit'));
 
-    $id = \Gino\cleanVar($_GET, 'id', 'int', '');
+    $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
 
     $link_error = $this->_home."?evt[$this->_instance_name-manageDoc]";
     if(!$id)
-      exit(error::errorMessage(array('error'=>9), $link_error));
+      return error::errorMessage(array('error'=>9), $link_error);
 
     $voice = new MenuVoice($id);
     $voice->deleteVoice();
     $voice->updateOrderList();
-
-    \Gino\Link::HttpCall($this->_home, $this->_instance_name.'-manageDoc', '');
+    
+    return new Redirect($this->_registry->router->link($this->_instance_name, 'manageDoc'));
   }
 
   /**
    * Ricerca moduli
    * 
    * @see jsSearchModulesLib()
-   * @see $_group_1
-   * @return string
+   * @return \Gino\Http\Response
    */
   public function searchModules(){
 
@@ -453,14 +471,14 @@ class menu extends \Gino\Controller {
     
     $buffer .= "<div id=\"items_list\"></div>\n";
     
-    $view = new \Gino\View(null, 'section');
+    $view = new View(null, 'section');
     $dict = array(
       'title' => _('Ricerca viste'),
       'class' => 'admin',
       'content' => $buffer
     );
 
-    return $view->render($dict);
+    return new Response($view->render($dict));
   }
   
   /**
@@ -475,7 +493,7 @@ class menu extends \Gino\Controller {
   private function jsSortLib() {
   
     $GINO = "<script type=\"text/javascript\">\n";
-    $GINO .= "function menuMessage() { alert('"._("Ordinamento effettuato con successo")."')}";
+    $GINO .= "function menuMessage(response) { alert(response)}";
     $GINO .= "window.addEvent('load', function() { 
                 $$('ul[id^=sortContainer]').each(function(ul) {
                   var menuSortables = new Sortables(ul, {
@@ -487,7 +505,7 @@ class menu extends \Gino\Controller {
                       var order = this.serialize(1, function(element, index) {
                         return element.getProperty('id').replace('id', '');
                       }).join(',');
-                      gino.ajaxRequest('post', '$this->_home?pt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':menuMessage});
+                      gino.ajaxRequest('post', '$this->_home?evt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':menuMessage});
                     }
                   });
                 })
@@ -511,7 +529,7 @@ class menu extends \Gino\Controller {
     $buffer .= "window.addEvent('load', function() {
           
           var myclass, mypage, all, active, other;
-          var url = '".$this->_home."?pt[".$this->_instance_name."-printItemsList]';
+          var url = '".$this->_home."?evt[".$this->_instance_name."-printItemsList]';
           $$('#s_class', '#s_page').each(function(el) {
             el.addEvent('keyup', function(e) {
               active = el.getProperty('id');
@@ -541,7 +559,7 @@ class menu extends \Gino\Controller {
    * @see printItemsPage()
    * @return string
    */
-  public function printItemsList() {
+  public function printItemsList(\Gino\Http\Request $request) {
 
     \Gino\Loader::import('sysClass', 'ModuleApp');
     \Gino\Loader::import('module', 'ModuleInstance');
@@ -549,17 +567,17 @@ class menu extends \Gino\Controller {
 
     $this->requirePerm(array('can_admin', 'can_edit'));
 
-    $class = \Gino\cleanVar($_POST, 's_class', 'string', '');
-    $page = \Gino\cleanVar($_POST, 's_page', 'string', '');
-    $all = \Gino\cleanVar($_POST, 'all', 'string', '');
+    $class = \Gino\cleanVar($request->POST, 's_class', 'string', '');
+    $page = \Gino\cleanVar($request->POST, 's_page', 'string', '');
+    $all = \Gino\cleanVar($request->POST, 'all', 'string', '');
 
     if(!($class || $page || $all)) return '';
 
     $GINO = "<div style=\"max-height:600px;overflow:auto; border: 2px solid #eee; margin-top: 10px; padding: 10px;\">";
 
     if(!empty($class)) {
-      $modules_app = \Gino\App\SysClass\ModuleApp::get(array('where' => "active='1' AND label LIKE '$class%' AND instantiable='0'"));
-      $modules = \Gino\App\Module\ModuleInstance::get(array('where' => "active='1' AND label LIKE '$class%'"));
+      $modules_app = ModuleApp::get(array('where' => "active='1' AND label LIKE '$class%' AND instantiable='0'"));
+      $modules = ModuleInstance::get(array('where' => "active='1' AND label LIKE '$class%'"));
       $GINO .= $this->printItemsClass($modules_app, $modules);
     }
     elseif(!empty($page)) {
@@ -570,14 +588,14 @@ class menu extends \Gino\Controller {
       $pages = \Gino\App\Page\PageEntry::objects(null, array('where' => "published='1'"));
       $GINO .= $this->printItemsPage($pages);
 
-      $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1'"));
-      $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'"));
+      $modules_app = ModuleApp::objects(null, array('where' => "active='1'"));
+      $modules = ModuleInstance::objects(null, array('where' => "active='1'"));
       $GINO .= $this->printItemsClass($modules_app, $modules);
     }
 
     $GINO .= "</div>";
 
-    return $GINO;
+    return new Response($GINO);
   }
   
   /**
@@ -594,7 +612,7 @@ class menu extends \Gino\Controller {
 
     if(count($pages)) {
       $GINO = "<h3>"._("Pagine")."</h3>";
-      $view_table = new \Gino\View(null, 'table');
+      $view_table = new View(null, 'table');
       $view_table->assign('class', 'table table-striped table-hover table-bordered');
       $view_table->assign('heads', array(
         _('titolo'),
@@ -692,7 +710,8 @@ class menu extends \Gino\Controller {
               }
             }
 
-            $url = $this->_registry->plink->aLink($class_name, $func);
+            $url = $this->_registry->router->link($class_name, $func);
+            
             $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
               $('url').set('value', '".$url."');
               $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
@@ -721,7 +740,7 @@ class menu extends \Gino\Controller {
 
     if(count($modules)) {
       $GINO .= "<h3>"._("Istanze")."</h3>";
-      $view_table = new \Gino\View(null, 'table');
+      $view_table = new View(null, 'table');
       $view_table->assign('class', 'table table-striped table-hover table-bordered');
       $view_table->assign('heads', array(
         _('modulo'),
@@ -755,7 +774,8 @@ class menu extends \Gino\Controller {
 					}
 				}
 				
-				$url = $this->_registry->plink->aLink($module_name, $func);
+				$url = $this->_registry->router->link($module_name, $func);
+				
 				$button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
 				$('url').set('value', '".$url."');
 				perms = $(this).get('data-perm');

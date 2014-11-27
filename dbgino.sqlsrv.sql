@@ -138,7 +138,7 @@ SET IDENTITY_INSERT auth_permission ON
 INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VALUES
 (1, 'core', 'is_logged', 'login effettuato', 'Utente che ha effettuato il login', 0),
 (2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1),
-(3, 'attached', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(3, 'attachment', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
 (6, 'instruments', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
@@ -995,7 +995,7 @@ SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
 (1, 4, 0, 'Home', '#', 'int', 1, ''),
-(2, 5, 0, 'Amministrazione', 'admin.php', 'int', 1, '2,0'),
+(2, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
 (3, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '10,0'),
 (4, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
 

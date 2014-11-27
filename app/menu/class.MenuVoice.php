@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Menu;
 
+use \Gino\View;
+
 /**
  * @brief Fornisce gli strumenti alla classe menu per la gestione amministrativa
  * 
@@ -37,18 +39,19 @@ class MenuVoice extends \Gino\Model {
 	/**
 	 * Elimina le voci di menu di una istanza (nella procedura di eliminazione di una istanza)
 	 * 
-	 * @param integer $instance valore ID dell'istanza
+	 * @param integer $instance valore id dell'istanza
 	 * @return boolean
 	 */
 	public static function deleteInstanceVoices($instance) {
 
 		$db = \Gino\db::instance();
-		$query = "SELECT id FROM ".self::$tbl_voices." WHERE instance='$instance' AND parent='0'";
-		$a = $db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				\Gino\App\Language\Language::deleteTranslations(self::$tbl_voices, $b['id']);
-				$mv = new MenuVoice($b['id']);
+		
+		$items = $db->select("id", self::$tbl_voices, "instance='$instance' AND parent='0'");
+		if($items && count($items)) {
+			
+			foreach($items as $item) {
+				\Gino\App\Language\Language::deleteTranslations(self::$tbl_voices, $item['id']);
+				$mv = new MenuVoice($item['id']);
 				$mv->deleteVoice();
 			}
 		}
@@ -58,10 +61,9 @@ class MenuVoice extends \Gino\Model {
 
 	public function initOrderList() {
 
-		$query = "SELECT max(order_list) AS last FROM ".self::$tbl_voices." WHERE instance='{$this->_p['instance']}' AND parent='{$this->_p['parent']}'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$last = $a[0]['last'];
+		$res = $this->_db->select("max(order_list) AS last", self::$tbl_voices, "instance='{$this->_p['instance']}' AND parent='{$this->_p['parent']}'");
+		if($res && count($res)) {
+			$last = $res[0]['last'];
 		}
 		else $last = 0;
 
@@ -161,8 +163,6 @@ class MenuVoice extends \Gino\Model {
 		}
 		$title = $title."<a name=\"top\"> </a>";
 
-		$pub = new \Gino\Pub;
-		
 		$required = 'label,type,voice';	
 
 		$required = '';
@@ -183,7 +183,7 @@ class MenuVoice extends \Gino\Model {
 		$buffer .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
 		$buffer .= $gform->close();
 
-		$view = new \Gino\View(null, 'section');
+		$view = new View(null, 'section');
 		$dict = array(
 			'title' => $title,
 			'class' => 'admin',
@@ -207,21 +207,21 @@ class MenuVoice extends \Gino\Model {
 		$result_link = null;
 		$result = null;
 
-    if(preg_match("/\[(.+)\]/is", $query_string, $matches)) {
-      $result = '';
-      $result_link = '';
-      $rows = $db->select('id, url', self::$tbl_voices, "url LIKE '%".$matches[0]."%' AND instance='$instance'");
-      if($rows and count($rows)) {
-        foreach($rows as $row) {
-          if(preg_match("#".preg_quote(stristr($row['url'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($row['url']) )
-          {
-            $result = $row['id'];
-            $result_link=$row['url'];
-            return $result;
-          }
-        }
-      }
-    }
+		if(preg_match("/\[(.+)\]/is", $query_string, $matches)) {
+		$result = '';
+		$result_link = '';
+		$rows = $db->select('id, url', self::$tbl_voices, "url LIKE '%".$matches[0]."%' AND instance='$instance'");
+		if($rows and count($rows)) {
+			foreach($rows as $row) {
+				if(preg_match("#".preg_quote(stristr($row['url'], '?'))."(&.*)?$#", "?".$query_string) && strlen($result_link)<strlen($row['url']) )
+				{
+					$result = $row['id'];
+					$result_link=$row['url'];
+					return $result;
+				}
+			}
+		}
+	}
 
     $search_url = $request->path;
     
