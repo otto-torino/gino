@@ -662,6 +662,7 @@ class layout extends \Gino\Controller {
         if(count($modules)) {
             foreach($modules as $module) {
                 $class = $module->classNameNs();
+                //@todo controllare che non siano nell'ini
                 $output_functions = method_exists($class, 'outputFunctions') 
                     ? call_user_func(array($class, 'outputFunctions'))
                     : array();
@@ -771,7 +772,7 @@ class layout extends \Gino\Controller {
         $buffer .= $view_table->render();
         $buffer .= "</div>";
 
-        return $buffer;
+        return new Response($buffer);
     }
 
 

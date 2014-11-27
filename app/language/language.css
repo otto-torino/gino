@@ -1,6 +1,19 @@
-#section_language
-{
-position: relative;
-text-align: right;
-margin-bottom: 2px;
+.language-choice {
+    margin: 0;
+    padding: 0;
+}
+.language-choice ul {
+    padding-left: 0;
+}
+.language-choice ul li {
+    list-style-type: none;
+    display: inline-block;
+}
+.language-choice .active {
+    cursor: auto;
+    color: #000 !important;
+    text-decoration: none !important;
+}
+.language-choice .active img {
+    border: 2px solid #000;
 }

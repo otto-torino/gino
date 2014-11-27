@@ -881,7 +881,7 @@ class page extends \Gino\Controller {
         }
 
         if($filter == 'link') {
-            return "<a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug))."\">".$pre_filter."</a>";
+            return "<a href=\"".$this->_registry->router->link($this->_instance_name, 'view', array('id'=>$obj->slug))."\">".$pre_filter."</a>";
         }
         elseif(preg_match("#chars:(\d+)#", $filter, $matches)) {
             return \Gino\cutHtmlText($pre_filter, $matches[1], '...', false, false, true, array('endingPosition'=>'in'));

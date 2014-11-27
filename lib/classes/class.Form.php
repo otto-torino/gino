@@ -2026,7 +2026,8 @@ class Form {
 
         if(empty($id_name)) $id_name = 'id';
 
-        $langs = \Gino\App\Language\Lang::get(array(
+        $langs = \Gino\App\Language\Lang::objects(array(
+            null,
             'where' => "main='0' AND active='1'"
         ));
         if($langs)

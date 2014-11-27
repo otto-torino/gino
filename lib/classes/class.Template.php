@@ -21,7 +21,7 @@ use Gino\Http\Redirect;
 class Template extends Model {
 
     protected $_tbl_data;
-    private static $table = 'sys_layout_tpl';
+    public static $table = 'sys_layout_tpl';
     private static $table_block = 'sys_layout_tpl_block';
     private $_home, $_interface;
 
@@ -567,14 +567,16 @@ class Template extends Model {
      */
     public function manageTemplate($css, $tpl_id=0) {
 
+        $request = \Gino\Http\Request::instance();
+
         $gform = Loader::load('Form', array('tplform', 'post', false, array("tblLayout"=>false)));
         $gform->load('dataform');
 
-        $modTpl = cleanVar($_POST, 'modTpl', 'int', '');    // parametro di ricostruzione del template
-        $label = cleanVar($_POST, 'label', 'string', '');
-        $filename = cleanVar($_POST, 'filename', 'string', '');
-        $description = cleanVar($_POST, 'description', 'string', '');
-        $blocks_number = cleanVar($_POST, 'blocks_number', 'int', '');
+        $modTpl = cleanVar($request->POST, 'modTpl', 'int', '');    // parametro di ricostruzione del template
+        $label = cleanVar($request->POST, 'label', 'string', '');
+        $filename = cleanVar($request->POST, 'filename', 'string', '');
+        $description = cleanVar($request->POST, 'description', 'string', '');
+        $blocks_number = cleanVar($request->POST, 'blocks_number', 'int', '');
 
         if($this->id) {
             $template = $this->filename;
@@ -627,17 +629,17 @@ class Template extends Model {
             $num = 1;
             for($i=1; $i<=$blocks_number; $i++)
             {
-                $add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+                $add_form = cleanVar($request->POST, 'addblocks_'.$i, 'int', '');
                 for($y=1; $y<=$add_form; $y++) {
 
                     $ref_name = $i.'_'.$y;
 
                     $buffer .= $gform->hidden('id_'.$num, 0);
-                    $buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_add'.$ref_name, 'int', ''));
+                    $buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_add'.$ref_name, 'int', ''));
+                    $buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_add'.$ref_name, 'int', ''));
+                    $buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_add'.$ref_name, 'int', ''));
+                    $buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_add'.$ref_name, 'int', ''));
+                    $buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_add'.$ref_name, 'int', ''));
                     $num++;
                 }
 
@@ -645,11 +647,11 @@ class Template extends Model {
                 $del_block = cleanVar($_POST, 'del'.$i, 'int', '');
 
                 $buffer .= $gform->hidden('id_'.$num, $id_block);
-                $buffer .= $gform->hidden('width_'.$num, cleanVar($_POST, 'width_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('um_'.$num, cleanVar($_POST, 'um_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('align_'.$num, cleanVar($_POST, 'align_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('rows_'.$num, cleanVar($_POST, 'rows_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('cols_'.$num, cleanVar($_POST, 'cols_'.$i, 'int', ''));
+                $buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_'.$i, 'int', ''));
+                $buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_'.$i, 'int', ''));
+                $buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_'.$i, 'int', ''));
+                $buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_'.$i, 'int', ''));
+                $buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_'.$i, 'int', ''));
 
                 if($del_block == 1)
                     $blocks_del[$id_block] = $i;
@@ -679,6 +681,8 @@ class Template extends Model {
      */
     private function createTemplate($blocks_number, $template='') {
 
+        $request = \Gino\Http\Request::instance();
+
         $buffer = '';
         $num = 1;
         for($i=1; $i<=$blocks_number; $i++) {
@@ -688,11 +692,11 @@ class Template extends Model {
 
                 $ref_name = $i.'_'.$y;
 
-                $width_add = cleanVar($_POST, 'width_add'.$ref_name, 'int', '');
-                $um_add = cleanVar($_POST, 'um_add'.$ref_name, 'int', '');
-                $align_add = cleanVar($_POST, 'align_add'.$ref_name, 'int', '');
-                $rows_add = cleanVar($_POST, 'rows_add'.$ref_name, 'int', '');
-                $cols_add = cleanVar($_POST, 'cols_add'.$ref_name, 'int', '');
+                $width_add = cleanVar($request->POST, 'width_add'.$ref_name, 'int', '');
+                $um_add = cleanVar($request->POST, 'um_add'.$ref_name, 'int', '');
+                $align_add = cleanVar($request->POST, 'align_add'.$ref_name, 'int', '');
+                $rows_add = cleanVar($request->POST, 'rows_add'.$ref_name, 'int', '');
+                $cols_add = cleanVar($request->POST, 'cols_add'.$ref_name, 'int', '');
 
                 if($rows_add > 0 && $cols_add > 0)
                 {
@@ -701,12 +705,12 @@ class Template extends Model {
                 }
             }
 
-            $delete = cleanVar($_POST, 'del'.$i, 'int', '');
-            $align = cleanVar($_POST, 'align_'.$i, 'int', ''); 
-            $rows = cleanVar($_POST, 'rows_'.$i, 'int', '');
-            $cols = cleanVar($_POST, 'cols_'.$i, 'int', '');
-            $um = cleanVar($_POST, 'um_'.$i, 'int', '');
-            $width = cleanVar($_POST, 'width_'.$i, 'int', '');
+            $delete = cleanVar($request->POST, 'del'.$i, 'int', '');
+            $align = cleanVar($request->POST, 'align_'.$i, 'int', ''); 
+            $rows = cleanVar($request->POST, 'rows_'.$i, 'int', '');
+            $cols = cleanVar($request->POST, 'cols_'.$i, 'int', '');
+            $um = cleanVar($request->POST, 'um_'.$i, 'int', '');
+            $width = cleanVar($request->POST, 'width_'.$i, 'int', '');
 
             if($rows > 0 && $cols > 0 && $delete != 1)
             {

@@ -674,6 +674,7 @@ class menu extends \Gino\Controller {
         
         if(method_exists($class, 'outputFunctions')) {
           $list = call_user_func(array($class, 'outputFunctions'));
+          //@todo aggiungere controllo che sia nell'ini
           foreach($list as $func => $desc) {
             $cnt++;
             $permissions_code = $desc['permissions'];

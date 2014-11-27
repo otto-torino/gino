@@ -852,10 +852,6 @@ class auth extends \Gino\Controller {
      */
     public function login(\Gino\Http\Request $request){
 
-        $link_interface = $_SERVER['REQUEST_URI'];    // /git/gino/index.php?evt[auth-login]
-
-        $link_interface = $this->_plink->convertLink($link_interface, array('vserver'=>'REQUEST_URI', 'pToLink'=>true, 'basename'=>true));
-
         $referer = isset($request->session->auth_redirect)
             ? $request->session->auth_redirect
             : ((isset($request->META['HTTP_REFERER']) and $request->META['HTTP_REFERER'])
@@ -871,7 +867,7 @@ class auth extends \Gino\Controller {
 
         $gform = \Gino\Loader::load('Form', array('login', 'post', true));
 
-        $form = $gform->open($link_interface, false, '');
+        $form = $gform->open('', FALSE, '');
         $form .= $gform->hidden('action', 'auth');
 
         $form .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));

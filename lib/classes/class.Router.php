@@ -202,6 +202,15 @@ class Router extends Singleton {
     }
 
     /**
+     * @brief Controlla se la callable fornita è quella chiamata da url
+     * @param callable $callable
+     * @return bool
+     */
+    public function isRoute($callable) {
+        return !!$this->_controller_view === $callable;
+    }
+
+    /**
      * @brief Esegue il route della request HTTP
      * @description Passa la @ref Gino.Http.Request alla callable che deve gestirla e ritornare una Gino.Http.Response.
      *              Se non è definita una callable, ritorna una Gino.Http.Response con contenuto vuoto

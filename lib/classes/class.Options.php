@@ -287,6 +287,6 @@ class Options {
             $this->_db->update($data, $this->_tbl_options, "instance='".$this->_instance."'");
         }
 
-        return \Gino\Http\Redirect($this->_return_link);
+        return new \Gino\Http\Redirect($this->_return_link);
     }
 }
