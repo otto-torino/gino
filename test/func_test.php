@@ -58,7 +58,8 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
     public function test_searchNameFile() {
         $dir = realpath(SITE_ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'page'.DIRECTORY_SEPARATOR.'views');
         $files = \Gino\searchNameFile($dir);
-        $this->assertEquals(array('box.php', 'view.php', 'showcase.php'), $files);
+        sort($files);
+        $this->assertEquals(array('block.php', 'showcase.php', 'view.php'), $files);
     }
 
     public function test_extension() {
