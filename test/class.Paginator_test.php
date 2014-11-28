@@ -1,6 +1,17 @@
 <?php
+/**
+ * @file class.Paginator_test.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.Test.PaginatorTest
+ *
+ * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 
-namespace Gino;
+namespace Gino\Test;
+
+use \Gino\Loader;
+use \Gino\Paginator;
 
 require_once('include.php');
 
@@ -15,7 +26,44 @@ function setPage($page) {
     $request->GET['p'] = $page;
 }
 
+/**
+ * @brief Classe di tipo PHPUnit_Framework_TestCase per testare la classe Gino.Paginator
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class PaginatorTest extends \PHPUnit_Framework_TestCase {
+
+    /**
+     * Test metodo getCurrentPage
+     * Il metodo restituisce il numero di pagina corrente
+     */
+    public function test_getCurrentPage() {
+        // page 1
+        setPage(1);
+        $paginator = new Paginator(100, 10);
+        $page = $paginator->getCurrentPage();
+        $this->assertEquals(1, $page, 'current page errata pagina 1');
+
+        // page negativa, deve dare 1
+        setPage(-20);
+        $paginator = new Paginator(100, 10);
+        $page = $paginator->getCurrentPage();
+        $this->assertEquals(1, $page, 'current page errata con pagina negativa');
+
+        // page maggiore, deve dare 10
+        setPage(20);
+        $paginator = new Paginator(100, 10);
+        $page = $paginator->getCurrentPage();
+        $this->assertEquals(10, $page, 'current page errata con pagina maggiore');
+
+        // senza elementi, deve dare 1
+        setPage(20);
+        $paginator = new Paginator(0, 10);
+        $page = $paginator->getCurrentPage();
+        $this->assertEquals(1, $page, 'current page errata senza elementi');
+    }
 
     /**
      * Test metodo limit
@@ -37,6 +85,11 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase {
         $paginator = new Paginator(98, 10);
         $limit = $paginator->limit();
         $this->assertEquals(array(91, 98), $limit, 'limit errato ultima pagina');
+        // no items
+        setPage(1);
+        $paginator = new Paginator(0, 10);
+        $limit = $paginator->limit();
+        $this->assertEquals(array(0, 0), $limit, 'limit errato con nessun elemento');
     }
 
     /**

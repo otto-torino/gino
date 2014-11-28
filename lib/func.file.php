@@ -44,25 +44,22 @@ function download($full_path)
     {
         $fsize = filesize($full_path);
         $path_parts = pathinfo($full_path);
-        $extension = strtolower($path_parts["extension"]);
 
-        header("Pragma: public");
-        header('Expires: 0');
-        header('Content-Description: File Transfer');
-        header("Content-type: application/download");
-        header("Content-Disposition: attachment; filename=\"".$path_parts["basename"]."\"");
-        header("Content-length: ".$fsize);
-        header("Cache-control: private");
-
-        ob_clean();
-        flush();
-
-        @readfile($full_path);
-        fclose($fp);
+        $response = Loader::load('http/ResponseFile', array($full_path, 'application/download', $path_parts["basename"]), '\Gino\Http\\');
+        $response->setDispositionType('Attachment');
+        $response->setHeaders(array(
+            'Pragma' => 'public',
+            'Expires' => '0',
+            'Content-Description' => 'File Transfer',
+            'Content-length' => $fsize,
+            'Cache-control' => 'private'
+        ));
     }
     else {
-        return FALSE;
+        $response = Loader::load('http/ResponseNotFound', array(), '\Gino\Http\\');
     }
+
+    return $response;
 }
 
 /**
@@ -107,7 +104,7 @@ function baseFileName($filename) {
  * @param boolean $delete_dir per eliminare o meno le directory
  * @return void
  */
-function deleteFileDir($dir, $delete_dir=true){
+function deleteFileDir($dir, $delete_dir = TRUE){
 
     if(is_dir($dir))
     {
@@ -120,7 +117,7 @@ function deleteFileDir($dir, $delete_dir=true){
                 if($file == "." || $file == "..") continue;
 
                 if(is_file($dir.$file)) unlink($dir.$file);
-                else $this->deleteFileDir($dir.$file, TRUE);
+                else \Gino\deleteFileDir($dir.$file, TRUE);
             }
 
             if($delete_dir)
@@ -130,6 +127,8 @@ function deleteFileDir($dir, $delete_dir=true){
             }
         }
     }
+
+    return TRUE;
 }
 
 /**

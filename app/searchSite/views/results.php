@@ -1,3 +1,15 @@
+<?php
+/**
+ * @file results.php
+ * @brief Template risultati ricerca nel sito
+ * Le variabili a disposizione sono:
+ * - $title: bool, titolo
+ * - $results_num: int, numero risultati
+ * - $content: html, risultati
+ */
+?>
+<? namespace Gino.App.SysClass; ?>
+<? //@cond no-doxygen ?>
 <section class="search-results">
     <header>
         <h1 class="left"><?= $title ?></h1>
@@ -6,3 +18,4 @@
     </header>
   <?= $content ?>
 </section>
+<? // @endcond ?>

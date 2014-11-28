@@ -32,16 +32,16 @@ class Paginator {
     /**
      * @brief Costruttore
      * @param int $items_number numero totale di item
-     * @param $items_for_page numero di items per pagina
+     * @param int $items_for_page numero di items per pagina
      * @param array $kwargs array associativo
      *              - interval: int, default 2. Numero di pagine da mostrare nella navigazione nell'intorno di quella corrente
      * @return istanza di Gino.Paginator
      */
     function __construct($items_number, $items_for_page, array $kwargs = array()) {
 
-        $this->_items_number = $items_number;
-        $this->_items_for_page = $items_for_page;
-        $this->_pages_number = (int) ceil($items_number / $items_for_page);
+        $this->_items_number = (int) $items_number;
+        $this->_items_for_page = (int) $items_for_page;
+        $this->_pages_number = (int) max(ceil($items_number / $items_for_page), 1);
 
         $this->_interval = isset($kwargs['interval']) ? (int) $kwargs['interval'] : 2;
 
@@ -68,6 +68,14 @@ class Paginator {
         }
     }
 
+    /*+
+     * @brief Getter pagina corrente
+     * @return pagina corrente, int
+     */
+    public function getCurrentPage() {
+        return $this->_current_page;
+    }
+
     /**
      * @brief Limiti items selezionati, 1 based
      * @return array(limite inferiore, numero superiore), il limite inferiore parte da 1
@@ -76,7 +84,7 @@ class Paginator {
         $inf = ($this->_current_page - 1) * $this->_items_for_page;
         $sup = min($inf + $this->_items_for_page, $this->_items_number);
 
-        return array($inf + 1, $sup);
+        return array(min($inf + 1, $this->_items_number), $sup);
     }
 
     /**

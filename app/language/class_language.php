@@ -37,6 +37,10 @@ class language extends \Gino\Controller {
     private $_title;
     private $_flag_language;
 
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.Language.language
+     */
     function __construct(){
 
         parent::__construct();

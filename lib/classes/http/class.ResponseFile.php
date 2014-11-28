@@ -24,14 +24,29 @@ class ResponseFile extends Response {
 
     /**
      * @brief Costruttore
-     * @param string $content contenuto del file
+     * @param string $file path assoluto al file o contenuto del file (in tal caso settare a TRUE kwargs['file_is_content'])
      * @param string $content_type
      * @param string $filename
      * @param array $kwargs array associativo
-     *              - disposition_type: disposition type header
+     *              - disposition_type: string, disposition type header
+     *              - file_is_content: bool, se TRUE il parametro $file viene considerato essere il contenuto del file e non il path assoluto
      * @return istanza di \Gino\Http\ResponseAjax
      */
-    function __construct($content, $content_type, $filename, array $kwargs = array()) {
+    function __construct($file, $content_type, $filename, array $kwargs = array()) {
+
+        $file_is_content = isset($kwargs['file_is_content']) ? $kwargs['file_is_content'] : FALSE;
+
+        if(!$file_is_content) {
+            if($fp = fopen($file, "r")) {
+                ob_start();
+                @readfile($file);
+                $content = ob_get_clean();
+                fclose($fp);
+            }
+        }
+        else {
+            $content = $file;
+        }
 
         parent::__construct($content, $kwargs);
 

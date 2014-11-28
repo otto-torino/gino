@@ -33,7 +33,7 @@ class DirectoryField extends Field {
      *   - @b prefix (string): prefisso da aggiungere al nome della directory
      *   - @b default_name (array): valori per il nome di default
      *     - @a field (string): nome dell'input dal quale ricavare il nome della directory (default id)
-     *     - @a maxlentgh (integer): numero di caratteri da considerare nel nome dell'input (default 10)
+     *     - @a maxlentgh (integer): numero di caratteri da considerare nel nome dell'input (default 15)
      *     - @a value_type (string): tipo di valore (default string)
      * @return istanza di Gino.DirectoryField
      */
@@ -45,6 +45,12 @@ class DirectoryField extends Field {
         $this->_value_type = 'string';
 
         $this->_path = isset($options['path']) ? $options['path'] : '';
+        if(!$this->_path) {
+            throw new \Exception(_('Parametro path inesistente'));
+        }
+        if(substr($this->_path, -1) !== OS) {
+            $this->_path .= OS;
+        }
         $this->_prefix = isset($options['prefix']) ? $options['prefix'] : '';
         $this->_default_name = isset($options['default_name']) ? $options['default_name'] : array();
     }
@@ -118,7 +124,7 @@ class DirectoryField extends Field {
         if($this->_default_name)
         {
             $field = array_key_exists('field', $this->_default_name) ? $this->_default_name['field'] : 'id';
-            $maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 10;
+            $maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 15;
             $value_type = array_key_exists('value_type', $this->_default_name) ? $this->_default_name['value_type'] : 'string';
 
             $method = isset($options['method']) ? $options['method'] : $request->POST;
@@ -166,12 +172,12 @@ class DirectoryField extends Field {
         }
         elseif($value)
         {
-            if($_REQUEST['insert'])
+            if(!$this->_model->id)
             {
                 if(!mkdir($this->_path.$value))
                     return array('error'=>32);
             }
-            elseif($_REQUEST['edit'])
+            else
             {
                 if(!$this->_value)
                 {
@@ -196,45 +202,12 @@ class DirectoryField extends Field {
      */
     public function delete() {
 
-        if(is_dir($this->_path.$this->_value)) {
-            if(!$this->deleteFileDir($this->_path.$this->_value))
+        if($this->_value and is_dir($this->_path.$this->_value)) {
+            if(!\Gino\deleteFileDir($this->_path.$this->_value))
                 return array('error'=>_("errore nella eliminazione della directory"));
         }
 
         return TRUE;
     }
 
-    /**
-     * @brief Elimina ricorsivamente i file e le directory
-     *
-     * @param string $dir percorso assoluto alla directory
-     * @param boolean $delete_dir per eliminare o meno le directory
-     * @return risultato operazione, bool
-     */
-    public function deleteFileDir($dir, $delete_dir=true){
-
-        if(is_dir($dir))
-        {
-            if(substr($dir, -1) != '/') $dir .= '/';
-
-            if($dh = opendir($dir))
-            {
-                while(($file = readdir($dh)) !== FALSE)
-                {
-                    if($file == "." || $file == "..") continue;
-
-                    if(is_file($dir.$file)) @unlink($dir.$file);
-                    else $this->deleteFileDir($dir.$file, TRUE);
-                }
-
-                if($delete_dir)
-                {
-                    closedir($dh);
-                    if(!@rmdir($dir))
-                        return FALSE;
-                }
-            }
-        }
-        return TRUE;
-    }
 }

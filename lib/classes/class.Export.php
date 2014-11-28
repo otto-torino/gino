@@ -160,7 +160,7 @@ class Export {
         }
 
         if($output=='stream') {
-            $response = Loader::load('http/ResponseFile', array($csv, 'plain/text', $filename), '\Gino\Http\\');
+            $response = Loader::load('http/ResponseFile', array($csv, 'plain/text', $filename, array('file_is_content' => TRUE)), '\Gino\Http\\');
             $response->setDispositionType('Attachment');
             $response->setHeaders(array(
                 'Pragma' => 'no-cache'

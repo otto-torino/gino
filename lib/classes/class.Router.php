@@ -229,7 +229,7 @@ class Router extends Singleton {
 
     /**
      * @brief Url che linka un metodo di una istanza di controller con parametri dati
-     * @param string or \Gino\Controller $instance_name nome istanza del @ref Gino.Controller
+     * @param string|\Gino\Controller $instance_name nome istanza o istanza del @ref Gino.Controller
      * @param string $method nome metodo
      * @param array $params parametri da aggiungere come path info nel caso di pretty url
      * @param array|string $query_string parametri aggiuntivi da trattare come query_string in entrambi i casi (pretty, espanso)
@@ -241,10 +241,10 @@ class Router extends Singleton {
     public function link($instance_name, $method, array $params = array(), $query_string = '', array $kwargs = array()) {
 
         if(is_a($instance_name, '\Gino\Controller')) {
-        	$instance_name = get_name_class($instance_name);
+            $instance_name = get_name_class($instance_name);
         }
-    	
-    	$pretty = isset($kwargs['pretty']) ? $kwargs['pretty'] : TRUE;
+
+        $pretty = isset($kwargs['pretty']) ? $kwargs['pretty'] : TRUE;
         $abs = isset($kwargs['abs']) ? $kwargs['abs'] : FALSE;
         // query string puo' essere array o stringa, normalizzo a stringa
         $query_string = is_array($query_string)
@@ -299,7 +299,7 @@ class Router extends Singleton {
         }
         if(count($remove)) {
             foreach($remove as $param) {
-                $url = preg_replace("#\b".preg_quote($param)."(=.*?)\b#", '', $url);
+                $url = preg_replace("#(\?|&)".preg_quote($param)."(?:=[^&]*)#", '', $url);
             }
         }
 

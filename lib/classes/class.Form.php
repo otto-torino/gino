@@ -66,6 +66,7 @@ class Form {
      *     - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
      *     - @b form_label_width (string): larghezza (%) della colonna con il tag label (default FORM_LABEL_WIDTH)
      *     - @b form_field_width (string): larghezza (%) della colonna con il tag input (default FORM_FIELD_WIDTH)
+     * @throws Exception se viene rilevato un attacco CSRF
      * @return istanza di Gino.Form
      */
     function __construct($formId, $method, $validation, $options=null){
@@ -80,8 +81,9 @@ class Form {
         $this->_trnsl_table = isset($options['trnsl_table'])?$options['trnsl_table']:null;
         $this->_trnsl_id = isset($options['trnsl_id'])?$options['trnsl_id']:null;
         if(isset($options['verifyToken']) && $options['verifyToken']) {
-        	if(!$this->verifyFormToken($formId))
-        		throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
+            if(!$this->verifyFormToken($formId)) {
+                throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
+            }
         }
 
         $this->_max_file_size = MAX_FILE_SIZE;
@@ -123,14 +125,14 @@ class Form {
      */
     private function option($opt) {
 
-        if($opt=='mode') return isset($this->_options['mode'])?$this->_options['mode']:"table";
+        if($opt=='mode') return isset($this->_options['mode']) ? $this->_options['mode'] : "table";
 
-        if($opt=='trnsl_id') return isset($this->_options['trnsl_id'])?$this->_options['trnsl_id']:$this->_trnsl_id;
-        if($opt=='trnsl_table') return isset($this->_options['trnsl_table'])?$this->_options['trnsl_table']:$this->_trnsl_table;
+        if($opt=='trnsl_id') return isset($this->_options['trnsl_id']) ? $this->_options['trnsl_id'] : $this->_trnsl_id;
+        if($opt=='trnsl_table') return isset($this->_options['trnsl_table']) ? $this->_options['trnsl_table'] : $this->_trnsl_table;
 
-        if($opt=='fck_width') return isset($this->_options['fck_width'])?$this->_options['fck_width']:'100%';
-        if($opt=='fck_height') return isset($this->_options['fck_height'])?$this->_options['fck_height']:300;
-        if($opt=='fck_toolbar') return isset($this->_options['fck_toolbar'])?$this->_options['fck_toolbar']:'Basic';
+        if($opt=='fck_width') return isset($this->_options['fck_width']) ? $this->_options['fck_width'] : '100%';
+        if($opt=='fck_height') return isset($this->_options['fck_height']) ? $this->_options['fck_height'] : 300;
+        if($opt=='fck_toolbar') return isset($this->_options['fck_toolbar']) ? $this->_options['fck_toolbar'] : 'Basic';
 
         return isset($this->_options[$opt]) ? $this->_options[$opt] : null;
     }
@@ -371,7 +373,7 @@ class Form {
 
         if(!empty($required))
             foreach(explode(",", $required) as $fieldname)
-                if($this->_requestVar[$fieldname] == '' AND $this->_request->FILES[$fieldname] == '') $error++;
+                if((!isset($this->_requestVar[$fieldname]) or $this->_requestVar[$fieldname] == '') and (!isset($this->_request->FILES[$fieldname]) or $this->_request->FILES[$fieldname] == '')) $error++;
         return $error;
     }
 
@@ -1385,7 +1387,9 @@ class Form {
 
         if(!empty($value)) {
             $value_link = ($this->option('preview') && $this->option('previewSrc'))
-                ? "<span onclick=\"Slimbox.open('".$this->option('previewSrc')."')\" class=\"link\">$value</span>"
+                ? ($this->isImage($this->option('previewSrc'))
+                    ? sprintf('<span onclick="Slimbox.open(\'%s\')" class="link">%s</span>', $this->option('previewSrc'), $value)
+                    : sprintf('<a target="_blank" href="%s">%s</a>', $this->option('previewSrc'), $value))
                 : $value;
             $required = $options['required'];
             $options['required'] = FALSE;
@@ -1411,6 +1415,18 @@ class Form {
         $GFORM .= "</div>";
 
         return $GFORM;
+    }
+
+    /*+
+     * @brief Controlla che il path sia di un'immagine
+     * @param string $path
+     * @return TRUE se immagine, FALSE altrimenti
+     */
+    private function isImage($path) {
+
+        $info = pathinfo($path);
+
+        return in_array($info['extension'], array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif'));
     }
 
     /**

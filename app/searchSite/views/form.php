@@ -1,5 +1,7 @@
 <?php
 /**
+ * @file form.php
+ * @brief Template form di ricerca nel sito
  * Le variabili a disposizione sono:
  * - $form_action: l'url dell'attributo action del form per accedere ai risultati della ricerca
  * - $choices: bool, dice se sono possibili delle scelte di ricerca
@@ -10,6 +12,8 @@
  * E naturalmente deve essere stampata la variabile $check_options.
  */
 ?>
+<? namespace Gino.App.SysClass; ?>
+<? //@cond no-doxygen ?>
 <form method="post" class="navbar-form navbar-left searchsite-form" action="<?php echo $form_action ?>" role="search">
     <?php if($choices): ?>
         <div class='form-group'>
@@ -26,3 +30,4 @@
         <?= $check_options ?>
     <?php endif ?>
 </form>
+<? // @endcond ?>

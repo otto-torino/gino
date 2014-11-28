@@ -232,12 +232,6 @@ class ImageField extends FileField {
      */
     public function formElement(\Gino\Form $form, $options) {
 
-        if($this->_value != '' and (!isset($options['preview']) or $options['preview']))
-        {
-            $options['preview'] = true;
-            $options['previewSrc'] = $this->pathToFile(array('type'=>'rel', 'complete'=>true));
-        }
-
         if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
 
         return parent::formElement($form, $options);

@@ -1,11 +1,16 @@
 <?php
 /**
  * @file class_auth.php
- * @brief Contiene la classe auth
- * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
+ *
+ * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @namespace Gino.App.Auth
+ * @description Namespace dell'applicazione Auth, per la gestione di utenti, gruppi e permessi
  */
 namespace Gino\App\Auth;
 
@@ -26,24 +31,17 @@ require_once(CLASSES_DIR.OS.'class.AdminTable.php');
 require_once('class.AdminTable_AuthUser.php');
 
 /**
- * @brief Gestione degli utenti
- * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
- * 
+ * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
+ *
  * I permessi delle applicazioni sono definiti nella tabella @a auth_permission. Il campo @a admin indica se il permesso necessita dell'accesso all'area amministrativa. \n
  * Ogni utente può essere associato a un permesso definito nella tabella @a auth_permission, e tale associazione viene registrata nella tabella @a auth_user_perm. \n
  * La tabella @a auth_user_perm registra il valore ID dell'utente, del permesso e dell'istanza relativa all'applicazione del permesso. \n
  * Questo implica che nell'interfaccia di associazione utente/permessi occorre mostrare i permessi relativi a ogni applicazione (classe) per tutte le istanze presenti.
- * 
+ *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
- * 
- * Ogni volta che si installa una applicazione bisogna creare i record in auth_group_perm ?
- * 
- * 
- * 
+ * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
 class auth extends \Gino\Controller {
 
@@ -60,6 +58,10 @@ class auth extends \Gino\Controller {
     public $_other_field1, $_other_field2, $_other_field3;
     private $_label_field1, $_label_field2, $_label_field3;
 
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.Auth.auth
+     */
     function __construct(){
 
         parent::__construct();
@@ -99,8 +101,12 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * @brief Elenco dei metodi che possono essere richiamati dal menu e dal template
-     * @return array
+     * @brief Definizione dei metodi pubblici che forniscono un output per il front-end
+     *
+     * Questo metodo viene letto dal motore di generazione dei layout (prende i metodi non presenti nel file ini) e dal motore di generazione di 
+     * voci di menu (presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
+     *
+     * @return array associativo metodi pubblici metodo => array('label' => label, 'permissions' => permissions)
      */
     public static function outputFunctions() {
 
@@ -145,7 +151,7 @@ class auth extends \Gino\Controller {
      * @param string $path tipo di percorso (default abs)
      *   - abs, assoluto
      *   - rel, relativo
-     * @return string
+     * @return percorso
      */
     public function getBasePath($path = 'abs'){
 
@@ -177,8 +183,8 @@ class auth extends \Gino\Controller {
 
     /**
      * @brief Interfaccia di amministrazione modulo
-     * @param \Gino\Http\Request $request
-     * @return \Gino\Http\Response
+     * @param \Gino\Http\Request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
      */
     public function manageAuth(\Gino\Http\Request $request) {
 
@@ -246,9 +252,9 @@ class auth extends \Gino\Controller {
 
     /**
      * @brief Interfaccia di amministrazione utenti
-     * @param \Gino\Http\Request $request
+     * @param \Gino\Http\Request istanza di Gino.Http.Request
      * @see AdminTable_AuthUser::backoffice()
-     * @return html || \Gino\Http\Redirect
+     * @return html oppure \Gino\Http\Redirect
      */
     private function manageUser(\Gino\Http\Request $request) {
 
@@ -389,12 +395,12 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Descrizione delle regole alle quali è sottoposta la password
+     * @brief Descrizione delle regole alle quali è sottoposta la password
      * 
      * @param integer $id valore ID dell'utente
-     * @return string
+     * @return string, regole password
      */
-    private function passwordRules($id=null) {
+    private function passwordRules($id = null) {
 
         $text = '';
 
@@ -412,7 +418,7 @@ class auth extends \Gino\Controller {
      * @brief Controlla se uno username è disponibile
      *
      * @param \Gino\Http\Request $request
-     * @return \Gino\Http\Response
+     * @return Gino.Http.Response
      */
     public function checkUsername(\Gino\Http\Request $request) {
 
@@ -427,24 +433,24 @@ class auth extends \Gino\Controller {
         $check = $this->_db->getFieldFromId(User::$table, 'id', 'username', $username);
         $content = $check ? _("Username non disponibile!") : _("Username disponibile!");
 
-        return new ResponseAjax("<strong>".$content."</strong>");
+        return new Response("<strong>".$content."</strong>");
     }
 
     /**
-     * Interfaccia di sostituzione della password
-     * 
-     * @param \Gino\Http\Request $request
-     * @see User::savePassword()
-     * @see User::formPassword()
-     * @see passwordRules()
-     * @return string
-     * 
+     * @brief Interfaccia di sostituzione della password
+     *
      * Parametri GET (per il form): \n
      *   - ref (integer), valore ID dell'utente
      *   - c (integer), riporta se la password è stata correttamente aggiornata
-     * 
+     *
      * Parametri POST (per l'action del form): \n
      *   - id (integer), valore ID dell'utente
+     *
+     * @see User::savePassword()
+     * @see User::formPassword()
+     * @see passwordRules()
+     * @param \Gino\Http\Request $request
+     * @return html
      */
     private function changePassword(\Gino\Http\Request $request) {
 
@@ -493,6 +499,10 @@ class auth extends \Gino\Controller {
         return $view->render($dict);
     }
 
+    /**
+     * @brief Interfaccia di amministrazione dei gruppi
+     * @return Gino.Http.Redirect oppure html
+     */
     private function manageGroup() {
 
         $info = _("Elenco dei gruppi del sistema.");
@@ -513,6 +523,10 @@ class auth extends \Gino\Controller {
         return $admin_table->backoffice('Group', $opts);
     }
 
+    /**
+     * @brief Interfaccia di amministrazione dei permessi
+     * @return Gino.Http.Redirect oppure html
+     */
     private function managePermission() {
 
         $info = _("Elenco dei permessi.");
@@ -532,7 +546,7 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Reindirizza le operazione di join tra utenti/gruppi/permessi
+     * @brief Reindirizza le operazione di join tra utenti/gruppi/permessi
      * 
      * @param string $block
      * @param string $option
@@ -541,20 +555,17 @@ class auth extends \Gino\Controller {
      */
     private function returnJoinLink($block, $option, $ref_id) {
 
-        $link_interface = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=$block&op=$option&ref=$ref_id";
-        return new Redirect("http://".$_SERVER['HTTP_HOST'].$link_interface);
+        $url = $this->linkAdmin(array(), "block=$block&op=$option&ref=$ref_id", array('abs' => TRUE));
+        return new Redirect($url);
     }
 
     /**
      * @brief Interfaccia di associazione utente-permessi
-     * 
-     * @param \Gino\Http\Request $request
-     * @see User::getPermissions()
-     * @see formPermission()
-     * @return string
-     * 
+     *
      * Parametri GET: \n
      *   - ref (integer), valore ID dell'utente
+     * @param \Gino\Http\Request $request
+     * @return html
      */
     private function joinUserPermission(\Gino\Http\Request $request) {
 
@@ -585,17 +596,14 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * @brief Gestisce l'action dell'associazione degli utenti ai permessi
-     * 
-     * @param \Gino\Http\Request $request
-     * @see user::getpermissions()
-     * @see user::getmergevalue()
-     * @see returnjoinlink()
-     * @return redirect
-     * 
+     * @brief Processa il form di associazione degli utenti ai permessi
+     *
      * parametri post: \n
      *   - id (integer), valore id dell'utente
      *   - perm (array), permessi selezionati
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Redirect
      */
     public function actionJoinUserPermission(\Gino\Http\Request $request) {
 
@@ -653,14 +661,12 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * associazione gruppo-permessi
-     * 
-     * @see group::getpermissions()
-     * @see formpermission()
-     * @return string
+     * @brief Form di associazione gruppo-permessi
      * 
      * parametri get: \n
      *   - ref (integer), valore id del gruppo
+     *
+     * @return html, form
      */
     private function joingrouppermission() {
 
@@ -695,25 +701,23 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Gestisce l'action dell'associazione dei gruppi ai permessi
-     * 
-     * @see Group::getPermissions()
-     * @see Group::getMergeValue()
-     * @see returnJoinLink()
-     * @return redirect
+     * @brief Processa il form di associazione gruppo-permessi
      * 
      * Parametri POST: \n
      *   - id (integer), valore ID del gruppo
      *   - perm (array), permessi selezionati
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Redirect
      */
-    public function actionJoinGroupPermission() {
+    public function actionJoinGroupPermission(\Gino\Http\Request $request) {
 
         // PERM
 
-        $id = \Gino\cleanVar($_POST, 'id', 'integer', '');
+        $id = \Gino\cleanVar($request->POST, 'id', 'integer', '');
         if(!$id) return null;
 
-        $perm = $_POST['perm'];
+        $perm = $request->POST['perm'];
 
         $obj_group = new Group($id);
         $existing_perms = $obj_group->getPermissions();
@@ -759,14 +763,8 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Imposta il multicheckbox sui permessi
-     * 
-     * @see Permission::getList()
-     * @see User::setMergeValue()
-     * @see Form::multipleCheckbox()
-     * @param object $obj_form
-     * @param array $checked
-     * @return string
+     * @brief Imposta il multicheckbox sui permessi
+     * @return html, multicheck
      */
     private function formPermission($obj_form, $checked=array()) {
 
@@ -806,13 +804,13 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Imposta il multicheckbox sui gruppi
+     * @brief Imposta il multicheckbox sui gruppi
      * 
-     * @see Group::getList()
-     * @see Form::multipleCheckbox()
-     * @param object $obj_form
-     * @param array $checked
-     * @return string
+     * @see Gino.App.Auth.Group::getList()
+     * @see Gino.Form::multipleCheckbox()
+     * @param \Gino\Form $obj_form istanza di Gino.Form
+     * @param array $checked array di id di permessi selezionati
+     * @return html, multicheck
      */
     private function formGroup($obj_form, $checked=array()) {
 
@@ -845,10 +843,9 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * Pagina di autenticazione
-     * 
-     * @see Access::Authentication()
-     * @return string
+     * @brief Pagina di login
+     * @see Gino.Access::Authentication()
+     * @return Gino.Http.Response
      */
     public function login(\Gino\Http\Request $request){
 

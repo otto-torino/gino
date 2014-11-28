@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class_instruments.php
- * @brief Contiene la definizione ed implementazione della classe instruments
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Instruments.instruments
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,7 +10,7 @@
 
 /**
  * @namaspace Gino\App\Instruments
- * @brief Namespace dell'app di sistema Instruments
+ * @description Namespace dell'applicazione Instruments, per la visualizzazione di utilità quali percorsi e mime types
  */
 namespace Gino\App\Instruments;
 
@@ -18,13 +18,7 @@ use \Gino\View;
 use \Gino\Document;
 
 /**
- * @defgroup gino-instruments
- * @brief Modulo per la gestione di strumenti quali i mime-type ed elenco risporse disponibili.
- */
-
-/**
- * @ingroup gino-instruments
- * @brief Strumenti aggiuntivi di gino
+ * @brief Classe di tipo Gino.Controller per la gestione di strumenti aggiuntivi di gino
  *
  * Adesso sono disponibili l'elenco delle risorse disponibili (con i relativi link) e dei mime type. \n
  * Per aggiungere uno strumento è necessario: \n
@@ -40,7 +34,7 @@ class instruments extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return \Gino\App\Instruments\instruments
+     * @return Gino.App.Instruments.instruments
      */
     function __construct() {
         parent::__construct();
@@ -48,7 +42,7 @@ class instruments extends \Gino\Controller {
 
     /**
      * @brief Interfaccia amministrativa alla gestione degli strumenti
-     * @param \Gino\Http\Request $request
+     * @param \Gino\Http\Request $request istanza di Gino.App.Instruments.instruments
      * @return interfaccia di amministrazione
      */
     public function manageInstruments(\Gino\Http\Request $request) {
@@ -85,8 +79,7 @@ class instruments extends \Gino\Controller {
     /**
      * @brief Strumento - mostra l'elenco delle risorse disponibili (con i relativi link)
      *
-     * @see page::getLinkPage()
-     * @return elenco risporse con link
+     * @return html, elenco risporse con link
      */
     private function links(){
 
@@ -97,7 +90,7 @@ class instruments extends \Gino\Controller {
 
         $GINO = "<p class=\"backoffice-info\">"._('Elenco di tutte le pagine presenti e di tutti gli output dei moduli, con relativi url e permessi di visualizzazione. Quelle elencate qui non sono le uniche viste disponibili dei moduli, ma quelle che non necessitano di parametri e sono quindi includibili in ogni layout.')."</p>";
 
-        $rows = $this->_db->select('id', \Gino\App\Page\PageEntry::$tbl_entry, "published='1'", array('order' => 'title'));
+        $rows = $this->_db->select('id', \Gino\App\Page\PageEntry::$table, "published='1'", array('order' => 'title'));
         if($rows and count($rows))
         {
             $GINO .= "<h2>"._("Pagine")."</h2>";
@@ -161,7 +154,7 @@ class instruments extends \Gino\Controller {
                         }
                         $tbl_rows[] = array(
                             \Gino\htmlChars($module->label),
-                            $this->_registry->plink->aLink($module->name, $func),
+                            $this->link($module->name, $func),
                             $description,
                             implode(', ', $permissions)
                         );
@@ -175,18 +168,18 @@ class instruments extends \Gino\Controller {
 
         $view = new \Gino\View(null, 'section');
         $dict = array(
-        'title' => _('Collegamenti'),
-        'class' => 'admin',
-        'content' => $GINO
+            'title' => _('Collegamenti'),
+            'class' => 'admin',
+            'content' => $GINO
         );
 
         return $view->render($dict);
     }
 
     /**
-     * Strumento - mostra l'elenco dei mime type (include come iframe il file mime-type-table.html)
+     * @brief Strumento - mostra l'elenco dei mime type (include come iframe il file mime-type-table.html)
      * @param \Gino\Http\Request $request
-     * @return string
+     * @return html, elenco mime type
      */
     private function mimeTypes(\Gino\Http\Request $request){
 
@@ -202,13 +195,11 @@ class instruments extends \Gino\Controller {
         $view = new \Gino\View(null, 'section');
 
         $dict = array(
-        'title' => _('Mime-Type'),
-        'class' => 'admin',
-        'content' => $GINO
+            'title' => _('Mime-Type'),
+            'class' => 'admin',
+            'content' => $GINO
         );
 
         return $view->render($dict);
     }
 }
-
-?>

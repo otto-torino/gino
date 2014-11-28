@@ -592,7 +592,7 @@ namespace Gino;
      * 
      * Ogni elemento viene associato a una classe del tipo di dato e le vengono passate le specifiche del campo. \n
      * Esistono classi che corrispondono al tipo di dato e classi specifiche, per poter associare le quali è necessario sovrascrivere il campo nel metodo structure(). \n
-     * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField, hiddenField.
+     * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField
      * 
      * @see DbManager::getTableStructure()
      * @see dataCache::get()

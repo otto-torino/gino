@@ -7,6 +7,7 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
+
 namespace Gino;
 
 loader::import('class/fields', '\Gino\Field');

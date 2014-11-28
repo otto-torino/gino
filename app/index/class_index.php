@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class_index.php
- * @brief Contiene la definizione ed implementazione della classe index
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Index.index
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,8 +9,8 @@
  */
 
 /**
- * @namaspace Gino\App\Index
- * @brief Namespace dell'app di sistema Index
+ * @namaspace Gino.App.Index
+ * @brief Namespace dell'applicazione Index, che gestisce la home amministrativa
  */
 namespace Gino\App\Index;
 
@@ -19,14 +19,8 @@ use \Gino\Document;
 use \Gino\View;
 use \Gino\Loader;
 
-
 /**
- * @defgroup gino-index
- * @brief Modulo per la gestione della home amministrativa
- */
-
-/**
- * @brief Classe Controller del modulo che gestisce la home amministrativa
+ * @brief Classe di tipo Gino.Controller del modulo che gestisce la home amministrativa
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -36,14 +30,14 @@ class index extends \Gino\Controller{
 
     /**
      * @brief Costruttore
-     * @return \Gino\App\Index\index
+     * @return istanza di Gino.App.Index.index
      */
     function __construct(){
         parent::__construct();
     }
 
     /**
-     * @brief Elenco dei metodi che possono essere richiamati dal menu e dal template
+     * @brief Elenco dei metodi che possono essere richiamati dal menu
      * @return array di metodi pubblici
      */
     public static function outputFunctions() {
@@ -57,8 +51,8 @@ class index extends \Gino\Controller{
 
     /**
      * @brief Home page amministrazione
-     * @param \Gino\HttpRequest $request
-     * @return home page amministrazione
+     * @param \Gino\HttpRequest $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response home page amministrazione
      */
     public function admin_page(\Gino\Http\Request $request){
 

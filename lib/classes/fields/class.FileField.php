@@ -251,6 +251,11 @@ class FileField extends Field {
      */
     public function formElement(\Gino\Form $form, $options) {
 
+        if($this->_value != '' and (!isset($options['preview']) or $options['preview']))
+        {
+            $options['preview'] = TRUE;
+            $options['previewSrc'] = $this->pathToFile(array('type' => 'rel', 'complete' => TRUE));
+        }
         if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
 
         return parent::formElement($form, $options);
@@ -262,7 +267,7 @@ class FileField extends Field {
      */
     public function clean($options=null) {
 
-        $request = Request::instance();
+        $request = \Gino\Http\Request::instance();
         if(isset($request->FILES[$this->_name]['name']) AND $request->FILES[$this->_name]['name'] != '')
         {
             $filename = $request->FILES[$this->_name]['name'];
@@ -291,7 +296,7 @@ class FileField extends Field {
      */
     public function validate($filename){
 
-        $request = Request::instance();
+        $request = \Gino\Http\Request::instance();
         if($filename == $this->_value)    // file preesistente
         {
             return TRUE;
@@ -330,7 +335,7 @@ class FileField extends Field {
     protected function saveFile($filename, $filename_tmp) {
 
         if(!is_dir($this->_directory))
-            if(!mkdir($this->_directory, 0755, TRUE))
+            if(!@mkdir($this->_directory, 0755, TRUE))
                 return array('error'=>32);
 
         $upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? TRUE : FALSE;

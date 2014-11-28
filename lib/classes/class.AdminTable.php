@@ -66,7 +66,6 @@ namespace Gino;
  * <tr><td>fileField()</td><td>FILE</td><td>file</td></tr>
  * <tr><td>floatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
  * <tr><td>foreignKeyField()</td><td>FOREIGN_KEY</td><td>select</td></tr>
- * <tr><td>hiddenField()</td><td>HIDDEN</td><td>hidden</td></tr>
  * <tr><td>imageField()</td><td>IMAGE</td><td>image</td></tr>
  * <tr><td>integerField()</td><td>TINYINT, SMALLINT, MEDIUMINT, INT</td><td>text</td></tr>
  * <tr><td>manyToManyField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
@@ -691,7 +690,7 @@ class AdminTable {
         $id = cleanVar($this->_request->REQUEST, 'id', 'int', '');
         $model_class = get_model_app_name_class_ns(get_name_class($this->_controller), $model_class_name);
         $model_obj = new $model_class($id, $this->_controller);
-        
+
         $insert = cleanVar($this->_request->GET, 'insert', 'int', '');
         $edit = cleanVar($this->_request->GET, 'edit', 'int', '');
         $delete = cleanVar($this->_request->GET, 'delete', 'int', '');
@@ -699,19 +698,7 @@ class AdminTable {
         $trnsl = cleanVar($this->_request->GET, 'trnsl', 'int', '');
 
         if($trnsl) {
-            //Loader::import('class/http', '\Gino\Http\Response');
-            
             return $this->_registry->trd->manageTranslation($this->_request);
-            
-            /*if($this->_request->checkGETKey('save', '1')) {
-                $res = $this->_registry->trd->actionTranslation($this->_request);
-
-                $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-                return new \Gino\Http\Response($content);
-            }
-            else {
-                return new \Gino\Http\Response($this->_registry->trd->formTranslation());
-            }*/
         }
         elseif($insert or $edit) {
             return $this->adminForm($model_obj, $options_form, $inputs);
@@ -779,14 +766,14 @@ class AdminTable {
 
         if(count($this->_request->POST)) {
             $popup = cleanVar($this->_request->POST, '_popup', 'int', '');
-            $link_error = $this->editUrl(null, null);
+            $link_error = $this->editUrl(array(), array());
             $options_form['link_error'] = $link_error ;
             $action_result = $this->modelAction($model_obj, $options_form, $inputs);
             if($action_result === TRUE and $popup) {
                 $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
                 return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
             }
-            elseif($action_result === true) {
+            elseif($action_result === TRUE) {
                 return new \Gino\Http\Redirect($link_return);
             }
             else {

@@ -1,21 +1,18 @@
 <?php
 /**
- * \file class.pageEntry.php
- * Contiene la definizione ed implementazione della classe PageEntry.
+ * @file class.pageEntry.php
+ * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @version 1.0
- * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 namespace Gino\App\Page;
 
 /**
- * \ingroup page
- * Classe tipo model che rappresenta una pagina.
+ * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @version 1.0
- * @copyright 2013 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -23,8 +20,6 @@ class PageEntry extends \Gino\Model {
 
     protected static $_extension_img = array('jpg', 'jpeg', 'png');
     public static $table = 'page_entry';
-    
-    protected $_main_class;
 
     /**
      * Costruttore
@@ -36,7 +31,7 @@ class PageEntry extends \Gino\Model {
 
         $this->_controller = new page();
         $this->_tbl_data = self::$table;
-        
+
         $this->_fields_label = array(
             'category_id'=>_("Categoria"), 
             'author'=>_('Autore'),
@@ -60,107 +55,112 @@ class PageEntry extends \Gino\Model {
 
         parent::__construct($id);
 
-        $this->_model_label = _("Pagine");
+        $this->_model_label = _("Pagina");
     }
 
     /**
-     * Rappresentazione testuale del modello 
-     * 
-     * @return string
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return titolo
      */
     function __toString() {
-        
-        return (string) $this->id ? $this->title : '';
+
+        return (string) $this->title;
     }
 
     /**
-     * Sovrascrive la struttura di default
-     * 
-     * @see propertyObject::structure()
+     * @brief Sovrascrive la struttura di default
+     *
+     * @see Gino.Model::structure()
      * @param integer $id
-     * @return array
+     * @return array, struttura
      */
     public function structure($id) {
 
         $structure = parent::structure($id);
-        
+
         $structure['category_id'] = new \Gino\ForeignKeyField(array(
-            'name'=>'category_id', 
+            'name'=>'category_id',
             'model'=>$this,
             'required'=>true,
-            'lenght'=>3, 
-            'foreign'=>'\Gino\App\Page\pageCategory', 
+            'foreign'=>'\Gino\App\Page\PageCategory',
             'foreign_order'=>'name ASC',
             'add_related' => true,
             'add_related_url' => $this->_controller->linkAdmin(array(), "block=ctg&insert=1")
         ));
-        
+
+        $structure['slug'] = new \Gino\SlugField(array(
+            'name'=>'slug',
+            'model'=>$this,
+            'required'=>true,
+            'autofill'=>'title',
+        ));
+
         $structure['published'] = new \Gino\BooleanField(array(
-            'name'=>'published', 
+            'name'=>'published',
             'model'=>$this,
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
+            'enum'=>array(1 => _('si'), 0 => _('no')),
             'default'=>0,
         ));
-        
+
         $structure['social'] = new \Gino\BooleanField(array(
-            'name'=>'social', 
+            'name'=>'social',
             'model'=>$this,
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
+            'enum'=>array(1 => _('si'), 0 => _('no')),
             'default'=>0,
         ));
-        
+
         $structure['private'] = new \Gino\BooleanField(array(
-            'name'=>'private', 
+            'name'=>'private',
             'model'=>$this,
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
+            'enum'=>array(1 => _('si'), 0 => _('no')),
             'default'=>0,
         ));
-        
+
         $structure['users'] = new \Gino\ManyToManyInlineField(array(
-            'name'=>'users', 
+            'name'=>'users',
             'model'=>$this,
-            'm2m'=>'\Gino\App\Auth\User', 
+            'm2m'=>'\Gino\App\Auth\User',
             'm2m_where'=>"active='1'", 
-            'm2m_order'=>"lastname ASC, firstname", 
+            'm2m_order'=>"lastname ASC, firstname",
         ));
 
         $structure['enable_comments'] = new \Gino\BooleanField(array(
-            'name'=>'enable_comments', 
+            'name'=>'enable_comments',
             'model'=>$this,
             'required'=>true,
             'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0, 
+            'default'=>0,
         ));
 
         $structure['creation_date'] = new \Gino\DatetimeField(array(
-            'name'=>'creation_date', 
+            'name'=>'creation_date',
             'model'=>$this,
             'required'=>true,
-            'auto_now'=>false, 
-            'auto_now_add'=>true, 
+            'auto_now'=>false,
+            'auto_now_add'=>true,
         ));
 
         $structure['last_edit_date'] = new \Gino\DatetimeField(array(
             'name'=>'last_edit_date', 
             'model'=>$this,
             'required'=>true,
-            'auto_now'=>true, 
-            'auto_now_add'=>true, 
+            'auto_now'=>true,
+            'auto_now_add'=>true,
         ));
 
         $base_path = $this->_controller->getBasePath();
         $add_path = $this->_controller->getAddPath($this->id);
 
         $structure['image'] = new \Gino\ImageField(array(
-            'name'=>'image', 
+            'name'=>'image',
             'model'=>$this,
-            'lenght'=>100, 
-            'extensions'=>self::$_extension_img, 
-            'resize'=>false, 
-            'path'=>$base_path, 
+            'lenght'=>100,
+            'extensions'=>self::$_extension_img,
+            'resize'=>false,
+            'path'=>$base_path,
             'add_path'=>$add_path
         ));
 
@@ -175,67 +175,55 @@ class PageEntry extends \Gino\Model {
     }
 
     /**
-     * Restituisce l'istanza pageEntry a partire dallo slug/ID fornito 
-     * 
+     * @brief Restituisce l'istanza Gino.App.Page.PageEntry a partire dallo slug/ID fornito
+     *
      * @param mixed $slug lo slug oppure il valore ID della pagina
-     * @param object $controller istanza del controller
+     * @param null $controller per compatibilità con il metodo Gino.Model::getFromSlug
      * @access public
-     * @return istanza di pageEntry
+     * @return istanza di Gino.App.Page.PageEntry
      */
     public static function getFromSlug($slug, $controller = null) {
-    
+
         $res = null;
 
         $db = \Gino\db::instance();
-        
+
         if(preg_match('#^[0-9]+$#', $slug))
         {
-            $res = new pageEntry($slug, $controller);
+            $res = new PageEntry($slug);
         }
         else
         {
             $rows = $db->select('id', self::$table, "slug='$slug'", array('limit'=>array(0, 1)));
             if(count($rows)) {
-                $res = new pageEntry($rows[0]['id'], $controller);
+                $res = new PageEntry($rows[0]['id']);
             }
         }
 
         return $res;
     }
 
-    public function getIdUrl($box=false) {
-
-        if($box)
-        {
-            $method = 'box';
-        }
-        else
-        {
-            $method = 'view';
-        }
-        
-        $link = "index.php?evt[page-$method]&id=$this->id";
-
-        return $link;
-    }
-
+    /**
+     * @brief Url relativo pagina
+     * @return url
+     */
     public function getUrl() {
-        
+
         return $this->_registry->router->link('page', 'view', array('id'=>$this->slug));
     }
 
     /**
-     * Definisce le condizioni di accesso a una pagina integrando le condizioni del WHERE
-     * 
+     * @brief Definisce le condizioni di accesso a una pagina integrando le condizioni del WHERE
+     *
      * @param integer $access_user valore ID dell'utente
      * @param boolean $access_private indica se l'utente appartiene al gruppo "utenti pagine private"
-     * @return string
+     * @return where clause
      */
     private static function accessWhere($access_user, $access_private) {
-        
+
         $where = '';
-        
-        if($access_user == 0)	// condizione di non autenticazione
+
+        if($access_user == 0)    // condizione di non autenticazione
         {
             $where = "(users IS NULL OR users='') AND private='0'";
         }
@@ -243,16 +231,16 @@ class PageEntry extends \Gino\Model {
         {
             // condizione campo users non vuoto
             $w1 = "users IS NOT NULL AND users!='' AND users REGEXP '[[:<:]]".$access_user."[[:>:]]'";
-            
+
             // condizione campo users vuoto, da abbinare all'accesso privato se impostato 
             $w2 = "users IS NULL OR users=''";
-            
+
             if(is_bool($access_private))
             {
                 if(!$access_private)
                 {
                     $w3 = "private='0'";
-                    
+
                     $where = "(($w1) OR ($w2 AND $w3)";
                 }
                 else
@@ -267,12 +255,12 @@ class PageEntry extends \Gino\Model {
                 $where = "private='0'";
             }
         }
-        
+
         return $where;
     }
 
     /**
-     * Restituisce oggetti di tipo @ref pageEntry 
+     * @brief Restituisce oggetti di tipo @ref Gino.App.Page.PageEntry 
      * 
      * @see accessWhere()
      * @param object $controller istanza del controller 
@@ -284,7 +272,7 @@ class PageEntry extends \Gino\Model {
      *   - @b limit (string)
      *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
      *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
-     * @return array di istanze di tipo pageEntry
+     * @return array di istanze di tipo Gino.App.Page.PageEntry
      */
     public static function get($options = null) {
 
@@ -296,7 +284,7 @@ class PageEntry extends \Gino\Model {
         $order = \Gino\gOpt('order', $options, 'creation_date');
         $limit = \Gino\gOpt('limit', $options, null);
         $where_opt = \Gino\gOpt('where', $options, null);
-        
+
         $access_user = \Gino\gOpt('access_user', $options, null);
         $access_private = \Gino\gOpt('access_private', $options, null);
 
@@ -313,23 +301,23 @@ class PageEntry extends \Gino\Model {
         if($tag) {
             $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
         }
-        
+
         $where = implode(' AND ', $where_arr);
         if($where_opt) {
-        	$where = implode(' AND ', array($where_opt));
+            $where = implode(' AND ', array($where_opt));
         }
-        
+
         $where_add = self::accessWhere($access_user, $access_private);
-        
+
         if($where && $where_add)
             $where = $where." AND ".$where_add;
         elseif(!$where && $where_add)
             $where = $where_add;
-        
+
         $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
         if(count($rows)) {
             foreach($rows as $row) {
-                $res[] = new pageEntry($row['id']);
+                $res[] = new PageEntry($row['id']);
             }
         }
 
@@ -337,16 +325,15 @@ class PageEntry extends \Gino\Model {
     }
 
     /**
-     * Restituisce il numero di oggetti pageEntry selezionati 
+     * @brief Restituisce il numero di oggetti Gino.App.Page.PageEntry selezionati 
      * 
-     * @see accessWhere()
      * @param array $options array associativo di opzioni
      *   - @b published (boolean)
      *   - @b tag (integer)
      *   - @b category (integer)
      *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
      *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
-     * @return numero di post
+     * @return numero di pagine
      */
     public static function getCount($options = null) {
 
@@ -355,7 +342,7 @@ class PageEntry extends \Gino\Model {
         $published = \Gino\gOpt('published', $options, true);
         $tag = \Gino\gOpt('tag', $options, null);
         $category = \Gino\gOpt('category', $options, null);
-        
+
         $access_user = \Gino\gOpt('access_user', $options, null);
         $access_private = \Gino\gOpt('access_private', $options, null);
 
@@ -372,10 +359,10 @@ class PageEntry extends \Gino\Model {
         if($tag) {
             $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
         }
-        
+
         $where = implode(' AND ', $where_arr);
         $where_add = self::accessWhere($access_user, $access_private);
-        
+
         if($where && $where_add)
             $where = $where." AND ".$where_add;
         elseif(!$where && $where_add)
@@ -389,6 +376,12 @@ class PageEntry extends \Gino\Model {
         return $res;
     }
 
+    /**
+     * @brief Salva il modello
+     * @description Sovrascrive il metodo di Gino.Model per salvare l'autore della pagina
+     * @see Gino.Model::save()
+     * @return risultato operazione, bool
+     */
     public function save()
     {
         $session = \Gino\session::instance();
@@ -396,23 +389,23 @@ class PageEntry extends \Gino\Model {
 
         return parent::save();
     }
-    
+
 
     /**
-     * Elimina l'oggetto 
-     * 
-     * @return il risultato dell'operazione
+     * @brief Elimina l'oggetto
+     * @description Sovrascrive il metodo di Gino.Model per eliminare i commenti
+     * @see Gino.Model::delete()
+     * @return il risultato dell'operazione, bool
      */
     public function delete() {
 
-        pageComment::deleteFromEntry($this->_controller, $this->id);
+        PageComment::deleteFromEntry($this->id);
 
         return parent::delete();
     }
 
     /**
-     * Path relativo dell'immagine associata 
-     * 
+     * @brief Path relativo dell'immagine associata 
      * @return path relativo dell'immagine
      */
     public function imgPath() {
@@ -420,5 +413,3 @@ class PageEntry extends \Gino\Model {
         return $this->_controller->getBasePath('rel').'/'.$this->id.'/'.$this->image;
     }
 }
-
-?>
