@@ -27,7 +27,7 @@ class Skin extends Model {
 
     protected $_tbl_data;
     public static $table = 'sys_layout_skin';
-    private $_home, $_interface;
+    private $_interface;
 
     /**
      * @brief Costruttore
@@ -41,7 +41,6 @@ class Skin extends Model {
 
         parent::__construct($id);
 
-        $this->_home = 'index.php';
         $this->_interface = 'layout';
     }
 
@@ -178,7 +177,7 @@ class Skin extends Model {
     public function sortUp() {
 
         $priority = $this->priority;
-        $before_skins = self::get(array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
+        $before_skins = self::objects(null, array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
         $before_skin = $before_skins[0];
         $this->priority = $before_skin->priority;
         $this->save();
@@ -199,20 +198,24 @@ class Skin extends Model {
         $gform->load('dataform');
 
         $title = ($this->id)? _("Modifica")." ".htmlChars($this->label):_("Nuova skin");
+        
+        $formaction = $this->_registry->router->link($this->_interface, 'actionSkin');
 
         $required = 'template';
-        $buffer = $gform->open($this->_home."?evt[".$this->_interface."-actionSkin]", '', $required);
+        $buffer = $gform->open($formaction, '', $required);
         $buffer .= $gform->hidden('id', $this->id);
-
+        
         $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "field"=>"label", "trnsl_id"=>$this->id));
         $buffer .= $gform->cinput('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), _("esempi").":<br />mobile=1"), array("size"=>40, "maxlength"=>200));
         $buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
         $buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
         $css_list = array();
-        foreach(Css::objects(null, array('order' => 'label')) as $css) {
+        
+        foreach(Css::getAll() as $css) {
             $css_list[$css->id] = htmlInput($css->label);
         }
         $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
+        
         $tpl_list = array();
         foreach(Template::objects(null, array('order' => 'label')) as $tpl) {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
@@ -240,7 +243,7 @@ class Skin extends Model {
      * @brief Processa il form di inserimento e modifica di una skin
      * @see self::formSkin()
      * @param \Gino\Http\Request $request istanza di Gino.Request
-     * @return Gino.Http.Redirect
+     * @return Gino.Http.Response
      */
     public function actionSkin(\Gino\Http\Request $request) {
 
@@ -250,7 +253,7 @@ class Skin extends Model {
 
         $action = ($this->id) ? 'modify' : 'insert';
 
-        $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=skin&id=$this->id&action=$action";
+        $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=skin&id=$this->id&action=$action");
 
         if($req_error > 0)
             return error::errorMessage(array('error'=>1), $link_error);
@@ -283,8 +286,10 @@ class Skin extends Model {
         $title = sprintf(_('Elimina skin "%s"'), $this->label);
 
         $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione è definitiva')."</p>";
+        
+        $formaction = $this->_registry->router->link($this->_interface, 'actionDelSkin');
         $required = '';
-        $buffer .= $gform->open($this->_home."?evt[$this->_interface-actionDelSkin]", '', $required);
+        $buffer .= $gform->open($formaction, '', $required);
         $buffer .= $gform->hidden('id', $this->id);
         $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $buffer .= $gform->close();

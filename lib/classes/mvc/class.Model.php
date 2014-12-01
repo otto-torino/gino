@@ -160,6 +160,7 @@ namespace Gino;
      */
      public function &__get($pName) {
         $null = null;
+        
         if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
         elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
         elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];

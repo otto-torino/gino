@@ -187,7 +187,7 @@ class layout extends \Gino\Controller {
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
         $skin = \Gino\Loader::load('Skin', array($id));
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
-
+        
         if($action == 'insert' || $action == 'modify') {
             if($request->checkGETKey('trnsl', '1'))
             {
@@ -563,8 +563,9 @@ class layout extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $skin = new \Gino\Skin($id);
-
+        
+        $skin = \Gino\Loader::load('Skin', array($id));
+        
         return $skin->actionSkin($request);
     }
 
@@ -579,9 +580,9 @@ class layout extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $skin = new \Gino\Skin($id);
+        $skin = \Gino\Loader::load('Skin', array($id));
 
-        return $skin->actionDelSkin();
+        return $skin->actionDelSkin($request);
     }
 
     /**
@@ -595,7 +596,8 @@ class layout extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $css = new \Gino\Css('layout', array('id'=>$id));
+        
+        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
 
         return $css->actionCssLayout($request);
     }
@@ -611,9 +613,9 @@ class layout extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $css = new \Gino\Css('layout', array('id'=>$id));
+        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
 
-        return $css->actionDelCssLayout();
+        return $css->actionDelCssLayout($request);
     }
 
     /**
@@ -629,7 +631,8 @@ class layout extends \Gino\Controller {
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
         $free = \Gino\cleanVar($request->POST, 'free', 'int', '');
 
-        $tpl = new \Gino\Template($id);
+        $tpl = \Gino\Loader::load('Template', array($id));
+        
         if($free) {
             return $tpl->actionFreeTemplate($request);
         }
@@ -640,7 +643,9 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Processa il form di eliminazione template
+     * 
      * @see Gino.Template::formDelTemplate()
+     * @see Gino.Template::actionDelTemplate()
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Redirect
      */
@@ -649,9 +654,9 @@ class layout extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $tpl = new \Gino\Template($id);
+        $tpl = \Gino\Loader::load('Template', array($id));
 
-        return $tpl->actionDelTemplate();
+        return $tpl->actionDelTemplate($request);
     }
 
     /**
