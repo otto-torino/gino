@@ -576,7 +576,6 @@ class page extends \Gino\Controller {
 
         if(!$item || !$item->id || !$item->published) {
             throw new \Gino\Exception\Exception404();
-            exit;
         }
 
         // load sharethis if present

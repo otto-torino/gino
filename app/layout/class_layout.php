@@ -44,7 +44,7 @@ use \Gino\App\Auth\Permission;
  * </div>
  * @endcode
  * Queste porzioni di codice vengono passate con la funzione preg_replace_callback() al metodo Gino.Template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
- * L'elenco dei moduli/pagine disponibili viene gestito dal metodo Gino.App.Layot.layout::modulesList().
+ * L'elenco dei moduli/pagine disponibili viene gestito dal metodo Gino.App.Layout.layout::modulesList().
  *
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
@@ -283,11 +283,11 @@ class layout extends \Gino\Controller {
             $view_table = new View();
             $view_table->setViewTpl('table');
             $view_table->assign('heads', array(
-                _('etichetta'),
-                _('template'),
-                _('css'),
-                _('autenticazione'),
-                _('cache'),
+                _('Etichetta'),
+                _('Template'),
+                _('Css'),
+                _('Autenticazione'),
+                _('Cache'),
                 ''
             ));
             $tbl_rows = array();
@@ -344,9 +344,9 @@ class layout extends \Gino\Controller {
             $view_table = new View();
             $view_table->setViewTpl('table');
             $view_table->assign('heads', array(
-            _('etichetta'),
-            _('file'),
-            _('descrizione'),
+            _('Etichetta'),
+            _('File'),
+            _('Descrizione'),
             ''
             ));
             $tbl_rows = array();
@@ -399,9 +399,9 @@ class layout extends \Gino\Controller {
         $view_table = new View();
         $view_table->setViewTpl('table');
         $view_table->assign('heads', array(
-            _('etichetta'),
-            _('file'),
-            _('descrizione'),
+            _('Etichetta'),
+            _('File'),
+            _('Descrizione'),
             ''
         ));
         $tbl_rows = array();
@@ -709,7 +709,7 @@ class layout extends \Gino\Controller {
                     $access_txt .= _('pubblica');
 
                 $code_full = "{module pageid=".$page->id." func=full}";
-                $url = $page->getIdUrl(true);
+                $url = $page->getUrl();
                 $tbl_rows[] = array(
                     \Gino\htmlChars($page->title),
                     _("Pagina completa"),
@@ -912,7 +912,7 @@ class layout extends \Gino\Controller {
 
                 $code_full = "{module pageid=".$page->id." func=full}";
 
-                $url = $page->getIdUrl(true);
+                $url = $page->getUrl();
                 $tbl_rows[] = array(
                     \Gino\htmlChars($page->ml('title')),
                     "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\jsVar(\Gino\htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
@@ -1051,7 +1051,7 @@ class layout extends \Gino\Controller {
         $buffer .= $view_table->render();
         $buffer .= "</div>";
 
-        return $buffer;
+        return new Response($buffer);
     }
 
     /**

@@ -238,22 +238,17 @@ class Document {
 
         Loader::import('class', '\Gino\Javascript');
 
-        if($this->_registry->sysconf->mobile && isset($this->session->L_mobile)) { 
-            $headline = "<!DOCTYPE html PUBLIC \"-//WAPFORUM//DTD XHTML Mobile 1.2//EN\" \"http://www.wapforum.org/DTD/xhtml-mobile12.dtd\">\n";
-        }
-        else {
-            $headline = "<!DOCTYPE html>\n";
-        }
+        $headline = "<!DOCTYPE html>\n";
         $headline .= "<html lang=\"".LANG."\">\n";
         $headline .= "<head>\n";
         $headline .= "<meta charset=\"utf-8\" />\n";
-        $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
+        $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."/\" />\n";
 
         $headline .= $this->_registry->variables('meta');
 
         if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
         if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-        if($this->_registry->sysconf->mobile && isset($this->session->L_mobile)) {
+        if($this->_registry->sysconf->mobile && isset($this->_request->session->L_mobile)) {
             $headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
         }
         $headline .= $this->_registry->variables('head_links');
