@@ -7,7 +7,7 @@
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
-namespace Gino\App\attachment;
+namespace Gino\App\Attachment;
 
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una singolo allegato

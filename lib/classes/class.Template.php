@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use Gino\Http\Redirect;
+
 /**
  * @brief Libreria per la gestione dei template del documento html da associare alle @ref Gino.Skin
  *
@@ -16,8 +18,6 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-use Gino\Http\Redirect;
-
 class Template extends Model {
 
     protected $_tbl_data;

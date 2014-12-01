@@ -576,6 +576,7 @@ class page extends \Gino\Controller {
 
         if(!$item || !$item->id || !$item->published) {
             throw new \Gino\Exception\Exception404();
+            exit;
         }
 
         // load sharethis if present
@@ -614,7 +615,7 @@ class page extends \Gino\Controller {
                 );
             }
         }
-        if(!$this->_registry->session->user_id) {
+        if(!$request->user->id) {
             $item->read = $item->read + 1;
             $item->save();
         }
@@ -628,9 +629,10 @@ class page extends \Gino\Controller {
         $view->assign('enable_comments', $item->enable_comments);
         $view->assign('form_comment', $form_comment);
         $view->assign('comments', $comments);
-        $view->assign('url', $this->_plink->aLink($this->_instance_name, 'view', array('id'=>$item->slug)));
+        $view->assign('url', $this->link($this->_instance_name, 'view', array('id'=>$item->slug)));
 
-        return $view->render();
+        $document = new \Gino\Document($view->render());
+        return $document();
     }
 
     /**

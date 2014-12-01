@@ -9,6 +9,8 @@
  */
 namespace Gino;
 
+use Gino\Http\Redirect;
+
 /**
  * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
  *
@@ -16,8 +18,6 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-use Gino\Http\Redirect;
-
 class Css extends Model {
 
     public static $table = 'sys_layout_css';

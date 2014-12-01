@@ -12,7 +12,7 @@
  * @authors abidibo abidibo@gmail.com
  */
 ?>
-<? namespace Gino.App.Page; ?>
+<? namespace Gino\App\Page; ?>
 <? //@cond no-doxygen ?>
 <section id="<?= $section_id ?>">
     <?= $tpl ?>

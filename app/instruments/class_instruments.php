@@ -9,7 +9,7 @@
  */
 
 /**
- * @namaspace Gino\App\Instruments
+ * @namespace Gino.App.Instruments
  * @description Namespace dell'applicazione Instruments, per la visualizzazione di utilità quali percorsi e mime types
  */
 namespace Gino\App\Instruments;

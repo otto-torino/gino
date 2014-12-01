@@ -1,18 +1,22 @@
 <?php
 /**
  * @file class_phpModuleView.php
- * @brief Contiene la classe phpModuleView
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.PhpModuleView.phpModuleView
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ */
+
+/**
+ * @namespace Gino.App.PhpModuleView
+ * @description Namespace dell'applicazione PhpModuleView, che gestisce output generati direttamente da codice php salvato du database
  */
 namespace Gino\App\PhpModuleView;
 
 use \Gino\View;
 use \Gino\Document;
 
-// Include il file class.PhpModule.php
 require_once('class.PhpModule.php');
 
 /**
@@ -30,222 +34,219 @@ require_once('class.PhpModule.php');
  * Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di non utilizzare le funzioni per la stampa diretta @a echo e @a print, ma di immagazzinare tutto l'output all'interno della variabile @a $buffer, che verrà stampata all'interno del layout.
  * Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class phpModuleView extends \Gino\Controller {
 
-  private $_tbl_opt, $_tbl_usr;
-  private $_blackList;
+    private $_tbl_opt;
+    private $_blackList;
 
-  private $_title, $_title_visible_home, $_title_visible_page;
-  
-  private $_options;
-  public $_optionsLabels;
+    private $_title, $_title_visible;
 
-  function __construct($mdlId){
+    private $_options;
+    public $_optionsLabels;
 
-    parent::__construct($mdlId);
+    function __construct($mdlId){
 
-    $this->_tbl_opt = "php_module_opt";
-    $this->_tbl_usr = "php_module_usr";
+        parent::__construct($mdlId);
 
-    // options
-    $this->_title = \Gino\htmlChars($this->setOption('title', true));
-    $this->_title_visible = \Gino\htmlChars($this->setOption('title_vis'));
+        $this->_tbl_opt = "php_module_opt";
 
-    // the second paramether will be the class instance
-    $this->_options = \Gino\Loader::load('Options', array($this));
-    $this->_optionsLabels = array(
-    "title"=>_("Titolo"),
-    "title_vis"=>_("Titolo visibile")
-    );
+        // options
+        $this->_title = \Gino\htmlChars($this->setOption('title', true));
+        $this->_title_visible = \Gino\htmlChars($this->setOption('title_vis'));
 
-    $this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
-  }
+        // the second paramether will be the class instance
+        $this->_options = \Gino\Loader::load('Options', array($this));
+        $this->_optionsLabels = array(
+            "title"=>_("Titolo"),
+            "title_vis"=>_("Titolo visibile")
+        );
 
-  /**
-   * Fornisce i riferimenti della classe, da utilizzare nel processo di creazione e di eliminazione di una istanza 
-   * 
-   * @return array
-   */
-  public static function getClassElements() {
+        $this->_blackList = array("exec", "passthru", "proc_close", "proc_get_status", "proc_nice", "proc_open", "proc_terminate", "shell_exec", "system");
+    }
 
-    return array(
-      "tables"=>array('php_module', 'php_module_opt'),
-      "css"=>array('phpModule.css'),
-      "folderStructure"=>array(
-        CONTENT_DIR.OS.'phpModule'=> null
-      )
-    );
-  }
-
-  /**
-   * Eliminazione di una istanza
-   * 
-   * @return boolean
-   */
-  public function deleteInstance() {
-
-    $this->requirePerm('can_admin');
-
-    $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
-    $phpMdl->deleteDbData();
-    
-    /*
-     * delete record and translation from table php_module_opt
+    /**
+     * @brief Restituisce alcune proprietà della classe
+     * @return array associativo contenente le tabelle, viste e struttura directory contenuti
      */
-    $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
-    $this->_trd->deleteTranslations($this->_tbl_opt, $opt_id);
-    
-    $result = $this->_db->delete($this->_tbl_opt, "instance='$this->_instance'");
+    public static function getClassElements() {
 
-    /*
-     * delete group users association
+        return array(
+            "tables"=>array('php_module', 'php_module_opt'),
+            "css"=>array('phpModule.css'),
+            "folderStructure"=>array(
+                CONTENT_DIR.OS.'phpModule'=> null
+            )
+        );
+    }
+
+    /**
+     * @brief Eliminazione di una istanza
+     *
+     * @return risultato operazione, bool
      */
-    $result = $this->_db->delete($this->_tbl_usr, "instance='$this->_instance'");
+    public function deleteInstance() {
 
-    $classElements = $this->getClassElements();
-    foreach($classElements['css'] as $css) {
-      @unlink(APP_DIR.OS.$this->_class_name.OS.baseFileName($css)."_".$this->_instance_name.".css");
+        $this->requirePerm('can_admin');
+
+        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $phpMdl->deleteDbData();
+
+        /*
+         * delete record and translation from table php_module_opt
+         */
+        $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
+        $this->_trd->deleteTranslations($this->_tbl_opt, $opt_id);
+
+        $result = $this->_db->delete($this->_tbl_opt, "instance='$this->_instance'");
+
+        $classElements = $this->getClassElements();
+        foreach($classElements['css'] as $css) {
+            @unlink(APP_DIR.OS.$this->_class_name.OS.baseFileName($css)."_".$this->_instance_name.".css");
+        }
+        foreach($classElements['folderStructure'] as $fld=>$fldStructure) {
+            \Gino\deleteFileDir($fld.OS.$this->_instance_name, true);
+        }
+
+        return $result;
     }
-    foreach($classElements['folderStructure'] as $fld=>$fldStructure) {
-      $this->deleteFileDir($fld.OS.$this->_instance_name, true);
+
+    public function permissions() {
+        return array(
+            'can_admin' => 'amministrazione completa modulo'
+        );
     }
 
-    return $result;
-  }
+    /**
+     * @brief Definizione dei metodi pubblici che forniscono un output per il front-end
+     *
+     * Questo metodo viene letto dal motore di generazione dei layout (prende i metodi non presenti nel file ini) e dal motore di generazione di 
+     * voci di menu (presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
+     *
+     * @return array associativo metodi pubblici metodo => array('label' => label, 'permissions' => permissions)
+     */
+    public static function outputFunctions() {
 
-	public function permissions() {
-		return array(
-			'can_admin' => 'amministrazione completa modulo'
-		);
-	}
-  
-  /**
-   * Elenco dei metodi che possono essere richiamati dal menu e dal template
-   * 
-   * @return array
-   */
-  public static function outputFunctions() {
+        $list = array(
+            "viewList" => array("label"=>_("Visualizzazione modulo"), "permissions"=>array())
+        );
 
-    $list = array(
-      "viewList" => array("label"=>_("Visualizzazione modulo"), "permissions"=>array())
-    );
-
-    return $list;
-  }
-
-  /**
-   * Visualizzazione del modulo
-   * 
-   * @return string
-   */
-  public function viewList() {
-
-    $registry = \Gino\registry::instance();
-
-    $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
-    $registry->addCss($this->_class_www."/phpModule_".$this->_instance_name.".css");
-
-    $rexpf = array();
-    foreach($this->_blackList as $fc) {
-      $rexpf[] = $fc."\(.*?\)";
+        return $list;
     }
-    $rexp = "#".implode("|", $rexpf)."#";
-    if(preg_match($rexp, $phpMdl->content)) {
-      $buffer = '';
+
+    /**
+     * @brief Visualizzazione del modulo
+     * @return Gino.Http.Response
+     */
+    public function viewList() {
+
+        $registry = \Gino\registry::instance();
+
+        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $registry->addCss($this->_class_www."/phpModule_".$this->_instance_name.".css");
+
+        $rexpf = array();
+        foreach($this->_blackList as $fc) {
+            $rexpf[] = $fc."\(.*?\)";
+        }
+        $rexp = "#".implode("|", $rexpf)."#";
+        if(preg_match($rexp, $phpMdl->content)) {
+            $buffer = '';
+        }
+        else eval($phpMdl->content);
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $view->assign('id', 'phpModuleView_'.$this->_instance_name);
+        $view->assign('class', 'public');
+        $view->assign('header', $this->_title);
+        $view->assign('header_class', $this->_title_visible ? '' : 'hidden');
+        $view->assign('content', $buffer);
+
+        return $view->render();
     }
-    else eval($phpMdl->content);
 
-    $view = new View();
-    $view->setViewTpl('section');
-    $view->assign('id', 'phpModuleView_'.$this->_instance_name);
-    $view->assign('class', 'public');
-    $view->assign('header', $this->_title);
-    $view->assign('header_class', $this->_title_visible ? '' : 'hidden');
-    $view->assign('content', $buffer);
+    /**
+     *  @brief Interfaccia amministrativa per la gestione dei moduli di classe 'phpModuleView'
+     * 
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function manageDoc(\Gino\Http\Request $request) {
 
-    return $view->render();
-  }
+        $this->requirePerm('can_admin');
 
-  /**
-   * Interfaccia amministrativa per la gestione dei moduli di classe 'phpModuleView'
-   * 
-   * @param \Gino\Http\Request $request oggetto Gino.Http.Request
-   * @return string
-   */
-	public function manageDoc(\Gino\Http\Request $request) {
+        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
 
-		$this->requirePerm('can_admin');
+        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
+        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
+        $link_edit = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'action=modify'), _('Contenuto'));
+        $link_info = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
 
-		$phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $links_array = array($link_frontend, $link_options, $link_edit, $link_info);
 
-		$link_frontend = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=frontend\">"._("Frontend")."</a>";
-		$link_options = "<a href=\"".$this->_home."?evt[$this->_instance_name-manageDoc]&block=options\">"._("Opzioni")."</a>";
-		$link_edit = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]&amp;action=modify\">"._("Contenuto")."</a>";
-		$link_info = "<a href=\"".$this->_home."?evt[".$this->_instance_name."-manageDoc]\">"._("Informazioni")."</a>";
-		$sel_link = $link_info;
+        $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
+        $action = \Gino\cleanVar($request->GET, 'action', 'string', '');
 
-		$links_array = array($link_frontend, $link_options, $link_edit, $link_info);
+        if($block == 'frontend') {
+            $backend = $this->manageFrontend();
+            $sel_link = $link_frontend;
+        }
+        elseif($block == 'options') {
+            $backend = $this->manageOptions();
+            $sel_link = $link_options;
+        }
+        else {
 
-		$block = \Gino\cleanVar($request->GET, 'block', 'string', '');
-		$action = \Gino\cleanVar($request->GET, 'action', 'string', '');
-	
-		if($block == 'frontend') {
-			$backend = $this->manageFrontend();
-			$sel_link = $link_frontend;
-		}
-		elseif($block == 'options') {
-			$backend = $this->manageOptions();		
-			$sel_link = $link_options;
-		}
-		else {
+            if($action == 'save') {
+                return $phpMdl->actionPhpModule($request);
+            }
 
-			if($action == 'save') {
-				return $phpMdl->actionPhpModule($request);
-			}
-			
-			if($action == 'modify') {
-				$sel_link = $link_edit;
-				$backend = $phpMdl->formPhpModule();
-			}
-			else {
-				$backend = $this->info();
-			}
-		}
+            if($action == 'modify') {
+                $sel_link = $link_edit;
+                $backend = $phpMdl->formPhpModule();
+            }
+            else {
+                $backend = $this->info();
+            }
+        }
 
-		if(is_a($backend, '\Gino\Http\Response')) {
-			return $backend;
-		}
+        if(is_a($backend, '\Gino\Http\Response')) {
+            return $backend;
+        }
 
         $view = new View();
         $view->setViewTpl('tab');
         $dict = array(
-			'title' => $this->_instance_label,
-			'links' => $links_array,
-			'selected_link' => $sel_link,
-			'content' => $backend
-		);
-        
+            'title' => $this->_instance_label,
+            'links' => $links_array,
+            'selected_link' => $sel_link,
+            'content' => $backend
+        );
+
         $document = new Document($view->render($dict));
         return $document();
-	}
+    }
 
-  private function info(){
+    /**
+     * @brief Informazioni modulo
+     * @return html, informazioni
+     */
+    private function info(){
 
-    $buffer = "<p>"._("Il modulo permette di eseguire codice php completamente personalizzabile, e di visualizzare l'output prodotto. Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate. Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.")."</p>\n";
-    $buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
-    $buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
-    
-    $view =   new View(null, 'section');
-    $dict = array(
-      'title' => _('Informazioni'),
-      'class' => 'admin',
-      'content' => $buffer
-    );
-    return $view->render($dict);
-  }
+        $buffer = "<p>"._("Il modulo permette di eseguire codice php completamente personalizzabile, e di visualizzare l'output prodotto. Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate. Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.")."</p>\n";
+        $buffer .= "<p>"._("Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>\$buffer</b>, che verrà stampata all'interno del layout.")."</p>\n";
+        $buffer .= "<p>"._("Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.")."</p>\n";
+
+        $view =     new View(null, 'section');
+        $dict = array(
+            'title' => _('Informazioni'),
+            'class' => 'admin',
+            'content' => $buffer
+        );
+        return $view->render($dict);
+    }
 }
-?>

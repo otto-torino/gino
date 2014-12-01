@@ -10,7 +10,7 @@
 
 /**
  * @namespace Gino.Exception
- * @description namespace che comprende tutte le classi di tipo Exception
+ * @description Namespace che comprende tutte le classi di tipo Exception
  */
 namespace Gino\Exception;
 

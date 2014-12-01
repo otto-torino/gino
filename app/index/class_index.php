@@ -9,8 +9,8 @@
  */
 
 /**
- * @namaspace Gino.App.Index
- * @brief Namespace dell'applicazione Index, che gestisce la home amministrativa
+ * @namespace Gino.App.Index
+ * @description Namespace dell'applicazione Index, che gestisce la home amministrativa
  */
 namespace Gino\App\Index;
 

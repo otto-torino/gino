@@ -23,7 +23,6 @@
 ?>
 <? namespace Gino; ?>
 <? //@cond no-doxygen ?>
-
 <section class="language-choice">
     <h1 class="hidden"><?= _('Scelta lingua') ?></h1>
     <ul>

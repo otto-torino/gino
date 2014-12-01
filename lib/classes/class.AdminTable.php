@@ -175,7 +175,7 @@ class AdminTable {
      * - @b upload, viene impostato a TRUE se l'oggetto di un campo del form appartiene almeno a una classe fileField() o imageField()
      * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
      * - @b s_name, il nome del submit è 'submit'
-     * - @b s_value, il valore del submit è 'modifica' o 'inserisci'
+     * - @b s_value, il valore del submit è 'salva'
      *
      * Le opzioni degli elementi input sono formattate nel seguente modo: nome_campo=>array(opzione=>valore[,...]) \n
      * E' possibile rimuovere gli elementi input dalla struttura del form (@a removeFields) oppure selezionare gli elementi da mostrare (@a viewFields). \n
@@ -347,14 +347,7 @@ class AdminTable {
         if(sizeof($form_required) > 0)
             $form_required = implode(',', $form_required);
 
-        if($model->id) {
-
-            $submit = _("modifica");
-        }
-        else {
-
-            $submit = _("inserisci");
-        }
+        $submit = _('salva');
 
         $f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
         $f_upload = array_key_exists('f_upload', $options) ? $options['f_upload'] : $form_upload;
@@ -420,7 +413,8 @@ class AdminTable {
         $buffer .= $form_content;
 
         if(!$only_inputs) {
-            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField));
+            $save_and_continue = $gform->input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
+            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => $save_and_continue));
             $buffer .= $gform->close();
         }
 
@@ -760,7 +754,7 @@ class AdminTable {
 
         $link_return = (isset($options_form['link_return']) && $options_form['link_return'])
             ? $options_form['link_return']
-            : $this->editUrl(array(), array('edit', 'insert', 'id'));
+            : $this->editUrl(array(), isset($this->_request->POST['save_and_continue']) ? array() : array('edit', 'insert', 'id'));
 
         $form_description = gOpt('form_description', $options_form, null);
 
