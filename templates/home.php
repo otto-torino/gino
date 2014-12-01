@@ -47,8 +47,6 @@
     <div class="container bg-white">
       <div class="row">
         <div class="col-md-6">
-          {module sysclassid=2 func=choiceLanguage}
-          {module sysclassid=13 func=form}
           {module pageid=1 func=full}
           {module pageid=2 func=full}
         </div>
