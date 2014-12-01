@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `attachment_ctg` (
 --
 
 INSERT INTO `attachment_ctg` (`id`, `name`, `directory`) VALUES
-(1, 'various', 'c1');
+(1, 'gino', 'gino');
 
 -- --------------------------------------------------------
 
@@ -652,10 +652,10 @@ CREATE TABLE IF NOT EXISTS `page_entry` (
 
 INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_edit_date`, `title`, `slug`, `image`, `url_image`, `text`, `tags`, `enable_comments`, `published`, `social`, `private`, `users`, `read`, `tpl_code`, `box_tpl_code`) VALUES
 (1, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attachment/c1/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(3, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/c1/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(4, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/c1/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(5, 0, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attachment/c1/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 0, 1, 0, 0, '', 0, NULL, NULL);
+(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(3, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(4, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(5, 0, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 0, 1, 0, 0, '', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -855,9 +855,9 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
 --
 
 INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
-(1, 'mobile.css', 'Css per la visione mobile', ''),
-(2, 'admin.css', 'Css area amministrativa', ''),
-(3, 'home.css', 'Css gino base', 'Personalizza homepage e pagine di gino base');
+(1, 'mobile.css', 'Css per la visione mobile', 'Contiene regole per i dispositivi mobile'),
+(2, 'admin.css', 'Css area amministrativa', 'Contiene regole per l''area amministrativa'),
+(3, 'gino-blocks-tpl.css', 'Css per template a blocchi', 'Contiene regole css per il layout a blocchi di gino');
 
 -- --------------------------------------------------------
 
@@ -877,23 +877,24 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
   `auth` enum('yes','no','') NOT NULL,
   `cache` bigint(16) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
 -- Dumping data for table `sys_layout_skin`
 --
 
 INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
-(1, 'Home Pubblica', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '2', 3, 8, 'no', 0),
-(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 6, 'no', 0),
-(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '5', 0, 5, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '6', 2, 4, 'yes', 0),
-(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[index-auth_page]', '4', 3, 3, 'no', 0),
-(6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 10, '', 0),
-(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 3, 7, 'yes', 0),
-(8, 'Home Privata', NULL, '#index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*$#', NULL, '2', 3, 9, 'yes', 0),
+(1, 'Home Pubblica', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 9, 'no', 0),
+(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 7, 'no', 0),
+(3, 'Home Amministrazione', NULL, NULL, '/index.php?evt[index-admin_page]', '4', 0, 6, 'yes', 0),
+(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '5', 2, 5, 'yes', 0),
+(5, 'Pagina Autenticazione', NULL, NULL, '/index.php?evt[auth-login]', '3', 0, 3, 'no', 0),
+(6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 11, '', 0),
+(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 8, 'yes', 0),
+(8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 10, 'yes', 0),
 (9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'mobile=1', NULL, 'index.php?mobile=1', '7', 1, 1, '', 0);
+(10, 'Home Mobile', 'L_mobile=1', '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '7', 1, 1, '', 0),
+(11, '_popup', NULL, '#&_popup=1#', NULL, '6', 2, 4, 'yes', 0);
 
 -- --------------------------------------------------------
 
@@ -915,14 +916,14 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
 --
 
 INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`, `free`) VALUES
-(1, 'default.tpl', 'Default', '', 0),
-(2, 'home.php', 'Home', '', 1),
-(3, 'page.php', 'Pagine', '', 1),
-(4, 'auth_page.tpl', 'Pagina Autenticazione', '', 0),
-(5, 'admin_home.php', 'Home admin', '', 1),
-(6, 'admin_page.php', 'Pagine admin', '', 1),
-(7, 'home_mobile.tpl', 'Home Mobile', '', 0),
-(8, 'mobile_pages.tpl', 'Pagine Mobile', '', 0);
+(1, 'default.tpl', 'Default', 'Template di default a blocchi', 0),
+(2, 'home.php', 'Home', 'Template home page', 1),
+(3, 'page.php', 'Pagine', 'Template pagine interne', 1),
+(4, 'admin_home.php', 'Home admin', 'Template home area amministrativa', 1),
+(5, 'admin_page.php', 'Pagine admin', 'Template pagine area amministrativa', 1),
+(6, '_popup.php', '_popup', 'Template per l''inserimento di foreign o m2m contestuali', 1),
+(7, 'home_mobile.php', 'Home mobile', 'Template home page dispositivi mobile', 1),
+(8, 'pages_mobile.php', 'Pagine mobile', 'Template pagine interne dispositivi mobile', 1);
 
 -- --------------------------------------------------------
 
@@ -940,7 +941,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
   `rows` smallint(2) NOT NULL,
   `cols` smallint(2) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
 -- Dumping data for table `sys_layout_tpl_block`
@@ -951,14 +952,7 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 (2, 1, 2, 0, 0, 0, 1, 1),
 (3, 1, 3, 960, 1, 2, 1, 2),
 (4, 1, 4, 0, 0, 0, 1, 1),
-(5, 1, 5, 960, 1, 2, 1, 2),
-(6, 4, 1, 0, 0, 0, 1, 1),
-(7, 4, 2, 0, 0, 0, 1, 1),
-(8, 4, 3, 960, 1, 2, 1, 4),
-(9, 4, 4, 0, 0, 0, 1, 1),
-(10, 4, 5, 960, 1, 2, 1, 2),
-(11, 7, 1, 480, 1, 2, 1, 1),
-(12, 8, 1, 480, 1, 2, 1, 1);
+(5, 1, 5, 960, 1, 2, 1, 2);
 
 -- --------------------------------------------------------
 
