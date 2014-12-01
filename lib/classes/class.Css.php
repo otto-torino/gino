@@ -25,7 +25,7 @@ class Css extends Model {
     private $_class, $_module, $_name, $_label, $_css_list;
     private $_instance_class;
     private $_mdlLink;
-    private $_home, $_interface;
+    private $_interface;
     private $_tbl_module;
 
     /**
@@ -47,7 +47,7 @@ class Css extends Model {
      *   - @b label (string): etichetta del modulo
      * @return istanza di Gino.Css
      */
-    function __construct($type, $params) {
+    function __construct($type, $params=array()) {
 
         $db = db::instance();
         if($type=='module') {
@@ -66,7 +66,6 @@ class Css extends Model {
             $this->_tbl_data = self::$table;
             parent::__construct($id);
 
-            $this->_home = 'index.php';
             $this->_interface = 'layout';
         }
     }
@@ -142,8 +141,9 @@ class Css extends Model {
         $action = $this->id ? 'modify':'insert';
         $title = $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile");
 
+        $formaction = $this->_registry->router->link('layout', 'actionCss');
         $required = 'label';
-        $buffer = $gform->open($this->_home."?evt[layout-actionCss]", true, $required);
+        $buffer = $gform->open($formaction, true, $required);
         $buffer .= $gform->hidden('id', $this->id);
         $buffer .= $gform->hidden('old_filename', $this->filename);
 
@@ -178,7 +178,7 @@ class Css extends Model {
         $req_error = $gform->arequired();
 
         $action = $this->id ? 'modify' : 'insert';
-        $link_error = $this->_home."?evt[$this->_interface-manageLayout]&block=css&id=$this->id&action=$action";
+        $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=css&id=$this->id&action=$action");
 
         if($req_error > 0) 
             return error::errorMessage(array('error'=>1), $link_error);
@@ -215,8 +215,10 @@ class Css extends Model {
         $title = sprintf(_('Elimina foglio di stile "%s"'), $this->label);
 
         $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione determina l\'eliminazione del file css dalle skin che lo contengono!')."</p>";
+        
+        $formaction = $this->_registry->router->link($this->_interface, 'actionDelCss');
         $required = '';
-        $buffer .= $gform->open($this->_home."?evt[layout-actionDelCss]", '', $required);
+        $buffer .= $gform->open($formaction, '', $required);
         $buffer .= $gform->hidden('id', $this->id);
         $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $buffer .= $gform->close();
@@ -242,6 +244,7 @@ class Css extends Model {
 
         if($this->filename) @unlink(CSS_DIR.OS.$this->filename);
 
+        Loader::import('class', '\Gino\Skin');
         Skin::removeCss($this->id);
 
         $this->_registry->trd->deleteTranslations($this->_tbl_data, $this->id);

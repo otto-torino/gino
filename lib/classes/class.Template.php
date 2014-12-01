@@ -60,7 +60,7 @@ class Template extends Model {
         $this->_blocks_properties = array();
         if(!$this->id) $this->_blocks_number = 0;
         else {
-            $rows = $this->_db->select("SELECT COUNT(id) as tot", self::$table_block, "tpl='".$this->id."'");
+            $rows = $this->_db->select("COUNT(id) as tot", self::$table_block, "tpl='".$this->id."'");
             if($rows and count($rows)) $this->_blocks_number = $rows[0]['tot'];
             else $this->_blocks_number = 0;
         }
@@ -612,7 +612,9 @@ class Template extends Model {
 
         // Form
         $required = '';
-        $buffer .= $gform->open($this->_home."?evt[".$this->_interface."-actionTemplate]", '', $required);
+        $formaction = $this->_registry->router->link($this->_interface, 'actionTemplate');
+        
+        $buffer .= $gform->open($formaction, '', $required);
         $buffer .= $gform->hidden('id', $this->id);
         $buffer .= $gform->hidden('label', htmlInput($label));
         $buffer .= $gform->hidden('description', htmlInput($description));
@@ -754,10 +756,13 @@ class Template extends Model {
             $rows = $db->select('rows, cols', self::$table_block, "tpl='".$this->id."' AND position='".$pos."'");
             if($rows and count($rows)) $old = true;
         }
+        else $rows = array();
+        
+        $count = count($rows);
 
         $buffer = "<div id=\"block_$num\" style=\"$block_style_width$margin\">\n";
 
-        for($ii=1; $ii<$rows+1; $ii++) {
+        for($ii=1; $ii<$count+1; $ii++) {
             for($iii=1; $iii<$cols+1; $iii++) {
 
                 $module = '';
@@ -913,7 +918,7 @@ class Template extends Model {
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Response
      */
-    public function actionTemplate(\Gino\Http\Request $request) {
+    public function actionTemplate($request) {
 
         $tplContent = $request->POST['tplform_text'];
         if(get_magic_quotes_gpc()) $tplContent = stripslashes($tplContent);    // magic_quotes_gpc = On
@@ -924,7 +929,7 @@ class Template extends Model {
         $tplFilename = cleanVar($request->POST, 'filename', 'string', '');
         if($tplFilename) $this->filename = $tplFilename.".tpl";
         $modTpl = cleanVar($request->POST, 'modTpl', 'int', '');
-
+        
         $action = ($this->id)? "modify":"insert";
 
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => $action));
