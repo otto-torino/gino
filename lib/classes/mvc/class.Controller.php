@@ -34,6 +34,7 @@ abstract class Controller {
               $_class_img,
               $_data_dir,
               $_data_www,
+              $_view_dir,
               $_home;
 
     /**
