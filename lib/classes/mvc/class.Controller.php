@@ -97,9 +97,9 @@ abstract class Controller {
     protected function setPaths() {
         $this->_class_www = SITE_APP.'/'.$this->_class_name;
         $this->_class_img = $this->_class_www.'/img';
-        $this->_home = HOME_FILE; // @todo vedere se eliminare
-        $this->_data_dir = CONTENT_DIR.OS.$this->_class_name;
-        $this->_data_www = CONTENT_WWW.'/'.$this->_class_name;
+        $this->_home = HOME_FILE;
+        $this->_data_dir = CONTENT_DIR.OS.$this->_class_name . ($this->_instance ? OS . $this->_instance_name : '');
+        $this->_data_www = CONTENT_WWW.'/'.$this->_class_name . ($this->_instance ? '/' . $this->_instance_name : '');
         $this->_view_dir = APP_DIR.OS.$this->_class_name.OS.'views';
     }
 
