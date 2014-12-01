@@ -179,7 +179,6 @@ class PageEntry extends \Gino\Model {
      *
      * @param mixed $slug lo slug oppure il valore ID della pagina
      * @param null $controller per compatibilità con il metodo Gino.Model::getFromSlug
-     * @access public
      * @return istanza di Gino.App.Page.PageEntry
      */
     public static function getFromSlug($slug, $controller = null) {

@@ -821,9 +821,9 @@ class Template extends Model {
                 $mdlType = (!empty($m[1]))? $m[1]:null;
 
                 if($mdlType=='page') {
-                    $page = new PageEntry($mdlId);
+                    $page = new \Gino\App\Page\PageEntry($mdlId);
                     $title = $page->title;
-                    $jsurl = $page->getIdUrl(true);
+                    $jsurl = $page->getUrl();
                 }
                 elseif($mdlType=='class' || $mdlType=='class') {
                     $module = new \Gino\App\Module\ModuleInstance($mdlId);

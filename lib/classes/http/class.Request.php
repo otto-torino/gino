@@ -77,7 +77,7 @@ class Request extends Singleton {
 
         $this->request_uri = $this->valueOrNull($_SERVER, 'REQUEST_URI');
         $this->query_string = $this->valueOrNull($_SERVER, 'QUERY_STRING');
-        $this->path = preg_replace("#".preg_quote(SITE_WWW)."#", '', $this->request_uri);
+        $this->path = preg_replace("#^".preg_quote(SITE_WWW)."#", '', $this->request_uri);
         $this->url = $this->path; // viene ridefinito dalla classe \Gino\Router che chiama self::updateUrl se si esegue l'url rewriting
         $this->method = $this->valueOrNull($_SERVER, 'REQUEST_METHOD');
         $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], $this->request_uri);
@@ -100,7 +100,7 @@ class Request extends Singleton {
             return $v !== '' ? sprintf('%s=%s', $k, $v) : $k;
         }, array_keys($this->GET), array_values($this->GET)));
 
-        $this->url = $this->META['SCRIPT_NAME'] . ($params ? '?' . $params : '');
+        $this->url = preg_replace("#".preg_quote(SITE_WWW)."#", '', $this->META['SCRIPT_NAME']) . ($params ? '?' . $params : '');
 
     }
 

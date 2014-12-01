@@ -128,35 +128,38 @@ class Core {
      */
     private function initMobile() {
 
+        $session = \Gino\Session::instance();
+
         /* mobile detection */
         $avoid_mobile = preg_match("#(&|\?)avoid_mobile=(\d)#", $_SERVER['REQUEST_URI'], $matches)
             ? (int) $matches[2]
             : null;
 
         if($avoid_mobile) {
-            unset($this->_registry->session->L_mobile);
-            $this->_registry->session->L_avoid_mobile = 1;
+            unset($session->L_mobile);
+            $session->L_avoid_mobile = 1;
         }
         elseif($avoid_mobile === 0) {
-            unset($this->_registry->session->L_avoid_mobile);
+            unset($session->L_avoid_mobile);
         }
 
-        if(!(isset($this->_registry->session->L_avoid_mobile) && $this->_registry->session->L_avoid_mobile)) {
-            $this->detectMobile();
+        if(!(isset($session->L_avoid_mobile) && $session->L_avoid_mobile)) {
+            $this->detectMobile($session);
         }
 
     }
 
     /**
      * @brief Esegue il detect di dispositivi mobile, setta una variabile di sessione se il detect è positivo
+     * @param \Gino\Session $session istanza di Gino.Session
      * @return void
      */
-    private function detectMobile() {
+    private function detectMobile(\Gino\Session $session) {
 
         $detect = Loader::load('MobileDetect');
 
         if($detect->isMobile()) {
-            $this->_registry->session->L_mobile = 1;
+            $session->L_mobile = 1;
         }
     }
 

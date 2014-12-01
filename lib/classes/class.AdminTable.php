@@ -281,7 +281,7 @@ class AdminTable {
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
 
         // popup
-        $popup = cleanVar($this->_request->GET, '_popup', 'int', '');
+        $popup = cleanVar($this->_request->GET, '_popup', 'int');
 
         $gform = new Form($formId, $method, $validation, 
             array(
@@ -414,7 +414,7 @@ class AdminTable {
 
         if(!$only_inputs) {
             $save_and_continue = $gform->input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => $save_and_continue));
+            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => $popup ? '' : $save_and_continue));
             $buffer .= $gform->close();
         }
 
