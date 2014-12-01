@@ -286,6 +286,13 @@ class Router extends Singleton {
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {
         $url = $this->_request->path;
+
+        if(count($remove)) {
+            foreach($remove as $param) {
+                $url = preg_replace("#(\?|&)".preg_quote($param)."(?:=[^&]*)#", '', $url);
+            }
+        }
+
         if(count($add)) {
             foreach($add as $param => $value) {
                 // se presente va riscritto
@@ -295,11 +302,6 @@ class Router extends Singleton {
                 else {
                     $url .= ( strpos($url, '?') ? '&' : '?' ) . sprintf('%s=%s', $param, $value);
                 }
-            }
-        }
-        if(count($remove)) {
-            foreach($remove as $param) {
-                $url = preg_replace("#(\?|&)".preg_quote($param)."(?:=[^&]*)#", '', $url);
             }
         }
 

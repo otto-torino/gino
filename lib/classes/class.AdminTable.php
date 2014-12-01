@@ -752,17 +752,31 @@ class AdminTable {
      */
     public function adminForm($model_obj, $options_form, $inputs) {
 
-        $link_return = (isset($options_form['link_return']) && $options_form['link_return'])
-            ? $options_form['link_return']
-            : $this->editUrl(array(), isset($this->_request->POST['save_and_continue']) ? array() : array('edit', 'insert', 'id'));
-
         $form_description = gOpt('form_description', $options_form, null);
 
-        if(count($this->_request->POST)) {
-            $popup = cleanVar($this->_request->POST, '_popup', 'int', '');
+        if($this->_request->method === 'POST') {
+            $insert = !$model_obj->id;
+            $popup = cleanVar($this->_request->POST, '_popup', 'int');
+            // link error
             $link_error = $this->editUrl(array(), array());
             $options_form['link_error'] = $link_error ;
+            // action
             $action_result = $this->modelAction($model_obj, $options_form, $inputs);
+            // link success
+            if(isset($options_form['link_return']) and $options_form['link_return']) {
+                $link_return = $options_form['link_return'];
+            }
+            else {
+                if(isset($this->_request->POST['save_and_continue']) and !$insert) {
+                    $link_return = $this->editUrl(array(), array());
+                }
+                elseif(isset($this->_request->POST['save_and_continue']) and $insert) {
+                    $link_return = $this->editUrl(array('edit' => 1, 'id' => $model_obj->id), array('insert'));
+                }
+                else {
+                    $link_return = $this->editUrl(array(), array('insert', 'edit', 'id'));
+                }
+            }
             if($action_result === TRUE and $popup) {
                 $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
                 return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
@@ -797,7 +811,6 @@ class AdminTable {
             $this->_view->assign('title', $title);
             $this->_view->assign('form_description', $form_description);
             $this->_view->assign('form', $form);
-            $this->_view->assign('link_return', $link_return);
 
             return $this->_view->render();
         }

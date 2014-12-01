@@ -138,6 +138,22 @@ abstract class Controller {
     }
 
     /**
+     * @brief Percorso assoluto alla cartella dei contenuti
+     * @return percorso assoluto
+     */
+    public function getBaseAbsPath() {
+        return $this->_data_dir;
+    }
+
+    /**
+     * @brief Percorso relativo alla cartella dei contenuti
+     * @return percorso relativo
+     */
+    public function getBasePath() {
+        return $this->_data_www;
+    }
+
+    /**
      * @brief Richiama il metodo ononimo di Access passando in automatico classe e istanza
      * @see Access:requirePerm
      * @return void
