@@ -119,8 +119,8 @@ CREATE TABLE IF NOT EXISTS `auth_opt` (
 -- Dumping data for table `auth_opt`
 --
 
-INSERT INTO `auth_opt` (`id`, `instance`, `title`, `users_for_page`, `user_more_info`, `user_card_view`, `self_registration`, `self_registration_active`, `username_as_email`, `aut_pwd`, `aut_pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_numeric_number`) VALUES
-(1, 0, 'Utenti', 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
+INSERT INTO `auth_opt` (`id`, `instance`, `users_for_page`, `user_more_info`, `user_card_view`, `self_registration`, `self_registration_active`, `username_as_email`, `aut_pwd`, `aut_pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_numeric_number`) VALUES
+(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
 
 -- --------------------------------------------------------
 
@@ -223,7 +223,8 @@ CREATE TABLE IF NOT EXISTS `auth_user_add` (
 CREATE TABLE IF NOT EXISTS `auth_user_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL
+  `group_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------

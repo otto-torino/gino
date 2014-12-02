@@ -520,7 +520,9 @@ class mysql implements \Gino\DbManager {
 	 */
 	public function dumpDatabase($file) {
 
-		$tables = mysql_list_tables($this->_db_name);
+		$query = "SHOW TABLES FROM ".$this->_db_name;
+		$tables = $this->execQuery($query);
+		
 		while ($td = mysql_fetch_array($tables)) {
 			$table = $td[0];
 			$r = mysql_query("SHOW CREATE TABLE `$table`");
