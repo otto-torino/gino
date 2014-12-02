@@ -96,7 +96,6 @@ CREATE TABLE auth_group_perm  (
 CREATE TABLE auth_opt (
   id			int IDENTITY(1, 1),
   instance int NOT NULL,
-  title nvarchar(200) NOT NULL,
   users_for_page smallint NOT NULL,
   user_more_info tinyint NOT NULL,
   user_card_view tinyint NOT NULL,
@@ -113,8 +112,8 @@ CREATE TABLE auth_opt (
 
 SET IDENTITY_INSERT auth_opt ON
 
-INSERT INTO auth_opt (id, instance, title, users_for_page, user_more_info, user_card_view, self_registration, self_registration_active, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number) VALUES
-(1, 0, 'Utenti', 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
+INSERT INTO auth_opt (id, instance, users_for_page, user_more_info, user_card_view, self_registration, self_registration_active, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number) VALUES
+(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
 
 SET IDENTITY_INSERT auth_opt OFF
 
