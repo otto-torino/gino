@@ -361,7 +361,7 @@ class module extends \Gino\Controller {
             }
 
             $reg_exp = "/#(.*?)".$class_name." /";
-            $replace = "#$1".$class_name."_".$name." ";
+            $replace = "#$1".$class_name."-".$name." ";
             $content = preg_replace($reg_exp, $replace, $css_content);
 
             fwrite($fo, $content);

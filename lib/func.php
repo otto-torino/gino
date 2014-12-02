@@ -910,19 +910,19 @@ function shareAll($social, $url, $title=null, $description=null) {
     }
     else {
         foreach($social as $s) {
-            if($s=='facebook') {
-                $items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";    
+            if(strpos($s, 'facebook') !== FALSE) {
+                $items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";
             }
-            elseif($s=='twitter') {
+            elseif(strpos($s, 'twitter') !== FALSE) {
                 $items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
             }
-            elseif($s=='linkedin') {
+            elseif(strpos($s, 'linkedin') !== FALSE) {
                 $items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode($registry->sysconf->head_title)."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
             }
-            elseif($s=='googleplus') {
+            elseif(strpos($s, 'googleplus') !== FALSE) {
                 $items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
             }
-            elseif($s=='digg') {
+            elseif(strpos($s, 'digg') !== FALSE) {
                 $items[] = "<a href=\"http://digg.com/submit?phase=2&amp;url=".$url."&amp;title=".$title."\"><img src=\"".SITE_IMG."/share_digg.png\" alt=\"Share on LinkedIn\"></a>";
             }
         }

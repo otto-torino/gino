@@ -376,7 +376,7 @@ class ImageField extends FileField {
                 imagecopyresampled($destfile_id, $sourcefile_id, 0, 0, 0, 0, $thumb_size[0], $thumb_size[1], $im_width, $im_height);
                 imagejpeg($destfile_id, $thumb_file);
             }
-            else
+            elseif($thumb)
             {
                 copy($file, $thumb_file);
             }

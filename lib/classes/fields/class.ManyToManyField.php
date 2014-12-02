@@ -201,7 +201,7 @@ class ManyToManyField extends Field {
      */
     public function clean($options=null) {
 
-        $request = Request::instance();
+        $request = \Gino\Http\Request::instance();
         $value_type = $this->_value_type;
         $method = isset($options['method']) ? $options['method'] : $request->POST;
         $escape = gOpt('escape', $options, true);

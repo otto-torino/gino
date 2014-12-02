@@ -1120,7 +1120,7 @@ class page extends \Gino\Controller {
      *
      * @see Gino.App.SearchSite
      * @see Gino.Search
-     * @param array array associativo contenente i risultati della ricerca
+     * @param array $results array associativo contenente i risultati della ricerca
      * @return html, presentazione item tra i risultati della ricerca
      */
     public function searchSiteResult($results) {

@@ -194,7 +194,8 @@ class Template extends Model {
         'title': '"._('Moduli e pagine')."',
         'url': '".$this->_home."?evt[".$this->_interface."-modulesCodeList]',
         'width': 800,
-        'height': 500
+        'height': 500,
+        'overlay': false
         }); w.display();")."</p>";
         $buffer .= "</div>";
 

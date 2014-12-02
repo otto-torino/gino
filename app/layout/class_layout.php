@@ -685,7 +685,7 @@ class layout extends \Gino\Controller {
          * Pages
          */
         $tbl_rows[] = array(
-            array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+            array('text' => _('Pagine'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
         );
         $tbl_rows[] = array(
             array('text' =>_('titolo'), 'header' => true),
@@ -723,7 +723,7 @@ class layout extends \Gino\Controller {
          * Modules sys_module
          */
         $tbl_rows[] = array(
-            array('text' => _('Istanze di moduli'), 'colspan'=>3, 'class'=>'header', 'header'=>TRUE)
+            array('text' => _('Istanze di moduli'), 'colspan'=>4, 'class'=>'header', 'header'=>TRUE)
         );
         $tbl_rows[] = array(
             array('text' =>_('nome'), 'header' => TRUE),
@@ -741,7 +741,6 @@ class layout extends \Gino\Controller {
                     : array();
 
                 if(count($output_functions)) {
-                    $first = true;
                     foreach($output_functions as $func=>$data) {
                         $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
                         $public_method = @$method_check['PUBLIC_METHODS'][$func];
@@ -760,13 +759,7 @@ class layout extends \Gino\Controller {
                                 count($permissions) ? implode(', ', $permissions) : _('pubblico'),
                                 $code
                             );
-                            if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
-                                $first = false;
-                            }
-                            else {
-                                $tbl_rows[] = $row;
-                            }
+                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label))), $row);
                         }
                     }
                 }
@@ -777,7 +770,7 @@ class layout extends \Gino\Controller {
          * Modules sys_module_app
          */
         $tbl_rows[] = array(
-          array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+          array('text' => _('Moduli di sistema'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
         );
         $tbl_rows[] = array(
           array('text' =>_('nome'), 'header' => true),
@@ -795,7 +788,6 @@ class layout extends \Gino\Controller {
                     : array();
 
                 if(count($output_functions)) {
-                    $first = true;
                     foreach($output_functions as $func=>$data) {
                         $method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
                         $public_method = @$method_check['PUBLIC_METHODS'][$func];
@@ -814,13 +806,7 @@ class layout extends \Gino\Controller {
                                 count($permissions) ? implode(', ', $permissions) : _('pubblico'),
                                 $code
                             );
-                            if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
-                                $first = false;
-                            }
-                            else {
-                                $tbl_rows[] = $row;
-                            }
+                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label))), $row);
                         }
                     }
                 }
@@ -831,7 +817,7 @@ class layout extends \Gino\Controller {
          * Url module
          */
         $tbl_rows[] = array(
-            array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+            array('text' => _('Moduli segnaposto'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
         );
         $tbl_rows[] = array(
             array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
