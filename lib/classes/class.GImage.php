@@ -37,8 +37,8 @@ class GImage {
      */
     public function __construct($abspath) {
 
-        if(!is_file($abspath)) {
-            throw new Exception(sprintf('Il file con path %s non esiste', $abspath));
+    	if(!is_file($abspath)) {
+            throw new \Exception(sprintf('Il file con path %s non esiste', $abspath));
         }
 
         $image_info = getimagesize($abspath);
@@ -57,7 +57,7 @@ class GImage {
             $this->_image = imagecreatefrompng($abspath);
         }
         else {
-            throw new Exception('Formato immagine non supportato');
+            throw new \Exception('Formato immagine non supportato');
         }
 
         imagealphablending($this->_image, FALSE);
@@ -223,8 +223,9 @@ class GImage {
     public function thumb($width, $height, $options = array()) {
 
         $key = $this->toKey($this->_abspath, $width, $height, $options);
+        
         if(!$thumb = $this->getThumbFromKey($key)) {
-            $thumb = $this->makeThumb($key, $width, $height, $options);
+        	$thumb = $this->makeThumb($key, $width, $height, $options);
         }
         return $thumb;
     }
@@ -251,14 +252,24 @@ class GImage {
 
     /**
      * @brief Recupera il path dell'immagine se già stata sottoposta alla stessa operazione (cache)
+     * 
      * @param string $key chiave univoca dell'operazione
      * @return Gino.GImage|FALSE oggetto GImage dell'immagine in cache o false
      */
     private function getThumbFromKey($key) {
-        $db = db::instance();
+        
+    	$db = db::instance();
         $rows = $db->select('path', $this->_table, "`key`='".$key."'");
         if($rows and count($rows) == 1) {
-            return new GImage(absolutePath($rows[0]['path']));
+            
+        	$path_to_file = absolutePath($rows[0]['path']);
+        	
+        	if(is_file($path_to_file)) {
+        		return new GImage($path_to_file);
+        	}
+        	else {
+        		$db->delete($this->_table, "`key`='".$key."'");
+        	}
         }
 
         return FALSE;
@@ -291,7 +302,7 @@ class GImage {
             // crop
             $this->_tmp_image = $this->cropImageEntropy($this->_tmp_image, $width, $height, $options);
         }
-
+        
         $thumb_path = $this->saveTmpImage($key);
         return new GImage($thumb_path);
     }
@@ -305,6 +316,7 @@ class GImage {
         $db = db::instance();
 
         $pathinfo = pathinfo($this->_abspath);
+        
         $filename = sprintf('gimage_%d.%s', $db->autoIncValue($this->_table), $pathinfo['extension']);
         $path = $this->_dir.OS.$filename;
         $data = array(
@@ -326,7 +338,7 @@ class GImage {
             return $path;
         }
         else {
-            throw new Exception('thumb creation error');
+            throw new \Exception('thumb creation error');
         }
     }
 

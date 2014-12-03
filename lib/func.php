@@ -36,6 +36,11 @@ function relativePath($abspath) {
  * @return percorso assoluto
  */
 function absolutePath($relpath) {
+	
+	if(preg_match("#^".SITE_WWW."#", $relpath)) {
+		$relpath = preg_replace("#".SITE_WWW."#", '', $relpath);
+	}
+	
     return SITE_ROOT.$relpath;
 }
 
