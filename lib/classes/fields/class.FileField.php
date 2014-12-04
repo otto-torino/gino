@@ -275,7 +275,7 @@ class FileField extends Field {
         }
         else $filename = '';
 
-        $check_name = "check_del_".$this->_name;
+        $check_name = isset($options['check_del_file_name']) ? $options['check_del_file_name'] : "check_del_".$this->_name;
         $check_delete = $request->checkPOSTKey($check_name, 'ok');
         $delete = (($filename && $this->_value) || $check_delete) ? TRUE : FALSE;
         $upload = $filename ? TRUE : FALSE;
@@ -297,6 +297,11 @@ class FileField extends Field {
     public function validate($filename){
 
         $request = \Gino\Http\Request::instance();
+
+        if($this->_delete_file) {
+            $this->delete();
+        }
+
         if($filename == $this->_value)    // file preesistente
         {
             return TRUE;
@@ -346,8 +351,6 @@ class FileField extends Field {
         if($this->_filesize_field) {
             $this->_model->{$this->_filesize_field} = $_FILES[$this->_name]['size'];
         };
-        if($this->_delete_file)
-            return $this->delete();
 
         return TRUE;
     }

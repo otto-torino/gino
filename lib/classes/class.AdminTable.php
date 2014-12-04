@@ -299,7 +299,7 @@ class AdminTable {
 
         $structure = array();
         $form_upload = false;
-            $form_required = array();
+        $form_required = array();
         foreach($model->getStructure() as $field=>$object) {
 
             if($addCell)
@@ -609,10 +609,10 @@ class AdminTable {
                     (!$removeFields)
                 ))
                 {
-                    if(isset($options_element[$field]))
-                        $opt_element = $options_element[$field];
-                    else 
-                        $opt_element = array();
+                    $opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_field.'_check_del_'.$object_names[$field].'_'.$index);
+                    if(isset($options_element[$field])) {
+                        $opt_element = array_merge($opt_element, $options_element[$field]);
+                    }
 
                     if($field == 'instance' && is_null($m2m_model->instance))
                     {
@@ -647,7 +647,6 @@ class AdminTable {
             $m2m_model->save();
             $check_ids[] = $m2m_model->id;
         }
-
         // eliminazione tutti m2mt che non ci sono piu
         $db = Db::instance();
         $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
@@ -1097,7 +1096,7 @@ class AdminTable {
 
                         if($label_button && $link_button && $param_id_button)
                         {
-                            $link_button = $link_button.'&'.$param_id_button."=".$r['id'];
+                            $link_button = strpos($link_button, '?') === FALSE ? $link_button.'?'.$param_id_button."=".$r['id'] : $link_button.'&'.$param_id_button."=".$r['id'];
                             $links[] = "<a href=\"$link_button\">$label_button</a>";
                         }
                     }

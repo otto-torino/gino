@@ -654,7 +654,7 @@ namespace Gino;
         }
 
         $cache = new \Gino\DataCache();
-        if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600)) {
+        if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600) or DEBUG) {
             $fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
             $cache->save($fieldsTable);
         }

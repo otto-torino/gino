@@ -316,7 +316,7 @@ class sysClass extends \Gino\Controller {
          */
         $created_flds = array();
         if($db_conf['folders']!=null) {
-            $folders = explode(",", $db_conf['folders']);
+            $folders = explode(";", $db_conf['folders']);
             foreach($folders as $fld) {
                 trim($fld);
                 if(@mkdir(SITE_ROOT.OS.$fld, 0755)) {
