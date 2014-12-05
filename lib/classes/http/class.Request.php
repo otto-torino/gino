@@ -74,13 +74,10 @@ class Request extends Singleton {
             'HTTP_REFERER' => $this->valueOrNull($_SERVER, 'HTTP_REFERER'),
             'HTTP_COOKIE' => $this->valueOrNull($_SERVER, 'HTTP_COOKIE'),
         );
-        $this->META['FILE_SCRIPT_NAME'] = $this->META['SCRIPT_NAME']
-            ? preg_replace("#".preg_quote(SITE_WWW)."/#", '', $this->META['SCRIPT_NAME'])
-            : 'index.php';
 
         $this->request_uri = $this->valueOrNull($_SERVER, 'REQUEST_URI');
         $this->query_string = $this->valueOrNull($_SERVER, 'QUERY_STRING');
-        $this->path = preg_replace("#^".preg_quote(SITE_WWW)."#", '', $this->request_uri); // path pretty a partire dalla site root con / iniziale (es. /news/archive/?p=3)
+        $this->path = preg_replace("#^".preg_quote(SITE_WWW)."#", '', $this->request_uri);
         $this->url = $this->path; // viene ridefinito dalla classe \Gino\Router che chiama self::updateUrl se si esegue l'url rewriting
         $this->method = $this->valueOrNull($_SERVER, 'REQUEST_METHOD');
         $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], $this->request_uri);
@@ -93,8 +90,7 @@ class Request extends Singleton {
      * @brief Calcola l'url nella forma espansa a partire dai parametri GET
      * @description Quando viene effettuato url rewriting da parte di Gino.Router
      *              viene chimato questo metodo per calcolare l'url non espanso
-     *              utilizzando la proprietà GET che è stata opportunamente modificata.
-     *              L'url parte dalla site root senza / iniziale (es. index.php?evt[page-view]&id=test)
+     *              utilizzando la proprietà GET che è stata opportunamente modificata
      * @return void
      */
     public function updateUrl() {
@@ -104,7 +100,7 @@ class Request extends Singleton {
             return $v !== '' ? sprintf('%s=%s', $k, $v) : $k;
         }, array_keys($this->GET), array_values($this->GET)));
 
-        $this->url = $this->META['FILE_SCRIPT_NAME'] . ($params ? '?' . $params : '');
+        $this->url = preg_replace("#".preg_quote(SITE_WWW)."#", '', $this->META['SCRIPT_NAME']) . ($params ? '?' . $params : '');
 
     }
 
