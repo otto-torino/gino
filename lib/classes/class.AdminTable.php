@@ -945,7 +945,7 @@ class AdminTable {
             }
         }
 
-        $order = cleanVar($this->_request->GET, 'order', 'string', '');
+        $order = urldecode(cleanVar($this->_request->GET, 'order', 'string', ''));
         if(!$order) $order = 'id DESC';
         // get order field and direction
         preg_match("#^([^ ,]*)\s?((ASC)|(DESC))?.*$#", $order, $matches);
