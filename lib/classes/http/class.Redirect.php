@@ -28,8 +28,27 @@ class Redirect extends Response {
      * @return istanza di Gino.Http.Redirect
      */
     function __construct($url, array $kwargs = array()) {
-        $this->_url = $url;
+        $this->_url = $this->redirectUrl($url);
         parent::__construct('', $kwargs);
+    }
+
+    /**
+     * @brief Redrect url
+     *
+     * Ricava un url adatto per il redirect.
+     * Se l'url è assoluto oppure relativo a partire dalla document root lo restituisce invariato,
+     * altrimenti aggiunge il path di differenza tra document root e site root
+     *
+     * @param string $url
+     * @return url
+     */
+    private function redirectUrl($url) {
+        if(preg_match("#^https?://#", $url) or (SITE_WWW and preg_match("#^".preg_quote(SITE_WWW)."#", $url))) {
+            return $url;
+        }
+        else {
+            return SITE_WWW . '/' .$url;
+        }
     }
 
     /**

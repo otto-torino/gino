@@ -435,14 +435,16 @@ class menu extends \Gino\Controller {
         $gform->save('dataform');
         $req_error = $gform->arequired();
 
-        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $id = \Gino\cleanVar($request->POST, 'id', 'int');
+        $action = \Gino\cleanVar($request->POST, 'action', 'string');
 
-        $link_params = "action=$this->_action";
-        if($id) $link_params .= "&id=$id";
+        $link_params = array();
+        if($action) $link_params['action'] = $action;
+        if($id) $link_params['id'] = $id;
 
-        $link_error = $this->_home."?evt[$this->_instance_name-manageDoc]&$link_params";
+        $link_error = $this->linkAdmin(array(), $link_params);
 
-        if($req_error > 0) 
+        if($req_error > 0)
             return error::errorMessage(array('error'=>1), $link_error);
 
         $menu_voice = new MenuVoice($id);
@@ -460,7 +462,7 @@ class menu extends \Gino\Controller {
 
         $menu_voice->save();
 
-        return new Redirect($this->_registry->router->link($this->_instance_name, 'manageDoc'));
+        return new Redirect($this->linkAdmin());
     }
 
     /**
@@ -564,7 +566,7 @@ class menu extends \Gino\Controller {
         $buffer .= "window.addEvent('load', function() {
 
                     var myclass, mypage, all, active, other;
-                    var url = '".$this->_home."?evt[".$this->_instance_name."-printItemsList]';
+                    var url = '".$this->link($this->_instance_name, 'printItemsList')."';
                     $$('#s_class', '#s_page').each(function(el) {
                         el.addEvent('keyup', function(e) {
                             active = el.getProperty('id');
@@ -624,7 +626,7 @@ class menu extends \Gino\Controller {
             $pages = \Gino\App\Page\PageEntry::objects(null, array('where' => "published='1'"));
             $GINO .= $this->printItemsPage($pages);
 
-            $modules_app = ModuleApp::objects(null, array('where' => "active='1'"));
+            $modules_app = ModuleApp::objects(null, array('where' => "active='1' AND instantiable='0'"));
             $modules = ModuleInstance::objects(null, array('where' => "active='1'"));
             $GINO .= $this->printItemsClass($modules_app, $modules);
         }
@@ -729,43 +731,47 @@ class menu extends \Gino\Controller {
                     $list = call_user_func(array($class, 'outputFunctions'));
                     //@todo aggiungere controllo che sia nell'ini
                     foreach($list as $func => $desc) {
-                        $cnt++;
-                        $permissions_code = $desc['permissions'];
-                        $description = $desc['label'];
-                        $permissions = array();
-                        $perms_js = array();
-                        if($permissions_code and count($permissions_code)) {
-                            foreach($permissions_code as $permission_code) {
-                                if(!preg_match('#\.#', $permission_code)) {
-                                        $permission_code = $class_name.'.'.$permission_code;
+                        $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(isset($public_method)) {
+                            $cnt++;
+                            $permissions_code = $desc['permissions'];
+                            $description = $desc['label'];
+                            $permissions = array();
+                            $perms_js = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    if(!preg_match('#\.#', $permission_code)) {
+                                            $permission_code = $class_name.'.'.$permission_code;
+                                    }
+                                        $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+                                    $permissions[] = $p->label;
+                                    $perms_js[] = $p->id;
                                 }
-                                    $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
-                                $permissions[] = $p->label;
-                                $perms_js[] = $p->id;
                             }
+
+                            $url = $this->_registry->router->link($class_name, $func);
+
+                            $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
+                                $('url').set('value', '".$url."');
+                                $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
+                                perms = $(this).get('data-perm');
+                                if(perms) {
+                                    perms.split(';').each(function(p) {
+                                        $$('input[value=' + p + ',0]').setProperty('checked', 'checked');
+                                    })
+                                }
+                                location.hash = 'top';
+                            \" />\n";
+
+                            $tbl_rows[] = array(
+                                \Gino\htmlChars($module_app->label),
+                                $description,
+                                $url,
+                                implode(', ', $permissions),
+                                $button
+                            );
                         }
-
-                        $url = $this->_registry->router->link($class_name, $func);
-
-                        $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                            $('url').set('value', '".$url."');
-                            $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                            perms = $(this).get('data-perm');
-                            if(perms) {
-                                perms.split(';').each(function(p) {
-                                    $$('input[value=' + p + ',0]').setProperty('checked', 'checked');
-                                })
-                            }
-                            location.hash = 'top';
-                        \" />\n";
-
-                        $tbl_rows[] = array(
-                            \Gino\htmlChars($module_app->label),
-                            $description,
-                            $url,
-                            implode(', ', $permissions),
-                            $button
-                        );
                     }
                 }
             }
@@ -793,43 +799,46 @@ class menu extends \Gino\Controller {
                 $module_name = $module->name;
 
                 if(method_exists($class, 'outputFunctions')) {
-
                     $list = call_user_func(array($class, 'outputFunctions'));
                     foreach($list as $func => $desc) {
-                        $cnt++;
-                        $permissions_code = $desc['permissions'];
-                        $description = $desc['label'];
-                        $permissions = array();
-                        $perms_js = array();
-                        if($permissions_code and count($permissions_code)) {
-                            foreach($permissions_code as $permission_code) {
-                                $p = \Gino\App\Auth\Permission::getFromClassCode($class, $permission_code);
-                                $permissions[] = $p->label;
-                                $perms_js[] = $p->id;
+                        $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(isset($public_method)) {
+                            $cnt++;
+                            $permissions_code = $desc['permissions'];
+                            $description = $desc['label'];
+                            $permissions = array();
+                            $perms_js = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    $p = \Gino\App\Auth\Permission::getFromClassCode($class, $permission_code);
+                                    $permissions[] = $p->label;
+                                    $perms_js[] = $p->id;
+                                }
                             }
+
+                            $url = $this->_registry->router->link($module_name, $func);
+
+                            $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
+                            $('url').set('value', '".$url."');
+                            perms = $(this).get('data-perm');
+                            $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
+                            if(perms) {
+                                    perms.split(';').each(function(p) {
+                                            $$('input[value=' + p + ',".$module->id."]').setProperty('checked', 'checked');
+                                    })
+                            }
+                            location.hash = 'top';
+                            \" />\n";
+
+                            $tbl_rows[] = array(
+                                \Gino\htmlChars($module->label),
+                                $description,
+                                $url,
+                                implode(', ', $permissions),
+                                $button
+                            );
                         }
-
-                        $url = $this->_registry->router->link($module_name, $func);
-
-                        $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                        $('url').set('value', '".$url."');
-                        perms = $(this).get('data-perm');
-                        $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                        if(perms) {
-                                perms.split(';').each(function(p) {
-                                        $$('input[value=' + p + ',".$module->id."]').setProperty('checked', 'checked');
-                                })
-                        }
-                        location.hash = 'top';
-                        \" />\n";
-
-                        $tbl_rows[] = array(
-                            \Gino\htmlChars($module->label),
-                            $description,
-                            $url,
-                            implode(', ', $permissions),
-                            $button
-                        );
                     }
                 }
             }
