@@ -267,7 +267,7 @@ class Router extends Singleton {
 
             if($query_string) $url .= '?' . $query_string;
 
-            return $abs ? $this->_request->root_absolute_url . $url : $url;
+            return $abs ? $this->_request->root_absolute_url . '/' . $url : $url;
         }
 
         // url espansi
@@ -285,6 +285,7 @@ class Router extends Singleton {
      * @return path trasformato
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {
+
         $url = $this->_request->path;
 
         if(count($remove)) {
