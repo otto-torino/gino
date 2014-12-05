@@ -255,7 +255,7 @@ class Router extends Singleton {
 
         // pretty url
         if($pretty) {
-            $url = sprintf('/%s/%s/', $instance_name, $method);
+            $url = sprintf('%s/%s/', $instance_name, $method);
             // parametro id tattato diversamente, come 3 elemento
             if(isset($params['id'])) {
                 $url .= sprintf('%s/', $params['id']);
@@ -267,15 +267,15 @@ class Router extends Singleton {
 
             if($query_string) $url .= '?' . $query_string;
 
-            return $abs ? $this->_request->root_absolute_url . $url : SITE_WWW.$url;
+            return $abs ? $this->_request->root_absolute_url . '/' . $url : $url;
         }
 
         // url espansi
-        $url = sprintf('/%s?evt[%s-%s]', $this->_request->META['SCRIPT_NAME'], $instance_name, $method);
+        $url = sprintf('%s?evt[%s-%s]', $this->_request->META['FILE_SCRIPT_NAME'], $instance_name, $method);
         if($tot_params) $query_string = implode('&', array_map(function($k, $v) { return sprintf('%s=%s', $k, $v); }, array_keys($params), array_values($params))) . ($query_string ? '&' . $query_string : '');
-        if($query_string) $url .= '?' . $query_string;
+        if($query_string) $url .= '&' . $query_string;
 
-        return $abs ? $this->_request->root_absolute_url . $url : SITE_WWW.$url;
+        return $abs ? $this->_request->root_absolute_url . '/' . $url : $url;
     }
 
     /**
@@ -305,7 +305,7 @@ class Router extends Singleton {
             }
         }
 
-        return SITE_WWW.$url;
+        return substr($url, 0, 1) == '/' ? substr($url, 1) : $url;
     }
 
 }
