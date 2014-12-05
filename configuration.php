@@ -16,7 +16,7 @@
  *              inviate email all'amministratore in caso di errore di sistema. Settare a FALSE in produzione
  *              per ricevere notifiche di errori e comprimere i file statici.
  */
-define("DEBUG", TRUE);
+define("DEBUG", FALSE);
 
 /**
  * @brief Amministratori sistema

@@ -676,4 +676,4 @@ class JSMin {
 /**
  * @brief JSMinException
  */
-class JSMinException extends Exception {}
+class JSMinException extends \Exception {}

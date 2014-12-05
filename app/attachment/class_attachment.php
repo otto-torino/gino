@@ -195,7 +195,7 @@ class attachment extends \Gino\Controller {
 
         $myform = \Gino\Loader::load('Form', array('attachment_list', 'post', FALSE, array('tblLayout'=>FALSE)));
 
-        $ctgs = AttachmentCtg::getForSelect($this);
+        $ctgs = AttachmentCtg::getForSelect();
 
         $onchange = "gino.ajaxRequest('post', '".$this->_home."?evt[".$this->_class_name."-editorAttachmentList]', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
         $buffer = "
