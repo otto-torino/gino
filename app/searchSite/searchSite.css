@@ -25,11 +25,18 @@
 }
 
 #search_site_check_options {
-	background-color: #fefefe;
-	padding: 0 10px;
-	border:1px solid #f1f1f1;
-	width: 280px;
-	height:100px;
+    position: absolute;
+    top: 20;
+    left: 0;
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity=50);
+    visibility: hidden;
+    background-color: #fefefe;
+    padding: 0 10px;
+    border:1px solid #f1f1f1;
+    width: 280px;
+    text-align: left;
 }
 #search_site_check_options label {
     width: auto;

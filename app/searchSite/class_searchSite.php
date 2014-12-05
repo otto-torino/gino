@@ -166,7 +166,7 @@ class searchSite extends \Gino\Controller {
 
         $view = new View($this->_view_dir, 'form');
         $dict = array(
-            'form_action' => $this->_home."?evt[".$this->_class_name."-results]",
+            'form_action' => $this->link($this->_class_name, 'results'),
             'choices' => $choices,
             'check_options' => $check_options
         );
@@ -180,7 +180,7 @@ class searchSite extends \Gino\Controller {
      */
     private function checkOptions() {
 
-        $buffer = "<div id=\"search_site_check_options\" style=\"display:none; position:absolute;text-align:left;\">";
+        $buffer = "<div id=\"search_site_check_options\">";
         $buffer .= "<div>";
         $buffer .= "<p class=\"lead\"><strong>"._("Ricerca solo in")."</strong></p>";
 
@@ -213,18 +213,22 @@ class searchSite extends \Gino\Controller {
      * La ricerca viene effettuata sui moduli nei quali sono stati definiti i metodi @a searchSite() e @a searchSiteResult()
      *
      * @see Gino.Search::getSearchResults()
-     * @return html, risultati ricerca
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
      */
-    public function results() {
+    public function results(\Gino\Http\Request $request) {
 
         Loader::import('class', '\Gino\Search');
 
-        $keywords = \htmlspecialchars(\Gino\cleanVar($_POST, 'search_site', 'string', ''));
+        $keywords = \htmlspecialchars(\Gino\cleanVar($request->POST, 'search_site', 'string', ''));
         $keywords = \Gino\cutHtmlText($keywords, 500, '', true, false, true);
-        $sysmdl = \Gino\cleanVar($_POST, 'sysmdl', 'array', '');
-        $instmdl = \Gino\cleanVar($_POST, 'instmdl', 'array', '');
+        $sysmdl = \Gino\cleanVar($request->POST, 'sysmdl', 'array');
+        $instmdl = \Gino\cleanVar($request->POST, 'instmdl', 'array');
 
-        $opt = !!(!count($sysmdl) && !count($instmdl));
+        if(is_null($sysmdl)) $sysmdl = array();
+        if(is_null($instmdl)) $instmdl = array();
+
+        $opt = !!(count($sysmdl) or count($instmdl));
         $results = array();
         $buffer = '';
 
@@ -297,7 +301,8 @@ class searchSite extends \Gino\Controller {
             'content' => $buffer
         );
 
-        return $view->render($dict);
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
     }
 
     /**

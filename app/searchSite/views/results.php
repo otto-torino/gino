@@ -8,7 +8,7 @@
  * - $content: html, risultati
  */
 ?>
-<? namespace Gino.App.SysClass; ?>
+<? namespace Gino\App\SearchSite; ?>
 <? //@cond no-doxygen ?>
 <section class="search-results">
     <header>

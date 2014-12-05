@@ -37,7 +37,7 @@ class GImage {
      */
     public function __construct($abspath) {
 
-    	if(!is_file($abspath)) {
+        if(!is_file($abspath)) {
             throw new \Exception(sprintf('Il file con path %s non esiste', $abspath));
         }
 
@@ -50,10 +50,10 @@ class GImage {
         if($this->_image_type == IMAGETYPE_JPEG) {
             $this->_image = imagecreatefromjpeg($abspath);
         }
-        elseif($this->_type == IMAGETYPE_GIF) {
+        elseif($this->_image_type == IMAGETYPE_GIF) {
             $this->_image = imagecreatefromgif($abspath);
         }
-        elseif($this->_type == IMAGETYPE_PNG) {
+        elseif($this->_image_type == IMAGETYPE_PNG) {
             $this->_image = imagecreatefrompng($abspath);
         }
         else {
@@ -316,7 +316,7 @@ class GImage {
         $db = db::instance();
 
         $pathinfo = pathinfo($this->_abspath);
-        
+
         $filename = sprintf('gimage_%d.%s', $db->autoIncValue($this->_table), $pathinfo['extension']);
         $path = $this->_dir.OS.$filename;
         $data = array(

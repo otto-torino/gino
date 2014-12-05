@@ -1127,7 +1127,7 @@ class page extends \Gino\Controller {
 
         $obj = new pageEntry($results['id'], $this);
 
-        $buffer = "<dt><a href=\"".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
+        $buffer = "<dt><a href=\"".$this->link($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
         $buffer .= $results['title'] ? \Gino\htmlChars($results['title']) : \Gino\htmlChars($obj->ml('title'));
         $buffer .= "</a> </dt>";
 
