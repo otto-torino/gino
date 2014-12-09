@@ -1030,7 +1030,6 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
   `label` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
   `module_app` int(11) NOT NULL,
-  `directory` varchar(200) DEFAULT NULL,
   `active` tinyint(1) NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY (`id`)
@@ -1041,10 +1040,10 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
 --
 
 INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `directory`, `active`, `description`) VALUES
-(4, 'Menu principale', 'mainMenu', 10, NULL, 1, 'Menu principale'),
-(5, 'Menu amministrazione', 'menu_admin', 10, NULL, 1, 'Menu area amministrativa'),
-(6, 'Top Bar', 'topbar', 14, NULL, 1, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 14, NULL, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
+(4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
+(5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
+(6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),
+(9, 'Top Bar Admin', 'topbaradmin', 14, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
 
 -- --------------------------------------------------------
 

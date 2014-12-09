@@ -998,7 +998,6 @@ CREATE TABLE sys_module (
   label nvarchar(100) NOT NULL,
   name nvarchar(100) NOT NULL,
   module_app int NOT NULL,
-  directory nvarchar(200) DEFAULT NULL,
   active tinyint NOT NULL,
   description text NOT NULL,
   PRIMARY KEY (id)
@@ -1007,10 +1006,10 @@ CREATE TABLE sys_module (
 SET IDENTITY_INSERT sys_module ON
 
 INSERT INTO sys_module (id, label, name, module_app, directory, active, description) VALUES
-(4, 'Menu principale', 'mainMenu', 10, NULL, 1, 'Menu principale'),
-(5, 'Menu amministrazione', 'menu_admin', 10, NULL, 1, 'Menu area amministrativa'),
-(6, 'Top Bar', 'topbar', 14, NULL, 1, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 14, NULL, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
+(4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
+(5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
+(6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),
+(9, 'Top Bar Admin', 'topbaradmin', 14, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
 
 SET IDENTITY_INSERT sys_module OFF
 
