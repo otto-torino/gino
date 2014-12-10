@@ -50,17 +50,15 @@ class Router extends Singleton {
 
     /**
      * @brief Url rewriting
-     * @description Se l'url non è nella forma permalink ritorna FALSE, altrimenti riscrive le proprietà GET e REQUEST dell'oggetto
-     *              @ref Gino.Http.Request parserizzando l'url
+     * @description Se l'url non è nella forma pretty riscrive le proprietà GET e REQUEST dell'oggetto
+     *              @ref Gino.Http.Request parserizzando l'url. Chiama Gino.Http.Request per fare un update
+     *              della proprietà url.
+     * @return void
      */
     private function urlRewrite() {
 
-        // normal url, no rewriting needed
-        if(preg_match("#^/(index.php\??.*)?$#is", $this->_registry->request->path)) {
-            return FALSE;
-        }
         // pretty url
-        else {
+        if(!preg_match("#^/(index.php\??.*)?$#is", $this->_registry->request->path)) {
             // ripuliamo da schifezze
             $this->_request->GET = array();
             $query_string = '';
@@ -76,8 +74,9 @@ class Router extends Singleton {
 
             $this->_request->REQUEST = array_merge($this->_request->POST, $this->_request->GET);
 
-            $this->_request->updateUrl();
         }
+
+        $this->_request->updateUrl();
     }
 
     /**
