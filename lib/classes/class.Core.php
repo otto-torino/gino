@@ -96,7 +96,9 @@ class Core {
         // locale, setta l'oggetto trd per le traduzioni nel registro
         Locale::init();
         // mobile
-        $this->initMobile();
+        if(!!$this->_registry->sysconf->mobile) {
+            $this->initMobile();
+        }
     }
 
     /**

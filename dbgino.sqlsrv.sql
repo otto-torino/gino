@@ -859,8 +859,8 @@ INSERT INTO sys_layout_skin (id, label, session, rexp, urls, template, css, prio
 (6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 11, '', 0),
 (7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 8, 'yes', 0),
 (8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 10, 'yes', 0),
-(9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'L_mobile=1', '#^(index.php(\\?evt\\[index-index_page\\])?)?$#', NULL, '7', 1, 1, '', 0),
+(9, 'Pagine Mobile', 'L_mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
+(10, 'Home Mobile', 'L_mobile=1', '#^index.php$#', NULL, '7', 1, 1, '', 0),
 (11, '_popup', NULL, '#&_popup=1#', NULL, '6', 2, 4, 'yes', 0);
 
 SET IDENTITY_INSERT sys_layout_skin OFF

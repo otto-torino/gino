@@ -894,8 +894,8 @@ INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `templa
 (6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 11, '', 0),
 (7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 8, 'yes', 0),
 (8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 10, 'yes', 0),
-(9, 'Pagine Mobile', 'mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'L_mobile=1', '#^(index.php(\\?evt\\[index-index_page\\])?)?$#', NULL, '7', 1, 1, '', 0),
+(9, 'Pagine Mobile', 'L_mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
+(10, 'Home Mobile', 'L_mobile=1', '#^index.php$#', NULL, '7', 1, 1, '', 0),
 (11, '_popup', NULL, '#&_popup=1#', NULL, '6', 2, 4, 'yes', 0);
 
 -- --------------------------------------------------------
@@ -1039,7 +1039,7 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
 -- Dumping data for table `sys_module`
 --
 
-INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `directory`, `active`, `description`) VALUES
+INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `active`, `description`) VALUES
 (4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
 (6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),
