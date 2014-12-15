@@ -366,7 +366,7 @@ namespace Gino;
         }
 
         if(!$result) {
-            return array('error'=>9);
+            return array('error'=>_("Salvataggio non riuscito"));
         }
 
         if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
