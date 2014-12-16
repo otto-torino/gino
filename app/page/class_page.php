@@ -15,6 +15,8 @@
  */
 namespace Gino\App\Page;
 
+use Gino\Http\Request;
+
 use Gino\Http\Response;
 use Gino\Http\Redirect;
 
@@ -684,7 +686,7 @@ class page extends \Gino\Controller {
             throw new \Gino\Exception\Exception404();
         }
 
-        $link_error = $this->_registry->router->link('page', 'view', array('id' => $entry->slug)).'#comments';
+        $link_error = $this->link('page', 'view', array('id' => $entry->slug)).'#comments';
 
         if($req_error > 0) { 
             return error::errorMessage(array('error'=>1), $link_error);
@@ -696,16 +698,16 @@ class page extends \Gino\Controller {
 
         $published = $this->_comment_moderation ? 0 : 1;
 
-        $comment = new PageComment(null, $this);
+        $comment = new PageComment(null);
 
-        $comment->author = \Gino\cleanVar($_POST, 'author', 'string', '');
-        $comment->email = \Gino\cleanVar($_POST, 'email', 'string', '');
-        $comment->web = \Gino\cleanVar($_POST, 'web', 'string', '');
-        $comment->text = \Gino\cutHtmlText(\Gino\cleanVar($_POST, 'text', 'string', ''), 100000000, '', true, true, true, array());
-        $comment->notification = \Gino\cleanVar($_POST, 'notification', 'int', '');
+        $comment->author = \Gino\cleanVar($request->POST, 'author', 'string', '');
+        $comment->email = \Gino\cleanVar($request->POST, 'email', 'string', '');
+        $comment->web = \Gino\cleanVar($request->POST, 'web', 'string', '');
+        $comment->text = \Gino\cutHtmlText(\Gino\cleanVar($request->POST, 'text', 'string', ''), 100000000, '', true, true, true, array());
+        $comment->notification = \Gino\cleanVar($request->POST, 'notification', 'int', '');
         $comment->entry = $entry->id;
         $comment->datetime = date('Y-m-d H:i:s');
-        $comment->reply = \Gino\cleanVar($_POST, 'form_reply', 'int', '');
+        $comment->reply = \Gino\cleanVar($request->POST, 'form_reply', 'int', '');
         $comment->published = $published;
 
         $comment->save();
@@ -713,7 +715,7 @@ class page extends \Gino\Controller {
         // send mail to publishers
         if(!$published) {
 
-            $link = $request->root_absolute_url.$this->_registry->router->link('page', 'view', array('id' => $entry->slug)).'#comment'.$comment->id;
+            $link = $request->root_absolute_url.$this->link('page', 'view', array('id' => $entry->slug)).'#comment'.$comment->id;
             \Gino\Loader::import('auth', '\Gino\App\Auth\User');
 
             $user_ids = \Gino\App\Auth\User::getUsersFromPermissions('can_publish', $this);
@@ -729,7 +731,7 @@ class page extends \Gino\Controller {
             }
         }
 
-        return Redirect($this->link('page', 'view', array('id' => $entry->slug))).'#comments';
+        return Redirect($this->link('page', 'view', array('id' => $entry->slug)).'#comments');
     }
 
     /**
@@ -830,13 +832,18 @@ class page extends \Gino\Controller {
             if(!$obj->social) {
                 return '';
             }
-            $pre_filter = \Gino\shareAll(array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), $this->_registry->pub->getRootUrl().SITE_WWW."/".$this->_plink->aLink($this->_instance_name, 'view', array('id'=>$obj->slug)), \Gino\htmlChars($obj->ml('title')));
+            
+            $request = Request::instance();
+            $pre_filter = \Gino\shareAll(
+            	array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), 
+            	$request->root_absolute_url.$this->link($this->_instance_name, 'view', array('id'=>$obj->slug), '', array('abs'=>true)), 
+            	\Gino\htmlChars($obj->ml('title')));
         }
         elseif($property == 'comments') {
             if(!$obj->enable_comments) {
                 return _('disabilitati');
             }
-            $comments_num = pageComment::getCountFromEntry($obj->id);
+            $comments_num = PageComment::getCountFromEntry($obj->id);
             $pre_filter = sprintf('<a href="%s">%s</a>', $this->link('page', 'view', array('id' => $obj->slug)).'#comments', $comments_num);
         }
         elseif($property == 'related_contents') {

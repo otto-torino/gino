@@ -131,52 +131,6 @@ class PageComment extends \Gino\Model {
     }
 
     /**
-     * @brief Restituisce oggetti di tipo @ref Gino.App.Page.PageComment legati ad una pagina
-     *
-     * @param array $options array associativo di opzioni
-     *   array associativo di opzioni
-     *   - @b controller (object): istanza del controller
-     *   - @b entry_id (integer): identificativo della pagina
-     * @return array di istanze di tipo Gino.App.Page.PageComment
-     */
-    public static function get($options = null) {
-
-        $res = array();
-
-        $controller = \Gino\gOpt('controller', $options, null);
-        $entry_id = \Gino\gOpt('entry_id', $options, null);
-
-        if(!$controller || !$entry_id)
-            return $res;
-
-        $published = \Gino\gOpt('published', $options, true);
-        $reply = \Gino\gOpt('reply', $options, null);
-        $order = \Gino\gOpt('order', $options, 'creation_date');
-        $limit = \Gino\gOpt('limit', $options, null);
-
-        $db = \Gino\db::instance();
-        $selection = 'id';
-        $table = self::$table;
-        $where_arr = array("entry='".$entry_id."'");
-        if($published) {
-            $where_arr[] = "published='1'";
-        }
-        if(!is_null($reply)) {
-            $where_arr[] = "reply='".$reply."'";
-        }
-        $where = implode(' AND ', $where_arr);
-
-        $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
-        if(count($rows)) {
-            foreach($rows as $row) {
-                $res[] = new PageComment(array('entry_id'=>$row['id'], 'controller'=>$controller));
-            }
-        }
-
-        return $res;
-    }
-
-    /**
      * @brief Albero dei commenti ad una pagina 
      * 
      * @param integer $entry_id identificativo della pagina
