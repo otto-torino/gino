@@ -1199,7 +1199,7 @@ class page extends \Gino\Controller {
         $header .= "<docs>http://blogs.law.harvard.edu/tech/rss</docs>\n";
 
         $body = '';
-        $entries = PageEntry::get($this, array('published'=>TRUE, 'order'=>'creation_date DESC', 'limit'=>array(0, 50)));
+        $entries = PageEntry::get(array('published'=>TRUE, 'order'=>'creation_date DESC', 'limit'=>array(0, 50)));
         if(count($entries) > 0) {
             foreach($entries as $entry) {
                 $id = \Gino\htmlChars($entry->id);

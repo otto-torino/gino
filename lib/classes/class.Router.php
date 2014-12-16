@@ -65,7 +65,7 @@ class Router extends Singleton {
             $path_info = preg_replace_callback("#\?(.*)$#", function($matches) use(&$query_string) { $query_string = $matches[1]; return ''; }, $this->_request->path);
 
             if($path_info !== '/') {
-                $this->rewritePathInfo(array_values(array_filter(explode('/', $path_info), function($v) { return !!$v; })));
+                $this->rewritePathInfo(array_values(array_filter(explode('/', $path_info), function($v) { return $v !== ''; })));
             }
 
             if($query_string !== '') {

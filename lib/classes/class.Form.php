@@ -199,7 +199,8 @@ class Form {
      */
     public function load($session_value, $clear = TRUE){
 
-		$this->session->form = array($this->_method=>array());
+        $this->session->form = array($this->_method => '');
+        $form_data = array();
 		
 		//$this->session->form[$this->_method] = array();	// @todo implementare a partire dalla versione 5.4
 		
@@ -211,13 +212,15 @@ class Form {
                 {
                     foreach($this->session->{$session_value}[$a] as $key => $value)
                     {
-                        $this->session->form[$this->_method][$key] = $value;
+                        $form_data[$key] = $value;
                     }
                 }
+                $this->session->form = array($this->_method => $form_data);
             }
 
             if($clear) unset($this->session->$session_value);
         }
+
     }
 
     /**
@@ -234,10 +237,11 @@ class Form {
             array_push($session_prop, array($key => $value));
 
         $this->session->$session_value = $session_prop;
+
     }
 
     /**
-     * @brief Recupera il valore di un campo del form precedentemente salvaro
+     * @brief Recupera il valore di un campo del form precedentemente salvato
      *
      * @see Gino.Form::load()
      * @see Gino.Form::save()

@@ -85,7 +85,8 @@ class Request extends Singleton {
         $this->url = $this->path; // viene ridefinito dalla classe \Gino\Router che chiama self::updateUrl se si esegue l'url rewriting
         $this->method = $this->valueOrNull($_SERVER, 'REQUEST_METHOD');
         $this->absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], $this->request_uri);
-        $this->root_absolute_url = sprintf('%s://%s%s', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], SITE_WWW);
+        // url alla site root del sito con slash finale
+        $this->root_absolute_url = sprintf('%s://%s%s/', $this->META['REQUEST_SCHEME'] ? $this->META['REQUEST_SCHEME'] : 'http', $this->META['HTTP_HOST'], SITE_WWW);
 
         $this->session = Session::instance();
     }

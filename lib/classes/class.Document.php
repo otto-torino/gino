@@ -77,7 +77,7 @@ class Document {
 
             $tpl = Loader::load('Template', array($skin->template));
             $template = TPL_DIR.OS.$tpl->filename;
-            
+
             if($tpl->free) {
                 // Il template viene parserizzato 2 volte. La prima volta vengono eseguiti i metodi (definiti nei tag {module...}), 
                 // in questo modo vengono salvate eventuali modifiche al registry che viene utilizzato per includere js e css e meta nell'head del documento.
@@ -242,7 +242,7 @@ class Document {
         $headline .= "<html lang=\"".LANG."\">\n";
         $headline .= "<head>\n";
         $headline .= "<meta charset=\"utf-8\" />\n";
-        $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."/\" />\n";
+        $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
 
         $headline .= $this->_registry->variables('meta');
 
