@@ -47,12 +47,10 @@
     <div class="container bg-white">
       <div class="row">
         <div class="col-md-6">
-			 	{module classid=10 func=last}
           {module pageid=1 func=full}
           {module pageid=2 func=full}
         </div>
         <div class="col-md-6">
-			 	{module classid=10 func=showcase}
           {module pageid=3 func=full}
           {module pageid=4 func=full}
         </div>
