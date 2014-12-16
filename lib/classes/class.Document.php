@@ -347,7 +347,7 @@ class Document {
     /**
      * @brief Contenuto modulo di tipo pagina
      *
-     * @see Gino.App.Page.page::block()
+     * @see Gino.App.Page.page::box()
      * @param int $mdlId valore ID della pagina
      * @return contenuto pagina
      */
@@ -363,7 +363,7 @@ class Document {
         }
 
         $page = $this->_instances['page'];
-        $this->_outputs['page-'.$mdlId] = $page->block($mdlId);
+        $this->_outputs['page-'.$mdlId] = $page->box($mdlId);
 
         return $this->_outputs['page-'.$mdlId];
     }

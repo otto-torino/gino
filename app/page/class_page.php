@@ -364,12 +364,12 @@ class page extends \Gino\Controller {
      * Viene utilizzato per le operazione interne a gino (ad es. menu e layout)
      *
      * @param integer $id valore ID della pagina
-     * @param boolean $block se TRUE restituisce l'indirizzo per una pagina inserita nel template del layout
+     * @param boolean $box se TRUE restituisce l'indirizzo per una pagina inserita nel template del layout
      * @return url
      */
-    public static function getUrlPage($id, $block = FALSE) {
+    public static function getUrlPage($id, $box = FALSE) {
 
-        return $this->_registry->router->link('page', $block ? 'block' : 'view', array(), array('id' => $id));
+        return $this->_registry->router->link('page', $box ? 'box' : 'view', array(), array('id' => $id));
     }
 
     /**
@@ -516,7 +516,7 @@ class page extends \Gino\Controller {
      * @param int $id valore ID della pagina
      * @return html
      */
-    public function block($id=null) {
+    public function box($id=null) {
 
         $registry = \Gino\registry::instance();
         $registry->addCss($this->_class_www."/prettify.css");
@@ -541,7 +541,7 @@ class page extends \Gino\Controller {
         $tpl = $this->parseTemplate($item, $tpl_item, $matches);
         $view = new \Gino\View($this->_view_dir);
 
-        $view->setViewTpl('block');
+        $view->setViewTpl('box');
         $view->assign('section_id', 'view_'.$this->_instance_name.$id);
         $view->assign('tpl', $tpl);
 

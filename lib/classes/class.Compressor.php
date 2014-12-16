@@ -72,13 +72,25 @@ class Compressor {
      * @return path del file unificato
      */
     public function mergeJs($options = array()) {
-        $minify = gOpt('minify', $options, true);
+        $minify = gOpt('minify', $options, TRUE);
         $paths_string = md5(implode('', $this->_js));
         if($this->shouldUpdate('js', $paths_string, $this->_js)) {
             $script = '';
             foreach($this->_js as $js_rel_path) {
                 $js_path = absolutePath($js_rel_path);
-                $script .= $minify ? $this->minifyJs(file_get_contents($js_path)) : file_get_contents($js_path);
+                if($minify) {
+                    // potrebbero esserci errori nella minificazione di librerie esterne
+                    try {
+                        $js = $this->minifyJs(file_get_contents($js_path));
+                    }
+                    catch(\Exception $e) {
+                        $js = file_get_contents($js_path);
+                    }
+                    $script .= $js;
+                }
+                else {
+                    $script .= file_get_contents($js_path);
+                }
             }
             file_put_contents($this->filePath('js', $paths_string), $script);
         }

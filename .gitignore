@@ -11,3 +11,5 @@
 .settings
 
 cache/cache*
+cache/css/*
+cache/js/*

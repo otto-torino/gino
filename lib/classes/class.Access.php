@@ -36,7 +36,6 @@ class Access {
         $this->_db = Db::instance();
         $this->_session = Session::instance();
 
-        $this->_home = HOME_FILE;
     }
 
     /**
@@ -65,11 +64,11 @@ class Access {
             $password = cleanVar($request->POST, 'pwd', 'string', '');
             $result = $this->AuthenticationMethod($user, $password);
             $request->user = new User($this->_session->user_id);
-            return $result ? $this->loginSuccess() : $this->loginError();
+            return $result ? $this->loginSuccess($request) : $this->loginError($request);
         }
         elseif($request->checkGETKey('action', 'logout')) {
             $this->_session->destroy();
-            return new \Gino\Http\Redirect($this->_home);
+            return new \Gino\Http\Redirect($request->META['SCRIPT_FILE_NAME']);
         }
         else {
             $request->user = new User($this->_session->user_id);
@@ -80,10 +79,11 @@ class Access {
     /**
      * @brief Autenticazione errata
      *
-     * @descriptin Setta l'errore in sessione e ritorna una Gino.Http.Redirect
+     * @description Setta l'errore in sessione e ritorna una Gino.Http.Redirect
+     * @param \Gino\Http\Request $request
      * @return Gino.Http.Redirect alla pagina di autenticazione
      */
-    private function loginError() {
+    private function loginError(\Gino\Http\Request $request) {
 
         $registry = registry::instance();
         $url = $registry->router->link('auth', 'login');
@@ -94,11 +94,12 @@ class Access {
      * @brief Autenticazione valida
      *
      * @description Reindirizza alla home page o all'url impostato in sessione (auth_redirect).
+     * @param \Gino\Http\Request $request
      * @return Gino.Http.Redirect
      */
-    private function loginSuccess() {
+    private function loginSuccess(\Gino\Http\Request $request) {
 
-        $url = $this->_session->auth_redirect ? $this->_session->auth_redirect : $this->_home;
+        $url = $this->_session->auth_redirect ? $this->_session->auth_redirect : $request->META['SCRIPT_FILE_NAME'];
         return new Redirect($url);
     }
 
