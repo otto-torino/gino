@@ -634,7 +634,7 @@ SET IDENTITY_INSERT page_entry ON
 
 INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, [read], tpl_code, box_tpl_code) VALUES
 (1, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>.</p><p><img alt="LAMP logos" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>, tuttavia non è limitato a questi programmi potendo essere utilizzato anche con altri server web, quali ad esempio nginx e IIS, e con SQL Server, in attesa che vengano implementati altri connettori.</p><p><img alt="LAMP logos" class="img-responsive" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
 (3, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
 (4, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
 (5, 0, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 0, 1, 0, 0, '', 0, NULL, NULL);
@@ -980,7 +980,7 @@ CREATE TABLE sys_menu_voices (
 SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
-(1, 4, 0, 'Home', '#', 'int', 1, ''),
+(1, 4, 0, 'Get Started', '#', 'int', 1, ''),
 (2, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
 (3, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '10,0'),
 (4, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
@@ -1005,7 +1005,7 @@ CREATE TABLE sys_module (
 
 SET IDENTITY_INSERT sys_module ON
 
-INSERT INTO sys_module (id, label, name, module_app, directory, active, description) VALUES
+INSERT INTO sys_module (id, label, name, module_app, active, description) VALUES
 (4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
 (6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),

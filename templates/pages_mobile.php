@@ -25,7 +25,7 @@
   </head>
   <body>
     <!-- top bar -->
-    <nav class="navbar-wrapper navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <h1 class="hidden">Menu</h1>
         <!-- Brand and toggle get grouped for better mobile display -->
