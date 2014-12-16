@@ -266,7 +266,7 @@ class Router extends Singleton {
 
             if($query_string) $url .= '?' . $query_string;
 
-            return $abs ? $this->_request->root_absolute_url . '/' . $url : $url;
+            return $abs ? $this->_request->root_absolute_url . $url : $url;
         }
 
         // url espansi
@@ -274,7 +274,7 @@ class Router extends Singleton {
         if($tot_params) $query_string = implode('&', array_map(function($k, $v) { return sprintf('%s=%s', $k, $v); }, array_keys($params), array_values($params))) . ($query_string ? '&' . $query_string : '');
         if($query_string) $url .= '?' . $query_string;
 
-        return $abs ? $this->_request->root_absolute_url . '/' . $url : $url;
+        return $abs ? $this->_request->root_absolute_url . $url : $url;
     }
 
     /**
