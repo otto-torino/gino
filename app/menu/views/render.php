@@ -22,7 +22,7 @@
 <? namespace Gino\App\Menu; ?>
 <? //@cond no-doxygen ?>
 <?php
-if(!function_exists('adminPrintVoice')) {
+if(!function_exists('\Gino\App\Menu\printVoice')) {
   function printVoice($v, $selected, $i) {
     $active = $selected == $v['id'] ? true : false;
     if(!count($v['sub'])) return "<li class=\"".($active ? 'active' : '')."\"><a href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "").">".$v['label']."</a></li>\n";

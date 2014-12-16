@@ -10,6 +10,8 @@
 
 namespace Gino\Http;
 
+use \Gino\Loader;
+
 /**
  * @brief Subclass di Gino.Http.Response per gestire risposte a seguito di errori interni (code 500)
  *
@@ -39,11 +41,19 @@ class ResponseServerError extends Response {
      */
     protected function sendContent() {
 
-        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page500()));
+        // per evitare errori che causano un ciclo infinito
+        try {
+            $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page500()));
+            ob_start();
+            echo $document->render();
+            ob_end_flush();
+        }
+        catch(\Exception $e) {
+            ob_start();
+            echo \Gino\App\Sysfunc\sysfunc::page500();
+            ob_end_flush();
+        }
 
-        ob_start();
-        echo $document->render();
-        ob_end_flush();
     }
 
 }

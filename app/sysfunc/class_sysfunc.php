@@ -115,7 +115,7 @@ class sysfunc extends \Gino\Controller {
             $message = _("Si è verificato un errore interno al sistema.");
         }
 
-        $view = new view();
+        $view = new \Gino\View();
 
         $view->setViewTpl('500');
         $view->assign('title', $title);

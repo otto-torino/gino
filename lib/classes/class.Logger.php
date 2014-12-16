@@ -102,11 +102,11 @@ class Logger {
         }
         else {
             self::exceptionReportAdmins($exception);
-            if($method_exists($exception, 'httpResponse')) {
+            if(method_exists($exception, 'httpResponse')) {
                 $response = $exception->response();
             }
             else {
-                $response = HttpResponseServerError();
+                $response = new \Gino\Http\ResponseServerError();
             }
 
             $response();
