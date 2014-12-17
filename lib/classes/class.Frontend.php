@@ -148,7 +148,7 @@ class Frontend {
             $buffer = $this->formModuleFile($code, $request);
         }
         elseif($action == 'save') {
-            $buffer .= $this->actionModuleFile($code, $request);
+            return $this->actionModuleFile($code, $request);
         }
         else {
             $buffer = "<p class=\"backoffice-info\">"._('In questa sezione si può decidere l\'aspetto ed il modo di visualizzare le informazioni, modificando direttamente i fogli di stile e le viste utilizzati dal modulo.')."</p>";
@@ -329,6 +329,6 @@ class Frontend {
         fwrite($fo, $file_content);
         fclose($fo);
 
-        return \Gino\Http\Redirect($this->_mdlLink);
+        return new \Gino\Http\Redirect($this->_mdlLink);
     }
 }
