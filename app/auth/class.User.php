@@ -49,6 +49,7 @@ class User extends \Gino\Model {
             'photo' => _("Foto"), 
             'publication' => _('Pubblicazione dati'), 
             'active' => _('Attivo'), 
+        	'ldap' => _('Ldap'), 
             'groups' => _("Gruppi"),
         );
 
@@ -138,6 +139,14 @@ class User extends \Gino\Model {
             'enum'=>array(1=>_('si'), 0=>_('no')), 
             'default'=>0,
         ));
+        
+        $structure['ldap'] = new \Gino\BooleanField(array(
+            'name'=>'ldap', 
+            'model'=>$this,
+            'required'=>true, 
+            'enum'=>array(1=>_('si'), 0=>_('no')), 
+            'default'=>0,
+        ));
 
         $structure['groups'] = new \Gino\ManyToManyField(array(
             'name'=>'groups', 
@@ -172,21 +181,21 @@ class User extends \Gino\Model {
 
          $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 
-        $gform->load('pwdform');
+         $gform->load('pwdform');
 
-        $required = 'userpwd,check_userpwd';
+         $required = 'userpwd,check_userpwd';
 
-        $buffer = $gform->open($form_action, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
+         $buffer = $gform->open($form_action, '', $required);
+         $buffer .= $gform->hidden('id', $this->id);
 
-        $buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
-        $buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
+         $buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
+         $buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
 
-        $buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
+         $buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
 
-        $buffer .= $gform->close();
+         $buffer .= $gform->close();
 
-        return $buffer;
+         return $buffer;
     }
 
     /**
@@ -426,11 +435,12 @@ class User extends \Gino\Model {
      * @see Gino.Access::Authentication()
      * @param string $username lo username
      * @param string $password la password
+     * @param boolean $auth_ldap risultato dell'autenticazione ldap
      * @return mixed Gino.App.Auth.User ricavato oppure null
      */
-    public static function getFromUserPwd($username, $password) {
+    public static function getFromUserPwd($username, $password, $auth_ldap) {
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $user = null;
 
@@ -439,9 +449,15 @@ class User extends \Gino\Model {
 
         $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $pwd;
 
-        $rows = $db->select('id', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
+        $rows = $db->select('id, ldap', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
         if($rows and count($rows) == 1) {
-            $user = new User($rows[0]['id']);
+            
+        	$user_id = $rows[0]['id'];
+        	$user_ldap = $rows[0]['ldap'];
+        	
+        	if(($auth_ldap && $user_ldap) || !$auth_ldap) {
+        		$user = new User($user_id);
+        	}
         }
         return $user;
     }

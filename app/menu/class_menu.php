@@ -458,7 +458,7 @@ class menu extends \Gino\Controller {
         if(!$id) $menu_voice->initOrderList();
 
         $perms = \Gino\cleanVar($request->POST, 'perm', 'array', null);
-        $menu_voice->perms = implode(';', $perms);
+        $menu_voice->perms = count($perms) ? implode(';', $perms) : '';
 
         $menu_voice->save();
 
