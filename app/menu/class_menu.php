@@ -614,8 +614,8 @@ class menu extends \Gino\Controller {
         $GINO = "<div style=\"max-height:600px;overflow:auto; border: 2px solid #eee; margin-top: 10px; padding: 10px;\">";
 
         if(!empty($class)) {
-            $modules_app = ModuleApp::get(array('where' => "active='1' AND label LIKE '$class%' AND instantiable='0'"));
-            $modules = ModuleInstance::get(array('where' => "active='1' AND label LIKE '$class%'"));
+            $modules_app = ModuleApp::objects(null, array('where' => "active='1' AND label LIKE '$class%' AND instantiable='0'"));
+            $modules = ModuleInstance::objects(null, array('where' => "active='1' AND label LIKE '$class%'"));
             $GINO .= $this->printItemsClass($modules_app, $modules);
         }
         elseif(!empty($page)) {
