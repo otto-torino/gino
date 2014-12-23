@@ -1,712 +1,1167 @@
 <?php
 /**
  * @file class_layout.php
- * @brief Contiene la classe layout
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 /**
+ * @namespace Gino.App.Layout
+ * @description Namespace dell'applicazione Layout, che gestisce i layout del sistema.
+ *              Consente la modifica dei template, css e viste generali utilizzate da tutto il sistema.
+ */
+namespace Gino\App\Layout;
+
+use \Gino\View;
+use \Gino\Document;
+use Gino\Http\Response;
+use \Gino\Http\Redirect;
+use \Gino\App\Page\PageEntry;
+use \Gino\App\Module\ModuleInstance;
+use \Gino\App\SysClass\ModuleApp;
+use \Gino\App\Auth\Permission;
+
+/**
  * @brief Gestisce il layout dell'applicazione raggruppando le funzionalità fornite dalle librerie dei css, template e skin
- * 
- * @see class.css.php
- * @see class.template.php
- * @see class.skin.php
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
+ *
+ * @see Gino.Css
+ * @see Gino.Template
+ * @see Gino.Skin
+ *
+ *
  * Fornisce le interfacce per la modifica dei file di frontend generali di gino: \n
  *   - file css presenti nella directory @a css
  *   - file delle viste presenti nella directory @a views
- * 
- * SCHEMA DEL LAYOUT A LIVELLO AMMINISTRATIVO
- * ---------------
- * A livello amministrativo lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
+ *
+ * ## PROCESSO DI GESTIONE DEL LAYOUT A BLOCCHI
+ * Lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
  * @code
  * <div id="nav_3_1_1" style="width:100%;">
  * {module sysclassid=8 func=printFooterPublic}
  * </div>
  * @endcode
- * passandole con la funzione preg_replace_callback() al metodo template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
- * L'elenco dei moduli/pagine disponibili viene gestito dal metodo layout::modulesList().
- * 
- * TRADUZIONE DEL LAYOUT NELLA VISUALIZZAZIONE DI UNA PAGINA
- * ---------------
- * Per quanto riguarda la visualizzazione di una pagina, il layout viene gestito dal metodo document::render() che identifica il file del template, lo legge ed effettua un preg_replace_callback() col metodo document::renderNave(). \n
- * Quando document::renderNave() identifica la stringa @a module richiama document::renderModule() che in base al tipo riconosciuto richiama un metodo tra:
- *   - modPage()
- *   - modClass()
- *   - modFunc()
- *   - modUrl()
- * 
+ * Queste porzioni di codice vengono passate con la funzione preg_replace_callback() al metodo Gino.Template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
+ * L'elenco dei moduli/pagine disponibili viene gestito dal metodo Gino.App.Layout.layout::modulesList().
+ *
+ * ## LAYOUT FREE
+ * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  */
-class layout extends AbstractEvtClass {
+class layout extends \Gino\Controller {
 
-	protected $_instance, $_instanceName;
-	private $_tbl_skin, $_tbl_css;
-	private $_relativeUrl;
-	private $_template;
-	private $_css;
+    function __construct() {
 
-	private $_action, $_block;
+        parent::__construct();
+    }
 
-	function __construct($queryString=null) {
+    /**
+     * @brief Interfaccia amministrativa per la gestione del layout
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function manageLayout(\Gino\Http\Request $request) {
 
-		parent::__construct();
+        $this->requirePerm('can_admin');
 
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
+        $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-		$this->setAccess();
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $link_tpl = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template'), _('Template'));
+        $link_skin = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=skin'), _('Skin'));
+        $link_css = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=css'), _('CSS'));
+        $link_view = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=view'), _('Viste'));
 
-		$this->_tbl_skin = 'sys_layout_skin';
-		$this->_tbl_css = 'sys_layout_css';
+        $sel_link = $link_dft;
 
-		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-		$this->_block = cleanVar($_REQUEST, 'block', 'string', 'skin');
-		if(empty($this->_block)) $this->_block = 'css';
-	}
+        if($block == 'template') {
+            $backend = $this->manageTemplate($request);
+            $sel_link = $link_tpl;
+        }
+        elseif($block == 'skin') {
+            $backend = $this->manageSkin($request);
+            $sel_link = $link_skin;
+        }
+        elseif($block == 'css') {
+            $backend = $this->manageCss($request);
+            $sel_link = $link_css;
+        }
+        elseif($block == 'view') {
+            $backend = $this->manageView($request);
+            $sel_link = $link_view;
+        }
+        else {
+            $backend = $this->info();
+        }
 
-	/**
-	 * Interfaccia amministrativa per la gestione del layout
-	 * 
-	 * @see manageStyleCss()
-	 * @see layoutList()
-	 * @see template::manageTemplate()
-	 * @return string
-	 */
-	public function manageLayout() {
+        if(is_a($backend, '\Gino\Http\Response')) {
+            return $backend;
+        }
 
-		$this->accessGroup('ALL');
+        $view = new View();
+        $view->setViewTpl('tab');
+        $dict = array(
+            'title' => _('Layout'),
+            'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
+            'selected_link' => $sel_link,
+            'content' => $backend
+        );
 
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Layout")));	
-		$link_admin = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=permissions\">"._("Permessi")."</a>";
-		$link_style = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=style\">"._("Fogli di stile")."</a>";
-		$link_views = "<a href=\"".$this->_home."?evt[$this->_className-manageLayout]&block=views\">"._("Viste")."</a>";
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageLayout]\">"._("Gestione")."</a>";
-		$sel_link = $link_dft;
+        $document = new Document($view->render($dict));
+        return $document();
+    }
 
-		if($this->_block == 'permissions' && $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')) {
-			$buffer = sysfunc::managePermissions(null, $this->_className); 
-			$sel_link = $link_admin;
-		}
-		elseif($this->_block == 'style') {
-			$buffer = $this->manageItems('css');
-			$sel_link = $link_style;
-		}
-		elseif($this->_block == 'views') {
-			$buffer = $this->manageItems('view');
-			$sel_link = $link_views;
-		}
-		else {
-			// Azioni sul template
-			if($this->_block=='template' && $this->_action=='mngtpl') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$css = cleanVar($_POST, 'css', 'int', '');
-				$tplObj = new template($id);
-				$cssObj = new css('layout', array('id'=>$css));
-				return $tplObj->manageTemplate($cssObj, $id);
-			}
-			elseif($this->_block=='template' && $this->_action=='mngblocks') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$tplObj = new template($id);
-				return $tplObj->tplBlockForm(); 
-			}
-			elseif($this->_block=='template' && $this->_action=='addblocks') {
-				$id = cleanVar($_POST, 'id', 'int', '');
-				$tplObj = new template($id);
-				return $tplObj->addBlockForm(); 
-			}
-			elseif($this->_block=='template' && $this->_action=='copytpl') {
-				$tplObj = new template(null);
-				return $tplObj->actionCopyTemplate();
-			}
-			// End
+    /**
+     * @brief Interfaccia di amministrazione dei template
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response o html
+     */
+    private function manageTemplate(\Gino\Http\Request $request) {
 
-			$buffer = "<div class=\"vertical_1\">";
-			$buffer .= $this->layoutList();
-			$buffer .= "</div>";
+        $id = \Gino\cleanVar($request->REQUEST, 'id', 'int');
+        $tpl = \Gino\Loader::load('Template', array($id));
+        $action = \Gino\cleanVar($request->GET, 'action', 'string');
 
-			$buffer .= "<div class=\"vertical_2\">\n";
-			if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) $buffer .= $this->formBlock();
-			elseif($this->_action == 'outline') $buffer .= $this->formOutline();
-			elseif($this->_action == $this->_act_copy) $buffer .= $this->formCopyBlock();
-			elseif($this->_action == $this->_act_delete) $buffer .= $this->formDelBlock();
-			else $buffer .= $this->info();
-			$buffer .= "</div>\n";
+        if($request->checkGETKey('trnsl', '1'))
+        {
+            return $this->_trd->manageTranslation($request);
+        }
 
-			$buffer .= "<div class=\"null\"></div>\n";
-		}
-		
-		$htmltab->navigationLinks = $this->_access->AccessVerifyGroupIf($this->_className, $this->_instance, '', '')
-			? array($link_admin, $link_style, $link_views, $link_dft)
-			: array($link_style, $link_views, $link_dft);
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $buffer;
-		return $htmltab->render();
-	}
+        if($action == 'mngblocks') {
 
-	/**
-	 * Elenchi dei css, template, skin
-	 * 
-	 *  @see skinList()
-	 *  @see templateList()
-	 *  @see cssList()
-	 *  @return string
-	 */
-	private function layoutList() {
+            $content = $tpl->tplBlockForm($request);
+            return new Response($content);
+        }
+        elseif($action == 'mngtpl') {
 
-		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=$this->_block&action=$this->_act_insert\">".pub::icon('insert')."</a>";
+            $css_id = \Gino\cleanVar($request->POST, 'css', 'int');
+            $css = \Gino\Loader::load('Css', array('layout', array('id'=>$css_id)));
+            return new Response($tpl->manageTemplate($css, $id));
+        }
+        elseif($action == 'insert' || $action == 'modify') {
 
-		$class_sel = "class=\"selected\"";
-		$title = "[ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css\" ".(($this->_block=='css')?$class_sel:"").">css</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template\" ".(($this->_block=='template')?$class_sel:"").">template</a> ]";
-		$title .= " [ <a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin\" ".(($this->_block=='skin')?$class_sel:"").">skin</a> ]";
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title, 'headerLinks'=>$link_insert));
+            $free = \Gino\cleanVar($request->GET, 'free', 'int', null);
+            if($free) {
+                $buffer = $tpl->formFreeTemplate();
+            }
+            else {
+                $buffer = $tpl->formTemplate();
+            }
+        }
+        elseif($action == 'delete') {
+            $buffer = $tpl->formDelTemplate();
+        }
+        elseif($action == 'outline') {
+            $buffer = $tpl->formOutline();
+        }
+        elseif($action=='addblocks') {
 
-		if($this->_block == 'skin') $buffer = $this->skinList();
-		elseif($this->_block == 'template') $buffer = $this->templateList();
-		elseif($this->_block == 'css') $buffer = $this->cssList();
-		
-		$htmlsection->content = $buffer;
+            $content = $tpl->addBlockForm(null, $request);
+            return new Response($content);
+        }
+        elseif($action=='copy') {
+            $buffer = $tpl->formCopyTemplate();
+        }
+        elseif($action=='copytpl') {
+            return $tpl->actionCopyTemplate($request);
+        }
+        else {
+            $buffer = $this->templateList();
+        }
 
-		return $htmlsection->render();
-	}
+        return $buffer;
+    }
 
-	private function skinList() {
-	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
-		$skin_list = skin::getAll();
-		if(count($skin_list)) {
-			$htmlList = new htmlList(array("numItems"=>sizeof($skin_list), "separator"=>false, "id"=>'priorityList'));
-			$buffer = $htmlList->start();
-			foreach($skin_list as $skin) {
-				$selected = ($skin->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin&id={$skin->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=skin&id={$skin->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$link_sort = "<div class=\"orderPriority\" style=\"float:left;width:20px;height:20px;background:url('img/ico_sort.gif');cursor:move;margin-right:3px;\"></div>";
-				$buffer .= $htmlList->item(htmlChars($skin->ml('label')), array($link_sort, $link_delete, $link_modify), $selected, true, null, "id$skin->id", "sortable");
-			}	
-			$buffer .= $htmlList->end();
-			$buffer .= "<script>";
-			$buffer .= "function message() { alert('"._("Ordinamento effettuato con successo")."')}";
-			$buffer .= "var prioritySortables = new Sortables($('priorityList'), {
-						constrain: false,
-						clone: true,
-						handle: '.orderPriority',
-						onComplete: function() {
-							var order = this.serialize(1, function(element, index) {
-								return element.getProperty('id').replace('id', '');
-							}).join(',');
-							ajaxRequest('post', '$this->_home?pt[$this->_className-actionUpdateSkinOrder]', 'order='+order, null, {'callback':message});
-       						}
+    /**
+     * @brief Interfaccia di amministrazione delle skin
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response o html
+     */
+    private function manageSkin(\Gino\Http\Request $request) {
 
-			})";
-			$buffer .= "</script>";
-		}
-		else {
-			$buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
-		}
+        $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
+        $skin = \Gino\Loader::load('Skin', array($id));
+        $action = \Gino\cleanVar($request->GET, 'action', 'string');
+        
+        if($action == 'insert' || $action == 'modify') {
+            if($request->checkGETKey('trnsl', '1'))
+            {
+                return $this->_trd->manageTranslation($request);
+            }
+            else
+            {
+                $buffer = $skin->formSkin();
+            }
+        }
+        elseif($action == 'sortup') {
+            $skin->sortUp();
+            return new Redirect($this->linkAdmin(array(), "block=skin"));
+        }
+        elseif($action == 'delete') {
+            $buffer = $skin->formDelSkin();
+        }
+        else {
+            $buffer = $this->skinList();
+        }
 
-		return $buffer;
-	}
-	
-	private function templateList() {
-	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
-		$tpl_list = template::getAll();
-		if(count($tpl_list)) {
-			$htmlList = new htmlList(array("numItems"=>count($tpl_list), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($tpl_list as $tpl) {
-				$selected = ($tpl->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_modify\">".pub::icon('modify', _("modifica il template"))."</a>";
-				$link_outline = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=outline\">".pub::icon('layout', _("modifica lo schema"))."</a>";
-				$link_copy = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_copy\">".pub::icon('duplicate', _("crea una copia"))."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=template&id={$tpl->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($tpl->ml('label')), array($link_delete, $link_copy, $link_modify, $link_outline), $selected, true, '('.$tpl->filename.')');
-			}
-			$buffer .= $htmlList->end();
-		}
-		else {
-			$buffer = "<p>"._("Non risultano template registrati")."</p>\n";
-		}
+        return $buffer;
+    }
 
-		return $buffer;
-	}
+    /**
+     * @brief Interfaccia di amministrazione dei CSS
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response o html
+     */
+    private function manageCss($request) {
 
-	private function cssList() {
-	
-		$sel_id = cleanVar($_GET, 'id', 'int', '');
-		$css_list = css::getAll();
-		if(count($css_list)) {
-			$htmlList = new htmlList(array("numItems"=>count($css_list), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($css_list as $css) {
-				$selected = ($css->id == $sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css&id={$css->id}&action=$this->_act_modify\">".pub::icon('modify')."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageLayout]&block=css&id={$css->id}&action=$this->_act_delete\">".pub::icon('delete')."</a>";
-				$buffer .= $htmlList->item(htmlChars($css->ml('label')), array($link_delete, $link_modify), $selected, true);
-			}	
-			$buffer .= $htmlList->end();
-		}
-		else {
-			$buffer = "<p>"._("Non risultano css registrati")."</p>\n";
-		}
-		
-		return $buffer;
-	}
+        $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
+        $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
+        $action = \Gino\cleanVar($request->GET, 'action', 'string');
 
-	private function formBlock() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
+        if($action == 'insert' or $action == 'modify') {
 
-		if($this->_block=='skin') {
-			$skinObj = new skin($id);
-			return $skinObj->formSkin();
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formTemplate();
-		}
-		elseif($this->_block=='css') {
-			$cssObj = new css('layout', array('id'=>$id));
-			return $cssObj->formCssLayout();
-		}
-	}
-	
-	private function formOutline() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
+            if($request->checkGETKey('trnsl', '1'))
+            {
+                return $this->_trd->manageTranslation($request);
+            }
+            else
+            {
+                $buffer = $css->formCssLayout();
+            }
+        }
+        elseif($action == 'delete') {
+            $buffer = $css->formDelCssLayout();
+        }
+        elseif($action == 'edit') {
+            $fname = \Gino\cleanVar($request->GET, 'fname', 'string', null);
+            $buffer = $this->formFiles($fname, 'css');
+        }
+        else {
+            $buffer = $this->cssList();
+        }
 
-		if($this->_block=='skin') {
-			return null;
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formOutline();
-		}
-		elseif($this->_block=='css') {
-			return null;
-		}
-	}
-	
-	private function formCopyBlock() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
-		
-		if($this->_block=='skin') {
-			return null;
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formCopyTemplate();
-		}
-		elseif($this->_block=='css') {
-			return null;
-		}
-	}
-	
-	private function formDelBlock() {
-	
-		$id = cleanVar($_GET, 'id', 'int', '');
+        return $buffer;
+    }
 
-		if($this->_block=='css') {
-			$cssObj = new css('layout', array('id'=>$id));
-			return $cssObj->formDelCssLayout();
-		}
-		elseif($this->_block=='template') {
-			$tplObj = new template($id);
-			return $tplObj->formDelTemplate();
-		}
-		elseif($this->_block=='skin') {
-			$tplObj = new skin($id);
-			return $tplObj->formDelSkin();
-		}
-	}
+    /**
+     * @brief Interfaccia di amministrazione delle viste
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response o html
+     */
+    private function manageView($request) {
 
-	private function info() {
+        $action = \Gino\cleanVar($request->GET, 'action', 'string');
+        if($action == 'edit') {
+            $fname = \Gino\cleanVar($request->GET, 'fname', 'string', null);
+            $buffer = $this->formFiles($fname, 'view');
+        }
+        else {
+            $buffer = $this->viewList();
+        }
 
-		if($this->_block == 'skin') return skin::layoutInfo();
-		elseif($this->_block == 'template') return template::layoutInfo();
-		elseif($this->_block == 'css') return css::layoutInfo();
-	}
-	
-	public function actionSkin() {
-		
-		$this->accessGroup('');
+        return $buffer;
+    }
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$skinObj = new skin($id);
-		$skinObj->actionSkin();
+    /**
+     * @brief Lista delle skin
+     * @return html, lista skin
+     */
+    private function skinList() {
 
-		exit();
-	}
-	
-	public function actionDelSkin() {
-		
-		$this->accessGroup('');
+        \Gino\Loader::import('class', '\Gino\Template');
+        \Gino\Loader::import('class', '\Gino\Css');
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$skin = new skin($id);
-		$skin->actionDelSkin();
+        $link_insert = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=skin&action=insert'), \Gino\icon('insert', array('text' => _("nuova skin"), 'scale'=>2)));
 
-		exit();
-	}
-	
-	public function actionUpdateSkinOrder() {
-	
-		$this->accessGroup('');
+        $skin_list = \Gino\Skin::objects(null, array('order' => 'priority'));
+        if(count($skin_list)) {
+            $view_table = new View();
+            $view_table->setViewTpl('table');
+            $view_table->assign('heads', array(
+                _('Etichetta'),
+                _('Template'),
+                _('Css'),
+                _('Autenticazione'),
+                _('Cache'),
+                ''
+            ));
+            $tbl_rows = array();
 
-		$order = cleanVar($_POST, 'order', 'string', '');
-		$items = explode(",", $order);
-		$i=1;
-		foreach($items as $item) {
-			$skin = new skin($item);
-			$skin->priority = $i;
-			$skin->updateDbData();
-			$i++;	
-		}
-	}
+            $i = 0;
+            foreach($skin_list as $skin) {
+                $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=modify"), \Gino\icon('modify'));
+                $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=delete"), \Gino\icon('delete'));
+                $link_sort = $i ? sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=sortup"), \Gino\icon('sort-up')) : '';
+                $tpl = new \Gino\Template($skin->template);
+                $css = new \Gino\Css('layout', array('id' => $skin->css));
+                $tbl_rows[] = array(
+                    $skin->ml('label'),
+                    $tpl->ml('label'),
+                    $css->label,
+                    $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
+                    $skin->cache ? _('si') : _('no'),
+                    array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
+                );
+                $i++;
+            }
+            $view_table->assign('class', 'table table-striped', 'table-hover');
+            $view_table->assign('rows', $tbl_rows);
+            $buffer = "<p class=\"backoffice-info\">"._('Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull\'icona a forma di freccia.')."</p>";
+            $buffer .= $view_table->render();
+        }
+        else {
+            $buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
+        }
 
-	public function actionCss() {
-		
-		$this->accessGroup('');
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => _('Elenco skin'),
+            'class' => 'admin',
+            'header_links' => $link_insert,
+            'content' => $buffer
+        );
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$css = new css('layout', array('id'=>$id));
-		$css->actionCssLayout();
+        return $view->render($dict);
+    }
 
-		exit();
-	}
-	
-	public function actionDelCss() {
-		
-		$this->accessGroup('');
+    /**
+     * @brief Lista dei template
+     * @return html, lista template
+     */
+    private function templateList() {
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$css = new css('layout', array('id'=>$id));
-		$css->actionDelCssLayout();
+        $link_insert = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template&action=insert'), \Gino\icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2)));
+        $link_insert_free = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template&action=insert&free=1'), \Gino\icon('code', array('text' => _("nuovo template libero"), 'scale'=>2)));
 
-		exit();
-	}
-	
-	public function actionTemplate() {
+        $tpl_list = \Gino\Template::objects(null, array('order' => 'label'));
+        if(count($tpl_list)) {
+            $view_table = new View();
+            $view_table->setViewTpl('table');
+            $view_table->assign('heads', array(
+            _('Etichetta'),
+            _('File'),
+            _('Descrizione'),
+            ''
+            ));
+            $tbl_rows = array();
+            foreach($tpl_list as $tpl) {
 
-		$this->accessGroup('');
+                $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=modify&free=".$tpl->free), \Gino\icon('modify', array('text' => _("modifica il template"))));
+                $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=delete"), \Gino\icon('delete'));
+                $link_outline = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=outline"), \Gino\icon('layout', array('text' => _("modifica lo schema"))));
+                $link_copy = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=copy"), \Gino\icon('copy', array('text' => _("crea una copia"))));
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$tplObj = new template($id);
-		$tplObj->actionTemplate();
+                $links = $tpl->free
+                    ? array($link_delete, $link_modify)
+                    : array($link_delete, $link_copy, $link_modify, $link_outline);
 
-		exit();
-	}
+                $tbl_rows[] = array(
+                    $tpl->ml('label'),
+                    $tpl->filename,
+                    $tpl->ml('description'),
+                    implode(' &#160; ', $links)
+                );
+            }
+            $view_table->assign('class', 'table table-striped', 'table-hover');
+            $view_table->assign('rows', $tbl_rows);
+            $buffer = $view_table->render();
+        }
+        else {
+            $buffer = "<p>"._("Non risultano template registrati")."</p>\n";
+        }
 
-	public function actionDelTemplate() {
-		
-		$this->accessGroup('');
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+        'title' => _('Elenco template'),
+        'class' => 'admin',
+        'header_links' => array($link_insert, $link_insert_free),
+        'content' => $buffer
+        );
 
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$tpl = new template($id);
-		$tpl->actionDelTemplate();
+        return $view->render($dict);
+    }
 
-		exit();
-	}
+    /**
+     * @brief Lista dei css
+     * @return html, lista css
+     */
+    private function cssList() {
 
-	/**
-	 * Elenco dei moduli e delle pagine disponibili
-	 * 
-	 * @see page::getUrlPage()
-	 * @return string
-	 */
-	public function modulesList() {
+        $link_insert = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=css&action=insert'), \Gino\icon('insert', array('text' => _("nuovo file css"), 'scale'=>2)));
 
-		$this->accessGroup('');
+        $view_table = new View();
+        $view_table->setViewTpl('table');
+        $view_table->assign('heads', array(
+            _('Etichetta'),
+            _('File'),
+            _('Descrizione'),
+            ''
+        ));
+        $tbl_rows = array();
 
-		$nav_id = cleanVar($_GET, 'nav_id', 'string', '');
-		$refillable_id = cleanVar($_GET, 'refillable_id', 'string', '');
-		$fill_id = cleanVar($_GET, 'fill_id', 'string', '');
+        $dir = CSS_DIR;
+        $files = array();
+        if(is_dir($dir)) {
+            if($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.css$#', $file)) {
+                        $files[] = $file;
+                    }
+                }
+                closedir($dh);
+            }
+        }
 
-		$buffer = "<div>";
-		$buffer .= "<table class=\"layout_mdlList\">";
-		/*
-		 * Pages
-		 */
-		$query = "SELECT id, title, private, users FROM ".$this->_tbl_page." WHERE published='1' ORDER BY title";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Pagine")."</th></tr>";
-			$buffer .= "<tr><th colspan=\"2\">"._("Titolo")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$access_txt = '';
-				if($b['private'])
-					$access_txt .= _("pagina privata")."<br />";
-				if($b['users'])
-					$access_txt .= _("pagina limitata ad utenti selezionati");
-				
-				$code_full = "{module pageid=".$b['id']." func=full}";
-				$url = page::getUrlPage($b['id'], true);
-				$buffer .= "<tr><td class=\"mdlTitle\">".htmlChars($b['title'])."</td>";
-				$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".jsVar(htmlChars($b['title']))."', '$code_full')\";>"._("Pagina completa")."</td><td>$access_txt</td></tr>";
-			}
-		}
-		/*
-		 * Modules sys_module
-		 */
-		$query = "SELECT id, label, name, class, role1, role2, role3 FROM ".$this->_tbl_module." WHERE type='class' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli")."</th></tr>";
-			$buffer .= "<tr><th>"._("Nome")."</th><th>"._("Funzione")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists($b['class'], 'outputFunctions'))? call_user_func(array($b['class'], 'outputFunctions')):array();
-				if(count($output_functions)) {
-					$buffer .= "<tr><td class=\"mdlTitle\" rowspan=\"".count($output_functions)."\">".htmlChars($b['label'])."</td>";
-					foreach($output_functions as $func=>$data) {
-						$role = $b['role'.$data['role']];
-						$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-						$code = "{module classid=".$b['id']." func=".$func."}";
-						$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[".$b['name']."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])." - ".jsVar($data['label'])."', '$code')\";>{$data['label']}</td><td>$role_txt</td></tr>";
-					}	
-				}	
-			}
-		}
-		/*
-		 * Modules sys_module_app
-		 */
-		$query = "SELECT id, label, name, role1, role2, role3 FROM ".$this->_tbl_module_app." WHERE type='class' AND instance='no' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli di sistema")."</th></tr>";
-			$buffer .= "<tr><th>"._("Nome")."</th><th>"._("Funzione")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists($b['name'], 'outputFunctions'))? call_user_func(array($b['name'], 'outputFunctions')):array();
-				if(count($output_functions)) {
-					$buffer .= "<tr><td class=\"mdlTitle\" rowspan=\"".count($output_functions)."\">".htmlChars($b['label'])."</td>";
-					foreach($output_functions as $func=>$data) {
-						$role = $b['role'.$data['role']];
-						$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-						$code = "{module sysclassid=".$b['id']." func=".$func."}";
-						$buffer .= "<td class=\"link\" onclick=\"ajaxRequest('post', '$this->_home?pt[".$b['name']."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])." - ".$data['label']."', '$code')\";>{$data['label']}</td><td>$role_txt</td></tr>";
-					}	
-				}	
-			}
-		}
-		/*
-		 * Functions
-		 */
-		$query = "SELECT id, label, name, role1, role2, role3 FROM ".$this->_tbl_module." WHERE type='func' AND masquerade='no' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli funzione")."</th></tr>";
-			$buffer .= "<tr><th colspan=\"2\">"._("Nome")."</th><th>"._("Permessi")."</th></tr>";
-			foreach($a as $b) {
-				$output_functions = (method_exists('sysfunc', 'outputFunctions'))? call_user_func(array('sysfunc', 'outputFunctions')):array();
-				if(count($output_functions)) {
-					$buffer .= "<tr>";
-					$role = $b['role'.$output_functions[$b['name']]['role']];
-					$role_txt = $this->_db->getFieldFromId($this->_tbl_user_role, 'name', 'role_id', $role);
-					$code = "{module funcid=".$b['id']."}";
-					$buffer .= "<td class=\"link mdlTitle\" onclick=\"ajaxRequest('post', '$this->_home?pt[sysfunc-".$b['name']."]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".htmlChars($b['label'])."', '$code')\";>".$b['label']."</td><td>".$output_functions[$b['name']]['label']."</td><td>$role_txt</td></tr>";
-				}	
-			}
-		}
-		/*
-		 * Url module
-		 */
-		$code = "{module id=0}";
-		$buffer .= "<tr><th class=\"title\" colspan=\"3\">"._("Moduli segnaposto")."</th></tr>";
-		$buffer .= "<tr><th colspan=\"2\">"._("Nome")."</th><th>"._("Permessi")."</th></tr>";
-		$buffer .= "<tr>";
-		$buffer .= "<td colspan=\"2\" class=\"link mdlTitle\" onclick=\"closeAll('$nav_id', '$refillable_id', '"._("Modulo da url")."', '$code')\";>"._("Modulo da url")."</td><td>"._("Prende i permessi del modulo chiamato")."</td></tr>";
-		$buffer .= "</tr>";
+        foreach($files as $file) {
+            $css = \Gino\Css::getFromFilename($file);
+            $link_edit = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=css&fname=$file&action=edit"), \Gino\icon('write', array('text' => _('modifica file'))));
+            if($css and $css->id) {
 
-		$buffer .= "</table>";
-		$buffer .= "</div>";
+                $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=css&id={$css->id}&action=modify"), \Gino\icon('modify'));
+                $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=css&id={$css->id}&action=delete"), \Gino\icon('delete'));
+                $tbl_rows[] = array(
+                    \Gino\htmlChars($css->ml('label')),
+                    $file,
+                    \Gino\htmlChars($css->ml('description')),
+                    implode(' &#160; ', array($link_edit, $link_modify, $link_delete))
+                );
+            }
+            else {
+                $tbl_rows[] = array(
+                    _('CSS di sistema'),
+                    $file,
+                    '',
+                    $link_edit
+                );
+            }
+        }
 
-		return $buffer;
-	}
-	
-	/**
-	 * Interfaccia per la gestione degli elementi del frontend di gino
-	 * 
-	 * E' possibile modificare i fogli di stile (CSS) presenti nella directory @a css e le viste presenti nella directory @a views
-	 * 
-	 * @param string $code valore del tipo di frontend
-	 * @return string
-	 */
-	private function manageItems($code) {
-		
-		$fname = cleanVar($_GET, 'fname', 'string', '');
-		
-		$GINO = "<div class=\"vertical_1\">";
-		$GINO .= $this->listItems($fname, $code);
-		$GINO .= "</div>";
-		$GINO .= "<div class=\"vertical_2\">";
-		if($this->_action == $this->_act_insert || $this->_action == $this->_act_modify) {
-			$GINO .= $this->formItems($fname, $code);
-		}
-		else $GINO .= $this->infoItems($code);
-		$GINO .= "</div>";
-		$GINO .= "<div class=\"null\"></div>";
+        $view_table->assign('class', 'table table-striped', 'table-hover');
+        $view_table->assign('rows', $tbl_rows);
 
-	    return $GINO;
-	}
-	
-	private function infoItems($code) {
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Informazioni")));
-		
-		if($code == 'css')
-		{
-			$buffer = "<p>".sprintf(_("In questa sezione è possibile modificare i fogli di stile (CSS) presenti nella directory '%s'"), CSS_WWW)."</p>";
-		}
-		elseif($code == 'view')
-		{
-			$buffer = "<p>".sprintf(_("In questa sezione è possibile modificare le viste presenti nella directory '%s'"), SITE_WWW."/views")."</p>";
-		}
-		$buffer .= "<p>"._("Attenzione, le modifiche possono compromettere la buona visualizzazione del sito.")."</p>";
-		
-		$htmlsection->content = $buffer;
+        $buffer = "<div class=\"backoffice-info\">";
+        $buffer .= "<p>"._('In questa sezione è possibile modificare fogli di stile di sistema (propri di gino), e fogli di stile custom, inseribili ed eliminabili da questa interfaccia. I fogli di stile di sistema non sono eliminabili in quanto inclusi automaticamente all\'interno del documento.')."</p>";
+        $buffer .= "</div>";
+        $buffer .= $view_table->render();
 
-		return $htmlsection->render();
-	}
-	
-	private function listItems($sel, $code) {
-		
-		if($code == 'css')
-		{
-			$title = _("File CSS");
-			$dir = CSS_DIR;
-			$ext = 'css';
-			$block = "style";
-		}
-		elseif($code == 'view')
-		{
-			$title = _("Viste");
-			$dir = VIEWS_DIR;
-			$ext = 'php';
-			$block = "views";
-		}
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => _('Elenco fogli di stile'),
+            'class' => 'admin',
+            'header_links' => $link_insert,
+            'content' => $buffer
+        );
 
-		$array = array();
-		$buffer = '';
-		
-		if(is_dir($dir))
-		{
-			if($dh = opendir($dir)) {
-				while (($file = readdir($dh)) !== false) {
-					if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.'.$ext.'$#', $file))
-					{
-						$array[] = $file;
-					}
-				}
-				closedir($dh);
-			}
-		}
-		
-		if(sizeof($array) > 0)
-		{
-			$htmlList = new htmlList(array("numItems"=>sizeof($array), "separator"=>true));
-			$buffer = $htmlList->start();
-			foreach($array as $value)
-			{
-				$selected = ($value == $sel) ? true : false;
-				$link = $this->_plink->aLink($this->_className, 'manageLayout', '', array('fname'=>$value, 'block'=>$block, 'action'=>$this->_act_modify));
-				$link_modify = "<a href=\"$link\">".pub::icon('modify', _("modifica il file"))."</a>";
-				
-				$buffer .= $htmlList->item(htmlChars($value), array($link_modify), $selected, true);
-			}
-			$buffer .= $htmlList->end();
-		}
-		$htmlsection->content = $buffer;
+        return $view->render($dict);
+    }
 
-		return $htmlsection->render();
-	}
-	
-	private function formItems($filename, $code) {
-		
-		if($code == 'css')
-		{
-			$title = _("Modifica il file CSS");
-			$dir = CSS_DIR;
-			$block = "style";
-		}
-		elseif($code == 'view')
-		{
-			$title = _("Modifica la vista");
-			$dir = VIEWS_DIR;
-			$block = "views";
-		}
-		
-		$title = $title. " ($filename)";
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>$title));
-		
-		$buffer = '';
-		$pathToFile = $dir.OS.$filename;
-		$action = $this->_act_modify;
-		$link_return = $this->_home."?evt[$this->_className-manageLayout]&block=$block";
-		
-		if(is_file($pathToFile))
-		{
-			$gform = new Form('gform', 'post', true, array("tblLayout"=>false));
-			$gform->load('dataform');
-			$buffer = $gform->form($this->_home."?evt[$this->_className-actionItems]", '', '');
-			$buffer .= $gform->hidden('fname', $filename);
-			$buffer .= $gform->hidden('code', $code);
-			$buffer .= $gform->hidden('action', $action);
+    /**
+     * @brief Lista delle viste
+     * @return html, lista viste
+     */
+    private function viewList() {
 
-			$contents = file_get_contents($pathToFile);
-			$buffer .= "<textarea name=\"file_content\" style=\"width:98%;height:300px;overflow:auto;border:2px solid #000;\">".$contents."</textarea>\n";
-			
-			$buffer .= "<p>".$gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-			$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""))."</p>";
+        $view_table = new View();
+        $view_table->setViewTpl('table');
+        $view_table->assign('heads', array(
+            _('file'),
+            ''
+        ));
+        $tbl_rows = array();
 
-			$buffer .= $gform->cform();
-		}
-		
-		$htmlsection->content = $buffer;
+        $dir = VIEWS_DIR;
+        $files = array();
+        if(is_dir($dir)) {
+            if($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    if($file != "." && $file != ".." && preg_match('#^[0-9a-zA-Z]+[0-9a-zA-Z_.\-]+\.php$#', $file)) {
+                        $files[] = $file;
+                    }
+                }
+                closedir($dh);
+            }
+        }
 
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Salva il file del frontend
-	 */
-	public function actionItems() {
-	
-		$action = cleanVar($_POST, 'action', 'string', '');
-		$filename = cleanVar($_POST, 'fname', 'string', '');
-		$code = cleanVar($_POST, 'code', 'string', '');
+        sort($files);
 
-		if($code == 'css')
-		{
-			$dir = CSS_DIR;
-			$block = "style";
-		}
-		elseif($code == 'view')
-		{
-			$dir = VIEWS_DIR;
-			$block = "views";
-		}
-		
-		if(is_file($dir.OS.$filename))
-		{
-			$file_content = $_POST['file_content'];
-			if($fo = fopen($dir.OS.$filename, 'wb'))
-			{
-				fwrite($fo, $file_content);
-				fclose($fo);
-			}
-		}
+        foreach($files as $file) {
+            $link_edit = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=view&fname=$file&action=edit"), \Gino\icon('write', array('text' => _('modifica file'))));
+            $tbl_rows[] = array(
+                    $file,
+                    $link_edit
+            );
+        }
 
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageLayout', "block=$block");
-	}
+        $view_table->assign('class', 'table table-striped', 'table-hover');
+        $view_table->assign('rows', $tbl_rows);
+
+        $buffer = "<div class=\"backoffice-info\">";
+        $buffer .= "<p>"._('Queste sono le viste generali utilizzate da tutto il sistema e da molti moduli, pertanto eventuali modifiche si ripercuoteranno sulla visualizzazione di molte parti del sito.')."</p>";
+        $buffer .= "<p>"._('Per modificare la visualizzazione di viste appartenenti a singoli moduli accedere all\'apposita interfaccia nella sezione di amministrazione del modulo.')."</p>";
+        $buffer .= "</div>";
+        $buffer .= $view_table->render();
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => _('Elenco viste generali di sistema'),
+            'class' => 'admin',
+            'content' => $buffer
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Informazioni modulo
+     * @return html, informazioni
+     */
+    private function info() {
+
+        \Gino\Loader::import('class', array('\Gino\Css', '\Gino\Template', '\Gino\Skin'));
+
+        $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguenti:")."</p>";
+        $GINO .= "<ul>";
+        $GINO .= "<li>"._("Creare ed uploadare un foglio di stile se necessario")."</li>";
+        $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file .tpl) oppure un template libero (file .php)")."</li>";
+        $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.")."</li>";
+        $GINO .= "<li>"._("Settare la priorità della skin spostandola in alto o in basso.")."</li>";
+        $GINO .= "</ul>";
+        $GINO .= \Gino\Css::layoutInfo();
+        $GINO .= \Gino\Template::layoutInfo();
+        $GINO .= \Gino\Skin::layoutInfo();
+        $GINO .= "<h2>"._('Viste')."</h2>";
+        $GINO .= "<p>"._('In questa sezione si possono modificare le viste di sistema di gino. Sono viste generali utilizzate da buona parte dei moduli e dalla stessa area amministrativa.')."</p>";
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => _('Layout'),
+            'class' => 'admin',
+            'content' => $GINO
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Processa il form di inserimento/modifica skin
+     * @see Gino.Skin::formSkin()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionSkin(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        $skin = \Gino\Loader::load('Skin', array($id));
+        
+        return $skin->actionSkin($request);
+    }
+
+    /**
+     * @brief Processa il form di eliminazione skin
+     * @see Gino.Skin::formDelSkin()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionDelSkin(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $skin = \Gino\Loader::load('Skin', array($id));
+
+        return $skin->actionDelSkin($request);
+    }
+
+    /**
+     * @brief Processa il form di inserimento/modifica css
+     * @see Gino.Css::formCssLayout()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionCss(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+
+        return $css->actionCssLayout($request);
+    }
+
+    /**
+     * @brief Processa il form di eliminazione css
+     * @see Gino.Css::formDelCssLayout()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionDelCss(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+
+        return $css->actionDelCssLayout($request);
+    }
+
+    /**
+     * @brief Processa il form di inserimento/modifica template
+     * @see Gino.Template::formTemplate()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionTemplate(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $free = \Gino\cleanVar($request->POST, 'free', 'int', '');
+
+        $tpl = \Gino\Loader::load('Template', array($id));
+        
+        if($free) {
+            return $tpl->actionFreeTemplate($request);
+        }
+        else {
+            return $tpl->actionTemplate($request);
+        }
+    }
+
+    /**
+     * @brief Processa il form di eliminazione template
+     * 
+     * @see Gino.Template::formDelTemplate()
+     * @see Gino.Template::actionDelTemplate()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionDelTemplate(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $tpl = \Gino\Loader::load('Template', array($id));
+
+        return $tpl->actionDelTemplate($request);
+    }
+
+    /**
+     * @brief Elenco dei moduli di sistema, istanze di moduli di sistema e delle pagine disponibili come blocchi all'interno del template
+     *
+     * @description I metodi il cui output è disponibile all'inserimento nel template sono quelli definiti nel metodo outputFunctions della classe
+     *              di tipo Gino.Controller e che non sono presenti nel file <nome_modulo>.ini, e quindi non richiamabili da url.
+     *              Questo metodo è richiamato nell'interfaccia di gestione di template di tipo free
+     * @return Gino.Http.Response
+     */
+    public function modulesCodeList() {
+
+        $this->requirePerm('can_admin');
+
+        \Gino\Loader::import('page', 'PageEntry');
+        \Gino\Loader::import('auth', 'Permission');
+        \Gino\Loader::import('module', 'ModuleInstance');
+        \Gino\Loader::import('sysClass', 'ModuleApp');
+
+        $view_table = new View();
+        $view_table->setViewTpl('table');
+        $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+        $tbl_rows = array();
+
+        /*
+         * Pages
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Pagine'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('titolo'), 'header' => true),
+            array('text' =>_('vista'), 'header' => true),
+            array('text' =>_('permessi'), 'header' => true),
+            array('text' =>_('codice'), 'header' => true)
+        );
+
+        $pages = PageEntry::objects(null, array('where' => "published='1'", 'order' => 'title'));
+        if(count($pages)) {
+            foreach($pages as $page) {
+                $access_txt = '';
+                if($page->private)
+                {
+                    $perm = $page->getController()->permissions();
+                    $access_txt .= $page->getController()->$perm['can_view_private']."<br />";
+                }
+                if($page->users)
+                    $access_txt .= _("pagina limitata ad utenti selezionati");
+                if(!$page->private and !$page->users) 
+                    $access_txt .= _('pubblica');
+
+                $code_full = "{module pageid=".$page->id." func=full}";
+                $url = $page->getUrl();
+                $tbl_rows[] = array(
+                    \Gino\htmlChars($page->title),
+                    _("Pagina completa"),
+                    $access_txt,
+                    $code_full
+                );
+            }
+        }
+
+        /*
+         * Modules sys_module
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Istanze di moduli'), 'colspan'=>4, 'class'=>'header', 'header'=>TRUE)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('nome'), 'header' => TRUE),
+            array('text' =>_('vista'), 'header' => TRUE),
+            array('text' =>_('permessi'), 'header' => TRUE),
+            array('text' =>_('codice'), 'header' => TRUE)
+        );
+
+        $modules = ModuleInstance::objects(null, array('where' => "active='1'", 'order' => 'label'));
+        if(count($modules)) {
+            foreach($modules as $module) {
+                $class = $module->classNameNs();
+                $output_functions = method_exists($class, 'outputFunctions') 
+                    ? call_user_func(array($class, 'outputFunctions'))
+                    : array();
+
+                if(count($output_functions)) {
+                    foreach($output_functions as $func=>$data) {
+                        $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(!isset($public_method)) {
+                            $permissions_code = $data['permissions'];
+                            $permissions = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    $p = Permission::getFromFullCode($permission_code);
+                                    $permissions[] = $p->label;
+                                }
+                            }
+                            $code = "{module classid=".$module->id." func=".$func."}";
+                            $row = array(
+                                $data['label'],
+                                count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+                                $code
+                            );
+                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label))), $row);
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * Modules sys_module_app
+         */
+        $tbl_rows[] = array(
+          array('text' => _('Moduli di sistema'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+          array('text' =>_('nome'), 'header' => true),
+          array('text' =>_('vista'), 'header' => true),
+          array('text' =>_('permessi'), 'header' => true),
+          array('text' =>_('codice'), 'header' => true)
+        );
+
+        $modules_app = ModuleApp::objects(null, array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+        if(count($modules_app)) {
+            foreach($modules_app as $module_app) {
+                $class = $module_app->classNameNs();
+                $output_functions = method_exists($class, 'outputFunctions') 
+                    ? call_user_func(array($class, 'outputFunctions'))
+                    : array();
+
+                if(count($output_functions)) {
+                    foreach($output_functions as $func=>$data) {
+                        $method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(!isset($public_method)) {
+                            $permissions_code = $data['permissions'];
+                            $permissions = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    $p = Permission::getFromFullCode($permission_code);
+                                    $permissions[] = $p->label;
+                                }
+                            }
+                            $code = "{module sysclassid=".$module_app->id." func=".$func."}";
+                            $row = array(
+                                $data['label'],
+                                count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+                                $code
+                            );
+                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label))), $row);
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * Url module
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Moduli segnaposto'), 'colspan'=>4, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
+            array('text' =>_('permessi'), 'header' => true),
+            array('text' =>_('codice'), 'header' => true)
+        );
+        $code = "{module id=0}";
+        $tbl_rows[] = array(
+            array(
+                'text' => _("Modulo da url"),
+                'colspan' => 2
+            ),
+            _("Prende i permessi del modulo chiamato"),
+            $code
+        );
+
+        $buffer = "<div>";
+        $view_table->assign('rows', $tbl_rows);
+        $buffer .= $view_table->render();
+        $buffer .= "</div>";
+
+        return new Response($buffer);
+    }
+
+
+    /**
+     * @brief Elenco dei moduli di sistema, istanze di moduli di sistema e delle pagine disponibili come blocchi all'interno del template
+     *
+     * @description I metodi il cui output è disponibile all'inserimento nel template sono quelli definiti nel metodo outputFunctions della classe
+     *              di tipo Gino.Controller e che non sono presenti nel file <nome_modulo>.ini, e quindi non richiamabili da url.
+     *              Questo metodo è richiamato nell'interfaccia di gestione di template di tipo a blocchi, e consente l'inserimento dell'output 
+     *              all'interno della struttura con un click.
+     * @return Gino.Http.Response
+     */
+    public function modulesList(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        \Gino\Loader::import('page', 'PageEntry');
+        \Gino\Loader::import('auth', 'Permission');
+        \Gino\Loader::import('module', 'ModuleInstance');
+        \Gino\Loader::import('sysClass', 'ModuleApp');
+
+        $nav_id = \Gino\cleanVar($request->GET, 'nav_id', 'string', '');
+        $refillable_id = \Gino\cleanVar($request->GET, 'refillable_id', 'string', '');
+        $fill_id = \Gino\cleanVar($request->GET, 'fill_id', 'string', '');
+
+        $view_table = new View();
+        $view_table->setViewTpl('table');
+        $view_table->assign('class', 'table table-striped table-hover table-bordered table-layout');
+        $tbl_rows = array();
+
+        /*
+         * Pages
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Pagine'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('titolo'), 'header' => true),
+            array('text' =>_('vista'), 'header' => true),
+            array('text' =>_('permessi'), 'header' => true)
+        );
+
+        $pages = PageEntry::objects(null, array('where' => "published='1'", 'order' => 'title'));
+        if(count($pages)) {
+            foreach($pages as $page) {
+                $access_txt = '';
+                if($page->private)
+                {
+                    $perm = $page->getController()->permissions();
+                    $access_txt .= $perm['can_view_private']."<br />";
+                }
+                if($page->users)
+                    $access_txt .= _("pagina limitata ad utenti selezionati");
+                if(!$page->private and !$page->users)
+                    $access_txt .= _('pubblica');
+
+                $code_full = "{module pageid=".$page->id." func=full}";
+
+                $url = $page->getUrl();
+                $tbl_rows[] = array(
+                    \Gino\htmlChars($page->ml('title')),
+                    "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\jsVar(\Gino\htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
+                    $access_txt
+                );
+            }
+        }
+
+        /*
+         * Modules sys_module
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Istanze di moduli'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('nome'), 'header' => true),
+            array('text' =>_('vista'), 'header' => true),
+            array('text' =>_('permessi'), 'header' => true)
+        );
+
+        $modules = ModuleInstance::objects(null, array('where' => "active='1'", 'order' => 'label'));
+        if(count($modules)) {
+            foreach($modules as $module) {
+                $class = $module->classNameNs();
+                $output_functions = method_exists($class, 'outputFunctions') 
+                    ? call_user_func(array($class, 'outputFunctions'))
+                    : array();
+
+                if(count($output_functions)) {
+                    $first = true;
+                    foreach($output_functions as $func=>$data) {
+                        $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(!isset($public_method)) {
+                            $permissions_code = $data['permissions'];
+                            $permissions = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    $p = Permission::getFromFullCode($permission_code);
+                                    $permissions[] = $p->label;
+                                }
+                            }
+                            $code = "{module classid=".$module->id." func=".$func."}";
+
+                            $row = array(
+                                "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                                count($permissions) ? implode(', ', $permissions) : _('pubblico')
+                            );
+                            if($first) {
+                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+                                $first = false;
+                            }
+                            else {
+                                $tbl_rows[] = $row;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * Modules sys_module_app
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Moduli di sistema'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('nome'), 'header' => true),
+            array('text' =>_('vista'), 'header' => true),
+            array('text' =>_('permessi'), 'header' => true)
+        );
+
+        $modules_app = ModuleApp::objects(null, array('where' => "instantiable='0' AND active='1'", 'order' => 'label'));
+        if(count($modules_app)) {
+            foreach($modules_app as $module_app) {
+                $class = $module_app->classNameNs();
+                $output_functions = method_exists($class, 'outputFunctions') 
+                    ? call_user_func(array($class, 'outputFunctions'))
+                    : array();
+
+                if(count($output_functions)) {
+                    $first = true;
+                    foreach($output_functions as $func=>$data) {
+                        $method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
+                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                        if(!isset($public_method)) {
+                            $permissions_code = $data['permissions'];
+                            $permissions = array();
+                            if($permissions_code and count($permissions_code)) {
+                                foreach($permissions_code as $permission_code) {
+                                    $p = Permission::getFromFullCode($permission_code);
+                                    $permissions[] = $p->label;
+                                }
+                            }
+                            $code = "{module sysclassid=".$module_app->id." func=".$func."}";
+
+                            $row = array(
+                                "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                                count($permissions) ? implode(', ', $permissions) : _('pubblico')
+                            );
+                            if($first) {
+                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+                                $first = false;
+                            }
+                            else {
+                                $tbl_rows[] = $row;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * Url module
+         */
+        $tbl_rows[] = array(
+            array('text' => _('Moduli segnaposto'), 'colspan'=>3, 'class'=>'header', 'header'=>true)
+        );
+        $tbl_rows[] = array(
+            array('text' =>_('nome'), 'colspan'=>2, 'header' => true),
+            array('text' =>_('permessi'), 'header' => true)
+        );
+        $code = "{module id=0}";
+        $tbl_rows[] = array(
+            array(
+                'text' => "<span class=\"link mdlTitle\" onclick=\"closeAll('$nav_id', '$refillable_id', '"._("Modulo da url")."', '$code')\";>"._("Modulo da url")."</span>",
+                'colspan' => 2
+            ),
+            _("Prende i permessi del modulo chiamato")
+        );
+
+        $buffer = "<div>";
+        $view_table->assign('rows', $tbl_rows);
+        $buffer .= $view_table->render();
+        $buffer .= "</div>";
+
+        return new Response($buffer);
+    }
+
+    /**
+     * @brief Form di modifica files (css, viste)
+     * @param string $filename
+     * @param string $code css|view
+     */
+    private function formFiles($filename, $code) {
+
+        $this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
+        $this->_registry->addCss(CSS_WWW."/codemirror.css");
+
+        if($code == 'css')
+        {
+            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+            $title = sprintf(_("Modifica il foglio di stile \"%s\""), $filename);
+            $dir = CSS_DIR;
+            $block = "css";
+            $options = "{
+                lineNumbers: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                indentWithTabs: true,
+                enterMode: \"keep\",
+                tabMode: \"shift\"
+            }";
+        }
+        elseif($code == 'view')
+        {
+            $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+            $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
+            $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
+            $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
+            $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
+            $title = sprintf(_("Modifica la vista \"%s\""), $filename);
+            $dir = VIEWS_DIR;
+            $block = "view";
+            $options = "{
+                lineNumbers: true,
+                matchBrackets: true,
+                mode: \"application/x-httpd-php\",
+                indentUnit: 4,
+                indentWithTabs: true,
+                enterMode: \"keep\",
+                tabMode: \"shift\"
+            }";
+        }
+
+        $buffer = '';
+        $pathToFile = $dir.OS.$filename;
+        $action = 'modify';
+        $link_return = $this->linkAdmin(array(), 'block='.$block);
+
+        if(is_file($pathToFile))
+        {
+            $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
+            $gform->load('dataform');
+            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '');
+            $buffer .= $gform->hidden('fname', $filename);
+            $buffer .= $gform->hidden('code', $code);
+            $buffer .= $gform->hidden('action', $action);
+
+            $contents = file_get_contents($pathToFile);
+            $buffer .= "<div class=\"form-row\">";
+            $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
+            $buffer .= "</div>";
+
+            $buffer .= "<div class=\"form-row\">";
+            $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+            $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
+            $buffer .= "</div>";
+
+            $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+
+            $buffer .= $gform->close();
+        }
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => $title,
+            'class' => 'admin',
+            'content' => $buffer
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Processa il form di modifica dei file
+     * @see self::formFiles()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionFiles(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $action = \Gino\cleanVar($request->POST, 'action', 'string');
+        $filename = \Gino\cleanVar($request->POST, 'fname', 'string');
+        $code = \Gino\cleanVar($request->POST, 'code', 'string');
+
+        if($code == 'css')
+        {
+            $dir = CSS_DIR;
+            $block = "css";
+        }
+        elseif($code == 'view')
+        {
+            $dir = VIEWS_DIR;
+            $block = "view";
+        }
+
+        if(is_file($dir.OS.$filename))
+        {
+            $file_content = $_POST['file_content'];
+            if($fo = fopen($dir.OS.$filename, 'wb'))
+            {
+                fwrite($fo, $file_content);
+                fclose($fo);
+            }
+        }
+
+        return new Redirect($this->linkAdmin(array(), 'block='.$block));
+    }
 }
-?>

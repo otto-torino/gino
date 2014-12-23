@@ -1,588 +1,514 @@
 <?php
 /**
  * @file class_module.php
- * @brief Contiene la classe module
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.module
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 /**
- * @brief Libreria per la gestione dei moduli
- * 
- * Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @namespace Gino.App.Module
+ * @description Namespace dell'applicazione Module, che gestisce la creazione/rimozione di istanze di moduli di sistema
+ */
+namespace Gino\App\Module;
+
+use \Gino\View;
+use \Gino\Document;
+use \Gino\Error;
+use \Gino\Http\Response;
+use \Gino\Http\Redirect;
+
+require_once('class.ModuleInstance.php');
+
+/**
+ * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class module extends AbstractEvtClass{
-
-	protected $_instance, $_instanceName;
-	private $_title;
-	private $_action;
-	private $_mdlTypes;
-
-	function __construct(){
-
-		parent::__construct();
-
-		$this->_instance = 0;
-		$this->_instanceName = $this->_className;
-
-		$this->setAccess();
-
-		$this->_title = _("Gestione moduli");
-
-		$this->_action = cleanVar($_REQUEST, 'action', 'string', '');
-
-		$this->_mdlTypes = array('class'=>_("classe"), 'page'=>_("pagina"), 'func'=>_("funzione"));
-	}
-	
-	/**
-	 * Definizione dei permessi di visualizzazione aggiuntivi a quello base
-	 * 
-	 * @see AbstractEvtClass::permission()
-	 */
-	public static function permission(){
-
-		$access_2 = _("Permessi di amministrazione");
-		$access_3 = '';
-		return array($access_2, $access_3);
-	}
-
-	private function nameRole($role) {
-
-		$query = "SELECT name FROM ".$this->_tbl_user_role." WHERE role_id='$role'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a) > 0)
-		{
-			foreach($a AS $b)
-			{
-				$name = htmlChars($b['name']);
-			}
-		}
-		return $name;
-	}
-	
-	private function accessRoleValue($name, $valuedb, $text, $role_list){
-		
-		$GINO = "<p class=\"line\"><span class=\"subtitle\">$text</span><br />";
-		foreach($role_list AS $key => $value)
-		{
-			if(!$this->_access->AccessVerifyRoleIDIf($key)) $disabled = 'disabled'; else $disabled = '';
-			if($key == $valuedb) $checked = 'checked'; else $checked = '';
-
-			$GINO .= "<input type=\"radio\" id=\"$name\" name=\"$name\" value=\"$key\" $checked $disabled /> $value<br />";
-		}
-		$GINO .= "</p>\n";
-		
-		return $GINO;
-	}
-
-	/**
-	 * Interfaccia amministrativa per la gestione dei moduli
-	 * 
-	 * @see $_access_2
-	 * @return string
-	 */
-	public function manageModule(){
-
-		$this->accessType($this->_access_2);
-		
-		$htmltab = new htmlTab(array("linkPosition"=>'right', "title"=>_("Moduli")));	
-		$link_dft = "<a href=\"".$this->_home."?evt[".$this->_className."-manageModule]\">"._("Gestione")."</a>";
-		$sel_link = $link_dft;
-
-		$id = cleanVar($_GET, 'id', 'int', '');
-
-		$GINO = "<div class=\"vertical_1\">\n";
-		$GINO .= $this->listModule($id);
-		$GINO .= "</div>\n";
-
-		$GINO .= "<div class=\"vertical_2\">\n";
-		if($id && $this->_action == $this->_act_modify) $GINO .= $this->formEditModule($id);
-		elseif($this->_action == $this->_act_insert) $GINO .= $this->formInsertModule();
-		elseif($id && $this->_action == $this->_act_delete) $GINO .= $this->formRemoveModule($id);
-		else $GINO .= $this->infoDoc();
-		$GINO .= "</div>\n";
-
-		$GINO .= "<div class=\"null\"></div>";
-
-		$GINO .= "</div>\n";
-
-		$htmltab->navigationLinks = array($link_dft);
-		$htmltab->selectedLink = $sel_link;
-		$htmltab->htmlContent = $GINO;
-		return $htmltab->render();
-	}
-
-	private function infoDoc(){
-		
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Informazioni")));
-		$buffer = "<p>"._("In questa sezione è possibile creare nuovi moduli come istanze di classi o funzioni presenti nel sistema")."</p>\n";
-		
-		$htmlsection->content = $buffer;
-
-		return $htmlsection->render();
-	}
-
-	/**
-	 * Elenco dei moduli
-	 * 
-	 * @param integer $sel_id valore ID del modulo selezionato
-	 * @return string
-	 */
-	private function listModule($sel_id){
-
-		$link_1 = '';
-
-		$link_insert = "<a href=\"$this->_home?evt[$this->_className-manageModule]&amp;action=$this->_act_insert\">".pub::icon('insert', _("nuovo modulo"))."</a>";
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'header', 'headerLabel'=>_("Moduli"), 'headerLinks'=>$link_insert));
-
-		$query = "SELECT id, label, name, type, masquerade FROM ".$this->_tbl_module." WHERE type!='page' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$htmlList = new htmlList(array("numItems"=>sizeof($a), "separator"=>true));
-			$GINO = $htmlList->start();
-			foreach($a as $b) {
-				$id = htmlChars($b['id']);
-				$label = htmlChars($this->_trd->selectTXT(TBL_MODULE, 'label', $b['id']));
-				$name = htmlChars($b['name']);
-				$type = htmlChars($b['type']);
-				$masquerade = htmlChars($b['masquerade']);
-				$active = ($masquerade=='no')?_("si"):_("no");
-	
-				$selected = ($id===$sel_id)?true:false;
-				$link_modify = "<a href=\"$this->_home?evt[$this->_className-manageModule]&id=$id&action=$this->_act_modify\">".pub::icon('modify', _("modifica"))."</a>";
-				$link_delete = "<a href=\"$this->_home?evt[$this->_className-manageModule]&id=$id&action=$this->_act_delete\">".pub::icon('delete', _("elimina"))."</a>";
-
-				$text = "$label<br/>ID: $id - <span style=\"font-weight:normal\">"._("tipo: ").$this->_mdlTypes[$type]." "._("attivo: ").$active."</span>";
-				$GINO .= $htmlList->item($text, array($link_delete, $link_modify), $selected, true);
-
-			}
-			$GINO .= $htmlList->end();
-		}
-		
-		$htmlsection->content = $GINO;
-		
-		return $htmlsection->render();
-	}
-
-	/**
-	 * Form di eliminazione di un modulo
-	 * 
-	 * @param integer $id valore ID del modulo
-	 * @return string
-	 */
-	private function formRemoveModule($id) {
-		
-		$gform = new Form('gform', 'post', true);
-		$gform->load('dataform');
-
-		$mdlName = $this->_db->getFieldFromId($this->_tbl_module, 'label', 'id', $id);
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Eliminazione modulo")."'".htmlChars($mdlName)."'"));
-
-		$GINO = "<p>"._("L'eliminazione del modulo comporta l'eliminazione di tutti i dati")."</p>\n";
-
-		$required = '';
-		$GINO .= $gform->form($this->_home."?evt[".$this->_className."-actionRemoveModule]", '', $required);
-		$GINO .= $gform->hidden('id', $id);
-		$GINO .= $gform->cinput('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
-		$GINO .= $gform->cform();
-					
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Eliminazione di un modulo
-	 * 
-	 * @see $_access_2
-	 */
-	public function actionRemoveModule() {
-
-		$this->accessType($this->_access_2);
-
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$type= $this->_db->getFieldFromId($this->_tbl_module, 'type', 'id', $id);
-
-		if($type=='class') {
-			
-			$class= $this->_db->getFieldFromId($this->_tbl_module, 'class', 'id', $id);
-			$classObj = new $class($id);
-			$classObj->deleteInstance();
-		}
-
-		$query = "DELETE FROM ".$this->_tbl_module." WHERE id='$id'";
-		$result = $this->_db->actionquery($query);
-
-		language::deleteTranslations($this->_tbl_module, $id);
-
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-	}
-
-	/**
-	 * Form di inserimento di un modulo - scelta del tipo di modulo
-	 * 
-	 * @see $_mdlTypes
-	 * @see formModule()
-	 */
-	private function formInsertModule() {
-		
-		$gform = new Form('gform', 'post', true);
-		$gform->load('dataform');
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Nuovo modulo")));
-
-		$required = 'type,name,label,role1';
-		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionInsertModule]", '', $required);
-		$onchange = "onchange=\"ajaxRequest('post', '$this->_home?pt[$this->_className-formModule]', 'type='+$(this).value, 'formNewModule', {'load':'formNewModule', 'script':true})\"";
-		$GINO .= $gform->cselect('type', $gform->retvar('type', ''), array('class'=>_("modulo di classe"), 'func'=>_("modulo funzione")), _("Seleziona il tipo di modulo da inserire"), array("required"=>true, "js"=>$onchange));
-
-		$GINO .= $gform->cell($this->formModule($gform->retvar('type', '')), array("id"=>'formNewModule'));
-
-		$GINO .= $gform->cform();
-					
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-	}
-	
-	/**
-	 * Form di inserimento di un modulo - campi relativi al tipo di modulo scelto
-	 * 
-	 * @see $_access_2
-	 * @param string $type tipo di modulo (class, page, func)
-	 * @return string
-	 */
-	public function formModule($type=null) {
-
-		$this->accessType($this->_access_2);
-
-		$role_list = $this->_access->listRole();
-
-		$gform = new Form('gform', 'post', true);
-		if(!$type) $type = cleanVar($_POST, 'type', 'string', '');
-
-		if(empty($type)) return '';
-
-		$GINO = $gform->startTable();
-		if($type=='func') {
-			$sysfunc = new sysfunc();
-			$functions = $sysfunc->outputFunctions();
-			$funcSel = array();
-			foreach($functions as $k=>$v) $funcSel[$k] = $v['label'];
-			$GINO .= $gform->cselect('name', $gform->retvar('name', ''), $funcSel, _("Modulo funzione"), array("required"=>true));
-			$GINO .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
-			$GINO .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
-			$GINO .= $gform->cradio('role1', $gform->retvar('role1', 5), $role_list, '', _("Permessi di visualizzazione"), array("required"=>true, "aspect"=>"v"));
-			$GINO .= $gform->cinput('submit_action', 'submit', _("inserisci"), '', array("classField"=>"submit"));
-
-		}
-		else {
-			$query = "SELECT name, label FROM ".$this->_tbl_module_app." WHERE instance='yes' AND masquerade='no' ORDER BY label";
-			$onchange = "onchange=\"ajaxRequest('post', '$this->_home?pt[$this->_className-formModuleClass]', 'class='+$(this).value, 'formNewModuleClass', {'load':'formNewModuleClass', 'script':true})\"";
-			$GINO .= $gform->cselect('class', $gform->retvar('class', ''), $query, _("Classe"), array("required"=>true, "js"=>$onchange));
-			$GINO .= $gform->cell($this->formModuleClass($gform->retvar('class', '')), array("id"=>"formNewModuleClass"));
-			
-		}
-		$GINO .= $gform->endTable();
-
-		return $GINO;
-	}
-
-	/**
-	 * Form di inserimento di un modulo - campi di un modulo classe
-	 * 
-	 * Verifica l'esistenza nella classe del modulo dei metodi @a outputFunctions e @a permission
-	 * 
-	 * @see $_access_2
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public function formModuleClass($class=null) {
-	
-		$this->accessType($this->_access_2);
-
-		$role_list = $this->_access->listRole();
-
-		$gform = new Form('gform', 'post', true);
-		if(!$class) $class = cleanVar($_POST, 'class', 'string', '');
-		
-		if(empty($class)) return '';
-
-		$GINO = $gform->startTable();
-		$GINO .= $gform->cinput('name', 'text', $gform->retvar('name', ''), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caretteri alfnumerici o underscore")));
-		$GINO .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
-		$GINO .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
-		if(method_exists($class, 'outputFunctions')) {
-			$GINO .= $gform->cradio('role1', $gform->retvar('role1', 5), $role_list, '', _("Permessi di visualizzazione"), array("required"=>true, "aspect"=>"v"));
-		}
-
-		// Metodi aggiuntivi
-		if(method_exists($class, 'permission')) {
-			$permission = call_user_func(array($class, 'permission'));
-
-			if(!empty($permission[0])) {
-				$GINO .= $gform->cradio('role2', $gform->retvar('role2', 5), $role_list, '', $permission[0], array("required"=>true, "aspect"=>"v"));
-			}
-			if(!empty($permission[1])) {
-				$GINO .= $gform->cradio('role3', $gform->retvar('role3', 5), $role_list, '', $permission[1], array("required"=>true, "aspect"=>"v"));
-			}
-		}
-		$GINO .= $gform->cinput('submit_action', 'submit', _("inserisci"), '', array("classField"=>"submit"));
-		$GINO .= $gform->endTable();
-
-		return $GINO;
-	}
-
-	/**
-	 * Inserimento di un nuovo modulo
-	 * 
-	 * @see $_access_2
-	 */
-	public function actionInsertModule() {
-		
-		$this->accessType($this->_access_2);
-		
-		$this->_gform = new Form('gform','post', true);
-		$this->_gform->save('dataform');
-		$req_error = $this->_gform->arequired();
-
-		$type = cleanVar($_POST, 'type', 'string', '');
-		$name = cleanVar($_POST, 'name', 'string', '');
-		$class = cleanVar($_POST, 'class', 'string', '');
-		$label = cleanVar($_POST, 'label', 'string', '');
-		$description = cleanVar($_POST, 'description', 'string', '');
-		$role1 = cleanVar($_POST, 'role1', 'int', '');
-		$role2 = cleanVar($_POST, 'role2', 'int', '');
-		$role3 = cleanVar($_POST, 'role3', 'int', '');
-		if(!$role2) $role2 = 5;
-		if(!$role3) $role3 = 5;
-
-		$link_error = $this->_home."?evt[$this->_className-manageModule]&action=$this->_act_insert";
-
-		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
-
-		$query = "SELECT id FROM ".$this->_tbl_module." WHERE name='$name'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) exit(error::errorMessage(array('error'=>_("il nome del modulo è già presente")), $link_error));
-
-		if(preg_match("/[^\w]/", $name)) exit(error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error));
-
-		if($type=='class') {
-			$classElements = call_user_func(array($class, 'getClassElements'));
-			/*
-			 * create css files
-			 */
-			$css_files = $classElements['css'];
-			foreach($css_files as $css_file) {
-
-				$css_content = file_get_contents(APP_DIR.OS.$class.OS.$css_file);
-
-				$baseCssName = baseFileName($css_file);
-
-				if(!($fo = @fopen(APP_DIR.OS.$class.OS.$baseCssName.'_'.$name.'.css', 'wb')))
-					exit(error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error));
-
-				$reg_exp = "/#(.*?)".$class." /";
-				$replace = "#$1".$class."_".$name." ";
-				$content = preg_replace($reg_exp, $replace, $css_content);
-
-				fwrite($fo, $content);
-				fclose($fo);
-			}
-			/*
-			 * create folder structure
-			 */
-			$folderStructure = (isset($classElements['folderStructure']))?$classElements['folderStructure']:array();
-			if(count($folderStructure)) {
-				foreach($folderStructure as $k=>$v) {
-					mkdir($k.OS.$name);
-					$this->createMdlFolders($k.OS.$name, $v);
-				}
-			}
-		}
-
-		$query = "INSERT INTO ".$this->_tbl_module." (label, name, class, type, role1, role2, role3, masquerade, role_group, description) VALUES ('$label', '$name', '$class', '$type', '$role1', '$role2', '$role3', 'no', 0, '$description')";
-		$result = $this->_db->actionquery($query);
-
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-
-	}
-
-	private function createMdlFolders($pdir, $nsdir) {
-	
-		// if next structure is null break
-		if(!$nsdir) return true;
-		elseif(is_array($nsdir)) {
-			foreach($nsdir as $k=>$v) {
-				mkdir($pdir.OS.$k);
-				$this->createMdlFolders($pdir.OS.$k, $v);
-			}
-		}
-		else return true;
-	}
-
-	/**
-	 * Form di modifica di un modulo
-	 * 
-	 * @param integer $id valore ID del modulo
-	 * @return string
-	 */
-	private function formEditModule($id) {
-
-		$gform = new Form('gform', 'post', true, array("trnsl_table"=>$this->_tbl_module, "trnsl_id"=>$id));
-		$gform->load('dataform');
-
-		$query = "SELECT * FROM ".$this->_tbl_module." WHERE id='$id'";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			$label = htmlInput($a[0]['label']);
-			$label_txt = htmlChars($a[0]['label']);
-			$description = htmlInput($a[0]['description']);
-			$masquerade = htmlInput($a[0]['masquerade']);
-			$active = ($masquerade=='no')?'yes':'no';
-			$type = htmlChars($a[0]['type']);
-			$class = htmlChars($a[0]['class']);
-			$role1 = htmlInput($a[0]['role1']);
-			$role2 = htmlInput($a[0]['role2']);
-			$role3 = htmlInput($a[0]['role3']);
-		}
-		else exit(error::syserrorMessage("module", "formEditModule", "ID non associato ad alcun modulo", __LINE__));
-
-		$role_list = $this->_access->listRole();
-	
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Modifica ")."'".$label_txt."'"));
-
-		$required = 'label,role1';
-		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionEditModule]", '', $required);
-		$GINO .= $gform->hidden('id', $id);
-		
-		$GINO .= $gform->cinput('label', 'text', $gform->retvar('label', $label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
-		$GINO .= $gform->ctextarea('description', $gform->retvar('description', $description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
-		
-		if($type=='class') {
-
-			if(method_exists($class, 'outputFunctions')) {
-				$GINO .= $gform->cradio('role1', $gform->retvar('role1', $role1), $role_list, '', _("Permessi di visualizzazione"), array("required"=>true, "aspect"=>"v"));
-			}
-
-			// Metodi aggiuntivi
-			if(method_exists($class, 'permission'))
-			{
-				$classObj = new $class($id);
-				$permission = $classObj->permission();
-			
-				if(!empty($permission[0]))
-				{
-					$GINO .= $gform->cradio('role2', $gform->retvar('role2', $role2), $role_list, '', $permission[0], array("required"=>true, "aspect"=>"v"));
-				}
-				if(!empty($permission[1]))
-				{
-					$GINO .= $gform->cradio('role3', $gform->retvar('role3', $role3), $role_list, '', $permission[1], array("required"=>true, "aspect"=>"v"));
-				}
-			}
-		}
-		else {
-			$GINO .= $gform->cradio('role1', $gform->retvar('role1', $role1), $role_list, '', _("Permessi di visualizzazione"), array("required"=>true, "aspect"=>"v"));
-		}
-
-		$GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
-		$GINO .= $gform->cform();
-		
-		$htmlsection->content = $GINO;
-
-		$buffer = $htmlsection->render();
-			
-		$buffer .= $this->formActivateModule($id, $active);
-
-		return $buffer;
-	}
-	
-	/**
-	 * Form di attivazione e disattivazione di un modulo
-	 * 
-	 * @param integer $id valore ID del modulo
-	 * @param string $active valore del campo @a masquerade
-	 * @return string
-	 */
-	private function formActivateModule($id, $active) {
-		
-		$gform = new Form('gform', 'post', true);
-		$gform->load('dataform');
-
-		$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Attivazione")));
-		
-		$required = '';
-		$GINO = $gform->form($this->_home."?evt[".$this->_className."-actionEditModuleActive]", '', $required);
-		$GINO .= $gform->hidden('id', $id);
-		$GINO .= $gform->cradio('active', $active, array("yes"=>_("si"),"no"=>_("no")), 'no', array(_("Attivo"), _("Assicurarsi di eliminare dai template i moduli che si vogliono disattivare")), array("required"=>false));
-		$GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
-		$GINO .= $gform->cform();
-
-		$htmlsection->content = $GINO;
-
-		return $htmlsection->render();
-	}
-
-	/**
-	 * Modifica di un modulo
-	 * 
-	 * @see $_access_2
-	 */
-	public function actionEditModule() {
-
-		$this->accessType($this->_access_2);
-
-		$gform = new Form('gform', 'post', true);
-		$gform->save('dataform');
-		$req_error = $gform->arequired();
-
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$label = cleanVar($_POST, 'label', 'string', '');
-		$description = cleanVar($_POST, 'description', 'string', '');
-		$role1 = cleanVar($_POST, 'role1', 'int', '');
-		$role2 = cleanVar($_POST, 'role2', 'int', '');
-		$role3 = cleanVar($_POST, 'role3', 'int', '');
-
-		$link_error = $this->_home."?evt[$this->_className-manageModule]&id=$id&action=$this->_act_modify";
-
-		if($req_error > 0) 
-			exit(error::errorMessage(array('error'=>1), $link_error));
-
-		$query = "UPDATE ".$this->_tbl_module." SET label='$label', description='$description'";
-		if(isset($_POST['role1'])) $query .= ", role1='$role1'";
-		if(isset($_POST['role'])) $query .= ", role2='$role2'";
-		if(isset($_POST['role'])) $query .= ", role3='$role3'";
-		$query .= " WHERE id='$id'";
-		$result = $this->_db->actionquery($query);
-		
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-	}
-
-	/**
-	 * Attivazione e disattivazione di un modulo
-	 * 
-	 * @see $_access_2
-	 */
-	public function actionEditModuleActive() {
-
-		$this->accessType($this->_access_2);
-		$id = cleanVar($_POST, 'id', 'int', '');
-		$active = cleanVar($_POST, 'active', 'string', '');
-		$masquerade = ($active=='no')?'yes':'no';
-
-		$query = "UPDATE ".$this->_tbl_module." SET masquerade='$masquerade' WHERE id='$id'";
-		$result = $this->_db->actionquery($query);
-		
-		EvtHandler::HttpCall($this->_home, $this->_className.'-manageModule', '');
-	}
+class module extends \Gino\Controller {
+
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.Module.module
+     */
+    function __construct(){
+
+        parent::__construct();
+    }
+
+    /**
+     * @brief Interfaccia amministrativa per la gestione dei moduli
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function manageModule(\Gino\Http\Request $request){
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
+        $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
+
+        $module = new ModuleInstance($id);
+
+        $link_dft = "<a href=\"".$this->linkAdmin()."\">"._("Gestione istanze")."</a>";
+        $sel_link = $link_dft;
+
+        $action = \Gino\cleanVar($request->GET, 'action', 'string', null);
+
+        if($request->checkGETKey('trnsl', '1')) {
+            if($request->checkGETKey('save', 1)) {
+                $res = $this->_trd->actionTranslation();
+                $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
+                return new Response($content);
+            }
+            else {
+                return new Response($this->_trd->formTranslation());
+            }
+        }
+        elseif($action == 'insert') {
+            $backend = $this->formModule($module);
+        }
+        elseif($action == 'modify') {
+            $backend = $this->formModule($module);
+            $backend .= $this->formActivateModule($module);
+
+        }
+        elseif($action == 'delete') {
+            $backend = $this->formRemoveModule($module);
+        }
+        else {
+            $backend = $this->listModule();
+        }
+
+        if(is_a($backend, '\Gino\Http\Response')) {
+            return $backend;
+        }
+
+        $view = new View();
+        $view->setViewTpl('tab');
+        $dict = array(
+            'title' => _('Moduli istanziabili'),
+            'links' => $link_dft,
+            'selected_link' => $sel_link,
+            'content' => $backend
+        );
+
+        $document = new Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * @brief Elenco dei moduli
+     *
+     * @param integer $sel_id valore ID del modulo selezionato
+     * @return html, lista moduli
+     */
+    private function listModule(){
+
+        $link_1 = '';
+
+        $link_insert = "<a href=\"".$this->linkAdmin(array(), array('action' => 'insert'))."\">".\Gino\icon('insert', array('text' => _("nuova istanza"), 'scale' => 2))."</a>";
+
+        $view_table = new View();
+        $view_table->setViewTpl('table');
+
+        $modules = ModuleInstance::objects(null, array('order' => 'label'));
+
+        if(count($modules)) {
+            \Gino\Loader::import('sysClass', 'ModuleApp');
+            $GINO = "<p class=\"backoffice-info\">"._('Di seguito l\'elenco di tutte le istanze di moduli presenti nel sistema. Cliccare l\'icona di modifica per cambiare l\'etichetta e la descrizione del modulo. In caso di eliminazione tutti i dati ed i file verrano cancellati definitivamente.')."</p>";
+            $heads = array(
+                _('id'),
+                _('etichetta'),
+                _('modulo di sistema'),
+                _('attivo'),
+                '',
+            );
+            $tbl_rows = array();
+            foreach($modules as $module) {
+                $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".\Gino\icon('modify')."</a>";
+                $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".\Gino\icon('delete')."</a>";
+                $module_app = $module->moduleApp();
+                $tbl_rows[] = array(
+                    $module->id,
+                    $module->ml('label'),
+                    $module_app->label,
+                    $module->active ? _('si') : _('no'),
+                    implode(' &#160; ', array($link_modify, $link_delete))
+                );
+            }
+            $dict = array(
+                'class' => 'table table-striped table-hover',
+                'heads' => $heads,
+                'rows' => $tbl_rows
+            );
+            $GINO .= $view_table->render($dict);
+        }
+        else {
+            $GINO = _('Non risultano istanze di moduli di sistema.');
+        }
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => _('Elenco moduli installati'),
+            'class' => 'admin',
+            'header_links' => $link_insert,
+            'content' => $GINO
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Form di eliminazione di un modulo
+     * 
+     * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
+     * @return html, form
+     */
+    private function formRemoveModule($module) {
+
+        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform->load('dataform');
+
+        $GINO = "<p class=\"lead\">"._("Attenzione! L'eliminazione del modulo comporta l'eliminazione di tutti i dati!")."</p>\n";
+
+        $required = '';
+        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveModule]", '', $required);
+        $GINO .= $gform->hidden('id', $module->id);
+        $GINO .= $gform->cinput('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
+        $GINO .= $gform->close();
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => sprintf(_('Eliminazione istanza "%s"'), $module->label),
+            'class' => 'admin',
+            'content' => $GINO
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Processa il form di eliminazione di un modulo
+     * @see self::formRemoveModule()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionRemoveModule(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        $module = new ModuleInstance($id);
+
+        $class = $module->classNameNs();
+        $obj = new $class($id);
+        // obj shoul delete table records
+        $obj->deleteInstance();
+        // this class deletes permissions assoc, css, views and contents
+        $this->deleteModuleInstance($module);
+
+        $module->deleteDbData();
+        $this->_trd->deleteTranslations(TBL_MODULE, $id);
+
+        return new Redirect($this->linkAdmin());
+    }
+
+    /**
+     * @brief Elimina automaticamente associazioni con permessi, css, viste e contenuti di un'istanza di modulo
+     * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
+     * @return void
+     */
+    private function deleteModuleInstance($module) {
+        // delete user perm assoc
+        $this->_db->delete(TBL_USER_PERMISSION, "instance=\"".$module->id."\"");
+        // delete group perm assoc
+        $this->_db->delete(TBL_GROUP_PERMISSION, "instance=\"".$module->id."\"");
+
+        $class = $module->classNameNs();
+        $class_name = $module->className();
+        $class_elements = $class::getClassElements();
+        // delete css
+        foreach($class_elements['css'] as $css) {
+            @unlink(APP_DIR.OS.$class_name.OS.\Gino\baseFileName($css)."_".$module->name.".css");
+        }
+        // delete views
+        foreach($class_elements['views'] as $view => $description) {
+            @unlink(APP_DIR.OS.$class_name.OS.'views'.OS.\Gino\baseFileName($view)."_".$module->name.".php");
+        }
+        // delete contents
+        foreach($class_elements['folderStructure'] as $fld=>$fldStructure) {
+            \Gino\deleteFileDir($fld.OS.$module->name, TRUE);
+        }
+    }
+
+    /**
+     * @brief Form di inserimento/modifica di un modulo
+     * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
+     * @return html, form
+     */
+    private function formModule($module) {
+
+        \Gino\Loader::import('sysClass', 'ModuleApp');
+        $module_app = $module->moduleApp();
+        $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
+
+        $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id)));
+        $gform->load('dataform');
+
+        $required = 'name,label';
+        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionModule]", '', $required);
+        $GINO .= $gform->hidden('id', $module->id);
+        $GINO .= $gform->cselect('module_app', $gform->retvar('module_app', $module_app->id), \Gino\App\SysClass\ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
+        $GINO .= $gform->cinput('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
+        $GINO .= $gform->cinput('label', 'text', $gform->retvar('label', $module->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
+        $GINO .= $gform->ctextarea('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
+        $GINO .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
+        $GINO .= $gform->close();
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => $module->id ? sprintf(_('Modifica istanza "%s"'), $module->label) : _('Nuova istanza'),
+            'class' => 'admin',
+            'content' => $GINO
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Processa il form di inserimento/modifica modulo
+     * @see self::formModule()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionModule(\Gino\Http\Request $request) {
+
+        $this->requirePerm('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', null);
+        $module = new ModuleInstance($id);
+
+        if($module->id) {
+            return $this->actionEditModule($request);
+        }
+        else {
+            return $this->actionInsertModule($request);
+        }
+
+    }
+
+    /**
+     * @brief Processa il form di inserimento di un modulo
+     * @see self::formModule()
+     * @see self::actionModule()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    private function actionInsertModule(\Gino\Http\Request $request) {
+
+        \Gino\Loader::import('sysClass', 'ModuleApp');
+
+        $gform = \Gino\Loader::load('Form', array('gform','post', true));
+        $gform->save('dataform');
+        $req_error = $gform->arequired();
+
+        $name = \Gino\cleanVar($request->POST, 'name', 'string', '');
+        $module_app_id = \Gino\cleanVar($request->POST, 'module_app', 'string', '');
+        $label = \Gino\cleanVar($request->POST, 'label', 'string', '');
+        $description = \Gino\cleanVar($request->POST, 'description', 'string', '');
+
+        $module = new ModuleInstance(null);
+        $module_app = new \Gino\App\SysClass\ModuleApp($module_app_id);
+
+        $link_error = $this->linkAdmin(array(), array('action' => 'insert'));
+
+        if($req_error > 0) {
+            return error::errorMessage(array('error'=>1), $link_error);
+        }
+
+        // check name
+        if(ModuleInstance::getFromName($name)) {
+            return error::errorMessage(array('error'=>_("è già presente un modulo con lo stesso nome")), $link_error);
+        }
+
+        if(preg_match("/[^\w]/", $name)) {
+            return error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error);
+        }
+
+        $class = $module_app->classNameNs();
+        $class_name = $module_app->className();
+        $class_elements = call_user_func(array($class, 'getClassElements'));
+        /*
+         * create css files
+         */
+        $css_files = $class_elements['css'];
+        foreach($css_files as $css_file) {
+
+            $css_content = file_get_contents(APP_DIR.OS.$class_name.OS.$css_file);
+
+            $base_css_name = \Gino\baseFileName($css_file);
+
+            if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.$base_css_name.'_'.$name.'.css', 'wb'))) {
+                return Error::errorMessage(array('error'=>_("impossibile creare i file di stile"), 'hint'=>_("controllare i permessi in scrittura")), $link_error);
+            }
+
+            $reg_exp = "/#(.*?)".$class_name." /";
+            $replace = "#$1".$class_name."-".$name." ";
+            $content = preg_replace($reg_exp, $replace, $css_content);
+
+            fwrite($fo, $content);
+            fclose($fo);
+        }
+        /*
+         * create view files
+         */
+        $view_files = $class_elements['views'];
+        foreach($view_files as $view_file => $vdescription) {
+
+            $view_content = file_get_contents(APP_DIR.OS.$class_name.OS.'views'.OS.$view_file);
+
+            $base_view_name = \Gino\baseFileName($view_file);
+
+            if(!($fo = @fopen(APP_DIR.OS.$class_name.OS.'views'.OS.$base_view_name.'_'.$name.'.php', 'wb'))) {
+                return Error::errorMessage(array('error'=>_("impossibile creare i file delle viste"), 'hint'=>_("controllare i permessi in scrittura")), $link_error);
+            }
+
+            $content = $view_content;
+
+            fwrite($fo, $content);
+            fclose($fo);
+        }
+        /*
+         * create folder structure
+         */
+        $folder_structure = (isset($class_elements['folderStructure'])) ? $class_elements['folderStructure'] : array();
+        if(count($folder_structure)) {
+            foreach($folder_structure as $k=>$v) {
+                mkdir($k.OS.$name);
+                $this->createMdlFolders($k.OS.$name, $v);
+            }
+        }
+
+        $module->label = $label;
+        $module->name = $name;
+        $module->module_app = $module_app_id;
+        $module->active = 1;
+        $module->description = $description;
+
+        $module->save();
+
+        return new Redirect($this->linkAdmin());
+
+    }
+
+    /**
+     * @brief Creazione cartelle contenuti modulo
+     * @param string $pdir directory di riferimento
+     * @param array $nsdir array di sottodirectory della direcotry di riferimento
+     * @return TRUE
+     */
+    private function createMdlFolders($pdir, $nsdir) {
+
+        // if next structure is null break
+        if(!$nsdir) return TRUE;
+        elseif(is_array($nsdir)) {
+            foreach($nsdir as $k=>$v) {
+                mkdir($pdir.OS.$k);
+                $this->createMdlFolders($pdir.OS.$k, $v);
+            }
+        }
+        return TRUE;
+    }
+
+    /**
+     * @brief Processa il form di modifica di un modulo
+     * @see self::formModule()
+     * @see self::actionModule()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    private function actionEditModule(\Gino\Http\Request $request) {
+
+        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform->save('dataform');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int');
+        $module = new ModuleInstance($id);
+
+        $link_error = $this->_home."?evt[$this->_class_name-manageModule]&id=$id&action=modify";
+
+        $label = \Gino\cleanVar($request->POST, 'label', 'string', '');
+        if(!$label) {
+            return Error::errorMessage(array('error'=>1), $link_error);
+        }
+
+        $module->label = $label;
+        $module->description = \Gino\cleanVar($request->POST, 'description', 'string', '');
+
+        $module->save();
+
+        return new Redirect($this->linkAdmin());
+
+    }
+
+    /**
+     * @brief Form di attivazione e disattivazione di un modulo
+     *
+     * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
+     * @return html, form
+     */
+    private function formActivateModule($module) {
+
+        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform->load('dataform');
+
+        $GINO = '';
+        if($module->active) {
+            $GINO .= "<p>"._('Prima di disattivare un modulo assicurarsi di aver rimosso ogni suo output da tutti i template.')."</p>";
+        }
+
+        $required = '';
+        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditModuleActive]", '', $required);
+        $GINO .= $gform->hidden('id', $module->id);
+        $GINO .= $gform->cinput('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        $GINO .= $gform->close();
+
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+            'title' => $module->active ? _('Disattivazione') : _('Attivazione'),
+            'class' => 'admin',
+            'content' => $GINO
+        );
+
+        return $view->render($dict);
+    }
+
+    /**
+     * @brief Processa il form di attivazione e disattivazione di un modulo
+     * @see self::formActivateModule()
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    public function actionEditModuleActive(\Gino\Http\Request $request) {
+
+        $this->require_pem('can_admin');
+
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+
+        $module = new ModuleInstance($id);
+
+        $module->active = $module->active ? 0 : 1;
+        $module->save();
+
+        return new Redirect($this->linkAdmin());
+    }
 }
-?>

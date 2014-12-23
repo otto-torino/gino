@@ -139,49 +139,16 @@ div[id^=refillable] {
 	filter: alpha(opacity = 50);
 }
 
-table.layout_mdlList {
-	width:96%;
-	margin:5px auto;
-}
-
-table.layout_mdlList div {
-	background-color: #3d5165;
-	padding:4px 0px;
-}
-
-table.layout_mdlList th.title {
-	background-color:#aa0f3b;
-	color: #fff;
-	padding:5px 3px;
-	border:1px solid #000;
-}
-
-table.layout_mdlList th {
-	background-color:#e7e7e7;
-	color: #333;
-	padding:5px;
-	border:1px solid #000;
-}
-table.layout_mdlList td {
-	padding:5px 5px;
-	border:1px solid #000;
-
-}
-table.layout_mdlList td.link {
-	cursor:pointer;
-	padding:5px;
-	border:1px solid #000;
-	color:#ff0000;
-
-}
-table.layout_mdlList td.mdlTitle {
-	background-color:#fafafa;
-}
 
 div[id^=fill_] {
 	display:none;
 }
 
+.table-layout .header {
+  background: #ccc !important;
+  border-color: #ccc;
+  color: #000 !important;
+}
 
 div.toggleMdl {
 	width:9px;

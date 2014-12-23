@@ -1,0 +1,257 @@
+
+/* links */
+.link {
+  .transition(0.2s all ease-in);
+}
+.link {
+  color: @link-color;
+  cursor: pointer;
+}
+
+/* icons */
+.icon {
+}
+
+/* sections */
+section {
+  padding: 10px;
+}
+section.admin {
+  padding: 10px 20px;
+}
+
+/* text */
+.nowrap {
+  white-space: nowrap;
+}
+
+h1 {
+	font-family: "Roboto Slab", "Helvetica Neue", Helvetica, serif;
+}
+
+/* float */
+.left {
+  .pull-left;
+}
+.right {
+  .pull-right;
+}
+.null, .clear {
+  .clearfix;
+}
+
+/* tabs */
+.tab-container { margin: 10px 20px;} /* left-right margin affects IE <= 7 behaviour */
+div.tab-top {
+	font-size:12px;
+	background: url('../img/linea.jpg') bottom center no-repeat;
+}
+div.tab-content {
+	border-bottom:1px solid #333;
+	border-left:1px solid #333;
+	border-right:1px solid #333;
+	padding: 5px;
+  h1 {
+    font-size: @font-size-h2;
+    margin-top: 0;
+  }
+  h2 {
+    font-size: @font-size-h3;
+  }
+  h3 {
+    font-size: @font-size-h4;
+  }
+  header a.selected {
+	  background: transparent;
+	  color: #ddfd04 !important;
+  }
+}
+div.tab-ext {
+	background-image: url('../img/tab_ext_left.png');
+	background-position: top right;
+	background-repeat:no-repeat;
+  font-size: 16px;
+}
+div.tab-int {
+	background-image: url('../img/tab_int_left.png');
+	background-position: top left;
+	background-repeat:no-repeat;
+	padding: 6px 0px 5px 15px;
+	margin-right:15px;
+}
+div.tab-ext-selected {
+	background-image: url('../img/tab_ext_left_sel.png');
+}
+
+div.tab-int-selected {
+	background-image: url('../img/tab_int_left_sel.png');
+	padding-bottom: 6px;
+}
+
+div.tab-int a:link, div.tabInt a:visited {
+	color: #666;
+	text-decoration: none;
+}
+div.tab-int a:hover {
+	color: #000;
+	text-decoration: underline;
+}
+
+div.tab-int-selected a:link, div.tab-int-selected a:visited {
+	color: #000;
+	text-decoration: none;
+}
+
+.tab-title {
+	font-weight: bold;
+	padding: 4px 8px;
+	letter-spacing: 2px;
+  font-size: 14px;
+  margin: 0px;
+}
+.tab-img-left { /*background:url('../img/title_marker_sx.png');background-repeat: no-repeat;background-position: left top*/ }
+.tab-img-right { /*background:url('../img/title_marker_dx.png');background-repeat: no-repeat;background-position: right top*/ }
+
+/* tooltips */
+.tipsbase {
+  background-color:#333;
+  color:#fff;
+  font-weight:bold;
+  padding:10px 15px;
+  .opacity(0.9);
+  max-width: 200px;
+  z-index: 10;
+}
+
+.tipsfull {
+  max-width: 600px;
+  .box-shadow(0 0 5px #999);
+  border: 1px solid #999;
+  border-radius: 5px;
+  .tip-top {
+    background: #fff; 
+    border-radius: 5px;
+    border-bottom-width: 0;
+    height: 8px;
+  }
+  .tip {
+    background: #fff;
+    text-align:left;
+  }
+  .tip-title {
+    margin: 0 20px;
+    font-size: 0.9em;
+    line-height: 1.2em;
+    font-weight: bold;
+    color: #000;
+    padding: 10px 0;
+  }
+  .tip-text {
+    margin: 0 20px;
+    font-size: 0.8em;
+    line-height: 1.2em;
+    padding-bottom: 10px;
+  }
+  .tip-bottom {
+    background: #fff;
+    border-radius: 5px;
+    height: 17px;
+  }
+}
+
+/* backoffice */
+.backoffice-info {
+  background: #eee;
+  border-left: 5px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/*
+ * Javascript layerWindow styles
+ */
+div.abiWinOverlay {
+	position: absolute;
+	background: #000;
+	.opacity(0.8);
+}
+.abiWin {
+	position: absolute;
+  .box-sizing(content-box);
+  border-radius: 5px;
+	padding: 5px;
+	background-color: #e7e7e7;
+  background: linear-gradient(to bottom, #ddd, #eee);
+	border: 1px solid #999;
+	z-index: 10000;
+  box-shadow: 0px 0px 10px #aaa;
+  
+  .abiHeader {
+	  font-weight: bold;
+	  text-align:center;
+	  margin: 0;
+    h1 {
+      font-size: 18px;
+      margin: 5px;
+    }
+  }
+  div.body {
+    .box-sizing(border-box);
+	  clear: both;
+	  text-align: left;
+	  padding: 8px;
+	  border: 1px solid #aaa;
+	  background-color: #fff;
+	  overflow: auto;
+    border-radius: 5px;
+  }
+  span.close {
+	  background-color: #fff;
+    border: 1px solid #000;
+	  cursor: pointer;
+	  padding: 2px;
+    position: absolute;
+    right: 5px;
+    top: 4px;
+  }
+  span.close_img {
+	  cursor: pointer;
+	  padding: 2px;
+    position: absolute;
+    right: 5px;
+    top: 4px;
+	  width: 13px;
+	  height: 13px;
+	  background: url('../img/ico_close2.gif') no-repeat center center;
+  }
+  img.close {
+	  cursor: pointer;
+	  padding: 2px;
+    position: absolute;
+    right: 5px;
+    top: 4px;
+  }
+  footer {
+	  text-align: center;
+	  margin: 0px 0px;
+  }
+}
+
+/*
+ * ATTACHED LIST 
+ */
+.drag-attached-view img {
+  height: 30px;
+}
+.attached-filter-ctg {
+  padding: 10px;
+  background: #eee;
+  border: 1px solid #bbb;
+}
+
+/* js calendar */
+.datepicker_jqui div {
+  .box-sizing(content-box);
+}
+
+

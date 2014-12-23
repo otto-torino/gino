@@ -1,260 +1,127 @@
 <?php
 /**
  * @file class_sysfunc.php
- * @brief Contiene la classe sysfunc
+ * @brief Contiene la definizione ed implemetazione della classe Gino.App.Sysfunc.sysfunc
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 /**
- * @brief Metodi personalizzati e interfacce a metodi utilizzati da classi molteplici per espandarne le funzionalità
+ * @namespace Gino.App.Sysfunc
+ * @description Namespace dell'applicazione Sysfunc, per la gestione della visualizzazione ddi pagine di errore
+ */
+namespace Gino\App\Sysfunc;
+
+/**
+ * @brief Classe di tipo Gino.Controller che gestisce metodi che stampano pagine di errore
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class sysfunc extends AbstractEvtClass{
+class sysfunc extends \Gino\Controller {
 
-	function __construct(){
+    /**
+     * @brief Costruttore
+     * @return Gino.App.Sysfunc.sysfunc
+     */
+    function __construct(){
 
-		parent::__construct();
+        parent::__construct();
+    }
 
-	}
-	
-	/**
-	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
-	 * 
-	 * @return array
-	 */
-	public static function outputFunctions() {
+    /**
+     * @brief Pagina di errore contenuto non disponibile 
+     * 
+     * @see Gino.Http.ResponseNotFound
+     * @see Gino.Exception.Exception404
+     * @param string $title titolo della pagina 
+     * @param string $message messaggio mostrato
+     * @return pagina di errore
+     */
+    public static function page404($title = '', $message = '') {
 
-		$list = array(
-			"Autenticazione" => array("label"=>_("Boxino di login"), "role"=>'1'),
-			"tableLogin" => array("label"=>_("Boxino di login a tabella"), "role"=>'1'),
-			"credits" => array("label"=>_("Credits"), "role"=>'1')
-		);
+        header("HTTP/1.0 404 Not Found");
 
-		return $list;
-	}
+        if(!$title) {
+            $title = _("404 Pagina inesistente");
+        }
 
-	/**
-	 * Box di login
-	 * 
-	 * @see access::AccessForm()
-	 * @see account::linkRegistration()
-	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
-	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
-	 * @return string
-	 */
-	public function Autenticazione($bool=false, $classname='user'){
+        if(!$message) {
+            $message = _("Il contenuto cercato non esiste, è stato rimosso oppure spostato.");
+        }
 
-		$GINO = "<div class=\"auth\">\n";
-		$GINO .= "<div class=\"auth_title\">"._("login:")."</div>";
-		$GINO .= "<div class=\"auth_content\">"; 
-		$GINO .= $this->_access->AccessForm();
-		
-		$registration = new account($classname);
-		$GINO .= $registration->linkRegistration($bool);
-		
-		$GINO .= "</div>\n";
-		$GINO .= "</div>\n";
-		
-		return $GINO;
-	}
-	
-	/**
-	 * Box di login in tabella
-	 * 
-	 * @param boolean $bool mostra il collegamento alla registrazione autonoma di un utente
-	 * @param string $classname nome della classe che fornisce i metodi per le interfacce
-	 * @return string
-	 */
-	public function tableLogin($bool=false, $classname='index'){
+        $view = new \Gino\View();
 
-		$GINO = "<form action=\"\" method=\"post\" id=\"formauth\" name=\"formauth\">\n";
-		$GINO .= "<input type=\"hidden\" id=\"action\" name=\"action\" value=\"auth\" />\n";
-		$GINO .= "<table>";
-		$GINO .= "<tr class=\"authTitle\">";
-		$GINO .= "<td></td><td>"._("Area riservata")."</td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\">".($this->_u_username_email?"email":"user")."</td>";
-		$GINO .= "<td class=\"afField\"><input type=\"text\" id=\"user\" name=\"user\" size=\"25\" maxlength=\"50\" class=\"auth\" /></td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\">"._("password")."</td>";
-		$GINO .= "<td class=\"afField\"><input type=\"password\" name=\"pwd\" size=\"25\" maxlength=\"15\" class=\"auth\" /></td>";
-		$GINO .= "</tr>";
-		$GINO .= "<tr class=\"authForm\">";
-		$GINO .= "<td class=\"afLabel\"></td>";
-		$GINO .= "<td class=\"afField\"><input type=\"submit\" class=\"generic\" name=\"login_user\" value=\""._("login")."\" /></td>";
-		$GINO .= "</tr>";
-		if($this->_u_aut_registration OR $bool) {
-			$class = $classname=='index' ? 'user':$classname;
-			$GINO .= "<tr class=\"authRegTitle\">";
-			$GINO .= "<td></td><td>"._("Registrazione")."</td>";
-			$GINO .= "</tr>";
-			$GINO .= "<tr class=\"authRegForm\">";
-			$GINO .= "<td class=\"arfLabel\"></td>";
-			$GINO .= "<td class=\"arfField\"><input onclick=\"location.href='".$this->_home."?evt[$class-registration]'\" type=\"button\" class=\"generic\" name=\"login_user\" value=\""._("sign up")."\" /></td>";
-			$GINO .= "</tr>";
-		}
-		$GINO .= "</table>";
-		$GINO .= "</form>";
-		
-		return $GINO;
-	}
+        $view->setViewTpl('404');
+        $view->assign('title', $title);
+        $view->assign('message', $message);
 
-	/**
-	 * Credits
-	 * 
-	 * @return string
-	 */
-	public function credits() {
-	
-		$credits = '<h1 class="hidden">' . _('Credits') . '</h1>';
-		$credits .= "<a class=\"otto\" href=\"http://www.otto.to.it\" target=\"_blank\">&#160;</a>";
-		$credits .= "<div class=\"null\"></div>";
+        return $view->render();
+    }
 
-		return $credits;
-	}
-	
-	/**
-	 * Pagina di errore contenuto non disponibile 
-	 * 
-	 * @param string $title titolo della pagina 
-	 * @param string $message messaggio mostrato
-	 * @access public
-	 * @return pagina di errore
-	 */
-	public function page404($title = '', $message = '') {
+    /**
+     *  @brief Pagina di errore contenuto forbidden 
+     *
+     * @see Gino.Http.ResponseForbidden
+     * @see Gino.Exception.Exception403
+     * @param string $title titolo della pagina 
+     * @param string $message messaggio mostrato
+     * @access public
+     * @return pagina di errore
+     */
+    public static function page403($title = '', $message = '') {
 
-		if(!$title) {
-			$title = _("404 Pagina inesistente");
-		}
+        header("HTTP/1.1 403 Unauthorized");
 
-		if(!$message) {
-			$message = _("Il contenuto cercato non esiste, è stato rimosso oppure spostato.");
-		}
+        if(!$title) {
+            $title = _("403 Autorizzazione negata");
+        }
 
-		$view = new view();
+        if(!$message) {
+            $message = _("Non sei autorizzato a visualizzare il contenuto richiesto.");
+        }
 
-		$view->setViewTpl('404');
-		$view->assign('title', $title);
-		$view->assign('message', $message);
+        $view = new \Gino\View();
 
-		return $view->render();
-	}
+        $view->setViewTpl('403');
+        $view->assign('title', $title);
+        $view->assign('message', $message);
 
-	/**
-	 * Interfaccia per la gestione dei file css dei moduli
-	 * 
-	 * @see css::manageModuleCss()
-	 * @param integer $mdl valore ID del modulo
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public static function manageCss($mdl, $class) {
+        return $view->render();
+    }
 
-		$db = db::instance();
+    /**
+     * Pagina di errore server error
+     *
+     * @see Gino.Http.ResponseServerError
+     * @see Gino.Exception.Exception500
+     * @param string $title titolo della pagina 
+     * @param string $message messaggio mostrato
+     * @access public
+     * @return pagina di errore
+     */
+    public static function page500($title = '', $message = '') {
 
-		if($mdl) {
-			$query = "SELECT name, label FROM ".TBL_MODULE." WHERE id='$mdl'";
-			$a = $db->selectquery($query);
-			if(sizeof($a)>0) {
-				$name = $a[0]['name']; 
-				$label = $a[0]['label']; 
-			}
-		}
-		else {
-			$name = $class;
-			$label = $db->getFieldFromId(TBL_MODULE_APP, 'label', 'name', $class);
-		}
+        header("HTTP/1.0 500 Internal Server Error");
 
-		$css = new css('module', array("class"=>$class, "module"=>$mdl, "name"=>$name, "label"=>$label));
+        if(!$title) {
+            $title = _("500 Server error");
+        }
 
-		$GINO = $css->manageModuleCss();
+        if(!$message) {
+            $message = _("Si è verificato un errore interno al sistema.");
+        }
 
-		return $GINO;
-	}
-	
-	/**
-	 * Interfaccia per la gestione dei file di front-end dei moduli
-	 * 
-	 * @see frontend::manageFrontend()
-	 * @param integer $mdl valore ID del modulo
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public static function manageFrontend($mdl, $class) {
+        $view = new \Gino\View();
 
-		$db = db::instance();
+        $view->setViewTpl('500');
+        $view->assign('title', $title);
+        $view->assign('message', $message);
 
-		if($mdl) {
-			$query = "SELECT name, label FROM ".TBL_MODULE." WHERE id='$mdl'";
-			$a = $db->selectquery($query);
-			if(sizeof($a)>0) {
-				$name = $a[0]['name']; 
-				$label = $a[0]['label']; 
-			}
-		}
-		else {
-			$name = $class;
-			$label = $db->getFieldFromId(TBL_MODULE_APP, 'label', 'name', $class);
-		}
+        return $view->render();
+    }
 
-		$frontend = new frontend(array("class"=>$class, "module"=>$mdl, "name"=>$name, "label"=>$label));
-
-		$GINO = $frontend->manageFrontend();
-
-		return $GINO;
-	}
-
-	/**
-	 * Interfaccia per la gestione delle opzioni dei moduli
-	 * 
-	 * @see options::manageDoc()
-	 * @param integer $mdl valore ID del modulo
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public static function manageOptions($mdl, $class) {
-	
-		$options = new options($class, $mdl);
-
-		return $options->manageDoc();
-	}
-	
-	/**
-	 * Interfaccia per la gestione delle email personalizzate dei moduli
-	 * 
-	 * @see email::manageDoc()
-	 * @param integer $mdl valore ID del modulo
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public static function manageEmail($mdl, $class) {
-	
-		$email = new email($class, $mdl);
-
-		return $email->manageDoc();
-	}
-	
-	/**
-	 * Interfaccia per la gestione dei permessi di accesso alle funzionalità dei moduli
-	 * 
-	 * @see admin::manageDoc()
-	 * @param integer $mdl valore ID del modulo
-	 * @param string $class nome della classe
-	 * @return string
-	 */
-	public static function managePermissions($mdl, $class) {
-	
-		$admin = new admin($class, $mdl);
-
-		return $admin->manageDoc();
-	}
 }
-?>

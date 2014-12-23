@@ -1,164 +1,158 @@
 <?php
 /**
  * @file class_index.php
- * @brief Contiene la classe index
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Index.index
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 /**
- * @brief 
- * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @namespace Gino.App.Index
+ * @description Namespace dell'applicazione Index, che gestisce la home amministrativa
+ */
+namespace Gino\App\Index;
+
+use \Gino\Http\Response;
+use \Gino\Document;
+use \Gino\View;
+use \Gino\Loader;
+
+/**
+ * @brief Classe di tipo Gino.Controller del modulo che gestisce la home amministrativa
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class index extends AbstractEvtClass{
+class index extends \Gino\Controller{
 
-	private $_page;
-	
-	function __construct(){
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.Index.index
+     */
+    function __construct(){
+        parent::__construct();
+    }
 
-		parent::__construct();
+    /**
+     * @brief Elenco dei metodi che possono essere richiamati dal menu
+     * @return array di metodi pubblici
+     */
+    public static function outputFunctions() {
 
-	}
-	
-	/**
-	 * Elenco dei metodi che possono essere richiamati dal menu e dal template
-	 * 
-	 * @return array
-	 */
-	public static function outputFunctions() {
+        $list = array(
+            "admin_page" => array("label"=>_("Home page amministrazione"), "permissions"=>array('core.is_staff'))
+        );
 
-		$list = array(
-			"admin_page" => array("label"=>_("Home page amministrazione"), "role"=>'2')
-		);
+        return $list;
+    }
 
-		return $list;
-	}
+    /**
+     * @brief Home page amministrazione
+     * @param \Gino\HttpRequest $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response home page amministrazione
+     */
+    public function admin_page(\Gino\Http\Request $request){
 
-	/**
-	 * Pagina di autenticazione
-	 * 
-	 * @see sysfunc::tableLogin()
-	 * @return string
-	 */
-	public function auth_page(){
+        if(!$request->user->hasPerm('core', 'is_staff')) {
+            $request->session->auth_redirect = $this->link($this->_class_name, 'admin_page');
+            return new \Gino\Http\Redirect($this->link('auth', 'login'));
+        }
 
-		$registration = cleanVar($_GET, 'reg', 'int', '');
-		
-		if($registration == 1) $control = true; else $control = false;
-		
-		$GINO = "<div id=\"section_indexAuth\" class=\"section\">";
+        $buffer = '';
+        $sysMdls = $this->sysModulesManageArray($request);
+        $mdls = $this->modulesManageArray($request);
+        if(count($sysMdls)) {
+            $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
+            foreach($sysMdls as $sm) {
+                $GINO .= "<tr>";
+                $GINO .= "<th><a href=\"".$this->link($sm['name'], 'manage'.ucfirst($sm['name']))."\">".\Gino\htmlChars($sm['label'])."</a></th>";
+                $GINO .= "<td class=\"mdlDescription\">".\Gino\htmlChars($sm['description'])."</td>";
+                $GINO .= "</tr>";
+            }
+            $GINO .= "</table>\n";
 
-		$GINO .= "<p>"._("Per procedere è necessario autenticarsi.")."</p>";
-		
-		$func = new sysfunc();
-		$GINO .= $func->tableLogin($control, $this->_className);
-		$GINO .= "</div>";
-		
-		return $GINO;
-	}
+            $view = new \Gino\View();
+            $view->setViewTpl('section');
+            $view->assign('class', 'admin');
+            $view->assign('title', _("Amministrazione sistema"));
+            $view->assign('content', $GINO);
 
-	/**
-	 * Home page amministrazione
-	 * 
-	 * @return string
-	 */
-	public function admin_page(){
+            $buffer .= $view->render();
+        }
+        if(count($mdls)) {
+            $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
+            foreach($mdls as $m) {
+                $GINO .= "<tr>";
+                $GINO .= "<th><a href=\"".$this->link($m['name'], 'manageDoc')."\">".\Gino\htmlChars($m['label'])."</a></th>";
+                $GINO .= "<td>".\Gino\htmlChars($m['description'])."</td>";
+                $GINO .= "</tr>";
+            }
+            $GINO .= "</table>\n";
 
-		if(!$this->_access->getAccessAdmin()) {
-			$this->session->auth_redirect = "$this->_home?evt[".$this->_className."-admin_page]";
-			EvtHandler::HttpCall($this->_home, $this->_className.'-auth_page', '');
-		}
+            $view = new View();
+            $view->setViewTpl('section');
+            $view->assign('class', 'admin');
+            $view->assign('title', _("Amministrazione moduli istanziabili"));
+            $view->assign('content', $GINO);
 
-		$buffer = '';
-		$sysMdls = $this->sysModulesManageArray();
-		$mdls = $this->modulesManageArray();
-		if(count($sysMdls)) {
-		
-			$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Amministrazione sistema")));
-		
-			$GINO = "<table class=\"sysMdlList\">";
-			foreach($sysMdls as $sm) {
-				$GINO .= "<tr>";
-				$GINO .= "<td class=\"mdlLabel\"><a href=\"$this->_home?evt[".$sm['name']."-manage".ucfirst($sm['name'])."]\">".htmlChars($sm['label'])."</a></td>";
-				$GINO .= "<td class=\"mdlDescription\">".htmlChars($sm['description'])."</td>";
-				$GINO .= "</tr>";
-			}
-			$GINO .= "</table>\n";
-			$htmlsection->content = $GINO;
-		
-			$buffer = $htmlsection->render();
-		}	
-		if(count($mdls)) {
-		
-			$htmlsection = new htmlSection(array('class'=>'admin', 'headerTag'=>'h1', 'headerLabel'=>_("Amministrazione moduli")));
+            $buffer .= $view->render();
 
-			$GINO = "<table class=\"sysMdlList\">";
-			foreach($mdls as $m) {
-				$GINO .= "<tr>";
-				$GINO .= "<td class=\"mdlLabel\"><a href=\"$this->_home?evt[".$m['name']."-manageDoc]\">".htmlChars($m['label'])."</a></td>";
-				$GINO .= "<td class=\"mdlDescription\">".htmlChars($m['description'])."</td>";
-				$GINO .= "</tr>";
-			}
-			$GINO .= "</table>\n";
-			$htmlsection->content = $GINO;
+        }
 
-			$buffer .= $htmlsection->render();
+        $document = new Document($buffer);
+        return $document();
+    }
 
-		}
-		return $buffer;
-	}
+    /**
+     * @brief Elenco dei moduli di sistema visualizzabili nell'area amministrativa
+     * @return array associativo contente informazioni sui moduli: <module_id> => array(<label>, <name>, <decription>)
+     */
+    public function sysModulesManageArray($request) {
 
-	/**
-	 * Elenco dei moduli di sistema visualizzabili nell'area amministrativa
-	 * 
-	 * @return array
-	 */
-	public function sysModulesManageArray() {
+        Loader::import('sysClass', 'ModuleApp');
 
-		if(!$this->_access->getAccessAdmin()) {
-			return array();
-		}
+        if(!$request->user->hasPerm('core', 'is_staff')) {
+            return array();
+        }
 
-		$list = array();
-		$query = "SELECT id, label, name, description FROM ".$this->_tbl_module_app." WHERE masquerade='no' AND instance='no' ORDER BY order_list";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				if($this->_access->AccessVerifyGroupIf($b['name'], 0, '', 'ALL') && method_exists($b['name'], 'manage'.ucfirst($b['name'])))
-					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'label', $b['id']), "name"=>$b['name'], "description"=>$this->_trd->selectTXT(TBL_MODULE_APP, 'description', $b['id']));
-			}
-		}
+        $list = array();
+        $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "active='1' AND instantiable='0'"));
+        if(count($modules_app)) {
+            foreach($modules_app as $module_app) {
+                if($request->user->hasAdminPerm($module_app->name) and method_exists($module_app->classNameNs(), 'manage'.ucfirst($module_app->name))) {
+                    $list[$module_app->id] = array("label"=>$module_app->ml('label'), "name"=>$module_app->name, "description"=>$module_app->ml('description'));
+                }
+            }
+        }
 
-		return $list;
-	}
-	
-	/**
-	 * Elenco dei moduli non di sistema visualizzabili nell'area amministrativa
-	 * 
-	 * @return array
-	 */
-	public function modulesManageArray() {
+        return $list;
+    }
 
-		if(!$this->_access->getAccessAdmin()) {
-			return array();
-		}
+    /**
+     * @brief Elenco dei moduli non di sistema visualizzabili nell'area amministrativa
+     * @return array associativo contente informazioni sui moduli: <module_id> => array(<label>, <name>, <class>, <decription>)
+     */
+    public function modulesManageArray($request) {
 
-		$list = array();
-		$query = "SELECT id, label, name, class, description FROM ".TBL_MODULE." WHERE masquerade='no' AND type='class' ORDER BY label";
-		$a = $this->_db->selectquery($query);
-		if(sizeof($a)>0) {
-			foreach($a as $b) {
-				if($this->_access->AccessVerifyGroupIf($b['class'], $b['id'], '', 'ALL') && method_exists($b['class'], 'manageDoc'))
-					$list[$b['id']] = array("label"=>$this->_trd->selectTXT(TBL_MODULE, 'label', $b['id']), "name"=>$b['name'], "class"=>$b['class'], "description"=>$this->_trd->selectTXT(TBL_MODULE, 'description', $b['id']));
-			}
-		}
+        Loader::import('module', 'ModuleInstance');
 
-		return $list;
-	}
+        if(!$request->user->hasPerm('core', 'is_staff')) {
+            return array();
+        }
+
+        $list = array();
+        $modules = \Gino\App\Module\ModuleInstance::objects(null, array('where' => "active='1'"));
+        if(count($modules)) {
+            foreach($modules as $module) {
+                if($request->user->hasAdminPerm($module->className(), $module->id) and method_exists($module->classNameNs(), 'manageDoc')) {
+                    $list[$module->id] = array("label"=>$module->ml('label'), "name"=>$module->name, "class"=>$module->className(), "description"=>$module->ml('description'));
+                }
+            }
+        }
+
+        return $list;
+    }
 }
-?>

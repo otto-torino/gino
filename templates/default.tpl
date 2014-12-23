@@ -12,7 +12,7 @@
 </div>
 <div id="block_3" style="width: 960px; margin: auto;">
 <div id="nav_3_1_1" style="float:left;width:960px;">
-{module classid=4 func=blockList}
+{module classid=4 func=render}
 {module id=0}
 </div>
 <div id="nav_3_1_2" style="float:left;width:480px;">
@@ -29,7 +29,6 @@
 <div id="nav_5_1_1" style="float:left;width:790px;">
 </div>
 <div id="nav_5_1_2" style="float:left;width:170px;">
-{module funcid=3}
 </div>
 <div class="null"></div>
 </div>

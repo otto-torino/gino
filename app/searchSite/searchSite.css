@@ -1,32 +1,43 @@
-#search_site_form {
+.searchsite-form {
   position: relative;
 }
-#search_site {
-	background: url('img/field_bkg.jpg') repeat-x top left;
-	height: 20px;
+.searchsite-form input[type=text] {
+    width: 160px;
 }
-#search_site_submit {
-	background: url('img/submit_bkg.png') no-repeat top left;
-	border-width: 0px;
-	width: 25px;
-	height: 25px;
-  margin-left: 10px;
-	cursor: pointer;
+.searchsite-form input[type=submit], .searchsite-form input[type=button] {
+    border-width: 0px;
+    border-radius: 0;
+    width: 25px;
+    height: 25px;
+    margin-left: 10px;
+    box-shadow: 0 0 0;
+    text-shadow: 0 0 0;
+    cursor: pointer;
+}
+.searchsite-form input[type=submit] {
+    background: url('img/submit_bkg.png') no-repeat top left;
 }
 
 #search_site_check {
-	background: url('img/check_bkg.png') no-repeat top left;
-	border-width: 0px;
-	width: 25px;
-	height: 25px;
-  margin-right: 10px;
-	cursor: pointer;
+    background: url('img/check_bkg.png') no-repeat top left;
+    height: 25px;
+    margin-left: 0;
 }
 
 #search_site_check_options {
-	background-color: #fefefe;
-	padding: 0 10px;
-	border:1px solid #f1f1f1;
-	width: 280px;
-	height:100px;
+    position: absolute;
+    top: 20;
+    left: 0;
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity=50);
+    visibility: hidden;
+    background-color: #fefefe;
+    padding: 0 10px;
+    border:1px solid #f1f1f1;
+    width: 280px;
+    text-align: left;
+}
+#search_site_check_options label {
+    width: auto;
 }

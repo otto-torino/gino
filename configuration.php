@@ -5,12 +5,24 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-// Parametri del database
+/**
+ * @brief Opzione Debug
+ * @description Quando il debug è attivo i file statici non vengono uniti e minificati e non vengono
+ *              inviate email all'amministratore in caso di errore di sistema. Settare a FALSE in produzione
+ *              per ricevere notifiche di errori e comprimere i file statici.
+ */
+define("DEBUG", TRUE);
+
+/**
+ * @brief Amministratori sistema
+ * @description Ricevono notifiche di errori di sistema. Il valore deve essere necessariamente un array serializzato
+ */
+define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@otto.to.it')));// Parametri del database
 
 /**
  * Tipo di database
@@ -67,5 +79,13 @@ define('SESSION_NAME', 'GINO_SESSID');
  * Dimensione massima dei file per l'upload (2Mb => 2*1024*1024)
  */
 define('MAX_FILE_SIZE', 5242880);
+
+/**
+ * Attivazione Ldap
+ * 
+ * @see lib/plugin/config.ldap.php
+ * @var boolean
+ */
+define('LDAP_AUTH', false);
 
 ?>

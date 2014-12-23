@@ -9,13 +9,37 @@
  */
 
 /**
+ * @namespace Gino.Plugin
+ * @description Namespace che comprende classi di tipo plugin
+ */
+namespace Gino\Plugin;
+
+/**
  * @brief Libreria di connessione ai database MySQL
  * 
  * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * OTTIMIZZAZIONE DATABASE
+ * ---------------
+ * Con la proprietà self::$_enable_cache è possibile caricare i risultati delle query (non di struttura) in un array in modo da evitare l'esecuzione multipla della stessa query. \n
+ * Le query che vengono caricate nell'array sono quelle che passano dal metodo selectquery(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
+ *   - fieldInformations()
+ *   - getTableStructure()
+ *   - getFieldsName()
+ * 
+ * In particolari query gestite dal metodo selectquery() è talvolta necessario non salvarne i risultati (vedi autoIncValue()). 
+ * In questo caso è suffuciente passare a selectquery() il parametro @a cache=false. 
+ * 
+ * I risultati delle query sulla struttura delle tabelle (getTableStructure()) vengono gestiti dalla cache di gino (Principali impostazioni di sistema) e salvati su file (vedi Model::structure()).
+ * 
+ * DEBUG DATABASE
+ * ---------------
+ * Con la proprietà self::$_debug è possibile attivare un debug sulle performace delle chiamate al database. \n
+ * Le query di tipo select alimentano un contatore che può essere visualizzato attraverso l'intefaccia getCnt().
  */
-class mysql implements DbManager {
+class mysql implements \Gino\DbManager {
 
 	private $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset, $_dbconn;
 	private $_sql;
@@ -26,6 +50,34 @@ class mysql implements DbManager {
 	private $_affected;
 	private $_lastid;
 	private $_dbresults = array();
+	
+	/**
+	 * Abilita la cache 
+	 * 
+	 * @var boolean
+	 */
+	private $_enable_cache;
+	
+	/**
+	 * Abilita il debug sulle query
+	 * 
+	 * @var boolean
+	 */
+	private $_debug;
+	
+	/**
+	 * Contatore di query
+	 * 
+	 * @var integer
+	 */
+	private $_cnt;
+	
+	/**
+	 * Contenitore delle query di tipo select
+	 * 
+	 * @var array(query=>results)
+	 */
+	private $_cache;
 	
 	/**
 	 * Costruttore
@@ -47,13 +99,25 @@ class mysql implements DbManager {
 		$this->_db_password = $params["password"];
 		$this->_db_charset = $params["charset"];
 		
+		$this->_range = null;
+		$this->_offset = null;
+		
 		$this->setnumberrows(0);
 		$this->setconnection(false);
+
+		$this->_enable_cache = false;
+		$this->_debug = false;
+		$this->_cnt = 0;
+		$this->_cache = array();
 		
 		if($params["connect"]===true) $this->openConnection();
 	}
 	
-	// query string
+	/**
+	 * Imposta la query come proprietà
+	 * 
+	 * @param string $sql_query query
+	 */
 	private function setsql($sql_query) {
 		$this->_sql = $sql_query;
 	}
@@ -67,25 +131,56 @@ class mysql implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::getInfoQuery()
+	 */
+	public function getInfoQuery() {
+ 		
+ 		if($this->_debug)
+ 			return $this->_cnt;
+ 		else
+ 			return null;
+	}
+	
+	/**
+	 * Esegue la query
+	 * 
+	 * @param string $query
+	 * @return array
+	 */
+	private function execQuery($query=null) {
+		
+		if(!$query) $query = $this->_sql;
+		
+		if($this->_debug) $this->_cnt++;
+		
+		$exec = mysql_query($query);
+		return $exec;
+ 	}
+ 	
+ 	/**
 	 * @see DbManager::openConnection()
 	 */
 	public function openConnection() {
 
 		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
 			
-			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR MYSQL: ".mysql_error());
+			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mysql_error());
 			if($this->_db_charset=='utf-8') $this->setUtf8();
-			$this->setconnection(true);
-			return true;
+			$this->setconnection(TRUE);
+			return TRUE;
 		} else {
-			die("ERROR DB: verify the parameters of connection");	// debug -> die("ERROR MYSQL: ".mysql_error());
+            throw new \Exception(_('Errore di connessione al database'));
 		}
 	}
 
 	private function setUtf8() {
-		$db_charset = mysql_query("SHOW VARIABLES LIKE 'character_set_database'");
+		
+		$query = "SHOW VARIABLES LIKE 'character_set_database'";
+		$db_charset = $this->execQuery($query);
 		$charset_row = mysql_fetch_assoc($db_charset);
-		mysql_query("SET NAMES '" . $charset_row['Value'] . "'");
+		
+		$this->execQuery("SET NAMES '".$charset_row['Value']."'");
+		
 		unset($db_charset, $charset_row);
 	}
 
@@ -111,7 +206,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -129,7 +224,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -147,7 +242,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -164,7 +259,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 
 		return $this->_qry ? true:false;
 	}
@@ -184,37 +279,49 @@ class mysql implements DbManager {
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry) {
+	public function selectquery($qry, $cache=true) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
-		if(!$this->_qry) {
-			return false;
-		} else {
-			// initialize array results
-			$this->_dbresults = array();
-			
-			$this->setnumberrows(mysql_num_rows($this->_qry));
-			if($this->_numberrows > 0){
-				while($this->_rows=mysql_fetch_assoc($this->_qry))
-				{
-					$this->_dbresults[]=$this->_rows;
+
+		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
+			return $this->_cache[$this->_sql];
+		}
+		else
+		{
+			$this->_qry = $this->execQuery();
+			if(!$this->_qry) {
+				return false;
+			} else {
+				// initialize array results
+				$this->_dbresults = array();
+				
+				$this->setnumberrows(mysql_num_rows($this->_qry));
+				if($this->_numberrows > 0){
+					while($this->_rows=mysql_fetch_assoc($this->_qry))
+					{
+						$this->_dbresults[]=$this->_rows;
+					}
 				}
+				$this->freeresult();
+				
+				if($this->_enable_cache and $cache) {
+					$this->_cache[$this->_sql] = $this->_dbresults;
+				}
+				return $this->_dbresults;
 			}
-			$this->freeresult();
-			return $this->_dbresults;
 		}
 	}
-		
-	/**
-	 * Libera tutta la memoria utilizzata dal Result Set 
-	 */
-	private function freeresult(){
 	
-		mysql_free_result($this->_qry);
+	/**
+	 * @see DbManager::freeresult()
+	 */
+	public function freeresult($res=null){
+	
+		if(is_null($res)) $res = $this->_qry;
+		mysql_free_result($res);
 	}
 	
 	/**
@@ -226,7 +333,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -270,7 +377,7 @@ class mysql implements DbManager {
 	public function autoIncValue($table){
 
 		$query = "SHOW TABLE STATUS LIKE '$table'";
-		$a = $this->selectquery($query);
+		$a = $this->selectquery($query, false);
 		if(sizeof($a) > 0)
 		{
 			foreach ($a AS $b)
@@ -307,7 +414,7 @@ class mysql implements DbManager {
 	public function tableexists($table){
 		
 		$query = "SHOW TABLES FROM `".$this->_db_name."`";
-		$result = mysql_query($query);
+		$result = $this->execQuery($query);
 		$data = mysql_num_rows($result);
 
 		for ($i=0; $i<$data; $i++) {
@@ -318,6 +425,7 @@ class mysql implements DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
+	 * @see conformType()
 	 */
 	public function fieldInformations($table) {
 	
@@ -325,7 +433,7 @@ class mysql implements DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("SELECT * FROM ".$table." LIMIT 0,1");
-		$this->_qry = mysql_query($this->_sql);
+		$this->_qry = $this->execQuery();
 		
 		if(!$this->_qry) {
 			return false;
@@ -336,6 +444,8 @@ class mysql implements DbManager {
 			while($i < mysql_num_fields($this->_qry)) {
 				$meta[$i] = mysql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mysql_field_len($this->_qry, $i);
+				
+				$meta[$i]->type = $this->conformType($meta[$i]->type);
 				$i++;
 			}
 			$this->freeresult();
@@ -344,18 +454,52 @@ class mysql implements DbManager {
 	}
 	
 	/**
+	 * @see DbManager::conformType()
+	 * 
+	 * @param string $type
+	 * 
+	 * Come tipo di dato di un campo la funzione mysql_fetch_field() rileva: int, blob, string, date
+	 */
+	public function conformType($type) {
+		
+		if($type == 'string')
+			$conform_type = 'char';
+		elseif($type == 'blob')
+			$conform_type = 'text';
+		else
+			$conform_type = $type;
+		
+		return $conform_type;
+	}
+	
+	/**
 	 * @see DbManager::limit()
 	 */
-	public function limit($range, $offset){
+	public function limit($range, $offset) {
 		
 		$limit = "LIMIT $offset, $range";
 		return $limit;
 	}
 	
 	/**
+	 * @see DbManager::distinct()
+	 */
+	public function distinct($fields, $options=array()) {
+		
+		$alias = \Gino\gOpt('alias', $options, null);
+		
+		if(!$fields) return null;
+		
+		$data = "DISTINCT($fields)";
+		if($alias) $data .= " AS $alias";
+		
+		return $data;
+	}
+	
+	/**
 	 * @see DbManager::concat()
 	 */
-	public function concat($sequence){
+	public function concat($sequence) {
 		
 		if(is_array($sequence))
 		{
@@ -376,7 +520,9 @@ class mysql implements DbManager {
 	 */
 	public function dumpDatabase($file) {
 
-		$tables = mysql_list_tables($this->_db_name);
+		$query = "SHOW TABLES FROM ".$this->_db_name;
+		$tables = $this->execQuery($query);
+		
 		while ($td = mysql_fetch_array($tables)) {
 			$table = $td[0];
 			$r = mysql_query("SHOW CREATE TABLE `$table`");
@@ -417,8 +563,7 @@ class mysql implements DbManager {
 		$fields = array();
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = mysql_query($query);
-
+		$res = $this->execQuery($query);
 		while($row = mysql_fetch_array($res)) {
 			
 			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
@@ -432,30 +577,30 @@ class mysql implements DbManager {
 				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
 				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
 				"key"=>$row['COLUMN_KEY'],
-				"extra"=>$row['EXTRA'] ,
+				"extra"=>$row['EXTRA'],
 				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
 			);
 			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
 			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
 		}
 		$structure['fields'] = $fields;
-
+		
 		return $structure;
 	}
 
 	/**
 	 * @see DbManager::getFieldsName()
+	 * @see freeresult()
 	 */
 	public function getFieldsName($table) {
 
 		$fields = array();
 		$query = "SHOW COLUMNS FROM ".$table;
-
-		$res = mysql_query($query);
+		$res = $this->execQuery($query);
 		while($row = mysql_fetch_assoc($res)) {
 			$results[] = $row;
 		}
-		mysql_free_result($res);
+		$this->freeresult($res);
 
 		foreach($results as $r) {
 			$fields[] = $r['Field'];
@@ -480,23 +625,197 @@ class mysql implements DbManager {
 
 		return (int) $tot;
 	}
-
+	
 	/**
-	 * @see DbManager::select()
+	 * @see DbManager::query()
 	 */
-	public function select($fields, $tables, $where, $order=null, $limit=null, $debug=false) {
+	public function query($fields, $tables, $where=null, $options=array()) {
 
-		$qfields = is_array($fields) ? implode(",", $fields):$fields;
-		$qtables = is_array($tables) ? implode(",", $tables):$tables;
+		$order = \Gino\gOpt('order', $options, null);
+		$group_by = \Gino\gOpt('group_by', $options, null);
+		$distinct = \Gino\gOpt('distinct', $options, null);
+		$limit = \Gino\gOpt('limit', $options, null);
+		$debug = \Gino\gOpt('debug', $options, false);
+		
+		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
+		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qwhere = $where ? "WHERE ".$where : "";
-		$qorder = $order ? "ORDER BY $order":"";
-		$qlimit = count($limit) ? $this->limit($limit[1],$limit[0]) : "";
-
-		$query = "SELECT $qfields FROM $qtables $qwhere $qorder $qlimit";
+		$qgroup_by = $group_by ? "GROUP BY ".$group_by : "";
+		$qorder = $order ? "ORDER BY $order" : "";
+		
+		if($distinct) $qfields = $distinct.", ".$qfields;
+		
+		if(is_array($limit) && count($limit))
+		{
+			$qlimit = $this->limit($limit[1],$limit[0]);
+		}
+		elseif(is_string($limit))
+		{
+			$qlimit = $limit;
+		}
+		else $qlimit = '';
+		
+		$query = "SELECT $qfields FROM $qtables $qwhere $qgroup_by $qorder $qlimit";
 		
 		if($debug) echo $query;
 		
+		return $query;
+	}
+	
+	/**
+	 * @see DbManager::select()
+	 */
+	public function select($fields, $tables, $where=null, $options=array()) {
+		
+		$query = $this->query($fields, $tables, $where, $options);
+		
 		return $this->selectquery($query);
+	}
+	
+	/**
+	 * @see DbManager::insert()
+	 */
+	public function insert($fields, $table, $debug=false) {
+
+		if(is_array($fields) && count($fields) && $table)
+		{
+			$a_fields = array();
+			$a_values = array();
+			
+			foreach($fields AS $field=>$value)
+			{
+				if(is_array($value))
+				{
+					if(array_key_exists('sql', $value))
+						$a_fields[] = "`$field`=".$value['sql']; //@TODO VERIFICARE
+				}
+				else
+				{
+          	if($value !== null) {
+						  $a_fields[] = $field;
+						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+          	}
+				}
+			}
+			
+			$s_fields = "`".implode('`,`', $a_fields)."`";
+			$s_values = implode(",", $a_values);
+			
+			$query = "INSERT INTO $table ($s_fields) VALUES ($s_values)";
+			
+			if($debug) echo $query;
+			
+			return $this->actionquery($query);
+		}
+		else return false;
+	}
+	
+	/**
+	 * @see DbManager::update()
+	 */
+	public function update($fields, $table, $where, $debug=false) {
+
+		if(is_array($fields) && count($fields) && $table)
+		{
+			$a_fields = array();
+			
+			foreach($fields AS $field=>$value)
+			{
+				if(is_array($value))
+				{
+					if(array_key_exists('sql', $value))
+						$a_fields[] = "`$field`=".$value['sql'];
+				}
+				else
+				{
+					//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
+					$a_fields[] = $value === null ? "`$field`=NULL" : "`$field`='$value'";
+				}
+			}
+			
+			$s_fields = implode(",", $a_fields);
+			$s_where = $where ? " WHERE ".$where : "";
+			
+			$query = "UPDATE $table SET $s_fields".$s_where;
+			
+			if($debug) echo $query;
+			
+			return $this->actionquery($query);
+		}
+		else return false;
+	}
+	
+	/**
+	 * @see DbManager::delete()
+	 */
+	public function delete($table, $where, $debug=false) {
+
+		if(!$table) return false;
+		
+		$s_where = $where ? " WHERE ".$where : '';
+		
+		$query = "DELETE FROM $table".$s_where;
+		
+		if($debug) echo $query;
+		
+		return $this->actionquery($query);
+	}
+
+	/**
+	 * @see DbManager::drop()
+	 */
+	public function drop($table) {
+
+		if(!$table) return false;
+		
+		$query = "DROP TABLE $table";
+		
+		return $this->actionquery($query);
+	}
+
+	/**
+	 * @see DbManager::columnHasValue()
+	 */
+	public function columnHasValue($table, $field, $value, $options=array()) {
+		
+		$except_id = \Gino\gOpt('except_id', $options, null);
+		
+		$where = $field."='$value'";
+		if($except_id) $where .= " AND id!='$except_id'";
+		
+		$rows = $this->select($field, $table, $where);
+		return $rows and count($rows) ? true : false;
+	}
+	
+	/**
+	 * @see DbManager::join()
+	 */
+	public function join($table, $condition, $option) {
+		
+		$join = $table;
+		if($condition) $join .= ' ON '.$condition;
+		if($option) $join = strtoupper($option).' '.$join;
+		
+		return $join;
+	}
+	
+	/**
+	 * @see DbManager::union()
+	 */
+	public function union($queries, $options=array()) {
+		
+		$debug = \Gino\gOpt('debug', $options, false);
+		$instruction = \Gino\gOpt('instruction', $options, 'UNION');
+		
+		if(count($queries))
+		{
+			$query = implode(" $instruction ", $queries);
+			
+			if($debug) echo $query;
+			
+			return $this->selectquery($query);
+		}
+		return array();
 	}
 	
 	/**
@@ -504,12 +823,12 @@ class mysql implements DbManager {
 	 */
 	public function restore($table, $filename, $options=array()) {      
 	
-		$fields = gOpt('fields', $options, null);
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
-		$escaped = gOpt('escaped', $options, '\\');
-		$lineend = gOpt('lineend', $options, '\\r\\n');
-		$hasheader = gOpt('hasheader', $options, false);
+		$fields = \Gino\gOpt('fields', $options, null);
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, '"');
+		$escaped = \Gino\gOpt('escaped', $options, '\\');
+		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
+		$hasheader = \Gino\gOpt('hasheader', $options, false);
 		
 		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
@@ -531,8 +850,8 @@ class mysql implements DbManager {
 	 */
 	public function dump($table, $filename, $options=array()) {
 		
-		$delim = gOpt('delim', $options, ',');
-		$enclosed = gOpt('enclosed', $options, '"');
+		$delim = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, '"');
 		
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
 		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
@@ -541,6 +860,14 @@ class mysql implements DbManager {
 			return $filename;
 		else
 			return null;
+	}
+	
+	/**
+	 * @see DbManager::escapeString()
+	 */
+	public function escapeString($string) {
+		
+		return mysql_real_escape_string($string);
 	}
 }
 
