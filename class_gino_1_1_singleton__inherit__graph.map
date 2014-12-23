@@ -1,0 +1,7 @@
+<map id="Singleton" name="Singleton">
+<area shape="rect" id="node2" href="$class_gino_1_1_event_dispatcher.html" title="Classe di tipo Mediator e Singleton per la gestione di segnali (eventi) tra oggetti. " alt="" coords="5,80,123,107"/>
+<area shape="rect" id="node3" href="$class_gino_1_1_http_1_1_request.html" title="Wrapper di una richiesta HTTP. " alt="" coords="147,80,217,107"/>
+<area shape="rect" id="node4" href="$class_gino_1_1_locale.html" title="Libreria per la gestione delle traduzioni che non utilizzano le librerie gettext. ..." alt="" coords="242,80,301,107"/>
+<area shape="rect" id="node5" href="$class_gino_1_1_router.html" title="Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta..." alt="" coords="327,80,388,107"/>
+<area shape="rect" id="node6" href="$class_gino_1_1_session.html" title="Classe per la gestione delle variabili di sessione. " alt="" coords="412,80,481,107"/>
+</map>

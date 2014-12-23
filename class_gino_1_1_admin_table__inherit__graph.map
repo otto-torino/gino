@@ -1,0 +1,4 @@
+<map id="AdminTable" name="AdminTable">
+<area shape="rect" id="node2" href="$class_gino_1_1_app_1_1_attachment_1_1_attachment_item_admin_table.html" title="Estende la classe Gino.AdminTable per gestire il salvataggio dell&#39;allegato quando viene modificata la..." alt="" coords="5,80,189,107"/>
+<area shape="rect" id="node3" href="$class_gino_1_1_app_1_1_auth_1_1_admin_table___auth_user.html" title="Sovrascrive la classe AdminTable. " alt="" coords="214,80,367,107"/>
+</map>

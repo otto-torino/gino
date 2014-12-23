@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_gino_1_1_singleton.html" title="Classe astratta per implementazione del Singleton pattern. " alt="" coords="6,107,82,133"/>
+<area shape="rect" id="node2" href="$class_gino_1_1_event_dispatcher.html" title="Classe di tipo Mediator e Singleton per la gestione di segnali (eventi) tra oggetti. " alt="" coords="131,5,250,32"/>
+<area shape="rect" id="node3" href="$class_gino_1_1_http_1_1_request.html" title="Wrapper di una richiesta HTTP. " alt="" coords="155,56,226,83"/>
+<area shape="rect" id="node4" href="$class_gino_1_1_locale.html" title="Libreria per la gestione delle traduzioni che non utilizzano le librerie gettext. ..." alt="" coords="161,107,221,133"/>
+<area shape="rect" id="node5" href="$class_gino_1_1_router.html" title="Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta..." alt="" coords="160,157,221,184"/>
+<area shape="rect" id="node6" href="$class_gino_1_1_session.html" title="Classe per la gestione delle variabili di sessione. " alt="" coords="156,208,225,235"/>
+</map>

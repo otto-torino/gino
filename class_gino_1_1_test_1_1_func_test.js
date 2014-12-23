@@ -1,0 +1,25 @@
+var class_gino_1_1_test_1_1_func_test =
+[
+    [ "test_absolutePath", "class_gino_1_1_test_1_1_func_test.html#a1c61748078272b083f0fed0ae977d190", null ],
+    [ "test_arrayToObject", "class_gino_1_1_test_1_1_func_test.html#a8802b3b7b15a45f5858dd1408d46ec4e", null ],
+    [ "test_baseFilename", "class_gino_1_1_test_1_1_func_test.html#a192edb25892612e6ec8b8571f719bdc4", null ],
+    [ "test_checkEmail", "class_gino_1_1_test_1_1_func_test.html#a17aef32d9cdfa64b007ab8fe1d75b0f4", null ],
+    [ "test_cutHtmlText", "class_gino_1_1_test_1_1_func_test.html#abd4b91c8b58549a586c59fe73fdcd054", null ],
+    [ "test_cutString", "class_gino_1_1_test_1_1_func_test.html#a42073c32b9da90c6afe507bee59b2fc3", null ],
+    [ "test_dateDiff", "class_gino_1_1_test_1_1_func_test.html#aad958c4a65575719f90721e2464e35c3", null ],
+    [ "test_dateToDbDate", "class_gino_1_1_test_1_1_func_test.html#a2c6db3c08c1744572e2d6c3a7aa6453f", null ],
+    [ "test_dbDatetimeToDate", "class_gino_1_1_test_1_1_func_test.html#a7a289059bc44124977214db120ba7b65", null ],
+    [ "test_dbDatetimeToTime", "class_gino_1_1_test_1_1_func_test.html#a3524bd7b3566e3cfada890f1cea4a25d", null ],
+    [ "test_dbDateToDate", "class_gino_1_1_test_1_1_func_test.html#ad715670fd64b13502388a34162e6592c", null ],
+    [ "test_dbNumberToNumber", "class_gino_1_1_test_1_1_func_test.html#a140b352ef21ce796b01b16fa0a3b5385", null ],
+    [ "test_extension", "class_gino_1_1_test_1_1_func_test.html#a50a7d4f7e9aa22edbfc36773fda574e8", null ],
+    [ "test_getDateDiff", "class_gino_1_1_test_1_1_func_test.html#a94a94c6ea0fa03a8d71d1775e152774e", null ],
+    [ "test_gOpt", "class_gino_1_1_test_1_1_func_test.html#a134a4049c73ba001bd4a163e8d085af8", null ],
+    [ "test_isValid", "class_gino_1_1_test_1_1_func_test.html#a7c2194e03e1a50e152087eed7f314f7b", null ],
+    [ "test_numberToDB", "class_gino_1_1_test_1_1_func_test.html#a7dd45da2afe62c18c3cee3b82ac8235f", null ],
+    [ "test_relativePath", "class_gino_1_1_test_1_1_func_test.html#a9f7415df4517644914b1d5b623de5549", null ],
+    [ "test_searchNameFile", "class_gino_1_1_test_1_1_func_test.html#a4d61b634e106cc8590469a37d419d116", null ],
+    [ "test_timeDiff", "class_gino_1_1_test_1_1_func_test.html#aa569a134e151cc72753b8ecefe507818", null ],
+    [ "test_timeToDbTime", "class_gino_1_1_test_1_1_func_test.html#ab4c0a0022a4aae8fb8dbae9796844cfd", null ],
+    [ "test_traslitterazione", "class_gino_1_1_test_1_1_func_test.html#ab768a236ea3737798241b5269a32d01c", null ]
+];

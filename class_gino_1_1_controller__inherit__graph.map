@@ -1,0 +1,18 @@
+<map id="Controller" name="Controller">
+<area shape="rect" id="node2" href="$class_gino_1_1_app_1_1_attachment_1_1attachment.html" title="Classe controller del modulo di gestione di archivi di file categorizzati. " alt="" coords="147,5,234,32"/>
+<area shape="rect" id="node3" href="$class_gino_1_1_app_1_1_auth_1_1auth.html" title="Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi. " alt="" coords="167,56,214,83"/>
+<area shape="rect" id="node4" href="$class_gino_1_1_app_1_1_graphics_1_1graphics.html" title="Classe di tipo Gino.Controller per la gestione personalizzata degli header e footer del sistema..." alt="" coords="155,107,226,133"/>
+<area shape="rect" id="node5" href="$class_gino_1_1_app_1_1_index_1_1index.html" title="Classe di tipo Gino.Controller del modulo che gestisce la home amministrativa. " alt="" coords="164,157,217,184"/>
+<area shape="rect" id="node6" href="$class_gino_1_1_app_1_1_instruments_1_1instruments.html" title="Classe di tipo Gino.Controller per la gestione di strumenti aggiuntivi di gino. " alt="" coords="145,208,236,235"/>
+<area shape="rect" id="node7" href="$class_gino_1_1_app_1_1_language_1_1language.html" title="Classe di tipo Gino.Controller per la gestione delle lingue disponibili per le traduzioni. " alt="" coords="153,259,228,285"/>
+<area shape="rect" id="node8" href="$class_gino_1_1_app_1_1_layout_1_1layout.html" title="Gestisce il layout dell&#39;applicazione raggruppando le funzionalità fornite dalle librerie dei css..." alt="" coords="162,309,219,336"/>
+<area shape="rect" id="node9" href="$class_gino_1_1_app_1_1_menu_1_1menu.html" title="Classe di tipo Gino.Controller per la gestione dei menu. " alt="" coords="163,360,218,387"/>
+<area shape="rect" id="node10" href="$class_gino_1_1_app_1_1_module_1_1module.html" title="Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema. " alt="" coords="159,411,223,437"/>
+<area shape="rect" id="node11" href="$class_gino_1_1_app_1_1_page_1_1page.html" title="Classe di tipo Gino.Controller per la gestione delle pagine. " alt="" coords="165,461,216,488"/>
+<area shape="rect" id="node12" href="$class_gino_1_1_app_1_1_php_module_view_1_1php_module_view.html" title="Permette la creazione di moduli di classe in grado di eseguire codice php completamente personalizzab..." alt="" coords="133,512,248,539"/>
+<area shape="rect" id="node13" href="$class_gino_1_1_app_1_1_search_site_1_1search_site.html" title="Gestisce le ricerche full text sui contenuti dell&#39;applicazione. " alt="" coords="149,563,233,589"/>
+<area shape="rect" id="node14" href="$class_gino_1_1_app_1_1_statistics_1_1statistics.html" title="Statistiche degli accessi all&#39;area privata. " alt="" coords="153,613,228,640"/>
+<area shape="rect" id="node15" href="$class_gino_1_1_app_1_1_sys_class_1_1sys_class.html" title="Classe di tipo Gino.Controller per la gestione dei moduli di sistema. " alt="" coords="152,664,229,691"/>
+<area shape="rect" id="node16" href="$class_gino_1_1_app_1_1_sysconf_1_1sysconf.html" title="Classe di tipo Gino.Controller per la gestione delle principali impostazioni di sistema. " alt="" coords="157,715,225,741"/>
+<area shape="rect" id="node17" href="$class_gino_1_1_app_1_1_sysfunc_1_1sysfunc.html" title="Classe di tipo Gino.Controller che gestisce metodi che stampano pagine di errore. ..." alt="" coords="157,765,225,792"/>
+</map>

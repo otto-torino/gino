@@ -1,0 +1,8 @@
+<map id="Response" name="Response">
+<area shape="rect" id="node2" href="$class_gino_1_1_http_1_1_redirect.html" title="Subclass di Gino.Http.Response per gestire reindirizzamenti. " alt="" coords="174,5,245,32"/>
+<area shape="rect" id="node3" href="$class_gino_1_1_http_1_1_response_file.html" title="Subclass di &#160;per gestire stream di file. " alt="" coords="158,56,261,83"/>
+<area shape="rect" id="node4" href="$class_gino_1_1_http_1_1_response_forbidden.html" title="Subclass di Gino.Http.Response per gestire risposte a seguito di errori 403. " alt="" coords="140,107,279,133"/>
+<area shape="rect" id="node5" href="$class_gino_1_1_http_1_1_response_json.html" title="Subclass di &#160;per gestire risposte in formato json. " alt="" coords="155,157,264,184"/>
+<area shape="rect" id="node6" href="$class_gino_1_1_http_1_1_response_not_found.html" title="Subclass di Gino.Http.Response per gestire risposte a seguito di errori 404. " alt="" coords="140,208,279,235"/>
+<area shape="rect" id="node7" href="$class_gino_1_1_http_1_1_response_server_error.html" title="Subclass di Gino.Http.Response per gestire risposte a seguito di errori interni (code 500) ..." alt="" coords="136,259,283,285"/>
+</map>
