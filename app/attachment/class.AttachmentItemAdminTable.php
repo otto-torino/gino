@@ -14,7 +14,7 @@ namespace Gino\App\Attachment;
  * @brief Estende la classe Gino.AdminTable per gestire il salvataggio dell'allegato quando viene modificata la directory (categoria)
  * @see Gino.AdminTable
  */
-class attachmentItemAdminTable extends \Gino\AdminTable {
+class AttachmentItemAdminTable extends \Gino\AdminTable {
 
     /**
      * @brief rispetto al parent consente di salvare il file all'interno della directory selezionata

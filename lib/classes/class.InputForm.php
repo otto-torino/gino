@@ -16,7 +16,7 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class inputForm {
+class InputForm {
 
     private $_form;
 

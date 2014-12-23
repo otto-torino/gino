@@ -2,6 +2,7 @@
 /**
  * @file results.php
  * @brief Template risultati ricerca nel sito
+ *
  * Le variabili a disposizione sono:
  * - $title: bool, titolo
  * - $results_num: int, numero risultati

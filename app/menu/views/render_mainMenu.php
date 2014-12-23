@@ -1,6 +1,6 @@
 <?php
 /**
- * @file render.php
+ * @file render_mainMenu.php
  * @brief Template visualizzazione menu
  *
  * Variabili disponibili:

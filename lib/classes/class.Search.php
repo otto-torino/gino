@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.Search.php
- * @brief Contiene la definizione ed implementazione della classe Search
+ * @brief Contiene la definizione ed implementazione della classe Gino.Search
  * 
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

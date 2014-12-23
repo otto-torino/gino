@@ -2,6 +2,7 @@
 /**
  * @file form.php
  * @brief Template form di ricerca nel sito
+ *
  * Le variabili a disposizione sono:
  * - $form_action: l'url dell'attributo action del form per accedere ai risultati della ricerca
  * - $choices: bool, dice se sono possibili delle scelte di ricerca

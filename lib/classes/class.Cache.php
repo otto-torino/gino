@@ -1,6 +1,6 @@
 <?php
 /**
- * @file cache.php
+ * @file class.Cache.php
  * @brief Contiene la definizione ed implementazione delle classi Gino.Cache, Gino.OutputCache, Gino.DataCache
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License

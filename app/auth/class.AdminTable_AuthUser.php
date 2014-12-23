@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.AdminTable_AuthUser.php
- * @brief Contiene la classe AdminTable_AuthUser
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.AdminTable_AuthUser
  *
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

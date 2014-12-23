@@ -2,6 +2,7 @@
 /**
  * @file render.php
  * @brief Template per stampa header/footer
+ *
  * Le variabili a disposizione sono:
  * - id (string): id univoco per attributo html: site_header | site_footer
  * - content (string): tag immagine (con link alla home se header) o codice html

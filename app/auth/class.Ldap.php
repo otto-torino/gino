@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.Ldap.php
- * @brief Contiene la classe Ldap
+ * @brief Contiene la definizione ed implementazione della class Gino.App.Auth.Ldap
  * 
  * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

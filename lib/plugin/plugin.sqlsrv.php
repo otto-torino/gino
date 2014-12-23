@@ -841,7 +841,7 @@ class sqlsrv implements \Gino\DbManager {
 	 * 
 	 * @param string $column
 	 * @param string $table
-	 * @return string, @example ([no_admin]='no' OR [no_admin]='yes')
+	 * @return string, ([no_admin]='no' OR [no_admin]='yes')
 	 */
 	private function getCheckConstraint($column, $table) {
 		

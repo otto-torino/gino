@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class.pageComment.php
+ * @file class.PageComment.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageComment
  *
  * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php

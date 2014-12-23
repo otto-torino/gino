@@ -1,22 +1,43 @@
 <?php
+/**
+ * @file class.ModuleInstance.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.ModuleInstance
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+
 namespace Gino\App\Module;
 use \Gino\App\SysClass\ModuleApp;
 
+/**
+ * @brief Classe di tipo Gino.Model che rappresenta un'istanza di un modulo di sistema
+ *
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
 class ModuleInstance extends \Gino\Model {
 
-  public static $table = TBL_MODULE;
+    public static $table = TBL_MODULE;
 
-  function __construct($id) {
+    /**
+     * @brief Costruttore
+     * @param int $id
+     * @return istanza di Gino.App.Module.ModuleInstance
+     */
+    function __construct($id) {
 
-    $this->_tbl_data = self::$table;
-    parent::__construct($id);
+        $this->_tbl_data = self::$table;
+        parent::__construct($id);
 
-  }
+    }
 
 	/**
 	 * Nome della classe
 	 * 
-	 * @return string
+	 * @return nome classe
 	 */
 	public function className() {
 		
@@ -28,39 +49,53 @@ class ModuleInstance extends \Gino\Model {
     /**
 	 * Nome della classe con namespace completo
 	 * 
-	 * @return string
+	 * @return nome classe con namespace
 	 */
 	public function classNameNs($ns=true) {
 		$module_app = $this->moduleApp();
 		return get_app_name_class_ns($module_app->name);
 	}
 
-  public static function getFromName($name) {
+    /**
+     * @brief Recupera l'oggetto dato il nome dell'istanza
+     * @param string $name nome istanza senza namespace
+     * @return istanza di Gino.App.Module.ModuleInstance
+     */
+    public static function getFromName($name) {
 
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, "name='$name'");
-    if($rows and count($rows)) {
-      return new ModuleInstance($rows[0]['id']);
+        $db = \Gino\db::instance();
+        $rows = $db->select('id', self::$table, "name='$name'");
+        if($rows and count($rows)) {
+            return new ModuleInstance($rows[0]['id']);
+        }
+
+        return null;
     }
 
-    return null;
-  }
+    /**
+     * @brief Recupera le istanze dato l'id classe di sistema
+     * @param int $module_app_id
+     * @return array di istanze di Gino.App.Module.ModuleInstance
+     */
+    public static function getFromModuleApp($module_app_id) {
 
-  public static function getFromModuleApp($module_app_id) {
+        $res = array();
 
-    $res = array();
+        $db = \Gino\db::instance();
+        $rows = $db->select('id', self::$table, "module_app='$module_app_id'");
+        if($rows and count($rows)) {
+            foreach($rows as $row) {
+                $res[] = new ModuleInstance($row['id']);
+            }
+        }
 
-    $db = \Gino\db::instance();
-    $rows = $db->select('id', self::$table, "module_app='$module_app_id'");
-    if($rows and count($rows)) {
-      foreach($rows as $row) {
-        $res[] = new ModuleInstance($row['id']);
-      }
+        return $res;
     }
 
-    return $res;
-  }
-
+    /**
+     * @brief Modulo di sitema dell'istanza
+     * @return istanza di Gino.App.SysClass.ModuleApp
+     */
 	public function moduleApp() {
 		
 		\Gino\Loader::import('sysClass', 'ModuleApp');

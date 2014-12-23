@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class.export.php
+ * @file class.Export.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Export
  * 
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License

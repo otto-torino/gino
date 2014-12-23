@@ -1,7 +1,7 @@
 <?php
 /**
  * @file config.ldap.php
- * @brief File di configurazione
+ * @brief File di configurazione per l'accesso a LDAP
  * 
  * Contiene le impostazioni per la ricerca degli utenti ldap e i parametri di connessione
  * 
