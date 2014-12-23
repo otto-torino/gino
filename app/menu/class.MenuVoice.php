@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class_menuVoice.php
+ * @file class.MenuVoice.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.MenuVoice
  * 
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License

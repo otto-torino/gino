@@ -2,6 +2,7 @@
 /**
  * @file login.php
  * @brief Template form di login
+ *
  * Le variabili a disposizione sono:
  * - $title: string, titolo
  * - $form: html, form di login

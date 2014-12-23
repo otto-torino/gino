@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.ResponseJson.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseJson
+ * @brief Contiene la definizione ed implementazione della classe Gino.Http.ResponseJson
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

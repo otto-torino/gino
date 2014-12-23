@@ -1,6 +1,6 @@
 <?php
 /**
- * @file view/view.php
+ * @file view.php
  * @ingroup page
  * @brief Template per la vista delle pagine
  *

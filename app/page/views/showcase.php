@@ -1,6 +1,6 @@
 <?php
 /**
-* @file view/showcase.php
+* @file showcase.php
 * @brief Template per la vista vetrina
 *
 * Variabili disponibili:

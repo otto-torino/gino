@@ -25,7 +25,7 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-abstract class singleton {
+abstract class Singleton {
 
     protected static $_instances = array();
 

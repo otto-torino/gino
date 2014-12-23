@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class.attachmentItem.php
+ * @file class.AttachmentItem.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.AttachmentItem.
  *
  * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php

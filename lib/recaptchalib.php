@@ -237,8 +237,8 @@ function recaptcha_mailhide_url($pubkey, $privkey, $email) {
 
 /**
  * gets the parts of the email to expose to the user.
- * eg, given johndoe@example,com return ["john", "example.com"].
- * the email is then displayed as john...@example.com
+ * eg, given johndoe(at)example,com return ["john", "example.com"].
+ * the email is then displayed as john...(at)example.com
  */
 function _recaptcha_mailhide_email_parts ($email) {
 	$arr = preg_split("/@/", $email );

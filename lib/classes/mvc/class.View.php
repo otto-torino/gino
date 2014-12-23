@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.view.php
- * Contiene la definizione ed implementazione della classe Gino.View.
+ * @file class.View.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.View.
  *
  * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

@@ -1,6 +1,6 @@
 <?php
 /**
- * @file view/block.php
+ * @file box.php
  * @brief Template per la vista delle pagine inserite nel template
  *
  * Variabili disponibili:

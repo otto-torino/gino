@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.ResponseFile.php
- * @brief Contiene la definizione ed implementazione della classe \Gino\Http\ResponseFile
+ * @brief Contiene la definizione ed implementazione della classe Gino.Http.ResponseFile
  *
  * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
