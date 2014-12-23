@@ -432,7 +432,7 @@ class sysClass extends \Gino\Controller {
         $name = \Gino\cleanVar($request->POST, 'name', 'string', '');
         // name check
         if(preg_match("/[\.\/\\\]/", $name)) return error::errorMessage(array('error'=>_("pacchetto non conforme alle specifiche")), $link_error);
-        $res = ModuleApp::get(array('where' => "name='$name'"));
+        $res = ModuleApp::objects(null, array('where' => "name='$name'"));
         if($res and count($res)) {
             return Error::errorMessage(array('error'=>_("modulo con lo stesso nome già presente nel sistema")), $link_error);
         }
