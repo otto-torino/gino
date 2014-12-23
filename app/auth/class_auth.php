@@ -19,8 +19,6 @@ use \Gino\Document;
 use \Gino\View;
 use \Gino\Error;
 use \Gino\Http\Response;
-use \Gino\Http\ResponseView;
-use \Gino\Http\ResponseAjax;
 use \Gino\Http\Redirect;
 
 require_once('class.User.php');
@@ -54,6 +52,7 @@ class auth extends \Gino\Controller {
     private $_self_registration, $_self_registration_active;
     private $_username_as_email;
     private $_aut_pwd, $_aut_pwd_length, $_pwd_length_min, $_pwd_length_max, $_pwd_numeric_number;
+    private $_ldap_auth, $_ldap_auth_only, $_ldap_single_user, $_ldap_auth_password;
 
     public $_other_field1, $_other_field2, $_other_field3;
     private $_label_field1, $_label_field2, $_label_field3;
@@ -82,6 +81,11 @@ class auth extends \Gino\Controller {
         $this->_pwd_length_min = $this->setOption('pwd_min_length');
         $this->_pwd_length_max = $this->setOption('pwd_max_length');
         $this->_pwd_numeric_number = $this->setOption('pwd_numeric_number');
+        
+        $this->_ldap_auth = $this->setOption('ldap_auth');
+        $this->_ldap_auth_only = $this->setOption('ldap_auth_only');
+        $this->_ldap_single_user = $this->setOption('ldap_single_user');
+        $this->_ldap_auth_password = $this->setOption('ldap_auth_password');
 
         $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
@@ -96,7 +100,17 @@ class auth extends \Gino\Controller {
             "aut_pwd_length"=>_("Caratteri della password automatica"),
             "pwd_min_length"=>_("Minimo caratteri password"),
             "pwd_max_length"=>_("Massimo caratteri password"),
-            "pwd_numeric_number"=>_("Caratteri numerici password")
+            "pwd_numeric_number"=>_("Caratteri numerici password"), 
+        	"ldap_auth"=>array(
+        		'label'=>_("Attivazione Ldap"), 
+        		'required'=>true, 
+        		'section'=>true,
+                'section_title'=>_('Ldap'),
+                'section_description'=> "<p>"._("Opzioni per la procedura di autenticazione Ldap; per impostare i parametri di connessione al database editare il file config.ldap.php.")."</p>",
+        	),
+            "ldap_auth_only"=>array(_("Autenticazione esclusiva Ldap"), _("se l'autenticazione non è esclusiva viene verificata prima la validità dell'utente nel database Ldap e in caso negativo in quello di gino")),
+            "ldap_single_user"=>array('label'=>_("Utente unico di gino per tutti gli utenti ldap"), 'trnsl'=>false, 'required'=>false),
+            "ldap_auth_password"=>array('label'=>_("Password dell'utente/utenti di gino abbinati agli utenti ldap"), 'trnsl'=>false, 'required'=>false), 
         );
     }
 
@@ -144,8 +158,8 @@ class auth extends \Gino\Controller {
             )
         );
     }
-
-    /**
+    
+	/**
      * @brief Percorso base della directory dei contenuti
      *
      * @param string $path tipo di percorso (default abs)
@@ -180,6 +194,69 @@ class auth extends \Gino\Controller {
 
         return $directory;
     }
+    
+    /**
+     * @brief Verifica utente/password nel processo di autenticazione
+     * 
+     * @see Ldap::getCheckUser()
+     * @param string $username
+     * @param string $password
+     * @return user object
+     */
+    public function checkAuthenticationUser($username, $password) {
+    	
+    	if($this->_ldap_auth)
+		{
+			Loader::import('auth', 'Ldap');
+			
+			$ldap = new Ldap($username, $password);
+			
+			if($ldap->authentication())
+			{
+				return $this->getCheckUser($username, array('auth_ldap'=>true));
+			}
+			elseif(!$this->_ldap_auth_only)
+			{
+				return $this->getCheckUser($username, array('auth_ldap'=>false, 'user_pwd'=>$password));
+			}
+			else return null;
+		}
+		else
+		{
+			return $this->getCheckUser($username, array('auth_ldap'=>false, 'user_pwd'=>$password));
+		}
+    	
+		return null;
+    }
+    
+	/**
+	 * @brief Verifica la validità di un utente
+	 * 
+	 * @see User::getFromUserPwd()
+	 * @param string $username
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b user_pwd (string): password per autenticazione di gino
+	 *   - @b auth_ldap (boolean): indica se è stata effettuata l'autenticazione ldap
+	 * @return user object
+	 */
+	private function getCheckUser($username, $options=array()) {
+
+		$password = \Gino\gOpt('user_pwd', $options, null);
+		$auth_ldap = \Gino\gOpt('auth_ldap', $options, false);
+		
+		if($auth_ldap)
+		{
+			if($this->_ldap_single_user) $username = $this->_ldap_single_user;
+			
+			$password = $this->_ldap_auth_password;
+		}
+		
+		$registry = \Gino\Registry::instance();
+		
+		$user = User::getFromUserPwd($username, $password, $auth_ldap);
+		return $user;
+	}
 
     /**
      * @brief Interfaccia di amministrazione modulo
@@ -255,13 +332,23 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request istanza di Gino.Http.Request
      * @see AdminTable_AuthUser::backoffice()
      * @return html oppure \Gino\Http\Redirect
+     * 
+     * Nell'inserimento di un nuovo utente vengono effettuati i controlli con User::checkPassword() e User::checkUsername(). \n
+     * In inserimento e modifica vengono effettuati i controlli con User::checkEmail() in AdminTable_AuthUser::modelAction().
+     * 
+     * Lo username e l'email devono essere unici. \n
+     * Se si imposta come username l'email (proprietà $_username_as_email), il campo username non viene mostrato nell'inserimento e il campo email nella modifica. \n
+     * Nell'inserimento viene chiesto di riscrivere l'email come controllo. \n
+     * Se viene impostata la generazione automatica della password, nell'inserimento non viene mostrato il campo password.
      */
     private function manageUser(\Gino\Http\Request $request) {
 
         $info = _("Elenco degli utenti del sistema.");
+        
+        $list_display = $this->_ldap_auth ? array('id', 'firstname', 'lastname', 'username', 'email', 'active', 'ldap', 'groups') : array('id', 'firstname', 'lastname', 'username', 'email', 'active', 'groups');
 
         $opts = array(
-            'list_display' => array('id', 'firstname', 'lastname', 'email', 'active', 'groups'),
+            'list_display' => $list_display,
             'list_description' => $info, 
             'add_buttons' => array(
                 array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=user&op=jup'), 'param_id'=>'ref'),
@@ -270,27 +357,13 @@ class auth extends \Gino\Controller {
 
         );
 
-        /*
-        Lo username e l'email devono essere unici. IMPOSTARE UNIQUE KEY ?
-
-        Se come username si imposta l'email (proprietà $_username_as_email), il campo username non viene mostrato nell'inserimento e il campo email nella modifica
-
-        Nell'inserimento viene chiesto di riscrivere l'email come controllo.
-        Se viene impostata la generazione automatica della password, nell'inserimento non viene mostrato il campo userpwd
-
-
-        Nell'inserimento di un nuovo utente vengono effettuati i controlli con i metodi: User::checkPassword(), User::checkUsername()
-        In inserimento e modifica vengono effettuati i controlli con il metodo: User::checkEmail()
-
-         */
-
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
         $edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
 
         if($this->_username_as_email) {
             $fieldsets = array(
                 _('Anagrafica') => array('id', 'firstname', 'lastname', 'company', 'phone', 'address', 'cap', 'city', 'nation'),
-                _('Utenza') => array('email', 'check_email', 'userpwd', 'active'),
+                _('Utenza') => $this->_ldap_auth ? array('email', 'check_email', 'userpwd', 'ldap', 'active') : array('email', 'check_email', 'userpwd', 'active'),
                 _('Informazioni') => array('text', 'photo', 'publication'),
                 _('Privilegi') => array('is_admin', 'groups')
             );
@@ -298,11 +371,13 @@ class auth extends \Gino\Controller {
         else {
             $fieldsets = array(
                 _('Anagrafica') => array('id', 'firstname', 'lastname', 'company', 'phone', 'email', 'check_email', 'address', 'cap', 'city', 'nation'),
-                _('Utenza') => array('username', 'check_username', 'userpwd', 'active'),
+                _('Utenza') => $this->_ldap_auth ? array('username', 'check_username', 'userpwd', 'ldap', 'active') : array('username', 'check_username', 'userpwd', 'active'),
                 _('Informazioni') => array('text', 'photo', 'publication'),
                 _('Privilegi') => array('is_admin', 'groups')
             );
         }
+        
+        $buffer = '';
 
         if($id && $edit)    // modify
         {
@@ -312,10 +387,10 @@ class auth extends \Gino\Controller {
         }
         else
         {
-            $url = "$this->_home?evt[".$this->_class_name."-checkUsername]";
+            $url = $this->_home."?evt[".$this->_class_name."-checkUsername]";
             $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
             $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
-
+            
             $gform = \Gino\Loader::load('Form', array('', '', ''));
             $check_username = $gform->cinput('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
             $check_email = $gform->cinput('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
@@ -335,7 +410,34 @@ class auth extends \Gino\Controller {
                     'field' => $check_email
                 )
             );
+            
+            $buffer .= "
+        	<script type=\"text/javascript\">
+
+			function getRadioVal(form, name) {
+				
+				var radios = document.getElementById(form).elements[name];
+				var val = 0;
+				
+				for (var i=0; i<radios.length; i++) {
+					if (radios[i].checked) {
+						val = radios[i].value;
+						break;
+        			}
+        		}
+        		if (val == 1) {
+        			document.getElementById('userpwd').parentNode.style.display = 'none';
+        			document.getElementById('userpwd').removeAttribute('required');
+        		}
+        		else if (val == 0) {
+        			document.getElementById('userpwd').parentNode.style.display = 'block';
+        			document.getElementById('userpwd').setAttribute('required', '');
+        		}
+    		}
+    		</script>";
         }
+        
+        
 
         $opts_form = array(
             'removeFields' => $removeFields, 
@@ -348,6 +450,8 @@ class auth extends \Gino\Controller {
             'pwd_length_min' => $this->_pwd_length_min, 
             'pwd_length_max' => $this->_pwd_length_max, 
             'pwd_numeric_number' => $this->_pwd_numeric_number,
+        	'ldap_auth' => $this->_ldap_auth, 
+        	'ldap_auth_password' => $this->_ldap_auth_password, 
             'fieldsets' => $fieldsets
         );
 
@@ -360,7 +464,8 @@ class auth extends \Gino\Controller {
                 'id'=>'username'
             ),
             'userpwd' => array(
-                'text_add'=>$this->passwordRules($id), 
+                'id'=>'userpwd', 
+            	'text_add'=>$this->passwordRules($id), 
                 'widget'=>'password'
             ),
             'firstname' => array(
@@ -386,12 +491,18 @@ class auth extends \Gino\Controller {
             ),
             'city' => array(
                 'trnsl'=>false
+            ), 
+            'ldap' => array(
+				'id'=>'ldap', 
+            	'js'=>"onclick=\"javascript:getRadioVal('formauth_user', 'ldap');\""
             )
         );
 
         $admin_table = new AdminTable_AuthUser($this);
 
-        return $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
+        $backend = $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
+        
+        return (is_a($backend, '\Gino\Http\Response')) ? $backend : $buffer.$backend;
     }
 
     /**
@@ -415,19 +526,19 @@ class auth extends \Gino\Controller {
     }
 
     /**
-     * @brief Controlla se uno username è disponibile
+     * @brief Controlla se lo username è disponibile
      *
      * @param \Gino\Http\Request $request
      * @return Gino.Http.Response
      */
     public function checkUsername(\Gino\Http\Request $request) {
 
-        Loader::import('class/http', '\Gino\Http\ResponseAjax');
+        Loader::import('class/http', '\Gino\Http\Response');
 
         $username = \Gino\cleanVar($request->POST, 'username', 'string', '');
 
         if(!$username) {
-            return new ResponseAjax("<strong>"._("Inserire uno username!")."</strong>");
+            return new \Gino\Http\Response("<strong>"._("Inserire uno username!")."</strong>");
         }
 
         $check = $this->_db->getFieldFromId(User::$table, 'id', 'username', $username);
@@ -454,8 +565,6 @@ class auth extends \Gino\Controller {
      */
     private function changePassword(\Gino\Http\Request $request) {
 
-        // PERM ??
-
         if($request->method == 'POST')
         {
             $user_id = \Gino\cleanVar($request->POST, 'id', 'int', '');
@@ -468,10 +577,11 @@ class auth extends \Gino\Controller {
             ));
 
             if($action_result === true) {
-                return new Redirect($this->_home."?evt[".$this->_class_name."-manageAuth]");
+                return new Redirect($this->_registry->router->link($this->_class_name, 'manageAuth')
+                );
             }
             else {
-                return Error::errorMessage($action_result, $this->_home."?evt[".$this->_class_name."-manageAuth]&block=password&ref=$user_id");
+                return Error::errorMessage($action_result, $this->_registry->router->link($this->_class_name, 'manageAuth', "block=password&ref=$user_id"));
             }
         }
 
@@ -480,11 +590,18 @@ class auth extends \Gino\Controller {
 
         $obj_user = new User($user_id);
 
-        $content = $obj_user->formPassword(array(
-            'form_action'=>'', 
-            'rules'=>$this->passwordRules($user_id), 
-            'maxlength'=>$this->_pwd_length_max)
-        );
+        if($obj_user->ldap)
+        {
+        	$content = "<p>"._("Non è possibile modificare la password di un utente Ldap")."</p>";
+        }
+        else
+        {
+        	$content = $obj_user->formPassword(array(
+            	'form_action'=>'', 
+            	'rules'=>$this->passwordRules($user_id), 
+            	'maxlength'=>$this->_pwd_length_max)
+        	);
+        }
 
         $title = sprintf(_('Modifica password "%s"'), $obj_user);
 
@@ -607,7 +724,7 @@ class auth extends \Gino\Controller {
      */
     public function actionJoinUserPermission(\Gino\Http\Request $request) {
 
-        // perm
+        $this->requirePerm('can_admin');
 
         $id = \gino\cleanvar($request->POST, 'id', 'int', '');
 
@@ -712,7 +829,7 @@ class auth extends \Gino\Controller {
      */
     public function actionJoinGroupPermission(\Gino\Http\Request $request) {
 
-        // PERM
+        $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'integer', '');
         if(!$id) return null;

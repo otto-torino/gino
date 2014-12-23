@@ -46,7 +46,7 @@ class GTag {
                     $tag_id = $rows[0]['id'];
                 }
                 else {
-                    $db->insert(array('tag' => $tag), self::$_table_tag, true);
+                    $db->insert(array('tag' => $tag), self::$_table_tag);
                     $tag_id = $db->getlastid(self::$_table_tag);
                 }
                 $db->insert(array(

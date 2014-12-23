@@ -47,6 +47,8 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
      *   - @b pwd_length_min
      *   - @b pwd_length_max
      *   - @b pwd_numeric_number
+     *   - @b ldap_auth
+     *   - @b ldap_auth_password
      *   
      * @see User::checkEmail()
      * @see User::checkPassword()
@@ -85,8 +87,14 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 
         $gform = new \Gino\Form($formId, $method, $validation);
         $gform->save($session_value);
+        
         $req_error = $gform->arequired();
 
+        // Controllo campo ldap per le interazioni col campo password (ldap true => password non obbligatoria)
+        $password = \Gino\cleanVar($this->_request->POST, 'userpwd', 'string', '');
+        $user_ldap = \Gino\cleanVar($this->_request->POST, 'ldap', 'int', '');
+        if($req_error == 1 && $user_ldap && !$password) $req_error = 0;
+        
         if($req_error > 0) 
             return array('error'=>1);
 
@@ -101,8 +109,11 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 
         if($insert)
         {
-            $check_password = User::checkPassword($options);
-            if(is_array($check_password)) return $check_password;
+            if(!$user_ldap)
+            {
+        		$check_password = User::checkPassword($options);
+            	if(is_array($check_password)) return $check_password;
+            }
 
             $check_username = User::checkUsername($options);
             if(is_array($check_username)) return $check_username;
@@ -161,12 +172,22 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 
         $username_as_email = \Gino\gOpt('username_as_email', $options, false);
         $user_more_info = \Gino\gOpt('user_more_info', $options, false);
-
-        if($username_as_email) $model->username = $model->email;
-
-        if($insert) $model->userpwd = User::setPassword($model->userpwd, $options);
-
-        var_dump($model->groups);
+        
+		if($username_as_email) $model->username = $model->email;
+        
+    	if($insert)
+		{
+			$ldap_auth = \Gino\gOpt('ldap_auth', $options, false);
+			$ldap_auth_password = \Gino\gOpt('ldap_auth_password', $options, null);
+			
+			if($ldap_auth)
+			{
+				if($model->ldap && $ldap_auth_password)
+					$model->userpwd = $ldap_auth_password;
+			}
+			
+			$model->userpwd = User::setPassword($model->userpwd, $options);
+		}
 
         $update_db = $model->save();
 

@@ -7,11 +7,13 @@
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-
 namespace Gino;
+
+use Gino\App\Auth\auth;
 
 use \Gino\App\Auth\User;
 use \Gino\Http\Redirect;
+use \Gino\App\Auth\Ldap;
 
 /**
  * @brief Classe per la gestione dell'autenticazione ed accesso alla funzionalità
@@ -104,41 +106,33 @@ class Access {
     }
 
     /**
-     * @brief Verifica utente/password
+     * @brief Imposta le variabili di sessione (user_id, user_name) e logga l'accesso (logAccess())
      *
-     * @description Imposta le variabili di sessione user_id, user_name, e richiama il metodo logAccess()
-     *
-     * @see User::getFromUserPwd()
-     * @see logAccess()
-     * @param string $user
-     * @param string $pwd
+     * @see \Gino\App\Auth\Auth::checkAuthenticationUser()
+     * @param string $username
+     * @param string $password
      * @return risultato autenticazione, bool
      */
-    private function AuthenticationMethod($user, $pwd){
+    private function AuthenticationMethod($username, $password){
 
-        $registry = registry::instance();
-
-        // Uncomment fo ldap
-        /*
-        include_once(PLUGIN_DIR.OS."plugin.ldap.php");
-        $ldap = new \Gino\Plugin\Ldap($user, $pwd);
-        if(!$ldap->authentication()) {
-            return FALSE;
-        }
-        */
-
-        $user = \Gino\App\Auth\User::getFromUserPwd($user, $pwd);
-        if($user) {
-            $this->_session->user_id = $user->id;
+        $registry = Registry::instance();
+        
+        $auth = new \Gino\App\Auth\auth();
+        $user = $auth->checkAuthenticationUser($username, $password);
+        
+        if($user)
+		{
+			$this->_session->user_id = $user->id;
             $this->_session->user_name = \Gino\htmlChars($user->firstname.' '.$user->lastname);
+            
+            $registry = Registry::instance();
 
             if($registry->sysconf->log_access) {
                 $this->logAccess($user->id);
             }
-            return TRUE;
-        }
-
-        return FALSE;
+            return true;
+		}
+		return false;
     }
 
     /**

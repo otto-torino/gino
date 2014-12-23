@@ -99,13 +99,17 @@ CREATE TABLE auth_opt (
   pwd_min_length smallint NOT NULL,
   pwd_max_length smallint NOT NULL,
   pwd_numeric_number int NOT NULL,
+  ldap_auth tinyint NOT NULL,
+  ldap_auth_only tinyint NOT NULL,
+  ldap_single_user nvarchar(50) NULL,
+  ldap_auth_password nvarchar(100) NULL,
   PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT auth_opt ON
 
-INSERT INTO auth_opt (id, instance, users_for_page, user_more_info, user_card_view, self_registration, self_registration_active, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number) VALUES
-(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2);
+INSERT INTO auth_opt (id, instance, users_for_page, user_more_info, user_card_view, self_registration, self_registration_active, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number, ldap_auth, ldap_auth_only, ldap_single_user, ldap_auth_password) VALUES
+(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2, 0, 0, NULL, NULL);
 
 SET IDENTITY_INSERT auth_opt OFF
 
@@ -177,13 +181,14 @@ CREATE TABLE auth_user (
   publication tinyint NOT NULL DEFAULT '0',
   date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   active tinyint NOT NULL DEFAULT '0',
+  ldap tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT auth_user ON
 
 INSERT INTO auth_user (id, firstname, lastname, company, phone, fax, email, username, userpwd, is_admin, address, cap, city, nation, text, photo, publication, date, active) VALUES
-(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', NULL, 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, NULL, NULL, 0, '2011-10-10 01:00:00', 1);
+(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', NULL, 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, NULL, NULL, 0, '2011-10-10 01:00:00', 1, 0);
 
 SET IDENTITY_INSERT auth_user OFF
 
@@ -981,7 +986,7 @@ SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
 (1, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
-(2, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '10,0'),
+(2, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, ''),
 (3, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
 
 SET IDENTITY_INSERT sys_menu_voices OFF

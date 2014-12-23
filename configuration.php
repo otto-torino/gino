@@ -80,4 +80,12 @@ define('SESSION_NAME', 'GINO_SESSID');
  */
 define('MAX_FILE_SIZE', 5242880);
 
+/**
+ * Attivazione Ldap
+ * 
+ * @see lib/plugin/config.ldap.php
+ * @var boolean
+ */
+define('LDAP_AUTH', false);
+
 ?>
