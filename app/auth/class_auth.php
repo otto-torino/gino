@@ -437,7 +437,7 @@ class auth extends \Gino\Controller {
     		</script>";
         }
         
-        
+        if(!$this->_ldap_auth) $removeFields[] = 'ldap';
 
         $opts_form = array(
             'removeFields' => $removeFields, 
