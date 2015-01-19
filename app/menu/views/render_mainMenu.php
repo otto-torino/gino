@@ -46,6 +46,12 @@ if(!function_exists('\Gino\App\Menu\printVoice')) {
       $i++;
     }
     ?>
-    <li><a href="#" style="padding: 8px 15px"><img src="img/ico_home.png" alt="home" /></a></li>
 </ul>
+<script>
+    if($$('ul.menu-main li.active').length) {
+        $$('ul.menu-main li.active').getParents('li').each(function(li) {
+            li.addClass('active');
+        })
+    }
+</script>
 <? // @endcond ?>
