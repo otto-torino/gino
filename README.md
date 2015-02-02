@@ -24,5 +24,9 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 - gestione dispositivi mobile separata se necessario
 - moduli aggiuntivi disponibili sull'[account github di Otto](http://github.com/otto-torino)
 
-## Copyright
-Copyright © 2005-2014 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)
+# Releases
+2014/12/23 | v 2.0.0 | Nuova versione   
+2015/02/02 | v 2.0.1 | Hotfix
+
+# Copyright
+Copyright © 2005-2015 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)
