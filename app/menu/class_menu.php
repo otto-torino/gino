@@ -210,7 +210,7 @@ class menu extends \Gino\Controller {
         $GINO = '';
 
         $cache = new \Gino\OutputCache($GINO, $this->_cache ? true : false);
-        if($cache->start($this->_instance_name, "breadcrumbs".$sel_voice.$this->_registry->session->lng, $this->_cache)) {
+        if($cache->start($this->_instance_name, "breadcrumbs".$sel_voice.$this->_registry->request->session->lng, $this->_cache)) {
             $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
             $buffer = $this->pathToSelectedVoice();
 

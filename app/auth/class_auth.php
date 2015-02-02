@@ -288,7 +288,7 @@ class auth extends \Gino\Controller {
         elseif($block=='group') {
 
             if($op == 'jgp')
-                $backend = $this->joinGroupPermission();
+                $backend = $this->joinGroupPermission($request);
             else
                 $backend = $this->manageGroup();
 
@@ -437,8 +437,8 @@ class auth extends \Gino\Controller {
     		</script>";
         }
         
+        if(!$this->_ldap_auth) $removeFields[] = 'ldap';
         
-
         $opts_form = array(
             'removeFields' => $removeFields, 
             'addCell' => $addCell, 
@@ -726,13 +726,13 @@ class auth extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $id = \gino\cleanvar($request->POST, 'id', 'int', '');
+        $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
 
         if(!$id) {
             throw new \Gino\Exception\Exception404();
         }
 
-        $perm = $request->POST['perm'];
+        $perm = array_key_exists('perm', $request->POST) ? $request->POST['perm'] : array();
 
         $obj_user = new User($id);
         $existing_perms = $obj_user->getPermissions();
@@ -746,7 +746,7 @@ class auth extends \Gino\Controller {
             {
                 foreach($array_delete as $value)
                 {
-                    $split = user::getmergevalue($value);
+                    $split = User::getMergeValue($value);
 
                     $permission_id = $split[0];
                     $instance_id = $split[1];
@@ -760,7 +760,7 @@ class auth extends \Gino\Controller {
             {
                 if(!in_array($value, $existing_perms))
                 {
-                    $split = user::getmergevalue($value);
+                    $split = User::getMergeValue($value);
 
                     $permission_id = $split[0];
                     $instance_id = $split[1];
@@ -774,7 +774,7 @@ class auth extends \Gino\Controller {
             $this->_db->delete(permission::$table_perm_user, "user_id='$id'");
         }
 
-        return $this->returnjoinlink('user', 'jup', $id);
+        return $this->returnJoinLink('user', 'jup', $id);
     }
 
     /**
@@ -782,14 +782,13 @@ class auth extends \Gino\Controller {
      * 
      * parametri get: \n
      *   - ref (integer), valore id del gruppo
-     *
+     * 
+     * @param \Gino\Http\Request $request
      * @return html, form
      */
-    private function joingrouppermission() {
+    private function joinGroupPermission($request) {
 
-        // perm
-
-        $id = \gino\cleanvar($_GET, 'ref', 'int', '');
+        $id = \Gino\cleanVar($request->GET, 'ref', 'int', '');
         if(!$id) return null;
 
         $obj_group = new Group($id);
@@ -834,7 +833,7 @@ class auth extends \Gino\Controller {
         $id = \Gino\cleanVar($request->POST, 'id', 'integer', '');
         if(!$id) return null;
 
-        $perm = $request->POST['perm'];
+        $perm = array_key_exists('perm', $request->POST) ? $request->POST['perm'] : array();
 
         $obj_group = new Group($id);
         $existing_perms = $obj_group->getPermissions();
@@ -876,7 +875,7 @@ class auth extends \Gino\Controller {
             $this->_db->delete(Group::$table_group_perm, "group_id='$id'");
         }
 
-        $this->returnJoinLink('group', 'jgp', $id);
+        return $this->returnJoinLink('group', 'jgp', $id);
     }
 
     /**
