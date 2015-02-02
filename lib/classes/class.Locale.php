@@ -255,7 +255,7 @@ class Locale extends Singleton {
                 }
                 elseif(sizeof($array) == 1)
                 {
-                    $records = $db->select('language_code, country_code, main', TBL_LANGUAGE, "active='1'");
+                    $records = $db->select('language_code, country_code', TBL_LANGUAGE, "active='1'");
                     if(count($records))
                     {
                         foreach($records AS $r)
