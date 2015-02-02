@@ -573,7 +573,7 @@ class Template extends Model {
         $gform = Loader::load('Form', array('tplform', 'post', false, array("tblLayout"=>false)));
         $gform->load('dataform');
 
-        $modTpl = cleanVar($request->POST, 'modTpl', 'int', '');    // parametro di ricostruzione del template
+        $modTpl = cleanVar($request->POST, 'modTpl', 'int');    // parametro di ricostruzione del template
         $label = cleanVar($request->POST, 'label', 'string', '');
         $filename = cleanVar($request->POST, 'filename', 'string', '');
         $description = cleanVar($request->POST, 'description', 'string', '');
@@ -593,6 +593,7 @@ class Template extends Model {
         $buffer .= "<head>\n";
         $buffer .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
         $buffer .= "<title>Template</title>\n";
+        $buffer .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
 
         $buffer .= "<link rel=\"stylesheet\" href=\"".CSS_WWW."/styles.css\" type=\"text/css\" />\n";
         $buffer .= "<link rel=\"stylesheet\" href=\"".SITE_APP.OS."layout".OS."layout.css\" type=\"text/css\" />\n";
@@ -690,7 +691,7 @@ class Template extends Model {
         $num = 1;
         for($i=1; $i<=$blocks_number; $i++) {
 
-            $add_form = cleanVar($_POST, 'addblocks_'.$i, 'int', '');
+            $add_form = cleanVar($request->POST, 'addblocks_'.$i, 'int');
             for($y=1; $y<=$add_form; $y++) {
 
                 $ref_name = $i.'_'.$y;
@@ -754,18 +755,18 @@ class Template extends Model {
         if($pos && $template)
         {
             $db = Db::instance();
-            $rows = $db->select('rows, cols', self::$table_block, "tpl='".$this->id."' AND position='".$pos."'");
-            if($rows and count($rows)) $old = true;
+            $res = $db->select('rows, cols', self::$table_block, "tpl='".$this->id."' AND position='".$pos."'");
+            if($res and count($res)) {
+                $old = true;
+                $rows = $res[0]['rows'];
+                $cols = $res[0]['cols'];
+            }
         }
-        else $rows = array();
-        
-        $count = count($rows);
 
         $buffer = "<div id=\"block_$num\" style=\"$block_style_width$margin\">\n";
 
-        for($ii=1; $ii<$count+1; $ii++) {
+        for($ii=1; $ii<$rows+1; $ii++) {
             for($iii=1; $iii<$cols+1; $iii++) {
-
                 $module = '';
                 if($old)
                 {
@@ -848,13 +849,13 @@ class Template extends Model {
                     $title = _("Modulo da url");
                     $jsurl = null;
                 }
-                else exit(error::syserrorMessage("document", "renderModule", "Tipo di modulo sconosciuto", __LINE__));
+                else throw new \Exception(_("Tipo di modulo sconosciuto"));
 
                 $buffer .= "<div id=\"mdlContainer_".$matches[3]."_$count\">";
                 $buffer .= "<div class=\"mdlContainerCtrl\">";
                 $buffer .= "<div class=\"disposeMdl\"></div>";
                 $buffer .= "<div class=\"sortMdl\"></div>";
-                $buffer .= "<div class=\"toggleMdl\"></div>";
+                //$buffer .= "<div class=\"toggleMdl\"></div>";
                 $buffer .= "<div class=\"null\"></div>";
                 $buffer .= "</div>";
                 $buffer .= "<div id=\"refillable_".$matches[3]."_$count\" class=\"refillableFilled\">";
@@ -864,9 +865,9 @@ class Template extends Model {
                 $buffer .= "<div id=\"fill_".$matches[3]."_$count\" style=\"display:none;\"></div>";
                 $buffer .= "</div>";
 
-                if($jsurl) {
-                    $buffer .= "<script>gino.ajaxRequest('post', '$jsurl', '', 'fill_".$matches[3]."_$count', {'script':true})</script>";
-                }
+                //if($jsurl) {
+                    //$buffer .= "<script>gino.ajaxRequest('post', '$jsurl', '', 'fill_".$matches[3]."_$count', {'script':true})</script>";
+                //}
                 $count++;
             }
         }
@@ -875,7 +876,7 @@ class Template extends Model {
         $buffer .= "<div class=\"mdlContainerCtrl\">";
         $buffer .= "<div class=\"disposeMdlDisabled\"></div>";
         $buffer .= "<div class=\"sortMdlDisabled\"></div>";
-        $buffer .= "<div class=\"toggleMdlDisabled\"></div>";
+        //$buffer .= "<div class=\"toggleMdlDisabled\"></div>";
         $buffer .= "<div class=\"null\"></div>";
         $buffer .= "</div>";
         $buffer .= "<div id=\"refillable_".$matches[3]."_$count\" class=\"refillable\">";

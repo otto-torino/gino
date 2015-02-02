@@ -719,15 +719,16 @@ class AdminTable {
     public function adminDelete($model, $options_form) {
 
         if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
-            throw new \Gino\Exception403();
+            throw new \Gino\Exception\Exception403();
         }
 
         $result = $model->delete();
 
+        $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
+            ? $options_form['link_delete']
+            : $this->editUrl(array(), array('delete', 'id'));
+
         if($result === TRUE) {
-            $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
-                ? $options_form['link_delete']
-                : $this->editUrl(array(), array('delete', 'id'));
             return new \Gino\Http\Redirect($link_return);
         }
         else {

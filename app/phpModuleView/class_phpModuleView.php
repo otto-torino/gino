@@ -185,6 +185,7 @@ class phpModuleView extends \Gino\Controller {
         $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
         $link_edit = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'action=modify'), _('Contenuto'));
         $link_info = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $sel_link = $link_info;
 
         $links_array = array($link_frontend, $link_options, $link_edit, $link_info);
 

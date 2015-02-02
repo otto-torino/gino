@@ -211,15 +211,15 @@ var Nave = new Class({
 
         if(refillable.getProperty('class') == 'refillableFilled') {
             mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=disposeMdl]')[0].removeEvents('click');
-            mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=toggleMdl]')[0].removeEvents('click');
+            //mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=toggleMdl]')[0].removeEvents('click');
             mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=disposeMdl]')[0].addEvent('click', function(event) {
                 mdl_container.dispose();
                 event.stopPropagation();    
             })
-            mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=toggleMdl]')[0].addEvent('click', function(event) {
-                event.stopPropagation();    
-                this.mdlPreviewToggle(fill.id);
-            }.bind(this));
+            //mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=toggleMdl]')[0].addEvent('click', function(event) {
+            //    event.stopPropagation();    
+            //    this.mdlPreviewToggle(fill.id);
+            //}.bind(this));
 
         }
 
@@ -229,7 +229,7 @@ var Nave = new Class({
         if(window.myWin && window.myWin.showing) return false;
         refillable.addClass("selectedMdlContainer");
 
-        var url = '/layout/modulesList/?nav_id='+this.nav.id+'&refillable_id='+refillable.id+'&fill_id='+refillable.id.replace("refillable", "fill");
+        var url = 'layout/modulesList/?nav_id='+this.nav.id+'&refillable_id='+refillable.id+'&fill_id='+refillable.id.replace("refillable", "fill");
 
         window.myWin = new gino.layerWindow({
                 'title':$('selMdlTitle').value, 'url':url, 'bodyId':'selMdl', 
@@ -293,9 +293,9 @@ function closeAll(nav_id, refillable_id, mdl_title, mdl_code) {
     refillable.setProperty('class', 'refillableFilled');
     if(action=='new') mdl_container.getChildren('div[class=mdlContainerCtrl]')[0].getChildren('div[class=sortMdlDisabled]')[0].setProperties({'class': 'sortMdl', 'title':'ordina'});
     if(action=='new') {
-        mdl_container.getChildren('div[class=mdlContainerCtrl]')[0]
-                .getChildren('div[class=toggleMdlDisabled]')[0]
-                .setProperties({'class': 'toggleMdl', 'title': 'vedi/nascondi contenuti'});
+        //mdl_container.getChildren('div[class=mdlContainerCtrl]')[0]
+        //        .getChildren('div[class=toggleMdlDisabled]')[0]
+        //        .setProperties({'class': 'toggleMdl', 'title': 'vedi/nascondi contenuti'});
         mdl_container.getChildren('div[class=mdlContainerCtrl]')[0]
                 .getChildren('div[class=disposeMdlDisabled]')[0]
                 .setProperties({'class': 'disposeMdl', 'title': 'elimina modulo'});
@@ -309,7 +309,7 @@ function closeAll(nav_id, refillable_id, mdl_title, mdl_code) {
         mdlc_html = "<div class=\"mdlContainerCtrl\">";
         mdlc_html += "<div class=\"disposeMdlDisabled\"></div>";
         mdlc_html += "<div class=\"sortMdlDisabled\"></div>";
-        mdlc_html += "<div class=\"toggleMdlDisabled\"></div>";
+        //mdlc_html += "<div class=\"toggleMdlDisabled\"></div>";
         mdlc_html += "<div class=\"null\"></div>";
         mdlc_html += "</div>";
 

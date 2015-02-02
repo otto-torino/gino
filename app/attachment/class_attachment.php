@@ -16,6 +16,7 @@
 namespace Gino\App\Attachment;
 
 use \Gino\View;
+use \Gino\Loader;
 use \Gino\Document;
 use \Gino\Http\Response;
 
@@ -301,7 +302,7 @@ class attachment extends \Gino\Controller {
      */
     public function jsonImageList()
     {
-        $items = AttachmentItem::get($this);
+        $items = AttachmentItem::objects($this);
         $images = array();
         foreach($items as $item) {
             if(preg_match('#(\.png|\.jpg|\.jpeg|\.tif|\.gif)$#', $item->file)) {

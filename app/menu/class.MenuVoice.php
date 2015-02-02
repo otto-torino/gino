@@ -225,7 +225,7 @@ class MenuVoice extends \Gino\Model {
         $result_link = null;
         $result = null;
 
-        $rows = $db->select('id, url', self::$tbl_voices, "url='".$request->path."' AND instance='".$instance."'");
+        $rows = $db->select('id, url', self::$tbl_voices, "url='".(substr($request->path, 0, 1) == '/' ? substr($request->path, 1) : $request->path)."' AND instance='".$instance."'");
         if($rows and count($rows)) {
           return $rows[0]['id'];
         }

@@ -409,6 +409,6 @@ class PageEntry extends \Gino\Model {
      */
     public function imgPath() {
 
-        return $this->_controller->getBasePath('rel').'/'.$this->id.'/'.$this->image;
+        return $this->_controller->getBasePath('rel').$this->id.'/'.$this->image;
     }
 }

@@ -145,7 +145,7 @@ namespace Gino;
      * @return void
      */
     public function setIsConstraint($is_constraint) {
-        $this->_is_consraint = $is_constraint;
+        $this->_is_constraint = $is_constraint;
     }
 
     /**
