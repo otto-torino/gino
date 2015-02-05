@@ -390,7 +390,7 @@ class sysClass extends \Gino\Controller {
 
         $GINO .= $gform->cinput('label', 'text', '', _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>100));
         $GINO .= $gform->cinput('name', 'text', '', _("Nome classe"), array("required"=>true, "size"=>40, "maxlength"=>100));
-        $GINO .= $gform->ctextarea('description', '', _("Descrizione"), array("cols"=>45, "rows"=>4));
+        $GINO .= $gform->ctextarea('description', '', _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4));
         $GINO .= $gform->cinput('tblname', 'text', '', _("Prefisso tabelle"), array("required"=>true, "size"=>40, "maxlength"=>30));
         $GINO .= $gform->cinput('version', 'text', '', _("Versione"), array("required"=>false, "size"=>40, "maxlength"=>200));
 
@@ -449,7 +449,7 @@ class sysClass extends \Gino\Controller {
 
         $res = $module_app->save();
 
-        if(!$res) {
+        if($res !== true) {
             return Error::errorMessage(array('error'=>_("impossibile installare il pacchetto")), $link_error);
         }
 
