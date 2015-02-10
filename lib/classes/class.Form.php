@@ -2046,9 +2046,8 @@ class Form {
 
         if(empty($id_name)) $id_name = 'id';
 
-        $langs = \Gino\App\Language\Lang::objects(array(
-            null,
-            'where' => "main='0' AND active='1'"
+        $langs = \Gino\App\Language\Lang::objects(null, array(
+            'where' => "active='1' AND id != '".$this->_registry->sysconf->dft_language."'"
         ));
         if($langs)
         {

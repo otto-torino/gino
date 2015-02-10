@@ -277,6 +277,7 @@ class AdminTable {
         $verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
         $only_inputs = array_key_exists('only_inputs', $options) ? $options['only_inputs'] : false;
         $inputs_prefix = array_key_exists('inputs_prefix', $options) ? $options['inputs_prefix'] : '';
+        $show_save_and_continue = array_key_exists('show_save_and_continue', $options) ? $options['show_save_and_continue'] : TRUE;
 
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
 
@@ -414,7 +415,7 @@ class AdminTable {
 
         if(!$only_inputs) {
             $save_and_continue = $gform->input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => $popup ? '' : $save_and_continue));
+            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
             $buffer .= $gform->close();
         }
 
