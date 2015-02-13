@@ -1002,9 +1002,6 @@ class page extends \Gino\Controller {
                 'id'=>array(
                     'id'=>'id'
                 ),
-                'category_id'=>array(
-                    'required'=>false
-                ),
                 'slug'=>array(
                     'text_add'=>$availability,
                 ),

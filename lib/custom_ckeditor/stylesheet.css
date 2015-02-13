@@ -1,6 +1,7 @@
-@import url("../../css/main.css");
+@import url("../../css/styles.css");
 
 html, body { 
 	background: #fff;
 	text-align: left;
+	margin: 10;
 }

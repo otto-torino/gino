@@ -149,26 +149,26 @@ class Translation {
      *
      * Il metodo viene richiamato da una request ajax avviata dalla funzione javascript prepareTrlForm().
      *
-     * @see $_access_user
      * @return form inserimento traduzione
      */
     public function formTranslation() {
-         $lng_code = cleanVar($_POST, 'lng_code', 'string', '');
-         $tbl = cleanVar($_POST, 'tbl', 'string', '');
-         $field = cleanVar($_POST, 'field', 'string', '');
-         $type = cleanVar($_POST, 'type', 'string', '');
-         $id_value = cleanVar($_POST, 'id_value', 'int', '');
-         $width = cleanVar($_POST, 'width', 'string', '');
-         $fck_toolbar = cleanVar($_POST, 'fck_toolbar', 'string', '');
+         
+		$lng_code = cleanVar($_POST, 'lng_code', 'string', '');
+        $tbl = cleanVar($_POST, 'tbl', 'string', '');
+        $field = cleanVar($_POST, 'field', 'string', '');
+        $type = cleanVar($_POST, 'type', 'string', '');
+        $id_value = cleanVar($_POST, 'id_value', 'int', '');
+        $width = cleanVar($_POST, 'width', 'string', '');
+        $toolbar = cleanVar($_POST, 'toolbar', 'string', '');
 
-         $myform = loader::load('Form', array('gform', 'post', true));
+        $myform = loader::load('Form', array('gform', 'post', true));
 
         $rows = $this->_registry->db->select('text', TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
         if($rows and count($rows))
         {
             foreach($rows AS $row) {
                 if($type == 'input' || $type == 'textarea') $text = htmlInput($row['text']);
-                elseif($type == 'fckeditor') $text = htmlInputEditor($row['text']);
+                elseif($type == 'editor') $text = htmlInputEditor($row['text']);
             }
             $action = 'modify';
         }
@@ -189,9 +189,16 @@ class Translation {
         elseif($type == 'textarea') {
             $GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>$width, "rows"=>4, "id"=>'trnsl_'.$field));
         }
-        elseif($type == 'fckeditor') {
+        elseif($type == 'editor') {
             $onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', true, '$lng_code', '$action')";
-            $GINO .= $myform->editorHtml('trnsl_'.$field, $text, $fck_toolbar, '100%', 300);
+            
+            $GINO .= $myform->textarea('trnsl_'.$field, $text, array(
+            	'ckeditor' => true, 
+            	'ckeditor_toolbar' => $toolbar, 
+            	'ckeditor_container' => false, 
+            	'height' => 300, 
+            	'width' => '100%'
+            ));
         }
         $onclick = "onclick=\"$onclick\"";
         $GINO .= "</p>";
@@ -213,7 +220,7 @@ class Translation {
         if($type == 'input' || $type == 'textarea') {
             $text = cleanVar($request->POST, 'text', 'string', '');
         }
-        elseif($type == 'fckeditor') {
+        elseif($type == 'editor') {
             $text = cleanVarEditor($request->POST, 'text', '');
         }
         $lng_code = cleanVar($request->POST, 'lng_code', 'string', '');

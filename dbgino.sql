@@ -631,7 +631,7 @@ CREATE TABLE IF NOT EXISTS `page_comment` (
 
 CREATE TABLE IF NOT EXISTS `page_entry` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category_id` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
   `author` int(11) NOT NULL,
   `creation_date` datetime NOT NULL,
   `last_edit_date` datetime NOT NULL,
@@ -645,8 +645,8 @@ CREATE TABLE IF NOT EXISTS `page_entry` (
   `published` tinyint(1) NOT NULL,
   `social` tinyint(1) NOT NULL,
   `private` tinyint(1) NOT NULL,
-  `users` varchar(255) NOT NULL,
-  `read` int(11) NOT NULL,
+  `users` varchar(255) DEFAULT NULL,
+  `read` int(11) NOT NULL DEFAULT '0',
   `tpl_code` text,
   `box_tpl_code` text,
   PRIMARY KEY (`id`),
