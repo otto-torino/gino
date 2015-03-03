@@ -81,7 +81,7 @@ class PageEntry extends \Gino\Model {
         $structure['category_id'] = new \Gino\ForeignKeyField(array(
             'name'=>'category_id',
             'model'=>$this,
-            'required'=>true,
+            'required'=>false,
             'foreign'=>'\Gino\App\Page\PageCategory',
             'foreign_order'=>'name ASC',
             'add_related' => true,

@@ -100,7 +100,7 @@ class Form {
 
         $this->_input_field = 'input';
         $this->_textarea_field = 'textarea';
-        $this->_fckeditor_field = 'fckeditor';
+        $this->_editor_field = 'editor';
 
         $this->_extension_denied = array(
         	'php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin'
@@ -125,14 +125,8 @@ class Form {
      */
     private function option($opt) {
 
-        if($opt=='mode') return isset($this->_options['mode']) ? $this->_options['mode'] : "table";
-
         if($opt=='trnsl_id') return isset($this->_options['trnsl_id']) ? $this->_options['trnsl_id'] : $this->_trnsl_id;
         if($opt=='trnsl_table') return isset($this->_options['trnsl_table']) ? $this->_options['trnsl_table'] : $this->_trnsl_table;
-
-        if($opt=='fck_width') return isset($this->_options['fck_width']) ? $this->_options['fck_width'] : '100%';
-        if($opt=='fck_height') return isset($this->_options['fck_height']) ? $this->_options['fck_height'] : 300;
-        if($opt=='fck_toolbar') return isset($this->_options['fck_toolbar']) ? $this->_options['fck_toolbar'] : 'Basic';
 
         return isset($this->_options[$opt]) ? $this->_options[$opt] : null;
     }
@@ -307,37 +301,55 @@ class Form {
     /**
      * @brief Inizializza l'editor visuale CKEditor
      * 
-     * Include il file /ckeditor/ckeditor.php
-     * 
      * @param string $name
      * @param string $value
-     * @param string $toolbar
-     * @param integer $width
-     * @param integer $height
-     * @param boolean $replace
-     * @return codice inizializzazione CKEDITOR
+     * @param array $options
+     *   - @b toolbar (string): nome della toolbar
+     *   - @b width (string): larghezza dell'editor (pixel o %)
+     *   - @b height (integer): altezza dell'editor (pixel)
+     * @return string, script js
      */
-    public function editorHtml($name, $value, $toolbar, $width, $height, $replace=FALSE){
+    public function editorHtml($name, $value, $options=null){
 
-        if($width == '100%') $width = '98%';
+    	$toolbar = gOpt('toolbar', $options, null);
+    	$width = gOpt('width', $options, '100%');
+    	$height = gOpt('height', $options, 300);
+    	
+    	$height .= 'px';
+    	
+    	if(empty($value)) $value = '';
+    	if(!$toolbar) $toolbar = 'Full';
 
-        if(empty($value)) $value = '';    // Default text in editor
-
-        include(SITE_ROOT."/ckeditor/ckeditor.php");
-
-        $oCKeditor = new \CKeditor(SITE_WWW.'/ckeditor/');
-
-        $oCKeditor->returnOutput = TRUE;
-
-        $oCKeditor->config['toolbar'] = $toolbar == 'Basic' ? 'Basic' : 'Full';
-        $oCKeditor->config['contentsCss']    = SITE_CUSTOM_CKEDITOR.'/stylesheet.css';
-        $oCKeditor->config['customConfig']    = SITE_CUSTOM_CKEDITOR.'/config.js';
-        $oCKeditor->config['width']    = $width;
-        $oCKeditor->config['height'] = $height;
-
-        $output = $replace ? $oCKeditor->replace($name) : $oCKeditor->editor($name, $value);
-
-        return $output;
+        $this->_registry->addJs(SITE_WWW.'/ckeditor/ckeditor.js');
+        
+        // Replace the textarea id $name
+        $buffer = "<script>
+        CKEDITOR.replace('$name', {
+        	customConfig: '".SITE_CUSTOM_CKEDITOR."/config.js',
+        	contentsCss: '".SITE_CUSTOM_CKEDITOR."/stylesheet.css', 
+        	toolbar: '$toolbar', 
+        	width: '$width',
+        	height: '$height',
+        });
+        ";
+        
+        if($toolbar == 'Basic')
+        {
+        	$buffer .= "
+        	CKEDITOR.replace('$name', {
+				toolbarGroups: [
+				{ name: 'document',	   groups: [ 'mode', 'document' ] },
+ 				{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+ 				'/',
+ 				{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+ 				{ name: 'links' }
+				]
+        	});";
+        }
+        
+        $buffer .= "</script>";
+        
+        return $buffer;
     }
 
     /**
@@ -703,10 +715,10 @@ class Form {
      * @see self::formFieldTranslation()
      * @param string $name nome input
      * @param string $value valore attivo
-     * @param string $label testo <label>
+     * @param string $label testo del tag label
      * @param array $options
      *     array associativo di opzioni (aggiungere quelle del metodo textarea())
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
+     *     - @b classLabel (string): nome della classe del tag span nel tag label
      *     - @b text_add (string): testo aggiuntivo stampato sotto il box
      *     - @b trnsl (boolean): attiva la traduzione
      *     - @b trsnl_id (integer): valore dell'ID del record di riferimento per la traduzione
@@ -742,11 +754,13 @@ class Form {
     /**
      * @brief Textarea
      *
+     * @see imagePreviewer()
+     * @see editorHtml()
      * @param string $name nome input
      * @param string $value valore attivo
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): valore ID del tag
+     * @param array $options array associativo di opzioni
+     *     opzioni del textarea
+     *     - @b id (string): valore della proprietà id del tag
      *     - @b required (boolean): campo obbligatorio
      *     - @b classField (string): nome della classe del tag
      *     - @b rows (integer): numero di righe
@@ -754,95 +768,120 @@ class Form {
      *     - @b readonly (boolean): campo di sola lettura
      *     - @b js (string): javascript
      *     - @b other (string): altro nel tag
-     *     - @b maxlength (integer): numero massimo di caratteri consentiti
-     * @return widget html
-     */
-    public function textarea($name, $value, $options){
-
-        $this->setOptions($options);
-        $GFORM = "<textarea name=\"$name\" ";
-        $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-        $GFORM .= $this->option('required') ? "required=\"required\" ":"";
-        $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $GFORM .= $this->option('rows')?"rows=\"{$this->option('rows')}\" ":"";
-        $GFORM .= $this->option('cols')?"cols=\"{$this->option('cols')}\" ":"";
-        $GFORM .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-        $GFORM .= $this->option('js')?$this->option('js')." ":"";
-        $GFORM .= $this->option('other')?$this->option('other')." ":"";
-
-        $GFORM .= ">";
-        $GFORM .= "$value</textarea>";
-
-        if(isset($options['helptext'])) {
-            $title = $options['helptext']['title'];
-            $text = $options['helptext']['text'];
-            $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-        }
-
-        if($this->option('maxlength') AND $this->option('maxlength') > 0)
-        {
-            // Limite caratteri con visualizzazione del numero di quelli restanti
-            $GFORM .= $this->jsCountCharText();
-            $GFORM .= "<script type=\"text/javascript\" language=\"javascript\">initCounter($$('#$this->_formId textarea[name=$name]')[0], {$this->option('maxlength')})</script>";
-        }
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief CKEditor textarea con label
-     * 
-     * @see self::formFieldTranslation()
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param string $label testo del tag label
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b style1 (string): stile del tag label
-     *     - @b style2 (string): stile del tag p
+     *     - @b maxlength (integer): numero massimo di caratteri consentiti \n
+     *     - @b helptext (array)
+     *       - @a title
+     *       - @a text
+     *     opzioni del tag label
+     *     - @b classLabel (string): nome della classe del tag label \n
+     *     opzioni dell'editor html
+     *     - @b label (string): label
+     *     - @b ckeditor (boolean): attiva l'editor html
+     *     - @b ckeditor_toolbar (string): nome della toolbar dell'editor html
+     *     - @b ckeditor_container (boolean): racchiude l'input editor in un contenitore div
+     *     - @b width (string): larghezza dell'editor (pixel o %)
+     *     - @b height (integer): altezza dell'editor (pixel)
      *     - @b notes (boolean): mostra le note
-     *     - @b fck_toolbar (string): toolbarset (Basic, Full)
-     *     - @b fck_width (string): larghezza(%)
-     *     - @b fck_height (integer): altezza (pixel)
-     *     - @b img_preview (boolean): mostrare o meno il browser di immagini di sistema
-     *     - @b mode (string): tipologia di contenitore (table, div)
+     *     - @b img_preview (boolean): mostra il browser di immagini di sistema
+     *     - @b text_add (boolean): testo aggiuntivo
      *     - @b trnsl (boolean): attiva la traduzione
      *     - @b trnsl_table (string): nome della tabella con il campo da tradurre
      *     - @b trnsl_id (integer): valore dell'ID del record di riferimento per la traduzione
      *     - @b field (string): nome del campo con il testo da tradurre
-     * @return codice html riga form, editor + label
+     * @return string, codice html
      */
-    public function fcktextarea($name, $value, $label, $options){
+    public function textarea($name, $value, $options){
 
-        $this->setOptions($options);
-
-        $text_note = '';
-        if($this->option('notes')) {
-            $ico_plain_text = "<img src=\"".SITE_IMG."/fck_pastetext.gif\" alt=\"paste as plain text\" />";
-            $ico_image = "<img src=\"".SITE_IMG."/fck_image.gif\" alt=\"insert image\" />";
-
-            $text_note .= "[Enter] "._("inserisce un &lt;p&gt;");
-            $text_note .= " - [Shift+Enter] "._("inserisce un &lt;br&gt;");
+        $ckeditor = gOpt('ckeditor', $options, false);
+        $id = gOpt('id', $options, null);
+        
+        if($ckeditor && !$id) $id = $name;
+        
+    	$this->setOptions($options);
+    	
+    	$buffer = '';
+    	
+        $textarea = "<textarea name=\"$name\" ";
+        $textarea .= $id ? "id=\"$id\" " : "";
+        $textarea .= $this->option('required') ? "required=\"required\" ":"";
+        $textarea .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
+        $textarea .= $this->option('rows')?"rows=\"{$this->option('rows')}\" ":"";
+        $textarea .= $this->option('cols')?"cols=\"{$this->option('cols')}\" ":"";
+        $textarea .= $this->option('readonly')?"readonly=\"readonly\" ":"";
+        $textarea .= $this->option('js')?$this->option('js')." ":"";
+        $textarea .= $this->option('other')?$this->option('other')." ":"";
+        $textarea .= ">";
+        $textarea .= "$value</textarea>";
+        
+        if($ckeditor)
+        {
+        	$label = gOpt('label', $options, null);
+        	$notes = gOpt('notes', $options, false);
+        	$ckeditor_toolbar = gOpt('ckeditor_toolbar', $options, null);
+        	$ckeditor_container = gOpt('ckeditor_container', $options, true);
+        	$width = gOpt('width', $options, null);
+        	$height = gOpt('height', $options, null);
+        	
+        	if($ckeditor_container)
+        	{
+        		$text_note = '';
+        		if($notes) {
+        			$ico_plain_text = "<img src=\"".SITE_IMG."/fck_pastetext.gif\" alt=\"paste as plain text\" />";
+        			$ico_image = "<img src=\"".SITE_IMG."/fck_image.gif\" alt=\"insert image\" />";
+        		
+        			$text_note .= "[Enter] "._("inserisce un &lt;p&gt;");
+        			$text_note .= " - [Shift+Enter] "._("inserisce un &lt;br&gt;");
+        		}
+        		
+        		$buffer .= "<div class=\"form-row\">";
+        		$buffer .= "<div class=\"form-ckeditor\">\n";
+        		$buffer .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
+        		if($text_note) $buffer .= "<div>".$text_note."</div>";
+        		if($this->option('img_preview')) $buffer .= $this->imagePreviewer();
+        	}
+        	
+        	$buffer .= $textarea;
+        	
+        	$buffer .= $this->editorHtml($name, $value, array('toolbar'=>$ckeditor_toolbar, 'width'=>$width, 'height'=>$height));
+        	
+        	if($ckeditor_container)
+        	{
+        		if($this->option('trnsl') AND $this->_multi_language) {
+        			if($this->option('trnsl_id'))
+        				$buffer .= "<div class=\"form-trnsl\">".$this->formFieldTranslation(
+        					$this->_editor_field, 
+        					$this->option('trnsl_table'), 
+        					$this->option('field'), 
+        					$this->option('trnsl_id'), 
+        					$width, 
+        					$ckeditor_toolbar
+        				)."</div>";
+        		}
+        		
+        		if($this->option('text_add')) $buffer .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
+        		$buffer .= "</div>\n";
+        		$buffer .= "</div>\n";
+        	}
         }
+        else 
+        {
+        	$buffer .= $textarea;
+        	
+        	if(isset($options['helptext'])) {
+            	$title = $options['helptext']['title'];
+           		$text = $options['helptext']['text'];
+            	$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+        	}
 
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= "<div class=\"form-ckeditor\">\n";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
-        if($text_note) $GFORM .= "<div>".$text_note."</div>";
-        if($this->option('img_preview')) $GFORM .= $this->imagePreviewer();
-        $GFORM .= $this->editorHtml($name, $value, $this->option('fck_toolbar'), $this->option('fck_width'), $this->option('fck_height'));
-
-        if($this->option('trnsl') AND $this->_multi_language) {
-            if($this->option('trnsl_id'))
-                $GFORM .= "<div class=\"form-trnsl\">".$this->formFieldTranslation($this->_fckeditor_field, $this->option('trnsl_table'), $this->option('field'), $this->option('trnsl_id'), $this->option('fck_width'), $this->option('fck_toolbar'))."</div>";
+        	if($this->option('maxlength') AND $this->option('maxlength') > 0)
+        	{
+            	// Limite caratteri con visualizzazione del numero di quelli restanti
+            	$buffer .= $this->jsCountCharText();
+            	$buffer .= "<script type=\"text/javascript\" language=\"javascript\">initCounter($$('#$this->_formId textarea[name=$name]')[0], {$this->option('maxlength')})</script>";
+        	}
         }
-
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>\n";
-        $GFORM .= "</div>\n";
-
-        return $GFORM;
+        
+        return $buffer;
     }
 
     /**
@@ -2027,7 +2066,7 @@ class Form {
     /**
      * @brief Interfaccia che apre o chiude il form per l'inserimento e la modifica delle traduzioni
      * 
-     * Viene richiamato nei metodi della classe Gino.Form: cinput(), ctextarea(), fcktextarea()
+     * Viene richiamato nei metodi della classe Gino.Form: cinput(), ctextarea(), textarea()
      * 
      * @see gino-min.js
      * @param string $type tipologia di input (input, textarea, fckeditor)
@@ -2035,10 +2074,10 @@ class Form {
      * @param string $field nome del campo con il testo da tradurre
      * @param integer $id_value valore dell'ID del record di riferimento per la traduzione
      * @param integer $width lunghezza del tag input o numero di colonne (textarea)
-     * @param string $fck_toolbar nome della toolbar dell'editor html
+     * @param string $toolbar nome della toolbar dell'editor html
      * @return codice html interfaccia
      */
-    private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $fck_toolbar='') {
+    private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $toolbar='') {
 
         Loader::import('language', 'Lang');
 
@@ -2046,9 +2085,8 @@ class Form {
 
         if(empty($id_name)) $id_name = 'id';
 
-        $langs = \Gino\App\Language\Lang::objects(array(
-            null,
-            'where' => "main='0' AND active='1'"
+        $langs = \Gino\App\Language\Lang::objects(null, array(
+            'where' => "active='1' AND id != '".$this->_registry->sysconf->dft_language."'"
         ));
         if($langs)
         {
@@ -2056,8 +2094,8 @@ class Form {
             foreach($langs AS $lang) {
                 $label = htmlChars($lang->label);
                 $code = $lang->language_code.'_'.$lang->country_code;
-                $GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$fck_toolbar', '".$this->_registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
-                $first = FALSE; 
+                $GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$toolbar', '".$this->_registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
+                $first = FALSE;
             }
             $GINO .= " &nbsp; <span id=\"".$tbl.$field."\"></span>\n";
         }
