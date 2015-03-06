@@ -22,7 +22,9 @@ define("DEBUG", TRUE);
  * @brief Amministratori sistema
  * @description Ricevono notifiche di errori di sistema. Il valore deve essere necessariamente un array serializzato
  */
-define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@otto.to.it')));// Parametri del database
+define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@otto.to.it')));
+
+// Database
 
 /**
  * Tipo di database
