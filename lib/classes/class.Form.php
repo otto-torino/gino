@@ -320,7 +320,7 @@ class Form {
     	if(empty($value)) $value = '';
     	if(!$toolbar) $toolbar = 'Full';
 
-        $this->_registry->addJs(SITE_WWW.'/ckeditor/ckeditor.js');
+        $this->_registry->addCustomJs(SITE_WWW.'/ckeditor/ckeditor.js', array('compress'=>false, 'minify'=>false));
         
         // Replace the textarea id $name
         $buffer = "<script>
@@ -826,9 +826,6 @@ class Form {
         	{
         		$text_note = '';
         		if($notes) {
-        			$ico_plain_text = "<img src=\"".SITE_IMG."/fck_pastetext.gif\" alt=\"paste as plain text\" />";
-        			$ico_image = "<img src=\"".SITE_IMG."/fck_image.gif\" alt=\"insert image\" />";
-        		
         			$text_note .= "[Enter] "._("inserisce un &lt;p&gt;");
         			$text_note .= " - [Shift+Enter] "._("inserisce un &lt;br&gt;");
         		}
