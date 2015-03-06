@@ -413,7 +413,6 @@ function htmlChars($string, $id='', $options=array())
     $string = str_replace ('&bull;', '•', $string);
     $string = str_replace ('&', '&amp;', $string);	// CSS2
     $string = str_replace ('\'', '&#039;', $string);
-    $string = preg_replace("/:/", "&#58;", $string);
 
     if($newline)
         $string = nl2br($string);

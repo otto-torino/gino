@@ -243,13 +243,16 @@ class InputForm {
      * @param string $name
      * @param mixed $value
      * @param string $label
-     * @param array $options opzioni del metodo fcktextarea() della classe Form
+     * @param array $options opzioni del metodo Form::textarea()
      * @return widget html
      */
     public function editor($name, $value, $label, $options=array()) {
 
         $value = $this->_form->retvar($name, htmlInputEditor($value));
 
-        return $this->_form->fcktextarea($name, $value, $label, $options);
+        $options['ckeditor'] = true;
+        $options['label'] = $label;
+        
+        return $this->_form->textarea($name, $value, $options);
     }
 }

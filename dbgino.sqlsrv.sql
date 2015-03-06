@@ -614,7 +614,7 @@ CREATE TABLE page_comment (
 
 CREATE TABLE page_entry (
   id int IDENTITY(1, 1),
-  category_id int NOT NULL,
+  category_id int DEFAULT NULL,
   author int NOT NULL,
   creation_date datetime NOT NULL,
   last_edit_date datetime NOT NULL,
@@ -628,8 +628,8 @@ CREATE TABLE page_entry (
   published tinyint NOT NULL,
   social tinyint NOT NULL,
   private tinyint NOT NULL,
-  users nvarchar(255) NOT NULL,
-  [read] int NOT NULL,
+  users nvarchar(255) DEFAULT NULL,
+  [read] int NOT NULL DEFAULT '0',
   tpl_code text,
   box_tpl_code text,
   PRIMARY KEY (id)
