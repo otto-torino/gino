@@ -114,7 +114,7 @@ class View {
         ob_start();
         include($this->_view_tpl);
         $buffer .= ob_get_contents();
-        ob_clean();
+        ob_end_clean();
 
         return $buffer;
     }
