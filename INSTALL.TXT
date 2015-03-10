@@ -1,7 +1,76 @@
 
 --------------------------------------------------------
-INSTALLAZIONE
+ENGLISH
 --------------------------------------------------------
+
+## INSTALLATION ##
+
+The installation process includes the following steps:
+
+1) Unzip the site in the web DocumentRoot
+
+2) Import the database (dbgino.sql)
+
+- Use a special program (eg phpMyAdmin)
+- from the shell:
+# mysqladmin -h localhost -u root -p create dbname
+# mysql -u root -p dbname <dbgino.sql
+
+In the database insert the function 'replace_ci':
+
+DELIMITER $$
+
+DROP FUNCTION IF EXISTS `replace_ci`$$
+CREATE FUNCTION `replace_ci` ( str TEXT,needle CHAR(255),str_rep CHAR(255))
+RETURNS TEXT
+DETERMINISTIC
+BEGIN
+DECLARE return_str TEXT;
+SELECT replace(lower(str),lower(needle),str_rep) INTO return_str;
+RETURN return_str;
+END$$
+
+DELIMITER ;
+
+3) Set basic parameters of the site in the file 'configuration.php'
+
+- database parameters: DB_HOST, DB_PORT, DB_DBNAME, DB_USER, DB_PASSWORD
+- other parameters: SESSION_NAME, MAX_FILE_SIZE
+
+4) Make sure that the directories within which the application automatically creates other directories or create or edit files through the web interface, possess the proper permissions.
+The type of permissions to be set varies in relation to users and groups of owners directory. In general, if the user and group are the same web server (on debian www-data: www-data) just set [755], while in other cases [777].
+The sub-directories created by the application directly take the correct permissions.
+
+- Temporary directory (for the management of upload). On Unix systems this is usually /tmp (777).
+- Directory of contents (contents/directory/).
+- Directory of templates (templates).
+- Directory of css (css).
+
+In the case of the transfer of a site is necessary to check the permissions of the 'page' sub-directories, so that the structure of the pages is the following:
+contents/		page/			id/		file
+755 (775)		755 (777)		755		644
+contents:	www-data.www-data
+to follow:	www-data.www-data
+
+## GETTING STARTED ##
+
+Accedere a gino digitando sulla barra del browser l'indirizzo dell'applicazione, ad esempio http://localhost/gino.
+
+Prendendo a riferimento l'esempio precedente, per accedere all'area amministrativa digitare: http://localhost/gino/admin.
+In gino è presente un utente amministratore predefinito con i parametri:
+
+Access to gino typing on the browser bar the application address, such as http://localhost/gino.
+
+With reference to the previous example, to access the administrative area type http://localhost/gino/admin.
+The parameters of the default user administrator are:
+- username: amministratore
+- password: admin12
+
+--------------------------------------------------------
+ITALIANO
+--------------------------------------------------------
+
+## INSTALLAZIONE ##
 
 La procedura di installazione prevede i seguenti passaggi:
 
@@ -14,7 +83,7 @@ La procedura di installazione prevede i seguenti passaggi:
 # mysqladmin -h localhost -u root -p create dbname
 # mysql -u root -p dbname < dbgino.sql
 
-Nel database inserire la funzione 'replace_ci' utilizzata dal file lib/class.search.php:
+Nel database inserire la funzione 'replace_ci':
 
 DELIMITER $$
 
@@ -35,23 +104,26 @@ DELIMITER ;
 - parametri database: DB_HOST, DB_PORT, DB_DBNAME, DB_USER, DB_PASSWORD
 - altri parametri: SESSION_NAME, MAX_FILE_SIZE
 
-5) Verificare che le directory all'interno delle quali l'applicazione crea automaticamente altre directory oppure crea o modifica file attraverso l’interfaccia web, possiedano i permessi adeguati.
+4) Verificare che le directory all'interno delle quali l'applicazione crea automaticamente altre directory oppure crea o modifica file attraverso l’interfaccia web, possiedano i permessi adeguati.
 La tipologia di permessi da impostare varia in riferimento agli utenti e ai gruppi proprietari delle directory. In generale nel caso in cui l'utente e il gruppo siano gli stessi del server web (su debian www-data:www-data) è sufficiente impostare [755], mentre negli altri casi [777].
 Le sotto-directory create dall'applicativo prenderanno direttamente i permessi corretti.
 
-- Directory temporanea (per la gestione degli upload). Suoi sistemi *nix è generalmente /tmp: [777].
+- Directory temporanea (per la gestione degli upload). Sui sistemi *nix è generalmente /tmp (777).
 - Directory dei contenuti (contents/directory/).
 - Directory dei template (templates).
-- Directory dei css (css), in particolare i file main.css e admin.css.
+- Directory dei css (css).
 
 Nel caso del trasferimento di un sito occorre verificare i permessi delle sotto-directory di 'page', di modo che la struttura delle pagine sia la seguente:
 contents/		page/			id/		file
 755 (775)		755 (777)		755		644
-contents:	www-site.www-data
+contents:	www-data.www-data
 a seguire:	www-data.www-data
 
---------------------------------------------------------
-UTENTE DI DEFAULT
---------------------------------------------------------
+## GETTING STARTED ##
 
-amministratore|admin12
+Accedere a gino digitando sulla barra del browser l'indirizzo dell'applicazione, ad esempio http://localhost/gino.
+
+Prendendo a riferimento l'esempio precedente, per accedere all'area amministrativa digitare: http://localhost/gino/admin.
+I parametri dell'utente amministratore predefinito sono:
+- username: amministratore
+- password: admin12

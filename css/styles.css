@@ -8401,6 +8401,10 @@ input[type=button]:hover {
 #filter_form_layer h2 {
   margin-top: 0;
 }
+.navbar-language {
+  float: left;
+  margin-top: 25px;
+}
 #phpModuleView_topbar {
   padding: 0;
 }
