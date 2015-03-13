@@ -100,9 +100,9 @@ class User extends \Gino\Model {
 
         $nations = array();
         $lang_nation = $this->getLanguageNation();
-        $rows = $this->_db->select('id, '.$lang_nation, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
+        $rows = $this->_db->select('id, '.$lang_nation, TBL_NATION, null, array('order' => $lang_nation.' ASC'));
         foreach($rows as $row) {
-            $nations[$row['id']] = \Gino\htmlChars($row[$this->_lng_nav]);
+            $nations[$row['id']] = \Gino\htmlChars($row[$lang_nation]);
         }
 
         $structure['nation'] = new \Gino\EnumField(array(
