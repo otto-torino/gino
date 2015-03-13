@@ -8401,6 +8401,17 @@ input[type=button]:hover {
 #filter_form_layer h2 {
   margin-top: 0;
 }
+.navbar-language {
+  float: left;
+  margin-top: 25px;
+}
+@media (max-width: 768px) {
+  .navbar-language {
+    float: none;
+    clear: both;
+    margin-top: 0px;
+  }
+}
 #phpModuleView_topbar {
   padding: 0;
 }

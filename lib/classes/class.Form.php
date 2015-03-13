@@ -277,7 +277,7 @@ class Form {
         $GFORM .= ">\n";
 
         if($list_required) {
-            $GFORM .= _("<p class=\"form-info\">I campi in grassetto sono obbligatori.</p>");
+            $GFORM .= "<p class=\"form-info\">"._("I campi in grassetto sono obbligatori.")."</p>";
         }
 
         if(isset($options['generateToken']) && $options['generateToken']) 

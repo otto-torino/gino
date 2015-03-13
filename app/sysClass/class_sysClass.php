@@ -926,7 +926,7 @@ class sysClass extends \Gino\Controller {
         $buffer .= "<ul>";
         $buffer .= "<li>"._("file con le query delle tabelle (es. news.sql); se non è presente è necessario eseguire le query a mano successivamente. Il nome del file deve corrispondere al nome della classe.")."</li>";
         $buffer .= "<li>"._("file css (es. news.css)")."</li>";
-        $buffer .= "<li>"._("altri file di complemento (es. class_newsItem.php)")."</li>";
+        $buffer .= "<li>"._("altri file di complemento (es. class.Item.php)")."</li>";
         $buffer .= "</ul>";
 
         $view = new View();

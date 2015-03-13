@@ -239,7 +239,7 @@ class graphics extends \Gino\Controller {
             $sel_link = $link_views;
         }
         else {
-            $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+            $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.")."</p>";
             $info .= "<p>"._("Una sola lingua può essere principale, ed è in quella lingua che avviene l'inserimento dei contenuti e la visualizzazione in assenza di traduzioni.")."</p>\n";
 
             $opts = array(

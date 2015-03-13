@@ -315,7 +315,7 @@ class layout extends \Gino\Controller {
             $buffer .= $view_table->render();
         }
         else {
-            $buffer = "<p>"._("Non risultano skin registrati")."</p>\n";
+            $buffer = "<p>"._("Non risultano skin registrate")."</p>\n";
         }
 
         $view = new View();
