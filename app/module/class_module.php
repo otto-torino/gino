@@ -60,14 +60,7 @@ class module extends \Gino\Controller {
         $action = \Gino\cleanVar($request->GET, 'action', 'string', null);
 
         if($request->checkGETKey('trnsl', '1')) {
-            if($request->checkGETKey('save', 1)) {
-                $res = $this->_trd->actionTranslation();
-                $content = $res ? _("operazione riuscita") : _("errore nella compilazione");
-                return new Response($content);
-            }
-            else {
-                return new Response($this->_trd->formTranslation());
-            }
+        	return $this->_trd->manageTranslation($request);
         }
         elseif($action == 'insert') {
             $backend = $this->formModule($module);
@@ -271,7 +264,7 @@ class module extends \Gino\Controller {
         $GINO .= $gform->ctextarea('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
         $GINO .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
-
+        
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(

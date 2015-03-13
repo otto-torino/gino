@@ -177,7 +177,7 @@ class attachment extends \Gino\Controller {
             array(
                 'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date', array('label' => _('URL relativo'), 'member' => 'pathView'), array('label' => _('URL download'), 'member' => 'pathDownload'), array('label' => '', 'member' => 'previewAdminList')),
                 'list_title' => _("Elenco files"),
-                'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne efettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
+                'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne effettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
                 'filter_fields' => array('category', 'notes')
             ),
             array(),

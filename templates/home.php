@@ -38,11 +38,11 @@
           </button>
           <a class="navbar-brand" href="#"><img src="img/logo.png" style="width: 109px; height: 50px;" /></a>
         </div>
+        <div class="navbar-language">
+          {module sysclassid=2 func=choiceLanguage}
+        </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="menu-main-container">
-          <div class="navbar-language">
-            {module sysclassid=2 func=choiceLanguage}
-          </div>
           {module classid=4 func=render}
         </div><!-- /.navbar-collapse -->
       </div>

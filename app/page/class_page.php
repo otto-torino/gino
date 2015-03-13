@@ -262,7 +262,7 @@ class page extends \Gino\Controller {
                 'section'=>true,
                 'section_title'=>_('Opzioni newsletter'),
                 'section_description'=> $newsletter_module
-                    ? "<p>"._('La classe si interfaccia al modulo newsletter di GINO installato sul sistema')."</p>"
+                    ? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
                     : "<p>"._('Il modulo newsletter non è installato')."</p>",
             ),
             "newsletter_tpl_code"=>array(
