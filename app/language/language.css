@@ -9,9 +9,15 @@
     list-style-type: none;
     display: inline-block;
 }
+.language-choice a:link, .language-choice a:visited {
+	color: #999999;
+}
+.language-choice a:hover {
+	color: #FFF;
+}
 .language-choice .active {
     cursor: auto;
-    color: #000 !important;
+    color: #FFF !important;
     text-decoration: none !important;
 }
 .language-choice .active img {

@@ -756,7 +756,7 @@ CREATE TABLE sys_conf (
 SET IDENTITY_INSERT sys_conf ON
 
 INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache) VALUES
-(1, 1, 2, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
+(1, 1, 1, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
 
 SET IDENTITY_INSERT sys_conf OFF
 

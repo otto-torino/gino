@@ -78,18 +78,21 @@ class Compressor {
             $script = '';
             foreach($this->_js as $js_rel_path) {
                 $js_path = absolutePath($js_rel_path);
-                if($minify) {
-                    // potrebbero esserci errori nella minificazione di librerie esterne
-                    try {
-                        $js = $this->minifyJs(file_get_contents($js_path));
-                    }
-                    catch(\Exception $e) {
-                        $js = file_get_contents($js_path);
-                    }
-                    $script .= $js;
-                }
-                else {
-                    $script .= file_get_contents($js_path);
+                if(is_file($js_path))
+                {
+                	if($minify) {
+                    	// potrebbero esserci errori nella minificazione di librerie esterne
+                    	try {
+                        	$js = $this->minifyJs(file_get_contents($js_path));
+                    	}
+                    	catch(\Exception $e) {
+                        	$js = file_get_contents($js_path);
+                    	}
+                    	$script .= $js;
+                	}
+                	else {
+                    	$script .= file_get_contents($js_path);
+                	}
                 }
             }
             file_put_contents($this->filePath('js', $paths_string), $script);
@@ -121,9 +124,12 @@ class Compressor {
             $style = '';
             foreach($this->_css as $css_rel_path) {
                 $css_path = absolutePath($css_rel_path);
-                $style .= $minify 
-                    ? $this->minifyCss($this->moveCss($css_path, $this->filePath('css', $paths_string), file_get_contents($css_path))) 
-                    : $this->moveCss($css_path, $this->filePath('css', $paths_string), file_get_contents($css_path));
+                if(is_file($css_path))
+                {
+                	$style .= $minify 
+                    	? $this->minifyCss($this->moveCss($css_path, $this->filePath('css', $paths_string), file_get_contents($css_path))) 
+                    	: $this->moveCss($css_path, $this->filePath('css', $paths_string), file_get_contents($css_path));
+                }
             }
             file_put_contents($this->filePath('css', $paths_string), $style);
         }
@@ -155,6 +161,8 @@ class Compressor {
      * @return path
      */
     private function filePath($type, $paths_string) {
+    	
+    	if(!is_dir(CACHE_DIR.OS.$type)) mkdir(CACHE_DIR.OS.$type);
         return CACHE_DIR.OS.$type.OS.$paths_string.'.min.'.$type;
     }
 
