@@ -99,9 +99,10 @@ class User extends \Gino\Model {
         ));
 
         $nations = array();
-        $rows = $this->_db->select('id, '.$this->_lng_nav, TBL_NATION, null, array('order' => $this->_lng_nav.' ASC'));
+        $lang_nation = $this->getLanguageNation();
+        $rows = $this->_db->select('id, '.$lang_nation, TBL_NATION, null, array('order' => $lang_nation.' ASC'));
         foreach($rows as $row) {
-            $nations[$row['id']] = \Gino\htmlChars($row[$this->_lng_nav]);
+            $nations[$row['id']] = \Gino\htmlChars($row[$lang_nation]);
         }
 
         $structure['nation'] = new \Gino\EnumField(array(
@@ -161,6 +162,27 @@ class User extends \Gino\Model {
         ));
 
         return $structure;
+     }
+     
+     /**
+      * Codice lingua per l'elenco nazioni nella tabella nation
+      * 
+      * @return string
+      */
+     private function getLanguageNation() {
+     	
+     	$lang = array('it_IT', 'en_US', 'fr_FR');
+     	$lang_default = $lang[1];
+     	
+     	if(!in_array($this->_lng_nav, $lang))
+     	{
+     		$lang_nation = in_array($this->_lng_dft, $lang) ? $this->_lng_dft : $lang_default;
+     	}
+     	else
+     	{
+     		$lang_nation = $lang_default;
+     	}
+     	return $lang_nation;
      }
 
      /**

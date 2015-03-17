@@ -205,9 +205,9 @@ class Locale extends Singleton {
                 $session->lng = $user_language ? $user_language : '';
             }
 
-            if(isset($_GET["lng"]))
+            if(preg_match("#[?&]lng=(\w\w_\w\w)(&.*)?$#", $_SERVER['REQUEST_URI'], $matches))
             {
-                $session->lng = $_GET["lng"];
+                $session->lng = $matches[1];
             }
             elseif($session->lng == '')
             {

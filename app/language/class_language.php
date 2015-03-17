@@ -150,7 +150,7 @@ class language extends \Gino\Controller {
      */
     private function manageLang(\Gino\Http\Request $request) {
 
-        $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.</p>");
+        $info = "<p>"._("Elenco di tutte le lingue supportate dal sistema, attivare quelle desiderate.")."</p>";
         $info .= "<p>"._("L'inserimento dei contenuti e la visualizzazione in assenza di traduzioni avviene nella lingua di default impostata nella sezione 'Impostazioni di sistema'.")."</p>\n";
 
         $opts = array(

@@ -400,7 +400,7 @@ class menu extends \Gino\Controller {
             $i++;
         }
 
-        $content = $res ? _("Odrinamento effettuato con successo") : _("Ordinamento non effettuato");
+        $content = $res ? _("Ordinamento effettuato con successo") : _("Ordinamento non effettuato");
 
         return new Response($content);
     }

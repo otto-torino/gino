@@ -60,7 +60,7 @@ class Conf extends \Gino\Model {
    */
   function __toString() {
 
-    return _('Configurazione Gino');
+    return _('Configurazione gino');
   }
 
   /**
