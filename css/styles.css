@@ -8579,3 +8579,19 @@ body > footer .signature {
   bottom: 10px;
   right: 20px;
 }
+/* Choice page */
+.paginator .column-left {
+  float: left;
+  width: 33%;
+  text-align: left;
+}
+.paginator .column-right {
+  float: right;
+  width: 33%;
+  text-align: right;
+}
+.paginator .column-center {
+  display: inline-block;
+  width: 33%;
+  text-align: center;
+}
