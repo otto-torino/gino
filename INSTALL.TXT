@@ -1,4 +1,8 @@
 
+Languages:
+- English
+- Italian
+
 --------------------------------------------------------
 ENGLISH
 --------------------------------------------------------
@@ -63,7 +67,7 @@ Access to gino typing on the browser bar the application address, such as http:/
 
 With reference to the previous example, to access the administrative area type http://localhost/gino/admin.
 The parameters of the default user administrator are:
-- username: amministratore
+- username: admin
 - password: admin12
 
 --------------------------------------------------------
@@ -125,5 +129,5 @@ Accedere a gino digitando sulla barra del browser l'indirizzo dell'applicazione,
 
 Prendendo a riferimento l'esempio precedente, per accedere all'area amministrativa digitare: http://localhost/gino/admin.
 I parametri dell'utente amministratore predefinito sono:
-- username: amministratore
+- username: admin
 - password: admin12

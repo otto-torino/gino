@@ -174,13 +174,26 @@ class Paginator {
     /**
      * @brief Codice html completo della paginazione
      * @description Include la navigazione ed il sommario
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b summary_label (string): label del sommario
+     *   - @b gotopage (array): parametri dell'interfaccia di invio a una pagina specifica
+     *     - @a view (boolean), indica se mostrare l'interfaccia
+     *     - parametri del metodo goToPage()
      * @return codice html paginazione
      */
-    public function pagination() {
-        $view = new \Gino\View(null, 'paginator_pagination');
+    public function pagination($options=null) {
+        
+    	$summary_label = gOpt('summary_label', $options, null);
+    	$gotopage = gOpt('gotopage', $options, null);
+    	
+    	$view = new \Gino\View(null, 'paginator_pagination');
         return $view->render(array(
             'summary' => $this->summary(),
-            'navigator' => $this->navigator()
+        	'summary_label' => $summary_label,
+            'navigator' => $this->navigator(), 
+        	'gotopage' => (is_array($gotopage) && array_key_exists('view', $gotopage) && $gotopage['view']) ? $this->goToPage($gotopage) : null
         ));
     }
 
@@ -196,4 +209,67 @@ class Paginator {
         return $registry->router->transformPathQueryString(array('p' => $p));
     }
 
+    /**
+     * Interfaccia di invio a una pagina specifica
+     *
+     * @param string $url indirizzo da richiamare
+     * @param array $opt
+     *   array associativo di opzioni
+     *   - @b url (string): indirizzo della pagina
+     *   - @b label (string): testo da anteporre all'input (se la chiave non esiste viene mostrato un testo di default)
+     *   - @b add_params (mixed): variabili da aggiungere all'indirizzo
+     *     - string, es. p1=var1&p2=var2
+     *     - array, nel formato parametro=>valore
+     * @return string
+     */
+    public function goToPage($opt=null) {
+    
+		$url = gOpt('url', $opt, $_SERVER['REQUEST_URI']);
+    	$add_params = gOpt('add_params', $opt, null);
+    	$label = array_key_exists('label', $opt) ? $opt['label'] : _("Pag.");
+    	
+    	$buffer = '';
+    	
+    	if($this->_pages_number > 1)
+    	{
+    		$icon = "<span class=\"icon glyphicon glyphicon-circle-arrow-right icon-tooltip\" title=\""._("indicare il numero di pagina")."\"></span>";
+    		
+    		$vars = '';
+    		if(is_array($add_params) && count($add_params)) {
+    			foreach($add_params as $k=>$v) {
+    				if(is_array($v))
+    					foreach($v as $vv) $vars .= "&".$k."[]=".$vv;
+    				else $vars .= "&$k=".addslashes($v);
+    			}
+    			$vars = substr($vars, 1);
+    		}
+    		elseif(is_string($add_params) && $add_params) {
+    			$vars = $add_params;
+    		}
+    		
+    		if($vars)
+    		{
+    			$url .= '?'.$vars;
+    			$param_start = '&p';
+    		}
+    		else
+    		{
+    			$param_start = '?p';
+    		}
+    		
+    		$url = preg_replace("#[\?|&]?p=[^&]*#", "", $url);
+    
+    		if($label) $buffer .= $label.' ';
+    		$buffer .= "<input type=\"text\" class=\"no-check no-focus-padding\" name=\"gopage\" id=\"gopage\" value=\"\" size=\"2\" />";
+    
+    		$onclick = "if($('gopage').getProperty('value') == '') return null; var p = $('gopage').getProperty('value');
+    		if(p > $this->_pages_number) p = $this->_pages_number;
+    		var s = (p-1)*".$this->_items_for_page.";
+			window.location.href = '".$url.$param_start."='+s;";
+    		
+    		$buffer .= " <span class=\"link\" onclick=\"$onclick\">".$icon."</span>";
+    	}
+    
+    	return $buffer;
+    }
 }
