@@ -159,6 +159,9 @@ class auth extends \Gino\Controller {
                 'activation_email_message.php' => _('Messaggio della mail inviata per conferma attivazione'),
                 'profile.php' => _('Profilo utente'),
                 'activate_profile.php' => _('Attivazione profilo per utente già registrato'),
+                'data_recovery_request.php' => _('Richiesta di recupero credenziali'),
+                'data_recovery_request_processed.php' => _('Processing richiesta di recupero credenziali'),
+                'data_recovery_success.php' => _('Successo richiesta di recupero credenziali'),
             ),
             "folderStructure"=>array (
                 CONTENT_DIR.OS.'user'=> null
@@ -294,7 +297,7 @@ class auth extends \Gino\Controller {
             // add_information validation
             if($profile->add_information) {
                 $app = $profile->informationApp();
-                $result = $app->actionAuthRegistration($formobj);
+                $result = $app->actionAuthRegistration($request, $formobj);
                 if($result !== TRUE) {
                     return \Gino\Error::errorMessage(array('error' => $result), $error_redirect);
                 }
@@ -433,7 +436,7 @@ class auth extends \Gino\Controller {
             // add_information validation
             if($profile->add_information) {
                 $app = $profile->informationApp();
-                $result = $app->actionAuthRegistration($formobj);
+                $result = $app->actionAuthRegistration($request, $formobj);
                 if($result !== TRUE) {
                     return \Gino\Error::errorMessage(array('error' => $result), $error_redirect);
                 }
@@ -1823,4 +1826,100 @@ class auth extends \Gino\Controller {
         $document = new \Gino\Document($view->render($dict));
         return $document();
     }
+
+    /**
+     * Pagina di recupero username e password
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Response
+     */
+    public function dataRecovery(\Gino\Http\Request $request)
+    {
+        $code = \Gino\cleanVar($request->GET, 'code', 'string');
+        $email = \Gino\cleanVar($request->GET, 'email', 'string');
+
+        $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+        $headers .= 'MIME-Version: 1.0'."\n";
+        $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+        // recupero password
+        if($code and $email) {
+            $user = User::getFromEmail($email);
+            $check_code = $code === md5($user->id . $user->username . $user->email . date('Ym'));
+            if($check_code and $user) {
+                $password = User::generatePassword(array('aut_password_length' => 8));
+                $user->userpwd = User::setPassword($password);
+                $user->save();
+                $mail_object = sprintf(_('Recupero credenziali di accesso | %s'), $this->_registry->sysconf->head_title);
+                $mail_message = sprintf(_("Le tue nuove credenziali di accesso al sito %s sono:\nusername: %s\npassword:%s\nTi ricordiamo che potrai modificare la password generata automaticamente nella tua pagina del profilo:\n%s"), $this->_registry->sysconf->head_title, $user->username, $password, $this->_registry->router->link($this->_class_name, 'profile', array(), '', array('abs' => TRUE)));
+                mail($email, $mail_object, $mail_message, $headers);
+
+                return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'dataRecoverySuccess'));
+            }
+            else {
+                throw new \Gino\Exception\Exception404();
+            }
+        }
+        // invio mail per richiesta
+        else {
+
+            if($request->method == 'POST') {
+                $formobj = Loader::load('Form', array('data_recovery', 'post', FALSE));
+                if($formobj->arequired()) {
+                    return \Gino\Error::errorMessage(array('error' => 1), $this->_registry->router->link($this->_class_name, 'dataRecovery'));
+                }
+
+                $email = \Gino\cleanVar($request->POST, 'email', 'string');
+                $user = User::getFromEmail($email);
+
+                if($user) {
+                    $error = FALSE;
+                    $code = md5($user->id . $user->username . $user->email . date('Ym'));
+
+                    $mail_object = sprintf(_('Recupero credenziali di accesso | %s'), $this->_registry->sysconf->head_title);
+                    $mail_message = sprintf(_("Hai ricevuto questa email perché hai richiesto la procedura di recupero credenziali di accesso al sito %s.\nSe non fossi stato tu ignorala, altrimenti per procedere al recupero, segui il link qui sotto entro il mese corrente:\n%s"), $this->_registry->sysconf->head_title, $this->_registry->router->link($this->_class_name, 'dataRecovery', array('email' => $email, 'code' => $code), '', array('abs' => TRUE)));
+                    mail($email, $mail_object, $mail_message, $headers);
+                }
+                else {
+                    $error = TRUE;
+                }
+
+                $view = new \Gino\View($this->_view_dir, 'data_recovery_request_processed');
+
+                $dict = array(
+                    'error' => $error
+                );
+                $document = new Document($view->render($dict));
+                return $document();
+
+            }
+            else {
+                $view = new \Gino\View($this->_view_dir, 'data_recovery_request');
+                $formobj = Loader::load('Form', array('data_recovery', 'post', TRUE));
+                $form = $formobj->open('', TRUE, 'email');
+                $form .= $formobj->cinput('email', 'email', '', _('Indirizzo email'), array('required' => TRUE));
+                $form .= $formobj->cinput('submit_data_recovery', 'submit', _('invia'), '', array());
+                $form .= $formobj->close();
+
+                $dict = array(
+                    'form' => $form
+                );
+                $document = new Document($view->render($dict));
+                return $document();
+           }
+        }
+
+    }
+
+    public function dataRecoverySuccess(\Gino\Http\Request $request) {
+
+        $view = new \Gino\View($this->_view_dir, 'data_recovery_success');
+        $dict = array(
+            'profile_url' => $this->_registry->router->link($this->_class_name, 'profile')
+        );
+        $document = new Document($view->render($dict));
+        return $document();
+
+    }
+
 }
