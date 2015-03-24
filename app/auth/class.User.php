@@ -485,6 +485,22 @@ class User extends \Gino\Model {
     }
 
     /**
+     * @brief Restituisce l'utente legato all'email data
+     *
+     * @param string $email
+     * @param bool $active considera solo utenti attivi, default TRUE
+     * @return Gino.App.Auth.User oggetto utente
+     */
+    public static function getFromEmail($email, $active=TRUE)
+    {
+        $users = User::objects(null, array('where' => "email='".$email."'".($active ? " AND active='1'" : "")));
+        if($users and count($users)) {
+            return $users[0];
+        }
+        return null;
+    }
+
+    /**
      * @brief Elenco degli utenti associati a uno o più permessi
      * 
      * @param string!array $code codice o codici del permesso
