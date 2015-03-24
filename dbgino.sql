@@ -313,19 +313,6 @@ CREATE TABLE IF NOT EXISTS `auth_user_perm` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `auth_user_registration`
---
-
-CREATE TABLE IF NOT EXISTS `auth_user_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `session` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `instruments`
 --
 
