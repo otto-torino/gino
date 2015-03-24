@@ -14,13 +14,13 @@ GO
 --
 
 CREATE TABLE attachment (
-  id			int IDENTITY(1, 1),
+  id int IDENTITY(1, 1),
   category		int NOT NULL,
   [file]		nvarchar(100) NOT NULL,
   notes			text,
   insertion_date datetime NOT NULL,
   last_edit_date datetime NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_attachment PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT attachment ON
@@ -41,10 +41,10 @@ SET IDENTITY_INSERT attachment OFF
 --
 
 CREATE TABLE attachment_ctg (
-  id			int IDENTITY(1, 1),
+  id int IDENTITY(1, 1),
   name nvarchar(100) NOT NULL,
   directory nvarchar(20) NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_attachment_ctg PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT attachment_ctg ON
@@ -61,10 +61,10 @@ SET IDENTITY_INSERT attachment_ctg OFF
 --
 
 CREATE TABLE auth_group (
-  id			int IDENTITY(1, 1),
+  id int IDENTITY(1, 1),
   name nvarchar(128) NOT NULL,
   description text,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_auth_group PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -86,13 +86,11 @@ CREATE TABLE auth_group_perm  (
 --
 
 CREATE TABLE auth_opt (
-  id			int IDENTITY(1, 1),
+  id int IDENTITY(1, 1),
   instance int NOT NULL,
   users_for_page smallint NOT NULL,
   user_more_info tinyint NOT NULL,
   user_card_view tinyint NOT NULL,
-  self_registration tinyint NOT NULL,
-  self_registration_active tinyint NOT NULL,
   username_as_email tinyint NOT NULL,
   aut_pwd tinyint NOT NULL,
   aut_pwd_length smallint NOT NULL,
@@ -103,13 +101,13 @@ CREATE TABLE auth_opt (
   ldap_auth_only tinyint NOT NULL,
   ldap_single_user nvarchar(50) NULL,
   ldap_auth_password nvarchar(100) NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_auth_opt PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT auth_opt ON
 
-INSERT INTO auth_opt (id, instance, users_for_page, user_more_info, user_card_view, self_registration, self_registration_active, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number, ldap_auth, ldap_auth_only, ldap_single_user, ldap_auth_password) VALUES
-(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2, 0, 0, NULL, NULL);
+INSERT INTO auth_opt (id, instance, users_for_page, user_more_info, user_card_view, username_as_email, aut_pwd, aut_pwd_length, pwd_min_length, pwd_max_length, pwd_numeric_number, ldap_auth, ldap_auth_only, ldap_single_user, ldap_auth_password) VALUES
+(1, 0, 10, 0, 1, 0, 0, 10, 6, 14, 2, 0, 0, NULL, NULL);
 
 SET IDENTITY_INSERT auth_opt OFF
 
@@ -126,7 +124,7 @@ CREATE TABLE auth_permission (
   label nvarchar(255) NOT NULL,
   description text,
   [admin] tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_auth_permission PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT auth_permission ON
@@ -158,6 +156,58 @@ SET IDENTITY_INSERT auth_permission OFF
 -- --------------------------------------------------------
 
 --
+-- Table structure for table auth_registration_profile
+--
+
+CREATE TABLE auth_registration_profile (
+  id int IDENTITY(1, 1),
+  description nvarchar(255) NOT NULL,
+  title nvarchar(255) NULL,
+  text text,
+  terms text,
+  auto_enable tinyint NOT NULL,
+  add_information tinyint NULL,
+  add_information_module_type tinyint NULL,
+  add_information_module_id int NULL, 
+  CONSTRAINT PK_auth_registration_profile PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table auth_registration_profile_group
+--
+
+CREATE TABLE auth_registration_profile_group (
+  id int IDENTITY(1, 1),
+  registrationprofile_id int NOT NULL,
+  group_id int NOT NULL, 
+  CONSTRAINT PK_auth_registration_profile_group PRIMARY KEY (id)
+)
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table auth_registration_request
+--
+
+CREATE TABLE auth_registration_request (
+  id int IDENTITY(1, 1),
+  registration_profile int NOT NULL,
+  [date] datetime NOT NULL,
+  [code] nvarchar(32) NOT NULL,
+  firstname nvarchar(255) NOT NULL,
+  lastname nvarchar(255) NOT NULL,
+  username nvarchar(50) NOT NULL,
+  password nvarchar(100) NOT NULL,
+  email nvarchar(128) NOT NULL,
+  confirmed tinyint NOT NULL DEFAULT '0',
+  [user] int NULL, 
+  CONSTRAINT PK_auth_registration_request PRIMARY KEY (id)
+)
+-- --------------------------------------------------------
+
+--
 -- Table structure for table auth_user
 --
 
@@ -182,7 +232,7 @@ CREATE TABLE auth_user (
   date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   active tinyint NOT NULL DEFAULT '0',
   ldap tinyint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id)
+  CONSTRAINT PK_auth_user PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT auth_user ON
@@ -203,7 +253,7 @@ CREATE TABLE auth_user_add (
   field1 tinyint NOT NULL DEFAULT '0',
   field2 tinyint NOT NULL DEFAULT '0',
   field3 tinyint NOT NULL DEFAULT '0',
-  PRIMARY KEY (user_id)
+  CONSTRAINT PK_auth_user_add PRIMARY KEY (user_id)
 )
 
 -- --------------------------------------------------------
@@ -216,7 +266,7 @@ CREATE TABLE auth_user_group (
   id int IDENTITY(1, 1),
   user_id int NOT NULL,
   group_id int NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_auth_user_group PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -234,19 +284,6 @@ CREATE TABLE auth_user_perm (
 -- --------------------------------------------------------
 
 --
--- Table structure for table auth_user_registration
---
-
-CREATE TABLE auth_user_registration (
-  id int IDENTITY(1, 1),
-  user_id int DEFAULT NULL,
-  session nvarchar(50) DEFAULT NULL,
-  PRIMARY KEY (id)
-)
-
--- --------------------------------------------------------
-
---
 -- Table structure for table instruments
 --
 
@@ -255,7 +292,7 @@ CREATE TABLE instruments (
   name nvarchar(200) NOT NULL,
   description text NOT NULL,
   order_list smallint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_instruments PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT instruments ON
@@ -276,7 +313,7 @@ CREATE TABLE instruments_opt (
   id int IDENTITY(1, 1),
   instance int NOT NULL,
   title nvarchar(200) NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_instruments_opt PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -292,7 +329,7 @@ CREATE TABLE language (
   language_code nvarchar(5) NOT NULL DEFAULT '',
   country_code nvarchar(5) NOT NULL,
   active tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_language PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT language ON
@@ -316,7 +353,7 @@ CREATE TABLE language_opt (
   instance int NOT NULL,
   title nvarchar(200) NOT NULL,
   opt_flag tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_language_opt PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT language_opt ON
@@ -333,10 +370,10 @@ SET IDENTITY_INSERT language_opt OFF
 --
 
 CREATE TABLE language_translation (
-  tbl_id_value int DEFAULT NULL,
-  tbl nvarchar(200) DEFAULT NULL,
-  field nvarchar(200) DEFAULT NULL,
-  language nvarchar(5) DEFAULT NULL,
+  tbl_id_value int NULL,
+  tbl nvarchar(200) NULL,
+  field nvarchar(200) NULL,
+  language nvarchar(5) NULL,
   text text
 )
 
@@ -413,7 +450,7 @@ CREATE TABLE nation (
   en_US nvarchar(100) NOT NULL,
   fr_FR nvarchar(100) NOT NULL,
   onu date NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_nation PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT nation ON
@@ -625,7 +662,7 @@ CREATE TABLE page_category (
   name nvarchar(60) NOT NULL,
   description text,
   date datetime NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_page_category PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -640,12 +677,12 @@ CREATE TABLE page_comment (
   datetime datetime NOT NULL,
   author nvarchar(200) NOT NULL,
   email nvarchar(200) NOT NULL,
-  web nvarchar(200) DEFAULT NULL,
+  web nvarchar(200) NULL,
   text text NOT NULL,
   notification tinyint NOT NULL,
-  reply int DEFAULT NULL,
+  reply int NULL,
   published tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_page_comment PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -656,25 +693,25 @@ CREATE TABLE page_comment (
 
 CREATE TABLE page_entry (
   id int IDENTITY(1, 1),
-  category_id int DEFAULT NULL,
+  category_id int NULL,
   author int NOT NULL,
   creation_date datetime NOT NULL,
   last_edit_date datetime NOT NULL,
   title nvarchar(200) NOT NULL,
   slug nvarchar(200) NOT NULL UNIQUE,
-  image nvarchar(200) DEFAULT NULL,
-  url_image nvarchar(200) DEFAULT NULL,
+  image nvarchar(200) NULL,
+  url_image nvarchar(200) NULL,
   text text NOT NULL,
-  tags nvarchar(255) DEFAULT NULL,
+  tags nvarchar(255) NULL,
   enable_comments tinyint NOT NULL,
   published tinyint NOT NULL,
   social tinyint NOT NULL,
   private tinyint NOT NULL,
-  users nvarchar(255) DEFAULT NULL,
+  users nvarchar(255) NULL,
   [read] int NOT NULL DEFAULT '0',
   tpl_code text,
   box_tpl_code text,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_page_entry PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT page_entry ON
@@ -708,7 +745,7 @@ CREATE TABLE page_opt (
   comment_notification tinyint NOT NULL,
   newsletter_entries_number smallint NOT NULL,
   newsletter_tpl_code text NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_page_opt PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT page_opt ON
@@ -728,7 +765,7 @@ CREATE TABLE php_module (
   id int IDENTITY(1, 1),
   instance int NOT NULL,
   content text NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_php_module PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT php_module ON
@@ -750,7 +787,7 @@ CREATE TABLE php_module_opt (
   instance int NOT NULL,
   title nvarchar(200) NOT NULL,
   title_vis tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_php_module_opt PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -764,7 +801,7 @@ CREATE TABLE search_site_opt (
   instance int NOT NULL,
   sys_mdl nvarchar(256) NOT NULL,
   inst_mdl nvarchar(256) NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_search_site_opt PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -779,20 +816,20 @@ CREATE TABLE sys_conf (
   dft_language smallint NOT NULL,
   log_access tinyint NOT NULL,
   head_description text NOT NULL,
-  head_keywords nvarchar(255) DEFAULT NULL,
+  head_keywords nvarchar(255) NULL,
   head_title nvarchar(255) NOT NULL,
-  google_analytics nvarchar(20) DEFAULT NULL,
-  captcha_public nvarchar(64) DEFAULT NULL,
-  captcha_private nvarchar(64) DEFAULT NULL,
-  sharethis_public_key nvarchar(64) DEFAULT NULL,
-  disqus_shortname nvarchar(64) DEFAULT NULL,
+  google_analytics nvarchar(20) NULL,
+  captcha_public nvarchar(64) NULL,
+  captcha_private nvarchar(64) NULL,
+  sharethis_public_key nvarchar(64) NULL,
+  disqus_shortname nvarchar(64) NULL,
   email_admin nvarchar(128) NOT NULL,
-  email_from_app nvarchar(100) DEFAULT NULL,
+  email_from_app nvarchar(100) NULL,
   mobile tinyint NOT NULL DEFAULT '0',
   password_crypt nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
   enable_cache tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_conf PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_conf ON
@@ -814,7 +851,7 @@ CREATE TABLE sys_gimage (
 	path nvarchar(255) NOT NULL,
 	width int NOT NULL,
 	height int NOT NULL,
-	PRIMARY KEY (id)
+	CONSTRAINT PK_sys_gimage PRIMARY KEY (id)
 )
 
 CREATE INDEX idx_sys_gimage_key on sys_gimage([key]);
@@ -830,9 +867,9 @@ CREATE TABLE sys_graphics (
   name nvarchar(50) NOT NULL,
   description nvarchar(100) NOT NULL,
   type tinyint NOT NULL DEFAULT '1',
-  image nvarchar(128) DEFAULT NULL,
+  image nvarchar(128) NULL,
   html text,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_graphics PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_graphics ON
@@ -861,8 +898,8 @@ CREATE TABLE sys_layout_css (
   id int IDENTITY(1, 1),
   filename nvarchar(200) NOT NULL,
   label nvarchar(200) NOT NULL,
-  description text DEFAULT NULL,
-  PRIMARY KEY (id)
+  description text NULL,
+  CONSTRAINT PK_sys_layout_css PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_layout_css ON
@@ -883,16 +920,16 @@ SET IDENTITY_INSERT sys_layout_css OFF
 CREATE TABLE sys_layout_skin (
   id int IDENTITY(1, 1),
   label nvarchar(200) NOT NULL,
-  session nvarchar(128) DEFAULT NULL,
-  rexp nvarchar(200) DEFAULT NULL,
-  urls nvarchar(200) DEFAULT NULL,
+  session nvarchar(128) NULL,
+  rexp nvarchar(200) NULL,
+  urls nvarchar(200) NULL,
   template nvarchar(200) NOT NULL,
   css int NOT NULL,
   priority int NOT NULL,
   auth nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_layout_skin_auth CHECK (auth IN('yes','no','')),
   cache bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_layout_skin PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_layout_skin ON
@@ -924,7 +961,7 @@ CREATE TABLE sys_layout_tpl (
   label nvarchar(200) NOT NULL,
   description text NOT NULL,
   free tinyint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_layout_tpl PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_layout_tpl ON
@@ -956,7 +993,7 @@ CREATE TABLE sys_layout_tpl_block (
   align tinyint NOT NULL,
   rows smallint NOT NULL,
   cols smallint NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_layout_tpl_block PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_layout_tpl_block ON
@@ -978,9 +1015,9 @@ SET IDENTITY_INSERT sys_layout_tpl_block OFF
 
 CREATE TABLE sys_log_access (
   id int IDENTITY(1, 1),
-  user_id int DEFAULT NULL,
-  date datetime DEFAULT NULL,
-  PRIMARY KEY (id)
+  user_id int NULL,
+  date datetime NULL,
+  CONSTRAINT PK_sys_log_access PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -994,7 +1031,7 @@ CREATE TABLE sys_menu_opt (
   instance int NOT NULL,
   title nvarchar(200) NOT NULL,
   cache bigint DEFAULT '0',
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_menu_opt PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_menu_opt ON
@@ -1020,8 +1057,8 @@ CREATE TABLE sys_menu_voices (
   type nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_menu_voices_type CHECK (type IN('int','ext')),
   order_list smallint NOT NULL,
-  perms varchar(255) NOT NULL,
-  PRIMARY KEY (id)
+  perms nvarchar(255) NOT NULL,
+  CONSTRAINT PK_sys_menu_voices PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_menu_voices ON
@@ -1046,7 +1083,7 @@ CREATE TABLE sys_module (
   module_app int NOT NULL,
   active tinyint NOT NULL,
   description text NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_module PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_module ON
@@ -1075,7 +1112,7 @@ CREATE TABLE sys_module_app (
   description text NOT NULL,
   removable tinyint NOT NULL,
   class_version nvarchar(200) NOT NULL,
-  PRIMARY KEY (id)
+  CONSTRAINT PK_sys_module_app PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_module_app ON
@@ -1105,7 +1142,7 @@ SET IDENTITY_INSERT sys_module_app OFF
 CREATE TABLE sys_tag (
  id int IDENTITY(1, 1),
  tag nvarchar(68) NOT NULL,
- PRIMARY KEY (id)
+ CONSTRAINT PK_sys_tag PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -1121,5 +1158,5 @@ CREATE TABLE sys_tag_taggeditem (
  content_controller_instance int NOT NULL,
  content_class nvarchar(64) NOT NULL,
  content_id int NOT NULL,
- PRIMARY KEY (id)
+ CONSTRAINT PK_sys_tag_taggeditem PRIMARY KEY (id)
 )
