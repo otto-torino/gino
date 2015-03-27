@@ -128,7 +128,7 @@ class RegistrationProfile extends \Gino\Model {
         if(!$this->add_information) return FALSE;
 
         if(!$this->add_information_module_type or !$this->add_information_module_id) {
-            throw new \Exception(_('Tipo e/o id del modulo che deve completare le informazioni per la registrazione mancanti.'));
+            throw new \Exception(_('Tipo e/o id del modulo che deve completare le informazioni mancanti per la registrazione.'));
         }
 
         if($this->add_information_module_type == self::MODULE_TYPE_SYS) {

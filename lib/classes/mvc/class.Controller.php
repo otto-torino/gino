@@ -249,6 +249,16 @@ abstract class Controller {
         $frontend = Loader::load('Frontend', array($this));
         return $frontend->manageFrontend();
     }
+    
+    /**
+     * @brief Interfaccia per la gestione dei file delle traduzioni
+     * @see Locale::manageLocale()
+     * @return interfaccia di amministrazione traduzioni
+     */
+    public function manageLocale() {
+    	$locale = locale::instance_to_class($this->_class_name);
+    	return $locale->manageLocale($this);
+    }
 
     /**
      * @brief Eliminazione istanza del modulo
