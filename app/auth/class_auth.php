@@ -24,6 +24,7 @@ use \Gino\Http\Redirect;
 require_once('class.User.php');
 require_once('class.Group.php');
 require_once('class.Permission.php');
+require_once('class.RegistrationProfile.php');
 
 require_once(CLASSES_DIR.OS.'class.AdminTable.php');
 require_once('class.AdminTable_AuthUser.php');
@@ -49,7 +50,6 @@ class auth extends \Gino\Controller {
     private $_title;
     private $_users_for_page;
     private $_user_more, $_user_view;
-    private $_self_registration, $_self_registration_active;
     private $_username_as_email;
     private $_aut_pwd, $_aut_pwd_length, $_pwd_length_min, $_pwd_length_max, $_pwd_numeric_number;
     private $_ldap_auth, $_ldap_auth_only, $_ldap_single_user, $_ldap_auth_password;
@@ -72,8 +72,6 @@ class auth extends \Gino\Controller {
         $this->_users_for_page = $this->setOption('users_for_page');
         $this->_user_more = $this->setOption('user_more_info');
         $this->_user_view = $this->setOption('user_card_view');
-        $this->_self_registration = $this->setOption('self_registration');
-        $this->_self_registration_active = $this->setOption('self_registration_active');
 
         $this->_username_as_email = $this->setOption('username_as_email');
         $this->_aut_pwd = $this->setOption('aut_pwd');
@@ -93,8 +91,6 @@ class auth extends \Gino\Controller {
             "users_for_page"=>_("Utenti per pagina"),
             "user_more_info"=>_("Informazioni aggiuntive utenti"), 
             "user_card_view"=>_("Schede utenti visibili"),
-            "self_registration"=>_("Registrazione autonoma"),
-            "self_registration_active"=>_("Utenti attivi automaticamente"),
             "username_as_email"=>_("Utilizzo email come username"),
             "aut_pwd"=>_("Generazione automatica password"),
             "aut_pwd_length"=>_("Caratteri della password automatica"),
@@ -148,10 +144,24 @@ class auth extends \Gino\Controller {
                 'auth_user_add',
                 'auth_user_email',
                 'auth_user_perm',
-                'auth_user_registration'
+                'auth_registration_profile',
+                'auth_registration_profile_group',
+                'auth_registration_request',
             ),
             'views' => array(
-                'login.php' => _('Login area privata/amministrativa')
+                'login.php' => _('Login area privata/amministrativa'),
+                'registration.php' => _('Pagina di registrazione'),
+                'registration_email_object.php' => _('Oggetto della mail inviata a seguito di registrazione'),
+                'registration_email_message.php' => _('Messaggio della mail inviata a seguito di registrazione'),
+                'registration_result.php' => _('Risultato registrazione'),
+                'confirmation_result.php' => _('Risultato conferma indirizzo email'),
+                'activation_email_object.php' => _('Oggetto della mail inviata per conferma attivazione'),
+                'activation_email_message.php' => _('Messaggio della mail inviata per conferma attivazione'),
+                'profile.php' => _('Profilo utente'),
+                'activate_profile.php' => _('Attivazione profilo per utente già registrato'),
+                'data_recovery_request.php' => _('Richiesta di recupero credenziali'),
+                'data_recovery_request_processed.php' => _('Processing richiesta di recupero credenziali'),
+                'data_recovery_success.php' => _('Successo richiesta di recupero credenziali'),
             ),
             "folderStructure"=>array (
                 CONTENT_DIR.OS.'user'=> null
@@ -259,6 +269,645 @@ class auth extends \Gino\Controller {
 	}
 
     /**
+     * Attivazione di altri profili per utente già registrato ed attivo
+     * 
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Response
+     */
+    public function activateProfile(\Gino\Http\Request $request)
+    {
+        if(!$request->user->id or !$request->user->active) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        if($request->method == 'POST') {
+
+            $formobj = Loader::load('Form', array('auth_registration', 'post', FALSE));
+            $formobj->save('authactivateprofiledata');
+
+            $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
+            $profile = new RegistrationProfile($profile_id);
+            $error_redirect = $this->_registry->router->link($this->_class_name, 'activateProfile', array('id' => $profile->id));
+
+            // check terms
+            if($profile->terms and !\Gino\cleanVar($request->POST, 'terms', 'int')) {
+                return \Gino\Error::errorMessage(array('error' => _('Devi accettare i termini e le condizioni del servizio')), $error_redirect);
+            }
+
+            // add_information validation
+            if($profile->add_information) {
+                $app = $profile->informationApp();
+                $result = $app->actionAuthRegistration($request, $formobj);
+                if($result !== TRUE) {
+                    return \Gino\Error::errorMessage(array('error' => $result), $error_redirect);
+                }
+            }
+
+            // data were valid
+            Loader::import('auth', 'RegistrationRequest');
+            $registration_request = new RegistrationRequest(null);
+            $registration_request->registration_profile = $profile->id;
+            $registration_request->date = date('Y-m-d H:i:s');
+            $registration_request->firstname = $request->user->firstname;
+            $registration_request->lastname = $request->user->lastname;
+            $registration_request->username = $request->user->username;
+            $registration_request->password = $request->user->userpwd;
+            $registration_request->email = $request->user->email;
+            $registration_request->user = $request->user->id;
+            $registration_request->confirmed = 1;
+
+            $registration_request->save();
+
+            if(!$registration_request->id) {
+                throw new \Exception(_('Salvataggio richiesta di registrazione fallito'));
+            }
+
+            // now id is available
+            $registration_request->code = md5($registration_request->id.$registration_request->email);
+            $registration_request->save();
+
+            $request->user->groups = array_merge($request->user->groups, $profile->groups);
+            $request->user->save();
+
+            return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'profile'));
+
+        }
+
+        $profile_id = \Gino\cleanVar($request->GET, 'id', 'int');
+        $profile = new RegistrationProfile($profile_id);
+
+        if(!$profile->id) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        /* form */
+        $formobj = Loader::load('Form', array('auth_activate_profile', 'post', TRUE));
+        $formobj->load('authactivateprofiledata');
+
+        $form = $formobj->open('', TRUE, '');
+        $form .= $formobj->hidden('profile', $profile->id);
+
+        // add_information
+        if($profile->add_information) {
+            $app = $profile->informationApp();
+            $form .= $app->formAuthRegistration($formobj);
+        }
+
+        // terms
+        if($profile->terms) {
+           $form .= \Gino\htmlChars($profile->terms);
+           $form .= $formobj->ccheckbox('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
+        }
+
+        $form .= $formobj->cinput('submit_auth_activate_profile', 'submit', _('invia'), '', array());
+        $form .= $formobj->close();
+
+        $view = new \Gino\View($this->_view_dir, 'activate_profile');
+        $dict = array(
+            'profile' => $profile,
+            'form' => $form
+        );
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * Registrazione utente
+     * 
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return \Gino\Http\Response
+     */
+    public function registration(\Gino\Http\Request $request)
+    {
+        // form submission
+        if($request->method == 'POST') {
+            // validazione dati classe auth
+            $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
+            $profile = new RegistrationProfile($profile_id);
+
+            $formobj = Loader::load('Form', array('auth_registration', 'post', FALSE));
+            $formobj->save('authregistrationdata');
+            $error_redirect = $this->_registry->router->link($this->_class_name, 'registration', array('id' => $profile->id));
+            // captcha
+            if(!$formobj->checkCaptcha()) {
+                //return \Gino\Error::errorMessage(array('error' => _('Il codice inserito non è corretto.')), $error_redirect);
+            }
+            // campi obbligatori
+            if($formobj->arequired()) {
+                return \Gino\Error::errorMessage(array('error' => 1), $error_redirect);
+            }
+
+            $firstname = \Gino\cleanVar($request->POST, 'firstname', 'string');
+            $lastname = \Gino\cleanVar($request->POST, 'lastname', 'string');
+            if(!$this->_username_as_email) {
+                $username = \Gino\cleanVar($request->POST, 'username', 'string');
+            }
+            $password = \Gino\cleanVar($request->POST, 'password', 'string');
+            $password_check = \Gino\cleanVar($request->POST, 'check_password', 'string');
+            $email = \Gino\cleanVar($request->POST, 'email', 'string');
+            $email_check = \Gino\cleanVar($request->POST, 'check_email', 'string');
+
+            // check email
+            $check_email = User::checkEmail();
+            if($check_email !== TRUE) {
+                return \Gino\Error::errorMessage($check_email, $error_redirect);
+            }
+            // check username
+            $check_username = User::checkUsername(array('username_as_email' => $this->_username_as_email));
+            if($check_username !== TRUE) {
+                return \Gino\Error::errorMessage($check_username, $error_redirect);
+            }
+            // check passowrd
+            $check_password = User::checkPassword(array(
+                'password' => $password,
+                'password_check' => $password_check,
+                'pwd_length_min' => $this->_pwd_length_min,
+                'pwd_length_max' => $this->_pwd_length_max,
+                'pwd_numeric_number' => $this->_pwd_numeric_number
+            ));
+            if($check_password !== TRUE) {
+                return \Gino\Error::errorMessage($check_password, $error_redirect);
+            }
+            // check terms
+            if($profile->terms and !\Gino\cleanVar($request->POST, 'terms', 'int')) {
+                return \Gino\Error::errorMessage(array('error' => _('Devi accettare i termini e le condizioni del servizio')), $error_redirect);
+            }
+
+            // add_information validation
+            if($profile->add_information) {
+                $app = $profile->informationApp();
+                $result = $app->actionAuthRegistration($request, $formobj);
+                if($result !== TRUE) {
+                    return \Gino\Error::errorMessage(array('error' => $result), $error_redirect);
+                }
+            }
+
+            // data were valid
+            Loader::import('auth', 'RegistrationRequest');
+            $registration_request = new RegistrationRequest(null);
+            $registration_request->registration_profile = $profile->id;
+            $registration_request->date = date('Y-m-d H:i:s');
+            $registration_request->firstname = $firstname;
+            $registration_request->lastname = $lastname;
+            $registration_request->username = $this->_username_as_email ? $email : $username;
+            $registration_request->password = User::setPassword($password);
+            $registration_request->email = $email;
+            $registration_request->confirmed = 0;
+
+            $registration_request->save();
+
+            if(!$registration_request->id) {
+                throw new \Exception(_('Salvataggio richiesta di registrazione fallito'));
+            }
+
+            // now id is available
+            $registration_request->code = md5($registration_request->id.$registration_request->email);
+            $registration_request->save();
+
+            // send mail
+            $view = new \Gino\View($this->_view_dir, 'registration_email_object');
+            $email_object = $view->render(array( 'profile' => $profile ));
+
+            $view = new \Gino\View($this->_view_dir, 'registration_email_message');
+            $dict = array(
+                'profile' => $profile,
+                'request' => $registration_request,
+                'confirmation_url' => $this->_registry->router->link($this->_class_name, 'confirmRegistration', array('code' => $registration_request->code, 'id' => $registration_request->id), '', array('abs' => TRUE))
+            );
+            $email_message = $view->render($dict);
+            $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+            $headers .= 'MIME-Version: 1.0'."\n";
+            $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+            if(!mail($email, $email_object, $email_message, $headers)) {
+                return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'registrationResult', array('id' => $registration_request->id), array('e' => 'mail')));
+            }
+
+            return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'registrationResult', array('id' => $registration_request->id)));
+
+        }
+        // show form
+        else {
+            $profile_id = \Gino\cleanVar($request->GET, 'id', 'int');
+            $profile = new RegistrationProfile($profile_id);
+
+            if(!$profile->id) {
+                throw new \Gino\Exception\Exception404();
+            }
+
+            if($request->user->id) {
+                return new \Gino\Http\Redirect($this->_registry->router->link('auth', 'profile'));
+            }
+
+            /* form */
+            $formobj = Loader::load('Form', array('auth_registration', 'post', TRUE));
+            $formobj->load('authregistrationdata');
+            $required = $this->_username_as_email
+                ? 'firstname,lastname,password,check_password,email,check_email'
+                : 'firstname,lastname,username,password,check_password,email,check_email';
+
+            $form = $formobj->open('', TRUE, $required);
+            $form .= $formobj->hidden('profile', $profile->id);
+            $form .= $formobj->cinput('firstname', 'text', $formobj->retvar('firstname'), _('Nome'), array('required' => TRUE));
+            $form .= $formobj->cinput('lastname', 'text', $formobj->retvar('lastname'), _('Cognome'), array('required' => TRUE));
+            if(!$this->_username_as_email) {
+                // onblur check username availability
+                $js = "
+                onblur=\"var self=this; gino.jsonRequest(
+                    'post', 
+                    '".$this->_registry->router->link($this->_class_name, 'checkUsernameJson')."',
+                    'username=' + $(this).get('value'),
+                    function(response) { 
+                        if(!response.result) if(!$(self).hasClass('invalid')) $(self).addClass('invalid');
+                        else $(self).removeClass('invalid');
+                        $('username-check-result').set('text', response.text); 
+                    });\"
+                onfocus=\"var self=this; $('username-check-result').set('text', ''); $(self).removeClass('invalid');\"";
+                $username_check_result = '<span id="username-check-result"></span>';
+                $form .= $formobj->cinput('username', 'text', '', _('Username'), array('required' => TRUE, 'js'=>$js, 'text_add' => $username_check_result));
+            }
+
+            $form .= $formobj->cinput('email', 'email', $formobj->retvar('email'), _('Email'), array('required' => TRUE));
+            $form .= $formobj->cinput('check_email', 'email', '', _('Ripeti email'), array('required' => TRUE, 'other' => 'autocomplete="off"'));
+
+            // onblur validate password and check strength
+            $js = "
+            onblur=\"var self=this; gino.jsonRequest(
+                'post', 
+                '".$this->_registry->router->link($this->_class_name, 'checkPassowrdJson')."',
+                'password=' + $(this).get('value'),
+                function(response) { 
+                    if(!response.result) if(!$(self).hasClass('invalid')) $(self).addClass('invalid');
+                    else $(self).removeClass('invalid');
+                    $('password-check-result').set('text', response.text); 
+                });\"
+            onfocus=\"var self=this; $('password-check-result').set('text', ''); $(self).removeClass('invalid');\"";
+            $password_check_result = '<span id="password-check-result"></span>';
+            $form .= $formobj->cinput('password', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
+            $form .= $formobj->cinput('check_password', 'password', '', _('Ripeti password'), array('required' => TRUE));
+
+            // add_information
+            if($profile->add_information) {
+                $app = $profile->informationApp();
+                $form .= $app->formAuthRegistration($formobj);
+            }
+
+            $form .= $formobj->captcha();
+            // terms
+            if($profile->terms) {
+               $form .= \Gino\htmlChars($profile->terms);
+               $form .= $formobj->ccheckbox('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
+            }
+
+            $form .= $formobj->cinput('submit_auth_registration', 'submit', _('invia'), '', array());
+            $form .= $formobj->close();
+
+            $view = new \Gino\View($this->_view_dir, 'registration');
+            $dict = array(
+                'profile' => $profile,
+                'form' => $form
+            );
+            $document = new \Gino\Document($view->render($dict));
+            return $document();
+        }
+    }
+
+    /**
+     * Vista risultato registrazione
+     *
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return \Gino\Http\Response
+     */
+    public function registrationResult(\Gino\Http\Request $request)
+    {
+        Loader::import('auth', 'RegistrationRequest');
+        $id = \Gino\cleanVar($request->GET, 'id', 'int');
+        $registration_request = new RegistrationRequest($id);
+
+        if(!$registration_request->id) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        $error = FALSE;
+        $e = \Gino\cleanVar($request->GET, 'e', 'string');
+        if($e == 'mail') {
+            $error = sprintf(_('Si è verificato un errore nell\'invio dell\'email di conferma registrazione, scrivere al seguente indirizzo: %s'), '<a href="mailto:'.$this->_registry->sysconf->email_admin.'">'.$this->_registry->sysconf->email_admin.'</a>');
+        }
+
+        $view = new \Gino\View($this->_view_dir, 'registration_result');
+        $dict = array(
+            'error' => $error,
+            'request' => $registration_request,
+            'profile' => new RegistrationProfile($registration_request->registration_profile)
+        );
+        $document = new Document($view->render($dict));
+
+        return $document();
+    }
+
+    /**
+     * Conferma indirizzo email registrazione
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Response
+     */
+    public function confirmRegistration(\Gino\Http\Request $request)
+    {
+
+        Loader::import('auth', 'RegistrationRequest');
+
+        $id = \Gino\cleanVar($request->GET, 'id', 'int');
+        $code = \Gino\cleanVar($request->GET, 'code', 'string');
+
+        $registration_request = new RegistrationRequest($id);
+
+        if(!$registration_request->id) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        // gia confermato, vai al login
+        if($registration_request->confirmed) {
+            $request->session->auth_redirect = $this->_registry->router->link($this->_class_name, 'login');
+            return new \Gino\Http\Redirect($request->session->auth_redirect);
+        }
+
+        $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+        $headers .= 'MIME-Version: 1.0'."\n";
+        $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+        // confirmed
+        if($code == md5($registration_request->id.$registration_request->email)) {
+            // conferma
+            $registration_request->confirmed = 1;
+            $registration_request->save();
+            $profile = new RegistrationProfile($registration_request->registration_profile);
+
+            if($profile->auto_enable) {
+                // creazione utente
+                $result = $this->createAndActivateUser($registration_request);
+
+                if(!$result) {
+                    return Error::errorMessage(array('error' => sprintf(_('Si è verificato un errore nell\'attivazione dell\'utenza. Scrivere a %s'), $this->_registry->sysconf->email_admin)), $this->_home);
+                }
+
+                // mail amministratore
+                $mail_object = sprintf(_('Registrazione nuovo utente | %s'), $this->_registry->sysconf->head_title);
+                $mail_message = sprintf(_('L\'utente %s %s si è appena registrato ed è stato attivato.'), $registration_request->firstname, $registration_request->lastname);
+                mail($this->_registry->sysconf->email_admin, $mail_object, $mail_message, $headers);
+
+            }
+            else {
+                // mail amministratore
+                $mail_object = sprintf(_('Registrazione nuovo utente in attesa di attivazione | %s'), $this->_registry->sysconf->head_title);
+                $mail_message = sprintf(_('L\'utente %s %s si è appena registrato ed è in attesa di attivazione.'), $registration_request->firstname, $registration_request->lastname);
+                mail($this->_registry->sysconf->email_admin, $mail_object, $mail_message, $headers);
+            }
+        }
+        // not confirmed
+        else {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        $request->session->auth_redirect = 'home/';
+        $view = new View($this->_view_dir, 'confirmation_result');
+        $dict = array(
+            'registration_request' => $registration_request,
+            'profile' => $profile
+        );
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * Creazione ed attivazione di un utente a seguito di rischiesta di registrazione
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Redirect
+     */
+    public function activateRegistrationUser(\Gino\Http\Request $request)
+    {
+
+        Loader::import('auth', 'RegistrationRequest');
+
+        $this->requirePerm('can_admin');
+        $id = \Gino\cleanVar($request->GET, 'id', 'int');
+        $registration_request = new RegistrationRequest($id);
+
+        if(!$registration_request->id) {
+            throw new \Exception(sprintf(_('Richiesta di registrazione con id %s inesistente'), $registration_request->id));
+        }
+
+        $result = $this->createAndActivateUser($registration_request);
+
+        if($result) {
+            return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'manageAuth', array(), array('block'=>'request')));
+        }
+        else {
+            throw new \Exception(sprintf(_('Impossibile creare l\'utente per la richiesta di registrazione con id %s'), $registration_request->id));
+        }
+
+    }
+
+    /**
+     * Crea ed attiva un utente, invia una mail di attivazione
+     *
+     * @param \Gino\App\Auth\RegistrationRequest $registration_request richiesta di registrazione
+     * @return bool, risultato
+     */
+    private function createAndActivateUser(\Gino\App\Auth\RegistrationRequest $registration_request)
+    {
+
+        $profile = new RegistrationProfile($registration_request->registration_profile);
+
+        $user = new User(null);
+        $user->firstname = $registration_request->firstname;
+        $user->lastname = $registration_request->lastname;
+        $user->email = $registration_request->email;
+        $user->username = $registration_request->username;
+        $user->userpwd = $registration_request->password;
+        $user->is_admin = 0;
+        $user->publication = 0;
+        $user->date = date('Y-m-d H:i:s');
+        $user->ldap = 0;
+        $user->active = 1;
+        $user->groups = $profile->groups;
+        $user->save();
+
+        if(!$user->id) {
+            return FALSE;
+        }
+
+        $registration_request->user = $user->id;
+        $registration_request->save();
+
+        $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+        $headers .= 'MIME-Version: 1.0'."\n";
+        $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+        $view = new View($this->_view_dir, 'activation_email_object');
+        $email_object = $view->render(array( 'profile' => $profile ));
+        $view = new View($this->_view_dir, 'activation_email_message');
+        $dict = array(
+            'profile' => $profile,
+            'user' => $user,
+            'login_url' => $this->_registry->router->link($this->_class_name, 'login', array(), '', array('abs' => TRUE)),
+            'profile_url' => $this->_registry->router->link($this->_class_name, 'profile', array(), '', array('abs' => TRUE))
+        );
+        $email_message = $view->render($dict);
+
+        return mail($user->email, $email_object, $email_message, $headers);
+
+    }
+
+    /**
+     * Vista profilo utente
+     *
+     * Tutti gli utenti hanno un profilo dove poter modificare la password ed alcune informazioni personali.
+     * Solamente gli utenti creati a seguito di procedura registrazione possono associarsi ad altri profili
+     * di registrazione
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Response
+     */
+    public function profile(\Gino\Http\Request $request)
+    {
+
+        Loader::import('auth', 'RegistrationRequest');
+
+        if(!$request->user->id or !$request->user->active) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        // change password
+        if($request->method == 'POST' and isset($request->POST['submit_auth_profile_chg_password']))
+        {
+            $obj_user = $request->user;
+
+            $action_result = $obj_user->savePassword(array(
+                'pwd_length_min' => $this->_pwd_length_min, 
+                'pwd_length_max' => $this->_pwd_length_max, 
+                'pwd_numeric_number' => $this->_pwd_numeric_number
+            ));
+
+            if($action_result === true) {
+                $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+                $headers .= 'MIME-Version: 1.0'."\n";
+                $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+                $object = sprintf(_('Modifica password | %s'), $this->_registry->sysconf->head_title);
+                $message = sprintf(_("Hai modificato la password di accesso.\nLa nuova password è: %s."), \Gino\cleanVar($request->POST, 'userpwd', 'string'));
+                mail($request->user->email, $object, $message, $headers);
+                return new Redirect($this->_registry->router->link($this->_class_name, 'profile', array(), array('pwd' => 1)));
+            }
+            else {
+                return Error::errorMessage($action_result, $this->_registry->router->link($this->_class_name, 'profile'));
+            }
+        }
+
+        // show profile
+        $view = new \Gino\View($this->_view_dir, 'profile');
+
+        // change password
+        $pwd_updated = \Gino\cleanVar($request->GET, 'pwd', 'int');
+        $formobj = Loader::load('Form', array('auth_profile_chg_password', 'post', TRUE));
+        $form_password = $formobj->open('', FALSE, 'userpwd,check_userpwd');
+
+        // onblur validate password and check strength
+        $js = "
+        onblur=\"var self=this; gino.jsonRequest(
+            'post', 
+            '".$this->_registry->router->link($this->_class_name, 'checkPassowrdJson')."',
+            'password=' + $(this).get('value'),
+            function(response) { 
+                if(!response.result) if(!$(self).hasClass('invalid')) $(self).addClass('invalid');
+                else $(self).removeClass('invalid');
+                $('password-check-result').set('text', response.text); 
+            });\"
+        onfocus=\"var self=this; $('password-check-result').set('text', ''); $(self).removeClass('invalid');\"";
+        $password_check_result = '<span id="password-check-result"></span>';
+        $form_password .= $formobj->cinput('userpwd', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
+        $form_password .= $formobj->cinput('check_userpwd', 'password', '', _('Ripeti password'), array('required' => TRUE));
+
+        $form_password .= $formobj->cinput('submit_auth_profile_chg_password', 'submit', _('modifica password'), '', array());
+        $form_password .= $formobj->close();
+
+        // add information data
+        $data = array();
+
+        $user_profiles = array();
+        $registration_requests = RegistrationRequest::objects(null, array('where' => "user='".$request->user->id."' AND confirmed='1'"));
+        foreach($registration_requests as $r) {
+            $profile = new RegistrationProfile($r->registration_profile);
+            $user_profiles[] = $profile->id;
+            if($profile->add_information) {
+                $app = $profile->informationApp();
+                if(method_exists($app, 'authProfile')) {
+                    $data[] = array(
+                        'description' => $profile->ml('description'),
+                        'content' => $app->authProfile(),
+                        'update_url' => method_exists($app, 'updateAuthProfile') ? $this->_registry->router->link($app->getInstanceName(), 'updateAuthProfile') : null
+                    );
+                }
+            }
+        }
+
+        // other profiles
+        $profiles_data = array();
+        $profiles = RegistrationProfile::objects(null, array());
+        foreach($profiles as $profile) {
+            if(!in_array($profile->id, $user_profiles)) {
+                $profiles_data[] = array(
+                    'profile' => $profile,
+                    'activation_url' => $this->_registry->router->link($this->_class_name, 'activateProfile', array('id' => $profile->id))
+                );
+            }
+        }
+
+        $dict = array(
+            'user' => $request->user,
+            'form_password' => $form_password,
+            'pwd_updated' => $pwd_updated,
+            'delete_account_url' => $this->_registry->router->link($this->_class_name, 'deleteAccount'),
+            'data' => $data,
+            'profiles_data' => $profiles_data
+        );
+
+        $document = new Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * Eliminazione account
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Redirect
+     */
+    public function deleteAccount(\Gino\Http\Request $request)
+    {
+        if(!$request->user->id or !$request->user->active) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        Loader::import('auth', 'RegistrationRequest');
+
+        $registration_requests = RegistrationRequest::objects(null, array('where' => "user='".$request->user->id."' AND confirmed='1'"));
+        foreach($registration_requests as $r) {
+            $profile = new RegistrationProfile($r->registration_profile);
+            if($profile->add_information) {
+                $app = $profile->informationApp();
+                if(method_exists($app, 'deleteAuthAccount')) {
+                    $app->deleteAuthAccount($request);
+                }
+            }
+            $r->delete();
+        }
+
+        $request->user->delete();
+
+        return new \Gino\Http\Redirect($this->_home.'?action=logout');
+    }
+
+    /**
      * @brief Interfaccia di amministrazione modulo
      * @param \Gino\Http\Request istanza di Gino.Http.Request
      * @return Gino.Http.Response
@@ -274,6 +923,8 @@ class auth extends \Gino\Controller {
         $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
         $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=group'), _('Gruppi'));
         $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=perm'), _('Permessi'));
+        $link_profile = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=profile'), _('Profili registrazione'));
+        $link_request = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=request'), _('Richieste registrazione'));
         $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Utenti'));
         $sel_link = $link_dft;
 
@@ -298,6 +949,14 @@ class auth extends \Gino\Controller {
             $backend = $this->managePermission();
             $sel_link = $link_perm;
         }
+        elseif($block=='profile') {
+            $backend = $this->manageRegistrationProfile();
+            $sel_link = $link_profile;
+        }
+        elseif($block=='request') {
+            $backend = $this->manageRegistrationRequest();
+            $sel_link = $link_request;
+        }
         elseif($block=='password') {
             $backend = $this->changePassword($request);
             $sel_link = $link_dft;
@@ -314,8 +973,8 @@ class auth extends \Gino\Controller {
         }
 
         $dict = array(
-            'title' => _('Utenti di sistema'),
-            'links' => array($link_frontend, $link_options, $link_perm, $link_group, $link_dft),
+            'title' => _('Autenticazione'),
+            'links' => array($link_frontend, $link_options, $link_request, $link_profile, $link_perm, $link_group, $link_dft),
             'selected_link' => $sel_link,
             'content' => $backend
         );
@@ -325,6 +984,72 @@ class auth extends \Gino\Controller {
 
         $document = new Document($view->render($dict));
         return $document();
+    }
+
+    /**
+     * Interfaccia di amministrazione richieste di registrazione
+     *
+     * @return html oppure \Gino\Http\Redirect
+     */
+    private function manageRegistrationRequest()
+    {
+        Loader::import('auth', 'RegistrationRequest');
+
+        $info = _("Elenco delle richieste di registrazione.");
+
+        $opts = array(
+            'list_display' => array('id', 'date', 'firstname', 'lastname', 'email', 'confirmed', array('label' => _('Utente'), 'member' => 'getOrActivateUser'), ),
+            'list_description' => $info
+        );
+
+        $admin_table = Loader::load('AdminTable', array(
+            $this,
+            array('allow_insertion' => FALSE)
+        ));
+
+        return $admin_table->backoffice('RegistrationRequest', $opts, array(), array());
+    }
+
+
+    /**
+     * Interfaccia di amministrazione profili di registrazione
+     *
+     * @return html oppure \Gino\Http\Redirect
+     */
+    private function manageRegistrationProfile()
+    {
+        $info = _("Elenco dei profili di registrazione automatica al sistema.");
+
+        $fieldsets = array(
+            _('Meta') => array('id', 'description'),
+            _('Vista form registrazione') => array('title', 'text', 'terms'),
+            _('Opzioni') => array('auto_enable', 'groups'),
+            _('Informazioni aggiuntive') => array('add_information', 'add_information_module_type', 'add_information_module_id')
+        );
+
+        $opts = array(
+            'list_display' => array('id', 'description', 'auto_enable', 'add_information', 'groups', array('label' => _('Url'), 'member'=>'getUrl')),
+            'list_description' => $info
+        );
+
+        $opts_fields = array(
+            'text' => array(
+                'widget' => 'editor',
+                'notes' => FALSE,
+                'img_preview' => TRUE,
+            ),
+            'terms' => array(
+                'widget' => 'editor',
+                'notes' => FALSE,
+                'img_preview' => FALSE,
+            ),
+        );
+
+        $admin_table = Loader::load('AdminTable', array(
+            $this
+        ));
+
+        return $admin_table->backoffice('RegistrationProfile', $opts, array('fieldsets' => $fieldsets), $opts_fields);
     }
 
     /**
@@ -545,6 +1270,101 @@ class auth extends \Gino\Controller {
         $content = $check ? _("Username non disponibile!") : _("Username disponibile!");
 
         return new Response("<strong>".$content."</strong>");
+    }
+
+    /**
+     * @brief Controlla se lo username è disponibile e ritorna un json
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.ResponseJson
+     */
+    public function checkUsernameJson(\Gino\Http\Request $request) {
+
+        Loader::import('class/http', '\Gino\Http\ResponseJson');
+
+        $username = \Gino\cleanVar($request->POST, 'username', 'string');
+
+        if(!$username) {
+            $response = array('result' =>FALSE, 'text' => _('Inserire uno username!'));
+        }
+        else {
+            $check = $this->_db->getFieldFromId(User::$table, 'id', 'username', $username);
+            $response = $check ? array('result' =>FALSE, 'text' => _('Username non disponibile!')) : array('result' =>TRUE, 'text' => _('Username disponibile!'));
+        }
+
+        return new \Gino\Http\ResponseJson($response);
+    }
+
+    /**
+     * @brief Controlla che la password abbia le caratteristiche richieste
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.ResponseJson
+     */
+    public function checkPassowrdJson(\Gino\Http\Request $request) {
+
+        Loader::import('class/http', '\Gino\Http\ResponseJson');
+
+        $password = \Gino\cleanVar($request->POST, 'password', 'string');
+
+        if(!$password) {
+            $response = array('result' =>FALSE, 'text' => _('Inserire una password!'));
+        }
+        else {
+            // password length
+            if(strlen($password) < $this->_pwd_length_min or strlen($password) > $this->_pwd_length_max) {
+                $response = array('result' =>FALSE, 'text' => sprintf(_('La password deve contenere almeno %s caratteri e non più di %s'), $this->_pwd_length_min, $this->_pwd_length_max));
+            }
+            else {
+                // password digit chars
+                preg_match_all("#\d#", $password, $matches);
+                if(!$matches[0] or count($matches[0]) < $this->_pwd_numeric_number) {
+                    $response = array('result' =>FALSE, 'text' => sprintf(_('La password deve contenere almeno %s caratteri numerici'), $this->_pwd_numeric_number));
+                }
+                else {
+                    // valida
+                    $strength = $this->passwordStrength($password);
+                    $response = array(
+                        'result' => TRUE,
+                        'strength' => $strength,
+                        'text' => sprintf(_('Sicurezza: %s/10'), $strength)
+                    );
+                }
+            }
+        }
+
+        return new \Gino\Http\ResponseJson($response);
+    }
+
+    /**
+     * Clacola la robustezza di una password, da 0 a 10
+     *
+     * @param string $password
+     * @return int, robustezza password da 0 a 10
+     */
+    private function passwordStrength($password)
+    {
+        if(strlen($password) < 10) {
+            $strength = max(0, strlen($password) - 3);
+            $strength = min($strength, 6);
+        }
+        else {
+            $strength = 6;
+        }
+
+        // numbers alpha (uppercase and not) and special chars
+        if(preg_match("#.*(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)#", $password)) {
+            $strength += 3;
+        }
+        // numbers alpha (uppercase and not)
+        elseif(preg_match("#.*(?=.*[a-z])(?=.*[A-Z])(?=.*\d)#", $password)) {
+            $strength += 2;
+        }
+        elseif(preg_match("#.*(?=.*[a-z])(?=.*[A-Z])#", $password) or preg_match("#.*(?=.*\w)(?=.*\d)#", $password)) {
+            $strength += 1;
+        }
+
+        return $strength;
     }
 
     /**
@@ -972,6 +1792,14 @@ class auth extends \Gino\Controller {
                 : $this->_home);
         $request->session->auth_redirect = $referer;
 
+        if($request->user->id) {
+            $redirect = $request->session->auth_redirect != $this->_registry->router->link($this->_class_name, 'login')
+                ? $request->session->auth_redirect
+                : $this->_home;
+
+            return new \Gino\Http\Redirect($redirect);
+        }
+
         if(isset($_POST['submit_login']))
         {
             if($this->_access->Authentication()) exit();
@@ -998,4 +1826,100 @@ class auth extends \Gino\Controller {
         $document = new \Gino\Document($view->render($dict));
         return $document();
     }
+
+    /**
+     * Pagina di recupero username e password
+     *
+     * @param \Gino\Http\Request $request
+     * @return Gino.Http.Response
+     */
+    public function dataRecovery(\Gino\Http\Request $request)
+    {
+        $code = \Gino\cleanVar($request->GET, 'code', 'string');
+        $email = \Gino\cleanVar($request->GET, 'email', 'string');
+
+        $headers = "From: ".$this->_registry->sysconf->email_from_app . "\n";
+        $headers .= 'MIME-Version: 1.0'."\n";
+        $headers .= 'Content-type: text/plain; charset=utf-8'."\n";
+
+        // recupero password
+        if($code and $email) {
+            $user = User::getFromEmail($email);
+            $check_code = $code === md5($user->id . $user->username . $user->email . $user->date . date('Ym'));
+            if($check_code and $user) {
+                $password = User::generatePassword(array('aut_password_length' => 8));
+                $user->userpwd = User::setPassword($password);
+                $user->save();
+                $mail_object = sprintf(_('Recupero credenziali di accesso | %s'), $this->_registry->sysconf->head_title);
+                $mail_message = sprintf(_("Le tue nuove credenziali di accesso al sito %s sono:\nusername: %s\npassword:%s\nTi ricordiamo che potrai modificare la password generata automaticamente nella tua pagina del profilo:\n%s"), $this->_registry->sysconf->head_title, $user->username, $password, $this->_registry->router->link($this->_class_name, 'profile', array(), '', array('abs' => TRUE)));
+                mail($email, $mail_object, $mail_message, $headers);
+
+                return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'dataRecoverySuccess'));
+            }
+            else {
+                throw new \Gino\Exception\Exception404();
+            }
+        }
+        // invio mail per richiesta
+        else {
+
+            if($request->method == 'POST') {
+                $formobj = Loader::load('Form', array('data_recovery', 'post', FALSE));
+                if($formobj->arequired()) {
+                    return \Gino\Error::errorMessage(array('error' => 1), $this->_registry->router->link($this->_class_name, 'dataRecovery'));
+                }
+
+                $email = \Gino\cleanVar($request->POST, 'email', 'string');
+                $user = User::getFromEmail($email);
+
+                if($user) {
+                    $error = FALSE;
+                    $code = md5($user->id . $user->username . $user->email . $user->date . date('Ym'));
+
+                    $mail_object = sprintf(_('Recupero credenziali di accesso | %s'), $this->_registry->sysconf->head_title);
+                    $mail_message = sprintf(_("Hai ricevuto questa email perché hai richiesto la procedura di recupero credenziali di accesso al sito %s.\nSe non fossi stato tu ignorala, altrimenti per procedere al recupero, segui il link qui sotto entro il mese corrente:\n%s"), $this->_registry->sysconf->head_title, $this->_registry->router->link($this->_class_name, 'dataRecovery', array('email' => $email, 'code' => $code), '', array('abs' => TRUE)));
+                    mail($email, $mail_object, $mail_message, $headers);
+                }
+                else {
+                    $error = TRUE;
+                }
+
+                $view = new \Gino\View($this->_view_dir, 'data_recovery_request_processed');
+
+                $dict = array(
+                    'error' => $error
+                );
+                $document = new Document($view->render($dict));
+                return $document();
+
+            }
+            else {
+                $view = new \Gino\View($this->_view_dir, 'data_recovery_request');
+                $formobj = Loader::load('Form', array('data_recovery', 'post', TRUE));
+                $form = $formobj->open('', TRUE, 'email');
+                $form .= $formobj->cinput('email', 'email', '', _('Indirizzo email'), array('required' => TRUE));
+                $form .= $formobj->cinput('submit_data_recovery', 'submit', _('invia'), '', array());
+                $form .= $formobj->close();
+
+                $dict = array(
+                    'form' => $form
+                );
+                $document = new Document($view->render($dict));
+                return $document();
+           }
+        }
+
+    }
+
+    public function dataRecoverySuccess(\Gino\Http\Request $request) {
+
+        $view = new \Gino\View($this->_view_dir, 'data_recovery_success');
+        $dict = array(
+            'profile_url' => $this->_registry->router->link($this->_class_name, 'profile')
+        );
+        $document = new Document($view->render($dict));
+        return $document();
+
+    }
+
 }

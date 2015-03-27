@@ -703,6 +703,53 @@ msgstr ""
 msgid "Unable to load the model class: %s"
 msgstr ""
 
+#: lib/classes/class.Locale.php:599
+msgid ""
+"In questa sezione si possono modificare le stringhe presenti nel codice "
+"modificando direttamente i file delle traduzioni."
+msgstr ""
+"In this section you can change the strings in the code by directly editing "
+"the translation files."
+
+#: lib/classes/class.Locale.php:606 app/page/class_page.php:910
+msgid "Traduzioni"
+msgstr "Translations"
+
+#: lib/classes/class.Locale.php:666
+msgid "File delle traduzioni"
+msgstr "File translation"
+
+#: lib/classes/class.Locale.php:737
+#, php-format
+msgid "Modifica il file delle traduzioni \"%s\""
+msgstr "Modify the translation files \"%s\""
+
+#: lib/classes/class.Locale.php:793
+msgid "Crea un nuovo file"
+msgstr "Create a new file"
+
+#: lib/classes/class.Locale.php:794
+msgid "Scegliere per quale lingua creare il file delle traduzioni"
+msgstr "Choose which language to create the translation file"
+
+#: lib/classes/class.Locale.php:806 app/language/class.Lang.php:33
+#: app/sysconf/class_sysconf.php:104
+msgid "Lingua"
+msgstr "Language"
+
+#: lib/classes/class.Locale.php:807
+msgid "crea"
+msgstr "creates"
+
+#: lib/classes/class.Locale.php:853
+#, php-format
+msgid "Il file %s è già presente"
+msgstr "The file %s already exists"
+
+#: lib/classes/class.Locale.php:857
+msgid "Non è presente il file della lingua principale"
+msgstr "This is not the main language file"
+
 #: lib/classes/class.Options.php:49
 msgid "Il primo argomento deve essere una classe di tipo Controller"
 msgstr "The first argument must be a class type Controller"
@@ -751,6 +798,14 @@ msgstr ""
 msgid "ATTENZIONE! Tipo di campo non supportato"
 msgstr "ATTENTION! Field type not supported"
 
+#: lib/classes/class.Paginator.php:229
+msgid "Pag."
+msgstr "Pages"
+
+#: lib/classes/class.Paginator.php:235
+msgid "indicare il numero di pagina"
+msgstr "indicate the number of page"
+
 #: lib/classes/class.Singleton.php:77
 msgid "Impossibile clonare un Singleton"
 msgstr "Can not clone a Singleton"
@@ -798,6 +853,7 @@ msgid "Template"
 msgstr ""
 
 #: lib/classes/class.Skin.php:224 app/layout/class_layout.php:289
+#: app/auth/class_auth.php:976
 msgid "Autenticazione"
 msgstr "Authentication"
 
@@ -1464,14 +1520,6 @@ msgstr "Additional information users"
 msgid "Schede utenti visibili"
 msgstr "User cards visible"
 
-#: app/auth/class_auth.php:96
-msgid "Registrazione autonoma"
-msgstr "Alone recording"
-
-#: app/auth/class_auth.php:97
-msgid "Utenti attivi automaticamente"
-msgstr "Active users automatically"
-
 #: app/auth/class_auth.php:98
 msgid "Utilizzo email come username"
 msgstr "Use email as username"
@@ -1540,6 +1588,169 @@ msgstr "Login box"
 msgid "Login area privata/amministrativa"
 msgstr "Login private/administrative area"
 
+#: app/auth/class_auth.php:153
+msgid "Pagina di registrazione"
+msgstr "Registration page"
+
+#: app/auth/class_auth.php:154
+msgid "Oggetto della mail inviata a seguito di registrazione"
+msgstr "Subject of the email sent following registration"
+
+#: app/auth/class_auth.php:155
+msgid "Messaggio della mail inviata a seguito di registrazione"
+msgstr "Message of the email sent following registration"
+
+#: app/auth/class_auth.php:156
+msgid "Risultato registrazione"
+msgstr "Result registration"
+
+#: app/auth/class_auth.php:157
+msgid "Risultato conferma indirizzo email"
+msgstr "Result confirmation email"
+
+#: app/auth/class_auth.php:158
+msgid "Oggetto della mail inviata per conferma attivazione"
+msgstr "Subject of the email sent to confirm activation"
+
+#: app/auth/class_auth.php:159
+msgid "Messaggio della mail inviata per conferma attivazione"
+msgstr "Message of the email sent to confirm activation"
+
+#: app/auth/class_auth.php:160
+msgid "Profilo utente"
+msgstr "User profile"
+
+#: app/auth/class_auth.php:161
+msgid "Attivazione profilo per utente già registrato"
+msgstr "Activation profile for registered user"
+
+#: app/auth/class_auth.php:162
+msgid "Richiesta di recupero credenziali"
+msgstr "Recovery request credentials"
+
+#: app/auth/class_auth.php:163
+msgid "Processing richiesta di recupero credenziali"
+msgstr "Processing recovery request credentials"
+
+#: app/auth/class_auth.php:164
+msgid "Successo richiesta di recupero credenziali"
+msgstr "Successful recovery request credentials"
+
+#: app/auth/class_auth.php:294 app/auth/class_auth.php:433
+msgid "Devi accettare i termini e le condizioni del servizio"
+msgstr "You must accept the terms and conditions of service"
+
+#: app/auth/class_auth.php:322 app/auth/class_auth.php:460
+msgid "Salvataggio richiesta di registrazione fallito"
+msgstr "Saving registration request failed"
+
+#: app/auth/class_auth.php:359 app/auth/class_auth.php:559
+msgid "Termini e condizioni"
+msgstr "Terms and conditions"
+
+#: app/auth/class_auth.php:359 app/auth/class_auth.php:559
+msgid "Ho letto ed accetto i termini e le condizioni del servizio"
+msgstr "I agree to the terms and conditions of service"
+
+#: app/auth/class_auth.php:362 app/auth/class_auth.php:562
+#: app/auth/class_auth.php:1901 app/page/class_page.php:663
+msgid "invia"
+msgstr "send"
+
+#: app/auth/class_auth.php:512 app/auth/class.RegistrationRequest.php:36
+#: app/auth/class.User.php:37 app/auth/views/profile.php:25
+msgid "Cognome"
+msgstr "Lastname"
+
+#: app/auth/class_auth.php:527 app/auth/class_auth.php:1814
+#: app/auth/class.RegistrationRequest.php:37 app/auth/class.User.php:41
+#: app/auth/views/profile.php:29
+msgid "Username"
+msgstr ""
+
+#: app/auth/class_auth.php:530 app/auth/class.RegistrationRequest.php:39
+#: app/auth/class.User.php:40 app/auth/views/profile.php:33
+#: app/page/class.PageComment.php:39 app/page/class_page.php:658
+msgid "Email"
+msgstr ""
+
+#: app/auth/class_auth.php:531
+msgid "Ripeti email"
+msgstr "Repeat email"
+
+#: app/auth/class_auth.php:546 app/auth/class_auth.php:828
+#: app/auth/class_auth.php:1815 app/auth/class.RegistrationRequest.php:38
+#: app/auth/class.User.php:42 app/auth/class.User.php:213
+#: app/sysconf/class_sysconf.php:106
+msgid "Password"
+msgstr ""
+
+#: app/auth/class_auth.php:547 app/auth/class_auth.php:829
+msgid "Ripeti password"
+msgstr "Repeat password"
+
+#: app/auth/class_auth.php:594
+#, php-format
+msgid ""
+"Si è verificato un errore nell'invio dell'email di conferma registrazione, "
+"scrivere al seguente indirizzo: %s"
+msgstr ""
+"There was an error sending the confirmation registration, write to the "
+"following address: %s"
+
+#: app/auth/class_auth.php:650
+#, php-format
+msgid "Si è verificato un errore nell'attivazione dell'utenza. Scrivere a %s"
+msgstr "It was an error in the activation of the user. Write to %s"
+
+#: app/auth/class_auth.php:654
+#, php-format
+msgid "Registrazione nuovo utente | %s"
+msgstr "New user registration | %s"
+
+#: app/auth/class_auth.php:655
+#, php-format
+msgid "L'utente %s %s si è appena registrato ed è stato attivato."
+msgstr "The user %s %s has registered and has been activated."
+
+#: app/auth/class_auth.php:661
+#, php-format
+msgid "Registrazione nuovo utente in attesa di attivazione | %s"
+msgstr "New user registration awaiting activation | %s"
+
+#: app/auth/class_auth.php:662
+#, php-format
+msgid "L'utente %s %s si è appena registrato ed è in attesa di attivazione."
+msgstr "The user %s %s has registered and is awaiting activation."
+
+#: app/auth/class_auth.php:697
+#, php-format
+msgid "Richiesta di registrazione con id %s inesistente"
+msgstr "Registration request with id %s nonexistent"
+
+#: app/auth/class_auth.php:706
+#, php-format
+msgid "Impossibile creare l'utente per la richiesta di registrazione con id %s"
+msgstr "Can not create the user to registration request with id %s"
+
+#: app/auth/class_auth.php:797
+#, php-format
+msgid "Modifica password | %s"
+msgstr "Modify password | %s"
+
+#: app/auth/class_auth.php:798
+#, php-format
+msgid ""
+"Hai modificato la password di accesso.\n"
+"La nuova password è: %s."
+msgstr ""
+"You have changed the password.\n"
+"The new password is: %s."
+
+#: app/auth/class_auth.php:831
+msgid "modifica password"
+msgstr "modify password"
+
 #: app/auth/class_auth.php:273 app/graphics/class_graphics.php:232
 #: app/menu/class_menu.php:264 app/page/class_page.php:909
 #: app/phpModuleView/class_phpModuleView.php:184
@@ -1557,13 +1768,47 @@ msgstr "Groups"
 msgid "Permessi"
 msgstr "Permits"
 
+#: app/auth/class_auth.php:926
+msgid "Profili registrazione"
+msgstr "Profiles registration"
+
+#: app/auth/class_auth.php:927
+msgid "Richieste registrazione"
+msgstr "Requests registration"
+
 #: app/auth/class_auth.php:277
 msgid "Utenti"
 msgstr "Users"
 
-#: app/auth/class_auth.php:317
-msgid "Utenti di sistema"
-msgstr "System users"
+#: app/auth/class_auth.php:998
+msgid "Elenco delle richieste di registrazione."
+msgstr "List of requests for registration."
+
+#: app/auth/class_auth.php:1001 app/auth/class.RegistrationRequest.php:41
+msgid "Utente"
+msgstr "User"
+
+#: app/auth/class_auth.php:1021
+msgid "Elenco dei profili di registrazione automatica al sistema."
+msgstr "List of profiles of automatic registration system."
+
+#: app/auth/class_auth.php:1024 app/sysconf/class_sysconf.php:110
+msgid "Meta"
+msgstr ""
+
+#: app/auth/class_auth.php:1025
+msgid "Vista form registrazione"
+msgstr "View registration form"
+
+#: app/auth/class_auth.php:1027 app/auth/class.RegistrationProfile.php:41
+msgid "Informazioni aggiuntive"
+msgstr "Additional Information"
+
+#: app/auth/class_auth.php:1031 app/instruments/class_instruments.php:101
+#: app/instruments/class_instruments.php:134 app/page/class_page.php:975
+#: app/page/class_page.php:979
+msgid "Url"
+msgstr ""
 
 #: app/auth/class_auth.php:346
 msgid "Elenco degli utenti del sistema."
@@ -1626,6 +1871,25 @@ msgstr "Username not available!"
 msgid "Username disponibile!"
 msgstr "Available username!"
 
+#: app/auth/class_auth.php:1311
+msgid "Inserire una password!"
+msgstr "Insert password!"
+
+#: app/auth/class_auth.php:1316
+#, php-format
+msgid "La password deve contenere almeno %s caratteri e non più di %s"
+msgstr "Your password must be at least %s characters and no more than %s"
+
+#: app/auth/class_auth.php:1322
+#, php-format
+msgid "La password deve contenere almeno %s caratteri numerici"
+msgstr "Your password must be at least %s digits"
+
+#: app/auth/class_auth.php:1330
+#, php-format
+msgid "Sicurezza: %s/10"
+msgstr "Security: %s/10"
+
 #: app/auth/class_auth.php:595
 msgid "Non è possibile modificare la password di un utente Ldap"
 msgstr "You can not change the password of a user Ldap"
@@ -1666,15 +1930,6 @@ msgstr "Module"
 msgid "Username o password non valida"
 msgstr "Username or password incorrect"
 
-#: app/auth/class_auth.php:986 app/auth/class.User.php:41
-msgid "Username"
-msgstr ""
-
-#: app/auth/class_auth.php:987 app/auth/class.User.php:42
-#: app/auth/class.User.php:191 app/sysconf/class_sysconf.php:106
-msgid "Password"
-msgstr ""
-
 #: app/auth/class_auth.php:989
 msgid "login"
 msgstr ""
@@ -1682,6 +1937,47 @@ msgstr ""
 #: app/auth/class_auth.php:995
 msgid "Login"
 msgstr ""
+
+#: app/auth/class_auth.php:1853 app/auth/class_auth.php:1879
+#, php-format
+msgid "Recupero credenziali di accesso | %s"
+msgstr "Recovery credentials | %s"
+
+#: app/auth/class_auth.php:1854
+#, php-format
+msgid ""
+"Le tue nuove credenziali di accesso al sito %s sono:\n"
+"username: %s\n"
+"password:%s\n"
+"Ti ricordiamo che potrai modificare la password generata automaticamente "
+"nella tua pagina del profilo:\n"
+"%s"
+msgstr ""
+"Your new login credentials to the site %s are:\n"
+"username: %s\n"
+"password:%s\n"
+"We remind you that you can change the automatically generated password "
+"in your profile page:\n"
+"%s"
+
+#: app/auth/class_auth.php:1880
+#, php-format
+msgid ""
+"Hai ricevuto questa email perché hai richiesto la procedura di recupero "
+"credenziali di accesso al sito %s.\n"
+"Se non fossi stato tu ignorala, altrimenti per procedere al recupero, segui "
+"il link qui sotto entro il mese corrente:\n"
+"%s"
+msgstr ""
+"You are receiving this email because you have requested the procedure of "
+"credentials recovery to the site %s.\n"
+"If you were not ignore it, otherwise to proceed to recovery, follow the "
+"link below within the current month:\n"
+"%s"
+
+#: app/auth/class_auth.php:1900
+msgid "Indirizzo email"
+msgstr "Email address"
 
 #: app/auth/class.Group.php:37
 msgid "Gruppo"
@@ -1707,9 +2003,102 @@ msgstr ""
 msgid "Richiede accesso area amministrativa"
 msgstr "Requires access administrative area"
 
-#: app/auth/class.User.php:37
-msgid "Cognome"
-msgstr "Last name"
+#: app/auth/class.RegistrationProfile.php:38 app/page/class.PageEntry.php:44
+#: app/page/class_page.php:660
+msgid "Testo"
+msgstr "Text"
+
+#: app/auth/class.RegistrationProfile.php:39
+msgid "Informativa termini e condizioni di utilizzo/privacy"
+msgstr "Statement terms and conditions of use/privacy"
+
+#: app/auth/class.RegistrationProfile.php:40
+msgid "Attivazione automatica"
+msgstr "Automatic activation"
+
+#: app/auth/class.RegistrationProfile.php:40
+msgid "Se falso l'utente deve essere attivato da un altro utente di sistema"
+msgstr "If false, the user must be activated by another user of the system"
+
+#: app/auth/class.RegistrationProfile.php:41
+msgid "Richiesta di informazioni aggiuntive gestite da un'altra applicazione"
+msgstr "Request additional information managed by another application"
+
+#: app/auth/class.RegistrationProfile.php:42
+msgid "Tipologia applicazione"
+msgstr "Type of application"
+
+#: app/auth/class.RegistrationProfile.php:43
+msgid "Id applicazione"
+msgstr "Application id"
+
+#: app/auth/class.RegistrationProfile.php:44
+msgid "Gruppi associati all'utenza"
+msgstr "Groups associated with the user"
+
+#: app/auth/class.RegistrationProfile.php:47
+msgid "Profilo di Registrazione"
+msgstr "Profile Registration"
+
+#: app/auth/class.RegistrationProfile.php:105 app/module/class_module.php:120
+msgid "modulo di sistema"
+msgstr "system module"
+
+#: app/auth/class.RegistrationProfile.php:105
+msgid "modulo istanza"
+msgstr "instance module"
+
+#: app/auth/class.RegistrationProfile.php:131
+msgid ""
+"Tipo e/o id del modulo che deve completare le informazioni mancanti per la "
+"registrazione."
+msgstr ""
+"Type and/or id of the module that has to complete the missing information "
+"for registration."
+
+#: app/auth/class.RegistrationProfile.php:137
+#: app/auth/class.RegistrationProfile.php:145
+#, php-format
+msgid ""
+"Il modulo che richiede informazioni aggiuntive alla registrazione è "
+"sconosciuto (id: %s)."
+msgstr ""
+"The module that requires additional information to register is unknown "
+"(id: %s)."
+
+#: app/auth/class.RegistrationProfile.php:152
+#, php-format
+msgid ""
+"Il modulo %s che richiede informazioni aggiuntive alla registrazione non "
+"implementa i metodi necessari (formAuthRegistration, actionAuthRegistration)."
+msgstr ""
+"The module %s that requires additional information to register does not "
+"implement the required methods (formAuthRegistration, actionAuthRegistration)."
+
+#: app/auth/class.RegistrationRequest.php:32
+msgid "Profilo registrazione"
+msgstr "Profile registration"
+
+#: app/auth/class.RegistrationRequest.php:33 app/page/class.PageComment.php:37
+msgid "Data"
+msgstr "Date"
+
+#: app/auth/class.RegistrationRequest.php:34
+#: app/phpModuleView/class.PhpModule.php:119
+msgid "Codice"
+msgstr "Code"
+
+#: app/auth/class.RegistrationRequest.php:40
+msgid "Confermato"
+msgstr "Confirmed"
+
+#: app/auth/class.RegistrationRequest.php:44
+msgid "Richiesta di Registrazione"
+msgstr "Request for Registration"
+
+#: app/auth/class.RegistrationRequest.php:114
+msgid "crea ed attiva utente"
+msgstr "creates and active user"
 
 #: app/auth/class.User.php:38
 msgid "Società"
@@ -1718,11 +2107,6 @@ msgstr "Company"
 #: app/auth/class.User.php:39
 msgid "Telefono"
 msgstr "Telephone"
-
-#: app/auth/class.User.php:40 app/page/class.PageComment.php:39
-#: app/page/class_page.php:658
-msgid "Email"
-msgstr ""
 
 #: app/auth/class.User.php:43
 msgid "Super-amministratore"
@@ -1763,6 +2147,215 @@ msgstr "Check password"
 #: app/auth/class.User.php:194
 msgid "procedi"
 msgstr "proceed"
+
+#: app/auth/views/activation_email_message.php:16
+#, php-format
+msgid ""
+"Buongiorno %s %s,\n"
+"la registrazione è stata confermata, la tua utenza è stata attivata, puoi "
+"loggarti al sistema dal seguente url:\n"
+" %s\n"
+"\n"
+msgstr ""
+"Dear %s %s,\n"
+"registration has been confirmed, your user has been activated, you can "
+"login to the system by the following url:\n"
+" %s\n"
+"\n"
+
+#: app/auth/views/activation_email_message.php:17
+#, php-format
+msgid "Ti ricordiamo il nome utente da te scelto: %s."
+msgstr "Do you remember the username you chose: %s."
+
+#: app/auth/views/activation_email_message.php:18
+#, php-format
+msgid ""
+"La tua pagina profilo è disponibile una volta loggato al segunte indirizzo:\n"
+"%s"
+msgstr ""
+"Your profile page is available once logged in to segunte address:\n"
+"%s"
+
+#: app/auth/views/activation_email_object.php:13
+#, php-format
+msgid "Attivazione account %s | %s"
+msgstr "Account activation %s | %s"
+
+#: app/auth/views/confirmation_result.php:17
+msgid "La registrazione è stata confermata con successo!"
+msgstr "The registration has been confirmed successfully!"
+
+#: app/auth/views/confirmation_result.php:19
+msgid "L'utente è attivo, puoi effettuare il login:"
+msgstr "The user is active, you can login:"
+
+#: app/auth/views/confirmation_result.php:22
+msgid ""
+"La tua utenza dovrà ora essere attivata da un amministratore, riceverai "
+"un'email di conferma ad attivazione avvenuta."
+msgstr ""
+"Your membership will be activated now by an administrator, you will receive "
+"a confirmation email at the active."
+
+#: app/auth/views/data_recovery_request.php:11
+#: app/auth/views/data_recovery_request_processed.php:11
+#: app/auth/views/data_recovery_success.php:11
+msgid "Recupero credenziali di accesso"
+msgstr "Recovery credentials"
+
+#: app/auth/views/data_recovery_request.php:12
+msgid ""
+"Se hai perso username o password puoi attivare la procedura di recupero."
+msgstr ""
+"If you lost your username or password you can activate the recovery procedure."
+
+#: app/auth/views/data_recovery_request.php:13
+msgid ""
+"Inserisci l'indirizzo email legato al tuo account qui sotto e premi invia. "
+"Riceverai un'email con le istruzioni da seguire per recuperare le tue "
+"credenziali di accesso."
+msgstr ""
+"Enter below the email address associated with your account and click send. "
+"You will receive an email with instructions on how to retrieve your login "
+"credentials."
+
+#: app/auth/views/data_recovery_request_processed.php:13
+msgid "L'indirizzo email inserito non corrisponde ad alcun utente."
+msgstr "The email address does not match any user."
+
+#: app/auth/views/data_recovery_request_processed.php:15
+msgid ""
+"Ti abbiamo inviato un'email all'indirizzo di posta elettronica specificato "
+"con le istruzioni da seguire per recuperare le credenziali di accesso."
+msgstr ""
+"We sent an email to the email address specified with instructions on how "
+"to retrieve your login credentials."
+
+#: app/auth/views/data_recovery_success.php:12
+msgid "Ti abbiamo inviato un'email contenente le nuove credenziali di accesso."
+msgstr "We sent an email containing the new login credentials."
+
+#: app/auth/views/data_recovery_success.php:13
+msgid ""
+"Potrai modificare la password nella tua pagina profilo a login effettuato."
+msgstr ""
+"You can change the password on your profile page to login performed."
+
+#: app/auth/views/data_recovery_success.php:14
+msgid "profilo utente"
+msgstr "user profile"
+
+#: app/auth/views/profile.php:38
+msgid "Modifica la password"
+msgstr "Change your password"
+
+#: app/auth/views/profile.php:40
+msgid "La password è stata modificata con successo."
+msgstr "The password has been changed successfully."
+
+#: app/auth/views/profile.php:52
+msgid "Profili di registrazione"
+msgstr "Registration profiles"
+
+#: app/auth/views/profile.php:53
+msgid "È possibile registrarsi ad altri servizi."
+msgstr "You can subscribe for other services."
+
+#: app/auth/views/profile.php:58 app/language/class.Lang.php:40
+#: app/module/class_module.php:474 app/sysClass/class_sysClass.php:518
+msgid "attiva"
+msgstr "active"
+
+#: app/auth/views/profile.php:64
+msgid "Elimina account"
+msgstr "Delete account"
+
+#: app/auth/views/profile.php:65
+msgid "L'eliminazione è definitiva."
+msgstr "The elimination is permanent."
+
+#: app/auth/views/profile.php:66
+msgid "Sicuro di voler procedere con l'eliminazione dell'account?"
+msgstr "Sure you want to proceed with deleting the account?"
+
+#: app/auth/views/profile.php:66
+msgid "elimina account"
+msgstr "delete account"
+
+#: app/auth/views/registration_email_message.php:15
+#, php-format
+msgid ""
+"Buongiorno %s, grazie per esserti registrato su %s.\n"
+"Per confermare il tuo indirizzo email devi seguire il link qui sotto:\n"
+"%s"
+msgstr ""
+"Dear %s, thank you for registering at %s.\n"
+"To confirm your email you have to follow the link below:\n"
+"%s"
+
+#: app/auth/views/registration_email_message.php:21
+#, php-format
+msgid ""
+"\n"
+"Il tuo account dovrà essere verificato ed attivato da un amministratore del "
+"sistema."
+msgstr ""
+"\n"
+"Your account must be verified and activated by a system administrator."
+
+#: app/auth/views/registration_email_object.php:13
+#, php-format
+msgid "Registrazione %s | %s"
+msgstr "Registration %s | %s"
+
+#: app/auth/views/registration.php:16
+msgid ""
+"A seguito della registrazione riceverai un'email di conferma con un url da "
+"visitare per confermare l'indirizzo email fornito."
+msgstr ""
+"Upon registration, you will receive a confirmation email with a URL to visit "
+"to confirm the email address."
+
+#: app/auth/views/registration.php:18
+msgid ""
+"Il tuo account verrà attivato a seguito di verifica dell'amministratore."
+msgstr "Your account will be activated after verification of the administrator."
+
+#: app/auth/views/registration_result.php:15
+msgid "Registrazione non riuscita."
+msgstr "Registration failed."
+
+#: app/auth/views/registration_result.php:18
+#, php-format
+msgid ""
+"Grazie <strong>%s</strong>,<br />la registrazione è avvenuta con successo."
+msgstr ""
+"Thanks <strong>%s</strong>,<br />registration was successful."
+
+#: app/auth/views/registration_result.php:19
+msgid ""
+"Ti abbiamo inviato un'email per la conferma del tuo indirizzo di posta "
+"elettronica."
+msgstr "We sent an email to confirm your email address."
+
+#: app/auth/views/registration_result.php:21
+msgid ""
+"Il tuo account verrà attivato appena avrai confermato l'indirizzo email."
+msgstr ""
+"Your account will be activated as soon as you've confirmed your email address."
+
+#: app/auth/views/registration_result.php:23
+msgid ""
+"A seguito di conferma dell'indirizzo email il tuo account verrà verificato "
+"ed attivato da un amministratore."
+msgstr ""
+"Following confirmation of the email address your account is verified and "
+"activated by an administrator."
+
+#: app/auth/views/registration_result.php:26
+msgid "Riceverai una mail di conferma ad attivazione avvenuta."
+msgstr "You will receive a confirmation email at the active."
 
 #: app/graphics/class.GraphicsItem.php:31
 msgid "Elemento grafico"
@@ -1919,12 +2512,6 @@ msgstr ""
 msgid "Pagine"
 msgstr "Pages"
 
-#: app/instruments/class_instruments.php:101
-#: app/instruments/class_instruments.php:134 app/page/class_page.php:975
-#: app/page/class_page.php:979
-msgid "Url"
-msgstr ""
-
 #: app/instruments/class_instruments.php:110 app/menu/class_menu.php:663
 msgid "pagina privata"
 msgstr "private page"
@@ -1937,10 +2524,6 @@ msgstr "page limited to selected users"
 #: app/instruments/class_instruments.php:129
 msgid "Moduli di sistema e istanze"
 msgstr "System modules and instances"
-
-#: app/language/class.Lang.php:33 app/sysconf/class_sysconf.php:104
-msgid "Lingua"
-msgstr "Language"
 
 #: app/language/class.Lang.php:36 app/module/class_module.php:126
 #: app/sysClass/class_sysClass.php:131
@@ -1958,11 +2541,6 @@ msgstr "language code"
 #: app/language/class.Lang.php:39
 msgid "codice stato"
 msgstr "country code"
-
-#: app/language/class.Lang.php:40 app/module/class_module.php:481
-#: app/sysClass/class_sysClass.php:518
-msgid "attiva"
-msgstr "active"
 
 #: app/language/class_language.php:52
 msgid "Bandiere come etichette"
@@ -2351,10 +2929,6 @@ msgstr ""
 msgid "id"
 msgstr ""
 
-#: app/module/class_module.php:127
-msgid "modulo di sistema"
-msgstr "system module"
-
 #: app/module/class_module.php:128 app/sysClass/class_sysClass.php:133
 msgid "attivo"
 msgstr "active"
@@ -2443,10 +3017,6 @@ msgstr "Activation"
 msgid "Post"
 msgstr ""
 
-#: app/page/class.PageComment.php:37
-msgid "Data"
-msgstr "Date"
-
 #: app/page/class.PageComment.php:38 app/page/class.PageEntry.php:37
 msgid "Autore"
 msgstr "Author"
@@ -2500,10 +3070,6 @@ msgstr "Link image"
 #: app/page/class.PageEntry.php:43
 msgid "indirizzo URL"
 msgstr "URL"
-
-#: app/page/class.PageEntry.php:44 app/page/class_page.php:660
-msgid "Testo"
-msgstr "Text"
 
 #: app/page/class.PageEntry.php:45
 msgid "Tag"
@@ -2778,10 +3344,6 @@ msgstr "It is not allowed to use any HTML tags"
 msgid "Inviami un'email quando vengono postati altri commenti"
 msgstr "Email me when other comments are posted"
 
-#: app/page/class_page.php:663
-msgid "invia"
-msgstr "send"
-
 #: app/page/class_page.php:696
 msgid "Il codice inserito non è corretto"
 msgstr "The code is not correct"
@@ -2843,10 +3405,6 @@ msgstr "Leave your comment"
 #, php-format
 msgid "in risposta a %s"
 msgstr "in response to %s"
-
-#: app/phpModuleView/class.PhpModule.php:119
-msgid "Codice"
-msgstr "Code"
 
 #: app/phpModuleView/class.PhpModule.php:119
 msgid ""
@@ -3608,10 +4166,6 @@ msgstr ""
 
 #: app/sysconf/class_sysconf.php:108
 msgid "Mobile"
-msgstr ""
-
-#: app/sysconf/class_sysconf.php:110
-msgid "Meta"
 msgstr ""
 
 #: app/sysconf/class_sysconf.php:111

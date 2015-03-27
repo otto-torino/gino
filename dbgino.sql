@@ -104,8 +104,6 @@ CREATE TABLE IF NOT EXISTS `auth_opt` (
   `users_for_page` smallint(3) NOT NULL,
   `user_more_info` tinyint(1) NOT NULL,
   `user_card_view` tinyint(1) NOT NULL,
-  `self_registration` tinyint(1) NOT NULL,
-  `self_registration_active` tinyint(1) NOT NULL,
   `username_as_email` tinyint(1) NOT NULL,
   `aut_pwd` tinyint(1) NOT NULL,
   `aut_pwd_length` smallint(2) NOT NULL,
@@ -123,8 +121,8 @@ CREATE TABLE IF NOT EXISTS `auth_opt` (
 -- Dumping data for table `auth_opt`
 --
 
-INSERT INTO `auth_opt` (`id`, `instance`, `users_for_page`, `user_more_info`, `user_card_view`, `self_registration`, `self_registration_active`, `username_as_email`, `aut_pwd`, `aut_pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_numeric_number`, `ldap_auth`, `ldap_auth_only`, `ldap_single_user`, `ldap_auth_password`) VALUES
-(1, 0, 10, 0, 1, 0, 0, 0, 0, 10, 6, 14, 2, 0, 0, NULL, NULL);
+INSERT INTO `auth_opt` (`id`, `instance`, `users_for_page`, `user_more_info`, `user_card_view`, `username_as_email`, `aut_pwd`, `aut_pwd_length`, `pwd_min_length`, `pwd_max_length`, `pwd_numeric_number`, `ldap_auth`, `ldap_auth_only`, `ldap_single_user`, `ldap_auth_password`) VALUES
+(1, 0, 10, 0, 1, 0, 0, 10, 6, 14, 2, 0, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -171,6 +169,74 @@ INSERT INTO `auth_permission` (`id`, `class`, `code`, `label`, `description`, `a
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `auth_registration_profile`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_registration_profile` (
+  `id` int(11) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `text` text,
+  `terms` text,
+  `auto_enable` tinyint(1) NOT NULL,
+  `add_information` tinyint(1) DEFAULT NULL,
+  `add_information_module_type` tinyint(1) DEFAULT NULL,
+  `add_information_module_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `auth_registration_profile`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `auth_registration_profile`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_registration_profile_group`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_registration_profile_group` (
+  `id` int(11) NOT NULL,
+  `registrationprofile_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `auth_registration_profile_group`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `auth_registration_profile_group`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_registration_request`
+--
+
+CREATE TABLE IF NOT EXISTS `auth_registration_request` (
+  `id` int(11) NOT NULL,
+  `registration_profile` int(11) NOT NULL,
+  `date` datetime NOT NULL,
+  `code` varchar(32) NOT NULL,
+  `firstname` varchar(255) NOT NULL,
+  `lastname` varchar(255) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `confirmed` tinyint(1) NOT NULL DEFAULT '0',
+  `user` int(11) DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `auth_registration_request`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `auth_registration_request`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `auth_user`
 --
 
@@ -203,7 +269,7 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `firstname`, `lastname`, `company`, `phone`, `fax`, `email`, `username`, `userpwd`, `is_admin`, `address`, `cap`, `city`, `nation`, `text`, `photo`, `publication`, `date`, `active`, `ldap`) VALUES
-(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'amministratore', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1, 0);
+(1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', '', 'support@otto.to.it', 'admin', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, '', '', 2, '2011-10-10 01:00:00', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -243,19 +309,6 @@ CREATE TABLE IF NOT EXISTS `auth_user_perm` (
   `user_id` int(11) NOT NULL,
   `perm_id` smallint(6) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `auth_user_registration`
---
-
-CREATE TABLE IF NOT EXISTS `auth_user_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `session` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 

@@ -3,7 +3,7 @@
  * @file class.Locale.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Locale
  * 
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -11,7 +11,7 @@ namespace Gino;
 
 use Gino\App\Sysconf\Conf;
 use Gino\App\Sysconf\sysconf;
-use \Gino\App\Language\Lang;
+use Gino\App\Language\Lang;
 
 /**
  * @brief Libreria per la gestione delle traduzioni che non utilizzano le librerie gettext
@@ -78,7 +78,7 @@ use \Gino\App\Language\Lang;
  * );
  * @endcode
  * 
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -86,19 +86,32 @@ class Locale extends Singleton {
 
     private $_session;
     private $_strings;
+    
+    /**
+     * Nome della classe che istanzia
+     * @var string
+     */
+    private $_class_name;
+    
+    /**
+     * Lista dei file delle traduzioni
+     * @var array (code_language => path_to_file)
+     */
+    private $_file_list;
 
     /**
      * Costruttore
      * 
-     * @param string $class_name nome della classe
+     * @param string $class_name nome della classe che istanzia
      * @return void
      */
     protected function __construct($class_name) {
 
         $this->_session = Session::instance();
         $this->_strings = array();
+        $this->_class_name = $class_name;
 
-        $path_to_file = $this->pathToFile($class_name);
+        $path_to_file = $this->pathToFile();
 
         if(file_exists($path_to_file))
         {
@@ -108,20 +121,23 @@ class Locale extends Singleton {
 
     /**
      * @brief Percorso file traduzioni della classe o quello di default se non presente
+     * 
+     * @see self::fileName()
+     * @see self::pathToBaseDir()
      * @param string $class_name nome classe
      * @return percorso
      */
-    private function pathToFile($class_name) {
+    private function pathToFile() {
 
-        $filename = $class_name.'_lang.php';
+        $filename = $this->fileName();
 
-        if(!file_exists(APP_DIR.OS.$class_name))
+        if(!is_dir(APP_DIR.OS.$this->_class_name))
         {
-            $path_to_file = SITE_ROOT.OS.'languages'.OS.$this->_session->lng.OS.$filename;
+            $path_to_file = SITE_ROOT.OS.'languages'.OS.$this->_session->lng.OS.'LC_MESSAGES'.OS.$filename;
         }
         else
         {
-            $path_to_file = APP_DIR.OS.$class_name.OS.'language'.OS.$this->_session->lng.OS.$filename;
+            $path_to_file = $this->pathToBaseDir($this->_session->lng).$filename;
         }
 
         return $path_to_file;
@@ -270,10 +286,6 @@ class Locale extends Singleton {
 
         return FALSE;
     }
-
-    /**
-
-    */
 
     /**
      * @brief Recupera le caratteristiche di tutti i locale
@@ -498,5 +510,353 @@ class Locale extends Singleton {
         'xh' => 'Xhosa',
         'yi' => 'Yiddish',
         'zu' => 'Zulu' );
+    }
+    
+    /**
+     * @brief Percorso assoluto della directory dei file delle traduzioni
+     *
+     * @param string $code codice della lingua
+     * @return percorso
+     */
+    private function pathToBaseDir($code=null) {
+    
+    	$dir = APP_DIR.OS.$this->_class_name.OS.'language'.OS;
+    	
+    	if($code) $dir .= $code.OS;
+    
+    	return $dir;
+    }
+    
+    /**
+     * @brief Nome del file delle traduzioni
+     *
+     * @return nome file
+     */
+    private function fileName() {
+    
+    	$name = $this->_class_name."_lang.php";
+    	return $name;
+    }
+    
+    /**
+     * Imposta alcune proprietà
+     * 
+     * @see self::listLocaleFile()
+     * @param object $controller
+     * @return void
+     */
+    private function setProperties($controller) {
+    	
+    	$this->listLocaleFile();
+    	
+    	$class = get_class($controller);
+    	$module_id = $controller->getInstance();
+    	
+    	if($module_id) {
+    		Loader::import('module', 'ModuleInstance');
+    		$module = new \Gino\App\Module\ModuleInstance($module_id);
+    	}
+    	else {
+    		Loader::import('sysClass', 'ModuleApp');
+    		$module = \Gino\App\SysClass\ModuleApp::getFromName($this->_class_name);
+    	}
+    	
+    	$registry = Registry::instance();
+    	$method = $module_id ? 'manageDoc' : 'manage'.ucfirst($this->_class_name);
+    	$this->_mdlLink = $registry->router->link($module->name, $method, array(), array('block' => 'locale'));
+    }
+    
+    /**
+     * @brief Interfaccia per la gestione dei file delle traduzioni dei moduli
+     *
+     * @see self::setProperties()
+     * @see self::moduleList()
+     * @see self::formModuleFile()
+     * @see self::actionModuleFile()
+     * @param object $controller controller
+     * @return interfaccia
+     */
+    public function manageLocale($controller) {
+    
+    	$request = \Gino\Http\Request::instance();
+    	$action = cleanVar($request->GET, 'action', 'string', '');
+    
+    	$this->setProperties($controller);
+    	
+    	if($action == 'modify') {
+    		$buffer = $this->formModuleFile($request);
+    	}
+    	elseif($action == 'save') {
+    		return $this->actionModuleFile($request);
+    	}
+    	elseif($action == 'insert') {
+    		$buffer = $this->formCreateFile($request);
+    	}
+    	elseif($action == 'create') {
+    		return $this->actionCreateFile($request);
+    	}
+    	else {
+    		$buffer = "<p class=\"backoffice-info\">"._("In questa sezione si possono modificare le stringhe presenti nel codice modificando direttamente i file delle traduzioni.")."</p>";
+    		$buffer .= $this->moduleList();
+    	}
+    
+    	$view = new View();
+    	$view->setViewTpl('section');
+    	$dict = array(
+    		'title' => _("Traduzioni"),
+    		'class' => 'admin',
+    		'content' => $buffer
+    	);
+    	 
+    	return $view->render($dict);
+    }
+    
+    /**
+     * @brief Lista dei file delle traduzioni
+     * 
+     * @see self::pathToBaseDir()
+     * @return void
+     */
+    private function listLocaleFile() {
+    
+    	$this->_file_list = array();
+    
+    	$dir = $this->pathToBaseDir();
+    	 
+    	if(is_dir($dir))
+    	{
+    		if(substr($dir, -1) != '/') $dir .= OS;
+    		 
+    		if($dh = opendir($dir))
+    		{
+    			while(($file = readdir($dh)) !== FALSE)
+    			{
+    				if($file == "." || $file == "..") continue;
+    
+    				if(is_dir($dir.$file))	// directory col codice lingua
+    				{
+    					if($dh_sub = opendir($dir.$file))
+    					{
+    						while(($file_sub = readdir($dh_sub)) !== FALSE)
+    						{
+    							if($file_sub == "." || $file_sub == "..") continue;
+    
+    							if(is_file($dir.$file.OS.$file_sub) && \Gino\extensionFile($file_sub) == 'php')
+    							{
+    								$this->_file_list[$file] = $dir.$file.OS.$file_sub;
+    							}
+    						}
+    						closedir($dh_sub);
+    					}
+    				}
+    			}
+    			closedir($dh);
+    		}
+    	}
+    }
+    
+    /**
+     * @brief Tabella con l'elenco dei file delle traduzioni del modulo
+     *
+     * @description Utilizza la libraria javascript CodeMirror
+     * @return codice html
+     */
+    private function moduleList() {
+    
+    	$title = _("File delle traduzioni");
+    
+    	$num_items = count($this->_file_list);
+    	if($num_items) {
+    		$link_insert = "<a href=\"$this->_mdlLink&action=insert\">".\Gino\icon('insert')."</a>";
+    		
+    		$buffer = "<h2>".$title." $link_insert</h2>";
+    		$view_table = new View(null, 'table');
+    		$view_table->assign('class', 'table table-striped table-hover');
+    		$tbl_rows = array();
+    		$tb_rows[] = array(
+    			'text' => 'File',
+    			'header' => true,
+    			'colspan' => 3
+    		);
+    		foreach($this->_file_list as $k=>$v) {
+    			$language = $k;
+    			$path_to_file = $v;
+    			$filename = basename($path_to_file);
+    			 
+    			$link_modify = "<a href=\"$this->_mdlLink&key=$language&action=modify\">".\Gino\icon('modify')."</a>";
+    			$tbl_rows[] = array(
+    				$language,
+    				$filename,
+    				$link_modify
+    			);
+    		}
+    		$view_table->assign('rows', $tbl_rows);
+    		$buffer .= $view_table->render();
+    	}
+    	else {
+    		return '';
+    	}
+    
+    	return $buffer;
+    }
+    
+    /**
+     * @brief Form di modifica file
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
+     * @return codice html form
+     */
+    private function formModuleFile($request) {
+    
+    	$registry = registry::instance();
+    
+    	$registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
+    	$registry->addCss(CSS_WWW."/codemirror.css");
+    	$gform = Loader::load('Form', array('gform', 'post', true));
+    	$gform->load('dataform');
+    
+    	$key = cleanVar($request->GET, 'key', 'string', '');
+    
+    	$registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
+    	$registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
+    	$registry->addJs(SITE_JS."/CodeMirror/css.js");
+    	$registry->addJs(SITE_JS."/CodeMirror/xml.js");
+    	$registry->addJs(SITE_JS."/CodeMirror/clike.js");
+    	$registry->addJs(SITE_JS."/CodeMirror/php.js");
+    	$options = "{
+        	lineNumbers: true,
+        	matchBrackets: true,
+        	mode: \"application/x-httpd-php\",
+    		indentUnit: 4,
+    		indentWithTabs: true,
+    		enterMode: \"keep\",
+    		tabMode: \"shift\"
+        }";
+    	 
+    	$path_to_file = $this->pathToBaseDir($key).$this->fileName();
+    	 
+    	$title = sprintf(_("Modifica il file delle traduzioni \"%s\""), $key);
+    
+    	$required = '';
+    	$buffer = $gform->open($this->_mdlLink."&action=save&key=$key", '', $required);
+    
+    	$contents = file_get_contents($path_to_file);
+    
+    	$buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
+    
+    	$buffer .= "<div class=\"form-row\">";
+    	$buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+    	$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+    	$buffer .= "</div>";
+    	$buffer .= $gform->close();
+    
+    	$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+    
+    	$view = new View(null, 'section');
+    	$dict = array(
+    		'title' => $title,
+    		'class' => 'admin',
+    		'content' => $buffer
+    	);
+    
+    	return $view->render($dict);
+    }
+    
+    /**
+     * @brief Processa il form di modifica di un file
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    private function actionModuleFile($request) {
+    
+    	$key = cleanVar($request->GET, 'key', 'string', '');
+    
+    	$filename = $this->fileName();
+    
+    	$file_content = filter_input(INPUT_POST, 'file_content');
+    	$fo = fopen($this->pathToBaseDir($key).$filename, 'wb');
+    	fwrite($fo, $file_content);
+    	fclose($fo);
+    
+    	return new \Gino\Http\Redirect($this->_mdlLink);
+    }
+    
+    /**
+     * @brief Form di creazione di un file delle traduzioni
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
+     * @return codice html form
+     */
+    private function formCreateFile($request) {
+    
+    	$gform = Loader::load('Form', array('gform', 'post', true));
+    	$gform->load('dataform');
+    
+    	$title = _("Crea un nuovo file");
+    	$subtitle = _("Scegliere per quale lingua creare il file delle traduzioni");
+    
+    	$required = 'lang';
+    	$buffer = $gform->open($this->_mdlLink."&action=create", '', $required);
+    	
+    	$db = db::instance();
+    	
+    	$concat = $db->concat(array('language_code', "'_'", 'country_code'));
+    	$codes = array_keys($this->_file_list);
+    	$where = "$concat NOT IN ('".implode("','", $codes)."')";
+    	$query = $db->query($concat." AS lang, language", Lang::$table, $where, array('order'=>'language ASC'));
+    	
+    	$buffer .= $gform->cselect('lang', null, $query, _("Lingua"), array('required'=>true));
+    	$buffer .= $gform->cinput('submit_action', 'submit', _("crea"), null, array("classField"=>"submit"));
+    	
+    	$buffer .= $gform->close();
+    	
+    	$view = new View(null, 'section');
+    	$dict = array(
+    			'title' => $title,
+    			'subtitle' => $subtitle, 
+    			'class' => 'admin',
+    			'content' => $buffer
+    	);
+    
+    	return $view->render($dict);
+    }
+    
+    /**
+     * @brief Processa il form di creazione di un file
+     * @param \Gino\Http\Request oggetto Gino.Http.Request
+     * @return Gino.Http.Redirect
+     */
+    private function actionCreateFile($request) {
+    
+    	$lang = cleanVar($request->POST, 'lang', 'string', '');
+    	
+    	$gform = Loader::load('Form', array(null, null, null));
+    	$gform->save('dataform');
+    	$req_error = $gform->arequired();
+    	
+    	if($req_error > 0)
+    		return Error::errorMessage(array('error'=>1), $this->_mdlLink);
+    	
+    	// Lingua di default
+    	$default = $this->_session->lngDft;	// Lang::getMainLang()
+    	
+    	$path_to_file = $this->pathToBaseDir($default).$this->fileName();
+    	$path_to_new_lang = $this->pathToBaseDir($lang);
+    	$path_to_new_file = $path_to_new_lang.$this->fileName();
+    	
+    	if(is_file($path_to_file))
+    	{
+    		if(!is_dir($path_to_new_lang))
+    			mkdir($path_to_new_lang);
+    		
+    		if(!is_file($path_to_new_file))
+    			copy($path_to_file, $path_to_new_file);
+    		else
+    			return Error::errorMessage(array('error'=>sprintf(_("Il file %s è già presente"), $lang.OS.$this->fileName())), $this->_mdlLink);
+    	}
+    	else
+    	{
+    		return Error::errorMessage(array('error'=>_("Non è presente il file della lingua principale")), $this->_mdlLink);
+    	}
+    
+    	return new \Gino\Http\Redirect($this->_mdlLink);
     }
 }
