@@ -896,7 +896,7 @@ class auth extends \Gino\Controller {
             if($profile->add_information) {
                 $app = $profile->informationApp();
                 if(method_exists($app, 'deleteAuthAccount')) {
-                    $app->deleteAuthAccount();
+                    $app->deleteAuthAccount($request);
                 }
             }
             $r->delete();
@@ -1845,7 +1845,7 @@ class auth extends \Gino\Controller {
         // recupero password
         if($code and $email) {
             $user = User::getFromEmail($email);
-            $check_code = $code === md5($user->id . $user->username . $user->email . date('Ym'));
+            $check_code = $code === md5($user->id . $user->username . $user->email . $user->date . date('Ym'));
             if($check_code and $user) {
                 $password = User::generatePassword(array('aut_password_length' => 8));
                 $user->userpwd = User::setPassword($password);
@@ -1874,7 +1874,7 @@ class auth extends \Gino\Controller {
 
                 if($user) {
                     $error = FALSE;
-                    $code = md5($user->id . $user->username . $user->email . date('Ym'));
+                    $code = md5($user->id . $user->username . $user->email . $user->date . date('Ym'));
 
                     $mail_object = sprintf(_('Recupero credenziali di accesso | %s'), $this->_registry->sysconf->head_title);
                     $mail_message = sprintf(_("Hai ricevuto questa email perché hai richiesto la procedura di recupero credenziali di accesso al sito %s.\nSe non fossi stato tu ignorala, altrimenti per procedere al recupero, segui il link qui sotto entro il mese corrente:\n%s"), $this->_registry->sysconf->head_title, $this->_registry->router->link($this->_class_name, 'dataRecovery', array('email' => $email, 'code' => $code), '', array('abs' => TRUE)));
