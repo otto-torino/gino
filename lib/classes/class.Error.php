@@ -76,7 +76,7 @@ class Error {
      *              al nuovo url e poi tolto dalla sessione per evitare ripetizioni.
      * Esempio
      * @code
-     * exit(Error::errorMessage(array('error'=>1), $this->_home."?evt[$this->_instanceName-manageDoc]&id=$id"));
+     * return \Gino\Error::errorMessage(array('error'=>1), $error_redirect);
      * @endcode
      *
      * @param array $message
