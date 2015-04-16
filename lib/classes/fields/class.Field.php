@@ -531,6 +531,34 @@ class Field {
     }
 
     /**
+     * @brief Stampa un elemento del form di filtri area amministrativa
+     * @param \Gino\Form $form istanza di Gino.Form
+     * @param array $options
+     *   - @b default (mixed): valore di default
+     * @return controllo del campo, html
+     */
+    public function formFilter(\Gino\Form $form, $options)
+    {
+        $options['required'] = FALSE;
+        $options['is_filter'] = TRUE;
+
+        return $this->formElement($form, $options);
+    }
+
+    /**
+     * @brief Ripulisce un input usato come filtro in area amministrativa
+     * @param $options
+     *   array associativo di opzioni
+     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
+     * @return input ripulito
+     */
+    public function cleanFilter($options)
+    {
+        $options['asforminput'] = TRUE;
+        return $this->clean($options);
+    }
+
+    /**
      * @brief Ripulisce un input per l'inserimento in database
      *
      * @see Gino.cleanVar()
