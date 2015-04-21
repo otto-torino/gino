@@ -828,14 +828,17 @@ CREATE TABLE sys_conf (
   mobile tinyint NOT NULL DEFAULT '0',
   password_crypt nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
-  enable_cache tinyint NOT NULL,
+  enable_cache tinyint NOT NULL, 
+  query_cache tinyint NOT NULL 
+  	CONSTRAINT DF_sys_conf_query_cache DEFAULT '0', 
+  query_cache_time smallint NULL, 
   CONSTRAINT PK_sys_conf PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_conf ON
 
-INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache) VALUES
-(1, 1, 1, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
+INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache, query_cache, query_cache_time) VALUES
+(1, 1, 1, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0, 0, NULL);
 
 SET IDENTITY_INSERT sys_conf OFF
 

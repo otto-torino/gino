@@ -15,8 +15,19 @@
  * @description Quando il debug è attivo i file statici non vengono uniti e minificati e non vengono
  *              inviate email all'amministratore in caso di errore di sistema. Settare a FALSE in produzione
  *              per ricevere notifiche di errori e comprimere i file statici.
+ * 
+ * @var boolean
  */
 define("DEBUG", TRUE);
+
+/**
+ * @brief Opzione statistiche
+ * @description Quando il debug è attivo mostra una barra a scomparsa con le statistiche di esecuzione dello 
+ *              script e delle query.
+ * 
+ * @var boolean
+ */
+define("SHOW_STATS", TRUE);
 
 /**
  * @brief Amministratori sistema
@@ -67,6 +78,33 @@ define("DB_SCHEMA", "");
  * Codifica del database
  */
 define("DB_CHARSET", 'utf-8');
+
+// Query cache
+
+/**
+ * Tipologia di cache delle query
+ * @var string
+ */
+define("QUERY_CACHE_TYPE", 'auto');
+
+/**
+ * Parametri di connessione ad alcune tipologie di cache
+ * @var array
+ */
+define("QUERY_CACHE_SERVER", null);
+
+/**
+ * Directory di salvataggio dei file di cache
+ * @var string
+ */
+define("QUERY_CACHE_PATH", null);
+
+/**
+ * Tipologia di fallback della cache
+ * @var string
+ */
+define("QUERY_CACHE_FALLBACK", null);
+
 
 // Structure
 

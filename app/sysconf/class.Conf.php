@@ -47,7 +47,9 @@ class Conf extends \Gino\Model {
             'mobile' => array(_('gestione mobile'), _("Attiva il riconoscimento di dispositivi mobili. E' necessario configurare correttamente i template e le skin per una corretta visualizzazione.")),
             'password_crypt' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
             'enable_cache' => array(_('abilitazione cache'), _("Abilita le funzionalità di caching su file dei contenuti e dati dei singoli moduli e delle skin")),
-            'robots' => array(_('contenuto file robots'), _("Il file robots.txt viene utilizzato per fornire indicazioni riguardo all'indicizzazione dei contenuti del sito nei motori di ricerca"))
+            'robots' => array(_('contenuto file robots'), _("Il file robots.txt viene utilizzato per fornire indicazioni riguardo all'indicizzazione dei contenuti del sito nei motori di ricerca")), 
+        	'query_cache' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file ...")), 
+        	'query_cache_time' => array(_('tempo di durata della cache query'), _("Tempo in secondi"))
         );
 
         parent::__construct(1);
@@ -128,11 +130,19 @@ class Conf extends \Gino\Model {
     ));
 
     $structure['enable_cache'] = new \Gino\BooleanField(array(
-      'name'=>'enable_cache',
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array(1 => _('si'), 0 => _('no')),
-      'default'=>0,
+		'name'=>'enable_cache',
+		'model'=>$this,
+		'required'=>true,
+		'enum'=>array(1 => _('si'), 0 => _('no')),
+		'default'=>0,
+    ));
+    
+    $structure['query_cache'] = new \Gino\BooleanField(array(
+		'name'=>'query_cache',
+		'model'=>$this,
+		'required'=>true,
+		'enum'=>array(1 => _('si'), 0 => _('no')),
+		'default'=>0,
     ));
 
     return $structure;

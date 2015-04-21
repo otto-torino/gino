@@ -3,16 +3,18 @@
  * @file plugin.sqlsrv.php
  * @brief Contiene la classe sqlsrv
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino\Plugin;
 
+require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
+
 /**
  * @brief Libreria di connessione ai database SQL Server
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -42,18 +44,18 @@ class sqlsrv implements \Gino\DbManager {
 	private $_dbresults = array();
 	
 	/**
-	 * Abilita la cache 
+	 * Attiva le statistiche sulle query
 	 * 
 	 * @var boolean
 	 */
-	private $_enable_cache;
+	private $_show_stats;
 	
 	/**
-	 * Abilita il debug sulle query
-	 * 
-	 * @var boolean
+	 * Informazioni sulle query eseguite
+	 *
+	 * @var array
 	 */
-	private $_debug;
+	private $_info_queries;
 	
 	/**
 	 * Contatore di query
@@ -63,9 +65,30 @@ class sqlsrv implements \Gino\DbManager {
 	private $_cnt;
 	
 	/**
-	 * Contenitore delle query di tipo select
+	 * Tempo totale di esecuzione delle query
+	 *
+	 * @var float
+	 */
+	private $_time_queries;
+	
+	/**
+	 * Query cache
 	 * 
-	 * @var array(query=>results)
+	 * @var boolean
+	 */
+	private $_query_cache;
+	
+	/**
+	 * Tempo di durata della query cache
+	 *
+	 * @var integer
+	 */
+	private $_query_cache_time;
+	
+	/**
+	 * Oggetto plugin_phpfastcache
+	 * 
+	 * @var object
 	 */
 	private $_cache;
 	
@@ -92,12 +115,47 @@ class sqlsrv implements \Gino\DbManager {
 		$this->setnumberrows(0);
 		$this->setconnection(false);
 		
-		$this->_enable_cache = false;
-		$this->_debug = false;
+		$this->_show_stats = (DEBUG && SHOW_STATS) ? true : false;
+		
 		$this->_cnt = 0;
-		$this->_cache = array();
+		$this->_info_queries = array();
+		$this->_time_queries = 0;
+		
+		$this->setParamsCache();
+		if($this->_query_cache)
+		{
+			$this->_cache = new \Gino\Plugin\plugin_phpfastcache(
+				array(
+					'cache_time'=>$this->_query_cache_time,
+					'cache_path'=>QUERY_CACHE_PATH ? QUERY_CACHE_PATH : CACHE_DIR, 
+					'cache_type'=>QUERY_CACHE_TYPE,
+					'cache_server'=>QUERY_CACHE_SERVER,
+					'cache_fallback'=>QUERY_CACHE_FALLBACK,
+				)
+			);
+		}
 		
 		if($params["connect"]===true) $this->openConnection();
+	}
+	
+	/**
+	 * Parametri inerenti la cache delle query presenti nelle Impostazioni di sistema
+	 *
+	 * @return void
+	 */
+	private function setParamsCache() {
+	
+		$item = $this->select("query_cache, query_cache_time", TBL_SYS_CONF, "id='1'", array('cache'=>false));
+		if(count($item))
+		{
+			$this->_query_cache = $item[0]['query_cache'];
+			$this->_query_cache_time = $item[0]['query_cache_time'];
+		}
+		else
+		{
+			$this->_query_cache = false;
+			$this->_query_cache_time = null;
+		}
 	}
 	
 	/**
@@ -121,11 +179,22 @@ class sqlsrv implements \Gino\DbManager {
 	 * @see DbManager::getInfoQuery()
 	 */
 	public function getInfoQuery() {
- 		
- 		if($this->_debug)
- 			return $this->_cnt;
- 		else
- 			return null;
+			
+		if($this->_show_stats) {
+			$buffer = "<p>Number of db queries: ".$this->_cnt."</p>";
+			$buffer .= "<p>Time of db queries: ".$this->_time_queries." seconds</p>";
+			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
+			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Execution time (ms)</th></tr>";
+			foreach($this->_info_queries as $q) {
+				$buffer .= "<tr>";
+				$buffer .= "<td>".$q[0]."</td>";
+				$buffer .= "<td>".$q[1]."</td>";
+				$buffer .= "</tr>";
+			}
+			$buffer .= "</table>";
+			return $buffer;
+		}
+		else return null;
 	}
 	
 	/**
@@ -140,9 +209,18 @@ class sqlsrv implements \Gino\DbManager {
 		
 		if(!$query) $query = $this->_sql;
 		
-		if($this->_debug) $this->_cnt++;
-		
-		$exec = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
+		if($this->_show_stats) {
+			$this->_cnt++;
+			$msc = \Gino\getmicrotime();
+			$exec = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
+			$msc = \Gino\getmicrotime()-$msc;
+			$this->_time_queries += $msc;
+			
+			$this->_info_queries[] = array($query, $msc);
+		}
+		else {
+			$exec = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
+		}
 		return $exec;
 	}
 	
@@ -240,8 +318,17 @@ class sqlsrv implements \Gino\DbManager {
 		$this->_qry = $this->execQuery();
 		
 		//$this->_affected = sqlsrv_rows_affected($this->_qry);
-
-		return $this->_qry ? true : false;
+		
+		if($this->_qry)
+		{
+			if($this->_query_cache)
+			{
+				$cache = new plugin_phpfastcache();
+				$cache->cleanAllCache();
+			}
+			return true;
+		}
+		else return false;
 	}
 
 	/**
@@ -249,52 +336,37 @@ class sqlsrv implements \Gino\DbManager {
 	 */
 	public function multiActionquery($qry) {
 	
-		// SPLITTARE LE QUERY
-		
-		/*$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-		$this->setsql($qry);
-		$this->_qry = mysqli_multi_query($conn, $this->_sql);
-
-		return $this->_qry ? true:false;*/
+		// Split the queries
+		// @see plugin.mysql.php
 		return false;
 	}
 
 	/**
 	 * @see DbManager::selectquery()
 	 */
-	public function selectquery($qry, $cache=true) {
+	public function selectquery($qry) {
 
 		if(!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->setsql($qry);
 		
-		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
-			return $this->_cache[$this->_sql];
-		}
-		else
-		{
-			$this->_qry = $this->execQuery();
-			if(!$this->_qry) {
-				return false;
-			} else {
-				// initialize array results
-				$this->_dbresults = array();
-				
-				$this->setnumberrows(sqlsrv_num_rows($this->_qry));
-				if($this->_numberrows > 0){
-					while($this->_rows=sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
-					{
-						$this->_dbresults[]=$this->_rows;
-					}
+		$this->_qry = $this->execQuery();
+		if(!$this->_qry) {
+			return false;
+		} else {
+			// initialize array results
+			$this->_dbresults = array();
+			
+			$this->setnumberrows(sqlsrv_num_rows($this->_qry));
+			if($this->_numberrows > 0){
+				while($this->_rows=sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
+				{
+					$this->_dbresults[]=$this->_rows;
 				}
-				//$this->freeresult();
-				
-				if($this->_enable_cache and $cache) {
-					$this->_cache[$this->_sql] = $this->_dbresults;
-				}
-				return $this->_dbresults;
 			}
+			
+			return $this->_dbresults;
 		}
 	}
 		
@@ -371,17 +443,16 @@ class sqlsrv implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getFieldFromId()
 	 */
-	public function getFieldFromId($table, $field, $field_id, $id) {
+	public function getFieldFromId($table, $field, $field_id, $id, $options=array()) {
 		
-		$query = "SELECT $field FROM $table WHERE $field_id='$id'";
-		$a = $this->selectquery($query);
-		if(!$a){
+		$res = $this->select($field, $table, "$field_id='$id'", $options);
+		if(!$res){
 			return '';
 		}
 		else
 		{
-			foreach($a as $b) {
-				return $b[$field];
+			foreach($res as $r) {
+				return $r[$field];
 			}
 		}
 	}
@@ -934,18 +1005,35 @@ class sqlsrv implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getNumRecords()
 	 */
-	public function getNumRecords($table, $where=null, $field='id') {
+	public function getNumRecords($table, $where=null, $field='id', $options=array()) {
 
 		$tot = 0;
-
-		$qwhere = $where ? "WHERE ".$where : "";
-		$query = "SELECT COUNT($field) AS tot FROM $table $qwhere";
-		$res = $this->selectquery($query);
+		
+		$res = $this->select("COUNT($field) AS tot", $table, $where, $options);
 		if($res) {
 			$tot = $res[0]['tot'];
 		}
-
+		
 		return (int) $tot;
+	}
+	
+	/**
+	 * @see DbManager::cacheQuery()
+	 */
+	public function queryCache($query, $options=array()) {
+	
+		$identity_keyword = \Gino\gOpt('identity_keyword', $options, null);
+		$time_caching = \Gino\gOpt('time_caching', $options, null);
+	
+		if(!$identity_keyword) $identity_keyword = $query;
+	
+		$results = $this->_cache->get($identity_keyword);
+		if($results == null) {
+				
+			$results = $this->selectquery($query);
+			$this->_cache->set($results, array('time_caching'=>$time_caching));
+		}
+		return $results;
 	}
 	
 	/**
@@ -1071,9 +1159,20 @@ class sqlsrv implements \Gino\DbManager {
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 
+		$cache = \Gino\gOpt('cache', $options, true);
+		
 		$query = $this->query($fields, $tables, $where, $options);
 		
-		return $this->selectquery($query);
+		if($this->_query_cache && $cache)
+		{
+			$results = $this->cacheQuery($query, $options);
+		}
+		else
+		{
+			$results = $this->selectquery($query);
+		}
+		
+		return $results;
 	}
 	
 	/**
