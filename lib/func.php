@@ -1020,6 +1020,18 @@ function traslitterazione($numero, $decimale=false)
 }
 
 /**
+ * @brief Converte la dimensione di un file in un formato leggibile (KB,GB,...)
+ *
+ * @param integer $size
+ * @return string
+ */
+function convertSize($size)
+{
+	$sizename = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
+	return $size ? round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) .$sizename[$i] : '0 Bytes';
+}
+
+/**
  * @brief Verifica la validità del supporto PNG
  *
  * @return TRUE se supportato, FALSE atrimenti

@@ -861,7 +861,9 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `email_from_app` varchar(100) DEFAULT NULL,
   `mobile` tinyint(1) NOT NULL DEFAULT '0',
   `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
-  `enable_cache` tinyint(1) NOT NULL,
+  `enable_cache` tinyint(1) NOT NULL, 
+  `query_cache` tinyint(1) NOT NULL DEFAULT '0', 
+  `query_cache_time` smallint(4) DEFAULT NULL;
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
@@ -869,8 +871,8 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
 -- Dumping data for table `sys_conf`
 --
 
-INSERT INTO `sys_conf` (`id`, `multi_language`, `dft_language`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_admin`, `email_from_app`, `mobile`, `password_crypt`, `enable_cache`) VALUES
-(1, 1, 1, 1, 'Content Management System', '', 'gino CMS', '', '', '', 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
+INSERT INTO `sys_conf` (`id`, `multi_language`, `dft_language`, `log_access`, `head_description`, `head_keywords`, `head_title`, `google_analytics`, `captcha_public`, `captcha_private`, `email_admin`, `email_from_app`, `mobile`, `password_crypt`, `enable_cache`, `query_cache`, `query_cache_time`) VALUES
+(1, 1, 1, 1, 'Content Management System', '', 'gino CMS', '', '', '', 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0, 0, NULL);
 
 -- --------------------------------------------------------
 

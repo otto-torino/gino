@@ -374,7 +374,7 @@ class Field {
 
         $buffer = '';
 
-        if(!$this->_model->id and !is_null($this->_default)) {
+        if(!$this->_model->id and !is_null($this->_default) and $this->_value === null) {
             $this->_value = $this->_default;
         }
 

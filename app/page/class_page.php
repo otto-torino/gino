@@ -911,6 +911,7 @@ class page extends \Gino\Controller {
         $this->requirePerm(array('can_admin', 'can_publish', 'can_edit'));
 
         $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
+        $link_locale = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=locale'), _('Traduzioni'));
         $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
         $link_comment = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=comment'), _('Commenti'));
         $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
@@ -921,6 +922,10 @@ class page extends \Gino\Controller {
         if($block == 'frontend') {
             $backend = $this->manageFrontend();
             $sel_link = $link_frontend;
+        }
+        elseif($block == 'locale') {
+        	$backend = $this->manageLocale();
+        	$sel_link = $link_locale;
         }
         elseif($block == 'options' && $this->userHasPerm('can_admin')) {
             $backend = $this->manageOptions();
@@ -943,7 +948,7 @@ class page extends \Gino\Controller {
             $links_array = array_merge(array($link_comment), $links_array);
         }
         if($this->userHasPerm(array('can_admin'))) {
-            $links_array = array_merge(array($link_frontend, $link_options, $link_ctg), $links_array);
+            $links_array = array_merge(array($link_frontend, $link_locale, $link_options, $link_ctg), $links_array);
         }
 
         if(is_a($backend, '\Gino\Http\Response')) {

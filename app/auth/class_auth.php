@@ -973,7 +973,7 @@ class auth extends \Gino\Controller {
         }
 
         $dict = array(
-            'title' => _('Utenti di sistema'),
+            'title' => _('Autenticazione'),
             'links' => array($link_frontend, $link_options, $link_request, $link_profile, $link_perm, $link_group, $link_dft),
             'selected_link' => $sel_link,
             'content' => $backend

@@ -120,7 +120,6 @@ class Core {
         $this->_registry->js = array();
         $this->_registry->meta = array();
         $this->_registry->head_links = array();
-
     }
 
     /**

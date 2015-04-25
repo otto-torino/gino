@@ -83,10 +83,9 @@ interface DbManager {
      * @brief Esecuzione della query (istruzione select)
      * 
      * @param string $query query
-     * @param boolean $cache abilita il salvataggio del risultato della query in una cache-array 
      * @return array con i risultati
      */
-    public function selectquery($query, $cache);
+    public function selectquery($query);
 
     /**
      * @brief Libera tutta la memoria utilizzata dal Result Set
@@ -131,9 +130,10 @@ interface DbManager {
      * @param string $field nome del campo del quale occorre ricavare il valore
      * @param string $field_id nome del campo condizione (where)
      * @param mixed $id valore del campo condizione (where)
+     * @param array $options
      * @return valore del campo
      */
-    public function getFieldFromId($table, $field, $field_id, $id);
+    public function getFieldFromId($table, $field, $field_id, $id, $options);
 
     /**
      * @brief Verifica l'esistenza di una tabella
@@ -241,9 +241,9 @@ interface DbManager {
      *
      * In MySQL:
      * @code
-     * field_float            'n_int' => int 0        'n_precision' => int 0
-     * field_float(10,2)    'n_int' => string '10'    'n_precision' => string '2'
-     * field_decimal(10,2)    'n_int' => string '10'    'n_precision' => string '2'
+     * field_float          'n_int' => int 0        'n_precision' => int 0
+     * field_float(10,2)    'n_int' => string '10'  'n_precision' => string '2'
+     * field_decimal(10,2)  'n_int' => string '10'  'n_precision' => string '2'
      * @endcode
      *
      * @param string $table nome della tabella
@@ -265,9 +265,22 @@ interface DbManager {
      * @param string $table nome della tabella
      * @param string $where condizione della query
      * @param string $field nome del campo di selezione per il conteggio dei record
+     * @param array $options opzioni del metodo select()
      * @return numero di record
      */
-    public function getNumRecords($table, $where, $field);
+    public function getNumRecords($table, $where, $field, $options);
+    
+    /**
+     * @brief Gestisce i risultati di una query recuperandoli o salvandoli nella cache
+     * 
+     * @param string $query query
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b identity_keyword (string): codice identificativo dei dati in cache
+     *   - @b time_caching (integer): tempo di durata della cache
+     * @return array
+     */
+    public function queryCache($query, $options);
 
     /**
      * @brief Costruisce una query di selezione
@@ -296,7 +309,9 @@ interface DbManager {
      * @param mixed $fields elenco dei campi
      * @param mixed $tables elenco delle tabelle
      * @param string $where condizione della query
-     * @param array $options array associativo di opzioni (vedi le opzioni del metodo query())
+     * @param array $options array associativo di opzioni
+     *   - @b cache (boolean): indica se salvare in cache (se abilitata) i risultati della query (default true)
+     *   @see opzioni dei metodi query() e queryCache()
      * @return array di risultati
      */
     public function select($fields, $tables, $where, $options);
