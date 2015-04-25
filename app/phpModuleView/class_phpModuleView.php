@@ -92,20 +92,20 @@ class phpModuleView extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $phpMdl = PhpModule::getFromInstance($this);
         $phpMdl->deleteDbData();
 
         /*
          * delete record and translation from table php_module_opt
          */
-        $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
+        $opt_id = $this->_registry->db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
         $this->_trd->deleteTranslations($this->_tbl_opt, $opt_id);
 
-        $result = $this->_db->delete($this->_tbl_opt, "instance='$this->_instance'");
+        $result = $this->_registry->db->delete($this->_tbl_opt, "instance='$this->_instance'");
 
         $classElements = $this->getClassElements();
         foreach($classElements['css'] as $css) {
-            @unlink(APP_DIR.OS.$this->_class_name.OS.baseFileName($css)."_".$this->_instance_name.".css");
+            @unlink(APP_DIR.OS.$this->_class_name.OS.\Gino\baseFileName($css)."_".$this->_instance_name.".css");
         }
         foreach($classElements['folderStructure'] as $fld=>$fldStructure) {
             \Gino\deleteFileDir($fld.OS.$this->_instance_name, true);
@@ -145,7 +145,7 @@ class phpModuleView extends \Gino\Controller {
 
         $registry = \Gino\registry::instance();
 
-        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $phpMdl = PhpModule::getFromInstance($this);
         $registry->addCss($this->_class_www."/phpModule_".$this->_instance_name.".css");
 
         $rexpf = array();
@@ -153,10 +153,10 @@ class phpModuleView extends \Gino\Controller {
             $rexpf[] = $fc."\(.*?\)";
         }
         $rexp = "#".implode("|", $rexpf)."#";
-        if(preg_match($rexp, $phpMdl->content)) {
+        if(preg_match($rexp, $phpMdl->ml('content'))) {
             $buffer = '';
         }
-        else eval($phpMdl->content);
+        else eval($phpMdl->ml('content'));
 
         $view = new View();
         $view->setViewTpl('section');
@@ -179,7 +179,12 @@ class phpModuleView extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $phpMdl = new PhpModule($this->_instance, $this->_instance_name);
+        $phpMdl = PhpModule::getFromInstance($this);
+
+        if($request->checkGETKey('trnsl', '1'))
+        {
+            return $this->_trd->manageTranslation($request);
+        }
 
         $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
         $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));

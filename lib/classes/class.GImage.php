@@ -86,7 +86,7 @@ class GImage {
      * @return altezza immagine in px
      */
     public function getHeight() {
-        return $this->_width;
+        return $this->_height;
     }
 
     /**

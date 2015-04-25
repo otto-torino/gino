@@ -232,11 +232,13 @@ class module extends \Gino\Controller {
             @unlink(APP_DIR.OS.$class_name.OS.\Gino\baseFileName($css)."_".$module->name.".css");
         }
         // delete views
-        foreach($class_elements['views'] as $view => $description) {
+        $class_views = isset($class_elements['views']) ? $class_elements['views']: array();
+        foreach($class_views as $view => $description) {
             @unlink(APP_DIR.OS.$class_name.OS.'views'.OS.\Gino\baseFileName($view)."_".$module->name.".php");
         }
         // delete contents
-        foreach($class_elements['folderStructure'] as $fld=>$fldStructure) {
+        $class_fs = isset($class_elements['folderStructure']) ? $class_elements['folderStructure']: array();
+        foreach($class_fs as $fld=>$fldStructure) {
             \Gino\deleteFileDir($fld.OS.$module->name, TRUE);
         }
     }
@@ -363,7 +365,7 @@ class module extends \Gino\Controller {
         /*
          * create view files
          */
-        $view_files = $class_elements['views'];
+        $view_files = isset($class_elements['views']) ? $class_elements['views'] : array();
         foreach($view_files as $view_file => $vdescription) {
 
             $view_content = file_get_contents(APP_DIR.OS.$class_name.OS.'views'.OS.$view_file);

@@ -580,6 +580,10 @@ class page extends \Gino\Controller {
             throw new \Gino\Exception\Exception404();
         }
 
+        $registry->title = $registry->sysconf->head_title . ' | '.\Gino\htmlChars($item->ml('title'));
+        $registry->description = \Gino\cutHtmlText($item->ml('text'), 200, '...', true, false, true, '');
+        $registry->keywords = $item->tags;
+
         // load sharethis if present
         if($item->social) {
             $registry->js_load_sharethis = TRUE;
