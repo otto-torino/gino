@@ -27,7 +27,7 @@ define("DEBUG", TRUE);
  * 
  * @var boolean
  */
-define("SHOW_STATS", TRUE);
+define("SHOW_STATS", FALSE);
 
 /**
  * @brief Amministratori sistema
@@ -104,7 +104,6 @@ define("QUERY_CACHE_PATH", null);
  * @var string
  */
 define("QUERY_CACHE_FALLBACK", null);
-
 
 // Structure
 
