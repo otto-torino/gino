@@ -48,7 +48,7 @@ class Conf extends \Gino\Model {
             'password_crypt' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
             'enable_cache' => array(_('abilitazione cache'), _("Abilita le funzionalità di caching su file dei contenuti e dati dei singoli moduli e delle skin")),
             'robots' => array(_('contenuto file robots'), _("Il file robots.txt viene utilizzato per fornire indicazioni riguardo all'indicizzazione dei contenuti del sito nei motori di ricerca")), 
-        	'query_cache' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file ...")), 
+        	'query_cache' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file configuration.php")), 
         	'query_cache_time' => array(_('tempo di durata della cache query'), _("Tempo in secondi"))
         );
 

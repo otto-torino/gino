@@ -1099,7 +1099,7 @@ class Form {
         if(is_string($data))
         {
             $db = db::instance();
-            $a = $db->selectquery($data);
+            $a = $db->select(null, null, null, array('custom_query'=>$data));
             if(sizeof($a) > 0)
             {
                 $GFORM .= "<thead>";
@@ -1340,8 +1340,7 @@ class Form {
         elseif(is_string($data)) {
 
             $db = Db::instance();
-
-            $a = $db->selectquery($data);
+            $a = $db->select(null, null, null, array('custom_query'=>$data));
             if(sizeof($a) > 0)
             {
                 foreach($a AS $b)
@@ -1602,7 +1601,7 @@ class Form {
      *     - @b thumb_width (integer): larghezza del thumbnail
      *     - @b thumb_height (integer): altezza del thumbnail
      *     - @b ftp (boolean): permette di inserire il nome del file qualora questo risulti di dimensione superiore al consentito. Il file fisico deve essere poi inserito via FTP
-     *     - @b errorQuery (string): query di elimnazione del record qualora non vada a buon fine l'upload del file (INSERT)
+     *     - @b errorQuery (string): query di eliminazione del record qualora non vada a buon fine l'upload del file (INSERT)
      * @return risultato operazione, bool o errori
      */
     public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){

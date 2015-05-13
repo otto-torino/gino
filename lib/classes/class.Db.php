@@ -88,7 +88,7 @@ interface DbManager {
     public function selectquery($query);
 
     /**
-     * @brief Libera tutta la memoria utilizzata dal Result Set
+     * @brief Libera tutta la memoria utilizzata dal set di risultati
      *
      * @param array $result risultato della query
      * @return bool, risultato
@@ -310,6 +310,7 @@ interface DbManager {
      * @param mixed $tables elenco delle tabelle
      * @param string $where condizione della query
      * @param array $options array associativo di opzioni
+     *   - @b custom_query (string): query completa
      *   - @b cache (boolean): indica se salvare in cache (se abilitata) i risultati della query (default true)
      *   @see opzioni dei metodi query() e queryCache()
      * @return array di risultati
@@ -416,6 +417,7 @@ interface DbManager {
      *   array associativo di opzioni
      *   - @b debug (boolean):  se vero stampa a video la query
      *   - @b instruction (string): istruzione (default UNION)
+     *   - @b cache (boolean): indica se salvare in cache (se abilitata) i risultati della query (default true)
      * @return array di risultati
      */
     public function union($queries, $options=array());
@@ -472,6 +474,7 @@ interface DbManager {
 abstract class Db extends singleton {
 
     /* DB Configuration Paramethers */
+	private static $_dbms = DBMS;
     private static $_db_host = DB_HOST;
     private static $_db_user = DB_USER;
     private static $_db_pass = DB_PASSWORD;
@@ -491,9 +494,9 @@ abstract class Db extends singleton {
         // singleton, return always the same instance
         if(array_key_exists($class, self::$_instances) === false) {
 
-            if(DBMS == 'mysql' || DBMS == 'mssql' || DBMS == 'sqlsrv' || DBMS == 'odbc')
+        	if(DBMS == 'mysql' || DBMS == 'sqlsrv')
             {
-                $lib_class = DBMS;
+                $lib_class = USE_PDO ? 'pdo' : DBMS;
                 $lib_file = PLUGIN_DIR.OS."plugin.".$lib_class.".php";
 
                 if(file_exists($lib_file))
@@ -504,6 +507,7 @@ abstract class Db extends singleton {
                     self::$_instances[$class] = new $lib_class(
                         array(
                         "connect"=>true,
+                        "dbms"=>self::$_dbms,
                         "host"=>self::$_db_host,
                         "user"=>self::$_db_user,
                         "password"=>self::$_db_pass,
@@ -517,4 +521,210 @@ abstract class Db extends singleton {
 
         return self::$_instances[$class];
     }
+}
+
+/**
+ * @brief Classe per gestire il parser dei file sql (Code freely adapted from phpBB Group)
+ *
+ * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+class sqlParse {
+	
+	/**
+	 * Strip the sql comment lines out of an uploaded sql file specifically for mssql and postgres type files in the install
+	 * 
+	 * @param string $output
+	 * @return string
+	 */
+	public static function remove_comments(&$output) {
+		
+		$lines = explode("\n", $output);
+		$output = "";
+	
+		// try to keep mem. use down
+		$linecount = count($lines);
+	
+		$in_comment = false;
+		for($i = 0; $i < $linecount; $i++)
+		{
+			if( preg_match("/^\/\*/", preg_quote($lines[$i])) )
+			{
+				$in_comment = true;
+			}
+	
+			if( !$in_comment )
+			{
+				$output .= $lines[$i] . "\n";
+			}
+	
+			if( preg_match("/\*\/$/", preg_quote($lines[$i])) )
+			{
+				$in_comment = false;
+			}
+		}
+		
+		unset($lines);
+		return $output;
+	}
+	
+	/**
+	 * Strip the sql comment lines out of an uploaded sql file
+	 *
+	 * @param string $sql file contents
+	 * @return array
+	 */
+	public static function remove_remarks($sql) {
+		
+		$lines = explode("\n", $sql);
+		
+		// try to keep mem. use down
+		$sql = "";
+	
+		$linecount = count($lines);
+		$output = "";
+	
+		for ($i = 0; $i < $linecount; $i++)
+		{
+			if (($i != ($linecount - 1)) || (strlen($lines[$i]) > 0))
+			{
+				if (isset($lines[$i][0]) && $lines[$i][0] != "#")
+				{
+					$output .= $lines[$i] . "\n";
+				}
+				else
+				{
+					$output .= "\n";
+				}
+				// Trading a bit of speed for lower mem. use here.
+				$lines[$i] = "";
+			}
+		}
+		return $output;
+	}
+	
+	/**
+	 * Split an uploaded sql file into single sql statements
+	 * 
+	 * Note: expects trim() to have already been run on $sql.
+	 * 
+	 * @param string $sql file contents
+	 * @param string $delimiter delimiter
+	 * @return array
+	 */
+	public static function split_sql_file($sql, $delimiter) {
+		
+		// Split up our string into "possible" SQL statements.
+		$tokens = explode($delimiter, $sql);
+	
+		// try to save mem.
+		$sql = "";
+		$output = array();
+	
+		// we don't actually care about the matches preg gives us.
+		$matches = array();
+	
+		// this is faster than calling count($oktens) every time thru the loop.
+		$token_count = count($tokens);
+		for ($i = 0; $i < $token_count; $i++)
+		{
+			// Don't wanna add an empty string as the last thing in the array.
+			if (($i != ($token_count - 1)) || (strlen($tokens[$i] > 0)))
+			{
+				// This is the total number of single quotes in the token.
+				$total_quotes = preg_match_all("/'/", $tokens[$i], $matches);
+				// Counts single quotes that are preceded by an odd number of backslashes,
+				// which means they're escaped quotes.
+				$escaped_quotes = preg_match_all("/(?<!\\\\)(\\\\\\\\)*\\\\'/", $tokens[$i], $matches);
+	
+				$unescaped_quotes = $total_quotes - $escaped_quotes;
+	
+				// If the number of unescaped quotes is even, then the delimiter did NOT occur inside a string literal.
+				if (($unescaped_quotes % 2) == 0)
+         		{
+					// It's a complete sql statement.
+					$output[] = $tokens[$i];
+					// save memory.
+					$tokens[$i] = "";
+				}
+				else
+				{
+					// incomplete sql statement. keep adding tokens until we have a complete one.
+					// $temp will hold what we have so far.
+					$temp = $tokens[$i] . $delimiter;
+					// save memory..
+					$tokens[$i] = "";
+	
+					// Do we have a complete statement yet?
+					$complete_stmt = false;
+	
+					for ($j = $i + 1; (!$complete_stmt && ($j < $token_count)); $j++)
+					{
+						// This is the total number of single quotes in the token.
+						$total_quotes = preg_match_all("/'/", $tokens[$j], $matches);
+						// Counts single quotes that are preceded by an odd number of backslashes,
+						// which means they're escaped quotes.
+						$escaped_quotes = preg_match_all("/(?<!\\\\)(\\\\\\\\)*\\\\'/", $tokens[$j], $matches);
+	
+						$unescaped_quotes = $total_quotes - $escaped_quotes;
+	
+						if (($unescaped_quotes % 2) == 1)
+						{
+							// odd number of unescaped quotes. In combination with the previous incomplete
+							// statement(s), we now have a complete statement. (2 odds always make an even)
+							$output[] = $temp . $tokens[$j];
+	
+							// save memory.
+							$tokens[$j] = "";
+							$temp = "";
+	
+							// exit the loop.
+                  			$complete_stmt = true;
+                  			// make sure the outer loop continues at the right point.
+                  			$i = $j;
+						}
+						else
+						{
+							// even number of unescaped quotes. We still don't have a complete statement.
+							// (1 odd and 1 even always make an odd)
+							$temp .= $tokens[$j] . $delimiter;
+							// save memory.
+							$tokens[$j] = "";
+						}
+					} // for..
+				} // else
+			}
+		}
+		
+		return $output;
+	}
+	
+	/**
+	 * Elenco delle singole query presenti in un file sql
+	 * 
+	 * @param string $options array associativo di opzioni
+	 *   - @b file_schema (string): percorso al file sql
+	 *   - @b content_schema (string): contenuto del file sql
+	 * @return array (query)
+	 */
+	public static function getQueries($options=array()) {
+		
+		$file_schema = gOpt('file_schema', $options, false);
+		$content_schema = gOpt('content_schema', $options, null);
+		
+		if(!$file_schema && !$content_schema) return array();
+		
+		if($file_schema)
+		{
+			$sql_query = @fread(@fopen($file_schema, 'r'), @filesize($file_schema)) or die('problem ');
+			//$sql_query = file_get_contents($file_schema);
+		}
+		else $sql_query = $content_schema;
+		
+		$sql_query = self::remove_remarks($sql_query);
+		$sql_query = self::split_sql_file($sql_query, ';');
+		
+		return $sql_query;
+	}
 }

@@ -148,7 +148,7 @@ class sqlsrv implements \Gino\DbManager {
 		$item = $this->select("query_cache, query_cache_time", TBL_SYS_CONF, "id='1'", array('cache'=>false));
 		if(count($item))
 		{
-			$this->_query_cache = $item[0]['query_cache'];
+			$this->_query_cache = $item[0]['query_cache'] ? true : false;
 			$this->_query_cache_time = $item[0]['query_cache_time'];
 		}
 		else
@@ -181,7 +181,9 @@ class sqlsrv implements \Gino\DbManager {
 	public function getInfoQuery() {
 			
 		if($this->_show_stats) {
-			$buffer = "<p>Number of db queries: ".$this->_cnt."</p>";
+			$query_cache = $this->_query_cache ? 'On' : 'Off';
+			$buffer = "<p>Query cache: ".$query_cache."</p>";
+			$buffer .= "<p>Number of db queries: ".$this->_cnt."</p>";
 			$buffer .= "<p>Time of db queries: ".$this->_time_queries." seconds</p>";
 			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
 			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Execution time (ms)</th></tr>";
@@ -1159,9 +1161,17 @@ class sqlsrv implements \Gino\DbManager {
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 
+		$custom_query = \Gino\gOpt('custom_query', $options, null);
 		$cache = \Gino\gOpt('cache', $options, true);
 		
-		$query = $this->query($fields, $tables, $where, $options);
+		if($custom_query)
+		{
+			$query = $custom_query;
+		}
+		else
+		{
+			$query = $this->query($fields, $tables, $where, $options);
+		}
 		
 		if($this->_query_cache && $cache)
 		{

@@ -175,7 +175,7 @@ class Search {
 
         $query = $this->makeQuery($selected_fields, $required_clauses, $weight_clauses);
         if($query === false) return array();
-        $rows = $dbObj->selectquery($query);
+        $rows = $dbObj->select(null, null, null, array('custom_query'=>$query));
         if($rows and sizeof($rows)>0) {
             $i = 0;
             foreach($rows as $row) {

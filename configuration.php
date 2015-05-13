@@ -38,6 +38,12 @@ define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@o
 // Database
 
 /**
+ * Utilizzo della libreria PDO
+ * @see db::instance()
+ */
+define("USE_PDO", false);
+
+/**
  * Tipo di database
  * @see db::instance()
  */
