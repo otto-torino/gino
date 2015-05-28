@@ -399,6 +399,8 @@ class PageEntry extends \Gino\Model {
     public function delete() {
 
         PageComment::deleteFromEntry($this->id);
+        
+        GTag::deleteTaggedItem($this->_controller->getClassName(), $this->_controller->getInstance(), get_name_class($this), $this->id);
 
         return parent::delete();
     }

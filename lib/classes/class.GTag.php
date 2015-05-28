@@ -199,7 +199,29 @@ class GTag {
         ksort($res);
 
         return $res;
-
     }
 
+    /**
+     * Elimina le associazioni dei tag ai contenuti
+     *
+     * @param string $controller_class nome della classe controller del modello cui i tag sono associati
+     * @param integer $controller_instance valore id dell'istanza della classe controller del modello cui i tag sono associati
+     * @param string $model_class nome della classe del modello cui i tag sono associati
+     * @param integer $model_id valore id dell'oggetto cui i tag sono associati
+     * @return boolean
+     *
+     * Example in the model
+     * @code
+     * GTag::deleteTaggedItem($this->_controller->getClassName(), $this->_controller->getInstance(), get_name_class($this), $this->id);
+     * @endcode
+     */
+    public static function deleteTaggedItem($controller_class, $controller_instance, $model_class, $model_id) {
+    	 
+    	$db = db::instance();
+    	$result = $db->delete(
+    			self::$_table_tag_taggeditem,
+    			"content_controller_class='$controller_class' AND content_controller_instance='$controller_instance' AND content_class='$model_class' AND content_id='$model_id'"
+    	);
+    	return $result;
+    }
 }

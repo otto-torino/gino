@@ -180,10 +180,16 @@ namespace Gino;
      */
     public function __set($pName, $pValue) {
 
-        if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) return null;
-        elseif(method_exists($this, 'set'.$pName)) return $this->{'set'.$pName}($pValue);
+    	if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) {
+        	return null;
+        }
+        elseif(method_exists($this, 'set'.$pName)) {
+        	return $this->{'set'.$pName}($pValue);
+        }
         elseif(array_key_exists($pName, $this->_p)) {
-            if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) $this->_chgP[] = $pName;
+            if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) {
+            	$this->_chgP[] = $pName;
+            }
             $this->_p[$pName] = $pValue;
         }
         elseif(array_key_exists($pName, $this->_m2m)) {
@@ -685,6 +691,7 @@ namespace Gino;
                 $auto_increment = $extra == 'auto_increment' ? TRUE : FALSE;
 
                 $dataType = $this->dataType($type);
+                if($id) $this->_p[$key] = $this->_db->changeFieldType($dataType, $this->_p[$key]);
 
                 // Valori di un campo enumerazione
                 if($enum)

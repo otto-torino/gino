@@ -25,10 +25,10 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  * GESTIONE DATABASE/HTML
  * ---------------
  * ####Dal database alla visualizzazione
- * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
+ * In questo caso si passa attraverso il metodo Gino.convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
  * 
  * ####Dal form al database
- * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
+ * I dati passano attraverso il metodo Gino.convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
  * 
  */
 class sqlsrv implements \Gino\DbManager {
@@ -241,7 +241,7 @@ class sqlsrv implements \Gino\DbManager {
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".sqlsrv_errors());
+			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".var_dump(sqlsrv_errors()));
 		}
 	}
 
@@ -325,8 +325,7 @@ class sqlsrv implements \Gino\DbManager {
 		{
 			if($this->_query_cache)
 			{
-				$cache = new plugin_phpfastcache();
-				$cache->cleanAllCache();
+				$this->_cache->clean();
 			}
 			return true;
 		}
@@ -336,10 +335,9 @@ class sqlsrv implements \Gino\DbManager {
 	/**
 	 * @see DbManager::multiActionquery()
 	 */
-	public function multiActionquery($qry) {
+	public function multiActionQuery($file_content) {
 	
 		// Split the queries
-		// @see plugin.mysql.php
 		return false;
 	}
 
@@ -474,7 +472,7 @@ class sqlsrv implements \Gino\DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * @see conformType()
+	 * @see conformFieldType()
 	 * 
 	 * La funzione sqlsrv_field_metadata() ritorna i riferimenti:
 	 * <table>
@@ -514,7 +512,7 @@ class sqlsrv implements \Gino\DbManager {
 				
 				$array_tmp = array(
 					'name'=>$field_metadata[$i]['Name'],
-					'type'=>$this->conformType($meta_type),
+					'type'=>$this->conformFieldType($meta_type),
 					'length'=>$size
 				);
 				
@@ -571,7 +569,7 @@ class sqlsrv implements \Gino\DbManager {
 	 * </table>
 	 * 
 	 */
-	public function conformType($type) {
+	public function conformFieldType($type) {
 		
 		$data = array(
 			'bigint' => -5, 
@@ -619,7 +617,7 @@ class sqlsrv implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::limit()
+	 * @see Gino.DbManager::limit()
 	 * 
 	 * Examples
 	 * @code
@@ -704,8 +702,8 @@ class sqlsrv implements \Gino\DbManager {
 		while ($td = sqlsrv_fetch_array($tables)) {
 			$table = $td[0];
 			$r = $this->execQuery("SHOW CREATE TABLE $table");
-			//SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='page_entry' ORDER BY ORDINAL_POSITION
-			if ($r) {
+			//SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='$table' ORDER BY ORDINAL_POSITION
+			if($r) {
 				$insert_sql = "";
 				$d = sqlsrv_fetch_array($r);
 				$d[1] .= ";";
@@ -714,8 +712,8 @@ class sqlsrv implements \Gino\DbManager {
 				$table_query = $this->execQuery("SELECT * FROM $table");
 				$num_fields = sqlsrv_num_fields($table_query);
 				while ($fetch_row = sqlsrv_fetch_array($table_query)) {
-					$insert_sql .= "INSERT INTO $table VALUES(";
-					for ($n=1;$n<=$num_fields;$n++) {
+					$insert_sql .= "INSERT INTO $table VALUES (";
+					for ($n=1; $n<=$num_fields; $n++) {
 						$m = $n - 1;
 						$insert_sql .= "'".$this->escapeString($fetch_row[$m]).($n==$num_fields ? "" : "', ");
 					}
@@ -800,6 +798,14 @@ class sqlsrv implements \Gino\DbManager {
 		$structure['fields'] = $fields;
 
 		return $structure;
+	}
+	
+	/**
+	 * @see Gino.DbManager::changeFieldType()
+	 */
+	public function changeFieldType($data_type, $value) {
+	
+		return $value;
 	}
 	
 	/**
@@ -1045,6 +1051,7 @@ class sqlsrv implements \Gino\DbManager {
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = \Gino\gOpt('order', $options, null);
+		$group_by = \Gino\gOpt('group_by', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);
 		$debug = \Gino\gOpt('debug', $options, false);
 		$distinct = \Gino\gOpt('distinct', $options, null);
@@ -1155,6 +1162,24 @@ class sqlsrv implements \Gino\DbManager {
 		
 		return $query;
 	}
+	
+	/**
+	 * @see Gino.DbManager::execCustomQuery()
+	 */
+	public function execCustomQuery($query, $options=array()) {
+	
+		$statement = \Gino\gOpt('statement', $options, 'select');
+	
+		if($statement == 'select')
+		{
+			$options['custom_query'] = $query;
+			return $this->select(null, null, null, $options);
+		}
+		else
+		{
+			return $this->actionquery($query);
+		}
+	}
 
 	/**
 	 * @see DbManager::select()
@@ -1203,13 +1228,13 @@ class sqlsrv implements \Gino\DbManager {
 				{
 					if(array_key_exists('sql', $value))
 					{
-						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$mb_value = \Gino\convertToDatabase($value['sql'], 'CP1252');
 						$a_fields[] = "[$field]=".$mb_value;
 					}
 				}
 				else
 				{
-					$mb_value = convertToDatabase($value, 'CP1252');
+					$mb_value = \Gino\convertToDatabase($value, 'CP1252');
 					$a_values[] = ($value !== null) ? "'$mb_value'" : 'null';	// verificare se crea problemi
 				}
 			}
@@ -1241,13 +1266,13 @@ class sqlsrv implements \Gino\DbManager {
 				{
 					if(array_key_exists('sql', $value))
 					{
-						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$mb_value = \Gino\convertToDatabase($value['sql'], 'CP1252');
 						$a_fields[] = "[$field]=".$mb_value;
 					}
 				}
 				else
 				{
-					$mb_value = convertToDatabase($value, 'CP1252');
+					$mb_value = \Gino\convertToDatabase($value, 'CP1252');
 					$a_fields[] = "[$field]='$mb_value'";	//$a_fields[] = ($value == 'null') ? "[$field]=$value" : "[$field]='$mb_value'";
 				}
 			}
@@ -1353,7 +1378,6 @@ class sqlsrv implements \Gino\DbManager {
 		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
 		$hasheader = \Gino\gOpt('hasheader', $options, false);
 		
-		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
 		
 		$query = "BULK INSERT ".$table." FROM '".$filename."' 

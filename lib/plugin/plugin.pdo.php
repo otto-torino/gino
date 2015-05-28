@@ -23,6 +23,12 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
+ * DRIVER
+ * ---------------
+ * L'interfaccia PDO attualmente è implementata da 12 driver (http://php.net/manual/en/pdo.drivers.php) che supportano diversi tipi di database. \n
+ * Ogni driver deve essere gestito da una classe che estende la classe Gino.Plugin.pdo e che definisce alcune specificità di un database. \n
+ * Il nome della classe del driver deve essere "pdo_[valore della costante DBMS]" mentre il nome del file "plugin.[nome della classe].php".
+ * 
  * CACHE QUERY
  * ---------------
  * La proprietà self::$_query_cache indica se è stata abilita la cache delle query. \n
@@ -41,79 +47,86 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  */
 class pdo implements \Gino\DbManager {
 
-	private $_dbms, $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset;
-	private $_numberrows;
-	private $_affected;
+	protected $_dbms, $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset;
+	protected $_numberrows;
+	protected $_affected;
+	
+	/**
+	 * Numero di colonne in una istruzione select
+	 * 
+	 * @var integer
+	 */
+	protected $_numbercols;
 	
 	/**
 	 * Stato della connessione al database
 	 * 
 	 * @var boolean
 	 */
-	private $_connection;
+	protected $_connection;
 	
 	/**
 	 * PDO object
 	 *
 	 * @var object
 	 */
-	private $_pdo;
+	protected $_pdo;
 	
 	/**
 	 * PDOStatement object
 	 * 
 	 * @var object
 	 */
-	private $_result;
+	protected $_result;
 	
 	/**
 	 * Attiva le statische sulle query
 	 * 
 	 * @var boolean
 	 */
-	private $_show_stats;
+	protected $_show_stats;
 	
 	/**
 	 * Informazioni sulle query eseguite
 	 *
 	 * @var array
 	 */
-	private $_info_queries;
+	protected $_info_queries;
 	
 	/**
 	 * Contatore di query
 	 * 
 	 * @var integer
 	 */
-	private $_cnt;
+	protected $_cnt;
 	
 	/**
 	 * Tempo totale di esecuzione delle query
 	 * 
 	 * @var float
 	 */
-	private $_time_queries;
+	protected $_time_queries;
 	
 	/**
 	 * Query cache
 	 * 
 	 * @var boolean
 	 */
-	private $_query_cache;
+	protected $_query_cache;
 	
 	/**
 	 * Tempo di durata della query cache
 	 *
 	 * @var integer
 	 */
-	private $_query_cache_time;
+	protected $_query_cache_time;
 	
 	/**
 	 * Oggetto plugin_phpfastcache
 	 * 
 	 * @var object
 	 */
-	private $_cache;
+	protected $_cache;
 	
 	/**
 	 * Costruttore
@@ -136,9 +149,6 @@ class pdo implements \Gino\DbManager {
 		$this->_db_user = $params["user"];
 		$this->_db_password = $params["password"];
 		$this->_db_charset = $params["charset"];
-		
-		$this->_range = null;
-		$this->_offset = null;
 		
 		$this->setNumberRows(0);
 		$this->setAffectedRows(0);
@@ -189,6 +199,7 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * Ritorna il numero di record risultanti da una select query
+	 * 
 	 * @return integer
 	 */
 	public function getNumberRows() {
@@ -198,10 +209,28 @@ class pdo implements \Gino\DbManager {
 	/**
 	 * Imposta il numero di record risultanti da una select query
 	 * 
-	 * @param integer $numberresults
+	 * @param integer
 	 */
 	private function setNumberRows($numberresults) {
 		$this->_numberrows = $numberresults;
+	}
+	
+	/**
+	 * Ritorna il numero di colonne in una istruzione select
+	 * 
+	 * @return integer
+	 */
+	public function getNumberCols() {
+		return $this->_numbercols;
+	}
+	
+	/**
+	 * Imposta il numero di colonne in una istruzione select
+	 *
+	 * @param integer
+	 */
+	private function setNumberCols($number) {
+		$this->_numbercols = $number;
 	}
 	
 	private function setConnection($connection) {
@@ -230,10 +259,9 @@ class pdo implements \Gino\DbManager {
 	 * Recupera il tipo di errore
 	 * @return string
 	 * 
-	 * 
 	 * A prescindere dalla modalità che è impostato, c'è un codice di errore interno che viene impostato e che si può controllare 
-	 * utilizzando i metodi errorCode() e errorInfo() degli oggetti POD e PDOStatement. 
-	 * errorCode() restituisce una stringa di 5 caratteri, come definito nella ANSI SQL-92. 
+	 * utilizzando i metodi errorCode() e errorInfo() degli oggetti POD e PDOStatement. \n
+	 * errorCode() restituisce una stringa di 5 caratteri, come definito nella ANSI SQL-92. \n
 	 * errorInfo() è generalmente più utile in quanto restituisce un array che comprende un messaggio di errore in aggiunta al codice a 5 caratteri.
 	 */
 	private function getError() {
@@ -246,14 +274,25 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::affected()
+	 * Verifica se una istruzione SELECT ha avuto esito postivo
+	 * 
+	 * @param object $result PDOStatement object
+	 * @return integer (0 negative)
+	 */
+	protected function checkRowsFromSelect($result) {
+		
+		return $result->rowCount();
+	}
+	
+	/**
+	 * @see Gino.DbManager::affected()
 	 */
 	public function affected() {
 		return null;
 	}
 	
 	/**
-	 * @see DbManager::getInfoQuery()
+	 * @see Gino.DbManager::getInfoQuery()
 	 */
 	public function getInfoQuery() {
  		
@@ -290,7 +329,7 @@ class pdo implements \Gino\DbManager {
 	 *   - @b values (array): elenco dei valori da sostituire alle variabili parametrizzate
 	 * @return PDOStatement object
 	 */
-	private function queryResults($query, $options=array()) {
+	protected function queryResults($query, $options=array()) {
 	
 		if (!$this->_connection) {
 			$this->openConnection();
@@ -314,6 +353,7 @@ class pdo implements \Gino\DbManager {
 			if($statement == 'select')
 			{
 				$this->setNumberRows($stmt->rowCount());
+				$this->setNumberCols($stmt->columnCount());
 			}
 			else
 			{
@@ -325,7 +365,13 @@ class pdo implements \Gino\DbManager {
 			if($statement == 'select')
 			{
 				$res = $this->_pdo->query($query);
-				$this->setNumberRows($res->rowCount());
+				
+				if(!$res)
+					throw new \Exception(_("Errore nella query").' '.$query);
+				
+				$rows = $this->checkRowsFromSelect($res);
+				$this->setNumberRows($rows);
+				$this->setNumberCols($res->columnCount());
 			}
 			else
 			{
@@ -351,9 +397,10 @@ class pdo implements \Gino\DbManager {
 		
 		return $res;
 	}
- 	
- 	/**
+	
+	/**
  	 * Imposta la modalità di recupero dei risultati della query
+ 	 * 
  	 * @param object $results oggetto PDOStatement
  	 * @param array $options
  	 *   array associativo di opzioni
@@ -391,6 +438,8 @@ class pdo implements \Gino\DbManager {
  		{
  			$results->setFetchMode($pdo_mode);
  		}
+ 		
+ 		return null;
  	}
  	
  	/**
@@ -404,7 +453,7 @@ class pdo implements \Gino\DbManager {
  	 *   - opzioni del metodo setFetchMode()
  	 * @return array (fetchAll=false) or object (fetchAll=true)
  	 */
- 	private function fetch($results=null, $options=array()) {
+ 	protected function fetch($results=null, $options=array()) {
  	
  		$set_mode = \Gino\gOpt('set_mode', $options, true);
  		$fetchAll = \Gino\gOpt('fetchAll', $options, false);
@@ -422,31 +471,62 @@ class pdo implements \Gino\DbManager {
  	 * Elenco dei character set accettati
  	 * @return array
  	 */
- 	private static function getCharset() {
+ 	protected static function getCharset() {
  		
  		$items = array('utf8');
  		return $items;
  	}
  	
  	/**
-	 * @see DbManager::openConnection()
+ 	 * Imposta la stringa di connessione al database
+ 	 * 
+ 	 * @return string
+ 	 */
+ 	protected function setDSN() {
+ 	
+ 		return null;
+ 	}
+ 	
+ 	/**
+ 	 * Attributi da associare alla connessione
+ 	 * 
+ 	 * @return array
+ 	 */
+ 	protected function setAttribute() {
+ 	
+ 		return array();
+ 	}
+ 	
+ 	/**
+	 * @see Gino.DbManager::openConnection()
+	 * 
+	 * @param array $opt
+	 *   array associativo di opzioni
+	 *   - @b persistent (boolean): connessione persistente (default true)
+	 *   - @b get_attribute (boolean): recupera i valori degli attibuti della connessione (default false)
 	 */
-	public function openConnection() {
+	public function openConnection($opt=array()) {
 
+		$persistent = \Gino\gOpt('persistent', $opt, true);
+		$get_attribute = \Gino\gOpt('get_attribute', $opt, false);
+		
+		$dsn = $this->setDSN();
+		
 		$options = array(
-			//\PDO::ATTR_PERSISTENT => true, 
-			\PDO::ATTR_EMULATE_PREPARES => false,
-			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+			\PDO::ATTR_PERSISTENT => $persistent
 		);
 		
-		$dsn = $this->_dbms.":host=".$this->_db_host.";dbname=".$this->_db_name;
-		if($this->_db_charset && in_array($this->_db_charset, self::getCharset()))
-		{
-			$dsn .= ";charset=".$this->_db_charset;
+		$attributes = $this->setAttribute();
+		if(is_array($attributes) && count($attributes)) {
+			$attr = array_merge($options, $attributes);
 		}
+		else $attr = $options;
 		
 		try {
-			$this->_pdo = new \PDO($dsn, $this->_db_user, $this->_db_password, $options);
+			$this->_pdo = new \PDO($dsn, $this->_db_user, $this->_db_password, $attr);
+			
+			if($get_attribute)
+				$this->getAttribute($this->_pdo);
 			
 			$this->setConnection(true);
 			return true;
@@ -457,55 +537,56 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
+	 * Stampa il valore degli attributi associati alla connessione
+	 * 
+	 * @param object $connection PDO object
+	 */
+	private function getAttribute($connection) {
+		
+		$attributes = array(
+			"AUTOCOMMIT", "ERRMODE", "CASE", "CLIENT_VERSION", "CONNECTION_STATUS",
+			"ORACLE_NULLS", "PERSISTENT", "PREFETCH", "SERVER_INFO", "SERVER_VERSION",
+			"TIMEOUT", "EMULATE_PREPARES"
+		);
+
+		foreach ($attributes as $val) {
+			
+			echo "PDO::ATTR_$val: ";
+			echo $connection->getAttribute(constant("PDO::ATTR_$val")) . "<br />";
+		}
+	}
+		
+	/**
 	 * Imposta il character set del database
 	 * 
 	 * Nota: non è necessario se lo si specifica nella stringa della connessione
 	 */
-	private function setCharacterSet() {
+	protected function setCharacterSet() {
 		
-		if($this->_db_charset && in_array($this->_db_charset, self::getCharset()))
-		{
-			$this->_pdo->exec("SET NAMES ".$this->_db_charset);
-		}
+		return null;
 	}
 	
-	/*
-	private function setUtf8() {
-		
-		$query = "SHOW VARIABLES LIKE 'character_set_database'";
-		$res_db_charset = $this->queryResults($query);
-		$charset_row = $this->fetch($res_db_charset);
-		
-		$this->queryResults("SET NAMES '".$charset_row['Value']."'");
-		
-		unset($res_db_charset, $charset_row);
-	}
-	*/
-
 	/**
-	 * Chiude le connessioni non persistenti al database
-	 * 
-	 * @see DbManager::closeConnection()
+	 * @see Gino.DbManager::closeConnection()
 	 */
 	public function closeConnection() {
-
-		if($this->_connection){
+		if($this->_connection) {
 			$this->_pdo = null;
 		}
 	}
 	
 	/**
-	 * @see DbManager::begin()
+	 * @see Gino.DbManager::begin()
 	 */
 	public function begin() {
-		if (!$this->_connection){
+		if (!$this->_connection) {
 			$this->openConnection();
 		}
 		$this->_pdo->beginTransaction();
 	}
 	
 	/**
-	 * @see DbManager::rollback()
+	 * @see Gino.DbManager::rollback()
 	 */
 	public function rollback() {
 		if (!$this->_connection) {
@@ -515,7 +596,7 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::commit()
+	 * @see Gino.DbManager::commit()
 	 */
 	public function commit() {
 		if (!$this->_connection) {
@@ -525,7 +606,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::actionquery()
+	 * @see Gino.DbManager::actionquery()
 	 * 
 	 * Eliminare quando si elimina il richiamo a actionquery in class.Form.php
 	 */
@@ -543,18 +624,16 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::multiActionquery()
+	 * @see Gino.DbManager::multiActionQuery()
+	 * @see driver
 	 */
-	public function multiActionquery($queries) {
+	public function multiActionQuery($queries) {
 	
-		$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-		$this->_result = mysqli_multi_query($conn, $queries);
-
-		return $this->_result ? true : false;
+		return false;
 	}
 
 	/**
-	 * @see DbManager::selectquery()
+	 * @see Gino.DbManager::selectquery()
 	 */
 	public function selectquery($qry) {
 
@@ -562,7 +641,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::freeresult()
+	 * @see Gino.DbManager::freeresult()
 	 */
 	public function freeresult($result=null) {
 	
@@ -571,7 +650,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::resultselect()
+	 * @see Gino.DbManager::resultselect()
 	 */
 	public function resultselect($qry) {
 		
@@ -579,9 +658,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query
-	 * 
-	 * @see DbManager::getlastid()
+	 * @see Gino.DbManager::getlastid()
 	 */
 	public function getlastid($table) { 
 		
@@ -597,29 +674,16 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Ottiene il valore del campo AUTO_INCREMENT
-	 * 
-	 * @see DbManager::autoIncValue()
+	 * @see Gino.DbManager::autoIncValue()
+	 * @see driver
 	 */
 	public function autoIncValue($table) {
 
-		$query = "SHOW TABLE STATUS LIKE '$table'";
-		
-		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
-		if(sizeof($a) > 0)
-		{
-			foreach ($a AS $b)
-			{
-				$auto_increment = $b['Auto_increment'];
-			}
-		}
-		else $auto_increment = 0;
-		
-		return $auto_increment;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::getFieldFromId()
+	 * @see Gino.DbManager::getFieldFromId()
 	 */
 	public function getFieldFromId($table, $field, $field_id, $id, $options=array()) {
 		
@@ -636,23 +700,17 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::tableexists()
+	 * @see Gino.DbManager::tableexists()
+	 * @see driver
 	 */
 	public function tableexists($table){
 		
-		$query = "SHOW TABLES FROM `".$this->_db_name."`";
-		$res = $this->queryResults($query);
-		
-		while($row = $this->fetch($res, array('mode'=>'NUM'))) {
-			
-			if($row[0] == $table) return true;
-		}
-		return false;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::fieldInformations()
-	 * @see conformType()
+	 * @see Gino.DbManager::fieldInformations()
+	 * @see SQLForFieldInformations()
 	 */
 	public function fieldInformations($table) {
 	
@@ -660,223 +718,117 @@ class pdo implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		
-		$query = "SELECT * FROM ".$table." LIMIT 0,1";
+		$query = $this->SQLForFieldInformations($table);
 		$this->_result = $this->queryResults($query);
 		
 		if(!$this->_result) {
 			return false;
 		} else {
 			$column = array();
-			
-			for ($i=0; $i < $this->_numberrows; $i++) {
 				
+			for ($i=0; $i < $this->_numbercols; $i++) {
+		
 				$meta = $this->_result->getColumnMeta($i);
-				
-				$len = $meta['len'];
+		
+				$length = $meta['len'];
 				$precision = $meta['precision'];
-				$type = $this->mapPDOType($meta['native_type']);
 				
 				$array_tmp = array(
-					'name'=>$meta['name'],
-					'type'=>$this->conformType($type),
-					'length'=>$len
+						'name'=>$meta['name'],
+						'type'=>$this->conformFieldType($meta),
+						'length'=>$length
 				);
-				
+		
 				$column[$i] = \Gino\arrayToObject($array_tmp);
 			}
-			
+				
 			$this->freeresult();
 			return $column;
 		}
 	}
 	
-	private function mapPDOType($type) {
-		
-		$type = strtolower($type);
-		switch ($type) {
-			case 'tiny':
-			case 'short':
-			case 'long':
-			case 'longlong';
-			case 'int24':
-				return 'int';
-			case 'null':
-				return null;
-			case 'varchar':
-			case 'var_string':
-			case 'string':
-				return 'string';
-			case 'blob':
-			case 'tiny_blob':
-			case 'long_blob':
-				return 'blob';
-			default:
-				return $type;
-		}
-	}
-	
 	/**
-	 * @see DbManager::conformType()
-	 * 
-	 * @param string $type
-	 * 
-	 * Come tipo di dato di un campo la funzione mysql_fetch_field() rileva: int, blob, string, date
+	 * @see Gino.DbManager::conformFieldType()
+	 * @see driver
 	 */
-	public function conformType($type) {
+	public function conformFieldType($meta) {
 		
-		$type = $this->mapPDOType($type);
-		
-		if($type == 'string')
-			$conform_type = 'char';
-		elseif($type == 'blob')
-			$conform_type = 'text';
-		else
-			$conform_type = $type;
-		
-		return $conform_type;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::limit()
+	 * @see Gino.DbManager::limit()
+	 * @see driver
 	 */
 	public function limit($range, $offset) {
 		
-		$limit = "LIMIT $offset, $range";
-		return $limit;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::distinct()
+	 * @see Gino.DbManager::distinct()
+	 * @see driver
 	 */
 	public function distinct($fields, $options=array()) {
 		
-		$alias = \Gino\gOpt('alias', $options, null);
-		
-		if(!$fields) return null;
-		
-		$data = "DISTINCT($fields)";
-		if($alias) $data .= " AS $alias";
-		
-		return $data;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::concat()
+	 * @see Gino.DbManager::concat()
+	 * @see driver
 	 */
 	public function concat($sequence) {
 		
-		if(is_array($sequence))
-		{
-			if(sizeof($sequence) > 1)
-			{
-				$string = implode(',', $sequence);
-				$concat = "CONCAT($string)";
-			}
-			else $concat = $sequence[0];
-		}
-		else $concat = $sequence;
-		
-		return $concat;
+		return null;
 	}
 
 	/**
-	 * @see DbManager::dumpDatabase()
+	 * @see Gino.DbManager::dumpDatabase()
+	 * @see driver
 	 */
 	public function dumpDatabase($file) {
 
-		$query = "SHOW TABLES FROM ".$this->_db_name;
-		$tables = $this->queryResults($query);
-		
-		while ($td = $this->fetch($tables, array('mode'=>'NUM'))) {
-
-			$table = $td[0];
-			
-			$r = $this->queryResults("SHOW CREATE TABLE `$table`");
-			if($r)
-			{
-				$insert_sql = "";
-				$d = $this->fetch($r, array('mode'=>'NUM'));
-				$d[1] .= ";";
-				$SQL[] = str_replace("\n", "", $d[1]);
-				
-				$table_query = $this->queryResults("SELECT * FROM `$table`");
-				
-				$num_fields = $this->getNumberRows();
-				while ($fetch_row = $this->fetch($table_query, array('mode'=>'NUM'))) {
-					$insert_sql .= "INSERT INTO $table VALUES(";
-					for ($n=1; $n<=$num_fields; $n++) {
-						$m = $n - 1;
-						$insert_sql .= "'".$this->_pdo->quote($fetch_row[$m]).($n==$num_fields ? "" : "', ");	//// VIRGOLETTE ????
-					}
-					$insert_sql .= ");\n";
-				}
-				if ($insert_sql!= "") {
-					$SQL[] = $insert_sql;
-				}
-			}
-		}
-
-		if(!($fo = fopen($file, 'wb'))) return false;
-		if(!fwrite($fo, implode("\r", $SQL))) return false;
-		fclose($fo);
-
-		return true;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::getTableStructure()
+	 * @see Gino.DbManager::getTableStructure()
+	 * @see driver
 	 */
 	public function getTableStructure($table) {
 
-		$structure = array("primary_key"=>null, "keys"=>array());
-		$fields = array();
-
-		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = $this->queryResults($query);
-		
-		while($row = $this->fetch($res)) {
-			
-			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
-			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
-			$fields[$row['COLUMN_NAME']] = array(
-				"order"=>$row['ORDINAL_POSITION'],
-				"default"=>$row['COLUMN_DEFAULT'],
-				"null"=>$row['IS_NULLABLE'],
-				"type"=>$row['DATA_TYPE'],
-				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
-				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
-				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
-				"key"=>$row['COLUMN_KEY'],
-				"extra"=>$row['EXTRA'],
-				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
-			);
-			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
-			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
-		}
-		$structure['fields'] = $fields;
-		
-		return $structure;
+		return null;
+	}
+	
+	/**
+	 * @see Gino.DbManager::changeFieldType()
+	 */
+	public function changeFieldType($data_type, $value) {
+	
+		return $value;
 	}
 
 	/**
-	 * @see DbManager::getFieldsName()
-	 * @see freeresult()
+	 * @see Gino.DbManager::getFieldsName()
+	 * @see SQLForGetFieldsName()
 	 */
 	public function getFieldsName($table) {
 
 		$fields = array();
-		$query = "SHOW COLUMNS FROM ".$table;
+		
+		$query = $this->SQLForGetFieldsName($table);
 		$res = $this->queryResults($query);
 		
 		while($row = $this->fetch($res)) {
 			$results[] = $row;
 		}
 		$this->freeresult($res);
-
+		
 		foreach($results as $r) {
 			$fields[] = $r['Field'];
 		}
-
+		
 		return $fields;
 	}
 
@@ -907,13 +859,13 @@ class pdo implements \Gino\DbManager {
 	 * @see DbManager::query()
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
-
+	
 		$order = \Gino\gOpt('order', $options, null);
 		$group_by = \Gino\gOpt('group_by', $options, null);
 		$distinct = \Gino\gOpt('distinct', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);
 		$debug = \Gino\gOpt('debug', $options, false);
-		
+	
 		$qfields = is_array($fields) ? implode(",", $fields) : $fields;
 		$qtables = is_array($tables) ? implode(",", $tables) : $tables;
 		$qgroup_by = $group_by ? "GROUP BY ".$group_by : "";
@@ -925,23 +877,24 @@ class pdo implements \Gino\DbManager {
 			$qwhere .= (is_array($where) && count($where)) ? $where[0] : $where;
 		}
 		else $qwhere = "";
-		
+	
 		if($distinct) $qfields = $distinct.", ".$qfields;
 		
-		if(is_array($limit) && count($limit))
-		{
-			$qlimit = $this->limit($limit[1],$limit[0]);
-		}
-		elseif(is_string($limit))
-		{
-			$qlimit = $limit;
-		}
-		else $qlimit = '';
-		
-		$query = "SELECT $qfields FROM $qtables $qwhere $qgroup_by $qorder $qlimit";
+		$query = $this->buildQuery(array(
+			'fields'=>$qfields,
+			'tables'=>$qtables,
+			'where'=>$qwhere,
+			'group_by'=>$qgroup_by,
+			'order'=>$qorder,
+			'limit'=>$limit, 
+			'debug'=>$debug
+		));
 		
 		if($debug) echo $query;
 		
+		if(is_null($query))
+			throw new \Exception(_("Errore nella formattazione della query"));
+	
 		return $query;
 	}
 	
@@ -991,12 +944,34 @@ class pdo implements \Gino\DbManager {
 		{
 			$where_cond = $where;
 		}
-	
+		
 		return array($where_cond, $values, $params);
 	}
 	
 	/**
-	 * @see DbManager::select()
+	 * @see Gino.DbManager::execCustomQuery()
+	 */
+	public function execCustomQuery($query, $options=array()) {
+		
+		$statement = \Gino\gOpt('statement', $options, 'select');
+		
+		if($statement == 'select')
+		{
+			$options['custom_query'] = $query;
+			return $this->select(null, null, null, $options);
+		}
+		else
+		{
+			$this->_result = $this->queryResults($query, array('statement'=>'action'));
+			if($this->_result)
+				return true;
+			else
+				return false;
+		}
+	}
+	
+	/**
+	 * @see Gino.DbManager::select()
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 		
@@ -1055,7 +1030,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::insert()
+	 * @see Gino.DbManager::insert()
 	 */
 	public function insert($fields, $table, $debug=false) {
 
@@ -1072,7 +1047,7 @@ class pdo implements \Gino\DbManager {
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "`$field`=".$value['sql']; //@TODO VERIFICARE
+						$a_fields[] = $this->setFieldName($field)."=".$value['sql'];
 				}
 				else
 				{
@@ -1081,7 +1056,7 @@ class pdo implements \Gino\DbManager {
 						if($placeholder == false)
 						{
 							$a_fields[] = $field;
-							$a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+							$a_values[] = $this->setFieldValue($value);
 						}
 						else
 						{
@@ -1095,7 +1070,7 @@ class pdo implements \Gino\DbManager {
 				}
 			}
 			
-			$s_fields = "`".implode('`,`', $a_fields)."`";
+			$s_fields = $this->arrayFieldsToString($a_fields);
 			
 			if($placeholder == false)
 			{
@@ -1122,7 +1097,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::update()
+	 * @see Gino.DbManager::update()
 	 */
 	public function update($fields, $table, $where, $debug=false) {
 
@@ -1138,20 +1113,20 @@ class pdo implements \Gino\DbManager {
 				if(is_array($value))
 				{
 					if(array_key_exists('sql', $value))
-						$a_fields[] = "`$field`=".$value['sql'];
+						$a_fields[] = $this->setFieldName($field)."=".$value['sql'];
 				}
 				else
 				{
 					if($placeholder == false)
 					{
 						//$a_fields[] = ($value == 'null') ? "`$field`=$value" : "`$field`='$value'";
-						$a_fields[] = $value === null ? "`$field`=NULL" : "`$field`='$value'";
+						$a_fields[] = $value === null ? $this->setFieldName($field)."=NULL" : $this->setFieldName($field)."=".$this->setFieldValue($value);
 					}
 					else
 					{
 						$param = ':'.$field;
 						
-						$a_fields[] = "`$field`=$param";
+						$a_fields[] = $this->setFieldName($field)."=$param";
 						$a_values[$param] = $value === null ? "NULL" : $value;
 					}
 				}
@@ -1187,7 +1162,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::delete()
+	 * @see Gino.DbManager::delete()
 	 */
 	public function delete($table, $where, $debug=false) {
 
@@ -1214,7 +1189,7 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::drop()
+	 * @see Gino.DbManager::drop()
 	 */
 	public function drop($table) {
 
@@ -1230,7 +1205,7 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::columnHasValue()
+	 * @see Gino.DbManager::columnHasValue()
 	 */
 	public function columnHasValue($table, $field, $value, $options=array()) {
 		
@@ -1244,7 +1219,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::join()
+	 * @see Gino.DbManager::join()
 	 */
 	public function join($table, $condition, $option) {
 		
@@ -1256,7 +1231,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::union()
+	 * @see Gino.DbManager::union()
 	 */
 	public function union($queries, $options=array()) {
 		
@@ -1276,58 +1251,35 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::restore()
+	 * @see Gino.DbManager::restore()
 	 */
 	public function restore($table, $filename, $options=array()) {      
 	
-		$fields = \Gino\gOpt('fields', $options, null);
-		$delim = \Gino\gOpt('delim', $options, ',');
-		$enclosed = \Gino\gOpt('enclosed', $options, '"');
-		$escaped = \Gino\gOpt('escaped', $options, '\\');
-		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
-		$hasheader = \Gino\gOpt('hasheader', $options, false);
-		
-		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
-		if($fields) $fields = "(".implode(',', $fields).")";
-		
-		$query = 
-		"LOAD DATA INFILE '".$filename."' INTO TABLE ".$table." ".
-		"FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' ".
-		"ESCAPED BY '".$escaped."' ".
-		"LINES TERMINATED BY '".$lineend."' ".$ignore.$fields;
-		
-		$this->_result = $this->queryResults($query, array('statement'=>'action'));
-		if($this->_result)
-			return true;
-		else
-			return false;
+		return null;
 	}
 	
 	/**
-	 * @see DbManager::dump()
-	 * 
-	 * Per poter effettuare questa operazione occorre: \n
-	 *   - assegnare il permesso FILE all'utente del database: GRANT FILE ON *.* TO 'dbuser'@'localhost';
-	 *   - la directory di salvataggio deve avere i permessi read/write/execute, oppure deve avere come proprietario l'utente di sistema del database
+	 * @see Gino.DbManager::dump()
 	 */
-	public function dump($table, $filename, $options=array()) {
+	public function dump($table, $path_to_file, $options=array()) {
 		
-		$delim = \Gino\gOpt('delim', $options, ',');
-		$enclosed = \Gino\gOpt('enclosed', $options, '"');
+		$where = \Gino\gOpt('where', $options, null);
+		$delimiter = \Gino\gOpt('delim', $options, ',');
+		$enclosed = \Gino\gOpt('enclosed', $options, null);
 		
-		$query = "SELECT * INTO OUTFILE '".$filename."' 
-		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
-		FROM $table";
+		$where = $where ? " WHERE $where" : '';
+		$enclosed = $enclosed ? "ENCLOSED BY '".$enclosed."' " : '';
 		
+		$query = $this->SQLForDump($table, $path_to_file, $delimiter, $enclosed, $where);
 		$this->_result = $this->queryResults($query, array('statement'=>'action'));
 		if($this->_result)
-			return $filename;
+			return $path_to_file;
 		else
 			return null;
 	}
 	
 	/**
-	 * @see DbManager::escapeString()
+	 * @see Gino.DbManager::escapeString()
 	 */
 	public function escapeString($string) {
 		
@@ -1342,6 +1294,97 @@ class pdo implements \Gino\DbManager {
 		}
 		
 		return $string;
+	}
+	
+	/**
+	 * Costruisce la query
+	 * 
+	 * @param array $options
+	 *   array associativo di opzioni
+	 *   - @b statement (string): tipo di istruzione sql (default select)
+	 *   - @b fields (string)
+	 *   - @b tables (string)
+	 *   - @b where (string)
+	 *   - @b group_by (string)
+	 *   - @b order (string)
+	 *   - @b limit (array|string)
+	 *   - @b debug (boolean)
+	 * @return string
+	 */
+	protected function buildQuery($options=array()) {
+		
+		return null;
+	}
+	
+	/**
+	 * Imposta il nome del campo in una query
+	 * 
+	 * @param string $field nome del campo
+	 * @return string
+	 */
+	protected function setFieldName($field) {
+		
+		return $field;
+	}
+	
+	/**
+	 * Imposta il valore del campo in una query
+	 *
+	 * @param mixed $value valore del campo
+	 * @return string
+	 */
+	protected function setFieldValue($value) {
+		
+		return $value;
+	}
+	
+	/**
+	 * Formatta l'elenco dei campi in una istruzione insert
+	 * 
+	 * @param array $a_fields elenco dei campi
+	 * @return string
+	 */
+	protected function arrayFieldsToString($a_fields) {
+	
+		$fields = implode(',', $a_fields);
+		return $fields;
+	}
+	
+	/**
+	 * SQL code specifico del driver per il metodo fieldInformations()
+	 *
+	 * @param string $table nome della tabella
+	 * @return string
+	 */
+	protected function SQLForFieldInformations($table) {
+	
+		return null;
+	}
+	
+	/**
+	 * SQL code specifico del driver per il metodo getFieldsName()
+	 *
+	 * @param string $table nome della tabella
+	 * @return string
+	 */
+	protected function SQLForGetFieldsName($table) {
+	
+		return null;
+	}
+	
+	/**
+	 * SQL code specifico del driver per il metodo dump()
+	 * 
+	 * @param string $table nome della tabella
+	 * @param string $path_to_file nome del file completo di percorso
+	 * @param string $delimiter stringa che viene usata per separare tra loro i valori dei campi
+	 * @param string $enclosed carattere utilizzato per racchiudere i valori di tipo stringa
+	 * @param string $where condizioni della query
+	 * @return string
+	 */
+	protected function SQLForDump($table, $path_to_file, $delimiter, $enclosed, $where) {
+		
+		return null;
 	}
 }
 

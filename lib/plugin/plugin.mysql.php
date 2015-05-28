@@ -352,14 +352,14 @@ class mysql implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::multiActionquery()
+	 * @see DbManager::multiActionQuery()
 	 */
-	public function multiActionquery($qry) {
-	
-		$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-		$this->setsql($qry);
-		$this->_qry = mysqli_multi_query($conn, $this->_sql);
-
+	public function multiActionQuery($file_content) {
+		
+		$link = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		$this->_qry = mysqli_multi_query($link, $file_content);
+		mysqli_close($link);
+		
 		return $this->_qry ? true:false;
 	}
 
@@ -502,7 +502,7 @@ class mysql implements \Gino\DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * @see conformType()
+	 * @see conformFieldType()
 	 */
 	public function fieldInformations($table) {
 	
@@ -522,7 +522,7 @@ class mysql implements \Gino\DbManager {
 				$meta[$i] = mysql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mysql_field_len($this->_qry, $i);
 				
-				$meta[$i]->type = $this->conformType($meta[$i]->type);
+				$meta[$i]->type = $this->conformFieldType($meta[$i]->type);
 				$i++;
 			}
 			$this->freeresult();
@@ -531,13 +531,9 @@ class mysql implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::conformType()
-	 * 
-	 * @param string $type
-	 * 
-	 * Come tipo di dato di un campo la funzione mysql_fetch_field() rileva: int, blob, string, date
+	 * @see DbManager::conformFieldType()
 	 */
-	public function conformType($type) {
+	public function conformFieldType($type) {
 		
 		if($type == 'string')
 			$conform_type = 'char';
@@ -611,7 +607,7 @@ class mysql implements \Gino\DbManager {
 				$table_query = mysql_query("SELECT * FROM `$table`");
 				$num_fields = mysql_num_fields($table_query);
 				while ($fetch_row = mysql_fetch_array($table_query)) {
-					$insert_sql .= "INSERT INTO $table VALUES(";
+					$insert_sql .= "INSERT INTO $table VALUES (";
 					for ($n=1;$n<=$num_fields;$n++) {
 						$m = $n - 1;
 						$insert_sql .= "'".mysql_real_escape_string($fetch_row[$m]).($n==$num_fields ? "" : "', ");
@@ -663,6 +659,14 @@ class mysql implements \Gino\DbManager {
 		$structure['fields'] = $fields;
 		
 		return $structure;
+	}
+	
+	/**
+	 * @see Gino.DbManager::changeFieldType()
+	 */
+	public function changeFieldType($data_type, $value) {
+	
+		return $value;
 	}
 
 	/**
@@ -754,6 +758,24 @@ class mysql implements \Gino\DbManager {
 		if($debug) echo $query;
 		
 		return $query;
+	}
+	
+	/**
+	 * @see Gino.DbManager::execCustomQuery()
+	 */
+	public function execCustomQuery($query, $options=array()) {
+		
+		$statement = \Gino\gOpt('statement', $options, 'select');
+		
+		if($statement == 'select')
+		{
+			$options['custom_query'] = $query;
+			return $this->select(null, null, null, $options);
+		}
+		else
+		{
+			return $this->actionquery($query);
+		}
 	}
 	
 	/**

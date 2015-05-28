@@ -89,6 +89,8 @@ define("DB_CHARSET", 'utf-8');
 
 /**
  * Tipologia di cache delle query
+ * 
+ * @see plugin_phpfastcache::cacheType()
  * @var string
  */
 define("QUERY_CACHE_TYPE", 'auto');
