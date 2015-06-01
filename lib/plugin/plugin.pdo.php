@@ -32,23 +32,36 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  * CACHE QUERY
  * ---------------
  * La proprietà self::$_query_cache indica se è stata abilita la cache delle query. \n
- * Le query che vengono salvate in cache sono quelle che passano dal metodo select(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
+ * Le query che vengono salvate in cache sono quelle che passano dal metodo select() ed execCustomQuery(), e non riguardano quindi le query di struttura, 
+ * quali quelle presenti nei metodi:
  *   - fieldInformations()
  *   - getTableStructure()
  *   - getFieldsName()
  * 
- * Qualora non si desideri caricare in cache una determinata query è sufficienete passare l'opzione @a cache=false al metodo select(). \n
- * La cache delle query viene svuotata ogni volta che viene eseguita una query di tipo @a action (metodo queryResults()).
+ * Qualora non si desideri caricare in cache una determinata query è sufficiente passare l'opzione @a cache=false ai metodi select() e execCustomQuery(). \n
+ * La cache delle query viene svuotata ogni volta che viene eseguita una query di tipo @a action (@see queryResults()).
  * 
  * INFORMAZIONI SULLE QUERY
  * ---------------
- * La proprietà self::$_show_stats attiva la raccolta di informazioni sulle prestazioni delle chiamate al database. \n
+ * La proprietà @a self::$_show_stats attiva la raccolta di informazioni sulle prestazioni delle chiamate al database. \n
  * Le query di tipo select alimentano i contatori self::$_cnt e self::$_time_queries.
  */
 class pdo implements \Gino\DbManager {
 
 	protected $_dbms, $_db_host, $_db_name, $_db_user, $_db_password, $_db_charset;
+	
+	/**
+	 * Numero di righe risultanti da una select query
+	 * 
+	 * @var integer
+	 */
 	protected $_numberrows;
+	
+	/**
+	 * Numero di righe interessate da una istruzione INSERT, UPDATE o DELETE
+	 * 
+	 * @var integer
+	 */
 	protected $_affected;
 	
 	/**
@@ -198,7 +211,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Ritorna il numero di record risultanti da una select query
+	 * Ritorna il numero di righe risultanti da una select query
 	 * 
 	 * @return integer
 	 */
@@ -207,7 +220,7 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * Imposta il numero di record risultanti da una select query
+	 * Imposta il numero di righe risultanti da una select query
 	 * 
 	 * @param integer
 	 */
@@ -216,7 +229,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Ritorna il numero di colonne in una istruzione select
+	 * Ritorna il numero di colonne richiamate in una istruzione SELECT
 	 * 
 	 * @return integer
 	 */
@@ -225,7 +238,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Imposta il numero di colonne in una istruzione select
+	 * Imposta il numero di colonne richiamate in una istruzione SELECT
 	 *
 	 * @param integer
 	 */
@@ -238,7 +251,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Ritorna il numero di record interessati da una istruzione INSERT, UPDATE o DELETE
+	 * Ritorna il numero di righe interessate da una istruzione INSERT, UPDATE o DELETE
 	 *
 	 * @return integer
 	 */
@@ -247,7 +260,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Imposta il numero di record interessati da una istruzione INSERT, UPDATE o DELETE
+	 * Imposta il numero di righe interessate da una istruzione INSERT, UPDATE o DELETE
 	 *
 	 * @param integer $number
 	 */
@@ -282,13 +295,6 @@ class pdo implements \Gino\DbManager {
 	protected function checkRowsFromSelect($result) {
 		
 		return $result->rowCount();
-	}
-	
-	/**
-	 * @see Gino.DbManager::affected()
-	 */
-	public function affected() {
-		return null;
 	}
 	
 	/**
@@ -606,24 +612,6 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see Gino.DbManager::actionquery()
-	 * 
-	 * Eliminare quando si elimina il richiamo a actionquery in class.Form.php
-	 */
-	public function actionquery($query) {
-		
-		if (!$this->_connection) {
-			$this->openConnection();
-		}
-		
-		$this->_result = $this->queryResults($query, array('statement'=>'action', 'parameters'=>false, 'values'=>null));
-		if($this->_result)
-			return true;
-		else
-			return false;
-	}
-
-	/**
 	 * @see Gino.DbManager::multiActionQuery()
 	 * @see driver
 	 */
@@ -632,14 +620,6 @@ class pdo implements \Gino\DbManager {
 		return false;
 	}
 
-	/**
-	 * @see Gino.DbManager::selectquery()
-	 */
-	public function selectquery($qry) {
-
-		return null;
-	}
-	
 	/**
 	 * @see Gino.DbManager::freeresult()
 	 */
@@ -650,17 +630,9 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see Gino.DbManager::resultselect()
+	 * @see Gino.DbManager::getLastId()
 	 */
-	public function resultselect($qry) {
-		
-		return null;
-	}
-	
-	/**
-	 * @see Gino.DbManager::getlastid()
-	 */
-	public function getlastid($table) { 
+	public function getLastId($table) { 
 		
 		if($this->_affected > 0)
 		{
@@ -833,7 +805,7 @@ class pdo implements \Gino\DbManager {
 	}
 
 	/**
-	 * @see DbManager::getNumRecords()
+	 * @see Gino.DbManager::getNumRecords()
 	 */
 	public function getNumRecords($table, $where=null, $field='id', $options=array()) {
 
@@ -848,15 +820,8 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::queryCache()
-	 */
-	public function queryCache($query, $options=array()) {
-		
-		return null;
-	}
-	
-	/**
-	 * @see DbManager::query()
+	 * @see Gino.DbManager::query()
+	 * @see buildQuery()
 	 */
 	public function query($fields, $tables, $where=null, $options=array()) {
 	
@@ -972,6 +937,8 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::select()
+	 * @see queryResults()
+	 * @see fetch()
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 		
@@ -1232,6 +1199,10 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::union()
+	 * 
+	 * In mssql possono essere utilizzati gli operatori: \n
+	 * - UNION, elimina le righe duplicate dai risultati combinati delle istruzioni SELECT \n
+	 * - UNION ALL, mostra i record duplicati
 	 */
 	public function union($queries, $options=array()) {
 		
@@ -1260,6 +1231,7 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::dump()
+	 * @see SQLForDump()
 	 */
 	public function dump($table, $path_to_file, $options=array()) {
 		
@@ -1297,11 +1269,12 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Costruisce la query
+	 * Costruisce la query (personalizzata per ogni driver)
 	 * 
+	 * @see driver
 	 * @param array $options
 	 *   array associativo di opzioni
-	 *   - @b statement (string): tipo di istruzione sql (default select)
+	 *   - @b statement (string): tipo di istruzione sql (default @a select)
 	 *   - @b fields (string)
 	 *   - @b tables (string)
 	 *   - @b where (string)

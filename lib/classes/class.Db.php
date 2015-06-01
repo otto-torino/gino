@@ -64,13 +64,6 @@ interface DbManager {
     public function commit();
 
     /**
-     * @brief Esecuzione della query (istruzioni insert, update, delete)
-     * @param string $query query
-     * @return bool, risultato
-     */
-    public function actionquery($query);
-
-    /**
      * @brief Esegue una o più query concatenate dal punto e virgola
      *
      * @description Il metodo viene utilizzato per l'installazione dei pacchetti.
@@ -78,14 +71,6 @@ interface DbManager {
      * @return bool, risultato
      */
     public function multiActionQuery($file_content);
-
-    /**
-     * @brief Esecuzione della query (istruzione select)
-     * 
-     * @param string $query query
-     * @return array con i risultati
-     */
-    public function selectquery($query);
 
     /**
      * @brief Libera tutta la memoria utilizzata dal set di risultati
@@ -96,28 +81,16 @@ interface DbManager {
     public function freeresult($result);
 
     /**
-     * @brief Numero di record risultanti da una istruzione SELECT
-     *
-     * @param string $query query
-     * @return numero di record
-     */
-    public function resultselect($query);
-
-    /**
-     * @brief Numero di record interessati da una istruzione INSERT, UPDATE o DELETE
-     * @return numero di record
-     */
-    public function affected();
-
-    /**
      * @brief Valore dell'ultimo ID generato da una colonna Auto Increment a seguito di una istruzione INSERT o UPDATE
+     * 
      * @param string $table nome della tabella
      * @return ultimo id generato
      */
-    public function getlastid($table);
+    public function getLastId($table);
 
     /**
      * @brief Valore di Auto Increment
+     * 
      * @param string $table nome della tabella
      * @return auto increment
      */
@@ -275,18 +248,6 @@ interface DbManager {
     public function getNumRecords($table, $where, $field, $options);
     
     /**
-     * @brief Gestisce i risultati di una query recuperandoli o salvandoli nella cache
-     * 
-     * @param string $query query
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b identity_keyword (string): codice identificativo dei dati in cache
-     *   - @b time_caching (integer): tempo di durata della cache
-     * @return array
-     */
-    public function queryCache($query, $options);
-
-    /**
      * @brief Costruisce una query di selezione
      *
      * @param mixed $fields elenco dei campi
@@ -305,8 +266,9 @@ interface DbManager {
     public function query($fields, $tables, $where, $options);
 
     /**
+     * @brief Esegue una query di selezione passando direttamente la query
      * 
-     * @param string $query stringa da eeguire
+     * @param string $query istruzione sql da eeguire
      * @param array $options array associativo di opzioni
      *   - @b statement (string): tipologia di query
 	 *     - @a select (default)
@@ -317,10 +279,9 @@ interface DbManager {
     public function execCustomQuery($query, $options);
     
     /**
-     * @brief Costruisce ed esegue una query di selezione
+     * @brief Esegue una query di selezione passando i parametri di costruzione della query
      * 
      * @see query()
-     * @see selectquery()
      * @param mixed $fields elenco dei campi
      * @param mixed $tables elenco delle tabelle
      * @param string $where condizione della query
@@ -329,7 +290,7 @@ interface DbManager {
      *   - @b cache (boolean): indica se salvare in cache (se abilitata) i risultati della query (default true)
      *   - @b identity_keyword (string): codice identificativo dei dati in cache
      *   - @b time_caching (integer): tempo di durata della cache
-     *   @see opzioni del metodo query()
+     *   - opzioni del metodo query()
      * @return array di risultati
      */
     public function select($fields, $tables, $where, $options);
@@ -337,7 +298,6 @@ interface DbManager {
     /**
      * @brief Costruisce ed esegue una query di inserimento
      *
-     * @see actionquery()
      * @param array $fields elenco dei campi con i loro valori; se il valore di un campo è un array, con la chiave @a sql è possibile passare una istruzione SQL
      *   - array(field1=>value1, field2=>value2), esempio:
      *     @code
@@ -356,7 +316,6 @@ interface DbManager {
     /**
      * @brief Costruisce ed esegue una query di aggiornamento
      *
-     * @see actionquery()
      * @param array $fields elenco dei campi con i loro valori; se il valore di un campo è un array, con la chiave @a sql è possibile passare una istruzione SQL
      *   - array(field1=>value1, field2=>value2), esempio:
      *     @code
@@ -376,7 +335,6 @@ interface DbManager {
     /**
      * @brief Costruisce ed esegue una query di eliminazione
      *
-     * @see actionquery()
      * @param string $table nome della tabella
      * @param string $where condizione della query
      * @param boolean $debug se vero stampa a video la query
@@ -428,7 +386,7 @@ interface DbManager {
      * - Tutte le query devono includere lo stesso numero di colonne nello stesso ordine. \n
      * - I tipi di dati devono essere compatibili.
      *
-     * @see selectquery()
+     * @see select()
      * @param array $queries query da unire (viene seguito l'ordine nell'array)
      * @param array $options
      *   array associativo di opzioni

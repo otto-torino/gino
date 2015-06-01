@@ -122,7 +122,6 @@ class pdo_mysql extends pdo {
 	public function autoIncValue($table) {
 
 		$query = "SHOW TABLE STATUS LIKE '$table'";
-		
 		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if(sizeof($a) > 0)
 		{

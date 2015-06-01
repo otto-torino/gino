@@ -93,7 +93,6 @@ class pdo_sqlsrv extends pdo {
 	public function autoIncValue($table) {
 
 		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
-		
 		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if($a && isset($a[0]))
 		{
@@ -534,7 +533,7 @@ class pdo_sqlsrv extends pdo {
 		{
 			if(!$fields OR !$tables) return null;
 				
-			if(is_array($limit) && count($limit))	// -> Paginazione
+			if(is_array($limit) && count($limit))	// pagination
 			{
 				return $this->setQueryUsingPaging($fields, $tables, $where, $options);
 			}
