@@ -261,10 +261,12 @@ class mysql implements \Gino\DbManager {
 
 		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
 			
+			$this->setconnection(TRUE);
+			
 			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mysql_error());
 			if($this->_db_charset=='utf-8') $this->setUtf8();
-			$this->setconnection(TRUE);
-			return TRUE;
+			
+			return true;
 		} else {
             throw new \Exception(_('Errore di connessione al database'));
 		}
