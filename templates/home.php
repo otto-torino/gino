@@ -59,12 +59,5 @@
         </div>
       </div>
     </div>
-    <script src="lib/js/cookiechoices.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function(event) {
-      cookieChoices.showCookieConsentBar('<?= _("Questo sito fa uso di cookie per migliorare l\'esperienza di navigazione; continuando la navigazione se ne accetta implicitamente l\'uso.") ?>',
-      '<?= _("ok") ?>', '<?= _("ulteriori informazioni") ?>', 'page/view/privacy-cookie');
-    });
-    </script>
   </body>
 </html>
