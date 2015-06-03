@@ -122,7 +122,7 @@ class Translation {
         // get all id from query, ordered casually
         $ids = array();
 
-        $a = $this->_db->selectquery($query);
+        $a = $this->_db->select(null, null, null, array('custom_query'=>$query));
         if(sizeof($a) > 0)
         {
             foreach($a AS $b)

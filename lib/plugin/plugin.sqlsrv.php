@@ -3,16 +3,18 @@
  * @file plugin.sqlsrv.php
  * @brief Contiene la classe sqlsrv
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino\Plugin;
 
+require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
+
 /**
  * @brief Libreria di connessione ai database SQL Server
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -23,10 +25,10 @@ namespace Gino\Plugin;
  * GESTIONE DATABASE/HTML
  * ---------------
  * ####Dal database alla visualizzazione
- * In questo caso si passa attraverso il metodo convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
+ * In questo caso si passa attraverso il metodo Gino.convertToHtml() richiamato dai metodi htmlChars, htmlCharsText, htmlInput, htmlInputEditor presenti nel file func.var.php.
  * 
  * ####Dal form al database
- * I dati passano attraverso il metodo convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
+ * I dati passano attraverso il metodo Gino.convertToDatabase() (file func.var.php) richiamato direttamente dalle librerie di connessione al database.
  * 
  */
 class sqlsrv implements \Gino\DbManager {
@@ -42,18 +44,18 @@ class sqlsrv implements \Gino\DbManager {
 	private $_dbresults = array();
 	
 	/**
-	 * Abilita la cache 
+	 * Attiva le statistiche sulle query
 	 * 
 	 * @var boolean
 	 */
-	private $_enable_cache;
+	private $_show_stats;
 	
 	/**
-	 * Abilita il debug sulle query
-	 * 
-	 * @var boolean
+	 * Informazioni sulle query eseguite
+	 *
+	 * @var array
 	 */
-	private $_debug;
+	private $_info_queries;
 	
 	/**
 	 * Contatore di query
@@ -63,9 +65,30 @@ class sqlsrv implements \Gino\DbManager {
 	private $_cnt;
 	
 	/**
-	 * Contenitore delle query di tipo select
+	 * Tempo totale di esecuzione delle query
+	 *
+	 * @var float
+	 */
+	private $_time_queries;
+	
+	/**
+	 * Query cache
 	 * 
-	 * @var array(query=>results)
+	 * @var boolean
+	 */
+	private $_query_cache;
+	
+	/**
+	 * Tempo di durata della query cache
+	 *
+	 * @var integer
+	 */
+	private $_query_cache_time;
+	
+	/**
+	 * Oggetto plugin_phpfastcache
+	 * 
+	 * @var object
 	 */
 	private $_cache;
 	
@@ -89,15 +112,50 @@ class sqlsrv implements \Gino\DbManager {
 		$this->_db_password = $params["password"];
 		$this->_db_charset = $params["charset"];
 		
-		$this->setnumberrows(0);
+		$this->setNumberRows(0);
 		$this->setconnection(false);
 		
-		$this->_enable_cache = false;
-		$this->_debug = false;
+		$this->_show_stats = (DEBUG && SHOW_STATS) ? true : false;
+		
 		$this->_cnt = 0;
-		$this->_cache = array();
+		$this->_info_queries = array();
+		$this->_time_queries = 0;
+		
+		$this->setParamsCache();
+		if($this->_query_cache)
+		{
+			$this->_cache = new \Gino\Plugin\plugin_phpfastcache(
+				array(
+					'cache_time'=>$this->_query_cache_time,
+					'cache_path'=>QUERY_CACHE_PATH ? QUERY_CACHE_PATH : CACHE_DIR, 
+					'cache_type'=>QUERY_CACHE_TYPE,
+					'cache_server'=>QUERY_CACHE_SERVER,
+					'cache_fallback'=>QUERY_CACHE_FALLBACK,
+				)
+			);
+		}
 		
 		if($params["connect"]===true) $this->openConnection();
+	}
+	
+	/**
+	 * Parametri inerenti la cache delle query presenti nelle Impostazioni di sistema
+	 *
+	 * @return void
+	 */
+	private function setParamsCache() {
+	
+		$item = $this->select("query_cache, query_cache_time", TBL_SYS_CONF, "id='1'", array('cache'=>false));
+		if(count($item))
+		{
+			$this->_query_cache = $item[0]['query_cache'] ? true : false;
+			$this->_query_cache_time = $item[0]['query_cache_time'];
+		}
+		else
+		{
+			$this->_query_cache = false;
+			$this->_query_cache_time = null;
+		}
 	}
 	
 	/**
@@ -109,7 +167,7 @@ class sqlsrv implements \Gino\DbManager {
 		$this->_sql = $sql_query;
 	}
 
-	private function setnumberrows($numberresults) {
+	private function setNumberRows($numberresults) {
 		$this->_numberrows = $numberresults;
 	}
 	
@@ -121,47 +179,97 @@ class sqlsrv implements \Gino\DbManager {
 	 * @see DbManager::getInfoQuery()
 	 */
 	public function getInfoQuery() {
- 		
- 		if($this->_debug)
- 			return $this->_cnt;
- 		else
- 			return null;
+			
+		if($this->_show_stats) {
+			$query_cache = $this->_query_cache ? 'On' : 'Off';
+			$buffer = "<p>Query cache: ".$query_cache."</p>";
+			$buffer .= "<p>Number of db queries: ".$this->_cnt."</p>";
+			$buffer .= "<p>Time of db queries: ".$this->_time_queries." seconds</p>";
+			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
+			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Execution time (ms)</th></tr>";
+			foreach($this->_info_queries as $q) {
+				$buffer .= "<tr>";
+				$buffer .= "<td>".$q[0]."</td>";
+				$buffer .= "<td>".$q[1]."</td>";
+				$buffer .= "</tr>";
+			}
+			$buffer .= "</table>";
+			return $buffer;
+		}
+		else return null;
 	}
 	
 	/**
-	 * Esegue la query
+	 * Esegue la query e ne calcola i tempi di esecuzione
 	 * 
-	 * @param string $query
-	 * @return array
+	 * @param string $query query da eseguire
+	 * @param array $options array associativo di opzioni
+	 *   - @b statement (string): tipologia di query
+	 *     - @a select (default)
+	 *     - @a action
+	 * @return mixed
 	 * 
 	 * @see http://msdn.microsoft.com/en-us/library/hh487160.aspx
 	 */
-	private function execQuery($query=null) {
+	private function queryResults($query, $options=array()) {
 		
-		if(!$query) $query = $this->_sql;
+		if (!$this->_connection) {
+			$this->openConnection();
+		}
 		
-		if($this->_debug) $this->_cnt++;
+		$statement = \Gino\gOpt('statement', $options, 'select');
 		
-		$exec = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
-		return $exec;
+		if($this->_show_stats) {
+			$this->_cnt++;
+				
+			$msc = \Gino\getmicrotime();
+		}
+		
+		$res = sqlsrv_query($this->_dbconn, $query, array(), array('Scrollable'=>SQLSRV_CURSOR_KEYSET));
+		
+		//$this->_affected = sqlsrv_rows_affected($this->_qry);
+		
+		if($this->_show_stats) {
+			$msc = \Gino\getmicrotime()-$msc;
+			$this->_time_queries += $msc;
+		
+			$this->_info_queries[] = array($query, $msc);
+		}
+		
+		if($statement != 'select')
+		{
+			if($res && $this->_query_cache)
+			{
+				$this->_cache->clean();
+			}
+		}
+		
+		return $res;
 	}
 	
 	/**
 	 * @see DbManager::openConnection()
 	 * 
 	 * L'estensione SQLSRV restituisce oggetti DateTime. \n
-	 * È possibile disabilitare la funzione utilizzando l'opzione di connessione ReturnDatesAsStrings.
+	 * È possibile disabilitare la funzione utilizzando l'opzione di connessione ReturnDatesAsStrings. \n
+	 * @see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 	 */
 	public function openConnection() {
 
-		$connectionInfo = array("Database"=>$this->_db_name, "UID"=>$this->_db_user, "PWD"=>$this->_db_password, "ReturnDatesAsStrings"=>true);
+		$connectionInfo = array(
+			"Database"=>$this->_db_name, 
+			"UID"=>$this->_db_user, 
+			"PWD"=>$this->_db_password, 
+			"ReturnDatesAsStrings"=>true, 
+			"CharacterSet"=>"UTF-8"
+		);
 		
 		if($this->_dbconn = sqlsrv_connect($this->_db_host, $connectionInfo)) {
 			
 			$this->setconnection(true);
 			return true;
 		} else {
-			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".sqlsrv_errors());
+			die("ERROR DB: verify connection parameters");	// debug -> die("ERROR SQLServer: ".var_dump(sqlsrv_errors()));
 		}
 	}
 
@@ -184,7 +292,7 @@ class sqlsrv implements \Gino\DbManager {
 		}
 		$this->setsql("BEGIN");
 		
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -202,7 +310,7 @@ class sqlsrv implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -220,7 +328,7 @@ class sqlsrv implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -229,117 +337,49 @@ class sqlsrv implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::actionquery()
+	 * @see Gino.DbManager::multiActionQuery()
+	 * @see Gino.SqlParse::getQueries()
 	 */
-	public function actionquery($qry) {
-		
-		if (!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-		
-		//$this->_affected = sqlsrv_rows_affected($this->_qry);
-
-		return $this->_qry ? true : false;
-	}
-
-	/**
-	 * @see DbManager::multiActionquery()
-	 */
-	public function multiActionquery($qry) {
+	public function multiActionQuery($file_content) {
 	
-		// SPLITTARE LE QUERY
-		
-		/*$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-		$this->setsql($qry);
-		$this->_qry = mysqli_multi_query($conn, $this->_sql);
-
-		return $this->_qry ? true:false;*/
-		return false;
-	}
-
-	/**
-	 * @see DbManager::selectquery()
-	 */
-	public function selectquery($qry, $cache=true) {
-
-		if(!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-		
-		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
-			return $this->_cache[$this->_sql];
-		}
-		else
+		$result = true;
+		$queries = \Gino\SqlParse::getQueries(array('content_schema'=>$file_content));
+		if(count($queries))
 		{
-			$this->_qry = $this->execQuery();
-			if(!$this->_qry) {
-				return false;
-			} else {
-				// initialize array results
-				$this->_dbresults = array();
+			$debug = false;
 				
-				$this->setnumberrows(sqlsrv_num_rows($this->_qry));
-				if($this->_numberrows > 0){
-					while($this->_rows=sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
-					{
-						$this->_dbresults[]=$this->_rows;
-					}
+			foreach($queries AS $query)
+			{
+				$res = $this->execCustomQuery($query, array('statement'=>'action'));
+				if(!$res) $result = false;
+	
+				if($debug)
+				{
+					printf("%s\n", $query);
+					printf("-----------------\n");
 				}
-				//$this->freeresult();
-				
-				if($this->_enable_cache and $cache) {
-					$this->_cache[$this->_sql] = $this->_dbresults;
-				}
-				return $this->_dbresults;
 			}
 		}
+	
+		return $this->_result ? true : false;
 	}
 		
 	/**
 	 * @see DbManager::freeresult()
 	 */
-	public function freeresult($res=null){
+	public function freeresult($res=null) {
 	
 		if(is_null($res)) $res = $this->_qry;
 		sqlsrv_free_stmt($res);
 	}
 	
 	/**
-	 * @see DbManager::resultselect()
+	 * @see DbManager::getLastId()
 	 */
-	public function resultselect($qry)
-	{
-		if(!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-		if (!$this->_qry) {
-			return false;
-		} else {
-			$this->setnumberrows(sqlsrv_num_rows($this->_qry));
-			return $this->_numberrows;
-		}
-	}
-	
-	/**
-	 * @see DbManager::affected()
-	 */
-	public function affected() 
-	{ 
-		return $this->_affected;
-	}
-	
-	/**
-	 * @see DbManager::getlastid()
-	 */
-	public function getlastid($table)
-	{ 
+	public function getLastId($table) {
+		
 		$id = 0;
-		$res = $this->execQuery("SELECT IDENT_CURRENT('$table') AS id");	// SCOPE_IDENTITY()
+		$res = $this->queryResults("SELECT IDENT_CURRENT('$table') AS id");	// SCOPE_IDENTITY()
     	if($row = sqlsrv_fetch_array($res, SQLSRV_FETCH_ASSOC)) { 
         	$id = $row["id"];
     	}
@@ -356,7 +396,7 @@ class sqlsrv implements \Gino\DbManager {
 	public function autoIncValue($table){
 
 		$query = "SELECT IDENT_CURRENT('$table') AS NextId";
-		$a = $this->selectquery($query, false);
+		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if($a && isset($a[0]))
 		{
 			$auto_increment = $a[0]['NextId'];
@@ -371,17 +411,16 @@ class sqlsrv implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getFieldFromId()
 	 */
-	public function getFieldFromId($table, $field, $field_id, $id) {
+	public function getFieldFromId($table, $field, $field_id, $id, $options=array()) {
 		
-		$query = "SELECT $field FROM $table WHERE $field_id='$id'";
-		$a = $this->selectquery($query);
-		if(!$a){
+		$res = $this->select($field, $table, "$field_id='$id'", $options);
+		if(!$res){
 			return '';
 		}
 		else
 		{
-			foreach($a as $b) {
-				return $b[$field];
+			foreach($res as $r) {
+				return $r[$field];
 			}
 		}
 	}
@@ -392,8 +431,8 @@ class sqlsrv implements \Gino\DbManager {
 	public function tableexists($table){
 		
 		$query = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".DB_SCHEMA."' AND TABLE_TYPE='BASE TABLE' AND TABLE_NAME='$table'";
-		$a = $this->selectquery($query);
-		if($a)
+		$res = $this->queryResults($query);
+		if($res)
 			return true;
 		else
 			return false;
@@ -401,7 +440,7 @@ class sqlsrv implements \Gino\DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * @see conformType()
+	 * @see conformFieldType()
 	 * 
 	 * La funzione sqlsrv_field_metadata() ritorna i riferimenti:
 	 * <table>
@@ -418,8 +457,8 @@ class sqlsrv implements \Gino\DbManager {
 		if($this->_connection) {
 			$this->openConnection();
 		}
-		$this->setsql("SELECT TOP 1 * FROM ".$table);
-		$this->_qry = $this->execQuery();
+		$query = "SELECT TOP 1 * FROM ".$table;
+		$this->_qry = $this->queryResults($query);
 		if(!$this->_qry) {
 			return false;
 		} else {
@@ -441,7 +480,7 @@ class sqlsrv implements \Gino\DbManager {
 				
 				$array_tmp = array(
 					'name'=>$field_metadata[$i]['Name'],
-					'type'=>$this->conformType($meta_type),
+					'type'=>$this->conformFieldType($meta_type),
 					'length'=>$size
 				);
 				
@@ -498,7 +537,7 @@ class sqlsrv implements \Gino\DbManager {
 	 * </table>
 	 * 
 	 */
-	public function conformType($type) {
+	public function conformFieldType($type) {
 		
 		$data = array(
 			'bigint' => -5, 
@@ -546,7 +585,7 @@ class sqlsrv implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::limit()
+	 * @see Gino.DbManager::limit()
 	 * 
 	 * Examples
 	 * @code
@@ -630,19 +669,19 @@ class sqlsrv implements \Gino\DbManager {
 		
 		while ($td = sqlsrv_fetch_array($tables)) {
 			$table = $td[0];
-			$r = $this->execQuery("SHOW CREATE TABLE $table");
-			//SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='page_entry' ORDER BY ORDINAL_POSITION
-			if ($r) {
+			$r = $this->queryResults("SHOW CREATE TABLE $table");
+			//SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='$table' ORDER BY ORDINAL_POSITION
+			if($r) {
 				$insert_sql = "";
 				$d = sqlsrv_fetch_array($r);
 				$d[1] .= ";";
 				$SQL[] = str_replace("\n", "", $d[1]);
 				
-				$table_query = $this->execQuery("SELECT * FROM $table");
+				$table_query = $this->queryResults("SELECT * FROM $table");
 				$num_fields = sqlsrv_num_fields($table_query);
 				while ($fetch_row = sqlsrv_fetch_array($table_query)) {
-					$insert_sql .= "INSERT INTO $table VALUES(";
-					for ($n=1;$n<=$num_fields;$n++) {
+					$insert_sql .= "INSERT INTO $table VALUES (";
+					for ($n=1; $n<=$num_fields; $n++) {
 						$m = $n - 1;
 						$insert_sql .= "'".$this->escapeString($fetch_row[$m]).($n==$num_fields ? "" : "', ");
 					}
@@ -664,7 +703,7 @@ class sqlsrv implements \Gino\DbManager {
 	private function listTables() {
 		
 		$query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG='".$this->_db_name."' AND TABLE_TYPE='BASE_TABLE'";
-		$res = $this->execQuery($query);
+		$res = $this->queryResults($query);
 		
 		return $res;
 	}
@@ -683,7 +722,7 @@ class sqlsrv implements \Gino\DbManager {
 		$fields = array();
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='".$this->_db_name."' AND TABLE_NAME='$table'";
-		$res = $this->execQuery($query);
+		$res = $this->queryResults($query);
 		while($row = sqlsrv_fetch_array($res)) {
 			
 			$column_name = $row['COLUMN_NAME'];
@@ -727,6 +766,14 @@ class sqlsrv implements \Gino\DbManager {
 		$structure['fields'] = $fields;
 
 		return $structure;
+	}
+	
+	/**
+	 * @see Gino.DbManager::changeFieldType()
+	 */
+	public function changeFieldType($data_type, $value) {
+	
+		return $value;
 	}
 	
 	/**
@@ -825,7 +872,7 @@ class sqlsrv implements \Gino\DbManager {
 		AND C.CONSTRAINT_CATALOG = K.CONSTRAINT_CATALOG
 		AND C.CONSTRAINT_SCHEMA = K.CONSTRAINT_SCHEMA
 		AND C.CONSTRAINT_NAME = K.CONSTRAINT_NAME";
-		$a = $this->selectquery($query, false);
+		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)
@@ -848,7 +895,7 @@ class sqlsrv implements \Gino\DbManager {
 		$check_name = 'CK_'.$table.'_'.$column;
 		
 		$query = "SELECT CHECK_CLAUSE FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS WHERE CONSTRAINT_NAME='$check_name'";
-		$a = $this->selectquery($query, false);
+		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)
@@ -892,7 +939,7 @@ class sqlsrv implements \Gino\DbManager {
 			WHERE C.CONSTRAINT_TYPE = '$key_name'
 			AND K.COLUMN_NAME = '$column'
 			AND K.TABLE_NAME = '$table'";
-		$a = $this->selectquery($query, false);
+		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if(sizeof($a) > 0)
 		{
 			foreach($a AS $b)
@@ -918,7 +965,7 @@ class sqlsrv implements \Gino\DbManager {
 		WHERE TABLE_SCHEMA = '".DB_SCHEMA."'
 		AND TABLE_NAME = '$table'";
 		
-		$res = $this->execQuery($query);
+		$res = $this->queryResults($query);
 		while($row = sqlsrv_fetch_array($res)) {
 			$results[] = $row;
 		}
@@ -934,17 +981,15 @@ class sqlsrv implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getNumRecords()
 	 */
-	public function getNumRecords($table, $where=null, $field='id') {
+	public function getNumRecords($table, $where=null, $field='id', $options=array()) {
 
 		$tot = 0;
-
-		$qwhere = $where ? "WHERE ".$where : "";
-		$query = "SELECT COUNT($field) AS tot FROM $table $qwhere";
-		$res = $this->selectquery($query);
+		
+		$res = $this->select("COUNT($field) AS tot", $table, $where, $options);
 		if($res) {
 			$tot = $res[0]['tot'];
 		}
-
+		
 		return (int) $tot;
 	}
 	
@@ -955,6 +1000,7 @@ class sqlsrv implements \Gino\DbManager {
 	public function query($fields, $tables, $where=null, $options=array()) {
 
 		$order = \Gino\gOpt('order', $options, null);
+		$group_by = \Gino\gOpt('group_by', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);
 		$debug = \Gino\gOpt('debug', $options, false);
 		$distinct = \Gino\gOpt('distinct', $options, null);
@@ -1065,15 +1111,75 @@ class sqlsrv implements \Gino\DbManager {
 		
 		return $query;
 	}
+	
+	/**
+	 * @see Gino.DbManager::execCustomQuery()
+	 */
+	public function execCustomQuery($query, $options=array()) {
+	
+		$statement = \Gino\gOpt('statement', $options, 'select');
+	
+		if($statement == 'select')
+		{
+			$options['custom_query'] = $query;
+			return $this->select(null, null, null, $options);
+		}
+		else
+		{
+			return $this->queryResults($query, array('statement'=>$statement));
+		}
+	}
 
 	/**
 	 * @see DbManager::select()
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 
-		$query = $this->query($fields, $tables, $where, $options);
+		$custom_query = \Gino\gOpt('custom_query', $options, null);
+		$cache = \Gino\gOpt('cache', $options, true);
+		$identity_keyword = \Gino\gOpt('identity_keyword', $options, null);
+		$time_caching = \Gino\gOpt('time_caching', $options, null);
 		
-		return $this->selectquery($query);
+		if($custom_query)
+		{
+			$query = $custom_query;
+		}
+		else
+		{
+			$query = $this->query($fields, $tables, $where, $options);
+		}
+		
+		if(!$identity_keyword) $identity_keyword = $query;
+		
+		if(!($this->_query_cache && $cache) OR is_null($results = $this->_cache->get($identity_keyword)))
+		{
+			$this->_qry = $this->queryResults($query);
+			if(!$this->_qry)
+			{
+				return false;
+			}
+			else
+			{
+				// initialize array results
+				$results = array();
+				
+				$this->setNumberRows(sqlsrv_num_rows($this->_qry));
+				if($this->_numberrows > 0) {
+					while($rows = sqlsrv_fetch_array($this->_qry, SQLSRV_FETCH_ASSOC))
+					{
+						$results[] = $rows;
+					}
+				}
+				$this->freeresult();
+			}
+		
+			if($this->_query_cache && $cache)
+			{
+				$this->_cache->set($results, array('time_caching'=>$time_caching));
+			}
+		}
+		
+		return $results;
 	}
 	
 	/**
@@ -1094,13 +1200,13 @@ class sqlsrv implements \Gino\DbManager {
 				{
 					if(array_key_exists('sql', $value))
 					{
-						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$mb_value = \Gino\convertToDatabase($value['sql'], 'CP1252');
 						$a_fields[] = "[$field]=".$mb_value;
 					}
 				}
 				else
 				{
-					$mb_value = convertToDatabase($value, 'CP1252');
+					$mb_value = \Gino\convertToDatabase($value, 'CP1252');
 					$a_values[] = ($value !== null) ? "'$mb_value'" : 'null';	// verificare se crea problemi
 				}
 			}
@@ -1112,7 +1218,7 @@ class sqlsrv implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->actionquery($query);
+			return $this->queryResults($query, array('statement'=>'action'));
 		}
 		else return false;
 	}
@@ -1132,13 +1238,13 @@ class sqlsrv implements \Gino\DbManager {
 				{
 					if(array_key_exists('sql', $value))
 					{
-						$mb_value = convertToDatabase($value['sql'], 'CP1252');
+						$mb_value = \Gino\convertToDatabase($value['sql'], 'CP1252');
 						$a_fields[] = "[$field]=".$mb_value;
 					}
 				}
 				else
 				{
-					$mb_value = convertToDatabase($value, 'CP1252');
+					$mb_value = \Gino\convertToDatabase($value, 'CP1252');
 					$a_fields[] = "[$field]='$mb_value'";	//$a_fields[] = ($value == 'null') ? "[$field]=$value" : "[$field]='$mb_value'";
 				}
 			}
@@ -1150,7 +1256,7 @@ class sqlsrv implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->actionquery($query);
+			return $this->queryResults($query, array('statement'=>'action'));
 		}
 		else return false;
 	}
@@ -1168,7 +1274,7 @@ class sqlsrv implements \Gino\DbManager {
 		
 		if($debug) echo $query;
 		
-		return $this->actionquery($query);
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 
 	/**
@@ -1180,7 +1286,7 @@ class sqlsrv implements \Gino\DbManager {
 		
 		$query = "DROP $table";
 		
-		return $this->actionquery($query);
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 
   /**
@@ -1219,6 +1325,7 @@ class sqlsrv implements \Gino\DbManager {
 	public function union($queries, $options=array()) {
 		
 		$debug = \Gino\gOpt('debug', $options, false);
+		$cache = \Gino\gOpt('cache', $options, true);
 		$instruction = \Gino\gOpt('instruction', $options, 'UNION');
 		
 		if(count($queries))
@@ -1227,7 +1334,7 @@ class sqlsrv implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->selectquery($query);
+			return $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>$cache));
 		}
 		return array();
 	}
@@ -1244,7 +1351,6 @@ class sqlsrv implements \Gino\DbManager {
 		$lineend = \Gino\gOpt('lineend', $options, '\\r\\n');
 		$hasheader = \Gino\gOpt('hasheader', $options, false);
 		
-		$ignore = $hasheader ? "IGNORE 1 LINES " : "";
 		if($fields) $fields = "(".implode(',', $fields).")";
 		
 		$query = "BULK INSERT ".$table." FROM '".$filename."' 
@@ -1252,7 +1358,7 @@ class sqlsrv implements \Gino\DbManager {
 			FIELDTERMINATOR = '".$delim."',
 			ROWTERMINATOR = '".$lineend."'
 		)";
-		return $this->actionquery($query);
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 	
 	/**
@@ -1272,7 +1378,9 @@ class sqlsrv implements \Gino\DbManager {
 		$enclosed
 		LINES TERMINATED BY '\r\n' 
 		FROM $table".$where;
-		if($this->actionquery($query))
+		$res = $this->queryResults($query, array('statement'=>'action'));
+		
+		if($res)
 			return $filename;
 		else
 			return null;

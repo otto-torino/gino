@@ -28,33 +28,17 @@ class PhpModule extends \Gino\Model {
      * Costruttore
      * 
      * @param integer $id valore ID dell'istanza
-     * @param string $interface nome dell'istanza
+     * @param Gino.App.PhpModuleView.phpModuleView $controller controller
      * @return void
      */
-    function __construct($id, $interface) {
+    function __construct($id, $controller) {
 
         $this->_tbl_data = self::$table;
 
         parent::__construct($id);
 
-        $this->_interface = $interface;
-    }
-
-    /**
-     * @brief Struttura dati
-     * @see Gino.Model::structure()
-     * @param int $id id record
-     * @return array, struttura
-     */
-    public function structure($id) {
-
-        parent::structure(null);
-        if($id)
-        {
-            $res = $this->_db->select('*', $this->_tbl_data, "instance='$id'");
-            if($res && count($res)) $this->_p = $res[0];
-        }
-        else $this->_p = array('id'=>null, 'instance'=>null, 'content'=>null);
+        $this->_controller = $controller;
+        $this->_interface = $this->_controller->getInstanceName();
     }
 
     /**
@@ -81,6 +65,22 @@ class PhpModule extends \Gino\Model {
         $this->_p['content'] = $value;
 
         return TRUE;
+    }
+
+    /**
+     * Recupera l'oggetto a aprtire dall'istanza del Controller
+     *
+     * @param Gino.App.PhpModuleView.phpModuleView $controller istanza controller Gino.App.PhpModuleView.PhpModuleView
+     * @return Gino.App.PhpModuleView.PhpModule
+     */
+    public static function getFromInstance($controller)
+    {
+        $db = \Gino\Db::instance();
+        $rows = $db->select('id', self::$table, "instance='".$controller->getInstance()."'");
+        if($rows and count($rows)) {
+            return new PhpModule($rows[0]['id'], $controller);
+        }
+        return new PhpModule(null, $controller);
     }
 
     /**
@@ -116,7 +116,7 @@ class PhpModule extends \Gino\Model {
         $buffer = $gform->open($this->_registry->router->link($this->_interface, 'manageDoc', array(), array('action' => 'save')), '', $required, array("generateToken"=>true));
 
         $content = $this->content? $this->content:"\$buffer = '';";
-        $buffer .= $gform->ctextarea('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("id"=>"codemirror", "required"=> true, "other"=>"style=\"width: 95%\"", "rows"=>30));
+        $buffer .= $gform->ctextarea('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("id"=>"codemirror", "required"=> true, "other"=>"style=\"width: 95%\"", "rows"=>30, 'trnsl' => TRUE, 'trnsl_table' => self::$table, 'trnsl_id' => $this->id, 'field' => 'content'));
 
         $buffer .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
@@ -151,6 +151,7 @@ class PhpModule extends \Gino\Model {
             return error::errorMessage(array('error'=>1), $link_error);
         }
 
+        $this->instance = $this->_controller->getInstance();
         $this->content = $content;
         $this->save();
 

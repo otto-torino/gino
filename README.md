@@ -8,7 +8,7 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 - gestione utenti e gruppi di utenti
 - gestione layout libero e a blocchi con interfaccia di manipolazione
 - gestione di layout legati a singoli url o gruppi di url attraverso espressioni regolari
-- gestione cache contenuti
+- gestione cache dei contenuti e delle query
 - modulo pagine
 - modulo allegati
 - modulo gestione header/footer
@@ -32,6 +32,7 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 2015/03/13 | v 2.1.2 | Hotfix   
 2015/03/27 | v 2.2.0 | Feature   
 2015/04/01 | v 2.2.1 | Hotfix   
+2015/06/03 | v 2.3.0 | Feature   
 
 # Copyright
 Copyright © 2005-2015 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)

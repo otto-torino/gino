@@ -243,6 +243,38 @@ class FileField extends Field {
     }
 
     /**
+     * @brief Elemento del form nei filtri
+     * @return elemento form (label + input)
+     */
+    public function formFilter(\Gino\Form $form, $options = array())
+    {
+        return $form->cinput($this->_name, 'text', $this->_value, $this->_label, array());
+    }
+
+    /**
+     * @brief Definisce la condizione WHERE per il campo
+     *
+     * @param mixed $value
+     * @return where clause
+     */
+    public function filterWhereClause($value) {
+
+        return $this->_table.".".$this->_name." LIKE '%".$value."%'";
+    }
+
+    /**
+     * Clean valore input da filtri
+     * @return valore ripulito
+     */
+    public function cleanFilter($options)
+    {
+        $request = \Gino\Http\Request::instance();
+        $escape = gOpt('escape', $options, TRUE);
+
+        return cleanVar($request->POST, $this->_name, 'string', null, array('escape'=>$escape));
+    }
+
+    /**
      * @brief Widget html per il form
      * @param \Gino\Form $form istanza di Gino.Form
      * @param array $options opzioni

@@ -33,6 +33,7 @@ require_once('class.Conf.php');
  *   - Parole chiave sito
  *   - Titolo sito
  *   - Abilita la cache di contenuti e dati
+ *   - Abilita la cache query
  *   - Codice google analytics (es. UA-1234567-1)
  *   - Chiave pubblica reCAPTCHA
  *   - Chiave privata reCAPTCHA
@@ -106,12 +107,13 @@ class sysconf extends \Gino\Controller {
                     _('Password') => array('password_crypt'),
                     _('E-mail') => array('email_admin', 'email_from_app'),
                     _('Mobile') => array('mobile'),
-                    _('Cache') => array('enable_cache', 'empty_cache'),
+                    _('Cache') => array('enable_cache', 'empty_cache', 'query_cache', 'query_cache_time'),
                     _('Meta') => array('head_title', 'head_description', 'head_keywords'),
                     _('Robots') => array('robots'),
                     _('Servizi') => array('google_analytics', 'captcha_public', 'captcha_private', 'sharethis_public_key', 'disqus_shortname')
                 )
                 ), array(
+                	'query_cache_time' => array('size' => 4), 
                     'google_analytics' => array('trnsl' => FALSE),
                     'captcha_public' => array('trnsl' => FALSE),
                     'captcha_private' => array('trnsl' => FALSE),

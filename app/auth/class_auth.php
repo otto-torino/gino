@@ -47,7 +47,6 @@ class auth extends \Gino\Controller {
     private $_options;
     public $_optionsLabels;
 
-    private $_title;
     private $_users_for_page;
     private $_user_more, $_user_view;
     private $_username_as_email;
@@ -68,7 +67,6 @@ class auth extends \Gino\Controller {
         $this->_instance = 0;
         $this->_instanceName = $this->_class_name;
 
-        $this->_title = \Gino\htmlChars($this->setOption('title', true));
         $this->_users_for_page = $this->setOption('users_for_page');
         $this->_user_more = $this->setOption('user_more_info');
         $this->_user_view = $this->setOption('user_card_view');
@@ -87,7 +85,6 @@ class auth extends \Gino\Controller {
 
         $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
-            "title"=>_("Titolo"), 
             "users_for_page"=>_("Utenti per pagina"),
             "user_more_info"=>_("Informazioni aggiuntive utenti"), 
             "user_card_view"=>_("Schede utenti visibili"),

@@ -1200,7 +1200,7 @@ class AdminTable {
 
             foreach($this->_filter_fields as $fname) {
                 if(isset($this->_request->POST[$fname]) && $this->_request->POST[$fname] !== '') {
-                    $this->_session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->clean(array("escape"=>false, "asforminput"=>true));
+                    $this->_session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->cleanFilter(array("escape"=>false));
                 }
                 else {
                     $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
@@ -1409,7 +1409,7 @@ class AdminTable {
                 if(is_array($field_label)) {
                     $field->setLabel($field_label[0]);
                 }
-                $form .= $field->formElement($gform, array('required'=>false, 'default'=>null, 'is_filter'=>true));
+                $form .= $field->formFilter($gform, array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

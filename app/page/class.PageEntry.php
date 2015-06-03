@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Page;
 
+use Gino\GTag;
+
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
@@ -399,8 +401,14 @@ class PageEntry extends \Gino\Model {
     public function delete() {
 
         PageComment::deleteFromEntry($this->id);
-
-        return parent::delete();
+        
+        \Gino\GTag::deleteTaggedItem($this->_controller->getClassName(), $this->_controller->getInstance(), get_name_class($this), $this->id);
+        
+        $result = parent::delete();
+        
+        if($result) $this->deleteDir();
+        
+        return $result;
     }
 
     /**
@@ -410,5 +418,21 @@ class PageEntry extends \Gino\Model {
     public function imgPath() {
 
         return $this->_controller->getBasePath('rel').$this->id.'/'.$this->image;
+    }
+    
+    /**
+     * Elimina la directory della pagina
+     * 
+     * @throws \Exception
+     * @return boolean
+     */
+    private function deleteDir() {
+    	
+    	$dirname = $this->_controller->getBasePath().$this->id;
+    	if(is_dir($dirname)) {
+    		if(!rmdir($dirname))
+    			throw new \Exception(sprintf(_("La directory %s non è stata eliminata"), $dirname));
+    	}
+    	return true;
     }
 }

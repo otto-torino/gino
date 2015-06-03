@@ -717,11 +717,41 @@ CREATE TABLE page_entry (
 SET IDENTITY_INSERT page_entry ON
 
 INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, [read], tpl_code, box_tpl_code) VALUES
-(1, 0, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(2, 0, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>, tuttavia non è limitato a questi programmi potendo essere utilizzato anche con altri server web, quali ad esempio nginx e IIS, e con SQL Server, in attesa che vengano implementati altri connettori.</p><p><img alt="LAMP logos" class="img-responsive" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(3, 0, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(4, 0, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(5, 0, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>\r\n	<img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>\r\n<p>\r\n	Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>\r\n<p class="null">\r\n	 </p>', '', 0, 1, 0, 0, '', 0, NULL, NULL);
+(1, NULL, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(2, NULL, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>, tuttavia non è limitato a questi programmi potendo essere utilizzato anche con altri server web, quali ad esempio nginx e IIS, e con SQL Server, in attesa che vengano implementati altri connettori.</p><p><img alt="LAMP logos" class="img-responsive" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(3, NULL, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(4, NULL, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(5, NULL, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>
+<img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>
+<p>Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>
+<p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+(6, NULL, 1, '2015-05-11 15:05:21', '2015-05-12 12:40:08', 'Privacy - Cookie', 'privacy-cookie', NULL, NULL, '<div>In merito all''uso di cookie su questo sito, si dichiara che:</div>
+<div> </div>
+<div>1. Continuando la navigazione, si accettano implicitamente i cookie che il sistema installerà.</div>
+<div> </div>
+<div>2. Questo sito NON fa uso di cookie di PROFILAZIONE degli utenti.</div>
+<div> </div>
+<div>3. Questo sito NON consente l''invio di cookie di PROFILAZIONE di TERZE PARTI.</div>
+<div> </div>
+<div>4. Questo sito fa uso esclusivamente di cookie TECNICI per salvare i parametri di sessione e agevolare quindi la navigazione agli utenti. In particolare troverete il cookie [SITE]_SESSID che contiene il codice di sessione utilizzato per l''autenticazione e per la velocizzazione della navigazione.</div>
+<div> </div>
+<div>5. Potranno inoltre essere presenti cookie ESCLUSIVAMENTE TECNICI di terze parti:</div>
+<div> </div>
+<div>Google (Analitycs / Maps / reCAPTCHA)</div>
+<div><a href="http://www.google.com/policies/technologies/types/" style="line-height: 21.6000003814697px;">http://www.google.com/policies/technologies/types/</a></div>
+<div> </div>
+<div>ShareThis</div>
+<div><a href="http://www.sharethis.com/legal/privacy/#sthash.97W6NVSe.dpbs">http://www.sharethis.com/legal/privacy/#sthash.97W6NVSe.dpbs</a></div>
+<div> </div>
+<div>Si ricorda comunque agli utenti che tutti i moderni browser offrono la possibilita di controllare le impostazioni di privacy, anche per quello che riguarda l''uso dei cookie. Attenzione: non tutti i browser presenti su tablet o smartphone offrono lo stesso livello di controllo della privacy.</div>
+<div> </div>
+<div>Riportiamo qui di seguito le procedure per accedere a queste impostazioni per i browser più utilizzati:</div>
+<div> </div>
+<div>Chrome (<a href="https://support.google.com/chrome/answer/95647?hl=it">https://support.google.com/chrome/answer/95647?hl=it</a>)</div>
+<div>Internet explorer (<a href="http://windows.microsoft.com/it-it/windows-vista/block-or-allow-cookies">http://windows.microsoft.com/it-it/windows-vista/block-or-allow-cookies</a>)</div>
+<div>Firefox (<a href="https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences">https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences</a>)</div>
+<div>Opera (<a href="http://www.opera.com/help/tutorials/security/privacy/">http://www.opera.com/help/tutorials/security/privacy/</a>)</div>
+<div>Safari (<a href="https://support.apple.com/kb/PH17191?locale=en_US">https://support.apple.com/kb/PH17191?locale=en_US</a>)</div>', NULL, 0, 1, 0, 0, NULL, 0, NULL, NULL);
 
 SET IDENTITY_INSERT page_entry OFF
 
@@ -744,14 +774,25 @@ CREATE TABLE page_opt (
   comment_moderation tinyint NOT NULL,
   comment_notification tinyint NOT NULL,
   newsletter_entries_number smallint NOT NULL,
-  newsletter_tpl_code text NOT NULL,
+  newsletter_tpl_code text,
   CONSTRAINT PK_page_opt PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT page_opt ON
 
 INSERT INTO page_opt (id, instance, showcase_title, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
-(1, 0, 'In evidenza', 3, 1, 5000, '<article>\r\n<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, '');
+(1, 0, 'In evidenza', 3, 1, 5000, '<article>
+<h1>{{ title }}</h1>
+<p>{{ img|class:left }}</p>
+{{ text }}
+<div class="null"></div>
+</article>', '<h1>{{ title }}</h1>
+<p>{{ img|class:left }}</p>
+{{ text }}
+<div class="null"></div>', '<h1>{{ title }}</h1>
+<p>{{ img|class:left }}</p>
+{{ text }}
+<div class="null"></div>', 0, 1, 5, NULL);
 
 SET IDENTITY_INSERT page_opt OFF
 
@@ -771,8 +812,106 @@ CREATE TABLE php_module (
 SET IDENTITY_INSERT php_module ON
 
 INSERT INTO php_module (id, instance, content) VALUES
-(1, 6, '$lng = (isset($_SESSION[''lng''])) ? $_SESSION[''lng'']:''it_IT'';\r\n$access = new \\Gino\\Access();\r\n$registry = \\Gino\\Registry::instance();\r\n \r\n$buffer = "<div class=\\"top-bar\\">";\r\n$buffer .= "<div class=\\"left\\">";\r\nif($registry->sysconf->multi_language) {\r\n  $query = "SELECT id, label, language_code, country_code FROM language WHERE active=''1'' ORDER BY language DESC";\r\n  $a = $this->_db->selectquery($query);\r\n  $lng_buffer = array();\r\n  foreach($a as $b) {\r\n    if(isset($_SESSION[''lng''])) {\r\n      $selected = $_SESSION[''lng''] == $b[''language_code''].''_''.$b[''country_code''] ? true : false;\r\n    }\r\n    else {\r\n      $dft_lang_query = "SELECT dft_language FROM sys_conf WHERE id=''1''";\r\n      $c = $this->_db->selectquery($dft_lang_query);\r\n      $dft_lang = $c[0][''dft_language''];\r\n      \r\n      $selected = $b[''id''] == $dft_lang ? true : false;\r\n    }\r\n    if(!$selected) {\r\n      $lng_buffer[]  =  "<a href=\\"index.php?lng=".$b[''language_code''].''_''.$b[''country_code'']."\\">".\\Gino\\htmlChars($b[''label''])."</a>";\r\n    }\r\n    else {\r\n      $lng_buffer[]  =  "<a class=\\"selected\\">".\\Gino\\htmlChars($b[''label''])."</a>";\r\n    }\r\n  }\r\n  \r\n  $buffer .= implode("", $lng_buffer); \r\n}\r\n$buffer .= "</div>";\r\n$buffer .= "<div class=\\"right\\">";\r\nif(!isset($_SESSION[''user_id''])) {\r\n    $buffer .= "<span class=\\"link\\" onclick=\\"login_toggle.toggle();\\">"._("Area riservata")."</span>";\r\n    $buffer .= "<div id=\\"topbar-login\\" style=\\"display:none;\\">";\r\n    $buffer .= "<div>";\r\n    $buffer .= "<form method=\\"post\\" action=\\"index.php\\" style=\\"float:right\\">";\r\n    $buffer .= "<input type=\\"hidden\\" name=\\"action\\" value=\\"auth\\" />";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label>User</label>";\r\n    $buffer .= "<input type=\\"text\\" name=\\"user\\" required />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label>Password</label>";\r\n    $buffer .= "<input type=\\"password\\" name=\\"pwd\\" required />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<div class=\\"form-row\\">";\r\n    $buffer .= "<label></label>";\r\n    $buffer .= "<input type=\\"submit\\" class=\\"generic\\" value=\\"login\\" />";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</form>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "</div>";\r\n    $buffer .= "<script>var login_toggle = new Fx.Reveal(''topbar-login'');</script>";\r\n}\r\nelse {\r\n    $admin_link = false;\r\n    \r\n        $buffer .= "<a href=\\"admin.php\\">"._("Amministrazione")."</a>";\r\n        $admin_link = true;\r\n\r\n    $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''user_id'']."''";\r\n    $a = $this->_db->selectquery($query);\r\n    $username = $a>0 ? $a[0][''name'']:null;\r\n    $buffer .= "<a href=\\"index.php?evt[user-userCard]\\"><span title=\\""._("Profilo utente")."\\" class=\\"tooltip\\">".$username."</span></a>";\r\n    $buffer .= "<a href=\\"index.php?action=logout\\">"._("Logout")."</a>";\r\n    $buffer .= "<div class=\\"null\\"></div>";\r\n}\r\n$buffer .= "</div>";\r\n$buffer .= "<div class=\\"clear\\"></div>";\r\n$buffer .= "</div>";'),
-(2, 9, '$buffer = "<div class=\\"top-bar\\">";\r\n\r\n$index = new \\Gino\\App\\Index\\index();\r\n\r\n$sysMdls = $index->sysModulesManageArray();\r\n$mdls = $index->modulesManageArray();\r\n \r\nif(count($sysMdls)) {	\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''sysmdl_menu'' onchange=\\"$onchange\\">";\r\n  $buffer .= "<option value=\\"\\">"._("Sistema")."</option>";\r\n  foreach($sysMdls as $sm) { \r\n    $buffer .= "<option value=\\"".$sm[''name'']."-manage".ucfirst($sm[''name''])."\\">".\\Gino\\htmlChars($sm[''label''])."</option>";\r\n  }\r\n  $buffer .= "</select> ";\r\n}\r\n				\r\nif(count($mdls)) {\r\n  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";\r\n  $buffer .= "<select name=''mdl_menu'' onchange=\\"$onchange\\">";	\r\n  $buffer .= "<option value=\\"\\">"._("Moduli")."</option>";\r\n  foreach($mdls as $m) {\r\n    $buffer .= "<option value=\\"".$m[''name'']."-manageDoc\\">".\\Gino\\htmlChars($m[''label''])."</option>";\r\n  }	\r\n  $buffer .= "</select>";\r\n}\r\n\r\n$buffer .= "</div>";');
+(1, 6, '$lng = (isset($_SESSION[''lng''])) ? $_SESSION[''lng'']:''it_IT'';
+$access = new \Gino\Access();
+$registry = \Gino\Registry::instance();
+
+$buffer = "<div class=\"top-bar\">";
+$buffer .= "<div class=\"left\">";
+if($registry->sysconf->multi_language) {
+  $query = "SELECT id, label, language_code, country_code FROM language WHERE active=''1'' ORDER BY language DESC";
+  $a = $this->_db->execCustomQuery($query);
+  $lng_buffer = array();
+  foreach($a as $b) {
+    if(isset($_SESSION[''lng''])) {
+      $selected = $_SESSION[''lng''] == $b[''language_code''].''_''.$b[''country_code''] ? true : false;
+    }
+    else {
+      $dft_lang_query = "SELECT dft_language FROM sys_conf WHERE id=''1''";
+      $c = $this->_db->execCustomQuery($dft_lang_query);
+      $dft_lang = $c[0][''dft_language''];
+      
+      $selected = $b[''id''] == $dft_lang ? true : false;
+    }
+    if(!$selected) {
+      $lng_buffer[]  =  "<a href=\"index.php?lng=".$b[''language_code''].''_''.$b[''country_code'']."\">".\Gino\htmlChars($b[''label''])."</a>";
+    }
+    else {
+      $lng_buffer[]  =  "<a class=\"selected\">".\Gino\htmlChars($b[''label''])."</a>";
+    }
+  }
+  
+  $buffer .= implode("", $lng_buffer); 
+}
+$buffer .= "</div>";
+$buffer .= "<div class=\"right\">";
+if(!isset($_SESSION[''user_id''])) {
+    $buffer .= "<span class=\"link\" onclick=\"login_toggle.toggle();\">"._("Area riservata")."</span>";
+    $buffer .= "<div id=\"topbar-login\" style=\"display:none;\">";
+    $buffer .= "<div>";
+    $buffer .= "<form method=\"post\" action=\"index.php\" style=\"float:right\">";
+    $buffer .= "<input type=\"hidden\" name=\"action\" value=\"auth\" />";
+    $buffer .= "<div class=\"form-row\">";
+    $buffer .= "<label>User</label>";
+    $buffer .= "<input type=\"text\" name=\"user\" required />";
+    $buffer .= "</div>";
+    $buffer .= "<div class=\"form-row\">";
+    $buffer .= "<label>Password</label>";
+    $buffer .= "<input type=\"password\" name=\"pwd\" required />";
+    $buffer .= "</div>";
+    $buffer .= "<div class=\"form-row\">";
+    $buffer .= "<label></label>";
+    $buffer .= "<input type=\"submit\" class=\"generic\" value=\"login\" />";
+    $buffer .= "</div>";
+    $buffer .= "</form>";
+    $buffer .= "<div class=\"null\"></div>";
+    $buffer .= "</div>";
+    $buffer .= "</div>";
+    $buffer .= "<script>var login_toggle = new Fx.Reveal(''topbar-login'');</script>";
+}
+else {
+    $admin_link = false;
+    
+    $buffer .= "<a href=\"admin.php\">"._("Amministrazione")."</a>";
+    $admin_link = true;
+    
+    $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''user_id'']."''";
+    $a = $this->_db->execCustomQuery($query);
+    $username = $a>0 ? $a[0][''name'']:null;
+    $buffer .= "<a href=\"index.php?evt[user-userCard]\"><span title=\""._("Profilo utente")."\" class=\"tooltip\">".$username."</span></a>";
+    $buffer .= "<a href=\"index.php?action=logout\">"._("Logout")."</a>";
+    $buffer .= "<div class=\"null\"></div>";
+}
+$buffer .= "</div>";
+$buffer .= "<div class=\"clear\"></div>";
+$buffer .= "</div>";'),
+(2, 9, '$buffer = "<div class=\"top-bar\">";
+
+$index = new \Gino\App\Index\index();
+
+$sysMdls = $index->sysModulesManageArray();
+$mdls = $index->modulesManageArray();
+if(count($sysMdls)) {	
+  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";
+  $buffer .= "<select name=''sysmdl_menu'' onchange=\"$onchange\">";
+  $buffer .= "<option value=\"\">"._("Sistema")."</option>";
+  foreach($sysMdls as $sm) { 
+    $buffer .= "<option value=\"".$sm[''name'']."-manage".ucfirst($sm[''name''])."\">".\Gino\htmlChars($sm[''label''])."</option>";
+  }
+  $buffer .= "</select> ";
+}
+
+if(count($mdls)) {
+  $onchange = "location.href=''$this->_home?evt[''+$(this).value+'']'';";
+  $buffer .= "<select name=''mdl_menu'' onchange=\"$onchange\">";
+  $buffer .= "<option value=\"\">"._("Moduli")."</option>";
+  foreach($mdls as $m) {
+    $buffer .= "<option value=\"".$m[''name'']."-manageDoc\">".\Gino\htmlChars($m[''label''])."</option>";
+  }
+  $buffer .= "</select>";
+}
+
+$buffer .= "</div>";');
 
 SET IDENTITY_INSERT php_module OFF
 
@@ -828,14 +967,17 @@ CREATE TABLE sys_conf (
   mobile tinyint NOT NULL DEFAULT '0',
   password_crypt nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
-  enable_cache tinyint NOT NULL,
+  enable_cache tinyint NOT NULL, 
+  query_cache tinyint NOT NULL 
+  	CONSTRAINT DF_sys_conf_query_cache DEFAULT '0', 
+  query_cache_time smallint NULL, 
   CONSTRAINT PK_sys_conf PRIMARY KEY (id)
 )
 
 SET IDENTITY_INSERT sys_conf ON
 
-INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache) VALUES
-(1, 1, 1, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0);
+INSERT INTO sys_conf (id, multi_language, dft_language, log_access, head_description, head_keywords, head_title, google_analytics, captcha_public, captcha_private, email_admin, email_from_app, mobile, password_crypt, enable_cache, query_cache, query_cache_time) VALUES
+(1, 1, 1, 1, 'Content Management System', NULL, 'gino CMS', NULL, NULL, NULL, 'kkk@otto.to.it', 'no-reply@otto.to.it', 0, 'md5', 0, 0, NULL);
 
 SET IDENTITY_INSERT sys_conf OFF
 
@@ -876,12 +1018,18 @@ SET IDENTITY_INSERT sys_graphics ON
 
 INSERT INTO sys_graphics (id, name, description, type, image, html) VALUES
 (1, 'header_public', 'Header pagine pubbliche', 1, 'header.jpg', NULL),
-(2, 'header_private', 'Header pagine private', 2, NULL, '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="840" height="160" id="header" align="middle">\r\n	<param name="allowScriptAccess" value="sameDomain" />\r\n	<param name="allowFullScreen" value="false" />\r\n        <param name="wmode" value="transparent">\r\n	<param name="movie" value="_GRAPHICS_/header.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" /><embed src="_GRAPHICS_/header.swf" quality="high" bgcolor="#ffffff" width="840" height="160" wmode="transparent" name="header" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />\r\n	</object>'),
+(2, 'header_private', 'Header pagine private', 2, NULL, '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="840" height="160" id="header" align="middle">
+	<param name="allowScriptAccess" value="sameDomain" />
+	<param name="allowFullScreen" value="false" />
+	<param name="wmode" value="transparent">
+	<param name="movie" value="_GRAPHICS_/header.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />
+	<embed src="_GRAPHICS_/header.swf" quality="high" bgcolor="#ffffff" width="840" height="160" wmode="transparent" name="header" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />
+</object>'),
 (3, 'header_admin', 'Header amministrazione', 1, 'header_admin.jpg', 'HEADER'),
 (4, 'header_mobile', 'Header dispositivi mobili', 1, 'header_mobile.jpg', NULL),
 (5, 'header_adhoc', 'Header ad hoc', 2, 'pf2.jpg', 'HEADER'),
 (6, 'footer_public', 'Footer index pubblica', 1, 'footer.jpg', NULL),
-(7, 'footer_private', 'Footer index privata', 2, NULL, '<p>\r\nheader\r\n</p>'),
+(7, 'footer_private', 'Footer index privata', 2, NULL, '<p>header</p>'),
 (8, 'footer_admin', 'Footer amministrazione', 1, 'footer_admin.jpg', NULL),
 (9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', NULL),
 (10, 'footer_adhoc', 'Footer ad hoc', 1, NULL, 'FOOTER ADHOC');
@@ -935,14 +1083,14 @@ CREATE TABLE sys_layout_skin (
 SET IDENTITY_INSERT sys_layout_skin ON
 
 INSERT INTO sys_layout_skin (id, label, session, rexp, urls, template, css, priority, auth, cache) VALUES
-(1, 'Home Pubblica', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 9, 'no', 0),
-(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 7, 'no', 0),
+(1, 'Home Pubblica', NULL, '#(index.php(\?evt\[index-index_page\])?[^\[\]]*)?$#', NULL, '2', 0, 9, 'no', 0),
+(2, 'Pagine Pubbliche', NULL, '#evt\[(?!index)#', NULL, '3', 0, 7, 'no', 0),
 (3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index-admin_page]', '4', 0, 6, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+-((manage)|(wrapper))\\w*\\]#', NULL, '5', 2, 5, 'yes', 0),
+(4, 'Pagine Amministrazione', NULL, '#evt\[\w+-((manage)|(wrapper))\w*\]#', NULL, '5', 2, 5, 'yes', 0),
 (5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[auth-login]', '3', 0, 3, 'no', 0),
 (6, 'Default', NULL, '#^.*$#', NULL, '1', 2, 11, '', 0),
-(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, '3', 0, 8, 'yes', 0),
-(8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index-index_page\\])?[^\\[\\]]*)?$#', NULL, '2', 0, 10, 'yes', 0),
+(7, 'Pagine Private', NULL, '#evt\[(?!index)#', NULL, '3', 0, 8, 'yes', 0),
+(8, 'Home Privata', NULL, '#(index.php(\?evt\[index-index_page\])?[^\[\]]*)?$#', NULL, '2', 0, 10, 'yes', 0),
 (9, 'Pagine Mobile', 'L_mobile=1', '#.*#', NULL, '8', 1, 2, '', 0),
 (10, 'Home Mobile', 'L_mobile=1', '#^index.php$#', NULL, '7', 1, 1, '', 0),
 (11, '_popup', NULL, '#&_popup=1#', NULL, '6', 2, 4, 'yes', 0);

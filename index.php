@@ -55,6 +55,17 @@ include_once(LIB_DIR.OS."func.php");
 // Include la classe utilizzata per caricare classi di sistema e modelli. I controller sono caricati in maniera automatica
 include(CLASSES_DIR.OS."class.Loader.php");
 
+// Debug and query stats
+if(DEBUG && SHOW_STATS)
+{
+	function getmicrotime(){
+		list($microsec, $sec) = explode(" ", microtime());
+		return ((float) $microsec + (float) $sec);
+	}
+
+	$starttime = getmicrotime();
+}
+
 //@cond no-doxygen
 
 // core dell'applicazione
@@ -69,3 +80,20 @@ catch(\Exception $e) {
 }
 
 // @endcond
+
+if(DEBUG && SHOW_STATS) {
+
+	$endtime = getmicrotime();
+	$totaltime = $endtime - $starttime;
+
+	$db = db::instance();
+
+	$debug = "<section class=\"debug\" onclick=\"if($(this).hasClass('active')) $(this).removeClass('active'); else $(this).addClass('active');\">";
+	$debug .= "<h1>Debug</h1>";
+	$debug .= "<h2>Script execution time</h2>";
+	$debug .= "<p>This page was created in ".$totaltime." seconds</p>";
+	$debug .= "<h2>Database</h2>";
+	$debug .= $db->getInfoQuery();
+
+	echo $debug;
+}

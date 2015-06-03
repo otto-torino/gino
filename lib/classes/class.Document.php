@@ -141,10 +141,10 @@ class Document {
     private function setHeadVariables($skin) {
 
         // meta
-        $this->setIfEmpty($this->_registry->title, $this->_registry->sysconf->head_title);
-        $this->setIfEmpty($this->_registry->description, $this->_registry->sysconf->head_description);
-        $this->setIfEmpty($this->_registry->keywords, $this->_registry->sysconf->head_keywords);
-        $this->setIfEmpty($this->_registry->favicon, SITE_WWW."/favicon.ico");
+        $this->_registry->title = $this->_registry->title ? $this->_registry->title : $this->_registry->sysconf->head_title;
+        $this->_registry->description = $this->_registry->description ? $this->_registry->description : $this->_registry->sysconf->head_description;
+        $this->_registry->keywords = $this->_registry->keywords ? $this->_registry->keywords : $this->_registry->sysconf->head_keywords;
+        $this->_registry->favicon = $this->_registry->favicon ? $this->_registry->favicon : SITE_WWW."/favicon.ico";
 
         // css
         $stylesheets = array(
@@ -171,20 +171,10 @@ class Document {
             $scripts[] = SITE_JS."/respond.js";
         }
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-            $scripts[] = "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js";
+            $this->_registry->addCustomJs("http://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
         }
 
         $this->_registry->js = array_merge($scripts, $this->_registry->js);
-    }
-
-    /**
-     * @brief Setta il valore di una proprietà solo se vuota
-     * @param mixed $prop
-     * @param mixed $value
-     * @return void
-     */
-    private function setIfEmpty($prop, $value) {
-        if(!$prop) $prop = $value;
     }
 
     /**

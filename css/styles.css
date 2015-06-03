@@ -7948,6 +7948,40 @@ div.abiWinOverlay {
   -moz-box-sizing: content-box;
   box-sizing: content-box;
 }
+/* DEBUG */
+.debug {
+  transition: all 0.5s ease;
+  position: fixed;
+  font-size: 1em;
+  bottom: 0px;
+  right: 0;
+  height: 30px;
+  padding: 0;
+  background: #fafafa;
+  overflow: hidden;
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
+}
+.debug h1 {
+  background: #ff9900;
+  font-size: 1.2em;
+  color: #fff;
+  height: 30px;
+  padding: 5px 10px;
+  margin-top: 0;
+}
+.debug h2 {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+.debug.active {
+  height: 400px;
+  overflow: auto;
+}
+/* COOKIE PRIVACY */
+div#cookieChoiceInfo {
+  z-index: 1050 !important;
+}
 form {
   margin: 10px 0;
 }

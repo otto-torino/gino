@@ -32,7 +32,7 @@ class SlugField extends Field {
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe field()
+     *   - opzioni generali definite come proprietà nella classe Field()
      *   - @b autofill (string|array): nome o array di nomi dei campi da utilizzare per calcolare lo slug. Se vengono dati più campi vengono concatenati con un dash '-'.
      * @return istanza di Gino.SlugField
      */
@@ -42,7 +42,7 @@ class SlugField extends Field {
 
         $this->_autofill = \Gino\gOpt('autofill', $options, null);
         $this->_js = \Gino\gOpt('js', $options, null);
-
+        
         $this->_default_widget = 'text';
         $this->_value_type = 'string';
 
@@ -75,4 +75,21 @@ class SlugField extends Field {
         return $widget;
     }
 
+    /**
+     * @see \Gino\Field::validate()
+     */
+    public function validate($value) {
+    
+    	$db = \Gino\Db::instance();
+    	 
+    	$where = $this->_name."='".$value."'";
+    	if($this->_model->id)
+    		$where .= " AND id!='".$this->_model->id."'";
+    	 
+    	$res = $db->select('id', $this->_table, $where);
+    	if($res && count($res))
+    		return array('error'=>_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));
+    	else
+    		return true;
+    }
 }

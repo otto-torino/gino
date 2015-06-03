@@ -3,7 +3,7 @@
  * @file plugin.mysql.php
  * @brief Contiene la classe mysql
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,30 +14,30 @@
  */
 namespace Gino\Plugin;
 
+require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
+
 /**
  * @brief Libreria di connessione ai database MySQL
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
- * OTTIMIZZAZIONE DATABASE
+ * CACHE QUERY
  * ---------------
- * Con la proprietà self::$_enable_cache è possibile caricare i risultati delle query (non di struttura) in un array in modo da evitare l'esecuzione multipla della stessa query. \n
- * Le query che vengono caricate nell'array sono quelle che passano dal metodo selectquery(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
+ * La proprietà self::$_query_cache indica se è stata abilita la cache delle query. \n
+ * Le query che vengono salvate in cache sono quelle che passano dal metodo select() ed execCustomQuery(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
  *   - fieldInformations()
  *   - getTableStructure()
  *   - getFieldsName()
  * 
- * In particolari query gestite dal metodo selectquery() è talvolta necessario non salvarne i risultati (vedi autoIncValue()). 
- * In questo caso è suffuciente passare a selectquery() il parametro @a cache=false. 
+ * Qualora non si desideri caricare in cache una determinata query è sufficiente passare l'opzione @a cache=false ai metodi select() e execCustomQuery(). \n
+ * La cache delle query viene svuotata ogni volta che viene effettuata una istruzione di tipo action.
  * 
- * I risultati delle query sulla struttura delle tabelle (getTableStructure()) vengono gestiti dalla cache di gino (Principali impostazioni di sistema) e salvati su file (vedi Model::structure()).
- * 
- * DEBUG DATABASE
+ * INFORMAZIONI SULLE QUERY
  * ---------------
- * Con la proprietà self::$_debug è possibile attivare un debug sulle performace delle chiamate al database. \n
- * Le query di tipo select alimentano un contatore che può essere visualizzato attraverso l'intefaccia getCnt().
+ * La proprietà self::$_show_stats attiva la raccolta di informazioni sulle prestazioni delle chiamate al database. \n
+ * Le query di tipo select alimentano i contatori self::$_cnt e self::$_time_queries.
  */
 class mysql implements \Gino\DbManager {
 
@@ -52,18 +52,18 @@ class mysql implements \Gino\DbManager {
 	private $_dbresults = array();
 	
 	/**
-	 * Abilita la cache 
+	 * Attiva le statische sulle query
 	 * 
 	 * @var boolean
 	 */
-	private $_enable_cache;
+	private $_show_stats;
 	
 	/**
-	 * Abilita il debug sulle query
-	 * 
-	 * @var boolean
+	 * Informazioni sulle query eseguite
+	 *
+	 * @var array
 	 */
-	private $_debug;
+	private $_info_queries;
 	
 	/**
 	 * Contatore di query
@@ -73,9 +73,30 @@ class mysql implements \Gino\DbManager {
 	private $_cnt;
 	
 	/**
-	 * Contenitore delle query di tipo select
+	 * Tempo totale di esecuzione delle query
 	 * 
-	 * @var array(query=>results)
+	 * @var float
+	 */
+	private $_time_queries;
+	
+	/**
+	 * Query cache
+	 * 
+	 * @var boolean
+	 */
+	private $_query_cache;
+	
+	/**
+	 * Tempo di durata della query cache
+	 *
+	 * @var integer
+	 */
+	private $_query_cache_time;
+	
+	/**
+	 * Oggetto plugin_phpfastcache
+	 * 
+	 * @var object
 	 */
 	private $_cache;
 	
@@ -102,15 +123,50 @@ class mysql implements \Gino\DbManager {
 		$this->_range = null;
 		$this->_offset = null;
 		
-		$this->setnumberrows(0);
+		$this->setNumberRows(0);
 		$this->setconnection(false);
-
-		$this->_enable_cache = false;
-		$this->_debug = false;
+		
+		$this->_show_stats = (DEBUG && SHOW_STATS) ? true : false;
+		
 		$this->_cnt = 0;
-		$this->_cache = array();
+		$this->_info_queries = array();
+		$this->_time_queries = 0;
+		
+		$this->setParamsCache();
+		if($this->_query_cache)
+		{
+			$this->_cache = new \Gino\Plugin\plugin_phpfastcache(
+				array(
+					'cache_time'=>$this->_query_cache_time, 
+					'cache_path'=>QUERY_CACHE_PATH ? QUERY_CACHE_PATH : CACHE_DIR, 
+					'cache_type'=>QUERY_CACHE_TYPE, 
+					'cache_server'=>QUERY_CACHE_SERVER, 
+					'cache_fallback'=>QUERY_CACHE_FALLBACK, 
+				)
+			);
+		}
 		
 		if($params["connect"]===true) $this->openConnection();
+	}
+	
+	/**
+	 * Parametri inerenti la cache delle query presenti nelle Impostazioni di sistema
+	 * 
+	 * @return void
+	 */
+	private function setParamsCache() {
+		
+		$item = $this->select("query_cache, query_cache_time", TBL_SYS_CONF, "id='1'", array('cache'=>false));
+		if(count($item))
+		{
+			$this->_query_cache = $item[0]['query_cache'] ? true : false;
+			$this->_query_cache_time = $item[0]['query_cache_time'];
+		}
+		else
+		{
+			$this->_query_cache = false;
+			$this->_query_cache_time = null;
+		}
 	}
 	
 	/**
@@ -122,7 +178,7 @@ class mysql implements \Gino\DbManager {
 		$this->_sql = $sql_query;
 	}
 
-	private function setnumberrows($numberresults) {
+	private function setNumberRows($numberresults) {
 		$this->_numberrows = $numberresults;
 	}
 	
@@ -135,26 +191,67 @@ class mysql implements \Gino\DbManager {
 	 */
 	public function getInfoQuery() {
  		
- 		if($this->_debug)
- 			return $this->_cnt;
- 		else
- 			return null;
+ 		if($this->_show_stats) {
+ 			$query_cache = $this->_query_cache ? 'On' : 'Off';
+ 			$buffer = "<p>Query cache: ".$query_cache."</p>";
+ 			$buffer .= "<p>Number of db queries: ".$this->_cnt."</p>";
+			$buffer .= "<p>Time of db queries: ".$this->_time_queries." seconds</p>";
+			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
+			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Execution time (ms)</th></tr>";
+			foreach($this->_info_queries as $q) {
+				$buffer .= "<tr>";
+				$buffer .= "<td>".$q[0]."</td>";
+				$buffer .= "<td>".$q[1]."</td>";
+				$buffer .= "</tr>";
+			}
+			$buffer .= "</table>";
+			return $buffer;
+		}
+		else return null;
 	}
 	
 	/**
-	 * Esegue la query
+	 * Esegue la query e ne calcola i tempi di esecuzione
 	 * 
-	 * @param string $query
-	 * @return array
+	 * @param string $query query da eseguire
+	 * @param array $options array associativo di opzioni
+	 *   - @b statement (string): tipologia di query
+	 *     - @a select (default)
+	 *     - @a action
+	 * @return mixed
 	 */
-	private function execQuery($query=null) {
+	private function queryResults($query, $options=array()) {
 		
-		if(!$query) $query = $this->_sql;
+		if (!$this->_connection) {
+			$this->openConnection();
+		}
 		
-		if($this->_debug) $this->_cnt++;
+		$statement = \Gino\gOpt('statement', $options, 'select');
 		
-		$exec = mysql_query($query);
-		return $exec;
+		if($this->_show_stats) {
+			$this->_cnt++;
+			
+			$msc = \Gino\getmicrotime();
+		}
+		
+		$res = mysql_query($query);
+		
+		if($this->_show_stats) {
+			$msc = \Gino\getmicrotime()-$msc;
+			$this->_time_queries += $msc;
+		
+			$this->_info_queries[] = array($query, $msc);
+		}
+		
+		if($statement != 'select')
+		{
+			if($res && $this->_query_cache)
+			{
+				$this->_cache->clean();
+			}
+		}
+		
+		return $res;
  	}
  	
  	/**
@@ -164,10 +261,12 @@ class mysql implements \Gino\DbManager {
 
 		if($this->_dbconn = mysql_connect($this->_db_host, $this->_db_user, $this->_db_password)) {
 			
+			$this->setconnection(TRUE);
+			
 			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mysql_error());
 			if($this->_db_charset=='utf-8') $this->setUtf8();
-			$this->setconnection(TRUE);
-			return TRUE;
+			
+			return true;
 		} else {
             throw new \Exception(_('Errore di connessione al database'));
 		}
@@ -176,10 +275,10 @@ class mysql implements \Gino\DbManager {
 	private function setUtf8() {
 		
 		$query = "SHOW VARIABLES LIKE 'character_set_database'";
-		$db_charset = $this->execQuery($query);
+		$db_charset = $this->queryResults($query);
 		$charset_row = mysql_fetch_assoc($db_charset);
 		
-		$this->execQuery("SET NAMES '".$charset_row['Value']."'");
+		$this->queryResults("SET NAMES '".$charset_row['Value']."'");
 		
 		unset($db_charset, $charset_row);
 	}
@@ -206,7 +305,7 @@ class mysql implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("BEGIN");
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -224,7 +323,7 @@ class mysql implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("ROLLBACK");
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->_qry) {
 			return false;
 		} else {
@@ -242,7 +341,7 @@ class mysql implements \Gino\DbManager {
 			$this->openConnection();
 		}
 		$this->setsql("COMMIT");
-		$this->_qry = $this->execQuery();
+		$this->_qry = $this->queryResults($this->_sql);
 		if (!$this->qry) {
 			return false;
 		} else {
@@ -251,114 +350,36 @@ class mysql implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::actionquery()
+	 * @see DbManager::multiActionQuery()
 	 */
-	public function actionquery($qry) {
+	public function multiActionQuery($file_content) {
 		
-		if (!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-
+		$link = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+		$this->_qry = mysqli_multi_query($link, $file_content);
+		mysqli_close($link);
+		
 		return $this->_qry ? true:false;
-	}
-
-	/**
-	 * @see DbManager::multiActionquery()
-	 */
-	public function multiActionquery($qry) {
-	
-		$conn = mysqli_connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-		$this->setsql($qry);
-		$this->_qry = mysqli_multi_query($conn, $this->_sql);
-
-		return $this->_qry ? true:false;
-	}
-
-	/**
-	 * @see DbManager::selectquery()
-	 */
-	public function selectquery($qry, $cache=true) {
-
-		if(!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-
-		if($this->_enable_cache and $cache and isset($this->_cache[$this->_sql])) {
-			return $this->_cache[$this->_sql];
-		}
-		else
-		{
-			$this->_qry = $this->execQuery();
-			if(!$this->_qry) {
-				return false;
-			} else {
-				// initialize array results
-				$this->_dbresults = array();
-				
-				$this->setnumberrows(mysql_num_rows($this->_qry));
-				if($this->_numberrows > 0){
-					while($this->_rows=mysql_fetch_assoc($this->_qry))
-					{
-						$this->_dbresults[]=$this->_rows;
-					}
-				}
-				$this->freeresult();
-				
-				if($this->_enable_cache and $cache) {
-					$this->_cache[$this->_sql] = $this->_dbresults;
-				}
-				return $this->_dbresults;
-			}
-		}
 	}
 	
 	/**
 	 * @see DbManager::freeresult()
 	 */
-	public function freeresult($res=null){
+	public function freeresult($res=null) {
 	
 		if(is_null($res)) $res = $this->_qry;
 		mysql_free_result($res);
 	}
 	
 	/**
-	 * @see DbManager::resultselect()
-	 */
-	public function resultselect($qry)
-	{
-		if(!$this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql($qry);
-		$this->_qry = $this->execQuery();
-		if (!$this->_qry) {
-			return false;
-		} else {
-			$this->setnumberrows(mysql_num_rows($this->_qry));
-			return $this->_numberrows;
-		}
-	}
-	
-	/**
-	 * @see DbManager::affected()
-	 */
-	public function affected() 
-	{ 
-		$this->_affected = mysql_affected_rows();
-		return $this->_affected;
-	}
-	
-	/**
 	 * Il valore della funzione SQL LAST_INSERT_ID() di MySQL contiene sempre il più recente valore AUTO_INCREMENT generato e non è azzerato dalle query
 	 * 
-	 * @see DbManager::getlastid()
+	 * @see DbManager::getLastId()
 	 */
-	public function getlastid($table)
-	{ 
-		if($this->affected() > 0)
+	public function getLastId($table)
+	{
+		$this->_affected = mysql_affected_rows();
+		
+		if($this->_affected > 0)
 		{
 			$this->_lastid = mysql_insert_id();
 		}
@@ -377,7 +398,7 @@ class mysql implements \Gino\DbManager {
 	public function autoIncValue($table){
 
 		$query = "SHOW TABLE STATUS LIKE '$table'";
-		$a = $this->selectquery($query, false);
+		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
 		if(sizeof($a) > 0)
 		{
 			foreach ($a AS $b)
@@ -393,17 +414,16 @@ class mysql implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getFieldFromId()
 	 */
-	public function getFieldFromId($table, $field, $field_id, $id) {
+	public function getFieldFromId($table, $field, $field_id, $id, $options=array()) {
 		
-		$query = "SELECT $field FROM $table WHERE $field_id='$id'";
-		$a = $this->selectquery($query);
-		if(!$a){
+		$res = $this->select($field, $table, "$field_id='$id'", $options);
+		if(!$res){
 			return '';
 		}
 		else
 		{
-			foreach($a as $b) {
-				return $b[$field];
+			foreach($res as $r) {
+				return $r[$field];
 			}
 		}
 	}
@@ -414,7 +434,7 @@ class mysql implements \Gino\DbManager {
 	public function tableexists($table){
 		
 		$query = "SHOW TABLES FROM `".$this->_db_name."`";
-		$result = $this->execQuery($query);
+		$result = $this->queryResults($query);
 		$data = mysql_num_rows($result);
 
 		for ($i=0; $i<$data; $i++) {
@@ -425,15 +445,12 @@ class mysql implements \Gino\DbManager {
 	
 	/**
 	 * @see DbManager::fieldInformations()
-	 * @see conformType()
+	 * @see conformFieldType()
 	 */
 	public function fieldInformations($table) {
 	
-		if($this->_connection) {
-			$this->openConnection();
-		}
-		$this->setsql("SELECT * FROM ".$table." LIMIT 0,1");
-		$this->_qry = $this->execQuery();
+		$query = "SELECT * FROM ".$table." LIMIT 0,1";
+		$this->_qry = $this->queryResults($query);
 		
 		if(!$this->_qry) {
 			return false;
@@ -445,7 +462,7 @@ class mysql implements \Gino\DbManager {
 				$meta[$i] = mysql_fetch_field($this->_qry, $i);
 				$meta[$i]->length = mysql_field_len($this->_qry, $i);
 				
-				$meta[$i]->type = $this->conformType($meta[$i]->type);
+				$meta[$i]->type = $this->conformFieldType($meta[$i]->type);
 				$i++;
 			}
 			$this->freeresult();
@@ -454,13 +471,9 @@ class mysql implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::conformType()
-	 * 
-	 * @param string $type
-	 * 
-	 * Come tipo di dato di un campo la funzione mysql_fetch_field() rileva: int, blob, string, date
+	 * @see DbManager::conformFieldType()
 	 */
-	public function conformType($type) {
+	public function conformFieldType($type) {
 		
 		if($type == 'string')
 			$conform_type = 'char';
@@ -521,7 +534,7 @@ class mysql implements \Gino\DbManager {
 	public function dumpDatabase($file) {
 
 		$query = "SHOW TABLES FROM ".$this->_db_name;
-		$tables = $this->execQuery($query);
+		$tables = $this->queryResults($query);
 		
 		while ($td = mysql_fetch_array($tables)) {
 			$table = $td[0];
@@ -534,7 +547,7 @@ class mysql implements \Gino\DbManager {
 				$table_query = mysql_query("SELECT * FROM `$table`");
 				$num_fields = mysql_num_fields($table_query);
 				while ($fetch_row = mysql_fetch_array($table_query)) {
-					$insert_sql .= "INSERT INTO $table VALUES(";
+					$insert_sql .= "INSERT INTO $table VALUES (";
 					for ($n=1;$n<=$num_fields;$n++) {
 						$m = $n - 1;
 						$insert_sql .= "'".mysql_real_escape_string($fetch_row[$m]).($n==$num_fields ? "" : "', ");
@@ -563,7 +576,7 @@ class mysql implements \Gino\DbManager {
 		$fields = array();
 
 		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = $this->execQuery($query);
+		$res = $this->queryResults($query);
 		while($row = mysql_fetch_array($res)) {
 			
 			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
@@ -587,6 +600,14 @@ class mysql implements \Gino\DbManager {
 		
 		return $structure;
 	}
+	
+	/**
+	 * @see Gino.DbManager::changeFieldType()
+	 */
+	public function changeFieldType($data_type, $value) {
+	
+		return $value;
+	}
 
 	/**
 	 * @see DbManager::getFieldsName()
@@ -596,7 +617,7 @@ class mysql implements \Gino\DbManager {
 
 		$fields = array();
 		$query = "SHOW COLUMNS FROM ".$table;
-		$res = $this->execQuery($query);
+		$res = $this->queryResults($query);
 		while($row = mysql_fetch_assoc($res)) {
 			$results[] = $row;
 		}
@@ -612,17 +633,15 @@ class mysql implements \Gino\DbManager {
 	/**
 	 * @see DbManager::getNumRecords()
 	 */
-	public function getNumRecords($table, $where=null, $field='id') {
+	public function getNumRecords($table, $where=null, $field='id', $options=array()) {
 
 		$tot = 0;
-
-		$qwhere = $where ? "WHERE ".$where : "";
-		$query = "SELECT COUNT($field) AS tot FROM $table $qwhere";
-		$res = $this->selectquery($query);
+		
+		$res = $this->select("COUNT($field) AS tot", $table, $where, $options);
 		if($res) {
 			$tot = $res[0]['tot'];
 		}
-
+		
 		return (int) $tot;
 	}
 	
@@ -663,13 +682,73 @@ class mysql implements \Gino\DbManager {
 	}
 	
 	/**
+	 * @see Gino.DbManager::execCustomQuery()
+	 */
+	public function execCustomQuery($query, $options=array()) {
+		
+		$statement = \Gino\gOpt('statement', $options, 'select');
+		
+		if($statement == 'select')
+		{
+			$options['custom_query'] = $query;
+			return $this->select(null, null, null, $options);
+		}
+		else
+		{
+			return $this->queryResults($query, array('statement'=>$statement));
+		}
+	}
+	
+	/**
 	 * @see DbManager::select()
 	 */
 	public function select($fields, $tables, $where=null, $options=array()) {
 		
-		$query = $this->query($fields, $tables, $where, $options);
+		$custom_query = \Gino\gOpt('custom_query', $options, null);
+		$cache = \Gino\gOpt('cache', $options, true);
+		$identity_keyword = \Gino\gOpt('identity_keyword', $options, null);
+		$time_caching = \Gino\gOpt('time_caching', $options, null);
 		
-		return $this->selectquery($query);
+		if($custom_query)
+		{
+			$query = $custom_query;
+		}
+		else
+		{
+			$query = $this->query($fields, $tables, $where, $options);
+		}
+		
+		if(!$identity_keyword) $identity_keyword = $query;
+		
+		if(!($this->_query_cache && $cache) OR is_null($results = $this->_cache->get($identity_keyword)))
+		{
+			$this->_qry = $this->queryResults($query);
+			if(!$this->_qry)
+			{
+				return false;
+			}
+			else
+			{
+				// initialize array results
+				$results = array();
+				
+				$this->setNumberRows(mysql_num_rows($this->_qry));
+				if($this->_numberrows > 0) {
+					while($rows = mysql_fetch_assoc($this->_qry))
+					{
+						$results[] = $rows;
+					}
+				}
+				$this->freeresult();
+			}
+				
+			if($this->_query_cache && $cache)
+			{
+				$this->_cache->set($results, array('time_caching'=>$time_caching));
+			}
+		}
+		
+		return $results;
 	}
 	
 	/**
@@ -691,10 +770,10 @@ class mysql implements \Gino\DbManager {
 				}
 				else
 				{
-          	if($value !== null) {
+          			if($value !== null) {
 						  $a_fields[] = $field;
 						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
-          	}
+          			}
 				}
 			}
 			
@@ -705,7 +784,7 @@ class mysql implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->actionquery($query);
+			return $this->queryResults($query, array('statement'=>'action'));
 		}
 		else return false;
 	}
@@ -740,7 +819,7 @@ class mysql implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->actionquery($query);
+			return $this->queryResults($query, array('statement'=>'action'));
 		}
 		else return false;
 	}
@@ -758,7 +837,7 @@ class mysql implements \Gino\DbManager {
 		
 		if($debug) echo $query;
 		
-		return $this->actionquery($query);
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 
 	/**
@@ -770,7 +849,7 @@ class mysql implements \Gino\DbManager {
 		
 		$query = "DROP TABLE $table";
 		
-		return $this->actionquery($query);
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 
 	/**
@@ -805,6 +884,7 @@ class mysql implements \Gino\DbManager {
 	public function union($queries, $options=array()) {
 		
 		$debug = \Gino\gOpt('debug', $options, false);
+		$cache = \Gino\gOpt('cache', $options, true);
 		$instruction = \Gino\gOpt('instruction', $options, 'UNION');
 		
 		if(count($queries))
@@ -813,7 +893,7 @@ class mysql implements \Gino\DbManager {
 			
 			if($debug) echo $query;
 			
-			return $this->selectquery($query);
+			return $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>$cache));
 		}
 		return array();
 	}
@@ -838,7 +918,8 @@ class mysql implements \Gino\DbManager {
 		"FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' ".
 		"ESCAPED BY '".$escaped."' ".
 		"LINES TERMINATED BY '".$lineend."' ".$ignore.$fields;
-		return $this->actionquery($query);
+		
+		return $this->queryResults($query, array('statement'=>'action'));
 	}
 	
 	/**
@@ -856,7 +937,9 @@ class mysql implements \Gino\DbManager {
 		$query = "SELECT * INTO OUTFILE '".$filename."' 
 		FIELDS TERMINATED BY '".$delim."' ENCLOSED BY '".$enclosed."' 
 		FROM $table";
-		if($this->actionquery($query))
+		$res = $this->queryResults($query, array('statement'=>'action'));
+		
+		if($res)
 			return $filename;
 		else
 			return null;

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gino translation 1.0\n"
 "Report-Msgid-Bugs-To: support@otto.to.it\n"
-"POT-Creation-Date: 2015-04-01 11:51+0200\n"
+"POT-Creation-Date: 2015-05-13 10:40+0200\n"
 "PO-Revision-Date: 2015-04-01 12:30+0200\n"
 "Last-Translator: Marco Guidotti <guidottim@gmail.com>\n"
 "Language-Team: gino <support@otto.to.it>\n"
@@ -127,7 +127,7 @@ msgstr "Administration modules instantiable"
 msgid "Amministrazione sistema"
 msgstr "System administration"
 
-#: app/auth/class_auth.php:1090 app/auth/class_auth.php:1098
+#: app/auth/class_auth.php:1087 app/auth/class_auth.php:1095
 msgid "Anagrafica"
 msgstr "User data"
 
@@ -145,7 +145,7 @@ msgstr "Attention! The removal of the module will erase all data!"
 
 #: lib/classes/class.Css.php:217
 msgid "Attenzione! L'eliminazione determina l'eliminazione del file css dalle skin che lo contengono!"
-msgstr ""
+msgstr "Attention! The elimination will delete the css file from the skin containing it!"
 
 #: lib/classes/class.Skin.php:288
 msgid "Attenzione! L'eliminazione è definitiva"
@@ -168,11 +168,11 @@ msgstr "Access log is now disabled. To modify, change %sSystem Settings%s."
 msgid "Attiva il riconoscimento di dispositivi mobili. E' necessario configurare correttamente i template e le skin per una corretta visualizzazione."
 msgstr "Enables recognition of mobile devices. You must properly configure the templates and skins for proper viewing."
 
-#: app/module/class_module.php:480 app/sysClass/class_sysClass.php:524
+#: app/module/class_module.php:482 app/sysClass/class_sysClass.php:524
 msgid "Attivazione"
 msgstr "Activation"
 
-#: app/auth/class_auth.php:101
+#: app/auth/class_auth.php:98
 msgid "Attivazione Ldap"
 msgstr "Activation Ldap"
 
@@ -185,7 +185,7 @@ msgstr "Account activation %s | %s"
 msgid "Attivazione automatica"
 msgstr "Automatic activation"
 
-#: app/auth/class_auth.php:161
+#: app/auth/class_auth.php:158
 msgid "Attivazione profilo per utente già registrato"
 msgstr "Activation profile for registered user"
 
@@ -201,12 +201,12 @@ msgstr "No instances on the system."
 msgid "Attualmente nel sitema sono presenti le seguenti istanze:"
 msgstr "Instances on the system are:"
 
-#: lib/classes/class.Skin.php:224 app/auth/class_auth.php:976
+#: lib/classes/class.Skin.php:224 app/auth/class_auth.php:973
 #: app/layout/class_layout.php:289
 msgid "Autenticazione"
 msgstr "Authentication"
 
-#: app/auth/class_auth.php:107
+#: app/auth/class_auth.php:104
 msgid "Autenticazione esclusiva Ldap"
 msgstr "Authentication exclusive Ldap"
 
@@ -226,7 +226,7 @@ msgstr "Flags as labels"
 msgid "Blocco"
 msgstr "Block"
 
-#: app/auth/class_auth.php:124
+#: app/auth/class_auth.php:121
 msgid "Box di login"
 msgstr "Login box"
 
@@ -270,19 +270,19 @@ msgstr ""
 msgid "CSS di sistema"
 msgstr "CSS system"
 
-#: app/layout/class_layout.php:290 app/sysconf/class_sysconf.php:109
+#: app/layout/class_layout.php:290 app/sysconf/class_sysconf.php:110
 msgid "Cache"
 msgstr ""
 
-#: app/auth/class_auth.php:96
+#: app/auth/class_auth.php:93
 msgid "Caratteri della password automatica"
 msgstr "Mumber of characters of the automatic password"
 
-#: app/auth/class_auth.php:99
+#: app/auth/class_auth.php:96
 msgid "Caratteri numerici password"
 msgstr "Number of numeric characters of the password"
 
-#: lib/classes/class.Form.php:2035
+#: lib/classes/class.Form.php:2034
 msgid "Caratteri rimasti: "
 msgstr "Chars left: "
 
@@ -297,7 +297,7 @@ msgstr "Upload module package. If the process will be ok, modify the module once
 msgid "Categoria"
 msgstr "Category"
 
-#: app/attachment/class_attachment.php:106 app/page/class_page.php:913
+#: app/attachment/class_attachment.php:106 app/page/class_page.php:917
 msgid "Categorie"
 msgstr "Categories"
 
@@ -346,7 +346,7 @@ msgstr "Code to be entered to use the system of statistics google analytics"
 msgid "Codice del permesso"
 msgstr "Permission code"
 
-#: app/auth/class_auth.php:512 app/auth/class.RegistrationRequest.php:36
+#: app/auth/class_auth.php:509 app/auth/class.RegistrationRequest.php:36
 #: app/auth/class.User.php:37 app/auth/views/profile.php:25
 msgid "Cognome"
 msgstr "Lastname"
@@ -360,7 +360,7 @@ msgstr "Links"
 msgid "Collegamento sull'immagine"
 msgstr "Link image"
 
-#: app/page/class_page.php:912 app/page/views/view.php:24
+#: app/page/class_page.php:916 app/page/views/view.php:24
 msgid "Commenti"
 msgstr "Comments"
 
@@ -376,19 +376,19 @@ msgstr "Social shares"
 msgid "Confermato"
 msgstr "Confirmed"
 
-#: app/sysconf/class_sysconf.php:91
+#: app/sysconf/class_sysconf.php:92
 msgid "Configurazione del sistema."
 msgstr "System configuration."
 
-#: app/sysconf/class.Conf.php:63
+#: app/sysconf/class.Conf.php:65
 msgid "Configurazione gino"
 msgstr "gino configuration"
 
-#: app/page/class_page.php:914
+#: app/page/class_page.php:918
 msgid "Contenuti"
 msgstr "Contents"
 
-#: app/phpModuleView/class_phpModuleView.php:186
+#: app/phpModuleView/class_phpModuleView.php:191
 msgid "Contenuto"
 msgstr "Content"
 
@@ -397,7 +397,7 @@ msgstr "Content"
 msgid "Controllare i permessi in scrittura all'interno della cartella "
 msgstr "Check folder writing permits"
 
-#: app/auth/class_auth.php:1121
+#: app/auth/class_auth.php:1118
 msgid "Controllo email"
 msgstr "Email check"
 
@@ -406,9 +406,8 @@ msgid "Crea un nuovo file"
 msgstr "Create a new file"
 
 #: lib/classes/class.Template.php:111
-#, fuzzy
-msgid "Creando un template libero è possibile controllare finemente ogni aspetto del layout finale della pagina. Il template comprende l'intero documento, dalla definizione del DOCTYPE alla chiusura del tag html. È possibile utilizzare codice php, si hanno a disposizione tutte le librerie di GINO. In questo caso non è necessario associare fogli di stile caricati a proposito, in quanto si possono direttamente controllare le chiamate a css, javascript etc... modificando l'intestazione del documento."
-msgstr "By creating a free template you can fine tune every aspect of the final layout of the page. The template includes the entire document, from the definition of the DOCTYPE to the closure of the html tags. You can use PHP code, you have access to all the libraries of gino. In this case it is not necessary to associate style sheets loaded by the way, as you can directly control the calls in css, javascript etc ... changing the header of the document."
+msgid "Creando un template libero è ossibile controllare finemente ogni aspetto del layout finale della pagina. Il template comprende l'intero documento, dalla definizione del DOCTYPE alla chiusura del tag html. E' possibile utilizzare codice php, si hanno a disposizione tutte le librerie di gino. In questo caso non è necessario associare fogli di stile caricati a proposito, in quanto si possono direttamente controllare le chiamate a css, javascript etc. modificando l'intestazione del documento."
+msgstr "By creating a free template you can fine tune every aspect of the final layout of the page. The template includes the entire document, from the definition of the DOCTYPE to the closure of the html tag. You can use PHP code, you have access to all the libraries of gino. In this case it is not necessary to associate style sheets loaded by the way, as you can directly control the calls in css, javascript etc. changing the header of the document."
 
 #: app/layout/class_layout.php:533
 msgid "Creare ed uploadare un foglio di stile se necessario"
@@ -435,7 +434,7 @@ msgstr "Date"
 #: lib/classes/class.Template.php:340 app/auth/class.Group.php:34
 #: app/auth/class.Permission.php:58 app/auth/class.RegistrationProfile.php:36
 #: app/instruments/class_instruments.php:135 app/layout/class_layout.php:349
-#: app/layout/class_layout.php:404 app/module/class_module.php:264
+#: app/layout/class_layout.php:404 app/module/class_module.php:266
 #: app/page/class.PageCategory.php:36 app/sysClass/class_sysClass.php:393
 #: app/sysClass/class_sysClass.php:480
 msgid "Descrizione"
@@ -449,11 +448,11 @@ msgstr "Basic description that appears in the meta tags and read by search engin
 msgid "Dettaglio pagina"
 msgstr "Detail page"
 
-#: app/module/class_module.php:262
+#: app/module/class_module.php:264
 msgid "Deve contenere solamente caratteri alfanumerici o il carattere '_'"
 msgstr "Must contain only alphanumeric characters or the character '_'"
 
-#: app/auth/class_auth.php:294 app/auth/class_auth.php:433
+#: app/auth/class_auth.php:291 app/auth/class_auth.php:430
 msgid "Devi accettare i termini e le condizioni del servizio"
 msgstr "You must accept the terms and conditions of service"
 
@@ -469,7 +468,7 @@ msgstr "Below is the list of all modules installed on the system. Click the edit
 msgid "Dicembre"
 msgstr "December"
 
-#: app/module/class_module.php:480 app/sysClass/class_sysClass.php:524
+#: app/module/class_module.php:482 app/sysClass/class_sysClass.php:524
 msgid "Disattivazione"
 msgstr "Deactivation"
 
@@ -478,7 +477,7 @@ msgstr "Deactivation"
 msgid "Disinstallazione modulo di sistema \"%s\""
 msgstr "Uninstalling \"%s\" system module"
 
-#: app/auth/class_auth.php:1120
+#: app/auth/class_auth.php:1117
 msgid "Disponibilità username"
 msgstr "Username availability"
 
@@ -505,7 +504,7 @@ msgstr "Drag view item"
 msgid "Duplica template \"%s\""
 msgstr "Duplicates template \"%s\""
 
-#: app/sysconf/class_sysconf.php:107
+#: app/sysconf/class_sysconf.php:108
 msgid "E-mail"
 msgstr ""
 
@@ -513,31 +512,31 @@ msgstr ""
 msgid "Elemento grafico"
 msgstr "Graphic"
 
-#: app/attachment/class_attachment.php:151 app/page/class_page.php:1052
+#: app/attachment/class_attachment.php:151 app/page/class_page.php:1056
 msgid "Elenco categorie"
 msgstr "Category list"
 
-#: app/page/class_page.php:1074
+#: app/page/class_page.php:1078
 msgid "Elenco commenti"
 msgstr "Comment list"
 
-#: app/auth/class_auth.php:1071
+#: app/auth/class_auth.php:1068
 msgid "Elenco degli utenti del sistema."
 msgstr "List of system users."
 
-#: app/auth/class_auth.php:1445
+#: app/auth/class_auth.php:1442
 msgid "Elenco dei gruppi del sistema."
 msgstr "List of system groups."
 
-#: app/auth/class_auth.php:1469
+#: app/auth/class_auth.php:1466
 msgid "Elenco dei permessi."
 msgstr "Permits list"
 
-#: app/auth/class_auth.php:1021
+#: app/auth/class_auth.php:1018
 msgid "Elenco dei profili di registrazione automatica al sistema."
 msgstr "List of profiles of automatic registration system."
 
-#: app/auth/class_auth.php:998
+#: app/auth/class_auth.php:995
 msgid "Elenco delle richieste di registrazione."
 msgstr "List of requests for registration."
 
@@ -561,7 +560,7 @@ msgstr "List style sheets"
 msgid "Elenco moduli installati"
 msgstr "List installed modules"
 
-#: app/page/class_page.php:1000
+#: app/page/class_page.php:1004
 msgid "Elenco pagine"
 msgstr "Page list"
 
@@ -575,7 +574,7 @@ msgstr "Template list"
 
 #: app/layout/class_layout.php:515
 msgid "Elenco viste generali di sistema"
-msgstr ""
+msgstr "List general views of system"
 
 #: app/auth/views/profile.php:64
 msgid "Elimina account"
@@ -601,17 +600,17 @@ msgstr "Delete template \"%s\""
 msgid "Eliminazione istanza \"%s\""
 msgstr "Delete instance \"%s\""
 
-#: app/auth/class_auth.php:530 app/auth/class.RegistrationRequest.php:39
+#: app/auth/class_auth.php:527 app/auth/class.RegistrationRequest.php:39
 #: app/auth/class.User.php:40 app/auth/views/profile.php:33
-#: app/page/class.PageComment.php:39 app/page/class_page.php:658
+#: app/page/class.PageComment.php:39 app/page/class_page.php:662
 msgid "Email"
 msgstr ""
 
-#: lib/plugin/plugin.mysql.php:172
+#: lib/plugin/plugin.mysql.php:251
 msgid "Errore di connessione al database"
 msgstr "Error connecting to database"
 
-#: lib/classes/class.Document.php:228
+#: lib/classes/class.Document.php:218
 msgid "Errore!"
 msgstr "Error!"
 
@@ -622,7 +621,7 @@ msgstr "Regular expression"
 #: lib/classes/class.Css.php:151 lib/classes/class.Skin.php:208
 #: lib/classes/class.Template.php:133 lib/classes/class.Template.php:338
 #: app/layout/class_layout.php:286 app/layout/class_layout.php:347
-#: app/layout/class_layout.php:402 app/module/class_module.php:263
+#: app/layout/class_layout.php:402 app/module/class_module.php:265
 #: app/sysClass/class_sysClass.php:391 app/sysClass/class_sysClass.php:478
 msgid "Etichetta"
 msgstr "Label"
@@ -683,7 +682,7 @@ msgstr "Public Footer"
 msgid "Form di ricerca"
 msgstr "Search form"
 
-#: lib/classes/class.Form.php:1416
+#: lib/classes/class.Form.php:1415
 msgid "Formati consentiti"
 msgstr "Allowed formats"
 
@@ -691,9 +690,9 @@ msgstr "Allowed formats"
 msgid "Foto"
 msgstr "Photo"
 
-#: app/auth/class_auth.php:922 app/graphics/class_graphics.php:232
-#: app/menu/class_menu.php:264 app/page/class_page.php:909
-#: app/phpModuleView/class_phpModuleView.php:184
+#: app/auth/class_auth.php:919 app/graphics/class_graphics.php:232
+#: app/menu/class_menu.php:264 app/page/class_page.php:913
+#: app/phpModuleView/class_phpModuleView.php:189
 #: app/searchSite/class_searchSite.php:120
 msgid "Frontend"
 msgstr ""
@@ -702,7 +701,7 @@ msgstr ""
 msgid "Funzionamento"
 msgstr "Functioning"
 
-#: app/auth/class_auth.php:95
+#: app/auth/class_auth.php:92
 msgid "Generazione automatica password"
 msgstr "Automatic generation password"
 
@@ -717,7 +716,7 @@ msgstr "Managing"
 
 #: app/sysClass/class_sysClass.php:47
 msgid "Gestione classi di sistema"
-msgstr ""
+msgstr "System classes management"
 
 #: app/sysconf/class.Conf.php:34
 msgid "Gestione di un sito multi-lingua. Le lingue attive e quella principale sono da settarsi nel modulo Lingue del sistema."
@@ -744,7 +743,7 @@ msgstr "June"
 msgid "Grazie <strong>%s</strong>,<br />la registrazione è avvenuta con successo."
 msgstr "Thanks <strong>%s</strong>,<br />registration was successful."
 
-#: app/auth/class_auth.php:924 app/auth/class_auth.php:1776
+#: app/auth/class_auth.php:921 app/auth/class_auth.php:1773
 #: app/auth/class.User.php:53
 msgid "Gruppi"
 msgstr "Groups"
@@ -757,12 +756,12 @@ msgstr "Groups associated with the user"
 msgid "Gruppo"
 msgstr "Group"
 
-#: app/auth/class_auth.php:1629
+#: app/auth/class_auth.php:1626
 #, php-format
 msgid "Gruppo \"%s\" - permessi"
 msgstr "Group \"%s\" - permits"
 
-#: app/auth/class_auth.php:798
+#: app/auth/class_auth.php:795
 #, php-format
 msgid ""
 "Hai modificato la password di accesso.\n"
@@ -771,7 +770,7 @@ msgstr ""
 "You have changed the password.\n"
 "The new password is: %s."
 
-#: app/auth/class_auth.php:1880
+#: app/auth/class_auth.php:1877
 #, php-format
 msgid ""
 "Hai ricevuto questa email perché hai richiesto la procedura di recupero credenziali di accesso al sito %s.\n"
@@ -806,7 +805,7 @@ msgstr "Private Header"
 msgid "Header Pubblico"
 msgstr "Public Header"
 
-#: app/auth/class_auth.php:359 app/auth/class_auth.php:559
+#: app/auth/class_auth.php:356 app/auth/class_auth.php:556
 msgid "Ho letto ed accetto i termini e le condizioni del servizio"
 msgstr "I agree to the terms and conditions of service"
 
@@ -824,9 +823,9 @@ msgstr "Application id"
 
 #: lib/classes/class.Captcha.php:112
 msgid "Il codice captcha non può essere generato - verifica i requisiti necessari"
-msgstr ""
+msgstr "The captcha code can not be generated - check the requirements"
 
-#: app/page/class_page.php:696
+#: app/page/class_page.php:700
 msgid "Il codice inserito non è corretto"
 msgstr "The code is not correct"
 
@@ -875,9 +874,13 @@ msgstr "The module makes available an interface of search in the site."
 msgid "Il modulo newsletter non è installato"
 msgstr "The newsletter module is not installed"
 
-#: app/phpModuleView/class_phpModuleView.php:241
+#: app/phpModuleView/class_phpModuleView.php:246
 msgid "Il modulo permette di eseguire codice php completamente personalizzabile, e di visualizzare l'output prodotto. Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate. Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo."
 msgstr "The module allows to execute customizable php code and to visualize the output. All php functions allowing to execute programs directly on the machine are forbidden. In case one of such functions will be deteced, the code will not be executed and output will result null."
+
+#: lib/classes/fields/class.SlugField.php:91
+msgid "Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."
+msgstr "The name chosen for the slug has already been used.<br />Change the name to continue with the save."
 
 #: app/sysClass/class_sysClass.php:923
 msgid "Il pacchetto deve avere il formato 'nome_classe'_'qualcosa'.zip (es. news_pkg.zip) e deve contenere tutti i file a partire dalla stessa directory."
@@ -904,7 +907,7 @@ msgstr "Your account will be activated after verification of the administrator."
 msgid "Il tuo account verrà attivato appena avrai confermato l'indirizzo email."
 msgstr "Your account will be activated as soon as you've confirmed your email address."
 
-#: app/page/class_page.php:651
+#: app/page/class_page.php:655
 msgid "Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato."
 msgstr "Your comment will be submitted for approval before being published."
 
@@ -926,7 +929,7 @@ msgstr "Can not clone a Singleton"
 msgid "Impossibile creare il file"
 msgstr "Unable to create file"
 
-#: app/auth/class_auth.php:706
+#: app/auth/class_auth.php:703
 #, php-format
 msgid "Impossibile creare l'utente per la richiesta di registrazione con id %s"
 msgstr "Can not create the user to registration request with id %s"
@@ -943,7 +946,7 @@ msgstr "Unable to write file"
 msgid "Impossibile serializzare Singleton"
 msgstr "Can not serialize Singleton"
 
-#: app/sysconf/class_sysconf.php:124
+#: app/sysconf/class_sysconf.php:126
 msgid "Impostazioni di sistema"
 msgstr "System settings"
 
@@ -969,7 +972,7 @@ msgstr "In this section you can change the system views of gino. General views a
 
 #: lib/classes/class.Frontend.php:154
 msgid "In questa sezione si può decidere l'aspetto ed il modo di visualizzare le informazioni, modificando direttamente i fogli di stile e le viste utilizzati dal modulo."
-msgstr ""
+msgstr "In this section you can choose the look and how you view the information, by directly editing the style sheets and the views used by the module"
 
 #: app/layout/class_layout.php:531
 msgid "In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguenti:"
@@ -1003,11 +1006,11 @@ msgstr "Address"
 msgid "Indirizzo e-mail utilizzato per inviare comunicazioni automatiche da parte del sistema"
 msgstr "Email used by the system to send automatic email"
 
-#: app/auth/class_auth.php:1900
+#: app/auth/class_auth.php:1897
 msgid "Indirizzo email"
 msgstr "Email address"
 
-#: lib/func.php:1069
+#: lib/func.php:1081
 msgid "Indirizzo web"
 msgstr "URL"
 
@@ -1015,10 +1018,10 @@ msgstr "URL"
 msgid "Informativa termini e condizioni di utilizzo/privacy"
 msgstr "Statement terms and conditions of use/privacy"
 
-#: app/auth/class_auth.php:1092 app/auth/class_auth.php:1100
+#: app/auth/class_auth.php:1089 app/auth/class_auth.php:1097
 #: app/auth/class.User.php:48 app/layout/class_layout.php:74
-#: app/phpModuleView/class_phpModuleView.php:187
-#: app/phpModuleView/class_phpModuleView.php:247
+#: app/phpModuleView/class_phpModuleView.php:192
+#: app/phpModuleView/class_phpModuleView.php:252
 #: app/searchSite/class_searchSite.php:122
 #: app/statistics/class_statistics.php:56
 #: app/statistics/class_statistics.php:150 app/sysClass/class_sysClass.php:62
@@ -1026,11 +1029,11 @@ msgstr "Statement terms and conditions of use/privacy"
 msgid "Informazioni"
 msgstr "Informations"
 
-#: app/auth/class_auth.php:1027 app/auth/class.RegistrationProfile.php:41
+#: app/auth/class_auth.php:1024 app/auth/class.RegistrationProfile.php:41
 msgid "Informazioni aggiuntive"
 msgstr "Additional Information"
 
-#: app/auth/class_auth.php:92
+#: app/auth/class_auth.php:89
 msgid "Informazioni aggiuntive utenti"
 msgstr "Additional information users"
 
@@ -1052,15 +1055,15 @@ msgstr "Insert %s"
 msgid "Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole"
 msgstr "Insert module ID separated by comma"
 
-#: app/page/class_page.php:658
+#: app/page/class_page.php:662
 msgid "Inserire un indirizzo email valido"
 msgstr "Enter a valid email address"
 
-#: app/auth/class_auth.php:1311
+#: app/auth/class_auth.php:1308
 msgid "Inserire una password!"
 msgstr "Insert password!"
 
-#: app/auth/class_auth.php:1266 app/auth/class_auth.php:1288
+#: app/auth/class_auth.php:1263 app/auth/class_auth.php:1285
 msgid "Inserire uno username!"
 msgstr "Insert username!"
 
@@ -1096,7 +1099,7 @@ msgstr "Installation package"
 msgid "Intervallo animazione automatica (ms)"
 msgstr "Interval automatic animation (ms)"
 
-#: app/page/class_page.php:661
+#: app/page/class_page.php:665
 msgid "Inviami un'email quando vengono postati altri commenti"
 msgstr "Email me when other comments are posted"
 
@@ -1132,12 +1135,12 @@ msgstr "The inclusion of content and display in the absence of translations done
 msgid "L'ordine di priorità delle skin è definito dall'ordine in cui compaiono nell'elenco a sinistra e modificabile per trascinamento."
 msgstr "Priority of skins is define by the sort of the list beside. It is possible to change by dragging and dropping."
 
-#: app/auth/class_auth.php:662
+#: app/auth/class_auth.php:659
 #, php-format
 msgid "L'utente %s %s si è appena registrato ed è in attesa di attivazione."
 msgstr "The user %s %s has registered and is awaiting activation."
 
-#: app/auth/class_auth.php:655
+#: app/auth/class_auth.php:652
 #, php-format
 msgid "L'utente %s %s si è appena registrato ed è stato attivato."
 msgstr "The user %s %s has registered and has been activated."
@@ -1159,17 +1162,17 @@ msgstr "The class interface newsletter module of gino installed on your system"
 msgid "La disinstallazione non determina la rimozione dei moduli all'interno dei template."
 msgstr "Uninstalling doesn't delete modules from templates."
 
-#: app/auth/class_auth.php:1316
+#: app/auth/class_auth.php:1313
 #, php-format
 msgid "La password deve contenere almeno %s caratteri e non più di %s"
 msgstr "Your password must be at least %s characters and no more than %s"
 
-#: app/auth/class_auth.php:1322
+#: app/auth/class_auth.php:1319
 #, php-format
 msgid "La password deve contenere almeno %s caratteri numerici"
 msgstr "Your password must be at least %s digits"
 
-#: app/auth/class_auth.php:1245
+#: app/auth/class_auth.php:1242
 #, php-format
 msgid "La password deve contenere un numero di caratteri da %s a %s."
 msgstr "The password must contain a number of characters from %s to %s."
@@ -1178,7 +1181,7 @@ msgstr "The password must contain a number of characters from %s to %s."
 msgid "La password è stata modificata con successo."
 msgstr "The password has been changed successfully."
 
-#: lib/func.php:1069
+#: lib/func.php:1081
 msgid "La presente email è stata inviata con procedura automatica. Si prega di non rispondere alla presente email."
 msgstr "This is an authomatic generated email. Please, do not answer."
 
@@ -1236,7 +1239,7 @@ msgstr ""
 msgid "Layout - header/footer"
 msgstr ""
 
-#: app/auth/class_auth.php:104 app/auth/class.User.php:52
+#: app/auth/class_auth.php:101 app/auth/class.User.php:52
 msgid "Ldap"
 msgstr ""
 
@@ -1248,7 +1251,7 @@ msgstr "The properties of the page should be placed in double brackets {{propert
 msgid "Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull'icona a forma di freccia."
 msgstr "Skins are listed in order of increasing priority. To change the priority action icon arrow."
 
-#: app/auth/class_auth.php:1854
+#: app/auth/class_auth.php:1851
 #, php-format
 msgid ""
 "Le tue nuove credenziali di accesso al sito %s sono:\n"
@@ -1273,7 +1276,7 @@ msgid "Linea"
 msgstr "Line"
 
 #: lib/classes/class.Locale.php:806 app/language/class.Lang.php:33
-#: app/sysconf/class_sysconf.php:104
+#: app/sysconf/class_sysconf.php:105
 msgid "Lingua"
 msgstr "Language"
 
@@ -1289,7 +1292,7 @@ msgstr "System languages"
 msgid "Lista record registrati"
 msgstr "List records registered"
 
-#: app/sysconf/class_sysconf.php:105
+#: app/sysconf/class_sysconf.php:106
 msgid "Log"
 msgstr ""
 
@@ -1301,11 +1304,11 @@ msgstr "Registered user accesses log"
 msgid "Log di tutti gli accessi all'area riservata del sito da parte degli utenti."
 msgstr "Log of all accesses to the private area of the site."
 
-#: app/auth/class_auth.php:1823
+#: app/auth/class_auth.php:1820
 msgid "Login"
 msgstr ""
 
-#: app/auth/class_auth.php:152
+#: app/auth/class_auth.php:149
 msgid "Login area privata/amministrativa"
 msgstr "Login private/administrative area"
 
@@ -1329,7 +1332,7 @@ msgstr "Tuesday"
 msgid "Marzo"
 msgstr "March"
 
-#: app/auth/class_auth.php:98
+#: app/auth/class_auth.php:95
 msgid "Massimo caratteri password"
 msgstr "Characters maximum password"
 
@@ -1341,15 +1344,15 @@ msgstr ""
 msgid "Mercoledì"
 msgstr "Wednesday"
 
-#: app/auth/class_auth.php:155
+#: app/auth/class_auth.php:152
 msgid "Messaggio della mail inviata a seguito di registrazione"
 msgstr "Message of the email sent following registration"
 
-#: app/auth/class_auth.php:159
+#: app/auth/class_auth.php:156
 msgid "Messaggio della mail inviata per conferma attivazione"
 msgstr "Message of the email sent to confirm activation"
 
-#: app/auth/class_auth.php:1024 app/sysconf/class_sysconf.php:110
+#: app/auth/class_auth.php:1021 app/sysconf/class_sysconf.php:111
 msgid "Meta"
 msgstr ""
 
@@ -1358,11 +1361,11 @@ msgstr ""
 msgid "Mime-Type"
 msgstr ""
 
-#: app/auth/class_auth.php:97
+#: app/auth/class_auth.php:94
 msgid "Minimo caratteri password"
 msgstr "Characters minimum password"
 
-#: app/sysconf/class_sysconf.php:108
+#: app/sysconf/class_sysconf.php:109
 msgid "Mobile"
 msgstr ""
 
@@ -1398,7 +1401,7 @@ msgstr "Modify style sheet \"%s\""
 msgid "Modifica il modulo di sistema \"%s\""
 msgstr "Modify system module \"%s\""
 
-#: app/module/class_module.php:271
+#: app/module/class_module.php:273
 #, php-format
 msgid "Modifica istanza \"%s\""
 msgstr "Modify instance \"%s\""
@@ -1416,12 +1419,12 @@ msgstr "Modify view \"%s\""
 msgid "Modifica lo schema"
 msgstr "Modify scheme"
 
-#: app/auth/class_auth.php:1426
+#: app/auth/class_auth.php:1423
 #, php-format
 msgid "Modifica password \"%s\""
 msgstr "Modify password \"%s\""
 
-#: app/auth/class_auth.php:797
+#: app/auth/class_auth.php:794
 #, php-format
 msgid "Modifica password | %s"
 msgstr "Modify password | %s"
@@ -1456,8 +1459,8 @@ msgstr "Modules instantiable"
 msgid "Moduli segnaposto"
 msgstr "Marker modules"
 
-#: app/auth/class_auth.php:1728 app/instruments/class_instruments.php:133
-#: app/module/class_module.php:261
+#: app/auth/class_auth.php:1725 app/instruments/class_instruments.php:133
+#: app/module/class_module.php:263
 msgid "Modulo"
 msgstr "Module"
 
@@ -1510,11 +1513,11 @@ msgstr "In the <b>Options</b> tab you can specify the ID values of the modules (
 msgid "Nessun risultato"
 msgstr "No results"
 
-#: app/attachment/class.AttachmentCtg.php:36 app/auth/class_auth.php:511
+#: app/attachment/class.AttachmentCtg.php:36 app/auth/class_auth.php:508
 #: app/auth/class.Group.php:33 app/auth/class.RegistrationRequest.php:35
 #: app/auth/class.User.php:36 app/auth/views/profile.php:21
-#: app/module/class_module.php:262 app/page/class.PageCategory.php:35
-#: app/page/class_page.php:657
+#: app/module/class_module.php:264 app/page/class.PageCategory.php:35
+#: app/page/class_page.php:661
 msgid "Nome"
 msgstr "Name"
 
@@ -1568,15 +1571,15 @@ msgstr "You are not authorized to view the requested content."
 msgid "Non sono stati trovati elementi"
 msgstr "No items were found"
 
-#: app/page/class_page.php:658
+#: app/page/class_page.php:662
 msgid "Non verrà pubblicata"
 msgstr "Will not be published"
 
-#: app/page/class_page.php:660
+#: app/page/class_page.php:664
 msgid "Non è consentito l'utilizzo di alcun tag html"
 msgstr "It is not allowed to use any HTML tags"
 
-#: app/auth/class_auth.php:1415
+#: app/auth/class_auth.php:1412
 msgid "Non è possibile modificare la password di un utente Ldap"
 msgstr "You can not change the password of a user Ldap"
 
@@ -1632,7 +1635,7 @@ msgstr "Number of elements in the showcase"
 msgid "Numero righe"
 msgstr "Number of rows"
 
-#: app/module/class_module.php:271
+#: app/module/class_module.php:273
 msgid "Nuova istanza"
 msgstr "New instance"
 
@@ -1657,7 +1660,7 @@ msgstr "New block"
 msgid "Nuovo commento al post \"%s\""
 msgstr "Post new comment \"%s\""
 
-#: app/page/class_page.php:726
+#: app/page/class_page.php:730
 #, php-format
 msgid "Nuovo commento alla pagina \"%s\" in attesa di approvazione"
 msgstr "New comment on the page \"%s\" waiting for approval"
@@ -1675,18 +1678,18 @@ msgstr "New template"
 msgid "Oggetto %s, id %d inesistente."
 msgstr "Object %s, id %d nonexistent."
 
-#: app/auth/class_auth.php:154
+#: app/auth/class_auth.php:151
 msgid "Oggetto della mail inviata a seguito di registrazione"
 msgstr "Subject of the email sent following registration"
 
-#: app/auth/class_auth.php:158
+#: app/auth/class_auth.php:155
 msgid "Oggetto della mail inviata per conferma attivazione"
 msgstr "Subject of the email sent to confirm activation"
 
 #: lib/classes/class.Options.php:55 lib/classes/class.Options.php:241
-#: app/auth/class_auth.php:923 app/auth/class_auth.php:1026
+#: app/auth/class_auth.php:920 app/auth/class_auth.php:1023
 #: app/language/class_language.php:116 app/menu/class_menu.php:265
-#: app/page/class_page.php:911 app/phpModuleView/class_phpModuleView.php:185
+#: app/page/class_page.php:915 app/phpModuleView/class_phpModuleView.php:190
 #: app/searchSite/class_searchSite.php:121
 msgid "Opzioni"
 msgstr "Options"
@@ -1699,7 +1702,7 @@ msgstr "Options comments"
 msgid "Opzioni newsletter"
 msgstr "Options newsletter"
 
-#: app/auth/class_auth.php:105
+#: app/auth/class_auth.php:102
 msgid "Opzioni per la procedura di autenticazione Ldap; per impostare i parametri di connessione al database editare il file config.ldap.php."
 msgstr "Options for LDAP authentication procedure; to set the parameters of the database connection edit the config.ldap.php file."
 
@@ -1747,13 +1750,13 @@ msgstr "Page"
 msgid "Pagina completa"
 msgstr "Complete page"
 
-#: app/auth/class_auth.php:153
+#: app/auth/class_auth.php:150
 msgid "Pagina di registrazione"
 msgstr "Registration page"
 
 #: app/instruments/class_instruments.php:96 app/layout/class_layout.php:688
 #: app/layout/class_layout.php:877 app/menu/class_menu.php:651
-#: app/page/class_page.php:957 app/page/class_page.php:1197
+#: app/page/class_page.php:961 app/page/class_page.php:1201
 msgid "Pagine"
 msgstr "Pages"
 
@@ -1765,14 +1768,14 @@ msgstr "Path parameter nonexistent"
 msgid "Parole chiave che rappresentano i contenuti del sito, lette dai motori di ricerca. Molti moduli sovrascrivono questo testo."
 msgstr "Keywords that represent the content of the site, read by search engines. Many modules overwrite this text."
 
-#: app/auth/class_auth.php:546 app/auth/class_auth.php:828
-#: app/auth/class_auth.php:1815 app/auth/class.RegistrationRequest.php:38
+#: app/auth/class_auth.php:543 app/auth/class_auth.php:825
+#: app/auth/class_auth.php:1812 app/auth/class.RegistrationRequest.php:38
 #: app/auth/class.User.php:42 app/auth/class.User.php:213
-#: app/sysconf/class_sysconf.php:106
+#: app/sysconf/class_sysconf.php:107
 msgid "Password"
 msgstr ""
 
-#: app/auth/class_auth.php:109
+#: app/auth/class_auth.php:106
 msgid "Password dell'utente/utenti di gino abbinati agli utenti ldap"
 msgstr "Password user gino paired users ldap"
 
@@ -1788,6 +1791,10 @@ msgstr "For manual installation, use submit form, as shown in the config.txt fil
 msgid "Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne effettuare il download utilizzare il valore della colonna \"URL download\""
 msgstr "To place a link to attachment use the value of the column \"Relative URL\", to make the download to use the value of the column \"Download URL\""
 
+#: app/sysconf/class.Conf.php:51
+msgid "Per la tipologia di cache query da utilizzare modificare le impostazioni nel file configuration.php"
+msgstr "To choose the type of query cache to be used to change the settings in the file configuration.php"
+
 #: app/menu/class_menu.php:332
 #, php-format
 msgid "Per modificare l'ordinamento delle voci di menu trascinare l'icona %s nella posizione desiderata"
@@ -1801,15 +1808,15 @@ msgstr "To change the display of views belonging to individual modules access to
 msgid "Per poter funzionare occorre"
 msgstr "To function must"
 
-#: lib/func.php:1069
+#: lib/func.php:1081
 msgid "Per problemi o segnalazioni potete scrivere a "
 msgstr "For any enquire, please write to "
 
-#: app/phpModuleView/class_phpModuleView.php:242
+#: app/phpModuleView/class_phpModuleView.php:247
 msgid "Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di <b>non</b> utilizzare le funzioni per la stampa diretta <b>echo</b> e <b>print</b>, ma di immagazzinare tutto l'output all'interno della variabile <b>$buffer</b>, che verrà stampata all'interno del layout."
 msgstr "For a correct integration of the output within the site's layout it is suggested <b>not</b> to use direct print functions <b>echo</b> and <b>print</b> but store the whole output into the <b>$buffer</b> variable."
 
-#: app/auth/class_auth.php:925 app/instruments/class_instruments.php:102
+#: app/auth/class_auth.php:922 app/instruments/class_instruments.php:102
 #: app/instruments/class_instruments.php:136 app/menu/class.MenuVoice.php:199
 msgid "Permessi"
 msgstr "Permits"
@@ -1834,7 +1841,7 @@ msgstr "Table prefix"
 msgid "Prende i permessi del modulo chiamato"
 msgstr "Takes the permissions of the module called"
 
-#: app/module/class_module.php:468
+#: app/module/class_module.php:470
 msgid "Prima di disattivare un modulo assicurarsi di aver rimosso ogni suo output da tutti i template."
 msgstr "Before you disable a module be sure to remove all its output from all templates."
 
@@ -1842,11 +1849,11 @@ msgstr "Before you disable a module be sure to remove all its output from all te
 msgid "Privata"
 msgstr "Private"
 
-#: app/auth/class_auth.php:1093 app/auth/class_auth.php:1101
+#: app/auth/class_auth.php:1090 app/auth/class_auth.php:1098
 msgid "Privilegi"
 msgstr "Privileges"
 
-#: app/auth/class_auth.php:163
+#: app/auth/class_auth.php:160
 msgid "Processing richiesta di recupero credenziali"
 msgstr "Processing recovery request credentials"
 
@@ -1854,7 +1861,7 @@ msgstr "Processing recovery request credentials"
 msgid "Profili di registrazione"
 msgstr "Registration profiles"
 
-#: app/auth/class_auth.php:926
+#: app/auth/class_auth.php:923
 msgid "Profili registrazione"
 msgstr "Profiles registration"
 
@@ -1866,7 +1873,7 @@ msgstr "Profile Registration"
 msgid "Profilo registrazione"
 msgstr "Profile registration"
 
-#: app/auth/class_auth.php:160
+#: app/auth/class_auth.php:157
 msgid "Profilo utente"
 msgstr "User profile"
 
@@ -1898,6 +1905,10 @@ msgstr "These are the general views used by the entire system and by many module
 msgid "Questi metodi possono essere abbinati o meno ad una variabile di sessione."
 msgstr "These methods can be linked to a session variable."
 
+#: templates/home.php:65
+msgid "Questo sito fa uso di cookie per migliorare l\\'esperienza di navigazione; continuando la navigazione se ne accetta implicitamente l\\'uso."
+msgstr "This site uses cookies to improve your browsing experience; continue navigating it implicitly accepts the use."
+
 #: views/logger_system_variables.php:30
 msgid "REQUEST"
 msgstr ""
@@ -1908,7 +1919,7 @@ msgstr ""
 msgid "Recupero credenziali di accesso"
 msgstr "Recovery credentials"
 
-#: app/auth/class_auth.php:1853 app/auth/class_auth.php:1879
+#: app/auth/class_auth.php:1850 app/auth/class_auth.php:1876
 #, php-format
 msgid "Recupero credenziali di accesso | %s"
 msgstr "Recovery credentials | %s"
@@ -1922,12 +1933,12 @@ msgstr "Registration %s | %s"
 msgid "Registrazione non riuscita."
 msgstr "Registration failed."
 
-#: app/auth/class_auth.php:661
+#: app/auth/class_auth.php:658
 #, php-format
 msgid "Registrazione nuovo utente in attesa di attivazione | %s"
 msgstr "New user registration awaiting activation | %s"
 
-#: app/auth/class_auth.php:654
+#: app/auth/class_auth.php:651
 #, php-format
 msgid "Registrazione nuovo utente | %s"
 msgstr "New user registration | %s"
@@ -1972,16 +1983,16 @@ msgstr "Request for Registration"
 msgid "Richiesta di informazioni aggiuntive gestite da un'altra applicazione"
 msgstr "Request additional information managed by another application"
 
-#: app/auth/class_auth.php:162
+#: app/auth/class_auth.php:159
 msgid "Richiesta di recupero credenziali"
 msgstr "Recovery request credentials"
 
-#: app/auth/class_auth.php:697
+#: app/auth/class_auth.php:694
 #, php-format
 msgid "Richiesta di registrazione con id %s inesistente"
 msgstr "Registration request with id %s nonexistent"
 
-#: app/auth/class_auth.php:927
+#: app/auth/class_auth.php:924
 msgid "Richieste registrazione"
 msgstr "Requests registration"
 
@@ -1989,11 +2000,11 @@ msgstr "Requests registration"
 msgid "Rilevato attacco CSRF o submit del form dall'esterno "
 msgstr "CSFR attak o external form submission"
 
-#: app/auth/class_auth.php:531
+#: app/auth/class_auth.php:528
 msgid "Ripeti email"
 msgstr "Repeat email"
 
-#: app/auth/class_auth.php:547 app/auth/class_auth.php:829
+#: app/auth/class_auth.php:544 app/auth/class_auth.php:826
 msgid "Ripeti password"
 msgstr "Repeat password"
 
@@ -2010,15 +2021,15 @@ msgstr "Results %s of %s"
 msgid "Risultati della ricerca"
 msgstr "Search results"
 
-#: app/auth/class_auth.php:157
+#: app/auth/class_auth.php:154
 msgid "Risultato conferma indirizzo email"
 msgstr "Result confirmation email"
 
-#: app/auth/class_auth.php:156
+#: app/auth/class_auth.php:153
 msgid "Risultato registrazione"
 msgstr "Result registration"
 
-#: app/sysconf/class_sysconf.php:111
+#: app/sysconf/class_sysconf.php:112
 msgid "Robots"
 msgstr ""
 
@@ -2038,7 +2049,7 @@ msgstr "Saturday"
 msgid "Salvataggio non riuscito"
 msgstr "Save failed"
 
-#: app/auth/class_auth.php:322 app/auth/class_auth.php:460
+#: app/auth/class_auth.php:319 app/auth/class_auth.php:457
 msgid "Salvataggio richiesta di registrazione fallito"
 msgstr "Saving registration request failed"
 
@@ -2051,7 +2062,7 @@ msgstr "Choose which language to create the translation file"
 msgid "Scelta lingua"
 msgstr "Language selection"
 
-#: app/auth/class_auth.php:93
+#: app/auth/class_auth.php:90
 msgid "Schede utenti visibili"
 msgstr "User cards visible"
 
@@ -2108,7 +2119,7 @@ msgstr "Select module"
 msgid "Senza estensione, es. home_page"
 msgstr "Without extension, eg. home_page"
 
-#: app/sysconf/class_sysconf.php:112
+#: app/sysconf/class_sysconf.php:113
 msgid "Servizi"
 msgstr "Services"
 
@@ -2124,7 +2135,7 @@ msgstr "September"
 msgid "Shortname per l'integrazione del sistema di commenti Disqus."
 msgstr "Shortname to integrate the Disqus commenting system."
 
-#: app/phpModuleView/class_phpModuleView.php:243
+#: app/phpModuleView/class_phpModuleView.php:248
 msgid "Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito."
 msgstr "Be extermely carefull, because even if the most dangerous php functions are forbidden you have a complete control on variable and a bad use of the module will compromise the module and/or web site layout."
 
@@ -2136,17 +2147,17 @@ msgstr "Upgrade failed. One or more files have not been sucessfully copied. Cont
 msgid "Si è verificato un errore interno al sistema."
 msgstr "There was an system internal error."
 
-#: app/auth/class_auth.php:650
+#: app/auth/class_auth.php:647
 #, php-format
 msgid "Si è verificato un errore nell'attivazione dell'utenza. Scrivere a %s"
 msgstr "It was an error in the activation of the user. Write to %s"
 
-#: app/auth/class_auth.php:594
+#: app/auth/class_auth.php:591
 #, php-format
 msgid "Si è verificato un errore nell'invio dell'email di conferma registrazione, scrivere al seguente indirizzo: %s"
 msgstr "There was an error sending the confirmation registration, write to the following address: %s"
 
-#: app/auth/class_auth.php:1330
+#: app/auth/class_auth.php:1327
 #, php-format
 msgid "Sicurezza: %s/10"
 msgstr "Security: %s/10"
@@ -2161,12 +2172,12 @@ msgid "Sicuro di voler procedere con l'eliminazione dell'account?"
 msgstr "Sure you want to proceed with deleting the account?"
 
 #: lib/classes/class.Css.php:223 lib/classes/class.Skin.php:294
-#: lib/classes/class.Template.php:520 app/module/class_module.php:474
+#: lib/classes/class.Template.php:520 app/module/class_module.php:476
 #: app/sysClass/class_sysClass.php:518 app/sysClass/class_sysClass.php:836
 msgid "Sicuro di voler procedere?"
 msgstr "Sure you want to proceed?"
 
-#: app/page/class.PageComment.php:40 app/page/class_page.php:659
+#: app/page/class.PageComment.php:40 app/page/class_page.php:663
 msgid "Sito web"
 msgstr "Web site"
 
@@ -2198,7 +2209,7 @@ msgstr "Print header or footer"
 msgid "Strumenti"
 msgstr "Instruments"
 
-#: app/auth/class_auth.php:164
+#: app/auth/class_auth.php:161
 msgid "Successo richiesta di recupero credenziali"
 msgstr "Successful recovery request credentials"
 
@@ -2263,12 +2274,16 @@ msgstr "Template view detail page"
 msgid "Tempo di caching dei contenuti (s)"
 msgstr "Time caching of content (s)"
 
-#: app/auth/class_auth.php:359 app/auth/class_auth.php:559
+#: app/sysconf/class.Conf.php:52
+msgid "Tempo in secondi"
+msgstr "Time in seconds"
+
+#: app/auth/class_auth.php:356 app/auth/class_auth.php:556
 msgid "Termini e condizioni"
 msgstr "Terms and conditions"
 
 #: app/auth/class.RegistrationProfile.php:38 app/page/class.PageEntry.php:44
-#: app/page/class_page.php:660
+#: app/page/class_page.php:664
 msgid "Testo"
 msgstr "Text"
 
@@ -2309,7 +2324,7 @@ msgstr "Type and/or id of the module that has to complete the missing informatio
 msgid "Tipologia applicazione"
 msgstr "Type of application"
 
-#: app/auth/class_auth.php:90 app/auth/class.RegistrationProfile.php:37
+#: app/auth/class.RegistrationProfile.php:37
 #: app/instruments/class_instruments.php:100
 #: app/language/class_language.php:52 app/menu/class_menu.php:67
 #: app/page/class.PageEntry.php:40
@@ -2329,12 +2344,12 @@ msgstr "Title showcase most read pages"
 msgid "Titolo visibile"
 msgstr "Title visible"
 
-#: app/auth/class_auth.php:1247
+#: app/auth/class_auth.php:1244
 #, php-format
 msgid "Tra questi, %s devono essere numerici."
 msgstr "Among these, %s must be numeric."
 
-#: lib/classes/class.Locale.php:606 app/page/class_page.php:910
+#: lib/classes/class.Locale.php:606 app/page/class_page.php:914
 msgid "Traduzioni"
 msgstr "Translations"
 
@@ -2385,9 +2400,9 @@ msgstr "Upgrade failed - impossible to create tables"
 msgid "Upload di fogli di stile da associare eventualmente ad una skin. Il css viene accodato ai file di default di <i>gino</i>, pertanto è possibile definire nuovi stili o sovrascrivere quelli già presenti."
 msgstr "Upload style sheets may be associated with a skin. The css file is appended to the default file of <i>gino</i>, so you can define new styles or overwrite existing ones."
 
-#: app/auth/class_auth.php:1031 app/instruments/class_instruments.php:101
-#: app/instruments/class_instruments.php:134 app/page/class_page.php:980
-#: app/page/class_page.php:984
+#: app/auth/class_auth.php:1028 app/instruments/class_instruments.php:101
+#: app/instruments/class_instruments.php:134 app/page/class_page.php:984
+#: app/page/class_page.php:988
 msgid "Url"
 msgstr ""
 
@@ -2395,38 +2410,38 @@ msgstr ""
 msgid "Urls"
 msgstr ""
 
-#: app/auth/class_auth.php:527 app/auth/class_auth.php:1814
+#: app/auth/class_auth.php:524 app/auth/class_auth.php:1811
 #: app/auth/class.RegistrationRequest.php:37 app/auth/class.User.php:41
 #: app/auth/views/profile.php:29
 msgid "Username"
 msgstr ""
 
-#: app/auth/class_auth.php:1270 app/auth/class_auth.php:1292
+#: app/auth/class_auth.php:1267 app/auth/class_auth.php:1289
 msgid "Username disponibile!"
 msgstr "Available username!"
 
-#: app/auth/class_auth.php:1270 app/auth/class_auth.php:1292
+#: app/auth/class_auth.php:1267 app/auth/class_auth.php:1289
 msgid "Username non disponibile!"
 msgstr "Username not available!"
 
-#: app/auth/class_auth.php:1806
+#: app/auth/class_auth.php:1803
 msgid "Username o password non valida"
 msgstr "Username or password incorrect"
 
-#: app/auth/class_auth.php:1001 app/auth/class.RegistrationRequest.php:41
+#: app/auth/class_auth.php:998 app/auth/class.RegistrationRequest.php:41
 msgid "Utente"
 msgstr "User"
 
-#: app/auth/class_auth.php:1527
+#: app/auth/class_auth.php:1524
 #, php-format
 msgid "Utente \"%s\" - permessi"
 msgstr "User \"%s\" - permits"
 
-#: app/auth/class_auth.php:108
+#: app/auth/class_auth.php:105
 msgid "Utente unico di gino per tutti gli utenti ldap"
 msgstr "Unique user gino for all users ldap"
 
-#: app/auth/class_auth.php:928
+#: app/auth/class_auth.php:925
 msgid "Utenti"
 msgstr "Users"
 
@@ -2434,11 +2449,11 @@ msgstr "Users"
 msgid "Utenti che possono visualizzare la pagina"
 msgstr "Users can view the page"
 
-#: app/auth/class_auth.php:91
+#: app/auth/class_auth.php:88
 msgid "Utenti per pagina"
 msgstr "Users per page"
 
-#: app/auth/class_auth.php:1091 app/auth/class_auth.php:1099
+#: app/auth/class_auth.php:1088 app/auth/class_auth.php:1096
 msgid "Utenza"
 msgstr "Users"
 
@@ -2446,7 +2461,7 @@ msgstr "Users"
 msgid "Utilizzando il modulo di ricerca viste i campi url e permessi verranno autocompilati con i valori corretti per la vista selezionata."
 msgstr "Using the search form views fields url and permits will be self-compiled with the correct values for the selected view."
 
-#: app/auth/class_auth.php:94
+#: app/auth/class_auth.php:91
 msgid "Utilizzo email come username"
 msgstr "Use email as username"
 
@@ -2482,7 +2497,7 @@ msgstr "Showcase pages"
 msgid "Viene creato un link che porta al download forzato della risorsa, si può scegliere tra link testuale o con immagine del tipo di file"
 msgstr "This will create a link that leads to forced download of the resource, you can choose between text link or image file type"
 
-#: app/auth/class_auth.php:1025
+#: app/auth/class_auth.php:1022
 msgid "Vista form registrazione"
 msgstr "View registration form"
 
@@ -2519,6 +2534,10 @@ msgstr ""
 msgid "abilitazione cache"
 msgstr "enable cache"
 
+#: app/sysconf/class.Conf.php:51
+msgid "abilitazione cache delle query"
+msgstr "enable query cache"
+
 #: app/statistics/class_statistics.php:100
 msgid "accessi totali"
 msgstr "total accesses"
@@ -2536,7 +2555,7 @@ msgstr "add the class name_class to the image"
 msgid "aggiungi dati"
 msgstr "add"
 
-#: lib/func.php:1171
+#: lib/func.php:1183
 msgid "allegati"
 msgstr "attachments"
 
@@ -2544,7 +2563,7 @@ msgstr "attachments"
 msgid "altri file di complemento (es. class.Item.php)"
 msgstr "other files (i.e. class.Item.php)"
 
-#: lib/func.php:1167
+#: lib/func.php:1179
 msgid "amministrazione"
 msgstr "administration"
 
@@ -2561,12 +2580,12 @@ msgstr "apply"
 msgid "argomenti"
 msgstr "arguments"
 
-#: app/auth/class_auth.php:1523 app/auth/class_auth.php:1625
+#: app/auth/class_auth.php:1520 app/auth/class_auth.php:1622
 msgid "associa"
 msgstr "associates"
 
 #: app/auth/views/profile.php:58 app/language/class.Lang.php:40
-#: app/module/class_module.php:474 app/sysClass/class_sysClass.php:518
+#: app/module/class_module.php:476 app/sysClass/class_sysClass.php:518
 msgid "attiva"
 msgstr "active"
 
@@ -2602,7 +2621,7 @@ msgstr "alphanumeric characters, '_', '-'"
 msgid "caricare sul database la funzione <b>replace_ci</b> (vedi INSTALL.TXT)"
 msgstr "load on the database the <b>replace_ci</b> (see INSTALL.TXT)"
 
-#: lib/func.php:1183
+#: lib/func.php:1195
 msgid "check"
 msgstr ""
 
@@ -2618,7 +2637,7 @@ msgstr "ShareThis public key"
 msgid "chiave pubblica reCAPTCHA"
 msgstr "reCATPCHA public key"
 
-#: lib/func.php:1191
+#: lib/func.php:1203
 msgid "chiudi"
 msgstr "close"
 
@@ -2626,7 +2645,7 @@ msgstr "close"
 msgid "classe"
 msgstr "class"
 
-#: lib/func.php:1187 app/graphics/class.GraphicsItem.php:70
+#: lib/func.php:1199 app/graphics/class.GraphicsItem.php:70
 #: app/layout/class_layout.php:694 app/layout/class_layout.php:732
 #: app/layout/class_layout.php:779 app/layout/class_layout.php:825
 msgid "codice"
@@ -2660,7 +2679,7 @@ msgstr "share on Twitter"
 msgid "condivisione social"
 msgstr "social sharing"
 
-#: lib/func.php:1199
+#: lib/func.php:1211
 msgid "contenuti"
 msgstr "contents"
 
@@ -2680,7 +2699,7 @@ msgstr "meta tag keywords content"
 msgid "contenuto meta tag title"
 msgstr "meta tag title content"
 
-#: app/auth/class_auth.php:1120
+#: app/auth/class_auth.php:1117
 msgid "controlla"
 msgstr "check it"
 
@@ -2697,7 +2716,7 @@ msgstr "check writing permits"
 msgid "controllare i permessi di scrttura"
 msgstr "check writing permits"
 
-#: app/module/class_module.php:353 app/module/class_module.php:374
+#: app/module/class_module.php:355 app/module/class_module.php:376
 msgid "controllare i permessi in scrittura"
 msgstr "check write permissions"
 
@@ -2705,7 +2724,7 @@ msgstr "check write permissions"
 msgid "crea"
 msgstr "creates"
 
-#: lib/func.php:1291
+#: lib/func.php:1303
 msgid "crea PDF"
 msgstr "create PDF"
 
@@ -2721,7 +2740,7 @@ msgstr "creates template"
 msgid "crea una copia"
 msgstr "creates a copy"
 
-#: lib/func.php:1208
+#: lib/func.php:1220
 msgid "css"
 msgstr ""
 
@@ -2729,7 +2748,7 @@ msgstr ""
 msgid "data"
 msgstr "date"
 
-#: app/page/class_page.php:1167
+#: app/page/class_page.php:1171
 msgid "data creazione"
 msgstr "creation date"
 
@@ -2749,7 +2768,7 @@ msgstr ""
 msgid "descrizione"
 msgstr "description"
 
-#: lib/func.php:1217
+#: lib/func.php:1229
 msgid "dettaglio"
 msgstr "detail"
 
@@ -2757,11 +2776,11 @@ msgstr "detail"
 msgid "diminuisci larghezza"
 msgstr "reduce width"
 
-#: app/page/class_page.php:844
+#: app/page/class_page.php:848
 msgid "disabilitati"
 msgstr "disabled"
 
-#: app/module/class_module.php:474 app/sysClass/class_sysClass.php:518
+#: app/module/class_module.php:476 app/sysClass/class_sysClass.php:518
 msgid "disattiva"
 msgstr "deactivate"
 
@@ -2769,19 +2788,19 @@ msgstr "deactivate"
 msgid "disinstalla"
 msgstr "uninstall"
 
-#: app/page/class_page.php:1104
+#: app/page/class_page.php:1108
 msgid "disponibile"
 msgstr "available"
 
-#: lib/func.php:1221
+#: lib/func.php:1233
 msgid "download"
 msgstr ""
 
-#: lib/func.php:1204
+#: lib/func.php:1216
 msgid "duplica"
 msgstr "duplicate"
 
-#: lib/func.php:1274
+#: lib/func.php:1286
 msgid "elenco"
 msgstr "list"
 
@@ -2789,8 +2808,8 @@ msgstr "list"
 msgid "elenco separato da virgola"
 msgstr "comma-separated list"
 
-#: lib/func.php:1213 lib/classes/class.Css.php:223
-#: lib/classes/class.Form.php:1440 lib/classes/class.Skin.php:294
+#: lib/func.php:1225 lib/classes/class.Css.php:223
+#: lib/classes/class.Form.php:1439 lib/classes/class.Skin.php:294
 #: lib/classes/class.Template.php:520 app/module/class_module.php:176
 #: app/sysClass/class_sysClass.php:141
 msgid "elimina"
@@ -2804,7 +2823,7 @@ msgstr "delete account"
 msgid "elimina navata"
 msgstr "delete column"
 
-#: lib/func.php:1225
+#: lib/func.php:1237
 msgid "email"
 msgstr ""
 
@@ -2844,7 +2863,7 @@ msgstr "technical error; please contact system administrator"
 msgid "esempi"
 msgstr "examples"
 
-#: lib/func.php:1230
+#: lib/func.php:1242
 msgid "esporta"
 msgstr "export"
 
@@ -2857,7 +2876,7 @@ msgstr "outside (such as http://www.otto.to.it)"
 msgid "etichetta"
 msgstr "label"
 
-#: lib/func.php:1234
+#: lib/func.php:1246
 msgid "feed rss"
 msgstr ""
 
@@ -2865,7 +2884,7 @@ msgstr ""
 msgid "file"
 msgstr ""
 
-#: lib/classes/class.Form.php:1442
+#: lib/classes/class.Form.php:1441
 msgid "file caricato"
 msgstr "file uploaded"
 
@@ -2909,7 +2928,7 @@ msgstr "format of the email is not valid"
 msgid "fotografia autore post"
 msgstr "photography post author"
 
-#: lib/func.php:1356 lib/func.php:1362
+#: lib/func.php:1368 lib/func.php:1374
 msgid "full"
 msgstr ""
 
@@ -2925,7 +2944,7 @@ msgstr "mobile management"
 msgid "gestione multilingua"
 msgstr "language management"
 
-#: lib/func.php:1239
+#: lib/func.php:1251
 msgid "gruppi"
 msgstr "groups"
 
@@ -2933,7 +2952,7 @@ msgstr "groups"
 msgid "header"
 msgstr ""
 
-#: lib/func.php:1244
+#: lib/func.php:1256
 msgid "help in linea"
 msgstr "on line help"
 
@@ -2941,7 +2960,7 @@ msgstr "on line help"
 msgid "hh:mm di creazione"
 msgstr "hh:mm creation"
 
-#: lib/func.php:1248
+#: lib/func.php:1260
 msgid "home"
 msgstr ""
 
@@ -2949,7 +2968,7 @@ msgstr ""
 msgid "i file hanno lo stesso nome. cambiare nome a uno di essi"
 msgstr "files have the same name. Please change one"
 
-#: app/module/class_module.php:118 app/page/class_page.php:1164
+#: app/module/class_module.php:118 app/page/class_page.php:1168
 #: app/statistics/class_statistics.php:169 app/sysClass/class_sysClass.php:130
 msgid "id"
 msgstr ""
@@ -2990,7 +3009,7 @@ msgstr "incorrect number format"
 msgid "il nome del file è già presente. cambiare nome al file"
 msgstr "file name already present; please change name"
 
-#: app/module/class_module.php:336
+#: app/module/class_module.php:338
 msgid "il nome del modulo contiene caratteri non permessi"
 msgstr "the module name contains an illegal character"
 
@@ -3019,11 +3038,11 @@ msgstr "Text exceeds the max number of characters"
 msgid "immagine"
 msgstr "image"
 
-#: app/module/class_module.php:374
+#: app/module/class_module.php:376
 msgid "impossibile creare i file delle viste"
 msgstr "Unable to create files of the views"
 
-#: app/module/class_module.php:353
+#: app/module/class_module.php:355
 msgid "impossibile creare i file di stile"
 msgstr "Unable to create files of the style sheet"
 
@@ -3064,7 +3083,7 @@ msgstr "in response to %s"
 msgid "indicare il numero di pagina"
 msgstr "indicate the number of page"
 
-#: lib/func.php:1317 lib/classes/class.Template.php:668
+#: lib/func.php:1329 lib/classes/class.Template.php:668
 msgid "indietro"
 msgstr "back"
 
@@ -3076,11 +3095,11 @@ msgstr "URL"
 msgid "informazioni"
 msgstr "informations"
 
-#: lib/func.php:1175
+#: lib/func.php:1187
 msgid "inizio"
 msgstr "beginning"
 
-#: lib/func.php:1252
+#: lib/func.php:1264
 msgid "input"
 msgstr ""
 
@@ -3108,8 +3127,8 @@ msgstr "install"
 msgid "interno (utilizzare la ricerca viste)"
 msgstr "inside (use search views')"
 
-#: app/auth/class_auth.php:362 app/auth/class_auth.php:562
-#: app/auth/class_auth.php:1901 app/page/class_page.php:663
+#: app/auth/class_auth.php:359 app/auth/class_auth.php:559
+#: app/auth/class_auth.php:1898 app/page/class_page.php:667
 msgid "invia"
 msgstr "send"
 
@@ -3157,7 +3176,7 @@ msgstr "page not available"
 msgid "la password inserita non rispetta il numero di caratteri richiesto"
 msgstr "invalid password character number"
 
-#: lib/func.php:1266
+#: lib/func.php:1278
 msgid "layout"
 msgstr ""
 
@@ -3185,7 +3204,7 @@ msgstr "language"
 msgid "lingua di default"
 msgstr "default language"
 
-#: lib/func.php:1270
+#: lib/func.php:1282
 msgid "link"
 msgstr ""
 
@@ -3197,7 +3216,7 @@ msgstr "list of related content with links"
 msgid "log accessi"
 msgstr "Accesses log"
 
-#: app/auth/class_auth.php:1817
+#: app/auth/class_auth.php:1814
 msgid "login"
 msgstr ""
 
@@ -3205,7 +3224,7 @@ msgstr ""
 msgid "m2m:"
 msgstr ""
 
-#: app/sysconf/class.Conf.php:126
+#: app/sysconf/class.Conf.php:128
 msgid "md5"
 msgstr ""
 
@@ -3213,11 +3232,11 @@ msgstr ""
 msgid "metodo di criptazione delle password"
 msgstr "Password encrypting method"
 
-#: lib/func.php:1179
+#: lib/func.php:1191
 msgid "metti nel carrello"
 msgstr "add to cart"
 
-#: lib/func.php:1283 lib/classes/class.Css.php:154
+#: lib/func.php:1295 lib/classes/class.Css.php:154
 #: lib/classes/class.Options.php:151 lib/classes/class.Skin.php:227
 #: app/auth/views/profile.php:47 app/menu/class.MenuVoice.php:176
 #: app/sysClass/class_sysClass.php:483
@@ -3236,7 +3255,7 @@ msgstr "modify template"
 msgid "modifica lo schema"
 msgstr "modify scheme"
 
-#: app/auth/class_auth.php:831
+#: app/auth/class_auth.php:828
 msgid "modifica password"
 msgstr "modify password"
 
@@ -3280,7 +3299,7 @@ msgstr "show all"
 msgid "nei moduli indicati nella ricerca occorre definire e argomentare i metodi <b>searchSite</b> e <b>searchSiteResult</b>"
 msgstr "in the forms listed in the search should be defined and argue the methods <b>SearchSite</b> and <b>searchSiteResult</b>"
 
-#: app/sysconf/class.Conf.php:126
+#: app/sysconf/class.Conf.php:128
 msgid "nessuno"
 msgstr "none"
 
@@ -3294,11 +3313,11 @@ msgstr "none"
 #: app/module/class_module.php:133 app/page/class.PageComment.php:75
 #: app/page/class.PageComment.php:83 app/page/class.PageEntry.php:102
 #: app/page/class.PageEntry.php:110 app/page/class.PageEntry.php:118
-#: app/page/class.PageEntry.php:134 app/page/class_page.php:661
-#: app/page/class_page.php:1166 app/sysClass/class_sysClass.php:146
-#: app/sysClass/class_sysClass.php:147 app/sysconf/class.Conf.php:81
-#: app/sysconf/class.Conf.php:98 app/sysconf/class.Conf.php:118
-#: app/sysconf/class.Conf.php:134
+#: app/page/class.PageEntry.php:134 app/page/class_page.php:665
+#: app/page/class_page.php:1170 app/sysClass/class_sysClass.php:146
+#: app/sysClass/class_sysClass.php:147 app/sysconf/class.Conf.php:83
+#: app/sysconf/class.Conf.php:100 app/sysconf/class.Conf.php:120
+#: app/sysconf/class.Conf.php:136 app/sysconf/class.Conf.php:144
 msgid "no"
 msgstr ""
 
@@ -3309,7 +3328,7 @@ msgstr ""
 msgid "nome"
 msgstr "name"
 
-#: app/page/class_page.php:1104
+#: app/page/class_page.php:1108
 msgid "non disponibile"
 msgstr "not available"
 
@@ -3317,7 +3336,7 @@ msgstr "not available"
 msgid "non istanziabile"
 msgstr "no instances can be created"
 
-#: lib/classes/class.Form.php:1406
+#: lib/classes/class.Form.php:1405
 msgid "non risultano formati permessi."
 msgstr "no format allowed."
 
@@ -3341,7 +3360,7 @@ msgstr "no field filled"
 msgid "non è stato possibile eliminare il file"
 msgstr "It was not possible to delete the file"
 
-#: lib/func.php:1287
+#: lib/func.php:1299
 msgid "novità"
 msgstr "new"
 
@@ -3373,7 +3392,7 @@ msgstr "new second level item"
 msgid "nuova voce"
 msgstr "new item"
 
-#: lib/func.php:1257
+#: lib/func.php:1269
 msgid "nuovo"
 msgstr "new"
 
@@ -3389,11 +3408,15 @@ msgstr "new template block"
 msgid "nuovo template libero"
 msgstr "new template free"
 
+#: templates/home.php:66
+msgid "ok"
+msgstr ""
+
 #: lib/classes/class.Translation.php:102
 msgid "operazione riuscita"
 msgstr "successful operation"
 
-#: lib/func.php:1195
+#: lib/func.php:1207
 msgid "opzioni"
 msgstr "options"
 
@@ -3401,7 +3424,7 @@ msgstr "options"
 msgid "ora"
 msgstr "time"
 
-#: lib/func.php:1331
+#: lib/func.php:1343
 msgid "ordina"
 msgstr "list"
 
@@ -3435,19 +3458,19 @@ msgstr "page viewable by users with the relevant permit"
 msgid "pagine"
 msgstr "pages"
 
-#: lib/func.php:1295
+#: lib/func.php:1307
 msgid "palette colori"
 msgstr "colour palette"
 
-#: lib/func.php:1300
+#: lib/func.php:1312
 msgid "password"
 msgstr ""
 
-#: lib/func.php:1304
+#: lib/func.php:1316
 msgid "pdf"
 msgstr ""
 
-#: lib/func.php:1309 app/layout/class_layout.php:693
+#: lib/func.php:1321 app/layout/class_layout.php:693
 #: app/layout/class_layout.php:731 app/layout/class_layout.php:778
 #: app/layout/class_layout.php:824 app/layout/class_layout.php:882
 #: app/layout/class_layout.php:919 app/layout/class_layout.php:972
@@ -3476,7 +3499,7 @@ msgstr "user profile"
 msgid "pubblica"
 msgstr "public"
 
-#: app/page/class_page.php:1166
+#: app/page/class_page.php:1170
 msgid "pubblicato"
 msgstr "published"
 
@@ -3485,11 +3508,11 @@ msgstr "published"
 msgid "pubblico"
 msgstr "public"
 
-#: lib/func.php:1321
+#: lib/func.php:1333
 msgid "revisione"
 msgstr "version"
 
-#: lib/func.php:1326
+#: lib/func.php:1338
 msgid "ricerca"
 msgstr "find"
 
@@ -3505,7 +3528,7 @@ msgstr "called in the layout template (overwrites the default template)"
 msgid "ridimensiona l'immagine a larghezza (w) e altezza (h) dati"
 msgstr "resizes the image to the width (w) and height (h) data"
 
-#: lib/func.php:1278
+#: lib/func.php:1290
 msgid "riduci a icona"
 msgstr "minimize"
 
@@ -3519,7 +3542,7 @@ msgstr "result"
 
 #: lib/classes/class.AdminTable.php:351 lib/classes/class.Frontend.php:287
 #: lib/classes/class.Locale.php:747 lib/classes/class.Template.php:206
-#: app/layout/class_layout.php:1110 app/module/class_module.php:265
+#: app/layout/class_layout.php:1110 app/module/class_module.php:267
 #: app/phpModuleView/class.PhpModule.php:121
 msgid "salva"
 msgstr "save"
@@ -3540,11 +3563,11 @@ msgstr "choose at least one search field"
 msgid "scegliere se mostrare l'immagine caricata o includere il codice html"
 msgstr "choose whether to show the loaded image or include the html code"
 
-#: lib/func.php:1339
+#: lib/func.php:1351
 msgid "scrivi"
 msgstr "write"
 
-#: app/auth/class_auth.php:107
+#: app/auth/class_auth.php:104
 msgid "se l'autenticazione non è esclusiva viene verificata prima la validità dell'utente nel database Ldap e in caso negativo in quello di gino"
 msgstr "if authentication is not exclusive is verified before the validity of the user in LDAP database and if not in that of gino"
 
@@ -3556,7 +3579,7 @@ msgstr "if you change the setting you need to re-save all passwords users to upd
 msgid "sessione non valida o utente non registrato"
 msgstr "invalid session or unknown user"
 
-#: app/sysconf/class.Conf.php:126
+#: app/sysconf/class.Conf.php:128
 msgid "sha1"
 msgstr ""
 
@@ -3570,11 +3593,11 @@ msgstr ""
 #: app/module/class_module.php:133 app/page/class.PageComment.php:75
 #: app/page/class.PageComment.php:83 app/page/class.PageEntry.php:102
 #: app/page/class.PageEntry.php:110 app/page/class.PageEntry.php:118
-#: app/page/class.PageEntry.php:134 app/page/class_page.php:661
-#: app/page/class_page.php:1166 app/sysClass/class_sysClass.php:146
-#: app/sysClass/class_sysClass.php:147 app/sysconf/class.Conf.php:81
-#: app/sysconf/class.Conf.php:98 app/sysconf/class.Conf.php:118
-#: app/sysconf/class.Conf.php:134
+#: app/page/class.PageEntry.php:134 app/page/class_page.php:665
+#: app/page/class_page.php:1170 app/sysClass/class_sysClass.php:146
+#: app/sysClass/class_sysClass.php:147 app/sysconf/class.Conf.php:83
+#: app/sysconf/class.Conf.php:100 app/sysconf/class.Conf.php:120
+#: app/sysconf/class.Conf.php:136 app/sysconf/class.Conf.php:144
 msgid "si"
 msgstr "yes"
 
@@ -3586,7 +3609,7 @@ msgstr "yes & no"
 msgid "sicuro di voler procedere?"
 msgstr "Proceed? Are you sure?"
 
-#: app/module/class_module.php:262
+#: app/module/class_module.php:264
 msgid "solo caratteri alfanumerici o underscore"
 msgstr "only alphanumeric characters or underscores"
 
@@ -3594,25 +3617,29 @@ msgstr "only alphanumeric characters or underscores"
 msgid "sovrascrive l'impostazione precedente"
 msgstr "overwrites the previous setting"
 
-#: lib/func.php:1335
+#: lib/func.php:1347
 msgid "sposta in alto"
 msgstr "moves up"
 
-#: lib/func.php:1313
+#: lib/func.php:1325
 msgid "stampa"
 msgstr "print"
 
-#: app/sysconf/class_sysconf.php:100
+#: app/sysconf/class_sysconf.php:101
 msgid "svuota"
 msgstr "empty"
 
-#: app/sysconf/class_sysconf.php:100
+#: app/sysconf/class_sysconf.php:101
 msgid "svuota la cache"
 msgstr "empty cache"
 
 #: app/page/class_page.php:345
 msgid "tag associati"
 msgstr "associated tag"
+
+#: app/sysconf/class.Conf.php:52
+msgid "tempo di durata della cache query"
+msgstr "duration time of the query cache"
 
 #: app/page/class_page.php:339
 msgid "testo"
@@ -3624,11 +3651,11 @@ msgstr "type"
 
 #: app/layout/class_layout.php:691 app/layout/class_layout.php:880
 #: app/menu/class_menu.php:655 app/page/class_page.php:338
-#: app/page/class_page.php:1165
+#: app/page/class_page.php:1169
 msgid "titolo"
 msgstr "title"
 
-#: lib/func.php:1261
+#: lib/func.php:1273
 msgid "traduzione"
 msgstr "translation"
 
@@ -3639,6 +3666,10 @@ msgstr "all categories"
 #: lib/classes/class.AdminTable.php:1425
 msgid "tutti"
 msgstr "all"
+
+#: templates/home.php:66
+msgid "ulteriori informazioni"
+msgstr "more information"
 
 #: app/statistics/class_statistics.php:101
 msgid "ultimo accesso"
@@ -3685,7 +3716,7 @@ msgstr "used to create a permalink to the resource"
 msgid "vai allo schema"
 msgstr "go to scheme"
 
-#: app/page/class_page.php:991
+#: app/page/class_page.php:995
 msgid "verifica disponibilità"
 msgstr "check availability"
 
@@ -3700,7 +3731,7 @@ msgstr "version"
 msgid "vista"
 msgstr "view"
 
-#: lib/func.php:1343
+#: lib/func.php:1355
 msgid "visualizza"
 msgstr "show"
 
@@ -3716,7 +3747,7 @@ msgstr "You can enter any view exported from the modules and the current view (t
 msgid "È possibile registrarsi ad altri servizi."
 msgstr "You can subscribe for other services."
 
-#: app/module/class_module.php:332
+#: app/module/class_module.php:334
 msgid "è già presente un modulo con lo stesso nome"
 msgstr "there is already a module with the same name"
 
