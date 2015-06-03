@@ -152,6 +152,7 @@ class Javascript {
             $buffer = "<script type=\"text/javascript\">";
             $buffer .= "var _gaq = _gaq || [];";
             $buffer .= "_gaq.push(['_setAccount', '".$registry->sysconf->google_analytics."']);";
+            $buffer .= "_gaq.push(['_gat._anonymizeIp']);";
             $buffer .= "_gaq.push(['_trackPageview']);";
             $buffer .= "(function() {
                 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
