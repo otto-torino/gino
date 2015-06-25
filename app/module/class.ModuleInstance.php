@@ -21,6 +21,7 @@ use \Gino\App\SysClass\ModuleApp;
 class ModuleInstance extends \Gino\Model {
 
     public static $table = TBL_MODULE;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -101,4 +102,45 @@ class ModuleInstance extends \Gino\Model {
 		\Gino\Loader::import('sysClass', 'ModuleApp');
 		return new ModuleApp($this->module_app);
 	}
+	
+	/**
+	 * Struttura dei campi della tabella di un modello
+	 *
+	 * @return array
+	 */
+	public static function columns() {
+		
+		$columns['id'] = new \Gino\IntegerField(array(
+				'name'=>'id',
+				'primary_key'=>true,
+				'auto_increment'=>true,
+		));
+		$columns['label'] = new \Gino\CharField(array(
+				'name'=>'label',
+				'required'=>true,
+     			'max_lenght'=>100,
+		));
+		$columns['name'] = new \Gino\CharField(array(
+				'name'=>'name',
+				'required'=>true,
+     			'max_lenght'=>100,
+		));
+		$columns['module_app'] = new \Gino\IntegerField(array(
+				'name'=>'module_app',
+				'required'=>true
+		));
+		$columns['active'] = new \Gino\BooleanField(array(
+				'name'=>'active',
+				'required'=>true,
+				'enum'=>array(1 => _('si'), 0 => _('no'))
+		));
+		$columns['description'] = new \Gino\TextField(array(
+				'name'=>'description',
+				'required'=>true
+		));
+		
+		return $columns;
+	}
 }
+
+ModuleInstance::$columns=ModuleInstance::columns();

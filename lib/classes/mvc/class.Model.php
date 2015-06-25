@@ -48,17 +48,14 @@ namespace Gino;
  */
  abstract class Model {
 
-    protected $_registry,
+    //public static $columns;	// PROBLEMI ?????
+ 	//protected static $model;	// per caricare l'istanza del modello
+ 	
+ 	protected $_registry,
                $_request,
                $_db;
     protected $_tbl_data;
     protected $_model_label;
-
-    /**
-     * Struttura della tabella
-     * @var array
-     */
-    protected $_structure;
 
     protected $_controller;
 
@@ -68,15 +65,12 @@ namespace Gino;
      */
     protected $_locale;
 
-    //protected $_main_class;
-
     /**
      * Intestazioni dei campi del database nel form
      * @var array
      */
-    protected $_fields_label=array();
-    protected $_p, $_chgP = array();
-    protected $_m2m = array(), $_m2mt = array();
+    protected $_p = array();
+    //protected $_m2m = array(), $_m2mt = array();
 
     protected $_is_constraint = array();
     protected $_check_is_constraint = true;
@@ -95,10 +89,14 @@ namespace Gino;
         $this->_registry = registry::instance();
         $session = Session::instance();
         $this->_db = $this->_registry->db;
+        
         $this->_lng_dft = $session->lngDft;
         $this->_lng_nav = $session->lng;
-        $this->_structure = $this->structure($id);
-        $this->_p['instance'] = null;
+        //$this->_p['instance'] = null;
+        
+        $this->fetchColumns($id);
+        
+        //self::$model = $this;
 
         $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
     }
@@ -118,10 +116,10 @@ namespace Gino;
      * @param string $field nome campo
      * @return etichetta
      */
-    public function fieldLabel($field) {
+    /*public function fieldLabel($field) {
 
         return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
-    }
+    }*/
 
      /**
      * @brief Setter per la variabile di controllo del check constraint
@@ -158,46 +156,33 @@ namespace Gino;
      * @param string $pName
      * @return valore proprietà
      */
-     public function &__get($pName) {
-        $null = null;
+    public function __get($pName) {
+    	
+    	$null = null;
         
-        if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
+    	if(!array_key_exists($pName, $this->_p)) return $null;
         elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
         elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
-        elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
-        elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
         else return $null;
     }
 
     /**
-     * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita
-     *
-     * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
-     *
+     * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita ($this->{fieldname})
+     * 
      * @param string $pName nome della proprietà
-     * @param mixed $pValue valore da settare
+     * @param mixed $pValue valore da impostare
      * @return void
      */
     public function __set($pName, $pValue) {
 
-    	if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) {
-        	return null;
-        }
-        elseif(method_exists($this, 'set'.$pName)) {
-        	return $this->{'set'.$pName}($pValue);
-        }
-        elseif(array_key_exists($pName, $this->_p)) {
-            if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) {
-            	$this->_chgP[] = $pName;
-            }
-            $this->_p[$pName] = $pValue;
-        }
-        elseif(array_key_exists($pName, $this->_m2m)) {
-            $this->_m2m[$pName] = $pValue;
-        }
-        elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
-            $this->_m2mt[$pName] = $pValue;
-        }
+    	$class = get_class($this);
+    	
+    	if(array_key_exists($pName, $class::$columns))
+    	{
+    		$obj = $class::$columns[$pName];
+    		$this->_p[$pName] = $obj->setValue($pValue);
+    	}
+    	else throw new \Exception(sprintf(_("Il campo %s non è presente"), $pName));
     }
 
     /**
@@ -279,7 +264,9 @@ namespace Gino;
      * @return struttura dati
      */
     public function getStructure() {
-        return $this->_structure;
+        
+    	$class = get_class($this);
+    	return $class::$columns;
     }
 
    /**
@@ -346,29 +333,55 @@ namespace Gino;
      *              del modello.
      * @return il risultato dell'operazione o errori
      */
-    public function save() {
+    public function save($options=array()) {
 
-        $event_dispatcher = EventDispatcher::instance();
+        // elenco dei campi da non impostare in una query di update
+    	$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
+    	
+    	$event_dispatcher = EventDispatcher::instance();
 
         $result = true;
-
+        
+		$m2m = array();
+        
         if($this->_p['id']) {
-            if(sizeof($this->_chgP)) {
-                $fields = array();
-                foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-                $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+            
+            $fields = array();
+            foreach($this->_p as $pName=>$pValue) {
+            	
+            	if(!in_array($pName, $no_update))
+            	{
+            		if(is_object($pValue))
+            		{
+            			if(!$this->checkM2m($pValue)) {
+            				
+            				$fields[$pName] = $pValue->id;
+            			}
+            			else $m2m[$pName] = $pValue;
+            		}
+            		else {
+            			$field_obj = $this->getFieldObject($pName);
+            			$fields[$pName] = $field_obj->validate($pValue, $this->_p['id']);
+            		}
+            	}
             }
+            
+            $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
         }
         else {
-            if(sizeof($this->_chgP)) {
+            
+        	/*
+        	if(sizeof($this->_chgP)) {
                 $fields = array();
                 foreach($this->_chgP as $pName) 
                 {
                     if(!($pName == 'id' and $this->id === null))
                         $fields[$pName] = $this->_p[$pName];
                 }
-                $result = $this->_db->insert($fields, $this->_tbl_data);
+                
             }
+            */
+			$result = $this->_db->insert($fields, $this->_tbl_data);
         }
 
         if(!$result) {
@@ -377,7 +390,9 @@ namespace Gino;
 
         if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
 
-        $result = $this->savem2m();
+        if(count($m2m)) {
+        	$result = $this->savem2m($m2m);
+        }
 
         $event_dispatcher->emit($this, 'post_save', array('model' => $this));
 
@@ -386,23 +401,26 @@ namespace Gino;
 
     /**
      * @brief Salvataggio dei m2m
-     * @return TRUE
+     * @return true
      */
-    public function savem2m() {
-        foreach($this->_m2m as $field => $values) {
-            $obj = $this->_structure[$field];
-            if(is_a($obj, '\Gino\ManyToManyField')) {
-                $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-                foreach($values as $fid) {
-                    $this->_db->insert(array(
-                        $obj->getJoinTableId() => $this->id,
-                        $obj->getJoinTableM2mId() => $fid
-                        ), $obj->getJoinTable()
-                    );
-                }
-            }
-        }
-        return TRUE;
+    public function savem2m($m2m) {
+        
+    	foreach($m2m as $pName=>$pValue) {
+    		 
+    		if(is_a($pValue, '\Gino\ManyToManyField')) {
+    			
+    			$this->_db->delete($pValue->getJoinTable(), $pValue->getJoinTableId()."='".$this->id."'");
+    			foreach($values as $fid) {
+    				$this->_db->insert(array(
+    						$pValue->getJoinTableId() => $this->id,
+    						$pValue->getJoinTableM2mId() => $fid
+    				), $pValue->getJoinTable()
+    				);
+    			}
+    		}
+    	}
+    	
+        return true;
     }
 
     /**
@@ -591,150 +609,171 @@ namespace Gino;
     public function getTable() {
         return $this->_tbl_data;
     }
-
+    
     /**
-     * @brief Struttura dei campi di una tabella del database
+     * Verifica se il tipo di campo di un modello è un oggetto ManyToMany
      * 
-     * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende model. \n
+     * @param object $field oggetto del tipo di campo
+     * @return boolean
+     */
+    private function checkM2m($field_obj) {
+    	
+    	if(is_a($field_obj, '\Gino\ManyToManyField') or is_a($field_obj, '\Gino\ManyToManyInlineField') or is_a($field_obj, '\Gino\ManyToManyThroughField'))
+    		return true;
+    	else
+    		return false;
+    }
+    
+    /**
+     * Recupera l'oggetto del tipo di campo di un modello
      * 
-     * Ogni elemento viene associato a una classe del tipo di dato e le vengono passate le specifiche del campo. \n
-     * Esistono classi che corrispondono al tipo di dato e classi specifiche, per poter associare le quali è necessario sovrascrivere il campo nel metodo structure(). \n
-     * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField
-     * 
-     * @see DbManager::getTableStructure()
-     * @see dataCache::get()
-     * @see dataCache::save()
-     * Esempio di riscrittura del metodo structure():
-     * @code
-     * public function structure($id) {
-     *   
-     *   $structure = parent::structure($id);
-     *   
-     *   $structure['ctg'] = new foreignKeyField(array(
-     *     'name'=>'ctg', 
-     *     'model'=>$this, 
-     *     'foreign'=>'MyModel', 
-     *     'foreign_order'=>'name', 
-     *     'foreign_controller'=>$this->_controller
-     *   ));
-     *   
-     *   $base_path = $this->_controller->getBasePath(); // example -> /contents/events/eventsInterface/
-     *   $add_path_image = $this->id ? $this->_controller->getAddPath($this->id, 'image') : '';	// example -> id/img/
-     *   
-     *   $structure['image'] = new imageField(array(
-     *     'name'=>'image', 
-     *     'model'=>$this, 
-     *     'extensions'=>self::$extension_media, 
-     *     'path'=>$base_path, 
-     *     'add_path'=>$add_path_image, 
-     *     'resize'=>true, 
-     *     'check_type'=>false, 
-     *     'width'=>$this->_controller->getImageWidth(),
-     *     'thumb_width'=>$this->_controller->getImageThumbWidth()
-     *   ));
-     * }
-     * @endcode
+     * @param string $field_name nome del campo
+     * @return object or null
+     */
+    private function getFieldObject($field_name) {
+    	
+		$class = get_class($this);
+		
+		if(array_key_exists($field_name, $class::$columns))
+			return $class::$columns[$field_name];
+		else
+			return null;
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
      *
-     * @param integer $id valore ID del record di riferimento
      * @return array
      *
+     * @description Il formato degli elementi dell'array è il seguente:
+     * @code
+     * field_name = new \Gino\{Type}Field(array(
+     *   'name' => string,
+     *   'label' => string,
+     *   'primary_key' => bool,
+     *   'unique_key' => bool,
+     *   'auto_increment' => bool,
+     *   'default' => mixed,
+     *   'max_lenght' => integer,
+     *   'required' => boolean,
+     *   'int_digits' => integer,
+     *   'decimal_digits' => integer,
+     *   'table' => string (self::$table)
+     * ));
+     * @endcode
      */
-    public function structure($id) {
-
-        if(!$this->_tbl_data) {
-            throw new \Exception('La tabella _tbl_data del modello non è definita');
-        }
-
-        loader::import('class', array('\Gino\Cache'));
-        if($id)
-        {
-            $records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
-            if($records and count($records)) {
-                $this->_p = $records[0];
-            }
-            else {
-                error::warning(sprintf(_('Oggetto %s, id %d inesistente.'), get_class($this), $id));
-                $this->_p = array();
-                $id = null;
-            }
-        }
-
-        $cache = new \Gino\DataCache();
-        if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600) or DEBUG) {
-            $fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
-            $cache->save($fieldsTable);
-        }
-
-        $structure = array();
-        if(sizeof($fieldsTable) > 0)
-        {
-            $primary_key = $fieldsTable['primary_key'];
-            $fields = $fieldsTable['fields'];
-            $keys = $fieldsTable['keys']; // array delle chiavi uniche
-
-            foreach($fields AS $key=>$value)
-            {
-                if(!$id) $this->_p[$key] = null;
-
-                $type = $value['type'];
-                $maxLenght = $value['max_length'];
-                $numberIntDigits = $value['n_int'];
-                $numberDecimalDigits = $value['n_precision'];
-                $order = $value['order'];
-                $default = $value['default'];
-                $null = $value['null'];
-                $extra = $value['extra'];
-                $enum = $value['enum'];
-
-                $pkey = $key == $primary_key ? TRUE : FALSE;
-                $ukey = in_array($key, $keys) ? TRUE : FALSE;
-                $auto_increment = $extra == 'auto_increment' ? TRUE : FALSE;
-
-                $dataType = $this->dataType($type);
-                if($id) $this->_p[$key] = $this->_db->changeFieldType($dataType, $this->_p[$key]);
-
-                // Valori di un campo enumerazione
-                if($enum)
-                {
-                    $array = explode(',', $enum);
-                    $array_clean = array();
-                    foreach($array AS $evalue)
-                    {
-                        preg_match("#\'([0-9a-zA-Z-_,.']+)\'#", $evalue, $matches);
-                        if(isset($matches[1]))
-                            $array_clean[$matches[1]] = $matches[1];
-                    }
-                    $enum = $array_clean;
-                }
-
-                $label = array_key_exists($key, $this->_fields_label) ? $this->_fields_label[$key] : ucfirst($key);
-
-                $options_field = array(
-                    'name'=>$key,
-                    'model'=>$this,
-                    'lenght'=>$maxLenght,
-                    'primary_key'=>$pkey,
-                    'unique_key'=>$ukey,
-                    'auto_increment'=>$auto_increment, 
-                    'type'=>$type, 
-                    'int_digits'=>$numberIntDigits, 
-                    'decimal_digits'=>$numberDecimalDigits, 
-                    'order'=>$order, 
-                    'default'=>$default, 
-                    'required'=>$null=='NO' ? TRUE : FALSE, 
-                    'extra'=>$extra, 
-                    'enum'=>$enum, 
-                    'label'=>$label, 
-                );
-
-                $structure[$key] = loader::load('fields/'.$dataType, array($options_field));
-            }
-        }
-
-        return $structure;
+    public static function columns() {
+    
+    	return array();
     }
-
+    
     /**
+     * Recupera le proprietà del campo di un modello
+     * 
+     * @description Le proprietà sono state definite in Gino.Model::setProperties()
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return array
+     */
+    public function getProperties($field_obj) {
+    	
+    	$field_name = $field_obj->getName();
+    	
+    	$prop = $this->properties($this);
+    	
+    	$prop_base = array(
+    		'model' => $this,
+    		'value' => $field_obj->getValue($this->$field_name),
+    	);
+    	
+    	if(array_key_exists($field_name, $prop)) {
+    		$prop_model = $prop[$field_name];
+    		
+    		return array_merge($prop_base, $prop_model);
+    	}
+    	else return $prop_base;
+    }
+    
+    /**
+     * Proprietà specifiche di un modello
+     * 
+     * @param object $model
+     * @return array
+     */
+    protected static function properties($model) {
+    	
+    	return array();
+    }
+    
+    /**
+     * Building class from column
+     *
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return object
+     */
+    public function getFieldBuildFromColumn($field_obj) {
+    	
+    	// model properties
+    	$prop_model = $this->getProperties($field_obj);
+    	
+    	// field properties
+    	$prop_column = $field_obj->getProperties();
+    	
+    	$class = get_class($field_obj).'Build';
+    	
+    	return new $class(array_merge($prop_column, $prop_model));
+    }
+    
+    /**
+     * Valore da mostrare in output
+     * 
+     * @see FieldBuild::retrieveValue()
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return mixed
+     */
+    public function shows($field_obj) {
+    	
+    	$field_name = $field_obj->getName();
+    	
+    	$obj = $this->getFieldBuildFromColumn($field_obj);
+    	$value = $obj->retrieveValue();
+    	
+    	return $value;
+    }
+    
+    /**
+     * Recupera i valori del record e li carica nella proprietà _p
+     * 
+     * @param integer $id valore id del record
+     * @throws \Exception
+     */
+	public function fetchColumns($id) {
+		
+		$row = $this->_db->select('*', $this->_tbl_data, "id='$id'", array('debug'=>false));
+		
+		$class = get_class($this);
+		
+		if(!is_array($class::$columns)) {
+			throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+		}
+		
+		foreach($class::$columns as $field_name=>$field_obj) {
+			
+			if($row && count($row)) {
+				
+				if($this->checkM2m($field_obj)) {
+					$this->_p[$field_name] = $field_obj->getValue($row[0]['id']);
+				}
+				else {
+					$this->_p[$field_name] = $field_obj->getValue($row[0][$field_name]);
+				}
+			}
+			else {
+				$this->_p[$field_name] = null;
+			}
+		}
+	}
+	
+	/**
      * @brief Update della struttura da chiamare manualmente
      *
      * Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina
@@ -745,9 +784,10 @@ namespace Gino;
      *
      * @return void
      */
+    /*
     public function updateStructure() {
         $this->_structure = $this->structure($this->id);
-    }
+    }*/
 
     /**
      * @brief Uniforma il tipo di dato di un campo definito dal metodo Gino.DbManager::getTableStructure()
@@ -755,6 +795,7 @@ namespace Gino;
      * @param string $type tipo di dato
      * @return tipo di dato
      */
+    /*
     private function dataType($type) {
 
         if($type == 'tinyint' || $type == 'smallint' || $type == 'int' || $type == 'mediumint' || $type == 'bigint')
@@ -782,4 +823,5 @@ namespace Gino;
 
         return $dataType;
     }
+    */
 }

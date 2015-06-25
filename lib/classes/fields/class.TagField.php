@@ -18,22 +18,14 @@ namespace Gino;
  */
 class TagField extends Field {
 
-    private $_model_controller_class,
-            $_model_controller_instance;
-
     /**
      * @brief Costruttore
-     * @description Opzioni ulteriori al parent: 
-     *              - model_controller_class: nome classe del controller
-     *              - model_controller_instance: id istanza del controller
+     * 
      * @see Gino.Field::__construct()
-     * @return istanza di Gino.TagField
      */
     function __construct($options) {
-        parent::__construct($options);
-
-        $this->_model_controller_class = $options['model_controller_class'];
-        $this->_model_controller_instance = $options['model_controller_instance'];
+        
+    	parent::__construct($options);
     }
 
     /**
@@ -103,20 +95,17 @@ class TagField extends Field {
     }
 
     /**
-     * @brief Tag cloud
-     * @return tag cloud
+     * @see Gino.Field::getValue()
+     * @return null or string
      */
-    public function tagCloud() {
-        $db = db::instance();
-        $histogram = GTag::getTagsHistogram();
-
-        $buffer = '<p>';
-        foreach($histogram as $tag=>$freq) {
-            $buffer .= "<span class=\"link\" onclick=\"addTag(this)\" style=\"font-size: ".(1 + (0.2 * $freq - 0.2))."em\">".$tag."</span> ";
-        }
-        $buffer .= "</p>";
-
-        return $buffer;
+    public function getValue($value) {
+    	 
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_string($value)) {
+    		return $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
-
 }

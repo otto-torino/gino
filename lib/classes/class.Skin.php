@@ -25,8 +25,9 @@ use Gino\Http\Redirect;
 
 class Skin extends Model {
 
-    protected $_tbl_data;
-    public static $table = 'sys_layout_skin';
+	public static $table = 'sys_layout_skin';
+	public static $columns;
+	
     private $_interface;
 
     /**
@@ -37,11 +38,64 @@ class Skin extends Model {
      */
     function __construct($id) {
 
-        $this->_tbl_data = self::$table;
-
-        parent::__construct($id);
-
-        $this->_interface = 'layout';
+    	$this->_tbl_data = self::$table;
+    	
+    	parent::__construct($id);
+    	
+    	$this->_interface = 'layout';
+    }
+    
+    public static function columns() {
+    	
+    	$columns['id'] = new \Gino\IntegerField(array(
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    		'name' => 'label',
+    		'required' => true,
+    		'max_lenght' => 200
+    	));
+    	$columns['session'] = new \Gino\CharField(array(
+    		'name' => 'session',
+    		'required' => false,
+    		'max_lenght' => 128
+    	));
+    	$columns['rexp'] = new \Gino\CharField(array(
+    		'name' => 'rexp',
+    		'required' => false,
+    		'max_lenght' => 200
+    	));
+    	$columns['urls'] = new \Gino\CharField(array(
+    		'name' => 'urls',
+    		'required' => false,
+    		'max_lenght' => 200
+    	));
+    	$columns['template'] = new \Gino\CharField(array(
+    		'name' => 'template',
+    		'required' => true,
+    		'max_lenght' => 200
+    	));
+    	$columns['css'] = new \Gino\IntegerField(array(
+    		'name' => 'css',
+    		'required' => true,
+    	));
+    	$columns['priority'] = new \Gino\IntegerField(array(
+    		'name' => 'priority',
+    		'required' => true,
+    	));
+    	$columns['auth'] = new \Gino\EnumField(array(
+    		'name' => 'auth',
+    		'required' => true,
+    		'enum' => array('yes', 'no')
+    	));
+    	$columns['cache'] = new \Gino\IntegerField(array(
+    		'name' => 'cache',
+    		'required' => true,
+    		'default' => 0
+    	));
+    	return $columns;
     }
 
     /**
@@ -349,3 +403,5 @@ class Skin extends Model {
         return $buffer;
     }
 }
+
+Skin::$columns=Skin::columns();

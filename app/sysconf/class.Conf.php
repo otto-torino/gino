@@ -22,7 +22,8 @@ namespace Gino\App\Sysconf;
 class Conf extends \Gino\Model {
 
     public static $table = "sys_conf";
-
+    public static $columns;
+    
     /**
      * @brief Costruttore
      * @return istanza di Gino.App.Sysconf.Conf
@@ -30,30 +31,8 @@ class Conf extends \Gino\Model {
     function __construct() {
 
         $this->_tbl_data = TBL_SYS_CONF;
-        $this->_fields_label = array(
-            'multi_language' => array(_('gestione multilingua'), _("Gestione di un sito multi-lingua. Le lingue attive e quella principale sono da settarsi nel modulo Lingue del sistema.")),
-            'dft_language' => array(_('lingua di default'), _("Lingua dei contenuti del sito nel caso in cui la gestione multilingua sia disattivata.")),
-            'log_access' => array(_('log accessi'), _("Log di tutti gli accessi all'area riservata del sito da parte degli utenti.")),
-            'head_description' => array(_('contenuto meta tag description'), _("Descrizione di base che compare nei meta tag e letta dai motori di ricerca. Molti moduli sovrascrivono questo testo.")),
-            'head_keywords' => array(_('contenuto meta tag keywords'), _("Parole chiave che rappresentano i contenuti del sito, lette dai motori di ricerca. Molti moduli sovrascrivono questo testo.")),
-            'head_title' => array(_('contenuto meta tag title'), _("Titolo del sito visualizzato nella finestra/scheda dei Browser. Molti moduli sovrascrivono questo testo.")),
-            'google_analytics' => array(_('codice google analytics'), _("Codice da inserire per utilizzare il sistema di statistiche google analytics")),
-            'captcha_public' => array(_('chiave pubblica reCAPTCHA'), _("Chiave pubblica per l'utilizzo del sistema captcha reCAPTCHA. Se non inserita il sistema utilizzerà il sistema di prevenzione di default.")),
-            'captcha_private' => array(_('chiave privata reCAPTCHA'), _("Chiave privata per l'utilizzo del sistema captcha reCAPTCHA. Se non inserita il sistema utilizzerà il sistema di prevenzione di default.")),
-            'sharethis_public_key' => array(_('chiave pubblica ShareThis'), _("Chiave pubblica per l'utilizzo del servizio di sharing ShareThis. Se non inserita il sistema utilizzerà il sistema di sharing di default.")),
-            'disqus_shortname' => array(_('Disqus shortname'), _("Shortname per l'integrazione del sistema di commenti Disqus.")),
-            'email_admin' => _('email amministratore sito'),
-            'email_from_app' => array(_('email invio automatico comunicazioni'), _("Indirizzo e-mail utilizzato per inviare comunicazioni automatiche da parte del sistema")),
-            'mobile' => array(_('gestione mobile'), _("Attiva il riconoscimento di dispositivi mobili. E' necessario configurare correttamente i template e le skin per una corretta visualizzazione.")),
-            'password_crypt' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
-            'enable_cache' => array(_('abilitazione cache'), _("Abilita le funzionalità di caching su file dei contenuti e dati dei singoli moduli e delle skin")),
-            'robots' => array(_('contenuto file robots'), _("Il file robots.txt viene utilizzato per fornire indicazioni riguardo all'indicizzazione dei contenuti del sito nei motori di ricerca")), 
-        	'query_cache' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file configuration.php")), 
-        	'query_cache_time' => array(_('tempo di durata della cache query'), _("Tempo in secondi"))
-        );
-
+        
         parent::__construct(1);
-
     }
 
   /**
@@ -64,88 +43,135 @@ class Conf extends \Gino\Model {
 
     return _('Configurazione gino');
   }
-
-  /**
-   * @brief Sovrascrive la struttura di default
-   *
-   * @see Gino.Model::structure()
-   * @param integer $id
-   * @return array, struttura
-   */
-  public function structure($id) {
-
-    $structure = parent::structure($id);
-
-    $structure['multi_language'] = new \Gino\BooleanField(array(
-      'name'=>'multi_language',
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array(1 => _('si'), 0 => _('no')),
-      'default'=>0,
-    ));
-
-    $structure['dft_language'] = new \Gino\ForeignKeyField(array(
-      'name'=>'dft_language',
-      'model'=>$this,
-      'required'=>true,
-      'lenght'=>3,
-      'foreign'=>'\Gino\App\Language\Lang', 
-      'foreign_order'=>'language', 
-    ));
-
-    $structure['log_access'] = new \Gino\BooleanField(array(
-      'name'=>'log_access',
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array(1 => _('si'), 0 => _('no')),
-      'default'=>0,
-    ));
-
-    $structure['email_admin'] = new \Gino\EmailField(array(
-      'name'=>'email_admin',
-      'model'=>$this,
-      'required'=>true,
-    ));
-
-    $structure['email_from_app'] = new \Gino\EmailField(array(
-      'name'=>'email_from_app',
-      'model'=>$this,
-      'required'=>true,
-    ));
-
-    $structure['mobile'] = new \Gino\BooleanField(array(
-      'name'=>'mobile',
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array(1 => _('si'), 0 => _('no')),
-      'default'=>0,
-    ));
-
-    $structure['password_crypt'] = new \Gino\EnumField(array(
-      'name'=>'password_crypt',
-      'model'=>$this,
-      'required'=>true,
-      'enum'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')),
-      'default'=>'md5',
-    ));
-
-    $structure['enable_cache'] = new \Gino\BooleanField(array(
-		'name'=>'enable_cache',
-		'model'=>$this,
-		'required'=>true,
-		'enum'=>array(1 => _('si'), 0 => _('no')),
-		'default'=>0,
-    ));
-    
-    $structure['query_cache'] = new \Gino\BooleanField(array(
-		'name'=>'query_cache',
-		'model'=>$this,
-		'required'=>true,
-		'enum'=>array(1 => _('si'), 0 => _('no')),
-		'default'=>0,
-    ));
-
-    return $structure;
-  }
-
+  
+	/**
+	 * Struttura dei campi della tabella di un modello
+	 *
+	 * @return array
+	 */
+	public static function columns() {
+		
+		$columns['id'] = new \Gino\IntegerField(array(
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
+		));
+		$columns['multi_language'] = new \Gino\BooleanField(array(
+			'name'=>'multi_language',
+			'label'=>array(_('gestione multilingua'), _("Gestione di un sito multi-lingua. Le lingue attive e quella principale sono da settarsi nel modulo Lingue del sistema.")),
+			'required'=>true,
+			'enum'=>array(1 => _('si'), 0 => _('no')),
+			'default'=>0,
+		));
+		$columns['dft_language'] = new \Gino\ForeignKeyField(array(
+			'name'=>'dft_language',
+			'label'=>array(_('lingua di default'), _("Lingua dei contenuti del sito nel caso in cui la gestione multilingua sia disattivata.")),
+			'required'=>true,
+			'lenght'=>3,
+			'foreign'=>'\Gino\App\Language\Lang',
+			'foreign_order'=>'language',
+		));
+		$columns['log_access'] = new \Gino\BooleanField(array(
+			'name'=>'log_access',
+			'label'=>array(_('log accessi'), _("Log di tutti gli accessi all'area riservata del sito da parte degli utenti.")),
+			'required'=>true,
+			'enum'=>array(1 => _('si'), 0 => _('no')),
+			'default'=>0,
+		));
+		$columns['head_description'] = new \Gino\TextField(array(
+			'name'=>'head_description',
+			'label' => array(_('contenuto meta tag description'), _("Descrizione di base che compare nei meta tag e letta dai motori di ricerca. Molti moduli sovrascrivono questo testo.")),
+			'required'=>true
+		));
+		$columns['head_keywords'] = new \Gino\CharField(array(
+			'name'=>'head_keywords',
+			'label' => array(_('contenuto meta tag keywords'), _("Parole chiave che rappresentano i contenuti del sito, lette dai motori di ricerca. Molti moduli sovrascrivono questo testo.")),
+            'required'=>false,
+    		'max_lenght'=>255,
+		));
+		$columns['head_title'] = new \Gino\CharField(array(
+			'name'=>'head_title',
+			'label' => array(_('contenuto meta tag title'), _("Titolo del sito visualizzato nella finestra/scheda dei Browser. Molti moduli sovrascrivono questo testo.")),
+            'required'=>true,
+    		'max_lenght'=>255,
+		));
+		$columns['google_analytics'] = new \Gino\CharField(array(
+			'name'=>'google_analytics',
+			'label' => array(_('codice google analytics'), _("Codice da inserire per utilizzare il sistema di statistiche google analytics")),
+            'required'=>false,
+    		'max_lenght'=>20,
+		));
+		$columns['captcha_public'] = new \Gino\CharField(array(
+			'name'=>'captcha_public',
+			'label' => array(_('chiave pubblica reCAPTCHA'), _("Chiave pubblica per l'utilizzo del sistema captcha reCAPTCHA. Se non inserita il sistema utilizzerà il sistema di prevenzione di default.")),
+			'required'=>false,
+    		'max_lenght'=>64,
+		));
+		$columns['captcha_private'] = new \Gino\CharField(array(
+			'name'=>'captcha_private',
+			'label' => array(_('chiave privata reCAPTCHA'), _("Chiave privata per l'utilizzo del sistema captcha reCAPTCHA. Se non inserita il sistema utilizzerà il sistema di prevenzione di default.")),
+			'required'=>false
+		));
+		$columns['sharethis_public_key'] = new \Gino\CharField(array(
+			'name'=>'sharethis_public_key',
+			'label' => array(_('chiave pubblica ShareThis'), _("Chiave pubblica per l'utilizzo del servizio di sharing ShareThis. Se non inserita il sistema utilizzerà il sistema di sharing di default.")),
+			'required'=>false,
+    		'max_lenght'=>64,
+		));
+		$columns['disqus_shortname'] = new \Gino\CharField(array(
+			'name'=>'disqus_shortname',
+			'label' => array(_('Disqus shortname'), _("Shortname per l'integrazione del sistema di commenti Disqus.")),
+			'required'=>false,
+    		'max_lenght'=>64,
+		));
+		$columns['email_admin'] = new \Gino\EmailField(array(
+			'name'=>'email_admin',
+			'label' => _('email amministratore sito'),
+            'required'=>true,
+    		'max_lenght'=>128,
+		));
+		$columns['email_from_app'] = new \Gino\EmailField(array(
+			'name'=>'email_from_app',
+			'label' => array(_('email invio automatico comunicazioni'), _("Indirizzo e-mail utilizzato per inviare comunicazioni automatiche da parte del sistema")),
+            'required'=>true,
+    		'max_lenght'=>100,
+		));
+		$columns['mobile'] = new \Gino\BooleanField(array(
+			'name'=>'mobile',
+			'label' => array(_('gestione mobile'), _("Attiva il riconoscimento di dispositivi mobili. E' necessario configurare correttamente i template e le skin per una corretta visualizzazione.")),
+            'required'=>true,
+			'enum'=>array(1 => _('si'), 0 => _('no')),
+			'default'=>0,
+		));
+		$columns['password_crypt'] = new \Gino\EnumField(array(
+			'name'=>'password_crypt',
+			'label' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
+            'required'=>true,
+			'enum'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')),
+			'default'=>'md5',
+		));
+		$columns['enable_cache'] = new \Gino\BooleanField(array(
+			'name'=>'enable_cache',
+			'label' => array(_('abilitazione cache'), _("Abilita le funzionalità di caching su file dei contenuti e dati dei singoli moduli e delle skin")),
+            'required'=>true,
+			'enum'=>array(1 => _('si'), 0 => _('no')),
+			'default'=>0,
+		));
+		$columns['query_cache'] = new \Gino\BooleanField(array(
+			'name'=>'query_cache',
+			'label' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file configuration.php")), 
+        	'required'=>true,
+			'enum'=>array(1 => _('si'), 0 => _('no')),
+			'default'=>0,
+		));
+		$columns['query_cache_time'] = new \Gino\IntegerField(array(
+			'name'=>'query_cache_time',
+			'label' => array(_('tempo di durata della cache query'), _("Tempo in secondi")),
+			'required'=>false
+		));
+		return $columns;
+	}
 }
+
+Conf::$columns=Conf::columns();
+

@@ -39,32 +39,17 @@ class EmailField extends Field {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Field::retrieveValue()
+     * @return null or string
      */
-    public function clean($options=array()) {
-
-        $request = Request::instance();
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-        return \filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
-    }
-
-    /**
-     * @brief Valida il valore del campo
-     * @see Gino.Field::validate()
-     * @param string $value
-     * @return True o errore
-     */
-    public function validate($value) {
-
-        if($value) {
-            $result = checkEmail($value, true);
-            if(!$result) {
-                $result['error'] = _('formato dell\'email non valido');
-            }
-            return $result;
-        }
-
-        return TRUE;
+    public function getValue($value) {
+    	
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_string($value)) {
+    		return $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
 }

@@ -20,6 +20,7 @@ namespace Gino\App\Attachment;
 class AttachmentCtg extends \Gino\Model {
 
     public static $table = 'attachment_ctg';
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -31,12 +32,7 @@ class AttachmentCtg extends \Gino\Model {
 
         $this->_model_label = _('Categoria');
         $this->_tbl_data = self::$table;
-
-        $this->_fields_label = array(
-            'name'=>_("Nome"),
-            'directory'=>array(_("Nome directory"), _("Se non indicato viene preso il valore del campo 'Nome'.<br /><b>Attenzione!</b> Modificando il nome della directory, si perdono i collegamenti esistenti in campi di testo ai file in essa contenuti."))
-        );
-
+        
         parent::__construct($id);
     }
 
@@ -50,28 +46,37 @@ class AttachmentCtg extends \Gino\Model {
     }
 
     /**
-     * @brief Sovrascrive la struttura di default
-     *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
-     */
-    public function structure($id) {
+	 * Struttura dei campi della tabella di un modello
+	 *
+	 * @return array
+	 */
+    public static function columns() {
+    	
+    	$columns['id'] = new \Gino\IntegerField(array(
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
+    	));
+    	$columns['name'] = new \Gino\CharField(array(
+    		'name' => 'name',
+    		'label'=>_("Nome"),
+    		'required' => true,
+    		'max_lenght'=>100,
+    	));
 
         $controller = new attachment();
 
-        $structure = parent::structure($id);
-
-        $structure['directory'] = new \Gino\DirectoryField(array(
+        $columns['directory'] = new \Gino\DirectoryField(array(
             'name' => 'directory',
-            'model' => $this,
+        	'label'=>array(_("Nome directory"), _("Se non indicato viene preso il valore del campo 'Nome'.<br /><b>Attenzione!</b> Modificando il nome della directory, si perdono i collegamenti esistenti in campi di testo ai file in essa contenuti.")),
+            'required' => true,
             'path' => $controller->getDataDir(),
             'default_name' => array(
                 'field' => 'name'
-            )
+            ),
+    		'max_lenght'=>20,
         ));
-
-        return $structure;
+        return $columns;
     }
 
     /**
@@ -147,6 +152,6 @@ class AttachmentCtg extends \Gino\Model {
         AttachmentItem::deleteFromCtg($this->id);
         return TRUE;
     }
-
-
 }
+
+AttachmentCtg::$columns=AttachmentCtg::columns();

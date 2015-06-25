@@ -1052,7 +1052,7 @@ CREATE TABLE sys_conf (
   email_from_app nvarchar(100) NULL,
   mobile tinyint NOT NULL DEFAULT '0',
   password_crypt nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
+  	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'md5',
   enable_cache tinyint NOT NULL, 
   query_cache tinyint NOT NULL 
   	CONSTRAINT DF_sys_conf_query_cache DEFAULT '0', 
@@ -1249,8 +1249,8 @@ SET IDENTITY_INSERT sys_layout_tpl_block OFF
 
 CREATE TABLE sys_log_access (
   id int IDENTITY(1, 1),
-  user_id int NULL,
-  date datetime NULL,
+  user_id int NOT NULL,
+  date datetime NOT NULL,
   CONSTRAINT PK_sys_log_access PRIMARY KEY (id)
 )
 

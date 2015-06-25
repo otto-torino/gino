@@ -20,6 +20,7 @@ namespace Gino\App\Statistics;
 class LogAccess extends \Gino\Model {
 
     public static $table = TBL_LOG_ACCESS;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -28,6 +29,37 @@ class LogAccess extends \Gino\Model {
     function __construct($id) {
         $this->_tbl_data = TBL_LOG_ACCESS;
         parent::__construct($id);
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['user_id'] = new \Gino\ForeignKeyField(array(
+    			'name'=>'user_id',
+    			'label'=>_("Utente"),
+    			'required'=>true,
+    			'foreign'=>'\Gino\App\Auth\User',
+    			'foreign_order'=>'lastname ASC, firstname ASC',
+    			'add_related' => false,
+    	));
+    	$columns['date'] = new \Gino\DatetimeField(array(
+    			'name'=>'date',
+    			'label'=>_('Data'),
+    			'required'=>true,
+    			'auto_now'=>false,
+    			'auto_now_add'=>true,
+    	));
+    	
+    	return $columns;
     }
 
     /**
@@ -62,3 +94,5 @@ class LogAccess extends \Gino\Model {
     }
 
 }
+
+LogAccess::$columns=LogAccess::columns();

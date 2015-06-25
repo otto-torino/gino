@@ -860,7 +860,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
   `mobile` tinyint(1) NOT NULL DEFAULT '0',
-  `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
+  `password_crypt` enum('none','sha1','md5') DEFAULT 'md5',
   `enable_cache` tinyint(1) NOT NULL, 
   `query_cache` tinyint(1) NOT NULL DEFAULT '0', 
   `query_cache_time` smallint(4) DEFAULT NULL;
@@ -1066,8 +1066,8 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 
 CREATE TABLE IF NOT EXISTS `sys_log_access` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `date` datetime DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 

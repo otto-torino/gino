@@ -3,7 +3,7 @@
  * @file class.CharField.php
  * @brief Contiene la definizione ed implementazione della classe Gino.CharField
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,20 +13,15 @@ namespace Gino;
 loader::import('class/fields', '\Gino\Field');
 
 /**
- * @brief Campo di tipo CHAR (CHAR, VARCHAR)
+ * @brief Campi di tipo stringa (CHAR, VARCHAR)
  *
  * Tipologie di input associabili: testo, campo nascosto, textarea
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class CharField extends Field {
-
-    /**
-     * Proprietà dei campi specifiche del tipo di campo
-     */
-    protected $_trnsl;
 
     /**
      * @brief Costruttore
@@ -43,59 +38,34 @@ class CharField extends Field {
 
         $this->_default_widget = 'text';
         $this->_value_type = 'string';
-
-        $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
     }
-
+    
     /**
-     * @brief Getter della proprietà trnsl (indica se il campo necessita di traduzione o no)
-     * @return proprietà trnsl
+     * @see Gino.Field::getValue()
+     * @return null or string
      */
-    public function getTrnsl() {
-
-        return $this->_trnsl;
+	public function getValue($value) {
+    	
+		if(is_null($value)) {
+			return null;
+		}
+		elseif(is_string($value)) {
+    		return $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
-
+    
     /**
-     * @brief Setter della proprietà trnsl
-     * @param bool $value
-     * @return void
+     * @see Gino.Field::setValue()
+     * @return null or string
      */
-    public function setTrnsl($value) {
-
-        if(is_bool($value)) $this->_trnsl = $value;
-    }
-
-    /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
-     */
-    public function filterWhereClause($value) {
-
-        $value = str_replace("'", "''", $value);
-
-        if(preg_match("#^\"([^\"]*)\"$#", $value, $matches))
-            $condition = "='".$matches[1]."'";
-        elseif(preg_match("#^\"([^\"]*)$#", $value, $matches))
-            $condition = " LIKE '".$matches[1]."%'";
-        else
-            $condition = " LIKE '%".$value."%'";
-
-        return $this->_table.".".$this->_name.$condition;
-    }
-
-    /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
-        if(!isset($options['field'])) $options['field'] = $this->_name;
-
-        return parent::formElement($form, $options);
+    public function setValue($value) {
+    
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	else {
+    		return (string) $value;
+    	}
     }
 }

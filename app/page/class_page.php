@@ -575,7 +575,7 @@ class page extends \Gino\Controller {
         $slug = \Gino\cleanVar($request->GET, 'id', 'string');
 
         $item = PageEntry::getFromSlug($slug, $this);
-
+        
         if(!$item || !$item->id || !$item->published) {
             throw new \Gino\Exception\Exception404();
         }
@@ -621,8 +621,9 @@ class page extends \Gino\Controller {
             }
         }
         if(!$request->user->id) {
-            $item->read = $item->read + 1;
-            $item->save();
+            
+			$item->read = $item->read + 1;
+        	$item->save(array('no_update'=>array('author')));
         }
 
         $view = new \Gino\View($this->_view_dir);

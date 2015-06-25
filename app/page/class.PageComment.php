@@ -3,7 +3,7 @@
  * @file class.PageComment.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageComment
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,13 +13,14 @@ namespace Gino\App\Page;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un commento ad una pagina
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 class PageComment extends \Gino\Model {
 
     public static $table = 'page_comment';
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -31,17 +32,6 @@ class PageComment extends \Gino\Model {
 
         $this->_controller = new page();
         $this->_tbl_data = self::$table;
-
-        $this->_fields_label = array(
-            'entry'=>_('Post'),
-            'datetime'=>_('Data'),
-            'author'=>_("Autore"),
-            'email'=>_('Email'),
-            'web'=>_("Sito web"),
-            'notification'=>_('Notifica altri commenti'),
-            'reply'=>_('Risposta'),
-            'published'=>_('Pubblicato'),
-        );
 
         parent::__construct($id);
 
@@ -58,58 +48,86 @@ class PageComment extends \Gino\Model {
     }
 
     /**
-     * @brief Sovrascrive la struttura di default
-     * 
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
      */
-    public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['published'] = new \Gino\BooleanField(array(
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['entry'] = new \Gino\ForeignKeyField(array(
+    		'name'=>'entry',
+    		'label'=>_('Pagina'),
+            'required'=>true,
+    		'foreign'=>'\Gino\App\Page\PageEntry',
+    		'foreign_order'=>'last_edit_date',
+    	));
+    	$columns['datetime'] = new \Gino\DatetimeField(array(
+    			'name'=>'datetime',
+    			'label'=>_('Data'),
+    			'required'=>true,
+    			'auto_now'=>false,
+    			'auto_now_add'=>true,
+    	));
+    	/*
+    	$columns['author'] = new \Gino\ForeignKeyField(array(
+    			'name'=>'author',
+    			'label'=>_("Autore"),
+    			'required'=>true,
+    			'foreign'=>'\Gino\App\Auth\User',
+    			'foreign_order'=>'lastname ASC, firstname ASC',
+    			'add_related' => false,
+    	));
+    	*/
+    	$columns['author'] = new \Gino\CharField(array(
+    			'name'=>'author',
+    			'label'=>_("Autore"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['email'] = new \Gino\EmailField(array(
+    			'name'=>'email',
+    			'label'=>_("Email"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['web'] = new \Gino\CharField(array(
+    			'name'=>'web',
+    			'label'=>_("Sito web"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['text'] = new \Gino\TextField(array(
+    		'name'=>'text',
+    		'label' => _("Descrizione"),
+    		'required'=>true
+    	));
+    	$columns['notification'] = new \Gino\BooleanField(array(
+    		'name'=>'notification',
+    		'label'=>_('Notifica altri commenti'),
+    		'required'=>true,
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	));
+    	$columns['reply'] = new \Gino\ForeignKeyField(array(
+    		'name'=>'reply',
+    		'label'=>_('Risposta'),
+    		'required'=>false,
+    		'foreign'=>'\Gino\App\Page\PageComment',
+    		'foreign_where'=>'entry=\'_ENTRY_\'',
+    		'foreign_order'=>'datetime',
+    	));
+		$columns['published'] = new \Gino\BooleanField(array(
             'name'=>'published', 
-            'model'=>$this,
+            'label'=>_('Pubblicato'),
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
+            'enum'=>array(1 => _('si'), 0 => _('no')),
         ));
 
-        $structure['notification'] = new \Gino\BooleanField(array(
-            'name'=>'notification', 
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0, 
-        ));
-
-        $structure['datetime'] = new \Gino\DatetimeField(array(
-            'name'=>'datetime', 
-            'model'=>$this,
-            'required'=>true,
-            'auto_now'=>false, 
-            'auto_now_add'=>true, 
-        ));
-
-        $structure['entry'] = new \Gino\ForeignKeyField(array(
-            'name'=>'entry', 
-            'model'=>$this,
-            'lenght'=>255, 
-            'foreign'=>'\Gino\App\Page\PageEntry', 
-            'foreign_order'=>'last_edit_date',
-        ));
-
-        $structure['reply'] = new \Gino\ForeignKeyField(array(
-            'name'=>'reply', 
-            'model'=>$this,
-            'lenght'=>255, 
-            'foreign'=>'\Gino\App\Page\PageComment', 
-            'foreign_where'=>'entry=\''.$this->entry.'\'', 
-            'foreign_order'=>'datetime',
-        ));
-
-        return $structure;
+        return $columns;
     }
 
     /**
@@ -250,3 +268,5 @@ class PageComment extends \Gino\Model {
         return TRUE;
     }
 }
+
+PageComment::$columns=PageComment::columns();

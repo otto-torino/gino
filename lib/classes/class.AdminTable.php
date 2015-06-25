@@ -132,7 +132,7 @@ class AdminTable {
      */
     function __construct($controller, $opts = array()) {
 
-        loader::import('class', array('\Gino\Form', '\Gino\InputForm'));
+        Loader::import('class', array('\Gino\Form'));	// array('\Gino\Form', '\Gino\InputForm')
 
         $this->_registry = registry::instance();
         $this->_request = $this->_registry->request;
@@ -148,6 +148,32 @@ class AdminTable {
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
+    }
+    
+    /**
+     * @brief Definisce la condizione WHERE per il campo
+     *
+     * @param mixed $value
+     * @param string $table
+     * @param string $name
+     * @return where clause
+     */
+    private function filterWhereClause($value, $table, $name) {
+    
+    	return $table.".".$name." = '".$value."'";
+    }
+    
+    /**
+     * @brief Definisce l'ordinamento della query
+     *
+     * @param string $order_dir
+     * @param string $table
+     * @param string $name
+     * @return order clause
+     */
+    private function adminListOrder($order_dir, $table, $name) {
+    
+    	return $table.".".$name." ".$order_dir;
     }
 
     /**
@@ -334,11 +360,13 @@ class AdminTable {
                 if($inputs_prefix) {
                     $object->setName($inputs_prefix.$object->getName());
                 }
-                $structure[$field] = $object->formElement($gform, $options_input);
+                
+                $build = $model->getFieldBuildFromColumn($object);
+                $structure[$field] = $build->formElement($gform, $options_input);
 
                 $name_class = get_class($object);
 
-                if($object instanceof fileField || $object instanceof imageField)
+                if($object instanceof FileField || $object instanceof ImageField)
                     $form_upload = true;
 
                 if($object->getRequired() == true && $object->getWidget() != 'hidden')
@@ -528,6 +556,8 @@ class AdminTable {
                 else
                 {
                     $value = $object->clean($opt_element);
+                    
+                    /*
                     $result = $object->validate($value);
 
                     if($result === TRUE) {
@@ -535,6 +565,15 @@ class AdminTable {
                     }
                     else {
                         return array('error'=>$result['error']);
+                    }
+                    */
+                    
+                    $value = $object->validate($value);
+                    if(is_array($value)) {
+                    	return array('error'=>$result['error']);	////// per compatibilità. RIMUOVERE?????
+                    }
+                    else {
+                    	$model->{$field} = $value;
                     }
 
                     if($import)
@@ -905,7 +944,7 @@ class AdminTable {
         $db = Db::instance();
         $model_structure = $model->getStructure();
         $model_table = $model->getTable();
-
+        
         // some options
         $this->_filter_fields = gOpt('filter_fields', $options_view, array());
         $this->_filter_join = gOpt('filter_join', $options_view, array());
@@ -976,14 +1015,14 @@ class AdminTable {
         if(count($list_where)) {
             $query_where = array_merge($query_where, $list_where);
         }
-            $query_where_no_filters = implode(' AND ', $query_where);
+        $query_where_no_filters = implode(' AND ', $query_where);
         // filters
         if($tot_ff) {
             $this->addWhereClauses($query_where, $model);
         }
         // order
-        $query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
-
+        $query_order = $this->adminListOrder($order_dir, $model_table, $field_order);
+        
         $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
         $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
@@ -994,7 +1033,7 @@ class AdminTable {
 
         $limit = $export ? null: $paginator->limitQuery();
 
-        $records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
+        $records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit, 'debug'=>false));
         if(!$records) $records = array();
 
         $heads = array();
@@ -1005,15 +1044,23 @@ class AdminTable {
             if($this->permission($options_view, $field_name))
             {
                 if(is_array($field_obj)) {
-                 $label = $field_obj['label'];
+                	$label = $field_obj['label'];
                 }
                 else {
                     $model_label = $model_structure[$field_name]->getLabel();
                     $label = is_array($model_label) ? $model_label[0] : $model_label;
                 }
                 $export_header[] = $label;
+                
+                if(is_object($field_obj)) {
+                	$build_obj = $model->getFieldBuildFromColumn($field_obj);
+                	$can_be_ordered = $build_obj->canBeOrdered();
+                }
+                else {
+                	$can_be_ordered = false;
+                }
 
-                if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
+                if(!is_array($field_obj) and $can_be_ordered) {
 
                     $ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
                     if($order == $field_name." ASC") {
@@ -1052,8 +1099,7 @@ class AdminTable {
         foreach($records as $r) {
 
             $record_model = new $model($r['id'], $this->_controller);
-            $record_model_structure = $record_model->getStructure();
-
+            
             $row = array();
             $export_row = array();
             foreach($fields_loop as $field_name=>$field_obj) {
@@ -1064,7 +1110,7 @@ class AdminTable {
                         $record_value = $record_model->$field_obj['member']();
                     }
                     else {
-                        $record_value = (string) $record_model_structure[$field_name];
+                        $record_value = $record_model->shows($field_obj);
                     }
 
                     $export_row[] = $record_value;
@@ -1172,7 +1218,7 @@ class AdminTable {
         $this->_view->assign('table', $table);
         $this->_view->assign('tot_records', $tot_records);
         $this->_view->assign('form_filters_title', _("Filtri"));
-        $this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);
+        $this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);	////// RIATTIVARE
         $this->_view->assign('pagination', $paginator->pagination());
 
         return $this->_view->render();
@@ -1264,6 +1310,8 @@ class AdminTable {
 
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
+        
+        $model_table = $model->getTable();
 
         foreach($this->_filter_fields as $fname) {
             if(isset($this->_session->{$class_name.'_'.$fname.'_filter'})) {
@@ -1274,10 +1322,15 @@ class AdminTable {
                     $where_join = $this->addWhereJoin($model_structure, $class_name, $fname);
                     if(!is_null($where_join))
                         $query_where[] = $where_join;
-                    else
-                        $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                    else {
+                        //$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                        $query_where[] = $this->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $model_table, $fname);
+                    }
                 }
-                else $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                else {
+                	//$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                	$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $model_table, $fname);
+                }
             }
         }
 
@@ -1409,7 +1462,11 @@ class AdminTable {
                 if(is_array($field_label)) {
                     $field->setLabel($field_label[0]);
                 }
-                $form .= $field->formFilter($gform, array('default'=>null));
+                
+                $build_obj = $model->getFieldBuildFromColumn($field);
+                $form .= $build_obj->formFilter($gform, array('default'=>null));
+                
+                //$form .= $field->formFilter($gform, array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

@@ -22,6 +22,7 @@ use \Gino\Registry;
 class Lang extends \Gino\Model {
 
     public static $table = "language";
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -32,17 +33,9 @@ class Lang extends \Gino\Model {
 
         $this->_model_label = _('Lingua');
 
-        $this->_fields_label = array(
-            'label' => _('etichetta'),
-            'language' => _('lingua'),
-            'language_code' => _('codice lingua'),
-            'country_code' => _('codice stato'),
-            'active' => _('attiva'),
-        );
-
         $this->_tbl_data = self::$table;
+        
         parent::__construct($id);
-
     }
 
     /**
@@ -60,43 +53,70 @@ class Lang extends \Gino\Model {
     public function code() {
         return $this->language_code.'_'.$this->country_code;
     }
+    
+    /**
+     * @see Gino.Model::setProperties()
+     */
+    protected static function setProperties($model) {
+    
+    	$property['language_code'] = array(
+    		'enum'=>self::languageCodes(),
+    	);
+    	$property['country_code'] = array(
+    		'enum'=>self::countryCodes(),
+    	);
+    	$property['active'] = array(
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	 
+    	return $property;
+    }
 
     /**
-     * Sovrascrive la struttura di default
-     *
-     * @see Gino.Model::structure()
-     * @param integer $id
+     * Struttura dei campi della tabella di un modello
+     * 
      * @return array
      */
-    public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['active'] = new \Gino\BooleanField(array(
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    		'name'=>'label',
+    		'label' => _('etichetta'),
+    		'required'=>true,
+    		'max_lenght'=>10,
+    	));
+    	$columns['language'] = new \Gino\CharField(array(
+    		'name'=>'language',
+    		'label' =>  _('lingua'),
+    		'required'=>true,
+    		'max_lenght'=>50,
+    	));
+    	$columns['language_code'] = new \Gino\EnumField(array(
+    		'name'=>'language_code',
+    		'label' => _('codice lingua'),
+    		'widget'=>'select',
+    		'required'=>true,
+    		'max_lenght'=>5,
+    	));
+    	$columns['country_code'] = new \Gino\EnumField(array(
+    		'name'=>'country_code',
+    		'label' => _('codice stato'),
+    		'widget'=>'select',
+    		'required'=>true,
+    		'max_lenght'=>5,
+    	));
+    	$columns['active'] = new \Gino\BooleanField(array(
             'name'=>'active',
-            'model'=>$this,
+    		'label' => _('attiva'),
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
             'default'=>0,
         ));
-
-        $structure['language_code'] = new \Gino\EnumField(array(
-            'name'=>'language_code', 
-            'model'=>$this,
-            'widget'=>'select',
-            'required'=>true,
-            'enum'=>$this->languageCodes(),
-        ));
-
-        $structure['country_code'] = new \Gino\EnumField(array(
-            'name'=>'country_code',
-            'model'=>$this,
-            'widget'=>'select',
-            'required'=>true,
-            'enum'=>$this->countryCodes(),
-        ));
-
-        return $structure;
+    	return $columns;
     }
 
     /**
@@ -109,8 +129,8 @@ class Lang extends \Gino\Model {
 
         $registry = Registry::instance();
         $db = $registry->db;
-
-        $rows = $db->select('language_code, country_code', self::$table, "id='".$registry->sysconf->dft_language."'");
+        
+        $rows = $db->select('language_code, country_code', self::$table, "id='".$registry->sysconf->dft_language."'");	// prima della nuova branch: $registry->sysconf->dft_language->id
         if($rows && count($rows))
         {
             return $rows[0]['language_code'] . '_' . $rows[0]['country_code'];
@@ -123,7 +143,7 @@ class Lang extends \Gino\Model {
      *
      * @return array di codici lingua codice => lingua
      */
-    private function languageCodes(){
+    private static function languageCodes(){
 
         return array(
         'aa'=>'Afar',
@@ -301,7 +321,7 @@ class Lang extends \Gino\Model {
      *
      * @return array di codici stato codice => stato
      */
-    private function countryCodes(){
+    private static function countryCodes(){
 
         return array(
         'AD'=>'Andorra',
@@ -545,5 +565,6 @@ class Lang extends \Gino\Model {
         'ZW'=>'Zimbabwe'
         );
     }
-
 }
+
+Lang::$columns=Lang::columns();

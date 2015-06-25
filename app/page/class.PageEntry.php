@@ -3,7 +3,7 @@
  * @file class.PageEntry.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -14,14 +14,16 @@ use Gino\GTag;
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 class PageEntry extends \Gino\Model {
 
-    protected static $_extension_img = array('jpg', 'jpeg', 'png');
     public static $table = 'page_entry';
+    public static $columns;
+    
+    protected static $_extension_img = array('jpg', 'jpeg', 'png');
 
     /**
      * Costruttore
@@ -31,32 +33,12 @@ class PageEntry extends \Gino\Model {
      */
     function __construct($id) {
 
-        $this->_controller = new page();
         $this->_tbl_data = self::$table;
-
-        $this->_fields_label = array(
-            'category_id'=>_("Categoria"), 
-            'author'=>_('Autore'),
-            'creation_date'=>_('Inserimento'),
-            'last_edit_date'=>_('Ultima modifica'),
-            'title'=>_("Titolo"),
-            'slug'=>array(_("Slug"), _('utilizzato per creare un permalink alla risorsa')),
-            'image'=>_('Immagine'),
-            'url_image'=>array(_("Collegamento sull'immagine"), _("indirizzo URL")),
-            'text'=>_('Testo'),
-            'tags'=>array(_('Tag'), _("elenco separato da virgola")),
-            'enable_comments'=>_('Abilita commenti'),
-            'published'=>_('Pubblicato'), 
-            'social'=>_('Condivisioni social'),
-            'private'=>array(_("Privata"), _("pagina visualizzabile da utenti con il relativo permesso")),
-            'users'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),  
-            'read'=>_('Visualizzazioni'), 
-            'tpl_code'=>array(_("Template pagina intera"), _("richiamato da URL (sovrascrive il template di default)")."<br />".page::explanationTemplate()), 
-            'box_tpl_code'=>array(_("Template box"), _("richiamato nel template del layout (sovrascrive il template di default)"))
-        );
-
+        
+        $this->_controller = new page();
+        
         parent::__construct($id);
-
+        
         $this->_model_label = _("Pagina");
     }
 
@@ -68,112 +50,180 @@ class PageEntry extends \Gino\Model {
 
         return (string) $this->title;
     }
+    
+    /**
+     * @see Gino.Model::properties()
+     */
+    protected static function properties($model) {
+    	
+    	$controller = new page();
+    	
+    	//$base_path = $this->_controller->getBasePath();
+        //$add_path = $this->_controller->getAddPath($this->id);
+    	
+    	$property['category_id'] = array(
+    		'foreign'=>'\Gino\App\Page\PageCategory',
+    		'foreign_order'=>'name ASC',
+    		'add_related' => true,
+    		'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1")
+    	);
+    	$property['author'] = array(
+    		'foreign'=>'\Gino\App\Auth\User',
+    		'foreign_order'=>'lastname ASC, firstname ASC',
+    		'add_related' => false,
+    	);
+    	$property['creation_date'] = array(
+    		'auto_now'=>false,
+    		'auto_now_add'=>true,
+    	);
+    	$property['last_edit_date'] = array(
+    		'auto_now'=>true,
+    		'auto_now_add'=>true,
+    	);
+    	$property['image'] = array(
+    		'extensions'=>self::$_extension_img,
+    		'resize'=>false,
+    		'path'=>array($controller, 'getBasePath'),
+    		//'path'=>$base_path,
+    		//'add_path'=>$add_path
+    	);
+    	$property['slug'] = array(
+    		'autofill'=>'title',
+    	);
+    	$property['tags'] = array(
+    		'model_controller_class' => 'page',
+    		'model_controller_instance' => 0
+    	);
+    	$property['enable_comments'] = array(
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	$property['published'] = array(
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	$property['social'] = array(
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	$property['private'] = array(
+    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	
+    	return $property;
+    }
 
     /**
-     * @brief Sovrascrive la struttura di default
+     * Struttura dei campi della tabella di un modello
      *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
+     * @return array
      */
-    public function structure($id) {
+    public static function columns() {
 
-        $structure = parent::structure($id);
-
-        $structure['category_id'] = new \Gino\ForeignKeyField(array(
+        $controller = new page();
+        
+        $columns['id'] = new \Gino\IntegerField(array(
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
+        	'table'=>self::$table
+		));
+        $columns['category_id'] = new \Gino\ForeignKeyField(array(
             'name'=>'category_id',
-            'model'=>$this,
+            'label'=>_("Categoria"),
             'required'=>false,
-            'foreign'=>'\Gino\App\Page\PageCategory',
-            'foreign_order'=>'name ASC',
-            'add_related' => true,
-            'add_related_url' => $this->_controller->linkAdmin(array(), "block=ctg&insert=1")
         ));
-
-        $structure['slug'] = new \Gino\SlugField(array(
+		$columns['author'] = new \Gino\ForeignKeyField(array(
+			'name'=>'author',
+			'label'=>_("Autore"),
+			'required'=>true,
+		));
+		$columns['creation_date'] = new \Gino\DatetimeField(array(
+			'name'=>'creation_date',
+			'label'=>_('Inserimento'),
+			'required'=>true,
+		));
+		$columns['last_edit_date'] = new \Gino\DatetimeField(array(
+			'name'=>'last_edit_date',
+			'label'=>_('Ultima modifica'),
+			'required'=>true,
+		));
+		$columns['title'] = new \Gino\CharField(array(
+			'name'=>'title',
+			'label'=>_("Titolo"),
+			'required'=>true,
+			'max_lenght'=>200,
+		));
+        $columns['slug'] = new \Gino\SlugField(array(
             'name'=>'slug',
-            'model'=>$this,
+        	'unique_key'=>true,
+            'label'=>array(_("Slug"), _('utilizzato per creare un permalink alla risorsa')),
             'required'=>true,
-            'autofill'=>'title',
+        	'max_lenght'=>200,
         ));
-
-        $structure['published'] = new \Gino\BooleanField(array(
+        $columns['image'] = new \Gino\ImageField(array(
+        	'name'=>'image',
+        	'label'=>_("Immagine"),
+        	'max_lenght'=>100,
+        ));
+        $columns['url_image'] = new \Gino\CharField(array(
+        	'name'=>'url_image',
+        	'label'=>array(_("Collegamento sull'immagine"), _("indirizzo URL")),
+        	'required'=>false,
+        	'max_lenght'=>200,
+        ));
+        $columns['text'] = new \Gino\TextField(array(
+        	'name'=>'text',
+        	'label' => _("Testo"),
+        	'required'=>true
+        ));
+        $columns['tags'] = new \Gino\TagField(array(
+        	'name' => 'tags',
+        	'label'=>array(_('Tag'), _("elenco separato da virgola")),
+        	'required'=>false,
+        	'max_lenght'=>255,
+        ));
+        $columns['enable_comments'] = new \Gino\BooleanField(array(
+        	'name'=>'enable_comments',
+        	'label'=>_('Abilita commenti'),
+        	'required'=>true,
+        ));
+		$columns['published'] = new \Gino\BooleanField(array(
             'name'=>'published',
-            'model'=>$this,
+            'label'=>_('Pubblicato'),
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
-            'default'=>0,
         ));
-
-        $structure['social'] = new \Gino\BooleanField(array(
+		$columns['social'] = new \Gino\BooleanField(array(
             'name'=>'social',
-            'model'=>$this,
+            'label'=>_('Condivisioni social'),
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
-            'default'=>0,
+        ));
+        $columns['private'] = new \Gino\BooleanField(array(
+        	'name'=>'private',
+        	'label'=>array(_("Privata"), _("pagina visualizzabile da utenti con il relativo permesso")),
+        	'required'=>true,
+        ));
+        $columns['users'] = new \Gino\CharField(array(
+        	'name'=>'users',
+        	'label'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),
+        	'required'=>false,
+        	'max_lenght'=>255,
+        ));
+        $columns['read'] = new \Gino\IntegerField(array(
+        	'name'=>'read',
+        	'label'=>_('Visualizzazioni'),
+        	'required'=>true,
+        	'default'=>0,
+        ));
+        $columns['tpl_code'] = new \Gino\TextField(array(
+        	'name'=>'tpl_code',
+        	'label' => array(_("Template pagina intera"), _("richiamato da URL (sovrascrive il template di default)")."<br />".page::explanationTemplate()),
+        	'required'=>false
+        ));
+        $columns['box_tpl_code'] = new \Gino\TextField(array(
+        	'name'=>'box_tpl_code',
+        	'label' => array(_("Template box"), _("richiamato nel template del layout (sovrascrive il template di default)")),
+        	'required'=>false
         ));
 
-        $structure['private'] = new \Gino\BooleanField(array(
-            'name'=>'private',
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
-            'default'=>0,
-        ));
-
-        $structure['users'] = new \Gino\ManyToManyInlineField(array(
-            'name'=>'users',
-            'model'=>$this,
-            'm2m'=>'\Gino\App\Auth\User',
-            'm2m_where'=>"active='1'", 
-            'm2m_order'=>"lastname ASC, firstname",
-        ));
-
-        $structure['enable_comments'] = new \Gino\BooleanField(array(
-            'name'=>'enable_comments',
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
-        ));
-
-        $structure['creation_date'] = new \Gino\DatetimeField(array(
-            'name'=>'creation_date',
-            'model'=>$this,
-            'required'=>true,
-            'auto_now'=>false,
-            'auto_now_add'=>true,
-        ));
-
-        $structure['last_edit_date'] = new \Gino\DatetimeField(array(
-            'name'=>'last_edit_date', 
-            'model'=>$this,
-            'required'=>true,
-            'auto_now'=>true,
-            'auto_now_add'=>true,
-        ));
-
-        $base_path = $this->_controller->getBasePath();
-        $add_path = $this->_controller->getAddPath($this->id);
-
-        $structure['image'] = new \Gino\ImageField(array(
-            'name'=>'image',
-            'model'=>$this,
-            'lenght'=>100,
-            'extensions'=>self::$_extension_img,
-            'resize'=>false,
-            'path'=>$base_path,
-            'add_path'=>$add_path
-        ));
-
-        $structure['tags'] = new \Gino\TagField(array(
-            'name' => 'tags',
-            'model' => $this,
-            'model_controller_class' => 'page',
-            'model_controller_instance' => 0
-        ));
-
-        return $structure;
+        return $columns;
     }
 
     /**
@@ -376,21 +426,21 @@ class PageEntry extends \Gino\Model {
 
         return $res;
     }
-
+    
     /**
      * @brief Salva il modello
      * @description Sovrascrive il metodo di Gino.Model per salvare l'autore della pagina
      * @see Gino.Model::save()
      * @return risultato operazione, bool
      */
-    public function save()
+    public function save($options=array())
     {
         $session = \Gino\session::instance();
+        
         $this->author = $session->user_id;
-
-        return parent::save();
+        
+        return parent::save($options);
     }
-
 
     /**
      * @brief Elimina l'oggetto
@@ -436,3 +486,5 @@ class PageEntry extends \Gino\Model {
     	return true;
     }
 }
+
+PageEntry::$columns=PageEntry::columns();
