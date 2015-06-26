@@ -361,7 +361,7 @@ class AdminTable {
                     $object->setName($inputs_prefix.$object->getName());
                 }
                 
-                $build = $model->getFieldBuildFromColumn($object);
+                $build = $model->build($object);
                 $structure[$field] = $build->formElement($gform, $options_input);
 
                 $name_class = get_class($object);
@@ -369,9 +369,11 @@ class AdminTable {
                 if($object instanceof FileField || $object instanceof ImageField)
                     $form_upload = true;
 
-                if($object->getRequired() == true && $object->getWidget() != 'hidden')
-                    $form_required[] = $field;
-            }
+				$model_properties = $model->getProperties($object);
+                
+				if($object->getRequired() == true && $build->getViewInput() == true & $object->getWidget() != 'hidden')
+					$form_required[] = $field;
+			}
         }
         if(sizeof($form_required) > 0)
             $form_required = implode(',', $form_required);
@@ -555,22 +557,12 @@ class AdminTable {
                 }
                 else
                 {
-                    $value = $object->clean($opt_element);
-                    
-                    /*
-                    $result = $object->validate($value);
-
-                    if($result === TRUE) {
-                        $model->{$field} = $value;
-                    }
-                    else {
-                        return array('error'=>$result['error']);
-                    }
-                    */
-                    
-                    $value = $object->validate($value);
+                	$build = $model->build($object);
+                	
+                	$value = $build->clean($opt_element);
+                	//$value = $build->validate($value);	// richiamato in model->save
                     if(is_array($value)) {
-                    	return array('error'=>$result['error']);	////// per compatibilità. RIMUOVERE?????
+                    	return array('error'=>$result['error']);	// per compatibilità. RIMUOVERE?????
                     }
                     else {
                     	$model->{$field} = $value;
@@ -1053,7 +1045,7 @@ class AdminTable {
                 $export_header[] = $label;
                 
                 if(is_object($field_obj)) {
-                	$build_obj = $model->getFieldBuildFromColumn($field_obj);
+                	$build_obj = $model->build($field_obj);
                 	$can_be_ordered = $build_obj->canBeOrdered();
                 }
                 else {
@@ -1218,7 +1210,7 @@ class AdminTable {
         $this->_view->assign('table', $table);
         $this->_view->assign('tot_records', $tot_records);
         $this->_view->assign('form_filters_title', _("Filtri"));
-        $this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);	////// RIATTIVARE
+        $this->_view->assign('form_filters', $tot_ff ? $this->formFilters($model, $options_view) : null);
         $this->_view->assign('pagination', $paginator->pagination());
 
         return $this->_view->render();
@@ -1463,10 +1455,8 @@ class AdminTable {
                     $field->setLabel($field_label[0]);
                 }
                 
-                $build_obj = $model->getFieldBuildFromColumn($field);
+                $build_obj = $model->build($field);
                 $form .= $build_obj->formFilter($gform, array('default'=>null));
-                
-                //$form .= $field->formFilter($gform, array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

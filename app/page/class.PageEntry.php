@@ -59,7 +59,7 @@ class PageEntry extends \Gino\Model {
     	$controller = new page();
     	
     	//$base_path = $this->_controller->getBasePath();
-        //$add_path = $this->_controller->getAddPath($this->id);
+        //$add_path = $this->_controller->getAddPath($model->id);
     	
     	$property['category_id'] = array(
     		'foreign'=>'\Gino\App\Page\PageCategory',

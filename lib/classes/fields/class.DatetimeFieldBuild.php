@@ -43,6 +43,8 @@ class DatetimeFieldBuild extends FieldBuild {
 
         $this->_auto_now = array_key_exists('auto_now', $options) ? $options['auto_now'] : true;
         $this->_auto_now_add = array_key_exists('auto_now_add', $options) ? $options['auto_now_add'] : true;
+        
+        $this->_view_input = array_key_exists('view_input', $options) ? $options['view_input'] : false;
 
         if($this->_auto_now || $this->_auto_now_add) {
             $this->_widget = null;

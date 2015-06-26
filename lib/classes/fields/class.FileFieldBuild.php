@@ -478,11 +478,7 @@ class FileFieldBuild extends FieldBuild {
     }
     
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.FieldBuild::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
     
@@ -496,13 +492,7 @@ class FileFieldBuild extends FieldBuild {
     	return parent::formElement($form, $options);
     }
     
-    //////
-    public function validate() {
-    	
-    	///// -> managefile()
-    }
-    
-    public function manageFile($value) {
+    public function validate($value) {
     
     	if(is_null($value)) {
     		return null;

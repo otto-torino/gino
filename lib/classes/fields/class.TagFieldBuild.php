@@ -37,11 +37,7 @@ class TagFieldBuild extends FieldBuild {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.FieldBuild::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
         // moocomplete
@@ -82,7 +78,7 @@ class TagFieldBuild extends FieldBuild {
 
     /**
      * @brief Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
-     * @see Gino.Field::clean()
+     * @see Gino.FieldBuild::clean()
      * @return valore ripulito
      */
     public function clean($options=null) {

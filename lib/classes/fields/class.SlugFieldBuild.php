@@ -44,13 +44,9 @@ class SlugFieldBuild extends FieldBuild {
     }
 
     /**
-     * @brief Widget html per il form
+     * @see Gino.FieldBuild::formElement()
      * @description Aggiunge il codice javascript che permette l'autoriempimento del campo
      *              se è stata passata l'opzione autofill.
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -70,8 +66,8 @@ class SlugFieldBuild extends FieldBuild {
     }
 
     /**
-     * @see Gino.Field::validate()
-     * @return null or string
+     * @see Gino.FieldBuild::validate()
+     * @description controlla la preesistenza del valore nei record della tabella
      */
     public function validate($value, $id=null) {
     

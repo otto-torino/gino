@@ -46,6 +46,19 @@ class PageCategory extends \Gino\Model {
     }
     
     /**
+     * @see Gino.Model::properties()
+     */
+    protected static function properties($model) {
+    
+    	$property['date'] = array(
+    		'auto_now'=>false,
+    		'auto_now_add'=>true,
+    	);
+    
+    	return $property;
+    }
+    
+    /**
      * Struttura dei campi della tabella di un modello
      *
      * @return array
@@ -74,8 +87,6 @@ class PageCategory extends \Gino\Model {
     			'name'=>'date',
     			'label'=>_('Data'),
     			'required'=>true,
-    			'auto_now'=>false,
-    			'auto_now_add'=>true,
     	));
     	
     	return $columns;

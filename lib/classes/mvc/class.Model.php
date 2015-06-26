@@ -49,7 +49,6 @@ namespace Gino;
  abstract class Model {
 
     //public static $columns;	// PROBLEMI ?????
- 	//protected static $model;	// per caricare l'istanza del modello
  	
  	protected $_registry,
                $_request,
@@ -95,8 +94,6 @@ namespace Gino;
         //$this->_p['instance'] = null;
         
         $this->fetchColumns($id);
-        
-        //self::$model = $this;
 
         $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
     }
@@ -346,9 +343,9 @@ namespace Gino;
         
         if($this->_p['id']) {
             
-            $fields = array();
-            foreach($this->_p as $pName=>$pValue) {
-            	
+			$fields = array();
+			foreach($this->_p as $pName=>$pValue) {
+			
             	if(!in_array($pName, $no_update))
             	{
             		if(is_object($pValue))
@@ -361,15 +358,18 @@ namespace Gino;
             		}
             		else {
             			$field_obj = $this->getFieldObject($pName);
-            			$fields[$pName] = $field_obj->validate($pValue, $this->_p['id']);
+            			
+            			$build = $model->build($field_obj);
+            			
+            			$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             		}
             	}
-            }
-            
-            $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
-        }
-        else {
-            
+			}
+			
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+		}
+		else
+		{    
         	/*
         	if(sizeof($this->_chgP)) {
                 $fields = array();
@@ -381,8 +381,31 @@ namespace Gino;
                 
             }
             */
+			$fields = array();
+			//foreach($this->getStructure() AS $field_name=>$field_obj)
+			foreach($this->_p as $pName=>$pValue)		//// VERIFICARE VERIFICARE VERIFICARE (è come sopra?)
+			{
+				if(is_object($pValue))
+				{
+					if(!$this->checkM2m($pValue)) {
+				
+						$fields[$pName] = $pValue->id;
+					}
+					else {
+						$m2m[$pName] = $pValue;
+					}
+				}
+				else {
+					$field_obj = $this->getFieldObject($pName);
+					 
+					$build = $model->build($field_obj);
+					 
+					$fields[$pName] = $build->validate($pValue);
+				}
+			}
+            
 			$result = $this->_db->insert($fields, $this->_tbl_data);
-        }
+		}
 
         if(!$result) {
             return array('error'=>_("Salvataggio non riuscito"));
@@ -688,6 +711,9 @@ namespace Gino;
     	if(array_key_exists($field_name, $prop)) {
     		$prop_model = $prop[$field_name];
     		
+    		if(!is_array($prop_model))
+    			throw new \Exception(_("Le proprietà specifiche di un campo del modello devono essere definite in un array"));
+    		
     		return array_merge($prop_base, $prop_model);
     	}
     	else return $prop_base;
@@ -710,7 +736,7 @@ namespace Gino;
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return object
      */
-    public function getFieldBuildFromColumn($field_obj) {
+    public function build($field_obj) {
     	
     	// model properties
     	$prop_model = $this->getProperties($field_obj);
@@ -734,7 +760,7 @@ namespace Gino;
     	
     	$field_name = $field_obj->getName();
     	
-    	$obj = $this->getFieldBuildFromColumn($field_obj);
+    	$obj = $this->build($field_obj);
     	$value = $obj->retrieveValue();
     	
     	return $value;

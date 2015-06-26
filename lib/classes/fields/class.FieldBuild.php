@@ -44,6 +44,12 @@ class FieldBuild {
     protected $_model;
     
     /**
+     * Visualizzazione dell'input field nel form
+     * @var boolean
+     */
+    protected $_view_input;
+    
+    /**
      * @brief Valore del campo
      * @var mixed
      */
@@ -83,6 +89,7 @@ class FieldBuild {
     	$this->_decimal_digits = $options['decimal_digits'];
     	
     	$this->_model = $options['model'];
+    	$this->_view_input = true;
     	
     	if(array_key_exists('value', $options)) {
     		$this->_value = $options['value'];
@@ -113,25 +120,6 @@ class FieldBuild {
     }
 
     /**
-     * @brief Getter della proprietà name
-     * @return nome del campo
-     */
-    public function getName() {
-
-        return $this->_name;
-    }
-
-    /**
-     * @brief Setter della proprietà name
-     * @param string $name
-     * @return void
-     */
-    public function setName($name) {
-
-        $this->_name = (string) $name;
-    }
-
-    /**
      * @brief Getter della proprietà value
      * @return valore del campo
      */
@@ -148,6 +136,25 @@ class FieldBuild {
     public function setValue($value) {
 
         $this->_value = $value;
+    }
+    
+    /**
+     * @brief Getter della proprietà value
+     * @return valore del campo
+     */
+    public function getViewInput() {
+    
+    	return $this->_view_input;
+    }
+    
+    /**
+     * @brief Setter della proprietà value
+     * @param boolean $value
+     * @return void
+     */
+    public function setVviewInput($value) {
+    
+    	$this->_view_input = (bool) $value;
     }
     
     /**
@@ -261,6 +268,11 @@ class FieldBuild {
     	$escape = gOpt('escape', $options, TRUE);
     
     	return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+    }
+    
+    public function validate($value, $id=null) {
+    	
+    	return $value;
     }
     
     /**

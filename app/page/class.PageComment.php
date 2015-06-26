@@ -46,6 +46,37 @@ class PageComment extends \Gino\Model {
 
         return (string) $this->id ? $this->datetime.'-'.$this->author : '';
     }
+    
+    /**
+     * @see Gino.Model::properties()
+     */
+    protected static function properties($model) {
+    	 
+    	$property['entry'] = array(
+    			'foreign'=>'\Gino\App\Page\PageEntry',
+    			'foreign_order'=>'last_edit_date',
+    	);
+    	/*
+    	$property['author'] = array(
+				'foreign'=>'\Gino\App\Auth\User',
+				'foreign_order'=>'lastname ASC, firstname ASC',
+				'add_related' => false,
+    	));
+    	*/
+    	$property['notification'] = array(
+    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	$property['reply'] = array(
+    			'foreign'=>'\Gino\App\Page\PageComment',
+    			'foreign_where'=>'entry=\'_ENTRY_\'',
+    			'foreign_order'=>'datetime',
+    	);
+    	$property['published'] = array(
+    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    	);
+    	 
+    	return $property;
+    }
 
     /**
      * Struttura dei campi della tabella di un modello
@@ -67,39 +98,39 @@ class PageComment extends \Gino\Model {
     		'foreign_order'=>'last_edit_date',
     	));
     	$columns['datetime'] = new \Gino\DatetimeField(array(
-    			'name'=>'datetime',
-    			'label'=>_('Data'),
-    			'required'=>true,
-    			'auto_now'=>false,
-    			'auto_now_add'=>true,
+    		'name'=>'datetime',
+    		'label'=>_('Data'),
+    		'required'=>true,
+    		'auto_now'=>false,
+    		'auto_now_add'=>true,
     	));
     	/*
     	$columns['author'] = new \Gino\ForeignKeyField(array(
-    			'name'=>'author',
-    			'label'=>_("Autore"),
-    			'required'=>true,
-    			'foreign'=>'\Gino\App\Auth\User',
-    			'foreign_order'=>'lastname ASC, firstname ASC',
-    			'add_related' => false,
+    		'name'=>'author',
+    		'label'=>_("Autore"),
+    		'required'=>true,
+    		'foreign'=>'\Gino\App\Auth\User',
+    		'foreign_order'=>'lastname ASC, firstname ASC',
+    		'add_related' => false,
     	));
     	*/
     	$columns['author'] = new \Gino\CharField(array(
-    			'name'=>'author',
-    			'label'=>_("Autore"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'author',
+    		'label'=>_("Autore"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['email'] = new \Gino\EmailField(array(
-    			'name'=>'email',
-    			'label'=>_("Email"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'email',
+    		'label'=>_("Email"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['web'] = new \Gino\CharField(array(
-    			'name'=>'web',
-    			'label'=>_("Sito web"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'web',
+    		'label'=>_("Sito web"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['text'] = new \Gino\TextField(array(
     		'name'=>'text',
