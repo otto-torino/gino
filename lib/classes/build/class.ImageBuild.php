@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.ImageFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.ImageFieldBuild
+ * @file class.ImageBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.ImageBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', array('\Gino\FieldBuild', '\Gino\FileFieldBuild'));
+loader::import('class/build', array('\Gino\Build', '\Gino\FileBuild'));
 
 /**
  * @brief Gestisce campi di tipo IMMAGINE
@@ -18,33 +18,33 @@ loader::import('class/fields', array('\Gino\FieldBuild', '\Gino\FileFieldBuild')
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ImageFieldBuild extends FileFieldBuild {
+class ImageBuild extends FileBuild {
 
     const _IMAGE_GIF_ = 1;
     const _IMAGE_JPG_ = 2;
     const _IMAGE_PNG_ = 3;
 
     /**
-     * Proprietà dei campi specifiche del tipo di campo
+     * Proprietà dei campi specifiche del modello
      */
     protected $_resize, $_thumb, $_prefix_file, $_prefix_thumb, $_width, $_height, $_thumb_width, $_thumb_height;
 
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - opzioni generali definite come proprietà nella classe FileFieldBuild()
-     *   - @b resize (boolean)
-     *   - @b thumb (boolean)
-     *   - @b prefix_file (string)
-     *   - @b prefix_thumb (string)
-     *   - @b width (integer)
-     *   - @b height (integer)
-     *   - @b thumb_width (integer)
-     *   - @b thumb_height (integer)
-     * @return istanza di Gino.ImageField
+     *   - opzioni generali definite come proprietà nella classe Build()
+     *   - opzioni generali definite come proprietà nella classe FileBuild()
+     *   - opzioni definite come proprietà specifiche del modello
+     *     - @b resize (boolean)
+     *     - @b thumb (boolean)
+     *     - @b prefix_file (string)
+     *     - @b prefix_thumb (string)
+     *     - @b width (integer)
+     *     - @b height (integer)
+     *     - @b thumb_width (integer)
+     *     - @b thumb_height (integer)
      */
     function __construct($options) {
 
@@ -223,7 +223,7 @@ class ImageFieldBuild extends FileFieldBuild {
      * @brief Widget html per il form
      * @param \Gino\Form $form istanza di Gino.Form
      * @param array $options opzioni
-     * @see Gino.FieldBuild::formElement()
+     * @see Gino.Build::formElement()
      * @return widget html
      */
     public function formElement(\Gino\Form $form, $options) {
@@ -235,7 +235,7 @@ class ImageFieldBuild extends FileFieldBuild {
 
     /**
      * @brief Salvataggio immagine
-     * @see Gino.FileFieldBuild::saveFile()
+     * @see Gino.FileBuild::saveFile()
      */
     protected function saveFile($filename, $filename_tmp) {
 
@@ -286,7 +286,7 @@ class ImageFieldBuild extends FileFieldBuild {
 
     /**
      * @brief Eliminazione immagine
-     * @see Gino.FileFieldBuild::delete()
+     * @see Gino.FileBuild::delete()
      */
     public function delete() {
 

@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.SlugFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.SlugFieldBuild
+ * @file class.SlugBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.SlugBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,7 +10,7 @@
 
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Getisce i campi di tipo SLUG (CHAR, VARCHAR)
@@ -19,32 +19,31 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class SlugFieldBuild extends FieldBuild {
+class SlugBuild extends Build {
 
-    private $_autofill,
-            $_js;
+    /**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_autofill, $_js, $_trnsl;
 
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b autofill (string|array): nome o array di nomi dei campi da utilizzare per calcolare lo slug. Se vengono dati più campi vengono concatenati con un dash '-'.
-     *   - @b js
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
         parent::__construct($options);
 		
-        $this->_autofill = \Gino\gOpt('autofill', $options, null);
-        $this->_js = \Gino\gOpt('js', $options, null);
-
-        $this->_trnsl = FALSE;
+        $this->_autofill = $options['autofill'];
+        $this->_js = $options['js'];
+        $this->_trnsl = $options['trnsl'];
     }
 
     /**
-     * @see Gino.FieldBuild::formElement()
+     * @see Gino.Build::formElement()
      * @description Aggiunge il codice javascript che permette l'autoriempimento del campo
      *              se è stata passata l'opzione autofill.
      */
@@ -66,7 +65,7 @@ class SlugFieldBuild extends FieldBuild {
     }
 
     /**
-     * @see Gino.FieldBuild::validate()
+     * @see Gino.Build::validate()
      * @description controlla la preesistenza del valore nei record della tabella
      */
     public function validate($value, $id=null) {

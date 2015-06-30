@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.ManyToManyThroughFieldBuild.php
- * @brief Contiene la definizione ed implementation della classe Gino.ManyToManyThroughField
+ * @file class.ManyToManyThroughBuild.php
+ * @brief Contiene la definizione ed implementation della classe Gino.ManyToManyThroughBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-Loader::import('class/fields', '\Gino\Field');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo many to many con associazione attraverso un modello che porta informazioni aggiuntive
@@ -18,36 +18,34 @@ Loader::import('class/fields', '\Gino\Field');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ManyToManyThroughFieldBuild extends FieldBuild {
+class ManyToManyThroughBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
     protected $_m2m, $_m2m_controller, $_controller;
+    
     protected $_remove_fields;
     protected $_model_table_id;
-    protected $_enum;
 
     /**
      * @brief Costruttore
      *
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b remove_fields (array)
-     *   - @b controller (object): controller del modello cui appartiene il campo
-     *   - @b m2m (string): classe attraverso la quale si esprime la relazione molti a molti (nome completo di namespace)
-     *   - @b m2m_controller (object): oggetto controller da passare evenualmente al costruttore della classe m2m
+     *   - opzioni generali definite come proprietà nella classe Build()
+     *   - opzioni definite come proprietà specifiche del modello
+     *     - @b remove_fields (array)
      * @return void
      */
     function __construct($options) {
 
     	parent::__construct($options);
     	
-    	$this->_remove_fields = array_key_exists('remove_fields', $options) ? $options['remove_fields'] : array();
-		$this->_controller = $options['controller'];
+    	$this->_controller = $options['controller'];
         $this->_m2m = $options['m2m'];
-        $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
+        $this->_m2m_controller = $options['m2m_controller'];
 
+        $this->_remove_fields = array_key_exists('remove_fields', $options) ? $options['remove_fields'] : array();
         $this->_model_table_id = strtolower(get_name_class($this->_model)).'_id';
 
         $values = array();

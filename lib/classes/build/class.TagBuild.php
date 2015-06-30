@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.TagFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.TagFieldBuild
+ * @file class.TagBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.TagBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -16,17 +16,19 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class TagFieldBuild extends FieldBuild {
+class TagBuild extends Build {
 
-    private $_model_controller_class,
-            $_model_controller_instance;
+    /**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_model_controller_class, $_model_controller_instance;
 
     /**
      * @brief Costruttore
-     * @description Opzioni ulteriori al parent: 
-     *              - model_controller_class: nome classe del controller
-     *              - model_controller_instance: id istanza del controller
-     * @see Gino.FieldBuild::__construct()
+     *
+     * @see Gino.Build::__construct()
+     * @param array $options array associativo di opzioni del campo del database
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
@@ -37,7 +39,7 @@ class TagFieldBuild extends FieldBuild {
     }
 
     /**
-     * @see Gino.FieldBuild::formElement()
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
         // moocomplete
@@ -78,7 +80,7 @@ class TagFieldBuild extends FieldBuild {
 
     /**
      * @brief Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
-     * @see Gino.FieldBuild::clean()
+     * @see Gino.Build::clean()
      * @return valore ripulito
      */
     public function clean($options=null) {

@@ -58,53 +58,15 @@ class PageEntry extends \Gino\Model {
     	
     	$controller = new page();
     	
-    	//$base_path = $this->_controller->getBasePath();
-        //$add_path = $this->_controller->getAddPath($model->id);
+    	$base_path = $controller->getBasePath();
+        $add_path = $controller->getAddPath($model->id);
     	
-    	$property['category_id'] = array(
-    		'foreign'=>'\Gino\App\Page\PageCategory',
-    		'foreign_order'=>'name ASC',
-    		'add_related' => true,
-    		'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1")
-    	);
-    	$property['author'] = array(
-    		'foreign'=>'\Gino\App\Auth\User',
-    		'foreign_order'=>'lastname ASC, firstname ASC',
-    		'add_related' => false,
-    	);
-    	$property['creation_date'] = array(
-    		'auto_now'=>false,
-    		'auto_now_add'=>true,
-    	);
-    	$property['last_edit_date'] = array(
-    		'auto_now'=>true,
-    		'auto_now_add'=>true,
-    	);
     	$property['image'] = array(
     		'extensions'=>self::$_extension_img,
     		'resize'=>false,
-    		'path'=>array($controller, 'getBasePath'),
-    		//'path'=>$base_path,
-    		//'add_path'=>$add_path
-    	);
-    	$property['slug'] = array(
-    		'autofill'=>'title',
-    	);
-    	$property['tags'] = array(
-    		'model_controller_class' => 'page',
-    		'model_controller_instance' => 0
-    	);
-    	$property['enable_comments'] = array(
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	$property['published'] = array(
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	$property['social'] = array(
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	$property['private'] = array(
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
+    		//'path'=>array($controller, 'getBasePath'),
+    		'path'=>$base_path,
+    		'add_path'=>$add_path
     	);
     	
     	return $property;
@@ -129,21 +91,32 @@ class PageEntry extends \Gino\Model {
             'name'=>'category_id',
             'label'=>_("Categoria"),
             'required'=>false,
+        	'foreign'=>'\Gino\App\Page\PageCategory',
+        	'foreign_order'=>'name ASC',
+        	'add_related' => true,
+        	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1")
         ));
 		$columns['author'] = new \Gino\ForeignKeyField(array(
 			'name'=>'author',
 			'label'=>_("Autore"),
 			'required'=>true,
+			'foreign'=>'\Gino\App\Auth\User',
+			'foreign_order'=>'lastname ASC, firstname ASC',
+			'add_related' => false,
 		));
 		$columns['creation_date'] = new \Gino\DatetimeField(array(
 			'name'=>'creation_date',
 			'label'=>_('Inserimento'),
 			'required'=>true,
+			'auto_now'=>false,
+			'auto_now_add'=>true,
 		));
 		$columns['last_edit_date'] = new \Gino\DatetimeField(array(
 			'name'=>'last_edit_date',
 			'label'=>_('Ultima modifica'),
 			'required'=>true,
+			'auto_now'=>true,
+			'auto_now_add'=>true,
 		));
 		$columns['title'] = new \Gino\CharField(array(
 			'name'=>'title',
@@ -157,6 +130,7 @@ class PageEntry extends \Gino\Model {
             'label'=>array(_("Slug"), _('utilizzato per creare un permalink alla risorsa')),
             'required'=>true,
         	'max_lenght'=>200,
+        	'autofill'=>'title',
         ));
         $columns['image'] = new \Gino\ImageField(array(
         	'name'=>'image',
@@ -179,6 +153,8 @@ class PageEntry extends \Gino\Model {
         	'label'=>array(_('Tag'), _("elenco separato da virgola")),
         	'required'=>false,
         	'max_lenght'=>255,
+        	'model_controller_class' => 'page',
+        	'model_controller_instance' => 0
         ));
         $columns['enable_comments'] = new \Gino\BooleanField(array(
         	'name'=>'enable_comments',

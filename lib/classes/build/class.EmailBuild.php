@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.EmailFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.EmailFieldBuild
+ * @file class.EmailBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.EmailBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -20,14 +20,14 @@ use \Gino\Http\Request;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class EmailFieldBuild extends FieldBuild {
+class EmailBuild extends Build {
 
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 

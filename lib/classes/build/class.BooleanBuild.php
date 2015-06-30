@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.BooleanFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.BooleanFieldBuild
+ * @file class.BooleanBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.BooleanBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo BOOLEAN
@@ -18,35 +18,34 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class BooleanFieldBuild extends FieldBuild {
+class BooleanBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
-    protected $_enum;
+    protected $_choice;
 
     /**
      * Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b enum (array): elenco degli elementi di scelta
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
         parent::__construct($options);
-
-        $this->_enum = array_key_exists('enum', $options) ? $options['enum'] : array();
+        
+        $this->_choice = $options['choice'];
     }
 
     /**
      * @brief Getter della proprietà enum
      * @return proprietà enum
      */
-    public function getEnum() {
+    public function getChoice() {
 
-        return $this->_enum;
+        return $this->_choice;
     }
 
     /**
@@ -54,13 +53,13 @@ class BooleanFieldBuild extends FieldBuild {
      * @param array $value
      * @return void
      */
-    public function setEnum($value) {
+    public function setChoice($value) {
 
-        if($value) $this->_enum = $value;
+        if($value) $this->_choice = $value;
     }
     
     /**
-     * @see Gino.FieldBuild::retrieveValue()
+     * @see Gino.Build::retrieveValue()
      */
     public function retrieveValue() {
     
@@ -69,7 +68,7 @@ class BooleanFieldBuild extends FieldBuild {
    		}
     	elseif(is_bool($this->_value)) {
     		$value = (int) $this->_value;
-    		return $this->_enum[$value];
+    		return $this->_choice[$value];
     	}
     	else {
     		return null;

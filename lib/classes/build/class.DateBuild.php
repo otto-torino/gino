@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.FloatFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.FloatField
+ * @file class.DateBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.DateBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,20 +10,20 @@
 namespace Gino;
 
 /**
- * @brief Gestisce campi di tipo decimale (FLOAT, DOUBLE, DECIMAL)
+ * @brief Gestisce i campi di tipo data
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class FloatFieldBuild extends FieldBuild {
+class DateBuild extends Build {
 
     /**
-     * @brief Costruttore
+     * Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
@@ -32,11 +32,11 @@ class FloatFieldBuild extends FieldBuild {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return valore campo
+     * @return valore del campo
      */
-    public function __toString() {
+    function __toString() {
 
-        return (string) dbNumberToNumber($this->_value, $this->_decimal_digits);
+        return (string) $this->_value;
     }
 
     /**
@@ -52,9 +52,24 @@ class FloatFieldBuild extends FieldBuild {
     }
 
     /**
+     * @brief Definisce la condizione WHERE per il campo
+     * @see Gino.Field::filterWhereClause()
+     * @param string $value
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b operator (string): operatore di confronto della data
+     * @return where clause
+     */
+    public function filterWhereClause($value, $options=array()) {
+
+        $operator = gOpt('operator', $options, null);
+        if(is_null($operator)) $operator = '=';
+
+        return $this->_table.".".$this->_name." $operator '".$value."'";
+    }
+
+    /**
      * @brief Ripulisce un input per l'inserimento in database
-     *
-     * Formatta un elemento input di tipo @a float per l'inserimento in database
      * @see Gino.Field::clean()
      */
     public function clean($options=null) {
@@ -63,6 +78,6 @@ class FloatFieldBuild extends FieldBuild {
         $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
         $method = isset($options['method']) ? $options['method'] : $request->POST;
 
-        return cleanVar($method, $this->_name, $value_type, null);
+        return \Gino\dateToDbDate(\Gino\cleanVar($method, $this->_name, $value_type, null), "/");
     }
 }

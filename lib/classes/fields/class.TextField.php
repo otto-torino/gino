@@ -36,6 +36,8 @@ class TextField extends Field {
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Field()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b trnsl (boolean): campo con traduzioni
      * @return istanza di Gino.TextField
      */
     function __construct($options) {
@@ -44,6 +46,20 @@ class TextField extends Field {
 
         $this->_default_widget = 'textarea';
         $this->_value_type = 'string';
+        
+        $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    
+    	$prop = parent::getProperties();
+    
+    	$prop['trnsl'] = $this->_trnsl;
+    
+    	return $prop;
     }
     
     /**

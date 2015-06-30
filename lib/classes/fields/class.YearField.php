@@ -23,8 +23,7 @@ class YearField extends IntegerField {
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe Field()
-     *   - opzioni generali definite come proprietà nella classe IntegerField()
+     *   - opzioni generali definite come proprietà nella classe Field() e IntegerField()
      * @return istanza di Gino.YearField
      */
     function __construct($options) {
@@ -32,20 +31,5 @@ class YearField extends IntegerField {
         parent::__construct($options);
         
         $this->_default_widget = 'text';
-    }
-
-    /**
-     * @brief Widget html per il form
-     * @description Rispetto al parent imposta una maxlength
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        $options['maxlength'] = 4;
-
-        return parent::formElement($form, $options);
     }
 }

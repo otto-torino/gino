@@ -23,13 +23,19 @@ loader::import('class/fields', '\Gino\Field');
  */
 class CharField extends Field {
 
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_trnsl;
+	
     /**
      * @brief Costruttore
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe field()
-     *   - @b trnsl (boolean): campo con traduzioni
+     *   - opzioni generali definite come proprietà nella classe Field()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b trnsl (boolean): campo con traduzioni
      * @return istanza di Gino.CharField
      */
     function __construct($options) {
@@ -38,6 +44,20 @@ class CharField extends Field {
 
         $this->_default_widget = 'text';
         $this->_value_type = 'string';
+        
+        $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    	 
+    	$prop = parent::getProperties();
+    	 
+    	$prop['trnsl'] = $this->_trnsl;
+    	 
+    	return $prop;
     }
     
     /**

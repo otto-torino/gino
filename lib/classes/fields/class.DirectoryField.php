@@ -19,11 +19,6 @@ namespace Gino;
 class DirectoryField extends Field {
 
     /**
-     * Proprietà dei campi specifiche del tipo di campo
-     */
-    protected $_path, $_prefix, $_default_name;
-
-    /**
      * @brief Costruttore
      *
      * @see Gino.Field::__construct()

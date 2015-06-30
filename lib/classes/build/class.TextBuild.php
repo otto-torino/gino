@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.CharFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.CharFieldBuild
+ * @file class.TextBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.TextBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -10,16 +10,18 @@
 
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+use \Gino\Http\Request;
+
+loader::import('class/build', '\Gino\Build');
 
 /**
- * @brief Gestisce i campi di tipo stringa (CHAR, VARCHAR)
+ * @brief Campo di tipo TEXT
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class CharFieldBuild extends FieldBuild {
+class TextBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
@@ -29,19 +31,15 @@ class CharFieldBuild extends FieldBuild {
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b trnsl (boolean): campo con traduzioni
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
         parent::__construct($options);
 
-        $this->_default_widget = 'text';
-        $this->_value_type = 'string';
-
-        $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
+        $this->_trnsl = $options['trnsl'];
     }
 
     /**
@@ -61,6 +59,16 @@ class CharFieldBuild extends FieldBuild {
     public function setTrnsl($value) {
 
         if(is_bool($value)) $this->_trnsl = $value;
+    }
+
+    /**
+     * @brief Indica se il campo può essere utilizzato come ordinamento nella lista della sezione amministrativa
+     * @see Gino.Field::canBeOrdered()
+     * @return FALSE
+     */
+    public function canBeOrdered() {
+
+        return FALSE;
     }
 
     /**
@@ -93,6 +101,29 @@ class CharFieldBuild extends FieldBuild {
         if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
         if(!isset($options['field'])) $options['field'] = $this->_name;
 
+        if(isset($options['is_filter']) and $options['is_filter']) {
+            $options['widget'] = 'input';
+        }
+
         return parent::formElement($form, $options);
+    }
+
+    /**
+     * @brief Ripulisce un input per l'inserimento in database
+     * @see Gino.Field::clean()
+     * @return valore ripulito
+     */
+    public function clean($options=null) {
+
+        $request = Request::instance();
+        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
+        $method = isset($options['method']) ? $options['method'] : $request->POST;
+        $escape = gOpt('escape', $options, TRUE);
+        $widget = gOpt('widget', $options, null);
+
+        if($widget == 'editor')
+            return cleanVarEditor($method, $this->_name, '');
+        else
+            return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
     }
 }

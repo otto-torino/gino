@@ -16,7 +16,7 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class FloatField extends field {
+class FloatField extends Field {
 
     /**
      * @brief Costruttore

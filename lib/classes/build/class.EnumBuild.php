@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.EnumFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.EnumFieldBuild
+ * @file class.EnumBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.EnumBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo ENUM
@@ -18,26 +18,26 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class EnumFieldBuild extends FieldBuild {
+class EnumBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
-    protected $_enum;
+    protected $_choice;
 
     /**
      * Costruttore
      *
-     * @see Gino.Field::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe field()
-     *   - @b enum (array): elenco degli elementi di scelta
+     *   - opzioni generali definite come proprietà nella classe Build()
+     *   - @b choice (array): elenco degli elementi di scelta
      */
     function __construct($options) {
 
         parent::__construct($options);
-
-        $this->_enum = array_key_exists('enum', $options) ? $options['enum'] : array();
+        
+        $this->_choice = $options['choice'];
     }
 
     /**
@@ -46,7 +46,7 @@ class EnumFieldBuild extends FieldBuild {
      */
     public function __toString() {
 
-        $value = (count($this->_enum) && $this->_value != '' && $this->_value != null) ? $this->_enum[$this->_value] : $this->_value;
+        $value = (count($this->_choice) && $this->_value != '' && $this->_value != null) ? $this->_choice[$this->_value] : $this->_value;
         return (string) $value;
     }
 
@@ -54,9 +54,9 @@ class EnumFieldBuild extends FieldBuild {
      * @brief Getter della proprietà enum
      * @return proprietà enum
      */
-    public function getEnum() {
+    public function getChoice() {
 
-        return $this->_enum;
+        return $this->_choice;
     }
 
     /**
@@ -64,9 +64,9 @@ class EnumFieldBuild extends FieldBuild {
      * @param array $enum
      * @return void
      */
-    public function setEnum($value) {
+    public function setChoice($value) {
 
-        if($value) $this->_enum = $value;
+        if($value) $this->_choice = $value;
     }
 
     /**

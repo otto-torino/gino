@@ -1,6 +1,6 @@
 <?php
 /**
- * @file class.ManyToManyFieldBuild.php
+ * @file class.ManyToManyBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyField
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo many to many
@@ -18,7 +18,7 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ManyToManyFieldBuild extends FieldBuild {
+class ManyToManyBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
@@ -26,51 +26,30 @@ class ManyToManyFieldBuild extends FieldBuild {
     protected $_m2m, $_m2m_order, $_m2m_where;
     protected $_join_table, $_join_table_id, $_join_table_m2m_id;
     protected $_add_related, $_add_related_url;
-    protected $_enum;
+    
+    protected $_choice;
 
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b add_related (bool): includere o meno un bottone che permetta l'inserimento di nuovi modelli correlati nello stesso contesto
-     *   - @b add_related_url (string): path alla vista per inserimento modello correlato
-     *   - @b m2m (object): classe del modello correlato (nome completo di namespace)
-     *   - @b m2m_where (mixed): condizioni della query per filtrare i possibili modelli da associare
-     *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
-     *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
-     *   - @b m2m_order (string): ordinamento dei valori (es. name ASC)
-     *   - @b m2m_controller (\Gino\Controller): classe Controller del modello m2m, essenziale se il modello appartiene ad un modulo istanziabile
-     *   - @b join_table (string): nome tabella di join
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 
         parent::__construct($options);
 
-        $this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
-        $this->_add_related_url = array_key_exists('add_related_url', $options) ? $options['add_related_url'] : '';
-
-        $this->_m2m = $options['m2m'];
-        $this->_m2m_where = array_key_exists('m2m_where', $options) ? $options['m2m_where'] : null;
-        $this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
-        $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
+        $this->_add_related = $options['add_related'];
+        $this->_add_related_url = $options['add_related_url'];
+		$this->_m2m = $options['m2m'];
+        $this->_m2m_where = $options['m2m_where'];
+        $this->_m2m_order = $options['m2m_order'];
+        $this->_m2m_controller = $options['m2m_controller'];
         $this->_join_table = $options['join_table'];
-        
         $this->_self = $options['self'];
-        $this->_join_table_id = strtolower(get_name_class($this->_self)).'_id';
-        //$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
-        $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
-
-        /*
-        $db = db::instance();
-        $rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_model->id."'");
-        $values = array();
-        foreach($rows as $row) {
-            $values[] = $row[$this->_join_table_m2m_id];
-        }
-        $this->_model->addm2m($this->_name, $values);
-		*/
+        $this->_join_table_id = $options['join_table_id'];
+        $this->_join_table_m2m_id = $options['join_table_m2m_id'];
     }
 
     /**
@@ -133,7 +112,7 @@ class ManyToManyFieldBuild extends FieldBuild {
             $m2m = new $this->_m2m(null);
         }
         $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-        $enum = array();
+        $choice = array();
         $selected_part = array();
         $not_selected_part = array();
         $this->_value = $this->_model->{$this->_name};
@@ -144,7 +123,6 @@ class ManyToManyFieldBuild extends FieldBuild {
             else {
                 $m2m = new $this->_m2m($row['id']);
             }
-            //$enum[$row['id']] = (string) $m2m;
             if(is_array($this->_value) and in_array($row['id'], $this->_value)) {
                 $selected_part[$row['id']] = (string) $m2m;
             }
@@ -153,9 +131,9 @@ class ManyToManyFieldBuild extends FieldBuild {
             }
         }
 
-        $enum = $selected_part + $not_selected_part;
+        $choice = $selected_part + $not_selected_part;
 
-        $this->_enum = $enum;
+        $this->_choice = $choice;
         $this->_name .= "[]";
 
         if($this->_add_related) {
@@ -208,7 +186,7 @@ class ManyToManyFieldBuild extends FieldBuild {
     }
     
     /**
-     * @see Gino.FieldBuild::retrieveValue()
+     * @see Gino.Build::retrieveValue()
      */
     public function retrieveValue() {
     	

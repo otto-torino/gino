@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.TimeFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.TimeField
+ * @file class.TimeBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.TimeBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -16,14 +16,14 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class TimeFieldBuild extends FieldBuild {
+class TimeBuild extends Build {
 
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
+     *   - opzioni generali definite come proprietà nella classe Build()
      */
     function __construct($options) {
 

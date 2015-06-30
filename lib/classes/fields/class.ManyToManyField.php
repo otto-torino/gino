@@ -23,12 +23,29 @@ loader::import('class/fields', '\Gino\Field');
  */
 class ManyToManyField extends Field {
 
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_m2m, $_m2m_order, $_m2m_where;
+	protected $_join_table, $_join_table_id, $_join_table_m2m_id;
+	protected $_add_related, $_add_related_url;
+	
     /**
      * @brief Costruttore
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Field()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b add_related (bool): includere o meno un bottone che permetta l'inserimento di nuovi modelli correlati nello stesso contesto
+     *     - @b add_related_url (string): path alla vista per inserimento modello correlato
+     *     - @b m2m (object): classe del modello correlato (nome completo di namespace)
+     *     - @b m2m_where (mixed): condizioni della query per filtrare i possibili modelli da associare
+     *       - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
+     *       - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
+     *     - @b m2m_order (string): ordinamento dei valori (es. name ASC)
+     *     - @b m2m_controller (\Gino\Controller): classe Controller del modello m2m, essenziale se il modello appartiene ad un modulo istanziabile
+     *     - @b join_table (string): nome tabella di join
      */
     function __construct($options) {
 
@@ -36,5 +53,39 @@ class ManyToManyField extends Field {
     	
         $this->_default_widget = 'multicheck';
         $this->_value_type = 'array';
+        
+        $this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
+        $this->_add_related_url = array_key_exists('add_related_url', $options) ? $options['add_related_url'] : '';
+        
+        $this->_m2m = $options['m2m'];
+        $this->_m2m_where = array_key_exists('m2m_where', $options) ? $options['m2m_where'] : null;
+        $this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
+        $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
+        $this->_join_table = $options['join_table'];
+        
+        $this->_self = $options['self'];
+        $this->_join_table_id = strtolower(get_name_class($this->_self)).'_id';
+        $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    
+    	$prop = parent::getProperties();
+    	 
+    	$prop['add_related'] = $this->_add_related;
+    	$prop['add_related_url'] = $this->_add_related_url;
+    	$prop['m2m'] = $this->_m2m;
+    	$prop['m2m_where'] = $this->_m2m_where;
+    	$prop['m2m_order'] = $this->_m2m_order;
+    	$prop['m2m_controller'] = $this->_m2m_controller;
+    	$prop['join_table'] = $this->_join_table;
+    	$prop['self'] = $this->_self;
+    	$prop['join_table_id'] = $this->_join_table_id;
+    	$prop['_join_table_m2m_id'] = $this->__join_table_m2m_id;
+    	 
+    	return $prop;
     }
 }

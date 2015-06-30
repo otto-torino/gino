@@ -24,12 +24,20 @@ loader::import('class/fields', '\Gino\Field');
  */
 class SlugField extends Field {
 
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_autofill, $_js, $_trnsl;
+	
     /**
      * @brief Costruttore
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Field()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b autofill (string|array): nome o array di nomi dei campi da utilizzare per calcolare lo slug. Se vengono dati più campi vengono concatenati con un dash '-'.
+     *     - @b js
      */
     function __construct($options) {
 
@@ -37,6 +45,24 @@ class SlugField extends Field {
 
         $this->_default_widget = 'text';
         $this->_value_type = 'string';
+        
+        $this->_autofill = \Gino\gOpt('autofill', $options, null);
+        $this->_js = \Gino\gOpt('js', $options, null);
+        $this->_trnsl = false;
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    	 
+    	$prop = parent::getProperties();
+    	 
+    	$prop['autofill'] = $this->_autofill;
+    	$prop['js'] = $this->_js;
+    	$prop['trnsl'] = $this->_trnsl;
+    	 
+    	return $prop;
     }
 
     /**

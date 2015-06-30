@@ -359,7 +359,7 @@ namespace Gino;
             		else {
             			$field_obj = $this->getFieldObject($pName);
             			
-            			$build = $model->build($field_obj);
+            			$build = $this->build($field_obj);
             			
             			$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             		}
@@ -398,7 +398,7 @@ namespace Gino;
 				else {
 					$field_obj = $this->getFieldObject($pName);
 					 
-					$build = $model->build($field_obj);
+					$build = $this->build($field_obj);
 					 
 					$fields[$pName] = $build->validate($pValue);
 				}
@@ -744,7 +744,8 @@ namespace Gino;
     	// field properties
     	$prop_column = $field_obj->getProperties();
     	
-    	$class = get_class($field_obj).'Build';
+    	$field_obj_class = get_class($field_obj);
+    	$class = preg_replace("#^(.+)(Field)$#", '$1Build', $field_obj_class);
     	
     	return new $class(array_merge($prop_column, $prop_model));
     }

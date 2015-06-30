@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.FieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.FieldBuild
+ * @file class.Build.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.Build
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -18,7 +18,7 @@ use \Gino\Http\Request;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class FieldBuild {
+class Build {
 
     /**
      * @brief Proprietà dei campi
@@ -90,7 +90,7 @@ class FieldBuild {
     	
     	$this->_model = $options['model'];
     	$this->_view_input = true;
-    	
+		
     	if(array_key_exists('value', $options)) {
     		$this->_value = $options['value'];
     	}
@@ -152,7 +152,7 @@ class FieldBuild {
      * @param boolean $value
      * @return void
      */
-    public function setVviewInput($value) {
+    public function setViewInput($value) {
     
     	$this->_view_input = (bool) $value;
     }

@@ -25,12 +25,12 @@ class RadioWidget extends Widget {
 	
 		parent::printInputForm($form, $options);
 		
-		$enum = array_key_exists('enum', $options) ? $options['enum'] : null;
+		$choice = array_key_exists('choice', $options) ? $options['choice'] : null;
 		$default = array_key_exists('default', $options) ? $options['default'] : $this->_default;
 		
 		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
 		
-		$buffer = $this->_form->cradio($this->_name, $value, $enum, $default, $this->_label, $options);
+		$buffer = $this->_form->cradio($this->_name, $value, $choice, $default, $this->_label, $options);
 		
 		return $buffer;
 	}

@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.DirectoryFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.DirectoryField
+ * @file class.DirectoryBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.DirectoryBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -16,7 +16,7 @@ namespace Gino;
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class DirectoryFieldBuild extends FieldBuild {
+class DirectoryBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
@@ -26,9 +26,9 @@ class DirectoryFieldBuild extends FieldBuild {
     /**
      * @brief Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
+     *   - opzioni generali definite come proprietà nella classe Build()
      *   - @b path (string): percorso assoluto della directory superiore
      *   - @b prefix (string): prefisso da aggiungere al nome della directory
      *   - @b default_name (array): valori per il nome di default

@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.ManyToManyInlineFieldBuild.php
- * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyInlineField
+ * @file class.ManyToManyInlineBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyInlineBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo many to many gestito senza tabella di join
@@ -18,26 +18,21 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class ManyToManyInlineFieldBuild extends FieldBuild {
+class ManyToManyInlineBuild extends Build {
 
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
     protected $_m2m, $_m2m_order, $_m2m_where, $_m2m_controller;
-    protected $_enum;
+    
+    protected $_choice;
 
     /**
      * Costruttore
      *
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b m2m (object): classe del modello correlato (nome completo di namespace)
-     *   - @b m2m_where (mixed): condizioni della query per filtrare i possibili modelli da associare
-     *     - @a string, es. "cond1='$cond1' AND cond2='$cond2'"
-     *     - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
-     *   - @b m2m_order (string): ordinamento dei valori (es. name ASC)
-     *   - @b m2m_controller (\Gino\Controller): classe Controller del modello m2m, essenziale se il modello appartiene ad un modulo istanziabile
+     *   - opzioni generali definite come proprietà nella classe Build()
      * @return void
      */
     function __construct($options) {
@@ -45,9 +40,9 @@ class ManyToManyInlineFieldBuild extends FieldBuild {
         parent::__construct($options);
 
         $this->_m2m = $options['m2m'];
-        $this->_m2m_where = array_key_exists('m2m_where', $options) ? $options['m2m_where'] : null;
-        $this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
-        $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
+        $this->_m2m_where = $options['m2m_where'];
+        $this->_m2m_order = $options['m2m_order'];
+        $this->_m2m_controller = $options['m2m_controller'];
     }
 
     /**
@@ -70,19 +65,19 @@ class ManyToManyInlineFieldBuild extends FieldBuild {
     }
 
     /**
-     * @brief Gettere della proprietà enum (opzioni di scelta)
-     * @return proprietà enum
+     * @brief Gettere della proprietà choice (opzioni di scelta)
+     * @return array
      */
-    public function getEnum() {
+    public function getChoice() {
 
-        return $this->_enum;
+        return $this->_choice;
     }
 
     /**
      * @brief Widget html per il form
      * @param \Gino\Form $form istanza di Gino.Form
      * @param array $options opzioni
-     * @see Gino.Field::formElement()
+     * @see Gino.Build::formElement()
      * @return widget html
      */
     public function formElement(\Gino\Form $form, $options) {
@@ -96,7 +91,7 @@ class ManyToManyInlineFieldBuild extends FieldBuild {
             $m2m = new $this->_m2m(null);
         }
         $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-        $enum = array();
+        $choice = array();
         foreach($rows as $row) {
             if($this->_m2m_controller) {
                 $obj = new $this->_m2m($row['id'], $this->_m2m_controller);
@@ -104,11 +99,11 @@ class ManyToManyInlineFieldBuild extends FieldBuild {
             else {
                 $obj = new $this->_m2m($row['id']);
             }
-            $enum[$obj->id] = (string) $obj;
+            $choice[$obj->id] = (string) $obj;
         }
 
         $this->_value = explode(',', $this->_model->{$this->_name});
-        $this->_enum = $enum;
+        $this->_choice = $choice;
         $this->_name .= "[]";
 
         return parent::formElement($form, $options);

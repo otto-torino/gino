@@ -1,7 +1,7 @@
 <?php
 /**
- * @file class.FileField.php
- * @brief Contiene la definizione ed implementazione della classe Gino.FileField
+ * @file class.FileBuild.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.FileBuild
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\FieldBuild');
+loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Campo di tipo FILE
@@ -18,7 +18,7 @@ loader::import('class/fields', '\Gino\FieldBuild');
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class FileFieldBuild extends FieldBuild {
+class FileBuild extends Build {
 
     /**
      * Percorso assoluto della directory del file
@@ -35,32 +35,33 @@ class FileFieldBuild extends FieldBuild {
     protected $_delete_file;
 
     /**
-     * Proprietà dei campi specifiche del tipo di campo
+     * Proprietà dei campi specifiche del modello
      */
     protected $_extensions, $_path_abs, $_path_add, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
 
     /**
      * @brief Costruttore
      * 
-     * @see Gino.FieldBuild::__construct()
+     * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe FieldBuild()
-     *   - @b extensions (array): estensioni lecite di file
-     *   - @b path (mixed)
-     *     - string, percorso assoluto fino a prima del valore del record ID
-     *     @code
-     *     $controller = new auth();
-     *     'path' => $controller->getBasePath(),
-     *     @endcode
-     *     - array
-     *     @code
-     *     'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
-     *     @endcode
-     *   - @b add_path (string): parte del percorso assoluto dal parametro @a path fino a prima del file
-     *   - @b prefix (string)
-     *   - @b check_type (boolean)
-     *   - @b types_allowed(array)
-     *   - @b max_file_size (integer)
+     *   - opzioni generali definite come proprietà nella classe Build()
+     *   - opzioni definite come proprietà specifiche del modello
+     *     - @b extensions (array): estensioni lecite di file
+     *     - @b path (mixed)
+     *       - string, percorso assoluto fino a prima del valore del record ID
+     *       @code
+     *       $controller = new auth();
+     *       'path' => $controller->getBasePath(),
+     *       @endcode
+     *       - array
+     *       @code
+     *       'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
+     *       @endcode
+     *     - @b add_path (string): parte del percorso assoluto dal parametro @a path fino a prima del file
+     *     - @b prefix (string)
+     *     - @b check_type (boolean)
+     *     - @b types_allowed(array)
+     *     - @b max_file_size (integer)
      */
     function __construct($options=array()) {
 
@@ -478,7 +479,7 @@ class FileFieldBuild extends FieldBuild {
     }
     
     /**
-     * @see Gino.FieldBuild::formElement()
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
     
