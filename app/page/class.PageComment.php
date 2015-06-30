@@ -48,37 +48,6 @@ class PageComment extends \Gino\Model {
     }
     
     /**
-     * @see Gino.Model::properties()
-     */
-    protected static function properties($model) {
-    	 
-    	$property['entry'] = array(
-    			'foreign'=>'\Gino\App\Page\PageEntry',
-    			'foreign_order'=>'last_edit_date',
-    	);
-    	/*
-    	$property['author'] = array(
-				'foreign'=>'\Gino\App\Auth\User',
-				'foreign_order'=>'lastname ASC, firstname ASC',
-				'add_related' => false,
-    	));
-    	*/
-    	$property['notification'] = array(
-    			'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	$property['reply'] = array(
-    			'foreign'=>'\Gino\App\Page\PageComment',
-    			'foreign_where'=>'entry=\'_ENTRY_\'',
-    			'foreign_order'=>'datetime',
-    	);
-    	$property['published'] = array(
-    			'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	 
-    	return $property;
-    }
-
-    /**
      * Struttura dei campi della tabella di un modello
      *
      * @return array
@@ -86,9 +55,9 @@ class PageComment extends \Gino\Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
     	));
     	$columns['entry'] = new \Gino\ForeignKeyField(array(
     		'name'=>'entry',
@@ -141,7 +110,6 @@ class PageComment extends \Gino\Model {
     		'name'=>'notification',
     		'label'=>_('Notifica altri commenti'),
     		'required'=>true,
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
     	));
     	$columns['reply'] = new \Gino\ForeignKeyField(array(
     		'name'=>'reply',
@@ -155,7 +123,6 @@ class PageComment extends \Gino\Model {
             'name'=>'published', 
             'label'=>_('Pubblicato'),
             'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
         ));
 
         return $columns;
