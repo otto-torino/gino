@@ -863,7 +863,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
   `enable_cache` tinyint(1) NOT NULL, 
   `query_cache` tinyint(1) NOT NULL DEFAULT '0', 
-  `query_cache_time` smallint(4) DEFAULT NULL;
+  `query_cache_time` smallint(4) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
