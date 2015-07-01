@@ -60,29 +60,27 @@ class CharBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
      */
     public function filterWhereClause($value) {
 
         $value = str_replace("'", "''", $value);
 
-        if(preg_match("#^\"([^\"]*)\"$#", $value, $matches))
+        if(preg_match("#^\"([^\"]*)\"$#", $value, $matches)) {
             $condition = "='".$matches[1]."'";
-        elseif(preg_match("#^\"([^\"]*)$#", $value, $matches))
+        }
+        elseif(preg_match("#^\"([^\"]*)$#", $value, $matches)) {
             $condition = " LIKE '".$matches[1]."%'";
-        else
+        }
+        else {
             $condition = " LIKE '%".$value."%'";
+        }
 
         return $this->_table.".".$this->_name.$condition;
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 

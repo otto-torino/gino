@@ -26,7 +26,7 @@ class DatetimeBuild extends Build {
     /**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_auto_now, $_auto_now_add;
+	protected $_auto_now, $_auto_now_add, $_view_input;
 	
 	/**
      * Costruttore
@@ -34,7 +34,6 @@ class DatetimeBuild extends Build {
      * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
-     *   - @b view_input (boolean): per visualizzare l'input nel form (default false)
      */
     function __construct($options) {
 
@@ -42,8 +41,7 @@ class DatetimeBuild extends Build {
         
         $this->_auto_now = $options['auto_now'];
         $this->_auto_now_add = $options['auto_now_add'];
-
-        $this->_view_input = array_key_exists('view_input', $options) ? $options['view_input'] : false;
+        $this->_view_input = $options['view_input'];
     }
     
     /**
@@ -56,16 +54,11 @@ class DatetimeBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
      * 
-     * @param string $value
      * @param array $options
      *   array associativo di opzioni
      *   - @b operator (string): operatore di confronto della data
-     * @return where clause
-     * 
-     * VEDERE ADMINLIST
      */
     public function filterWhereClause($value, $options=array()) {
 

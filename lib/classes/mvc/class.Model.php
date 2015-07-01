@@ -691,9 +691,8 @@ namespace Gino;
     }
     
     /**
-     * Recupera le proprietà del campo di un modello
+     * Imposta le opzioni model e value e recupera le proprietà del campo di una tabella dipendenti dai valori del record 
      * 
-     * @description Le proprietà sono state definite in Gino.Model::setProperties()
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return array
      */
@@ -720,7 +719,7 @@ namespace Gino;
     }
     
     /**
-     * Proprietà specifiche di un modello
+     * Proprietà specifiche di un modello dipendenti dai valori del record (ad esempio dal valore id)
      * 
      * @param object $model
      * @return array
@@ -732,7 +731,8 @@ namespace Gino;
     
     /**
      * Building class from column
-     *
+     * 
+     * @description Le eventuali proprietà del modello dipendenti dai valori del record devono sovrascrivere le proprietà del campo
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return object
      */

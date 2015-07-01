@@ -42,6 +42,8 @@ class ForeignKeyField extends Field {
      *       - @a array, es. array("cond1='$cond1'", "cond2='$cond2'")
      *     - @b foreign_order (string): ordinamento dei valori (es. name ASC); default 'id'
      *     - @b foreign_controller (object): oggetto del controller della classe della chiave esterna
+     *     - @b add_related (boolean)
+     *     - @b add_related_url (string)
      * @return istanza di Gino.ForeignKeyField
      */
     function __construct($options) {

@@ -56,25 +56,23 @@ class Build {
     protected $_value;
     
     /**
-     * @brief Elenco delle opzioni del modello e del tipo di campo
+     * Contiene tutte le opzioni di un campo di tabella
      * @var array
      */
-    protected $_options;
-
+    private $_options;
+    
     /**
      * Costruttore
      * 
      * @param array $options array associativo di opzioni del campo di una tabella
-     *   // opzioni delle colonne (caratteristiche del tipo di campo)
-     *   // opzioni del modello
-     *   - @b model (object):
-     *   - @b value (mixed):
+     *   opzioni delle colonne (caratteristiche del tipo di campo)
+     *   opzioni del modello
+     *     - @b model (object):
+     *     - @b value (mixed):
      */
     function __construct($options) {
 
-    	$this->_options = $options;
-    	
-        $this->_name = $options['name'];
+    	$this->_name = $options['name'];
     	$this->_label = $options['label'];
     	$this->_default = $options['default'];
     	$this->_lenght = $options['lenght'];
@@ -97,8 +95,28 @@ class Build {
     	else {
     		$value = $this->_model->{$this->_name};
     		$this->_value = $value;
-    		$this->_options['value'] = $value;
+    		$options['value'] = $value;
     	}
+    	
+    	$this->_options = $options;
+    }
+    
+    /**
+     * Elenco delle proprietà generali e specifiche di un campo
+     * 
+     * @return array
+     */
+    private function properties() {
+    	
+    	$properties = array();
+    	
+    	foreach($this->_options AS $key => $value)
+    	{
+    		$prop_name = '_'.$key;
+    		$properties[$key] = $this->$prop_name;
+    	}
+    	
+    	return $properties;
     }
 
     /**
@@ -212,7 +230,7 @@ class Build {
     		if(!array_key_exists('required', $options)) {
     			$options['required'] = $this->_required;
     		}
-    		$opt = array_merge($this->_options, $options);
+    		$opt = array_merge($this->properties(), $options);
     		
     		$wìdget_class = "\Gino\\".ucfirst($widget)."Widget";
     		
@@ -237,14 +255,26 @@ class Build {
     }
     
     /**
+     * @brief Definisce la condizione WHERE per il campo
+     *
+     * @param mixed $value
+     * @param array $options array associativo di opzioni specifiche dei tipi di campo
+     * @return where clause
+     */
+    public function filterWhereClause($value, $options=array()) {
+    
+    	return $this->_table.'.'.$this->_name."='".$value."'";
+    }
+    
+    /**
      * @brief Ripulisce un input usato come filtro in area amministrativa
      * @param $options
      *   array associativo di opzioni
      *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
      * @return input ripulito
      */
-    public function cleanFilter($options)
-    {
+    public function cleanFilter($options) {
+    	
     	$options['asforminput'] = TRUE;
     	return $this->clean($options);
     }
@@ -276,7 +306,7 @@ class Build {
     }
     
     /**
-     * @brief Valore del campo di tabella per la visualizzazione
+     * @brief Valore del record predisposto per l'output html
      *
      * @param mixed $value
      * @return mixed

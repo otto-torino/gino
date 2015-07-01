@@ -84,7 +84,8 @@ class TagBuild extends Build {
      * @return valore ripulito
      */
     public function clean($options=null) {
-        $event_dispatcher = EventDispatcher::instance();
+        
+    	$event_dispatcher = EventDispatcher::instance();
         $event_dispatcher->listenEmitter($this->_model, 'post_save', array($this, 'save'));
 
         return parent::clean($options);

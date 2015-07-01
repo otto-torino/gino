@@ -47,6 +47,17 @@ class PageComment extends \Gino\Model {
         return (string) $this->id ? $this->datetime.'-'.$this->author : '';
     }
     
+    protected static function properties() {
+    	
+    	$items = array();
+    	
+    	$items['reply'] = array(
+    		'foreign_where'=>'entry=\''.$this->entry.'\'',
+    	);
+    	
+    	return $items;
+    }
+    
     /**
      * Struttura dei campi della tabella di un modello
      *
@@ -116,7 +127,7 @@ class PageComment extends \Gino\Model {
     		'label'=>_('Risposta'),
     		'required'=>false,
     		'foreign'=>'\Gino\App\Page\PageComment',
-    		'foreign_where'=>'entry=\'_ENTRY_\'',
+    		'foreign_where'=>null,
     		'foreign_order'=>'datetime',
     	));
 		$columns['published'] = new \Gino\BooleanField(array(

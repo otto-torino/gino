@@ -25,7 +25,7 @@ class DatetimeField extends Field {
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_auto_now, $_auto_now_add;
+	protected $_auto_now, $_auto_now_add, $_view_input;
 	
     /**
      * Costruttore
@@ -36,6 +36,7 @@ class DatetimeField extends Field {
      *   - opzioni specifiche del tipo di campo
      *     - @b auto_now (boolean): imposta automaticamente il valore del campo al tempo/ora corrente ogni volta che l'oggetto viene salvato (default: true)
      *     - @b auto_now_add (boolean): imposta automaticamente il valore del campo al tempo/ora corrente la prima volta che l'oggetto viene creato (default: true)
+     *     - @b view_input (boolean): per visualizzare l'input nel form (default false)
      */
     function __construct($options) {
 
@@ -45,6 +46,7 @@ class DatetimeField extends Field {
         
         $this->_auto_now = array_key_exists('auto_now', $options) ? $options['auto_now'] : true;
         $this->_auto_now_add = array_key_exists('auto_now_add', $options) ? $options['auto_now_add'] : true;
+        $this->_view_input = array_key_exists('view_input', $options) ? $options['view_input'] : false;
         
         if($this->_auto_now || $this->_auto_now_add) {
         	$this->_default_widget = null;
@@ -64,6 +66,7 @@ class DatetimeField extends Field {
     	
     	$prop['auto_now'] = $this->_auto_now;
     	$prop['auto_now_add'] = $this->_auto_now_add;
+    	$prop['view_input'] = $this->_view_input;
     	
     	return $prop;
     }

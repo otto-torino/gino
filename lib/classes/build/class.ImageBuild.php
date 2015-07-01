@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/build', array('\Gino\Build', '\Gino\FileBuild'));
+Loader::import('class/build', array('\Gino\Build', '\Gino\FileBuild'));
 
 /**
  * @brief Gestisce campi di tipo IMMAGINE
@@ -36,35 +36,22 @@ class ImageBuild extends FileBuild {
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
      *   - opzioni generali definite come proprietà nella classe FileBuild()
-     *   - opzioni definite come proprietà specifiche del modello
-     *     - @b resize (boolean)
-     *     - @b thumb (boolean)
-     *     - @b prefix_file (string)
-     *     - @b prefix_thumb (string)
-     *     - @b width (integer)
-     *     - @b height (integer)
-     *     - @b thumb_width (integer)
-     *     - @b thumb_height (integer)
      */
     function __construct($options) {
 
         parent::__construct($options);
 
-        $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array("jpg, png");
-        $this->_types_allowed = isset($options['types_allowed']) ? $options['types_allowed'] : array(
-            "image/jpeg",
-            "image/gif",
-            "image/png"
-        );
+        $this->_extensions = $options['extensions'];
+        $this->_types_allowed = $options['types_allowed'];
 
-        $this->_resize = isset($options['resize']) ? $options['resize'] : true;
-        $this->_thumb = isset($options['thumb']) ? $options['thumb'] : true;
-        $this->_prefix_file = isset($options['prefix_file']) ? $options['prefix_file'] : '';
-        $this->_prefix_thumb = isset($options['prefix_thumb']) ? $options['prefix_thumb'] : 'thumb_';
-        $this->_width = isset($options['width']) ? $options['width'] : 800;
-        $this->_height = isset($options['height']) ? $options['height'] : null;
-        $this->_thumb_width = isset($options['thumb_width']) ? $options['thumb_width'] : 200;
-        $this->_thumb_height = isset($options['thumb_height']) ? $options['thumb_height'] : null;
+        $this->_resize = $options['resize'];
+        $this->_thumb = $options['thumb'];
+        $this->_prefix_file = $options['prefix_file'];
+        $this->_prefix_thumb = $options['prefix_thumb'];
+        $this->_width = $options['width'];
+        $this->_height = $options['height'];
+        $this->_thumb_width = $options['thumb_width'];
+        $this->_thumb_height = $options['thumb_height'];
     }
 
     /**
@@ -220,11 +207,7 @@ class ImageBuild extends FileBuild {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
      * @see Gino.Build::formElement()
-     * @return widget html
      */
     public function formElement(\Gino\Form $form, $options) {
 

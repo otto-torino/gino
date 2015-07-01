@@ -12,7 +12,7 @@ namespace Gino;
 
 use \Gino\Http\Request;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Campo di tipo TEXT
@@ -62,8 +62,7 @@ class TextBuild extends Build {
     }
 
     /**
-     * @brief Indica se il campo può essere utilizzato come ordinamento nella lista della sezione amministrativa
-     * @see Gino.Field::canBeOrdered()
+     * @see Gino.Build::canBeOrdered()
      * @return FALSE
      */
     public function canBeOrdered() {
@@ -72,29 +71,27 @@ class TextBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
      */
     public function filterWhereClause($value) {
 
         $value = str_replace("'", "''", $value);
 
-        if(preg_match("#^\"([^\"]*)\"$#", $value, $matches))
+        if(preg_match("#^\"([^\"]*)\"$#", $value, $matches)) {
             $condition = "='".$matches[1]."'";
-        elseif(preg_match("#^\"([^\"]*)$#", $value, $matches))
+        }
+        elseif(preg_match("#^\"([^\"]*)$#", $value, $matches)) {
             $condition = " LIKE '".$matches[1]."%'";
-        else
+        }
+        else {
             $condition = " LIKE '%".$value."%'";
+        }
 
         return $this->_table.".".$this->_name.$condition;
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 

@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo many to many
@@ -172,8 +172,9 @@ class ManyToManyBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
+     * 
+     * @param array $value
      */
     public function filterWhereClause($value) {
 

@@ -125,11 +125,7 @@ class ManyToManyThroughBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -160,7 +156,6 @@ class ManyToManyThroughBuild extends Build {
         $buffer .= "</script>";
 
         return $buffer;
-
     }
 
     /**
@@ -187,10 +182,7 @@ class ManyToManyThroughBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @description Non si supportano filtri su campi di tipo m2mt
      * @see Gino.Field::filterWhereClause()
-     * @return null
      */
     public function filterWhereClause($value) {
         return null;

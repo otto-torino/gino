@@ -43,6 +43,7 @@ class BooleanField extends Field {
 
         $this->_default_widget = 'radio';
         $this->_value_type = 'int';
+        $this->setLenght(1);
         
         $this->_choice = array_key_exists('choice', $options) ? $options['choice'] : array(1 => _('si'), 0 => _('no'));
     }

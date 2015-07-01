@@ -74,11 +74,7 @@ class ForeignKeyBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 

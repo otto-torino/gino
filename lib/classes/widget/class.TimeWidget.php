@@ -20,6 +20,10 @@ class TimeWidget extends Widget {
 
 	/**
 	 * @see Gino.Widget::printInputForm()
+	 * 
+	 * @param array $options opzioni dell'elemento del form
+     *   - opzioni dei metodi input() e cinput() della classe Form
+     *   - @b seconds (boolean): per mostrare i secondi
 	 */
 	public function printInputForm($form, $options) {
 	

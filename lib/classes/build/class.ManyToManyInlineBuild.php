@@ -74,11 +74,7 @@ class ManyToManyInlineBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
      * @see Gino.Build::formElement()
-     * @return widget html
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -138,8 +134,9 @@ class ManyToManyInlineBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
+     * 
+     * @param array $value
      */
     public function filterWhereClause($value) {
 

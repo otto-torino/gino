@@ -62,8 +62,6 @@ class PageEntry extends \Gino\Model {
         $add_path = $controller->getAddPath($model->id);
     	
     	$property['image'] = array(
-    		'extensions'=>self::$_extension_img,
-    		'resize'=>false,
     		//'path'=>array($controller, 'getBasePath'),
     		'path'=>$base_path,
     		'add_path'=>$add_path
@@ -94,7 +92,8 @@ class PageEntry extends \Gino\Model {
         	'foreign'=>'\Gino\App\Page\PageCategory',
         	'foreign_order'=>'name ASC',
         	'add_related' => true,
-        	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1")
+        	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1"), 
+        	'table'=>self::$table
         ));
 		$columns['author'] = new \Gino\ForeignKeyField(array(
 			'name'=>'author',
@@ -123,6 +122,7 @@ class PageEntry extends \Gino\Model {
 			'label'=>_("Titolo"),
 			'required'=>true,
 			'max_lenght'=>200,
+			'table'=>self::$table
 		));
         $columns['slug'] = new \Gino\SlugField(array(
             'name'=>'slug',
@@ -136,6 +136,10 @@ class PageEntry extends \Gino\Model {
         	'name'=>'image',
         	'label'=>_("Immagine"),
         	'max_lenght'=>100,
+        	'extensions'=>self::$_extension_img,
+        	'resize'=>false,
+        	'path'=>null,
+        	'add_path'=>null
         ));
         $columns['url_image'] = new \Gino\CharField(array(
         	'name'=>'url_image',
@@ -154,7 +158,8 @@ class PageEntry extends \Gino\Model {
         	'required'=>false,
         	'max_lenght'=>255,
         	'model_controller_class' => 'page',
-        	'model_controller_instance' => 0
+        	'model_controller_instance' => 0, 
+        	'table'=>self::$table
         ));
         $columns['enable_comments'] = new \Gino\BooleanField(array(
         	'name'=>'enable_comments',
@@ -165,6 +170,7 @@ class PageEntry extends \Gino\Model {
             'name'=>'published',
             'label'=>_('Pubblicato'),
             'required'=>true,
+			'table'=>self::$table
         ));
 		$columns['social'] = new \Gino\BooleanField(array(
             'name'=>'social',

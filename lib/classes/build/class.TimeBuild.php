@@ -40,14 +40,7 @@ class TimeBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     *
-     * @see Gino.Field::formElement()
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni dell'elemento del form
-     *   - opzioni dei metodi input() e cinput() della classe Form
-     *   - @b seconds (boolean): mostra i secondi
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 

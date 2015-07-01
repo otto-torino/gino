@@ -151,19 +151,6 @@ class AdminTable {
     }
     
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     *
-     * @param mixed $value
-     * @param string $table
-     * @param string $name
-     * @return where clause
-     */
-    private function filterWhereClause($value, $table, $name) {
-    
-    	return $table.".".$name." = '".$value."'";
-    }
-    
-    /**
      * @brief Definisce l'ordinamento della query
      *
      * @param string $order_dir
@@ -657,7 +644,10 @@ class AdminTable {
                     else
                     {
                         $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
-                        $value = $object->clean($opt_element);
+                        
+                        // build
+                        
+                        $value = $object->clean($opt_element);	/// 
                         $result = $object->validate($value);
 
                         if($result === TRUE) {
@@ -1238,7 +1228,9 @@ class AdminTable {
 
             foreach($this->_filter_fields as $fname) {
                 if(isset($this->_request->POST[$fname]) && $this->_request->POST[$fname] !== '') {
-                    $this->_session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->cleanFilter(array("escape"=>false));
+                    
+                	$build = $model->build($model_structure[$fname]);
+                	$this->_session->{$class_name.'_'.$fname.'_filter'} = $build->cleanFilter(array("escape"=>false));
                 }
                 else {
                     $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
@@ -1311,17 +1303,18 @@ class AdminTable {
                 // Filtri aggiuntivi associati ai campi automatici
                 if(count($this->_filter_join))
                 {
-                    $where_join = $this->addWhereJoin($model_structure, $class_name, $fname);
-                    if(!is_null($where_join))
+                    $where_join = $this->addWhereJoin($model, $class_name, $fname);
+                    if(!is_null($where_join)) {
                         $query_where[] = $where_join;
+                    }
                     else {
-                        //$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
-                        $query_where[] = $this->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $model_table, $fname);
+                        $build = $model->build($model_structure[$fname]);
+                    	$query_where[] = $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
                     }
                 }
                 else {
-                	//$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
-                	$query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $model_table, $fname);
+                	$build = $model->build($model_structure[$fname]);
+                	$query_where[] = $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
                 }
             }
         }
@@ -1346,14 +1339,16 @@ class AdminTable {
      *
      * Ci può essere una solo campo input di tipo join.
      *
-     * @param array $model_structure struttura del modello
+     * @param object $model modello
      * @param string $class_name nome della classe
      * @param string $fname nome del campo della tabella al quale associare le condizioni aggiuntive
      * @return array di condizioni o null
      */
-    private function addWhereJoin($model_structure, $class_name, $fname) {
+    private function addWhereJoin($model, $class_name, $fname) {
 
-        foreach($this->_filter_join AS $array)
+    	$model_structure = $model->getStructure();
+    	
+    	foreach($this->_filter_join AS $array)
         {
             $field = gOpt('field', $array, null);
 
@@ -1376,7 +1371,9 @@ class AdminTable {
                     }
                 }
 
-                return $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
+                $build = $model->build($model_structure[$fname]);
+                
+                return $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
             }
         }
 
@@ -1448,15 +1445,17 @@ class AdminTable {
 
             if($this->permission($options, $fname))
             {
-                $field = $model_structure[$fname];
-                $field->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
-                $field_label = $field->getLabel();
+            	$field = $model_structure[$fname];
+            	
+            	$field_label = $field->getLabel();
                 if(is_array($field_label)) {
                     $field->setLabel($field_label[0]);
                 }
                 
-                $build_obj = $model->build($field);
-                $form .= $build_obj->formFilter($gform, array('default'=>null));
+                $build = $model->build($field);
+                $build->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
+                
+                $form .= $build->formFilter($gform, array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

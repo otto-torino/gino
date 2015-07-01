@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo ENUM
@@ -31,7 +31,6 @@ class EnumBuild extends Build {
      * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
-     *   - @b choice (array): elenco degli elementi di scelta
      */
     function __construct($options) {
 
@@ -70,13 +69,10 @@ class EnumBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
+    	
         return parent::formElement($form, $options);
     }
 }

@@ -40,11 +40,7 @@ class DateBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -52,13 +48,11 @@ class DateBuild extends Build {
     }
 
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     * @see Gino.Field::filterWhereClause()
-     * @param string $value
+     * @see Gino.Build::filterWhereClause()
+     * 
      * @param array $options
      *   array associativo di opzioni
      *   - @b operator (string): operatore di confronto della data
-     * @return where clause
      */
     public function filterWhereClause($value, $options=array()) {
 

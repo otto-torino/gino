@@ -22,6 +22,11 @@ loader::import('class/fields', array('\Gino\Field', '\Gino\FileField'));
  */
 class ImageField extends FileField {
 
+	/**
+	 * Proprietà dei campi specifiche del modello
+	 */
+	protected $_resize, $_thumb, $_prefix_file, $_prefix_thumb, $_width, $_height, $_thumb_width, $_thumb_height;
+	
     /**
      * @brief Costruttore
      *
@@ -29,11 +34,58 @@ class ImageField extends FileField {
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Field()
      *   - opzioni generali definite come proprietà nella classe FileField()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b resize (boolean)
+     *     - @b thumb (boolean)
+     *     - @b prefix_file (string)
+     *     - @b prefix_thumb (string)
+     *     - @b width (integer)
+     *     - @b height (integer)
+     *     - @b thumb_width (integer)
+     *     - @b thumb_height (integer)
      */
     function __construct($options) {
 
         parent::__construct($options);
 
         $this->_default_widget = 'image';
+        
+        $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array("jpg, png");
+        $this->_types_allowed = isset($options['types_allowed']) ? $options['types_allowed'] : array(
+        		"image/jpeg",
+        		"image/gif",
+        		"image/png"
+        );
+        
+        $this->_resize = isset($options['resize']) ? $options['resize'] : true;
+        $this->_thumb = isset($options['thumb']) ? $options['thumb'] : true;
+        $this->_prefix_file = isset($options['prefix_file']) ? $options['prefix_file'] : '';
+        $this->_prefix_thumb = isset($options['prefix_thumb']) ? $options['prefix_thumb'] : 'thumb_';
+        $this->_width = isset($options['width']) ? $options['width'] : 800;
+        $this->_height = isset($options['height']) ? $options['height'] : null;
+        $this->_thumb_width = isset($options['thumb_width']) ? $options['thumb_width'] : 200;
+        $this->_thumb_height = isset($options['thumb_height']) ? $options['thumb_height'] : null;
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    
+    	$prop = parent::getProperties();
+    
+    	$prop['extensions'] = $this->_extensions;
+    	$prop['types_allowed'] = $this->_types_allowed;
+    	
+    	$prop['resize'] = $this->_resize;
+    	$prop['thumb'] = $this->_thumb;
+    	$prop['prefix_file'] = $this->_prefix_file;
+    	$prop['prefix_thumb'] = $this->_prefix_thumb;
+    	$prop['width'] = $this->_width;
+    	$prop['height'] = $this->_height;
+    	$prop['thumb_width'] = $this->_thumb_width;
+    	$prop['thumb_height'] = $this->_thumb_height;
+    
+    	return $prop;
     }
 }

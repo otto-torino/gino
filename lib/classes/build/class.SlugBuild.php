@@ -10,7 +10,7 @@
 
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Getisce i campi di tipo SLUG (CHAR, VARCHAR)
@@ -24,7 +24,7 @@ class SlugBuild extends Build {
     /**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_autofill, $_js, $_trnsl;
+	protected $_autofill, $_trnsl;
 
     /**
      * @brief Costruttore
@@ -38,7 +38,6 @@ class SlugBuild extends Build {
         parent::__construct($options);
 		
         $this->_autofill = $options['autofill'];
-        $this->_js = $options['js'];
         $this->_trnsl = $options['trnsl'];
     }
 

@@ -20,6 +20,11 @@ loader::import('class/build', '\Gino\Build');
  */
 class FileBuild extends Build {
 
+	/**
+	 * Proprietà dei campi specifiche del modello
+	 */
+	protected $_extensions, $_path_abs, $_path_add, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
+	
     /**
      * Percorso assoluto della directory del file
      * 
@@ -35,65 +40,27 @@ class FileBuild extends Build {
     protected $_delete_file;
 
     /**
-     * Proprietà dei campi specifiche del modello
-     */
-    protected $_extensions, $_path_abs, $_path_add, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
-
-    /**
      * @brief Costruttore
      * 
      * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
-     *   - opzioni definite come proprietà specifiche del modello
-     *     - @b extensions (array): estensioni lecite di file
-     *     - @b path (mixed)
-     *       - string, percorso assoluto fino a prima del valore del record ID
-     *       @code
-     *       $controller = new auth();
-     *       'path' => $controller->getBasePath(),
-     *       @endcode
-     *       - array
-     *       @code
-     *       'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
-     *       @endcode
-     *     - @b add_path (string): parte del percorso assoluto dal parametro @a path fino a prima del file
-     *     - @b prefix (string)
-     *     - @b check_type (boolean)
-     *     - @b types_allowed(array)
-     *     - @b max_file_size (integer)
      */
     function __construct($options=array()) {
 
         parent::__construct($options);
         
-        $this->_delete_file = false;
-
-        $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array('txt','xml','html','htm','doc','xls','zip','pdf');
-        $this->_path_abs = isset($options['path']) ? $this->setPath($options['path']) : '';
-        $this->_path_add = isset($options['add_path']) ? $options['add_path'] : '';
-        $this->_prefix = isset($options['prefix']) ? $options['prefix'] : '';
-        $this->_check_type = isset($options['check_type']) ? $options['check_type'] : false;
-        $this->_filesize_field = isset($options['filesize_field']) ? $options['filesize_field'] : false;
-        $this->_types_allowed = isset($options['types_allowed']) ? $options['types_allowed'] : array(
-            "text/plain",
-            "text/html",
-            "text/xml",
-            "video/mpeg",
-            "audio/midi",
-            "application/pdf",
-            "application/x-compressed",
-            "application/x-zip-compressed",
-            "application/zip",
-            "multipart/x-zip",
-            "application/vnd.ms-excel",
-            "application/msword",
-            "application/x-msdos-program",
-            "application/octet-stream"
-        );
-        $this->_max_file_size = isset($options['max_file_size']) ? $options['max_file_size'] : null;
+        $this->_extensions = $options['extensions'];
+        $this->_path_abs = $options['path'] ? $this->setPath($options['path']) : $options['path'];
+        $this->_path_add = $options['add_path'];
+        $this->_prefix = $options['prefix'];
+        $this->_check_type = $options['check_type'];
+        $this->_filesize_field = $options['filesize_field'];
+        $this->_types_allowed = $options['types_allowed'];
+        $this->_max_file_size =$options['max_file_size'];
 
         $this->_directory = $this->pathToFile();
+        $this->_delete_file = false;
     }
 
     /**
@@ -456,10 +423,7 @@ class FileBuild extends Build {
     }
     
     /**
-     * @brief Definisce la condizione WHERE per il campo
-     *
-     * @param mixed $value
-     * @return where clause
+     * @see Gino.Build::filterWhereClause()
      */
     public function filterWhereClause($value) {
     

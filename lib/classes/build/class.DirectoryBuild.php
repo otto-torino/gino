@@ -29,26 +29,14 @@ class DirectoryBuild extends Build {
      * @see Gino.Build::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
-     *   - @b path (string): percorso assoluto della directory superiore
-     *   - @b prefix (string): prefisso da aggiungere al nome della directory
-     *   - @b default_name (array): valori per il nome di default
-     *     - @a field (string): nome dell'input dal quale ricavare il nome della directory (default id)
-     *     - @a maxlentgh (integer): numero di caratteri da considerare nel nome dell'input (default 15)
-     *     - @a value_type (string): tipo di valore (default string)
      */
     function __construct($options) {
 
         parent::__construct($options);
 
-        $this->_path = isset($options['path']) ? $options['path'] : '';
-        if(!$this->_path) {
-            throw new \Exception(_('Parametro path inesistente'));
-        }
-        if(substr($this->_path, -1) !== OS) {
-            $this->_path .= OS;
-        }
-        $this->_prefix = isset($options['prefix']) ? $options['prefix'] : '';
-        $this->_default_name = isset($options['default_name']) ? $options['default_name'] : array();
+        $this->_path = $options['path'];
+        $this->_prefix = $options['prefix'];
+        $this->_default_name = $options['default_name'];
     }
 
     /**
