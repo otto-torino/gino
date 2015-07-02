@@ -48,15 +48,12 @@ class TimeBuild extends Build {
     }
 
     /**
-     * Formatta un elemento input di tipo @a time per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
-        $request = Request::instance();
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
+        $value = parent::clean($options);
 
-        return \Gino\timeToDbTime(\Gino\cleanVar($method, $this->_name, $value_type, null));
+        return \Gino\timeToDbTime($value);
     }
 }

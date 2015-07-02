@@ -106,9 +106,7 @@ class TextBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
-     * @return valore ripulito
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
@@ -118,9 +116,11 @@ class TextBuild extends Build {
         $escape = gOpt('escape', $options, TRUE);
         $widget = gOpt('widget', $options, null);
 
-        if($widget == 'editor')
+        if($widget == 'editor') {
             return cleanVarEditor($method, $this->_name, '');
-        else
+        }
+        else {
             return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+        }
     }
 }

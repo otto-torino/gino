@@ -43,8 +43,7 @@ class SlugBuild extends Build {
 
     /**
      * @see Gino.Build::formElement()
-     * @description Aggiunge il codice javascript che permette l'autoriempimento del campo
-     *              se è stata passata l'opzione autofill.
+     * @description Aggiunge il codice javascript che permette l'autoriempimento del campo se è stata passata l'opzione autofill.
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -77,8 +76,9 @@ class SlugBuild extends Build {
     		$db = \Gino\Db::instance();
     		 
     		$where = $this->_name."='".$value."'";
-    		if($id)
+    		if($id) {
     			$where .= " AND id!='".$id."'";
+    		}
     		
     		$res = $db->select('id', $this->_table, $where);
     		if($res && count($res)) {

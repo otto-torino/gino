@@ -111,7 +111,7 @@ class ForeignKeyBuild extends Build {
     }
     
     /**
-     * @see Gino.FieldBuild::retrieveValue()
+     * @see Gino.Build::retrieveValue()
      * @return object
      */
     public function retrieveValue() {

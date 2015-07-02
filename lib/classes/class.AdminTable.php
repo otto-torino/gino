@@ -547,9 +547,13 @@ class AdminTable {
                 	$build = $model->build($object);
                 	
                 	$value = $build->clean($opt_element);
-                	//$value = $build->validate($value);	// richiamato in model->save
+                	// @todo spostare in questa posizione
+                	//$value = $build->validate($value);
+                	// ???
+                	// adesso viene richiamato in model->save
+                    
                     if(is_array($value)) {
-                    	return array('error'=>$result['error']);	// per compatibilità. RIMUOVERE?????
+                    	return array('error'=>$result['error']);
                     }
                     else {
                     	$model->{$field} = $value;
@@ -645,16 +649,16 @@ class AdminTable {
                     {
                         $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
                         
-                        // build
+                        $build = $model->build($object);
                         
-                        $value = $object->clean($opt_element);	/// 
-                        $result = $object->validate($value);
+                        $value = $build->clean($opt_element);
+                        $result = $build->validate($value);
 
-                        if($result === TRUE) {
-                            $m2m_model->{$field} = $value;
+                        if(is_array($result)) {
+                        	return array('error'=>$result['error']);
                         }
                         else {
-                            return array('error'=>$result['error']);
+                        	$m2m_model->{$field} = $value;
                         }
 
                         if(isset($import) and $import)

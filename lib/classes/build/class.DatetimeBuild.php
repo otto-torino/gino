@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo DATETIME
@@ -69,8 +69,7 @@ class DatetimeBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 

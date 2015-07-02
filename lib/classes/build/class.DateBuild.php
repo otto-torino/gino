@@ -63,15 +63,12 @@ class DateBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
-        $request = \Gino\Http\Request::instance();
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-
-        return \Gino\dateToDbDate(\Gino\cleanVar($method, $this->_name, $value_type, null), "/");
+        $value = parent::clean($options);
+        
+        return \Gino\dateToDbDate($value, "/");
     }
 }

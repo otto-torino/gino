@@ -106,24 +106,14 @@ class ManyToManyInlineBuild extends Build {
     }
 
     /**
-     * @brief Formatta un elemento input per l'inserimento in database
-     * @see Gino.Field::clean()
-     * @see cleanVar()
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b value_type (string): tipo di valore
-     *   - @b method (array): metodo di recupero degli elementi del form
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
+     * @see Gino.Build::clean()
+     * 
+     * @param array $options array associativo di opzioni del parent con l'aggiunta di
      *   - @b asforminput (boolean)
-     * @return valore ripulito
      */
     public function clean($options=null) {
 
-        $value_type = $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $_POST;
-        $escape = gOpt('escape', $options, true);
-
-        $value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+        $value = parent::clean($options);
 
         if(gOpt('asforminput', $options, false)) {
             return $value;

@@ -10,7 +10,7 @@
 
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Gestisce i campi di tipo stringa (CHAR, VARCHAR)

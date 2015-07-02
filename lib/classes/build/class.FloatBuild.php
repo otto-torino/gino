@@ -46,19 +46,4 @@ class FloatBuild extends Build {
 
         return parent::formElement($form, $options);
     }
-
-    /**
-     * @brief Ripulisce un input per l'inserimento in database
-     *
-     * Formatta un elemento input di tipo @a float per l'inserimento in database
-     * @see Gino.Field::clean()
-     */
-    public function clean($options=null) {
-
-        $request = \Gino\Http\Request::instance();
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-
-        return cleanVar($method, $this->_name, $value_type, null);
-    }
 }

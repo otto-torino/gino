@@ -280,8 +280,8 @@ class Build {
     }
     
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     *
+     * @brief Ripulisce un input per l'inserimento del valore in database
+     * 
      * @see Gino.cleanVar()
      * @param array $options
      *   array associativo di opzioni
@@ -291,15 +291,22 @@ class Build {
      * @return input ripulito
      */
     public function clean($options=null) {
-    
+    	
     	$request = Request::instance();
     	$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
     	$method = isset($options['method']) ? $options['method'] : $request->POST;
     	$escape = gOpt('escape', $options, TRUE);
-    
+    	
     	return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
     }
     
+    /**
+     * Utilizzato per effettuare delle operazioni collegate al tipo di campo a partire dal valore ripulito dal clean
+     * 
+     * @param mixed $value valore cal campo
+     * @param integer $id valore id del record
+     * @return mixed
+     */
     public function validate($value, $id=null) {
     	
     	return $value;

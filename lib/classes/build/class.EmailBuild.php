@@ -35,8 +35,7 @@ class EmailBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=array()) {
 
@@ -46,9 +45,9 @@ class EmailBuild extends Build {
     }
 
     /**
-     * @see Gino.Field::validate()
+     * @see Gino.Build::validate()
      */
-    public function validate($value, $id=null) {
+    public function validate($value) {
 
         if(is_null($value)) {
         	return null;

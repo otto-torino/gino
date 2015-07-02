@@ -96,11 +96,7 @@ class ManyToManyBuild extends Build {
     }
 
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 
@@ -148,25 +144,11 @@ class ManyToManyBuild extends Build {
     }
 
     /**
-     * @brief Formatta un elemento input per l'inserimento in database
-     * @see Gino.Field::clean()
-     * @see Gino.cleanVar()
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b value_type (string): tipo di valore
-     *   - @b method (array): metodo di recupero degli elementi del form
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     *   - @b asforminput (boolean)
-     * @return valore ripulito
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
-        $request = \Gino\Http\Request::instance();
-        $value_type = $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-        $escape = gOpt('escape', $options, true);
-
-        $value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+        $value = parent::clean($options);
 
         return is_null($value) ? array() : $value;
     }

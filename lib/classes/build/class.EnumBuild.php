@@ -60,7 +60,7 @@ class EnumBuild extends Build {
 
     /**
      * @brief Setter della proprietà enum
-     * @param array $enum
+     * @param array $value
      * @return void
      */
     public function setChoice($value) {

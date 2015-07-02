@@ -159,32 +159,10 @@ class ManyToManyThroughBuild extends Build {
     }
 
     /**
-     * @brief Formatta un elemento input per l'inserimento in database
-     * @see Gino.Field::clean()
-     * @see Gino.cleanVar()
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b value_type (string): tipo di valore
-     *   - @b method (array): metodo di recupero degli elementi del form
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     *   - @b asforminput (boolean)
-     * @return mixed
-     */
-    public function clean($options=null) {
-
-        $value_type = $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $_POST;
-        $escape = gOpt('escape', $options, true);
-
-        $value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
-
-        return $value;
-    }
-
-    /**
-     * @see Gino.Field::filterWhereClause()
+     * @see Gino.Build::filterWhereClause()
      */
     public function filterWhereClause($value) {
-        return null;
+        
+    	return null;
     }
 }

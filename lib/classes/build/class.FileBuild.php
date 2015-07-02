@@ -235,8 +235,7 @@ class FileBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
@@ -414,11 +413,10 @@ class FileBuild extends Build {
     }
     
     /**
-     * @brief Elemento del form nei filtri
-     * @return elemento form (label + input)
+     * @see Gino.Build::formFilter()
      */
-    public function formFilter(\Gino\Form $form, $options = array())
-    {
+    public function formFilter(\Gino\Form $form, $options = array()) {
+    	
     	return $form->cinput($this->_name, 'text', $this->_value, $this->_label, array());
     }
     
@@ -431,8 +429,7 @@ class FileBuild extends Build {
     }
     
     /**
-     * Clean valore input da filtri
-     * @return valore ripulito
+     * @see Gino.Build::cleanFilter()
      */
     public function cleanFilter($options)
     {
@@ -457,6 +454,9 @@ class FileBuild extends Build {
     	return parent::formElement($form, $options);
     }
     
+    /**
+     * @see Gino.Build::validate()
+     */
     public function validate($value) {
     
     	if(is_null($value)) {

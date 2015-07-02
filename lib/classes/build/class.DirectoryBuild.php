@@ -78,18 +78,13 @@ class DirectoryBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      */
     public function clean($options=null) {
 
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $_POST;
-        $escape = gOpt('escape', $options, true);
-
-        $value = cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
-
-        if(!$value)
+        $value = parent::clean($options);
+        
+		if(!$value)
             $value = $this->defaultName($options);
 
         if($value != $this->_value)
@@ -104,21 +99,21 @@ class DirectoryBuild extends Build {
      */
     private function defaultName($options){
 
-        $request = \Gino\Http\Request::instance();
-        if($this->_default_name)
-        {
-            $field = array_key_exists('field', $this->_default_name) ? $this->_default_name['field'] : 'id';
-            $maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 15;
-            $value_type = array_key_exists('value_type', $this->_default_name) ? $this->_default_name['value_type'] : 'string';
+		$request = \Gino\Http\Request::instance();
+		if($this->_default_name)
+		{
+			$field = array_key_exists('field', $this->_default_name) ? $this->_default_name['field'] : 'id';
+			$maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 15;
+			$value_type = array_key_exists('value_type', $this->_default_name) ? $this->_default_name['value_type'] : 'string';
 
-            $method = isset($options['method']) ? $options['method'] : $request->POST;
-            $value = cleanVar($method, $field, $value_type, null);
+			$method = isset($options['method']) ? $options['method'] : $request->POST;
+			$value = cleanVar($method, $field, $value_type, null);
 
-            $name_dir = substr($value, 0, $maxlentgh);
-            $name_dir = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $name_dir);
-            return $name_dir;
-        }
-        else return null;
+			$name_dir = substr($value, 0, $maxlentgh);
+			$name_dir = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $name_dir);
+			return $name_dir;
+		}
+		else return null;
     }
 
     /**
@@ -143,15 +138,14 @@ class DirectoryBuild extends Build {
     }
 
     /**
-     * @brief Valida il valore del campo e crea la directory se non esiste
-     * @param string $value
-     * @return TRUE se valido, FALSE o errore altrimenti
+     * @see Gino.Build::validate()
+     * @description Crea la directory se non esiste
      */
     public function validate($value){
 
         if($value == $this->_value)    // directory preesistente
         {
-            return TRUE;
+            return $value;
         }
         elseif($value)
         {
@@ -174,9 +168,9 @@ class DirectoryBuild extends Build {
                 }
             }
 
-            return TRUE;
+            return $value;
         }
-        else return TRUE;
+        else return null;
     }
 
     /**

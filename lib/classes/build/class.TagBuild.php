@@ -79,9 +79,8 @@ class TagBuild extends Build {
     }
 
     /**
-     * @brief Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
      * @see Gino.Build::clean()
-     * @return valore ripulito
+     * @description Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
      */
     public function clean($options=null) {
         

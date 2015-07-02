@@ -370,20 +370,8 @@ namespace Gino;
 		}
 		else
 		{    
-        	/*
-        	if(sizeof($this->_chgP)) {
-                $fields = array();
-                foreach($this->_chgP as $pName) 
-                {
-                    if(!($pName == 'id' and $this->id === null))
-                        $fields[$pName] = $this->_p[$pName];
-                }
-                
-            }
-            */
-			$fields = array();
-			//foreach($this->getStructure() AS $field_name=>$field_obj)
-			foreach($this->_p as $pName=>$pValue)		//// VERIFICARE VERIFICARE VERIFICARE (è come sopra?)
+        	$fields = array();
+			foreach($this->_p as $pName=>$pValue)
 			{
 				if(is_object($pValue))
 				{
@@ -397,9 +385,8 @@ namespace Gino;
 				}
 				else {
 					$field_obj = $this->getFieldObject($pName);
-					 
 					$build = $this->build($field_obj);
-					 
+					
 					$fields[$pName] = $build->validate($pValue);
 				}
 			}
@@ -730,7 +717,7 @@ namespace Gino;
     }
     
     /**
-     * Building class from column
+     * Classe Build del campo di tabella
      * 
      * @description Le eventuali proprietà del modello dipendenti dai valori del record devono sovrascrivere le proprietà del campo
      * @param object $field_obj oggetto della classe del tipo di campo
@@ -811,10 +798,16 @@ namespace Gino;
      *
      * @return void
      */
-    /*
     public function updateStructure() {
-        $this->_structure = $this->structure($this->id);
-    }*/
+        
+    	$class = get_class($this);
+    	 
+    	if(!is_array($class::$columns)) {
+    		throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+    	}
+    	
+    	$this->_structure = $class::$columns;
+    }
 
     /**
      * @brief Uniforma il tipo di dato di un campo definito dal metodo Gino.DbManager::getTableStructure()
