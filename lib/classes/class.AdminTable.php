@@ -546,11 +546,10 @@ class AdminTable {
                 {
                 	$build = $model->build($object);
                 	
+                	//var_dump($build);
+                	
                 	$value = $build->clean($opt_element);
-                	// @todo spostare in questa posizione
-                	//$value = $build->validate($value);
-                	// ???
-                	// adesso viene richiamato in model->save
+                	$value = $build->validate($value, $model->id);
                     
                     if(is_array($value)) {
                     	return array('error'=>$result['error']);
@@ -688,7 +687,6 @@ class AdminTable {
         $model->updateStructure();
 
         return TRUE;
-
     }
 
     /**

@@ -406,13 +406,14 @@ class page extends \Gino\Controller {
     /**
      * @brief Percorso della directory di una pagina a partire dal percorso base
      *
-     * @param integer $id valore ID della pagina
+     * @param integer $id valore id della pagina
      * @return percorso
      */
     public function getAddPath($id) {
 
-        if(!$id)
-            $id = $this->_db->autoIncValue(pageEntry::$table);
+        if(!$id) {
+        	$id = $this->_db->autoIncValue(pageEntry::$table);
+        }
 
         $directory = $id.OS;
 

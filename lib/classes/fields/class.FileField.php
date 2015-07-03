@@ -23,7 +23,7 @@ class FileField extends Field {
 	/**
 	 * Proprietà dei campi specifiche del modello
 	 */
-	protected $_extensions, $_path_abs, $_path_add, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
+	protected $_extensions, $_path, $_add_path, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
 	
     /**
      * @brief Costruttore
@@ -57,8 +57,8 @@ class FileField extends Field {
         $this->_value_type = null;
         
         $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array('txt','xml','html','htm','doc','xls','zip','pdf');
-        $this->_path_abs = isset($options['path']) ? $options['path'] : '';
-        $this->_path_add = isset($options['add_path']) ? $options['add_path'] : '';
+        $this->_path = isset($options['path']) && $options['path'] ? $options['path'] : '';
+        $this->_add_path = isset($options['add_path']) && $options['add_path'] ? $options['add_path'] : '';
         $this->_prefix = isset($options['prefix']) ? $options['prefix'] : '';
         $this->_check_type = isset($options['check_type']) ? $options['check_type'] : false;
         $this->_filesize_field = isset($options['filesize_field']) ? $options['filesize_field'] : false;
@@ -89,8 +89,8 @@ class FileField extends Field {
     	$prop = parent::getProperties();
     
     	$prop['extensions'] = $this->_extensions;
-    	$prop['path'] = $this->_path_abs;
-    	$prop['add_path'] = $this->_path_add;
+    	$prop['path'] = $this->_path;
+    	$prop['add_path'] = $this->_add_path;
     	$prop['prefix'] = $this->_prefix;
     	$prop['check_type'] = $this->_check_type;
     	$prop['filesize_field'] = $this->_filesize_field;

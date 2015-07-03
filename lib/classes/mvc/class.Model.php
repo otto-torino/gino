@@ -3,7 +3,7 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -42,20 +42,25 @@ namespace Gino;
  *              );
  *              @endcode
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
  abstract class Model {
 
-    //public static $columns;	// PROBLEMI ?????
- 	
- 	protected $_registry,
-               $_request,
-               $_db;
+    protected $_registry, $_request, $_db;
     protected $_tbl_data;
+    
+    /**
+     * Label del modello
+     * @var string
+     */
     protected $_model_label;
 
+    /**
+     * Controller
+     * @var object
+     */
     protected $_controller;
 
     /**
@@ -75,6 +80,17 @@ namespace Gino;
     protected $_check_is_constraint = true;
 
     protected $_lng_dft, $_lng_nav;
+    
+    /**
+     * Struttura dei campi del modello
+     * @var array
+     */
+    private $_structure;
+    
+    /**
+     * Traduzioni
+     * @var object
+     */
     private $_trd;
 
     /**
@@ -92,6 +108,8 @@ namespace Gino;
         $this->_lng_dft = $session->lngDft;
         $this->_lng_nav = $session->lng;
         //$this->_p['instance'] = null;
+        
+        $this->_structure = $this->getStructure();
         
         $this->fetchColumns($id);
 
@@ -113,10 +131,10 @@ namespace Gino;
      * @param string $field nome campo
      * @return etichetta
      */
-    /*public function fieldLabel($field) {
+	public function fieldLabel($field) {
 
-        return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
-    }*/
+		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
+	}
 
      /**
      * @brief Setter per la variabile di controllo del check constraint
@@ -146,11 +164,12 @@ namespace Gino;
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
      *
-     * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
-     * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db.
-     * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati.
-     * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati.
-     * @param string $pName
+     * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà. \n
+     * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db. \n
+     * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati. \n
+     * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati. \n
+     * 
+     * @param string $pName nome della proprietà
      * @return valore proprietà
      */
     public function __get($pName) {
@@ -207,8 +226,9 @@ namespace Gino;
      * @param array $value lista di id correlati
      * @return void
      */
-    public function addm2m($field, $value) {
-        $this->_m2m[$field] = $value;
+    public function addm2m($field, $value) {	/////////////////////// ?
+    	
+    	$this->_m2m[$field] = $value;
     }
 
     /**
@@ -217,8 +237,9 @@ namespace Gino;
      * @param array $value lista di id correlati
      * @return void
      */
-    public function addm2mthrough($field, $value) {
-        $this->_m2mt[$field] = $value;
+    public function addm2mthrough($field, $value) {	/////////////////////// ?
+    	
+    	$this->_m2mt[$field] = $value;
     }
 
     /**
@@ -228,9 +249,12 @@ namespace Gino;
      * @return oggetto
      */
     public function m2mtObject($m2mt_field, $id) {
-        $field_obj = $this->_structure[$m2mt_field];
-        $class = $field_obj->getM2m();
-        return new $class($id, $field_obj->getController());
+        
+		$field_obj = $this->_structure[$m2mt_field];
+		$$build = $this->build($field_obj);
+		
+		$class = $build->getM2m();
+		return new $class($id, $field_obj->getController());
     }
 
     /**
@@ -256,23 +280,45 @@ namespace Gino;
     }
 
     /**
-     * @brief Struttura dati
+     * @brief Struttura dei campi del modello
      * @description Un array associativo che contiene tutti i campi come chiavi e le relative classi di tipo @ref Field come valore
      * @return struttura dati
      */
     public function getStructure() {
         
     	$class = get_class($this);
+    	
+    	if(!is_array($class::$columns)) {
+    		throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+    	}
+    	
     	return $class::$columns;
+    }
+    
+    /**
+     * Valori di un record
+     * 
+     * @param string $id valore id del record
+     * @return multitype:array,null
+     */
+    public function getRecordValues() {
+    	
+    	if(!$this->id) return null;
+    	
+    	$res = $this->_db->select("*", $this->_tbl_data, "id='".$this->id."'");
+    	if(count($res))
+    		return $res[0];
+    	else
+    		return null;
     }
 
    /**
     * @brief Metodo generico statico per ricavare oggetti
     * @param mixed $controller istanza del controller
     * @param array $options array associativo di opzioni:
-    *                       - where: where clause
-    *                       - order: ordinamento
-    *                       - limit: limite risultati
+    *   - @b where: where clause
+    *   - @b order: ordinamento
+    *   - @b limit: limite risultati
     * @return array di oggeti ricavati
     */
     public static function objects($controller = null, $options = array()) {
@@ -358,10 +404,10 @@ namespace Gino;
             		}
             		else {
             			$field_obj = $this->getFieldObject($pName);
+            			//$build = $this->build($field_obj);
+            			//$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             			
-            			$build = $this->build($field_obj);
-            			
-            			$fields[$pName] = $build->validate($pValue, $this->_p['id']);
+            			$fields[$pName] = $pValue;
             		}
             	}
 			}
@@ -385,9 +431,9 @@ namespace Gino;
 				}
 				else {
 					$field_obj = $this->getFieldObject($pName);
-					$build = $this->build($field_obj);
-					
-					$fields[$pName] = $build->validate($pValue);
+					//$build = $this->build($field_obj);
+					//$fields[$pName] = $build->validate($pValue);
+					$fields[$pName] = $pValue;
 				}
 			}
             
@@ -453,12 +499,12 @@ namespace Gino;
     public function delete() {
 
         // check constraints
-        if($this->_check_is_constraint and count($this->_is_constraint)) {
-          $res = $this->checkIsConstraint();
-          if($res !== true) {
-            return array("error"=>$this->isConstraintError($res));
-          }
-        }
+		if($this->_check_is_constraint and count($this->_is_constraint)) {
+			$res = $this->checkIsConstraint();
+			if($res !== true) {
+				return array("error"=>$this->isConstraintError($res));
+			}
+		}
 
         $this->deletem2m();
         $this->deletem2mthrough();
@@ -469,8 +515,11 @@ namespace Gino;
         }
 
         foreach($this->_structure as $field) {
-            if(method_exists($field, 'delete')) {
-                $result = $field->delete();
+            
+        	$build = $this->build($field);
+        	
+        	if(method_exists($build, 'delete')) {
+                $result = $build->delete();
                 if($result !== TRUE) {
                     return $result;
                 }
@@ -527,12 +576,17 @@ namespace Gino;
             $an_obj = count($an_objs) ? $an_objs[0] : null;
             $model_label = $an_obj ? $an_obj->getModelLabel() : '';
             if($an_obj and $an_obj->id) {
+                
                 // m2m
                 if(isset($an_obj->_structure[$field]) and is_a($an_obj->_structure[$field], 'ManyToManyField')) {
-                    $field_obj = $an_obj->_structure[$field];
-                    $table = $field_obj->getJoinTable();
-                    $id_string = $field_obj->getJoinTableId();
-                    $m2m_id_string = $field_obj->getJoinTableM2mId();
+                    
+                	$field_obj = $an_obj->_structure[$field];
+                    $build = $this->buid($field_obj);
+                	
+                    $table = $build->getJoinTable();
+                    $id_string = $build->getJoinTableId();
+                    $m2m_id_string = $build->getJoinTableM2mId();
+                    
                     $rows = $db->select($id_string, $table, $m2m_id_string."='".$this->id."'");
                     if($rows and count($rows)) {
                         if(!isset($res[$model_label])) {
@@ -557,18 +611,20 @@ namespace Gino;
         }
 
         return count($res) ? $res : TRUE;
-
     }
 
     /**
      * @brief Elimina le associazioni m2m
      * @return risultato dell'operazione, bool
      */
-    public function deletem2m() {
-        $result = true;
+	public function deletem2m() {
+        
+		$result = true;
         foreach($this->_structure as $field => $obj) {
-            if(is_a($obj, 'ManyToManyField')) {
-                $result = $result and $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
+        	if(is_a($obj, 'ManyToManyField')) {
+            	
+        		$build = $this->buid($field_obj);
+                $result = $result and $this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
             }
         }
         return $result;
@@ -590,18 +646,25 @@ namespace Gino;
 
     /**
      * @brief Elimina lòe associazioni di un campo m2mt
+     * 
      * @param string $field_name nome campo
      * @return risultato dell'operazione, bool
      */
     public function deletem2mthroughField($field_name) {
-        $obj = $this->_structure[$field_name];
-        $class = $obj->getM2m();
-        foreach($this->_m2mt[$field_name] as $id) {
-            $m2m_obj = new $class($id, $obj->getController());
-            return $m2m_obj->delete();
-        }
-
-        return TRUE;
+        
+    	//$field_obj = $this->getFieldObject($field_name);
+    	
+    	$field_obj = $this->_structure[$field_name];
+        
+    	if(!is_a($field_obj, '\Gino\ManyToManyThroughField'))
+    		throw new \Exception(_("Il tipo di campo non è corretto"));
+    	
+    	$build = $this->buid($field_obj);
+        
+        $class = $build->getM2m();
+        
+        $m2m_obj = new $class($build->getValue(), $build->getController());
+        return $m2m_obj->delete();
     }
 
     /**
@@ -678,7 +741,7 @@ namespace Gino;
     }
     
     /**
-     * Imposta le opzioni model e value e recupera le proprietà del campo di una tabella dipendenti dai valori del record 
+     * Imposta le opzioni model e value e recupera le proprietà del campo dipendenti dai valori del record 
      * 
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return array
@@ -800,48 +863,6 @@ namespace Gino;
      */
     public function updateStructure() {
         
-    	$class = get_class($this);
-    	 
-    	if(!is_array($class::$columns)) {
-    		throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
-    	}
-    	
-    	$this->_structure = $class::$columns;
+    	//$this->_structure = $this->structure($this->id);
     }
-
-    /**
-     * @brief Uniforma il tipo di dato di un campo definito dal metodo Gino.DbManager::getTableStructure()
-     * @description ritorna il nome della classe che gestisce il modello del tipo di campo
-     * @param string $type tipo di dato
-     * @return tipo di dato
-     */
-    /*
-    private function dataType($type) {
-
-        if($type == 'tinyint' || $type == 'smallint' || $type == 'int' || $type == 'mediumint' || $type == 'bigint')
-        {
-            $dataType = 'integer';
-        }
-        elseif($type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'numeric')
-        {
-            $dataType = 'float';
-        }
-        elseif($type == 'mediumtext' || $type == 'longtext')
-        {
-            $dataType = 'text';
-        }
-        elseif($type == 'varchar')
-        {
-            $dataType = 'char';
-        }
-        else
-        {
-            $dataType = $type;
-        }
-
-        $dataType = ucfirst($dataType).'Field';
-
-        return $dataType;
-    }
-    */
 }

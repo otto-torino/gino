@@ -12,7 +12,7 @@ namespace Gino;
 use \Gino\Http\Request;
 
 /**
- * @brief Gestisce i campi delle tabelle
+ * @brief Gestisce i campi del modello
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -56,7 +56,7 @@ class Build {
     protected $_value;
     
     /**
-     * Contiene tutte le opzioni di un campo di tabella
+     * Contiene tutte le opzioni di un campo del modello
      * @var array
      */
     private $_options;
@@ -135,6 +135,15 @@ class Build {
     public function canBeOrdered() {
     
     	return TRUE;
+    }
+    
+    /**
+     * @brief Getter della proprietà name
+     * @return nome del campo
+     */
+    public function getName() {
+    
+    	return $this->_name;
     }
 
     /**
@@ -301,7 +310,8 @@ class Build {
     }
     
     /**
-     * Utilizzato per effettuare delle operazioni collegate al tipo di campo a partire dal valore ripulito dal clean
+     * Metodo utilizzato in Model::save() per effettuare delle operazioni collegate al tipo di campo. \n
+     * Il valore di ogni campo è stato precdentemente ripulito dal metodo clean (AdminTable::modelAction()).
      * 
      * @param mixed $value valore cal campo
      * @param integer $id valore id del record

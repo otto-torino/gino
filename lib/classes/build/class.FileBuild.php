@@ -23,18 +23,16 @@ class FileBuild extends Build {
 	/**
 	 * Proprietà dei campi specifiche del modello
 	 */
-	protected $_extensions, $_path_abs, $_path_add, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
+	protected $_extensions, $_path, $_add_path, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
 	
     /**
      * Percorso assoluto della directory del file
-     * 
      * @var string
      */
     protected $_directory;
 
     /**
      * Controllo sulla eliminazione del file
-     * 
      * @var boolean
      */
     protected $_delete_file;
@@ -51,8 +49,8 @@ class FileBuild extends Build {
         parent::__construct($options);
         
         $this->_extensions = $options['extensions'];
-        $this->_path_abs = $options['path'] ? $this->setPath($options['path']) : $options['path'];
-        $this->_path_add = $options['add_path'];
+        $this->_path = $options['path'];
+        $this->_add_path = $options['add_path'];
         $this->_prefix = $options['prefix'];
         $this->_check_type = $options['check_type'];
         $this->_filesize_field = $options['filesize_field'];
@@ -88,7 +86,7 @@ class FileBuild extends Build {
      */
     public function getPath() {
 
-        return $this->_path_abs;
+        return $this->_path;
     }
 
     /**
@@ -117,7 +115,7 @@ class FileBuild extends Build {
     		$path = $value;
     	}
     	
-    	$this->_path_abs = $path;
+    	$this->_path = $path;
     }
 
     /**
@@ -126,7 +124,7 @@ class FileBuild extends Build {
      */
     public function getAddPath() {
 
-        return $this->_path_add;
+        return $this->_add_path;
     }
 
     /**
@@ -136,7 +134,7 @@ class FileBuild extends Build {
      */
     public function setAddPath($value) {
 
-        $this->_path_add = $value;
+        $this->_add_path = $value;
     }
 
     /**
@@ -233,6 +231,15 @@ class FileBuild extends Build {
 
         $this->_directory = $value;
     }
+    
+    private function checkDeleteFile($input_file, $check_delete) {
+    	
+    	$existing_values = $this->_model->getRecordValues();
+    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
+    	$delete = (($input_file && $existing_file) || $check_delete) ? TRUE : FALSE;
+    	
+    	return $delete;
+    }
 
     /**
      * @see Gino.Build::clean()
@@ -249,13 +256,12 @@ class FileBuild extends Build {
 
         $check_name = isset($options['check_del_file_name']) ? $options['check_del_file_name'] : "check_del_".$this->_name;
         $check_delete = $request->checkPOSTKey($check_name, 'ok');
-        $delete = (($filename && $this->_value) || $check_delete) ? TRUE : FALSE;
         $upload = $filename ? TRUE : FALSE;
-
-        $this->_delete_file = $delete;
-
+        
+        $this->_delete_file = $this->checkDeleteFile($filename, $check_delete);
+        
         if($upload) $file = $filename;
-        elseif($delete) $file = '';
+        elseif($this->_delete_file) $file = '';
         else $file = $this->_value;
 
         return $file;
@@ -269,9 +275,10 @@ class FileBuild extends Build {
      */
     protected function saveFile($filename, $filename_tmp) {
 
-        if(!is_dir($this->_directory))
-            if(!@mkdir($this->_directory, 0755, TRUE))
-                return array('error'=>32);
+        if(!is_dir($this->_directory)) {
+        	if(!@mkdir($this->_directory, 0755, TRUE))
+        		return array('error'=>32);
+        }
 
         $upload = move_uploaded_file($filename_tmp, $this->_directory.$filename) ? TRUE : FALSE;
         if(!$upload) { 
@@ -291,8 +298,11 @@ class FileBuild extends Build {
      */
     public function delete() {
 
-        if(is_file($this->_directory.$this->_value)) {
-            if(!@unlink($this->_directory.$this->_value)) {
+    	$existing_values = $this->_model->getRecordValues();
+    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
+    	
+    	if($existing_file && is_file($this->_directory.$existing_file)) {
+            if(!@unlink($this->_directory.$existing_file)) {
                 return array('error'=>17);
             }
         }
@@ -319,7 +329,7 @@ class FileBuild extends Build {
         $thumb_file = array_key_exists('thumb_file', $options) ? $options['thumb_file'] : false;
 		
         $filename = $thumb_file ? $this->_prefix_thumb.$this->_value : $this->_value;
-        $directory = $this->_path_abs.$this->_path_add;
+        $directory = $this->_path.$this->_add_path;
         $directory = $this->conformPath($directory);
 
         if($complete)
@@ -464,14 +474,17 @@ class FileBuild extends Build {
     	}
     	
     	$filename = (string) $value;
-    	 
+    	
     	$request = \Gino\Http\Request::instance();
-    	 
+    	
     	if($this->_delete_file) {
     		$this->delete();
     	}
+    	 
+    	$existing_values = $this->_model->getRecordValues();
+    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
     	
-    	if($filename == $this->_value)    // file preesistente
+    	if($existing_file && $filename == $existing_file)
     	{
     		return $filename;
     	}
@@ -483,20 +496,20 @@ class FileBuild extends Build {
     		if($this->_max_file_size && $filename_size > $this->_max_file_size) {
     			return array('error'=>33);
     		}
-    		 
+    		
     		$finfo = finfo_open(FILEINFO_MIME_TYPE);
     		$mime = finfo_file($finfo, $filename_tmp);
     		finfo_close($finfo);
-    		if(!\Gino\extension($filename, $this->_extensions) ||
-    				preg_match('#%00#', $filename) ||
-    				($this->_check_type && !in_array($mime, $this->_types_allowed))) {
-    					return array('error'=>03);
-    				}
-    				 
-    				if($this->saveFile($filename, $filename_tmp))
-    					return $filename;
-    				else
-    					throw new \Exception(_("Errore nel salvataggio del file"));
+			if(!\Gino\extension($filename, $this->_extensions) ||
+    		preg_match('#%00#', $filename) ||
+    		($this->_check_type && !in_array($mime, $this->_types_allowed))) {
+    			return array('error'=>03);
+    		}
+    		
+    		if($this->saveFile($filename, $filename_tmp))
+    			return $filename;
+    		else
+    			throw new \Exception(_("Errore nel salvataggio del file"));
     	}
     	else return '';
     }
