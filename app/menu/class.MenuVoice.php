@@ -256,6 +256,7 @@ class MenuVoice extends \Gino\Model {
     	));
     	$columns['label'] = new \Gino\CharField(array(
     			'name'=>'label',
+    			'label' => _("Voce"),
     			'required'=>true,
     			'max_lenght'=>200,
     	));
@@ -266,8 +267,9 @@ class MenuVoice extends \Gino\Model {
     	));
     	$columns['type'] = new \Gino\EnumField(array(
     			'name' => 'type',
+    			'label' => _("Tipo di link"), 
     			'required' => true,
-    			'enum' => array('int', 'ext')
+    			'choice' => array('int'=>_("interno"), 'ext'=>_("esterno"))
     	));
     	$columns['order_list'] = new \Gino\IntegerField(array(
     			'name' => 'order_list',
@@ -275,6 +277,7 @@ class MenuVoice extends \Gino\Model {
     	));
     	$columns['perms'] = new \Gino\CharField(array(
     			'name'=>'perms',
+    			'label' => _("Permessi"),
     			'required'=>true,
     			'max_lenght'=>255,
     	));

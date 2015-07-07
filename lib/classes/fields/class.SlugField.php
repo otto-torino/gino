@@ -40,11 +40,10 @@ class SlugField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
         $this->_default_widget = 'text';
-        $this->_value_type = 'string';
+        parent::__construct($options);
         
+        $this->_value_type = 'string';
         $this->_autofill = \Gino\gOpt('autofill', $options, null);
         $this->_trnsl = false;
     }

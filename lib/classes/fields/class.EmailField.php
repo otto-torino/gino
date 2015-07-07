@@ -22,6 +22,11 @@ use \Gino\Http\Request;
  */
 class EmailField extends Field {
 
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_trnsl;
+	
     /**
      * @brief Costruttore
      *
@@ -32,10 +37,23 @@ class EmailField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'email';
         parent::__construct($options);
 
-        $this->_default_widget = 'email';
         $this->_value_type = 'string';
+        $this->_trnsl = false;
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    
+    	$prop = parent::getProperties();
+    
+    	$prop['trnsl'] = $this->_trnsl;
+    
+    	return $prop;
     }
 
     /**

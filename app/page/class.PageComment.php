@@ -47,12 +47,12 @@ class PageComment extends \Gino\Model {
         return (string) $this->id ? $this->datetime.'-'.$this->author : '';
     }
     
-    protected static function properties() {
+    protected static function properties($model) {
     	
     	$items = array();
     	
     	$items['reply'] = array(
-    		'foreign_where'=>'entry=\''.$this->entry.'\'',
+    		'foreign_where'=>'entry=\''.$model->entry.'\'',
     	);
     	
     	return $items;

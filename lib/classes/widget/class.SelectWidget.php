@@ -20,14 +20,17 @@ class SelectWidget extends Widget {
 
 	/**
 	 * @see Gino.Widget::printInputForm()
+	 * 
+	 * @param array $options
+	 *   - @b choice (mixed): elementi del select
 	 */
 	public function printInputForm($form, $options) {
 	
 		parent::printInputForm($form, $options);
 		
-		$enum = array_key_exists('enum', $options) ? $options['enum'] : null;
+		$choice = array_key_exists('choice', $options) ? $options['choice'] : null;
 		
-		$buffer = $this->_form->cselect($this->_name, $this->_value, $enum, $this->_label, $options);
+		$buffer = $this->_form->cselect($this->_name, $this->_value, $choice, $this->_label, $options);
 		
 		return $buffer;
 	}

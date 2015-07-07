@@ -38,9 +38,9 @@ class ManyToManyThroughField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'multicheck';
         parent::__construct($options);
         
-        $this->_default_widget = 'multicheck';
         $this->_value_type = 'array';
         
         $this->_controller = $options['controller'];

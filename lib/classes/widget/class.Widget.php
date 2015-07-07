@@ -35,6 +35,7 @@ class Widget {
     
     /**
      * @brief Stampa l'input form associato al widget
+     * @description In particolare imposta le proprietà principali del widget. È poi il singolo widget che stampa l'input form richiamando prima le proprietà.
      * 
      * @param object $form oggetto Gino.Form
      * @param array $options array associativo di opzioni del campo/modello

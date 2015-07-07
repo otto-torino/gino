@@ -60,14 +60,13 @@ class Conf extends \Gino\Model {
 			'name'=>'multi_language',
 			'label'=>array(_('gestione multilingua'), _("Gestione di un sito multi-lingua. Le lingue attive e quella principale sono da settarsi nel modulo Lingue del sistema.")),
 			'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')),
 			'default'=>0,
 		));
 		$columns['dft_language'] = new \Gino\ForeignKeyField(array(
 			'name'=>'dft_language',
 			'label'=>array(_('lingua di default'), _("Lingua dei contenuti del sito nel caso in cui la gestione multilingua sia disattivata.")),
 			'required'=>true,
-			'lenght'=>3,
+			'max_lenght'=>3,
 			'foreign'=>'\Gino\App\Language\Lang',
 			'foreign_order'=>'language',
 		));
@@ -75,7 +74,6 @@ class Conf extends \Gino\Model {
 			'name'=>'log_access',
 			'label'=>array(_('log accessi'), _("Log di tutti gli accessi all'area riservata del sito da parte degli utenti.")),
 			'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')),
 			'default'=>0,
 		));
 		$columns['head_description'] = new \Gino\TextField(array(
@@ -140,28 +138,25 @@ class Conf extends \Gino\Model {
 			'name'=>'mobile',
 			'label' => array(_('gestione mobile'), _("Attiva il riconoscimento di dispositivi mobili. E' necessario configurare correttamente i template e le skin per una corretta visualizzazione.")),
             'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')),
 			'default'=>0,
 		));
 		$columns['password_crypt'] = new \Gino\EnumField(array(
 			'name'=>'password_crypt',
 			'label' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
             'required'=>true,
-			'enum'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')),
+			'choice'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')),
 			'default'=>'md5',
 		));
 		$columns['enable_cache'] = new \Gino\BooleanField(array(
 			'name'=>'enable_cache',
 			'label' => array(_('abilitazione cache'), _("Abilita le funzionalità di caching su file dei contenuti e dati dei singoli moduli e delle skin")),
             'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')),
 			'default'=>0,
 		));
 		$columns['query_cache'] = new \Gino\BooleanField(array(
 			'name'=>'query_cache',
 			'label' => array(_('abilitazione cache delle query'), _("Per la tipologia di cache query da utilizzare modificare le impostazioni nel file configuration.php")), 
         	'required'=>true,
-			'enum'=>array(1 => _('si'), 0 => _('no')),
 			'default'=>0,
 		));
 		$columns['query_cache_time'] = new \Gino\IntegerField(array(

@@ -82,7 +82,6 @@ class SlugBuild extends Build {
     		
     		$res = $db->select('id', $this->_table, $where);
     		if($res && count($res)) {
-    			//return array('error'=>_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));
     			throw new \Exception(_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));
     		}
     		else {

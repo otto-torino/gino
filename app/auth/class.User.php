@@ -57,22 +57,18 @@ class User extends \Gino\Model {
         return (string) ($this->lastname.' '.$this->firstname);
     }
 
-	public static function setProperties($model) {
+	/**
+     * @see Gino.Model::properties()
+     */
+     protected static function properties($model) {
 		
-		$base_path = $this->_controller->getBasePath();
-		$add_path = $this->_controller->getAddPath($this->id);
-		
+     	$controller = new auth();
+     	
 		$property['photo'] = array(
-			'model'=>$model,
-			'extensions'=>self::$extension_media,
-			'path'=>$base_path,
-			'add_path'=>$add_path
+			'path'=>$controller->getBasePath(),
+			'add_path'=>$controller->getAddPath($model->id)
 		);
-		$property['email'] = array(
-			'model'=>$model,
-			'trnsl'=>false,
-		);
-		
+				
 		return $property;
 	}
 	
@@ -121,7 +117,6 @@ class User extends \Gino\Model {
      			'name'=>'email',
      			'label'=>_("Email"),
      			'required'=>true,
-     			//'trnsl'=>false,
      			'max_lenght'=>100,
      	));
      	$columns['username'] = new \Gino\CharField(array(
@@ -140,7 +135,6 @@ class User extends \Gino\Model {
      			'name'=>'is_admin',
      			'label' => _('Super-amministratore'),
      			'required'=>true,
-     			'enum'=>array(1 => _('si'), 0 => _('no')),
      			'default'=>0,
      	));
      	$columns['address'] = new \Gino\CharField(array(
@@ -173,7 +167,7 @@ class User extends \Gino\Model {
      			'name'=>'nation',
      			'label'=>_("Nazione"),
      			'widget'=>'select',
-     			'enum'=>$nations,
+     			'choice'=>$nations,
      	));
      	$columns['text'] = new \Gino\TextField(array(
      			'name'=>'text',
@@ -181,24 +175,19 @@ class User extends \Gino\Model {
      			'required'=>false
      	));
      	
-     	//$base_path = $controller->getBasePath();
-     	//$add_path = $this->_controller->getAddPath($this->id);
-     	
      	$columns['photo'] = new \Gino\ImageField(array(
      			'name'=>'photo',
      			'label'=>_("Foto"),
      			'required'=>false,
-     			//'extensions'=>self::$extension_media,
-     			//'path'=>array($ns_controller, 'getBasePath'),
-     			//'path'=>$base_path,
-     			//'add_path'=>$add_path,
+     			'extensions'=>self::$extension_media,
+     			'path'=>null,
+     			'add_path'=>null,
      			'max_lenght'=>50,
      	));
      	$columns['publication'] = new \Gino\BooleanField(array(
      			'name'=>'publication',
      			'label'=>_('Pubblicazione dati'),
      			'required'=>false,
-     			'enum'=>array(1=>_('si'), 0=>_('no')),
      			'default'=>0,
      	));
      	$columns['date'] = new \Gino\DatetimeField(array(
@@ -209,14 +198,12 @@ class User extends \Gino\Model {
      			'name'=>'active',
      			'label'=>_('Attivo'),
      			'required'=>true,
-     			'enum'=>array(1=>_('si'), 0=>_('no')),
      			'default'=>0,
      	));
      	$columns['ldap'] = new \Gino\BooleanField(array(
      			'name'=>'ldap',
      			'label'=>_('Ldap'),
      			'required'=>true,
-     			'enum'=>array(1=>_('si'), 0=>_('no')),
      			'default'=>0,
      	));
      	

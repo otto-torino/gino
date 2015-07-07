@@ -29,9 +29,9 @@ class DateField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
-        $this->_default_widget = 'date';
-        $this->_value_type = 'string';
+		$this->_default_widget = 'date';
+		parent::__construct($options);
+		
+		$this->_value_type = 'string';
     }
 }

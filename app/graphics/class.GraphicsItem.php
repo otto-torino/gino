@@ -20,6 +20,8 @@ namespace Gino\App\Graphics;
 class GraphicsItem extends \Gino\Model {
 
     public static $table = "sys_graphics";
+    public static $columns;
+    
     private static $_extension_img = array("jpg", "png", "gif");
 
     /**
@@ -29,14 +31,6 @@ class GraphicsItem extends \Gino\Model {
     function __construct($id) {
 
         $this->_model_label = _('Elemento grafico');
-
-        $this->_fields_label = array(
-            'name' => _('nome'),
-            'description' => _('descrizione'),
-            'type' => array(_('tipo'), _('scegliere se mostrare l\'immagine caricata o includere il codice html')),
-            'image' => _('immagine'),
-            'html' => _('codice html'),
-        );
 
         $this->_tbl_data = self::$table;
         parent::__construct($id);
@@ -50,40 +44,57 @@ class GraphicsItem extends \Gino\Model {
     function __toString() {
         return (string) $this->description;
     }
-
-    /*
-     * @brief Sovrascrive la struttura di default
+    
+    /**
+     * Struttura dei campi della tabella di un modello
      *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
+     * @return array
      */
-    public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['type'] = new \Gino\EnumField(array(
-            'name'=>'type',
-            'model'=>$this,
-            'widget'=>'select',
-            'required'=>true,
-            'enum'=>array(1 => _('immagine'), 2 => _('codice')),
-        ));
-
-        $base_path = GRAPHICS_DIR;
-
-        $structure['image'] = new \Gino\ImageField(array(
-            'name'=>'image',
-            'model'=>$this,
-            'lenght'=>100,
-            'extensions'=>self::$_extension_img,
-            'resize'=>FALSE,
-            'preview'=>TRUE,
-            'path'=>$base_path
-        ));
-
-        return $structure;
-
+    public static function columns() {
+    	
+    	$columns['id'] = new \Gino\IntegerField(array(
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
+		));
+    	$columns['name'] = new \Gino\CharField(array(
+    		'name'=>'name',
+    		'label'=>_("Nome"),
+    		'required'=>true,
+    		'max_lenght'=>50,
+    		'table'=>self::$table
+    	));
+    	$columns['description'] = new \Gino\CharField(array(
+    		'name'=>'description',
+    		'label' => _("Descrizione"),
+    		'required'=>true,
+    		'max_lenght'=>100,
+    	));
+		$columns['type'] = new \Gino\EnumField(array(
+    		'name'=>'type',
+    		'label'=> array(_('Tipo'), _('scegliere se mostrare l\'immagine caricata o includere il codice html')),
+    		'widget'=>'select',
+    		'required'=>true,
+    		'choice'=>array(1 => _('immagine'), 2 => _('codice')),
+    	));
+    	
+    	$columns['image'] = new \Gino\ImageField(array(
+    		'name'=>'image',
+    		'label'=>_('Immagine'),
+    		'max_lenght'=>100,
+    		'extensions'=>self::$_extension_img,
+    		'resize'=>FALSE,
+    		'preview'=>TRUE,
+    		'path'=>GRAPHICS_DIR
+    	));
+    	$columns['html'] = new \Gino\TextField(array(
+    			'name'=>'html',
+    			'label' => _("Codice html"),
+    			'required'=>false
+    	));
+    	
+    	return $columns;
     }
-
 }
+
+GraphicsItem::$columns=GraphicsItem::columns();

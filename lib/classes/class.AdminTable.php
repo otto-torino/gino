@@ -517,6 +517,8 @@ class AdminTable {
             return array('error'=>1);
 
         $m2mt = array();
+        $builds = array();
+        
         foreach($model->getStructure() as $field=>$object) {
 
             if($this->permission($options, $field) &&
@@ -546,10 +548,8 @@ class AdminTable {
                 {
                 	$build = $model->build($object);
                 	
-                	//var_dump($build);
-                	
                 	$value = $build->clean($opt_element);
-                	$value = $build->validate($value, $model->id);
+                	$builds[$field] = $build;
                     
                     if(is_array($value)) {
                     	return array('error'=>$result['error']);
@@ -574,7 +574,7 @@ class AdminTable {
                 $model->{$field_log} = $result;
         }
 
-        $result = $model->save();
+        $result = $model->save(array('builds'=>$builds));
 
         // error
         if(is_array($result)) {

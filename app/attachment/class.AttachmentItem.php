@@ -97,10 +97,10 @@ class AttachmentItem extends \Gino\Model {
         }
     }
     
-    public static function getPath() {
+    private function getPath($model) {
     	
-    	if(self::$model->id) {
-    		$ctg = new AttachmentCtg(self::$model->category);
+    	if($model->id) {
+    		$ctg = new AttachmentCtg($model->category);
     		$base_path = $ctg->path('abs');
     	}
     	else {
@@ -108,6 +108,19 @@ class AttachmentItem extends \Gino\Model {
     	}
     	
     	return $base_path;
+    }
+    
+    /**
+     * @see Gino.Model::properties()
+     */
+    protected static function properties($model) {
+    	 
+    	$property['file'] = array(
+    			//'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
+    			'path'=>$model->getPath($model),
+    	);
+    	
+    	return $property;
     }
     
     /**
@@ -138,7 +151,7 @@ class AttachmentItem extends \Gino\Model {
     		'label' => _("File"),
     		'required' => TRUE,
     		'extensions' => array(),
-    		'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
+    		'path' => null,
     		'check_type' => FALSE,
     		'max_lenght'=>100,
     	));

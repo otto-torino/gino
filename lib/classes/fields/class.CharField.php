@@ -40,11 +40,10 @@ class CharField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
         $this->_default_widget = 'text';
-        $this->_value_type = 'string';
+        parent::__construct($options);
         
+        $this->_value_type = 'string';
         $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
     }
     

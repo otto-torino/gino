@@ -22,6 +22,11 @@ use \Gino\Http\Request;
  */
 class EmailBuild extends Build {
 
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_trnsl;
+	
     /**
      * @brief Costruttore
      *
@@ -32,6 +37,8 @@ class EmailBuild extends Build {
     function __construct($options) {
 
         parent::__construct($options);
+        
+        $this->_trnsl = $options['trnsl'];
     }
 
     /**
@@ -41,26 +48,30 @@ class EmailBuild extends Build {
 
         $request = Request::instance();
         $method = isset($options['method']) ? $options['method'] : $request->POST;
-        return \filter_var(cleanVar($method, $this->_name, 'string', null), FILTER_VALIDATE_EMAIL);
-    }
-
-    /**
-     * @see Gino.Build::validate()
-     */
-    public function validate($value) {
-
+        $value = cleanVar($method, $this->_name, 'string', null);
+        
         if(is_null($value)) {
         	return null;
         }
-    	elseif(is_string($value)) {
-    		
-            $check = \Gino\checkEmail($value, true);
-            if(!$check) {
-            	throw new \Exception(_("Formato dell'email non valido"));
-                //$result['error'] = _('formato dell\'email non valido');
-            }
-            return $value;
+        elseif(is_string($value)) {
+        
+        	/*$check = \Gino\checkEmail($value, true);
+        	if(!$check) {
+        		throw new \Exception(_("Formato dell'email non valido"));
+        	}
+        	return $value;*/
+        	
+        	$value = \filter_var($value, FILTER_VALIDATE_EMAIL);
+        	
+        	if($value === false) {
+        		throw new \Exception(_("Formato dell'email non valido"));
+        	}
+        	else {
+        		return $value;
+        	}
         }
-        else throw new \Exception(_("Valore non valido"));
+        else {
+        	throw new \Exception(_("Valore non valido"));
+        }
     }
 }

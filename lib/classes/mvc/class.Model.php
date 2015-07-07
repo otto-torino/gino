@@ -374,12 +374,17 @@ namespace Gino;
      *              la classe @ref AdminTable lo fa in maniera automatica.
      *              Quando il salvataggio avviene con successo viene emesso un segnale 'post_save' da parte
      *              del modello.
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
+     *   - @b no_update (array): elenco dei campi da impostare in una query di update
      * @return il risultato dell'operazione o errori
      */
     public function save($options=array()) {
 
-        // elenco dei campi da non impostare in una query di update
-    	$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
+        $builds = array_key_exists('builds', $options) && count($options['builds']) ? $options['builds'] : array();
+        $no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
     	
     	$event_dispatcher = EventDispatcher::instance();
 
@@ -403,11 +408,14 @@ namespace Gino;
             			else $m2m[$pName] = $pValue;
             		}
             		else {
-            			$field_obj = $this->getFieldObject($pName);
-            			//$build = $this->build($field_obj);
-            			//$fields[$pName] = $build->validate($pValue, $this->_p['id']);
-            			
-            			$fields[$pName] = $pValue;
+            			if(array_key_exists($pName, $builds)) {
+            				$build = $builds[$pName];
+            			}
+            			else {
+            				$field_obj = $this->getFieldObject($pName);
+            				$build = $this->build($field_obj);
+            			}
+            			$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             		}
             	}
 			}
@@ -430,10 +438,14 @@ namespace Gino;
 					}
 				}
 				else {
-					$field_obj = $this->getFieldObject($pName);
-					//$build = $this->build($field_obj);
-					//$fields[$pName] = $build->validate($pValue);
-					$fields[$pName] = $pValue;
+					if(array_key_exists($pName, $builds)) {
+						$build = $builds[$pName];
+					}
+					else {
+						$field_obj = $this->getFieldObject($pName);
+						$build = $this->build($field_obj);
+					}
+					$fields[$pName] = $build->validate($pValue);
 				}
 			}
             
@@ -803,13 +815,11 @@ namespace Gino;
     /**
      * Valore da mostrare in output
      * 
-     * @see FieldBuild::retrieveValue()
+     * @see Build::retrieveValue()
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return mixed
      */
     public function shows($field_obj) {
-    	
-    	$field_name = $field_obj->getName();
     	
     	$obj = $this->build($field_obj);
     	$value = $obj->retrieveValue();

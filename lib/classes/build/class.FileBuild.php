@@ -232,6 +232,13 @@ class FileBuild extends Build {
         $this->_directory = $value;
     }
     
+    /**
+     * Verifica se il file presente è da eliminare
+     * 
+     * @param string $input_file
+     * @param boolean $check_delete
+     * @return boolean
+     */
     private function checkDeleteFile($input_file, $check_delete) {
     	
     	$existing_values = $this->_model->getRecordValues();
@@ -480,7 +487,7 @@ class FileBuild extends Build {
     	if($this->_delete_file) {
     		$this->delete();
     	}
-    	 
+    	
     	$existing_values = $this->_model->getRecordValues();
     	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
     	

@@ -28,7 +28,7 @@ class ForeignKeyBuild extends Build {
 	 */
 	protected $_foreign, $_foreign_where, $_foreign_order, $_add_related, $_add_related_url;
 	
-	protected $_choice;
+	//protected $_choice;
 	
     /**
      * @brief Costruttore
@@ -68,10 +68,10 @@ class ForeignKeyBuild extends Build {
      * @brief Getter della proprietà choice (scelte disponibili)
      * @return array
      */
-    public function getChoice() {
+    /*public function getChoice() {
 
         return $this->_choice;
-    }
+    }*/
 
     /**
      * @see Gino.Build::formElement()
@@ -97,7 +97,7 @@ class ForeignKeyBuild extends Build {
             $choice[$f->id] = (string) $f;
         }
 
-        $this->_choice = $choice;
+        $options['choice'] = $choice;
 
         if($this->_add_related && (!isset($options['is_filter']) or !$options['is_filter'])) {
             $options['add_related'] = array(

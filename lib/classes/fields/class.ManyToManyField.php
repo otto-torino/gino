@@ -49,9 +49,9 @@ class ManyToManyField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-    	
         $this->_default_widget = 'multicheck';
+        parent::__construct($options);
+        
         $this->_value_type = 'array';
         
         $this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
@@ -62,10 +62,6 @@ class ManyToManyField extends Field {
         $this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
         $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
         $this->_join_table = $options['join_table'];
-        
-        $this->_self = $options['self'];
-        $this->_join_table_id = strtolower(get_name_class($this->_self)).'_id';
-        $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
     }
     
     /**
@@ -82,9 +78,6 @@ class ManyToManyField extends Field {
     	$prop['m2m_order'] = $this->_m2m_order;
     	$prop['m2m_controller'] = $this->_m2m_controller;
     	$prop['join_table'] = $this->_join_table;
-    	$prop['self'] = $this->_self;
-    	$prop['join_table_id'] = $this->_join_table_id;
-    	$prop['_join_table_m2m_id'] = $this->__join_table_m2m_id;
     	 
     	return $prop;
     }

@@ -51,9 +51,9 @@ class FileField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'file';
         parent::__construct($options);
 
-        $this->_default_widget = 'file';
         $this->_value_type = null;
         
         $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array('txt','xml','html','htm','doc','xls','zip','pdf');

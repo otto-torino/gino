@@ -45,9 +45,9 @@ class ManyToManyInlineField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
         $this->_default_widget = 'multicheck';
+        parent::__construct($options);
+        
         $this->_value_type = 'array';
         
         $this->_m2m = $options['m2m'];

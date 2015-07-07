@@ -31,15 +31,23 @@ class Field {
      * @var boolean
      */
     protected $_required;
+    
+    /**
+     * @brief Tipo di widget associato al campo
+     * @var string
+     */
+    protected $_widget;
 
     /**
      * @brief Tipo di input associato di default a un dato campo
+     * @description viene impostato nelle singole classi Field
      * @var string
      */
     protected $_default_widget;
 
     /**
      * @brief Tipo di valore in arrivo dall'input
+     * @description viene impostato nelle singole classi Field
      * @var string
      */
     protected $_value_type;
@@ -71,6 +79,7 @@ class Field {
         $this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : FALSE;
         $this->_unique_key = array_key_exists('unique_key', $options) ? $options['unique_key'] : FALSE;
         $this->_required = array_key_exists('required', $options) ? $options['required'] : FALSE;
+        $this->_widget = array_key_exists('widget', $options) ? $options['widget'] : $this->_default_widget;
         $this->_int_digits = array_key_exists('int_digits', $options) ? $options['int_digits'] : 0;
         $this->_decimal_digits = array_key_exists('decimal_digits', $options) ? $options['decimal_digits'] : 0;
         $this->_table = array_key_exists('table', $options) ? $options['table'] : '';
@@ -243,7 +252,7 @@ class Field {
      */
     public function getWidget() {
 
-        return $this->_default_widget;
+        return $this->_widget;
     }
 
     /**
@@ -253,7 +262,7 @@ class Field {
      */
     public function setWidget($value) {
 
-        if(is_string($value) or is_null($value)) $this->_default_widget = $value;
+        if(is_string($value) or is_null($value)) $this->_widget = $value;
     }
 
     /**
@@ -330,7 +339,7 @@ class Field {
     		'unique_key' => $this->_unique_key,
     		'table' => $this->_table,
     		'required' => $this->_required,
-    		'widget' => $this->_default_widget,
+    		'widget' => $this->_widget,
     		'value_type' => $this->_value_type,
     		'int_digits' => $this->_int_digits,
     		'decimal_digits' => $this->_decimal_digits,

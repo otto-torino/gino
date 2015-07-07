@@ -28,9 +28,9 @@ class YearField extends IntegerField {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'text';
         parent::__construct($options);
         
-        $this->_default_widget = 'text';
         $this->setLenght(4);
     }
 }

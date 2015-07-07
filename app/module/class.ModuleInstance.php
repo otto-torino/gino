@@ -3,7 +3,7 @@
  * @file class.ModuleInstance.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.ModuleInstance
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\App\SysClass\ModuleApp;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un'istanza di un modulo di sistema
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -32,7 +32,6 @@ class ModuleInstance extends \Gino\Model {
 
         $this->_tbl_data = self::$table;
         parent::__construct($id);
-
     }
 
 	/**
@@ -44,7 +43,6 @@ class ModuleInstance extends \Gino\Model {
 		
 		$module_app = $this->moduleApp();
 		return $module_app->name;
-		
 	}
 
     /**
@@ -111,32 +109,31 @@ class ModuleInstance extends \Gino\Model {
 	public static function columns() {
 		
 		$columns['id'] = new \Gino\IntegerField(array(
-				'name'=>'id',
-				'primary_key'=>true,
-				'auto_increment'=>true,
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
 		));
 		$columns['label'] = new \Gino\CharField(array(
-				'name'=>'label',
-				'required'=>true,
-     			'max_lenght'=>100,
+			'name'=>'label',
+			'required'=>true,
+     		'max_lenght'=>100,
 		));
 		$columns['name'] = new \Gino\CharField(array(
-				'name'=>'name',
-				'required'=>true,
-     			'max_lenght'=>100,
+			'name'=>'name',
+			'required'=>true,
+     		'max_lenght'=>100,
 		));
 		$columns['module_app'] = new \Gino\IntegerField(array(
-				'name'=>'module_app',
-				'required'=>true
+			'name'=>'module_app',
+			'required'=>true
 		));
 		$columns['active'] = new \Gino\BooleanField(array(
-				'name'=>'active',
-				'required'=>true,
-				'enum'=>array(1 => _('si'), 0 => _('no'))
+			'name'=>'active',
+			'required'=>true,
 		));
 		$columns['description'] = new \Gino\TextField(array(
-				'name'=>'description',
-				'required'=>true
+			'name'=>'description',
+			'required'=>true
 		));
 		
 		return $columns;

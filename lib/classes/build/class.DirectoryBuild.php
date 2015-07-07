@@ -143,7 +143,10 @@ class DirectoryBuild extends Build {
      */
     public function validate($value){
 
-        if($value == $this->_value)    // directory preesistente
+    	$existing_values = $this->_model->getRecordValues();
+    	$existing_dir = $existing_values ? $existing_values[$this->getName()] : null;
+    	
+    	if($value == $existing_dir)
         {
             return $value;
         }
@@ -152,18 +155,18 @@ class DirectoryBuild extends Build {
             if(!$this->_model->id)
             {
                 if(!mkdir($this->_path.$value))
-                    return array('error'=>32);
+                	return array('error'=>32);
             }
             else
             {
-                if(!$this->_value)
+                if(!$existing_dir)
                 {
                     if(!mkdir($this->_path.$value))
                         return array('error'=>32);
                 }
                 else
                 {
-                    if(!rename($this->_path.$this->_value, $this->_path.$value))
+                    if(!rename($this->_path.$existing_dir, $this->_path.$value))
                         return array('error'=>32);
                 }
             }

@@ -62,7 +62,6 @@ class PageEntry extends \Gino\Model {
         $add_path = $controller->getAddPath($model->id);
     	
         $property['image'] = array(
-    		//'path'=>array($controller, 'getBasePath'),
     		'path'=>$base_path,
     		'add_path'=>$add_path
     	);

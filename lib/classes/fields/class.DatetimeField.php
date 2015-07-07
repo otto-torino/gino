@@ -40,6 +40,7 @@ class DatetimeField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'datetime';
         parent::__construct($options);
 
         $this->_value_type = 'string';
@@ -49,11 +50,8 @@ class DatetimeField extends Field {
         $this->_view_input = array_key_exists('view_input', $options) ? $options['view_input'] : false;
         
         if($this->_auto_now || $this->_auto_now_add) {
-        	$this->_default_widget = null;
+        	$this->_widget = null;
         	$this->_required = false;
-        }
-        else {
-        	$this->_default_widget = 'datetime';
         }
     }
     

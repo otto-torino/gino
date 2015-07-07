@@ -55,24 +55,6 @@ class Lang extends \Gino\Model {
     }
     
     /**
-     * @see Gino.Model::setProperties()
-     */
-    protected static function setProperties($model) {
-    
-    	$property['language_code'] = array(
-    		'enum'=>self::languageCodes(),
-    	);
-    	$property['country_code'] = array(
-    		'enum'=>self::countryCodes(),
-    	);
-    	$property['active'] = array(
-    		'enum'=>array(1 => _('si'), 0 => _('no')),
-    	);
-    	 
-    	return $property;
-    }
-
-    /**
      * Struttura dei campi della tabella di un modello
      * 
      * @return array
@@ -102,6 +84,7 @@ class Lang extends \Gino\Model {
     		'widget'=>'select',
     		'required'=>true,
     		'max_lenght'=>5,
+    		'choice'=>self::languageCodes(),
     	));
     	$columns['country_code'] = new \Gino\EnumField(array(
     		'name'=>'country_code',
@@ -109,6 +92,7 @@ class Lang extends \Gino\Model {
     		'widget'=>'select',
     		'required'=>true,
     		'max_lenght'=>5,
+    		'choice'=>self::countryCodes(),
     	));
     	$columns['active'] = new \Gino\BooleanField(array(
             'name'=>'active',

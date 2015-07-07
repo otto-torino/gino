@@ -23,9 +23,9 @@ class ManyToManyBuild extends Build {
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
-    protected $_m2m, $_m2m_order, $_m2m_where;
-    protected $_join_table, $_join_table_id, $_join_table_m2m_id;
-    protected $_add_related, $_add_related_url;
+    protected $_m2m, $_m2m_order, $_m2m_where, $_m2m_controller, $_join_table, $_add_related, $_add_related_url;
+    
+    protected $_join_table_id, $_join_table_m2m_id;
     
     protected $_choice;
 
@@ -47,9 +47,9 @@ class ManyToManyBuild extends Build {
         $this->_m2m_order = $options['m2m_order'];
         $this->_m2m_controller = $options['m2m_controller'];
         $this->_join_table = $options['join_table'];
-        $this->_self = $options['self'];
-        $this->_join_table_id = $options['join_table_id'];
-        $this->_join_table_m2m_id = $options['join_table_m2m_id'];
+        
+		$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
+        $this->_join_table_m2m_id = strtolower(get_name_class($this->_model)).'_id';
     }
 
     /**
@@ -183,8 +183,9 @@ class ManyToManyBuild extends Build {
     		
     		$m2m_id = $row[$this->_join_table_m2m_id];
     		
-    		$values[] = new $m2m_class($m2m_id);
+    		$obj = new $m2m_class($m2m_id);
+    		$values[] = $obj->id;
     	}
-    	return $values;
+    	return implode(',', $values);
     }
 }

@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/fields', '\Gino\Field');
+Loader::import('class/fields', '\Gino\Field');
 
 /**
  * @brief Campo di tipo chiave esterna
@@ -48,9 +48,9 @@ class ForeignKeyField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
         $this->_default_widget = 'select';
+        parent::__construct($options);
+        
         $this->_value_type = 'int';
         
         $this->_foreign = $options['foreign'];

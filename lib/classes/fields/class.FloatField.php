@@ -27,9 +27,9 @@ class FloatField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'float';
         parent::__construct($options);
 
-        $this->_default_widget = 'float';
         $this->_value_type = 'float';
     }
 }

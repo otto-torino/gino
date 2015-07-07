@@ -310,12 +310,12 @@ class Build {
     }
     
     /**
-     * Metodo utilizzato in Model::save() per effettuare delle operazioni collegate al tipo di campo. \n
+     * Metodo utilizzato in Model::save() per effettuare eventuali operazioni collegate al tipo di campo. \n
      * Il valore di ogni campo è stato precdentemente ripulito dal metodo clean (AdminTable::modelAction()).
      * 
-     * @param mixed $value valore cal campo
+     * @param mixed $value valore ripulito dell'input form
      * @param integer $id valore id del record
-     * @return mixed
+     * @return input value
      */
     public function validate($value, $id=null) {
     	

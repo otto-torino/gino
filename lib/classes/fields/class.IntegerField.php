@@ -30,9 +30,10 @@ class IntegerField extends Field {
      */
     function __construct($options) {
 
+        $this->_default_widget = 'text';
         parent::__construct($options);
 
-        $this->_default_widget = $this->_auto_increment ? 'hidden' : 'text';
+        if($this->_auto_increment) $this->_widget = 'hidden';
         $this->_value_type = 'int';
     }
     

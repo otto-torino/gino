@@ -99,7 +99,7 @@ class TextBuild extends Build {
         if(!isset($options['field'])) $options['field'] = $this->_name;
 
         if(isset($options['is_filter']) and $options['is_filter']) {
-            $options['widget'] = 'input';
+            $options['widget'] = 'text';
         }
 
         return parent::formElement($form, $options);

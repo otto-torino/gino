@@ -39,9 +39,9 @@ class DirectoryField extends Field {
      */
     function __construct($options) {
 
-        parent::__construct($options);
+    	$this->_default_widget = 'text';
+    	parent::__construct($options);
 
-        $this->_default_widget = 'text';
         $this->_value_type = 'string';
         
         $this->_path = isset($options['path']) ? $options['path'] : '';
