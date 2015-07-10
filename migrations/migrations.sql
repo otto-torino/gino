@@ -16,6 +16,7 @@
 -- Data query
 
 -- Structure query
+ALTER TABLE `sys_module` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 
 -- --------------------------------------------------------
 -- SQLServer
@@ -24,3 +25,4 @@
 -- Data query
 
 -- Structure query
+ALTER TABLE sys_module ALTER COLUMN description TEXT;

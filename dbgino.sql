@@ -1132,7 +1132,7 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
   `name` varchar(100) NOT NULL,
   `module_app` int(11) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  `description` text NOT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 

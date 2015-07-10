@@ -133,7 +133,7 @@ class ModuleInstance extends \Gino\Model {
 		));
 		$columns['description'] = new \Gino\TextField(array(
 			'name'=>'description',
-			'required'=>true
+			'required'=>false
 		));
 		
 		return $columns;

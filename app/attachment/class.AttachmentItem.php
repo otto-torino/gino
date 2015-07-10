@@ -116,8 +116,7 @@ class AttachmentItem extends \Gino\Model {
     protected static function properties($model) {
     	 
     	$property['file'] = array(
-    			//'path' => array('\Gino\App\Attachment\AttachmentItem', 'getPath'),
-    			'path'=>$model->getPath($model),
+    		'path'=>$model->getPath($model),
     	);
     	
     	return $property;

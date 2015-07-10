@@ -1316,7 +1316,7 @@ CREATE TABLE sys_module (
   name nvarchar(100) NOT NULL,
   module_app int NOT NULL,
   active tinyint NOT NULL,
-  description text NOT NULL,
+  description text NULL,
   CONSTRAINT PK_sys_module PRIMARY KEY (id)
 )
 

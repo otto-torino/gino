@@ -26,8 +26,6 @@ class ManyToManyBuild extends Build {
     protected $_m2m, $_m2m_order, $_m2m_where, $_m2m_controller, $_join_table, $_add_related, $_add_related_url;
     
     protected $_join_table_id, $_join_table_m2m_id;
-    
-    protected $_choice;
 
     /**
      * @brief Costruttore
@@ -49,7 +47,9 @@ class ManyToManyBuild extends Build {
         $this->_join_table = $options['join_table'];
         
 		$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
-        $this->_join_table_m2m_id = strtolower(get_name_class($this->_model)).'_id';
+        $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
+        
+        $this->setValue($this->getJoinM2mValues());
     }
 
     /**
@@ -94,13 +94,35 @@ class ManyToManyBuild extends Build {
     public function getJoinTableM2mId() {
         return $this->_join_table_m2m_id;
     }
+    
+    /**
+     * Valori dei record della tabella m2m associati al modello
+     * 
+     * @return array (id values)
+     */
+    private function getJoinM2mValues() {
+    	
+    	$db = Db::instance();
+    	
+    	$where = $this->_join_table_id."='".$this->_model->id."'";
+    	
+    	$items = array();
+    	$rows = $db->select($this->_join_table_m2m_id, $this->_join_table, $where, array('debug'=>false));
+    	if($rows && count($rows)) {
+    		foreach ($rows AS $row)
+    		{
+    			$items[] = $row[$this->_join_table_m2m_id];
+    		}
+    	}
+    	return $items;
+    }
 
     /**
      * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 
-        $db = db::instance();
+        $db = Db::instance();
         if($this->_m2m_controller) {
             $m2m = new $this->_m2m(null, $this->_m2m_controller);
         }
@@ -111,7 +133,7 @@ class ManyToManyBuild extends Build {
         $choice = array();
         $selected_part = array();
         $not_selected_part = array();
-        $this->_value = $this->_model->{$this->_name};
+        
         foreach($rows as $row) {
             if($this->_m2m_controller) {
                 $m2m = new $this->_m2m($row['id'], $this->_m2m_controller);
@@ -129,7 +151,8 @@ class ManyToManyBuild extends Build {
 
         $choice = $selected_part + $not_selected_part;
 
-        $this->_choice = $choice;
+        $options['choice'] = $choice;
+        
         $this->_name .= "[]";
 
         if($this->_add_related) {
@@ -145,11 +168,13 @@ class ManyToManyBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * 
+     * @return array
      */
     public function clean($options=null) {
 
         $value = parent::clean($options);
-
+        
         return is_null($value) ? array() : $value;
     }
 
@@ -175,17 +200,31 @@ class ManyToManyBuild extends Build {
     	
     	$db = \Gino\Db::instance();
     	
-    	$rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_value."'");
-    	$values = array();
-    	$m2m_class = $this->_m2m;
-    	
-    	foreach($rows as $row) {
+    	if(is_array($this->_value) && count($this->_value))
+    	{
+    		$values = array();
     		
-    		$m2m_id = $row[$this->_join_table_m2m_id];
+    		$refs = implode(',', $this->_value);
+    		$rows = $db->select('*', $this->_join_table, $this->_join_table_id."='".$this->_model->id."' AND ".$this->_join_table_m2m_id." IN ($refs)");
+    		if($rows && count($rows))
+    		{
+    			foreach($rows as $row) {
+    				
+    				$m2m_id = $row[$this->_join_table_m2m_id];
+    				
+    				if($this->_m2m_controller) {
+    					$m2m = new $this->_m2m($m2m_id, $this->_m2m_controller);
+    				}
+    				else {
+    					$m2m = new $this->_m2m($m2m_id);
+    				}
+    				
+    				$values[] = $m2m;
+    			}
+    		}
     		
-    		$obj = new $m2m_class($m2m_id);
-    		$values[] = $obj->id;
+    		return implode(', ', $values);
     	}
-    	return implode(',', $values);
+    	else return null;
     }
 }

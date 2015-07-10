@@ -50,7 +50,7 @@ class TagBuild extends Build {
         // all tags
         $tags = GTag::getAllTags();
         $js_tags_list = "['".implode("','", $tags)."']";
-
+        
         $text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar($this->tagCloud())."'}); win.display();\"></span>";
         $field = $form->cinput($this->_name, 'text', $this->_value, $this->_label, array('id' => $this->_name, 'text_add' => $text_add));
         $field .= "<script>";
@@ -105,7 +105,8 @@ class TagBuild extends Build {
      * @return tag cloud
      */
     public function tagCloud() {
-        $db = db::instance();
+        
+    	$db = db::instance();
         $histogram = GTag::getTagsHistogram();
 
         $buffer = '<p>';

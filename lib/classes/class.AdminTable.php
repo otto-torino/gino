@@ -550,14 +550,9 @@ class AdminTable {
                 	
                 	$value = $build->clean($opt_element);
                 	$builds[$field] = $build;
+                	// imposta il valore; @see Gino.Model::__set()
+                	$model->{$field} = $value;
                     
-                    if(is_array($value)) {
-                    	return array('error'=>$result['error']);
-                    }
-                    else {
-                    	$model->{$field} = $value;
-                    }
-
                     if($import)
                     {
                         if($field == $field_import)
@@ -573,7 +568,7 @@ class AdminTable {
             if($field_log)
                 $model->{$field_log} = $result;
         }
-
+        
         $result = $model->save(array('builds'=>$builds));
 
         // error
@@ -779,7 +774,8 @@ class AdminTable {
         $form_description = gOpt('form_description', $options_form, null);
 
         if($this->_request->method === 'POST') {
-            $insert = !$model_obj->id;
+            
+        	$insert = !$model_obj->id;
             $popup = cleanVar($this->_request->POST, '_popup', 'int');
             // link error
             $link_error = $this->editUrl(array(), array());
@@ -803,7 +799,7 @@ class AdminTable {
             }
             if($action_result === TRUE and $popup) {
                 $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
-                return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
+            	return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
             }
             elseif($action_result === TRUE) {
                 return new \Gino\Http\Redirect($link_return);

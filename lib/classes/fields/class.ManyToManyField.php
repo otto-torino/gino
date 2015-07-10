@@ -70,7 +70,7 @@ class ManyToManyField extends Field {
     public function getProperties() {
     
     	$prop = parent::getProperties();
-    	 
+    	
     	$prop['add_related'] = $this->_add_related;
     	$prop['add_related_url'] = $this->_add_related_url;
     	$prop['m2m'] = $this->_m2m;
@@ -78,7 +78,20 @@ class ManyToManyField extends Field {
     	$prop['m2m_order'] = $this->_m2m_order;
     	$prop['m2m_controller'] = $this->_m2m_controller;
     	$prop['join_table'] = $this->_join_table;
-    	 
+    	
     	return $prop;
+    }
+    
+	/**
+	 * @see Gino.Field::setFormatValue()
+	 */
+    public function setFormatValue($value) {
+    
+    	if(is_null($value))
+    		return null;
+    	elseif(is_array($value))
+    		return $value;
+    	else
+    		return null;
     }
 }

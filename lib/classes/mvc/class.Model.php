@@ -107,7 +107,6 @@ namespace Gino;
         
         $this->_lng_dft = $session->lngDft;
         $this->_lng_nav = $session->lng;
-        //$this->_p['instance'] = null;
         
         $this->_structure = $this->getStructure();
         
@@ -165,7 +164,7 @@ namespace Gino;
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
      *
      * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà. \n
-     * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db. \n
+     * Per i campi su tabella principale la proprietà ritornata è uguale al valore salvato sul db. \n
      * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati. \n
      * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati. \n
      * 
@@ -196,7 +195,7 @@ namespace Gino;
     	if(array_key_exists($pName, $class::$columns))
     	{
     		$obj = $class::$columns[$pName];
-    		$this->_p[$pName] = $obj->setValue($pValue);
+    		$this->_p[$pName] = $obj->setFormatValue($pValue);
     	}
     	else throw new \Exception(sprintf(_("Il campo %s non è presente"), $pName));
     }
@@ -226,7 +225,7 @@ namespace Gino;
      * @param array $value lista di id correlati
      * @return void
      */
-    public function addm2m($field, $value) {	/////////////////////// ?
+    public function addm2m($field, $value) {	// @todo ?
     	
     	$this->_m2m[$field] = $value;
     }
@@ -237,7 +236,7 @@ namespace Gino;
      * @param array $value lista di id correlati
      * @return void
      */
-    public function addm2mthrough($field, $value) {	/////////////////////// ?
+    public function addm2mthrough($field, $value) {	// @todo ?
     	
     	$this->_m2mt[$field] = $value;
     }
@@ -370,7 +369,7 @@ namespace Gino;
 
     /**
      * @brief Salva il modello su db
-     * @description Salva si i campi della tabella sia i m2m. I m2mt devono essere salvati manualmente,
+     * @description Salva sia i campi della tabella sia i m2m. I m2mt devono essere salvati manualmente,
      *              la classe @ref AdminTable lo fa in maniera automatica.
      *              Quando il salvataggio avviene con successo viene emesso un segnale 'post_save' da parte
      *              del modello.
@@ -378,45 +377,53 @@ namespace Gino;
      * @param array $options
      *   array associativo di opzioni
      *   - @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
-     *   - @b no_update (array): elenco dei campi da impostare in una query di update
+     *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; default array('id', 'instance')
      * @return il risultato dell'operazione o errori
      */
     public function save($options=array()) {
 
         $builds = array_key_exists('builds', $options) && count($options['builds']) ? $options['builds'] : array();
-        $no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
+        $no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array('id', 'instance');
     	
     	$event_dispatcher = EventDispatcher::instance();
 
-        $result = true;
-        
+		$result = true;
+		
+		$class = get_class($this);
+		$columns = $class::$columns;
 		$m2m = array();
-        
-        if($this->_p['id']) {
+		
+		if($this->_p['id']) {
             
 			$fields = array();
-			foreach($this->_p as $pName=>$pValue) {
-			
+			foreach($this->_p as $pName=>$pValue)
+			{
             	if(!in_array($pName, $no_update))
             	{
-            		if(is_object($pValue))
+            		if(!array_key_exists($pName, $columns)) {
+            			throw new \Exception(_("The field name does not exist"));
+            		}
+            		
+            		$field_obj = $columns[$pName];
+            		
+            		if(!$this->checkM2m($field_obj))
             		{
-            			if(!$this->checkM2m($pValue)) {
-            				
+            			if(is_object($pValue))
+            			{
             				$fields[$pName] = $pValue->id;
             			}
-            			else $m2m[$pName] = $pValue;
-            		}
-            		else {
-            			if(array_key_exists($pName, $builds)) {
-            				$build = $builds[$pName];
+            			else
+            			{
+            				if(array_key_exists($pName, $builds)) {
+            					$build = $builds[$pName];
+            				}
+            				else {
+            					$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
+            				}
+            				$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             			}
-            			else {
-            				$field_obj = $this->getFieldObject($pName);
-            				$build = $this->build($field_obj);
-            			}
-            			$fields[$pName] = $build->validate($pValue, $this->_p['id']);
             		}
+            		else $m2m[$pName] = $pValue;
             	}
 			}
 			
@@ -425,35 +432,39 @@ namespace Gino;
 		else
 		{    
         	$fields = array();
-			foreach($this->_p as $pName=>$pValue)
+        	
+        	foreach($this->_p as $pName=>$pValue)
 			{
-				if(is_object($pValue))
-				{
-					if(!$this->checkM2m($pValue)) {
+				if(!array_key_exists($pName, $columns)) {
+					throw new \Exception(_("The field name does not exist"));
+				}
+				$field_obj = $columns[$pName];
 				
+				if(!$this->checkM2m($field_obj))
+				{
+					if(is_object($pValue))
+					{
 						$fields[$pName] = $pValue->id;
 					}
-					else {
-						$m2m[$pName] = $pValue;
+					else
+					{
+						if(array_key_exists($pName, $builds)) {
+							$build = $builds[$pName];
+						}
+						else {
+							$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
+						}
+						$fields[$pName] = $build->validate($pValue);
 					}
 				}
-				else {
-					if(array_key_exists($pName, $builds)) {
-						$build = $builds[$pName];
-					}
-					else {
-						$field_obj = $this->getFieldObject($pName);
-						$build = $this->build($field_obj);
-					}
-					$fields[$pName] = $build->validate($pValue);
-				}
+				else $m2m[$pName] = $pValue;
 			}
             
 			$result = $this->_db->insert($fields, $this->_tbl_data);
 		}
 
         if(!$result) {
-            return array('error'=>_("Salvataggio non riuscito"));
+            throw new \Exception(_("Salvataggio non riuscito"));
         }
 
         if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
@@ -473,17 +484,27 @@ namespace Gino;
      */
     public function savem2m($m2m) {
         
+    	$class = get_class($this);
+    	$columns = $class::$columns;
+    	
     	foreach($m2m as $pName=>$pValue) {
-    		 
-    		if(is_a($pValue, '\Gino\ManyToManyField')) {
+    		
+    		if(is_array($pValue))
+    		{
+    			$field_obj = $columns[$pName];
     			
-    			$this->_db->delete($pValue->getJoinTable(), $pValue->getJoinTableId()."='".$this->id."'");
-    			foreach($values as $fid) {
-    				$this->_db->insert(array(
-    						$pValue->getJoinTableId() => $this->id,
-    						$pValue->getJoinTableM2mId() => $fid
-    				), $pValue->getJoinTable()
-    				);
+    			if(is_a($field_obj, '\Gino\ManyToManyField')) {
+    				
+    				$build = $this->build($field_obj);
+    				
+    				$this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
+    				foreach($pValue as $fid) {
+    					$this->_db->insert(array(
+    							$build->getJoinTableId() => $this->id,
+    							$build->getJoinTableM2mId() => $fid
+    						), $build->getJoinTable(), true
+    					);
+    				}
     			}
     		}
     	}
@@ -632,12 +653,14 @@ namespace Gino;
 	public function deletem2m() {
         
 		$result = true;
-        foreach($this->_structure as $field => $obj) {
-        	if(is_a($obj, 'ManyToManyField')) {
+		
+		foreach($this->_structure as $field => $obj) {
+        	
+        	if(is_a($obj, '\Gino\ManyToManyField')) {
             	
-        		$build = $this->buid($field_obj);
+        		$build = $this->build($obj);
                 $result = $result and $this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
-            }
+        	}
         }
         return $result;
     }
@@ -647,10 +670,12 @@ namespace Gino;
      * @return risultato dell'operazione, bool
      */
     public function deletem2mthrough() {
-        $result = true;
+        
+    	$result = true;
         foreach($this->_structure as $field => $obj) {
-            if(is_a($obj, 'ManyToManyThroughField')) {
-                $result = $result and $this->deletem2mthroughField($field);
+        	
+        	if(is_a($obj, '\Gino\ManyToManyThroughField')) {
+        		$result = $result and $this->deletem2mthroughField($field);
             }
         }
         return $result;
@@ -664,8 +689,6 @@ namespace Gino;
      */
     public function deletem2mthroughField($field_name) {
         
-    	//$field_obj = $this->getFieldObject($field_name);
-    	
     	$field_obj = $this->_structure[$field_name];
         
     	if(!is_a($field_obj, '\Gino\ManyToManyThroughField'))
@@ -743,7 +766,6 @@ namespace Gino;
      *   'required' => boolean,
      *   'int_digits' => integer,
      *   'decimal_digits' => integer,
-     *   'table' => string (self::$table)
      * ));
      * @endcode
      */
@@ -753,7 +775,7 @@ namespace Gino;
     }
     
     /**
-     * Imposta le opzioni model e value e recupera le proprietà del campo dipendenti dai valori del record 
+     * Imposta le opzioni "model, value, table" e recupera le proprietà del campo dipendenti dai valori del record 
      * 
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return array
@@ -761,19 +783,22 @@ namespace Gino;
     public function getProperties($field_obj) {
     	
     	$field_name = $field_obj->getName();
+    	$controller = $this->getController();
     	
-    	$prop = $this->properties($this);
+    	$prop = $this->properties($this, $controller);
     	
     	$prop_base = array(
     		'model' => $this,
-    		'value' => $field_obj->getValue($this->$field_name),
+    		'value' => $field_obj->getFormatValue($this->$field_name),
+    		'table' => $this->getTable()
     	);
     	
     	if(array_key_exists($field_name, $prop)) {
     		$prop_model = $prop[$field_name];
     		
-    		if(!is_array($prop_model))
+    		if(!is_array($prop_model)) {
     			throw new \Exception(_("Le proprietà specifiche di un campo del modello devono essere definite in un array"));
+    		}
     		
     		return array_merge($prop_base, $prop_model);
     	}
@@ -784,9 +809,10 @@ namespace Gino;
      * Proprietà specifiche di un modello dipendenti dai valori del record (ad esempio dal valore id)
      * 
      * @param object $model
+     * @param object $controller
      * @return array
      */
-    protected static function properties($model) {
+    protected static function properties($model, $controller=null) {
     	
     	return array();
     }
@@ -794,11 +820,14 @@ namespace Gino;
     /**
      * Classe Build del campo di tabella
      * 
-     * @description Le eventuali proprietà del modello dipendenti dai valori del record devono sovrascrivere le proprietà del campo
+     * @description Le eventuali proprietà del modello dipendenti dai valori del record sovrascrivono le proprietà del campo
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return object
      */
     public function build($field_obj) {
+    	
+    	if(!is_object($field_obj))
+    		throw new \Exception(_("Gino.Model::build() expects an object"));
     	
     	// model properties
     	$prop_model = $this->getProperties($field_obj);
@@ -815,7 +844,7 @@ namespace Gino;
     /**
      * Valore da mostrare in output
      * 
-     * @see Build::retrieveValue()
+     * @see Gino.Build::retrieveValue()
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return mixed
      */
@@ -848,10 +877,10 @@ namespace Gino;
 			if($row && count($row)) {
 				
 				if($this->checkM2m($field_obj)) {
-					$this->_p[$field_name] = $field_obj->getValue($row[0]['id']);
+					$this->_p[$field_name] = $field_obj->getFormatValue($row[0]['id']);
 				}
 				else {
-					$this->_p[$field_name] = $field_obj->getValue($row[0][$field_name]);
+					$this->_p[$field_name] = $field_obj->getFormatValue($row[0][$field_name]);
 				}
 			}
 			else {
@@ -873,6 +902,7 @@ namespace Gino;
      */
     public function updateStructure() {
         
+    	// @todo come gestire?
     	//$this->_structure = $this->structure($this->id);
     }
 }

@@ -22,6 +22,7 @@ The installation process includes the following steps:
 
 In the database insert the function 'replace_ci':
 
+-- START --
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `replace_ci`$$
@@ -35,6 +36,11 @@ RETURN return_str;
 END$$
 
 DELIMITER ;
+-- END --
+
+ATTENTION:
+DELIMITER is a Mysql console command; you can't use it in phpmyadmin.
+In this case set the delimiter field under the SQL text box and remove the DEFINER from the query.
 
 3) Set basic parameters of the site in the file 'configuration.php'
 
@@ -89,6 +95,7 @@ La procedura di installazione prevede i seguenti passaggi:
 
 Nel database inserire la funzione 'replace_ci':
 
+-- START --
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `replace_ci`$$
@@ -102,6 +109,10 @@ RETURN return_str;
 END$$
 
 DELIMITER ;
+-- END --
+
+ATTENZIONE:
+DELIMITER è un comando da console Mysql; non è possibile utilizzarlo in phpMyAdmin. In questo caso, impostare il campo delimitatore sotto la casella di testo SQL e rimuovere il DEFINER dalla query.
 
 3) Impostare i parametri base del sito nel file 'configuration.php'
 

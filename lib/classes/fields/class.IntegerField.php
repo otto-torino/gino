@@ -38,10 +38,10 @@ class IntegerField extends Field {
     }
     
     /**
-     * @see Gino.Field::getValue()
+     * @see Gino.Field::getFormatValue()
      * @return null or integer
      */
-    public function getValue($value) {
+    public function getFormatValue($value) {
     	 
     	if(is_null($value)) {
     		return null;
@@ -56,10 +56,10 @@ class IntegerField extends Field {
     }
     
     /**
-     * @see Gino.Field::setValue()
+     * @see Gino.Field::setFormatValue()
      * @return null or integer
      */
-    public function setValue($value) {
+    public function setFormatValue($value) {
     
     	if(is_null($value)) {
     		return null;

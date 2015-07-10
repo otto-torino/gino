@@ -101,10 +101,10 @@ class FileField extends Field {
     }
 
     /**
-     * @see Gino.Field::getValue()
+     * @see Gino.Field::getFormatValue()
      * @return null or string
      */
-    public function getValue($value) {
+    public function getFormatValue($value) {
     	 
     	if(is_null($value)) {
     		return null;

@@ -54,9 +54,7 @@ class PageEntry extends \Gino\Model {
     /**
      * @see Gino.Model::properties()
      */
-    protected static function properties($model) {
-    	
-    	$controller = new page();
+    protected static function properties($model, $controller) {
     	
     	$base_path = $controller->getBasePath();
         $add_path = $controller->getAddPath($model->id);
@@ -82,7 +80,7 @@ class PageEntry extends \Gino\Model {
 			'name'=>'id',
 			'primary_key'=>true,
 			'auto_increment'=>true,
-        	'table'=>self::$table
+        	'max_lenght'=>11,
 		));
         $columns['category_id'] = new \Gino\ForeignKeyField(array(
             'name'=>'category_id',
@@ -91,8 +89,7 @@ class PageEntry extends \Gino\Model {
         	'foreign'=>'\Gino\App\Page\PageCategory',
         	'foreign_order'=>'name ASC',
         	'add_related' => true,
-        	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1"), 
-        	'table'=>self::$table
+        	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1"),
         ));
 		$columns['author'] = new \Gino\ForeignKeyField(array(
 			'name'=>'author',
@@ -121,7 +118,6 @@ class PageEntry extends \Gino\Model {
 			'label'=>_("Titolo"),
 			'required'=>true,
 			'max_lenght'=>200,
-			'table'=>self::$table
 		));
         $columns['slug'] = new \Gino\SlugField(array(
             'name'=>'slug',
@@ -157,8 +153,7 @@ class PageEntry extends \Gino\Model {
         	'required'=>false,
         	'max_lenght'=>255,
         	'model_controller_class' => 'page',
-        	'model_controller_instance' => 0, 
-        	'table'=>self::$table
+        	'model_controller_instance' => 0,
         ));
         $columns['enable_comments'] = new \Gino\BooleanField(array(
         	'name'=>'enable_comments',
@@ -169,7 +164,6 @@ class PageEntry extends \Gino\Model {
             'name'=>'published',
             'label'=>_('Pubblicato'),
             'required'=>true,
-			'table'=>self::$table
         ));
 		$columns['social'] = new \Gino\BooleanField(array(
             'name'=>'social',
@@ -409,10 +403,8 @@ class PageEntry extends \Gino\Model {
     }
     
     /**
-     * @brief Salva il modello
-     * @description Sovrascrive il metodo di Gino.Model per salvare l'autore della pagina
      * @see Gino.Model::save()
-     * @return risultato operazione, bool
+     * @description Sovrascrive il metodo di Gino.Model per salvare l'autore della pagina
      */
     public function save($options=array())
     {
@@ -424,10 +416,7 @@ class PageEntry extends \Gino\Model {
     }
 
     /**
-     * @brief Elimina l'oggetto
-     * @description Sovrascrive il metodo di Gino.Model per eliminare i commenti
      * @see Gino.Model::delete()
-     * @return il risultato dell'operazione, bool
      */
     public function delete() {
 

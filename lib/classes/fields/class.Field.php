@@ -24,7 +24,7 @@ class Field {
      * @brief Proprietà dei campi
      * Vengono esposte dai relativi metodi __get e __set
      */
-	protected $_name, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_table, $int_digits, $decimal_digits;
+	protected $_name, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $int_digits, $decimal_digits;
 
     /**
      * @brief Indica se il tipo di campo è obbligatorio 
@@ -66,7 +66,6 @@ class Field {
      *   - @b required (boolean): valore indicatore del campo obbligatorio
      *   - @b int_digits (integer): numero di cifre intere di un campo float
      *   - @b decimal_digits (integer): numero di cifre decimali di un campo float
-     *   - @b table (string): nome della tabella del modello
      */
     function __construct($options) {
 
@@ -82,7 +81,6 @@ class Field {
         $this->_widget = array_key_exists('widget', $options) ? $options['widget'] : $this->_default_widget;
         $this->_int_digits = array_key_exists('int_digits', $options) ? $options['int_digits'] : 0;
         $this->_decimal_digits = array_key_exists('decimal_digits', $options) ? $options['decimal_digits'] : 0;
-        $this->_table = array_key_exists('table', $options) ? $options['table'] : '';
     }
 
     /**
@@ -337,7 +335,6 @@ class Field {
     		'auto_increment' => $this->_auto_increment,
     		'primary_key' => $this->_primary_key,
     		'unique_key' => $this->_unique_key,
-    		'table' => $this->_table,
     		'required' => $this->_required,
     		'widget' => $this->_widget,
     		'value_type' => $this->_value_type,
@@ -347,27 +344,28 @@ class Field {
     }
     
     /**
-     * @brief Valore del campo recuperato dal record della tabella
+     * @brief Riporta il valore del campo del modello nel formato corretto
      * 
      * @param mixed $value
      * @return mixed
      */
-    public function getValue($value) {
+    public function getFormatValue($value) {
     	
     	return $value;
     }
 
     /**
-     * @brief Imposta il valore da salvare nel campo della tabella
-     *
+     * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean(). \n
+     * Il valore viene poi utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.AdminTable::modelAction()).
+     * 
      * @param mixed $value
      * @return mixed
      */
-    public function setValue($value) {
+	public function setFormatValue($value) {
 
-        if(is_null($value))
-        	return null;
-        else
-    		return (string) $value;
-    }
+		if(is_null($value))
+			return null;
+		else
+			return (string) $value;
+	}
 }

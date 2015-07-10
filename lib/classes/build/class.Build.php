@@ -30,7 +30,6 @@ class Build {
     	$_auto_increment,
     	$_primary_key,
     	$_unique_key,
-    	$_table,
     	$_required,
     	$_widget,
     	$_value_type,
@@ -42,6 +41,12 @@ class Build {
      * @var Gino.Model
      */
     protected $_model;
+    
+    /**
+     * @brief Nome della tabella del modello
+     * @var string
+     */
+    protected $_table;
     
     /**
      * Visualizzazione dell'input field nel form
@@ -79,7 +84,6 @@ class Build {
     	$this->_auto_increment = $options['auto_increment'];
     	$this->_primary_key = $options['primary_key'];
     	$this->_unique_key = $options['unique_key'];
-    	$this->_table = $options['table'];
     	$this->_required = $options['required'];
     	$this->_widget = $options['widget'];
     	$this->_value_type = $options['value_type'];
@@ -87,6 +91,7 @@ class Build {
     	$this->_decimal_digits = $options['decimal_digits'];
     	
     	$this->_model = $options['model'];
+    	$this->_table = $options['table'];
     	$this->_view_input = true;
 		
     	if(array_key_exists('value', $options)) {
@@ -163,6 +168,25 @@ class Build {
     public function setValue($value) {
 
         $this->_value = $value;
+    }
+    
+    /**
+     * @brief Getter della proprietà table
+     * @return nome della tabella
+     */
+    public function getTable() {
+    
+    	return $this->_table;
+    }
+    
+    /**
+     * @brief Setter della proprietà table
+     * @param string $value
+     * @return void
+     */
+    public function setTable($value) {
+    
+    	$this->_table = $value;
     }
     
     /**
