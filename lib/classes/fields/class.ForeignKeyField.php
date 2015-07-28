@@ -79,10 +79,10 @@ class ForeignKeyField extends Field {
     }
 
     /**
-     * @see Gino.Field::setFormatValue()
+     * @see Gino.Field::valueToDb()
      * @return object
      */
-    public function setFormatValue($value) {
+    public function valueToDb($value) {
     	 
     	return (int) $value;
     }

@@ -43,6 +43,10 @@ class Widget {
      */
     public function printInputForm($form, $options) {
     
+    	//$input_prefix = array_key_exists('input_prefix', $options) && $options['input_prefix'] ? $options['input_prefix'] : null;
+    	//$input_prefix = null;
+    	//$this->_name = $input_prefix ? $input_prefix.$options['name'] : $options['name'];
+    	
     	$this->_name = $options['name'];
     	$this->_label = $options['label'];
     	$this->_value = $options['value'];

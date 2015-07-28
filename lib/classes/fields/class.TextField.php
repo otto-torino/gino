@@ -63,10 +63,10 @@ class TextField extends Field {
     }
     
     /**
-     * @see Gino.Field::getFormatValue()
+     * @see Gino.Field::valueFromDb()
      * @return null or string
      */
-    public function getFormatValue($value) {
+    public function valueFromDb($value) {
     
     	if(is_null($value)) {
     		return null;
@@ -78,10 +78,10 @@ class TextField extends Field {
     }
     
     /**
-     * @see Gino.Field::setFormatValue()
+     * @see Gino.Field::valueToDb()
      * @return null or string
      */
-    public function setFormatValue($value) {
+    public function valueToDb($value) {
     
     	if(is_null($value)) {
     		return null;

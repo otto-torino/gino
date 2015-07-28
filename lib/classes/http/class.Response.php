@@ -62,7 +62,8 @@ class Response {
      * @return void
      */
     function __invoke() {
-        $this->send();
+        
+    	$this->send();
     }
 
     /**

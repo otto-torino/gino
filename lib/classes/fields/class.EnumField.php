@@ -58,9 +58,9 @@ class EnumField extends Field {
     }
 
     /**
-     * @see Gino.Field::getFormatValue()
+     * @see Gino.Field::valueFromDb()
      */
-    public function getFormatValue($value) {
+    public function valueFromDb($value) {
     
     	if(is_null($value)) {
     		return null;

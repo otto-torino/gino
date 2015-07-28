@@ -289,7 +289,6 @@ class AdminTable {
         $trnsl_id = array_key_exists('trnsl_id', $options) ? $options['trnsl_id'] : $model->id;
         $verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
         $only_inputs = array_key_exists('only_inputs', $options) ? $options['only_inputs'] : false;
-        $inputs_prefix = array_key_exists('inputs_prefix', $options) ? $options['inputs_prefix'] : '';
         $show_save_and_continue = array_key_exists('show_save_and_continue', $options) ? $options['show_save_and_continue'] : TRUE;
 
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
@@ -343,9 +342,6 @@ class AdminTable {
                 {
                     $object->setWidget(null);
                     $object->setRequired(false);
-                }
-                if($inputs_prefix) {
-                    $object->setName($inputs_prefix.$object->getName());
                 }
                 
                 $build = $model->build($object);
@@ -413,7 +409,7 @@ class AdminTable {
                 $form_content .= "<legend>$legend</legend>\n";
                 foreach($fields as $field) {
                         if(isset($structure[$field])) {
-                                $form_content .= $structure[$field];
+                			$form_content .= $structure[$field];
                         }
                 }
                 $form_content .= "</fieldset>";
@@ -464,7 +460,7 @@ class AdminTable {
      * @endcode
      *
      * @see Gino.Model::save()
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      * @param object $model
      * @param array $options
      *     - opzioni per il recupero dei dati dal form
@@ -548,7 +544,7 @@ class AdminTable {
                 {
                 	$build = $model->build($object);
                 	
-                	$value = $build->clean($opt_element);
+                	$value = $build->clean($opt_element, $model->id);
                 	$builds[$field] = $build;
                 	// imposta il valore; @see Gino.Model::__set()
                 	$model->{$field} = $value;
@@ -569,119 +565,119 @@ class AdminTable {
                 $model->{$field_log} = $result;
         }
         
+        //$result = $model->save(array('builds'=>$builds, 'm2mt'=>$m2mt, 'opt_action'=>$options));
         $result = $model->save(array('builds'=>$builds));
 
         // error
         if(is_array($result)) {
             return $result;
         }
-
+        
         foreach($m2mt as $data) {
-            $result = $this->m2mthroughAction($data['field'], $data['object'], $model, $options);
-            // error
-            if(is_array($result)) {
-                return $result;
-            }
+        	$result = $this->m2mThroughAction($data['field'], $data['object'], $model, $options);
+        	
+        	// error
+        	if(is_array($result)) {
+        		return $result;
+        	}
         }
 
         return $result;
     }
-
+    
     /**
      * @brief Salvataggio dei campi Gino.ManyToManyThroughField
      *
      * @description Il salvataggio di questi tipi di campi avviene in automatico utilizzando
      *              la class Gino.AdminTable. Non è gestito dalla classe Gino.Model.
      *
-     * @param string $m2m_field nome campo
-     * @param \Gino\ManyToManyThroughField $m2m_field_object istanza della classe di tipo Gino.Field che rappresenta il campo
+     * @param string $m2m_name nome del campo ManytoManyThroughField
+     * @param \Gino\ManyToManyThroughField $m2m_object istanza della classe di tipo Gino.Field che rappresenta il campo
      * @param \Gino\Model $model istanza del model cui appartiene il campo
      * @param $options array associativo di opzioni
      * @return risultato operazione, bool o errori
      */
-    protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
-
-        $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-        $m2m_class = $m2m_field_object->getM2m();
-
-        $check_ids = array();
-
-        $m2m_m2m = array();
-        $indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
-        if(!is_array($indexes)) $indexes = array();
-        $object_names = array();
-        foreach($indexes as $index) {
-            $id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_id_'.$index, 'int', '');
-            // oggetto pronto per edit or insert
-            $m2m_model = new $m2m_class($id, $m2m_field_object->getController());
-            foreach($m2m_model->getStructure() as $field=>$object) {
-
-                if(!isset($object_names[$field])) {
-                    $object_names[$field] = $object->getName();
-                }
-
-                if($this->permission($options, $field) &&
-                (
-                    ($removeFields && !in_array($field, $removeFields)) || 
-                    (!$removeFields)
-                ))
-                {
-                    $opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_field.'_check_del_'.$object_names[$field].'_'.$index);
-                    if(isset($options_element[$field])) {
-                        $opt_element = array_merge($opt_element, $options_element[$field]);
-                    }
-
-                    if($field == 'instance' && is_null($m2m_model->instance))
-                    {
-                        $m2m_model->instance = $this->_controller->getInstance();
-                    }
-                    elseif(is_a($object, '\Gino\ManyToManyThroughField'))
-                    {
-                        $this->m2mthroughAction($object, $m2m_model);
-                    }
-                    else
-                    {
-                        $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
-                        
-                        $build = $model->build($object);
-                        
-                        $value = $build->clean($opt_element);
-                        $result = $build->validate($value);
-
-                        if(is_array($result)) {
-                        	return array('error'=>$result['error']);
-                        }
-                        else {
-                        	$m2m_model->{$field} = $value;
-                        }
-
-                        if(isset($import) and $import)
-                        {
-                            if($field == $field_import)
-                                $path_to_file = $object->getPath();
-                        }
-                    }
-                }
-            }
-            $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
-            $m2m_model->save();
-            $check_ids[] = $m2m_model->id;
-        }
-        // eliminazione tutti m2mt che non ci sono piu
-        $db = Db::instance();
-        $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
-        $objs = $m2m_class::objects($m2m_field_object->getController(), array('where' => $where));
-
-        if($objs and count($objs)) {
-            foreach($objs as $obj) {
-                $obj->delete();
-            }
-        }
-
-        // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-        $model->updateStructure();
-
-        return TRUE;
+    private function m2mThroughAction($m2m_name, $m2m_object, $model, $options=array()) {
+    
+    	$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
+    	 
+    	$build = $model->build($m2m_object);
+    	$m2m_class = $build->getM2m();
+    	
+    	$indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_ids', 'array', '');
+    	
+    	if(!is_array($indexes)) $indexes = array();
+    	
+    	$check_ids = array();
+    	$m2m_m2m = array();
+    	$object_names = array();
+    	
+    	foreach($indexes as $index) {
+    
+    		$id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_id_'.$index, 'int', '');
+    
+    		// oggetto pronto per edit or insert
+    		$m2m_model = new $m2m_class($id, $build->getController());
+    		
+    		foreach($m2m_model->getStructure() as $field=>$object) {
+    
+    			if(!isset($object_names[$field])) {
+    				$object_names[$field] = $object->getName();
+    			}
+    
+    			if($this->permission($options, $field) &&
+    			(($removeFields && !in_array($field, $removeFields)) || (!$removeFields)))
+    			{
+    				$opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_name.'_check_del_'.$object_names[$field].'_'.$index);
+    
+    				if(isset($options_element[$field])) {
+    					$opt_element = array_merge($opt_element, $options_element[$field]);
+    				}
+    
+    				if($field == 'instance' && is_null($m2m_model->instance))
+    				{
+    					$m2m_model->instance = $this->_controller->getInstance();
+    				}
+    				elseif(is_a($object, '\Gino\ManyToManyThroughField'))
+    				{
+    					$this->m2mThroughAction($field, $object, $m2m_model);
+    				}
+    				else
+    				{
+    					$m2m_build = $m2m_model->build($object);
+    					$m2m_build->setName('m2mt_'.$m2m_name.'_'.$object_names[$field].'_'.$index);
+    					
+    					$value = $m2m_build->clean($opt_element);
+    					$m2m_model->{$field} = $value;
+    
+    					if(isset($import) and $import)
+    					{
+    						if($field == $field_import)
+    							$path_to_file = $object->getPath();
+    					}
+    				}
+    			}
+    		}
+    		$m2m_model->{$build->getModelTableId()} = $model->id;
+    		$m2m_model->save();
+    		$check_ids[] = $m2m_model->id;
+    	}
+    	
+    	// eliminazione tutti m2mt che non ci sono più
+    	$db = Db::instance();
+    	$where = count($check_ids) ? $build->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $build->getModelTableId()."='".$model->id."'";
+    	$objs = $m2m_class::objects($build->getController(), array('where' => $where));
+    	
+    	if($objs and count($objs)) {
+    		foreach($objs as $obj) {
+    			$obj->delete();
+    		}
+    	}
+    	
+    	// update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
+    	$model->updateStructure();	//// DA FARE
+    	
+    	return TRUE;
     }
 
     /**
@@ -722,7 +718,6 @@ class AdminTable {
             $options_view['export'] = $export;
             return $this->adminList($model_obj, $options_view);
         }
-
     }
 
     /**

@@ -61,13 +61,15 @@ class SlugBuild extends Build {
 
         return $widget;
     }
-
-    /**
-     * @see Gino.Build::validate()
-     * @description controlla la preesistenza del valore nei record della tabella
-     */
-    public function validate($value, $id=null) {
     
+    /**
+     * @see Gino.Build::clean()
+     * @description Controlla la preesistenza del valore nei record della tabella
+     */
+    public function clean($options=null, $id=null) {
+    
+    	$value = parent::clean($options);
+    	
     	if(is_null($value)) {
     		return null;
     	}
@@ -79,7 +81,7 @@ class SlugBuild extends Build {
     		if($id) {
     			$where .= " AND id!='".$id."'";
     		}
-    		
+    	
     		$res = $db->select('id', $this->_table, $where);
     		if($res && count($res)) {
     			throw new \Exception(_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));

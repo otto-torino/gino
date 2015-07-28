@@ -344,24 +344,26 @@ class Field {
     }
     
     /**
-     * @brief Riporta il valore del campo del modello nel formato corretto
+     * @brief Valore del campo del modello nel formato richiesto
      * 
+     * @see Gino.Model::getProperties()
+     * @see Gino.Model::fetchColumns()
      * @param mixed $value
      * @return mixed
      */
-    public function getFormatValue($value) {
+    public function valueFromDb($value) {
     	
     	return $value;
     }
 
     /**
      * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean(). \n
-     * Il valore viene poi utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.AdminTable::modelAction()).
+     * Il valore viene poi utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.Model::__set()).
      * 
      * @param mixed $value
      * @return mixed
      */
-	public function setFormatValue($value) {
+	public function valueToDb($value) {
 
 		if(is_null($value))
 			return null;

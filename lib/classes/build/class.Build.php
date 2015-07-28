@@ -43,6 +43,12 @@ class Build {
     protected $_model;
     
     /**
+     * Oggetto Field
+     * @var object
+     */
+    protected $_field_object;
+    
+    /**
      * @brief Nome della tabella del modello
      * @var string
      */
@@ -91,6 +97,7 @@ class Build {
     	$this->_decimal_digits = $options['decimal_digits'];
     	
     	$this->_model = $options['model'];
+    	$this->_field_object = $options['field_object'];
     	$this->_table = $options['table'];
     	$this->_view_input = true;
 		
@@ -150,7 +157,17 @@ class Build {
     
     	return $this->_name;
     }
-
+    
+    /**
+     * @brief Setter della proprietà name
+     * @param mixed $value
+     * @return void
+     */
+    public function setName($value) {
+    
+    	$this->_name = $value;
+    }
+    
     /**
      * @brief Getter della proprietà value
      * @return valore del campo
@@ -248,6 +265,7 @@ class Build {
      *       - @a file
      *       - @a image
      *       - @a email
+     *       - @a unit
      *     - @b required (boolean): campo obbligatorio
      * @return controllo del campo, html
      */
@@ -321,9 +339,10 @@ class Build {
      *   - @b value_type (string): tipo di valore
      *   - @b method (array): metodo di recupero degli elementi del form
      *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     * @return input ripulito
+     * @param integer $id valore id del record
+     * @return valore ripulito dell'input
      */
-    public function clean($options=null) {
+    public function clean($options=null, $id=null) {
     	
     	$request = Request::instance();
     	$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
@@ -334,20 +353,7 @@ class Build {
     }
     
     /**
-     * Metodo utilizzato in Model::save() per effettuare eventuali operazioni collegate al tipo di campo. \n
-     * Il valore di ogni campo è stato precdentemente ripulito dal metodo clean (AdminTable::modelAction()).
-     * 
-     * @param mixed $value valore ripulito dell'input form
-     * @param integer $id valore id del record
-     * @return input value
-     */
-    public function validate($value, $id=null) {
-    	
-    	return $value;
-    }
-    
-    /**
-     * @brief Valore del record predisposto per l'output html
+     * @brief Valore del campo predisposto per l'output html
      *
      * @param mixed $value
      * @return mixed

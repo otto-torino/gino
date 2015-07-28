@@ -83,9 +83,9 @@ class ManyToManyField extends Field {
     }
     
 	/**
-	 * @see Gino.Field::setFormatValue()
+	 * @see Gino.Field::valueToDb()
 	 */
-    public function setFormatValue($value) {
+    public function valueToDb($value) {
     
     	if(is_null($value))
     		return null;

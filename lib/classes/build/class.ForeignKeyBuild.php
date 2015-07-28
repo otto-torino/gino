@@ -9,7 +9,7 @@
  */
 namespace Gino;
 
-loader::import('class/build', '\Gino\Build');
+Loader::import('class/build', '\Gino\Build');
 
 /**
  * @brief Campo di tipo chiave esterna
@@ -26,9 +26,7 @@ class ForeignKeyBuild extends Build {
 	/**
 	 * @brief Proprietà dei campi
 	 */
-	protected $_foreign, $_foreign_where, $_foreign_order, $_add_related, $_add_related_url;
-	
-	//protected $_choice;
+	protected $_foreign, $_foreign_where, $_foreign_order, $_foreign_controller, $_add_related, $_add_related_url;
 	
     /**
      * @brief Costruttore
@@ -65,21 +63,13 @@ class ForeignKeyBuild extends Build {
     }
 
     /**
-     * @brief Getter della proprietà choice (scelte disponibili)
-     * @return array
-     */
-    /*public function getChoice() {
-
-        return $this->_choice;
-    }*/
-
-    /**
      * @see Gino.Build::formElement()
      */
     public function formElement(\Gino\Form $form, $options) {
 
-        $db = db::instance();
-        if($this->_foreign_controller) {
+    	$db = db::instance();
+    	
+    	if($this->_foreign_controller) {
             $foreign = new $this->_foreign(null, $this->_foreign_controller);
         }
         else {

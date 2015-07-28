@@ -78,22 +78,6 @@ class DirectoryBuild extends Build {
     }
 
     /**
-     * @see Gino.Build::clean()
-     */
-    public function clean($options=null) {
-
-        $value = parent::clean($options);
-        
-		if(!$value)
-            $value = $this->defaultName($options);
-
-        if($value != $this->_value)
-            $value = $this->checkName($value);
-
-        return $value;
-    }
-
-    /**
      * @brief Nome di default della directory
      * @return nome directory o null
      */
@@ -136,13 +120,23 @@ class DirectoryBuild extends Build {
 
         return $name_dir;
     }
-
+    
     /**
-     * @see Gino.Build::validate()
+     * @see Gino.Build::clean()
      * @description Crea la directory se non esiste
      */
-    public function validate($value){
-
+    public function clean($options=null) {
+    
+    	$value = parent::clean($options);
+    	
+    	if(!$value) {
+    		$value = $this->defaultName($options);
+    	}
+    	
+    	if($value != $this->_value) {
+    		$value = $this->checkName($value);
+    	}
+    	
     	$existing_values = $this->_model->getRecordValues();
     	$existing_dir = $existing_values ? $existing_values[$this->getName()] : null;
     	
@@ -175,6 +169,45 @@ class DirectoryBuild extends Build {
         }
         else return null;
     }
+
+    /**
+     * @see Gino.Build::validate()
+     * @description Crea la directory se non esiste
+     */
+    /*public function validate($value){
+
+    	$existing_values = $this->_model->getRecordValues();
+    	$existing_dir = $existing_values ? $existing_values[$this->getName()] : null;
+    	
+    	if($value == $existing_dir)
+        {
+            return $value;
+        }
+        elseif($value)
+        {
+            if(!$this->_model->id)
+            {
+                if(!mkdir($this->_path.$value))
+                	return array('error'=>32);
+            }
+            else
+            {
+                if(!$existing_dir)
+                {
+                    if(!mkdir($this->_path.$value))
+                        return array('error'=>32);
+                }
+                else
+                {
+                    if(!rename($this->_path.$existing_dir, $this->_path.$value))
+                        return array('error'=>32);
+                }
+            }
+
+            return $value;
+        }
+        else return null;
+    }*/
 
     /**
      * @brief Eliminazione della directory

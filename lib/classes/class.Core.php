@@ -132,6 +132,7 @@ class Core {
         	'\Gino\ImageWidget',
         	'\Gino\EmailWidget',
         	'\Gino\TextWidget',
+        	'\Gino\UnitWidget',
         ));
 
         // gettext
@@ -192,7 +193,6 @@ class Core {
         if(!(isset($session->L_avoid_mobile) && $session->L_avoid_mobile)) {
             $this->detectMobile($session);
         }
-
     }
 
     /**

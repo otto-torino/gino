@@ -17,6 +17,8 @@ Loader::import('class/fields', '\Gino\Field');
  * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * Il prefisso dei nomi degli input che compongono il ManyToManyThroughField viene impostato dal javascript (m2mt_).
  */
 class ManyToManyThroughField extends Field {
 
@@ -38,10 +40,10 @@ class ManyToManyThroughField extends Field {
      */
     function __construct($options) {
 
-        $this->_default_widget = 'multicheck';
+        $this->_default_widget = 'unit';
         parent::__construct($options);
         
-        $this->_value_type = 'array';
+        $this->_value_type = 'int';
         
         $this->_controller = $options['controller'];
         $this->_m2m = $options['m2m'];
@@ -60,5 +62,25 @@ class ManyToManyThroughField extends Field {
     	$prop['m2m_controller'] = $this->_m2m_controller;
     
     	return $prop;
+    }
+    
+    /**
+     * @see Gino.Field::valueFromDb()
+     * 
+     * @param integer $value valore id del record
+     * @return null or integer
+     */
+    public function valueFromDb($value) {
+    
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_int($value)) {
+    		return $value;
+    	}
+    	elseif(is_string($value)) {
+    		return (int) $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
 }

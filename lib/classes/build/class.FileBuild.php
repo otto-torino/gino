@@ -242,36 +242,12 @@ class FileBuild extends Build {
     private function checkDeleteFile($input_file, $check_delete) {
     	
     	$existing_values = $this->_model->getRecordValues();
-    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
+    	//var_dump($existing_values);
+    	
+    	$existing_file = $existing_values ? $existing_values[$this->_field_object->getName()] : null;
     	$delete = (($input_file && $existing_file) || $check_delete) ? TRUE : FALSE;
     	
     	return $delete;
-    }
-
-    /**
-     * @see Gino.Build::clean()
-     */
-    public function clean($options=null) {
-
-        $request = \Gino\Http\Request::instance();
-        if(isset($request->FILES[$this->_name]['name']) AND $request->FILES[$this->_name]['name'] != '')
-        {
-            $filename = $request->FILES[$this->_name]['name'];
-            $filename = $this->checkFilename($filename, $this->_prefix, $options);
-        }
-        else $filename = '';
-
-        $check_name = isset($options['check_del_file_name']) ? $options['check_del_file_name'] : "check_del_".$this->_name;
-        $check_delete = $request->checkPOSTKey($check_name, 'ok');
-        $upload = $filename ? TRUE : FALSE;
-        
-        $this->_delete_file = $this->checkDeleteFile($filename, $check_delete);
-        
-        if($upload) $file = $filename;
-        elseif($this->_delete_file) $file = '';
-        else $file = $this->_value;
-
-        return $file;
     }
 
     /**
@@ -306,7 +282,7 @@ class FileBuild extends Build {
     public function delete() {
 
     	$existing_values = $this->_model->getRecordValues();
-    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
+    	$existing_file = $existing_values ? $existing_values[$this->_field_object->getName()] : null;
     	
     	if($existing_file && is_file($this->_directory.$existing_file)) {
             if(!@unlink($this->_directory.$existing_file)) {
@@ -472,24 +448,40 @@ class FileBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::validate()
+     * @see Gino.Build::clean()
+     * @description Effettua l'upload del file
      */
-    public function validate($value) {
-    
-    	if(is_null($value)) {
-    		return null;
-    	}
+    public function clean($options=null) {
     	
-    	$filename = (string) $value;
-    	
+    	// Filename
     	$request = \Gino\Http\Request::instance();
+    	
+    	if(isset($request->FILES[$this->_name]['name']) AND $request->FILES[$this->_name]['name'] != '')
+    	{
+    		$req_filename = $request->FILES[$this->_name]['name'];
+    		$req_filename = $this->checkFilename($req_filename, $this->_prefix, $options);
+    	}
+    	else $req_filename = '';
+    	
+    	$check_name = isset($options['check_del_file_name']) ? $options['check_del_file_name'] : "check_del_".$this->_name;
+    	$check_delete = $request->checkPOSTKey($check_name, 'ok');
+    	$upload = $req_filename ? TRUE : FALSE;
+    	
+    	$this->_delete_file = $this->checkDeleteFile($req_filename, $check_delete);
+    	
+    	if($upload) $filename = (string) $req_filename;
+    	elseif($this->_delete_file) $filename = '';
+    	else $filename = $this->_value;
+    	// /Filename
     	
     	if($this->_delete_file) {
     		$this->delete();
     	}
     	
     	$existing_values = $this->_model->getRecordValues();
-    	$existing_file = $existing_values ? $existing_values[$this->getName()] : null;
+    	$existing_file = $existing_values ? $existing_values[$this->_field_object->getName()] : null;
+    	
+    	$code_messages = \Gino\Error::codeMessages();
     	
     	if($existing_file && $filename == $existing_file)
     	{
@@ -499,24 +491,30 @@ class FileBuild extends Build {
     	{
     		$filename_size = $request->FILES[$this->_name]['size'];
     		$filename_tmp = $request->FILES[$this->_name]['tmp_name'];
-    		 
+    		
+    		if(!$filename_size) {
+    			throw new \Exception(_("Empty filename"));
+    		}
+    		
     		if($this->_max_file_size && $filename_size > $this->_max_file_size) {
-    			return array('error'=>33);
+    			throw new \Exception($code_messages[33]);	//return array('error'=>33);
     		}
     		
     		$finfo = finfo_open(FILEINFO_MIME_TYPE);
     		$mime = finfo_file($finfo, $filename_tmp);
     		finfo_close($finfo);
-			if(!\Gino\extension($filename, $this->_extensions) ||
+    		if(!\Gino\extension($filename, $this->_extensions) ||
     		preg_match('#%00#', $filename) ||
     		($this->_check_type && !in_array($mime, $this->_types_allowed))) {
-    			return array('error'=>03);
+    			throw new \Exception($code_messages[3]);	//return array('error'=>03);
     		}
     		
-    		if($this->saveFile($filename, $filename_tmp))
+    		if($this->saveFile($filename, $filename_tmp)) {
     			return $filename;
-    		else
+    		}
+    		else {
     			throw new \Exception(_("Errore nel salvataggio del file"));
+    		}
     	}
     	else return '';
     }
