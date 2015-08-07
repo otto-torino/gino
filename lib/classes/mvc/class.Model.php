@@ -374,7 +374,7 @@ namespace Gino;
      * 
      * @param array $options
      *   array associativo di opzioni
-     *   - @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
+     *   //- @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
      *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; default array('id', 'instance')
      * @return il risultato dell'operazione o errori
      */
@@ -423,17 +423,17 @@ namespace Gino;
             					$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
             				}
             				$fields[$pName] = $build->validate($pValue, $this->_p['id']);*/
-            				$fields[$pName] = $pValue;
+            				$fields[$pName] = $field_obj->valueToDb($pValue);
             			}
             		}
             		else $m2m[$pName] = $pValue;
             	}
 			}
 			
-			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'", true);
 		}
 		else
-		{    
+		{
         	$fields = array();
         	
         	foreach($this->_p as $pName=>$pValue)
@@ -458,7 +458,7 @@ namespace Gino;
 							$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
 						}
 						$fields[$pName] = $build->validate($pValue);*/
-						$fields[$pName] = $pValue;
+						$fields[$pName] = $field_obj->valueToDb($pValue);
 					}
 				}
 				else $m2m[$pName] = $pValue;
