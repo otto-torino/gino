@@ -406,13 +406,14 @@ class page extends \Gino\Controller {
     /**
      * @brief Percorso della directory di una pagina a partire dal percorso base
      *
-     * @param integer $id valore ID della pagina
+     * @param integer $id valore id della pagina
      * @return percorso
      */
     public function getAddPath($id) {
 
-        if(!$id)
-            $id = $this->_db->autoIncValue(pageEntry::$table);
+        if(!$id) {
+        	$id = $this->_db->autoIncValue(pageEntry::$table);
+        }
 
         $directory = $id.OS;
 
@@ -575,7 +576,7 @@ class page extends \Gino\Controller {
         $slug = \Gino\cleanVar($request->GET, 'id', 'string');
 
         $item = PageEntry::getFromSlug($slug, $this);
-
+        
         if(!$item || !$item->id || !$item->published) {
             throw new \Gino\Exception\Exception404();
         }
@@ -621,8 +622,9 @@ class page extends \Gino\Controller {
             }
         }
         if(!$request->user->id) {
-            $item->read = $item->read + 1;
-            $item->save();
+            
+			$item->read = $item->read + 1;
+        	$item->save(array('no_update'=>array('author')));
         }
 
         $view = new \Gino\View($this->_view_dir);

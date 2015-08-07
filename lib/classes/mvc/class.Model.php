@@ -3,7 +3,7 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -42,24 +42,25 @@ namespace Gino;
  *              );
  *              @endcode
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
  abstract class Model {
 
-    protected $_registry,
-               $_request,
-               $_db;
+    protected $_registry, $_request, $_db;
     protected $_tbl_data;
+    
+    /**
+     * Label del modello
+     * @var string
+     */
     protected $_model_label;
 
     /**
-     * Struttura della tabella
-     * @var array
+     * Controller
+     * @var object
      */
-    protected $_structure;
-
     protected $_controller;
 
     /**
@@ -68,20 +69,27 @@ namespace Gino;
      */
     protected $_locale;
 
-    //protected $_main_class;
-
     /**
-     * Intestazioni dei campi del database nel form
-     * @var array
+     * Array contenente i valori di un record
+     * @var array(field_name=>field_value)
      */
-    protected $_fields_label=array();
-    protected $_p, $_chgP = array();
-    protected $_m2m = array(), $_m2mt = array();
+    protected $_p = array();
 
     protected $_is_constraint = array();
     protected $_check_is_constraint = true;
 
     protected $_lng_dft, $_lng_nav;
+    
+    /**
+     * Struttura dei campi del modello
+     * @var array
+     */
+    private $_structure;
+    
+    /**
+     * Traduzioni
+     * @var object
+     */
     private $_trd;
 
     /**
@@ -92,15 +100,20 @@ namespace Gino;
      */
     function __construct($id = null) {
 
-        $this->_registry = registry::instance();
+        $this->_registry = Registry::instance();
+        $this->_request = \Gino\Http\Request::instance();
+        
         $session = Session::instance();
         $this->_db = $this->_registry->db;
+        
         $this->_lng_dft = $session->lngDft;
         $this->_lng_nav = $session->lng;
-        $this->_structure = $this->structure($id);
-        $this->_p['instance'] = null;
+        
+        $this->_structure = $this->getStructure();
+        
+        $this->fetchColumns($id);
 
-        $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+        $this->_trd = new Translation($this->_lng_nav, $this->_lng_dft);
     }
 
     /**
@@ -118,10 +131,10 @@ namespace Gino;
      * @param string $field nome campo
      * @return etichetta
      */
-    public function fieldLabel($field) {
+	public function fieldLabel($field) {
 
-        return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
-    }
+		return isset($this->_fields_label[$field]) ? $this->_fields_label[$field] : $field;
+	}
 
      /**
      * @brief Setter per la variabile di controllo del check constraint
@@ -151,54 +164,59 @@ namespace Gino;
     /**
      * @brief Metodo richiamato ogni volta che qualcuno prova a ottenere una proprietà dell'oggetto non definita
      *
-     * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà
-     * Per i campi su tabella principale la proprietà ritornata è uguale al valore slavato sul db.
-     * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati.
-     * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati.
-     * @param string $pName
+     * L'output è il metodo get specifico per questa proprietà (se esiste), altrimenti è la proprietà. \n
+     * Per i campi su tabella principale la proprietà ritornata è uguale al valore salvato sul db. \n
+     * Per i m2m la proprietà è uguale ad un array con gli id dei modelli correlati. \n
+     * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati. \n
+     * 
+     * @param string $pName nome della proprietà
      * @return valore proprietà
      */
-     public function &__get($pName) {
-        $null = null;
+    public function __get($pName) {
+    	
+    	$null = null;
         
-        if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m) and !array_key_exists($pName, $this->_m2mt)) return $null;
+    	if(!array_key_exists($pName, $this->_p)) return $null;
         elseif(method_exists($this, 'get'.$pName)) return $this->{'get'.$pName}();
         elseif(array_key_exists($pName, $this->_p)) return $this->_p[$pName];
-        elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
-        elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
         else return $null;
     }
 
     /**
-     * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita
-     *
-     * L'output è il metodo set specifico per questa proprietà (se esiste), altrimenti la proprietà è impostata leggendo l'array POST e il tipo stringa
-     *
+     * @brief Metodo richiamato ogni volta che qualcuno prova a impostare una proprietà dell'oggetto non definita ($this->{fieldname})
+     * 
      * @param string $pName nome della proprietà
-     * @param mixed $pValue valore da settare
+     * @param mixed $pValue valore da impostare
      * @return void
      */
     public function __set($pName, $pValue) {
 
-    	if(!array_key_exists($pName, $this->_p) and !array_key_exists($pName, $this->_m2m)) {
-        	return null;
-        }
-        elseif(method_exists($this, 'set'.$pName)) {
-        	return $this->{'set'.$pName}($pValue);
-        }
-        elseif(array_key_exists($pName, $this->_p)) {
-            if($this->_p[$pName] !== $pValue && !in_array($pName, $this->_chgP)) {
-            	$this->_chgP[] = $pName;
-            }
-            $this->_p[$pName] = $pValue;
-        }
-        elseif(array_key_exists($pName, $this->_m2m)) {
-            $this->_m2m[$pName] = $pValue;
-        }
-        elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
-            $this->_m2mt[$pName] = $pValue;
-        }
+    	$class = get_class($this);
+    	
+    	if(array_key_exists($pName, $class::$columns))
+    	{
+    		$obj = $class::$columns[$pName];
+    		$this->_p[$pName] = $obj->valueToDb($pValue);
+    	}
+    	else throw new \Exception(sprintf(_("Il campo %s non è presente"), $pName));
     }
+    /*
+    public function &__get($pName) {
+    	...
+		elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
+    	elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
+    }
+    
+    public function __set($pName, $pValue) {
+    	...
+    	elseif(array_key_exists($pName, $this->_m2m)) {
+    		$this->_m2m[$pName] = $pValue;
+    	}
+    	elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
+    		$this->_m2mt[$pName] = $pValue;
+    	}
+    }
+    */
 
     /**
      * @brief Eliminazione di tutti i record legati all'istanza del controller passato come argomento
@@ -220,35 +238,20 @@ namespace Gino;
     }
 
     /**
-     * @brief Aggiunge un m2m al modello
-     * @param string $field nome campo m2m
-     * @param array $value lista di id correlati
-     * @return void
-     */
-    public function addm2m($field, $value) {
-        $this->_m2m[$field] = $value;
-    }
-
-    /**
-     * @brief Aggiunge un m2m through al modello
-     * @param string $field nome campo m2m
-     * @param array $value lista di id correlati
-     * @return void
-     */
-    public function addm2mthrough($field, $value) {
-        $this->_m2mt[$field] = $value;
-    }
-
-    /**
-     * @brief Ritorna l'oggetto m2m through model
+     * @brief Ritorna l'oggetto ManyToMany through model
+     * 
      * @param string $m2mt_field nome del campo m2mt
      * @param int $id id del record
      * @return oggetto
      */
     public function m2mtObject($m2mt_field, $id) {
-        $field_obj = $this->_structure[$m2mt_field];
-        $class = $field_obj->getM2m();
-        return new $class($id, $field_obj->getController());
+        
+		$field_obj = $this->_structure[$m2mt_field];
+		
+		$build = $this->build($field_obj);
+		$class = $build->getM2m();
+		
+		return new $class($id, $build->getController());
     }
 
     /**
@@ -274,21 +277,45 @@ namespace Gino;
     }
 
     /**
-     * @brief Struttura dati
+     * @brief Struttura dei campi del modello
      * @description Un array associativo che contiene tutti i campi come chiavi e le relative classi di tipo @ref Field come valore
      * @return struttura dati
      */
     public function getStructure() {
-        return $this->_structure;
+        
+    	$class = get_class($this);
+    	
+    	if(!is_array($class::$columns)) {
+    		throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+    	}
+    	
+    	return $class::$columns;
+    }
+    
+    /**
+     * Valori di un record
+     * 
+     * @param string $id valore id del record
+     * @return multitype:array,null
+     */
+    public function getRecordValues() {
+    	
+    	if(!$this->id) return null;
+    	
+    	$res = $this->_db->select("*", $this->_tbl_data, "id='".$this->id."'");
+    	if(count($res))
+    		return $res[0];
+    	else
+    		return null;
     }
 
    /**
     * @brief Metodo generico statico per ricavare oggetti
     * @param mixed $controller istanza del controller
     * @param array $options array associativo di opzioni:
-    *                       - where: where clause
-    *                       - order: ordinamento
-    *                       - limit: limite risultati
+    *   - @b where: where clause
+    *   - @b order: ordinamento
+    *   - @b limit: limite risultati
     * @return array di oggeti ricavati
     */
     public static function objects($controller = null, $options = array()) {
@@ -340,44 +367,116 @@ namespace Gino;
 
     /**
      * @brief Salva il modello su db
-     * @description Salva si i campi della tabella sia i m2m. I m2mt devono essere salvati manualmente,
+     * @description Salva sia i campi della tabella sia i m2m. I m2mt devono essere salvati manualmente,
      *              la classe @ref AdminTable lo fa in maniera automatica.
      *              Quando il salvataggio avviene con successo viene emesso un segnale 'post_save' da parte
      *              del modello.
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
+     *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; default array('id', 'instance')
      * @return il risultato dell'operazione o errori
      */
-    public function save() {
+    public function save($options=array()) {
 
-        $event_dispatcher = EventDispatcher::instance();
+		//$builds = array_key_exists('builds', $options) && count($options['builds']) ? $options['builds'] : array();	// TOGLIERE ???
+		
+		//$m2mt = array_key_exists('m2mt', $options) ? $options['m2mt'] : array();
+		//$opt_action = array_key_exists('opt_action', $options) ? $options['opt_action'] : array();
+		
+		$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array('id', 'instance');
+		
+		$event_dispatcher = EventDispatcher::instance();
 
-        $result = true;
-
-        if($this->_p['id']) {
-            if(sizeof($this->_chgP)) {
-                $fields = array();
-                foreach($this->_chgP as $pName) $fields[$pName] = $this->_p[$pName];
-                $result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
-            }
-        }
-        else {
-            if(sizeof($this->_chgP)) {
-                $fields = array();
-                foreach($this->_chgP as $pName) 
-                {
-                    if(!($pName == 'id' and $this->id === null))
-                        $fields[$pName] = $this->_p[$pName];
-                }
-                $result = $this->_db->insert($fields, $this->_tbl_data);
-            }
-        }
+		$result = true;
+		
+		$class = get_class($this);
+		$columns = $class::$columns;
+		$m2m = array();
+		
+		if($this->_p['id']) {
+            
+			$fields = array();
+			foreach($this->_p as $pName=>$pValue)
+			{
+            	if(!in_array($pName, $no_update))
+            	{
+            		if(!array_key_exists($pName, $columns)) {
+            			throw new \Exception(_("The field name does not exist"));
+            		}
+            		
+            		$field_obj = $columns[$pName];
+            		
+            		if(!$this->checkM2m($field_obj))
+            		{
+            			if(is_object($pValue))
+            			{
+            				$fields[$pName] = $pValue->id;
+            			}
+            			else
+            			{
+            				/*if(array_key_exists($pName, $builds)) {
+            					$build = $builds[$pName];
+            				}
+            				else {
+            					$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
+            				}
+            				$fields[$pName] = $build->validate($pValue, $this->_p['id']);*/
+            				$fields[$pName] = $pValue;
+            			}
+            		}
+            		else $m2m[$pName] = $pValue;
+            	}
+			}
+			
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+		}
+		else
+		{    
+        	$fields = array();
+        	
+        	foreach($this->_p as $pName=>$pValue)
+			{
+				if(!array_key_exists($pName, $columns)) {
+					throw new \Exception(_("The field name does not exist"));
+				}
+				$field_obj = $columns[$pName];
+				
+				if(!$this->checkM2m($field_obj))
+				{
+					if(is_object($pValue))
+					{
+						$fields[$pName] = $pValue->id;
+					}
+					else
+					{
+						/*if(array_key_exists($pName, $builds)) {
+							$build = $builds[$pName];
+						}
+						else {
+							$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
+						}
+						$fields[$pName] = $build->validate($pValue);*/
+						$fields[$pName] = $pValue;
+					}
+				}
+				else $m2m[$pName] = $pValue;
+			}
+            
+			$result = $this->_db->insert($fields, $this->_tbl_data);
+		}
 
         if(!$result) {
-            return array('error'=>_("Salvataggio non riuscito"));
+            throw new \Exception(_("Salvataggio non riuscito"));
         }
 
         if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
 
-        $result = $this->savem2m();
+        if(count($m2m)) {
+        	//$result = $this->savem2m($m2m, array('m2mt'=>$m2mt, 'opt_action'=>$opt_action));
+        	$result = $this->savem2m($m2m);
+        }
 
         $event_dispatcher->emit($this, 'post_save', array('model' => $this));
 
@@ -385,24 +484,53 @@ namespace Gino;
     }
 
     /**
-     * @brief Salvataggio dei m2m
-     * @return TRUE
+     * @brief Salvataggio dei ManyToMany
+     * 
+     * @param array $m2m
+     * @return true
      */
-    public function savem2m() {
-        foreach($this->_m2m as $field => $values) {
-            $obj = $this->_structure[$field];
-            if(is_a($obj, '\Gino\ManyToManyField')) {
-                $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-                foreach($values as $fid) {
-                    $this->_db->insert(array(
-                        $obj->getJoinTableId() => $this->id,
-                        $obj->getJoinTableM2mId() => $fid
-                        ), $obj->getJoinTable()
-                    );
-                }
-            }
-        }
-        return TRUE;
+    public function savem2m($m2m) {
+        
+    	//$m2mt = array_key_exists('m2mt', $options) ? $options['m2mt'] : array();
+    	//$opt_action = array_key_exists('opt_action', $options) ? $options['opt_action'] : array();
+    	
+    	$class = get_class($this);
+    	$columns = $class::$columns;
+    	
+    	foreach($m2m as $pName=>$pValue) {
+    		
+    		$field_obj = $columns[$pName];
+    		
+    		if(is_a($field_obj, '\Gino\ManyToManyField') && is_array($pValue)) {
+    			
+    			$build = $this->build($field_obj);
+    			
+    			$this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
+    			foreach($pValue as $fid) {
+    				$this->_db->insert(array(
+    						$build->getJoinTableId() => $this->id,
+    						$build->getJoinTableM2mId() => $fid
+    					), $build->getJoinTable(), true
+    				);
+    			}
+    		}
+    		/*
+    		elseif(is_a($field_obj, '\Gino\ManyToManyThroughField') && count($m2mt)) {
+    			
+    			foreach($m2mt as $data) {
+    				
+    				$result = $this->m2mThroughAction($data['field'], $data['object'], $this, $opt_action);
+    				
+    				// error
+    				if(is_array($result)) {
+    					return $result;
+    				}
+    			}
+    		}
+    		*/
+    	}
+    	
+        return true;
     }
 
     /**
@@ -425,12 +553,12 @@ namespace Gino;
     public function delete() {
 
         // check constraints
-        if($this->_check_is_constraint and count($this->_is_constraint)) {
-          $res = $this->checkIsConstraint();
-          if($res !== true) {
-            return array("error"=>$this->isConstraintError($res));
-          }
-        }
+		if($this->_check_is_constraint and count($this->_is_constraint)) {
+			$res = $this->checkIsConstraint();
+			if($res !== true) {
+				return array("error"=>$this->isConstraintError($res));
+			}
+		}
 
         $this->deletem2m();
         $this->deletem2mthrough();
@@ -441,8 +569,11 @@ namespace Gino;
         }
 
         foreach($this->_structure as $field) {
-            if(method_exists($field, 'delete')) {
-                $result = $field->delete();
+            
+        	$build = $this->build($field);
+        	
+        	if(method_exists($build, 'delete')) {
+                $result = $build->delete();
                 if($result !== TRUE) {
                     return $result;
                 }
@@ -499,12 +630,17 @@ namespace Gino;
             $an_obj = count($an_objs) ? $an_objs[0] : null;
             $model_label = $an_obj ? $an_obj->getModelLabel() : '';
             if($an_obj and $an_obj->id) {
+                
                 // m2m
                 if(isset($an_obj->_structure[$field]) and is_a($an_obj->_structure[$field], 'ManyToManyField')) {
-                    $field_obj = $an_obj->_structure[$field];
-                    $table = $field_obj->getJoinTable();
-                    $id_string = $field_obj->getJoinTableId();
-                    $m2m_id_string = $field_obj->getJoinTableM2mId();
+                    
+                	$field_obj = $an_obj->_structure[$field];
+                    $build = $this->buid($field_obj);
+                	
+                    $table = $build->getJoinTable();
+                    $id_string = $build->getJoinTableId();
+                    $m2m_id_string = $build->getJoinTableM2mId();
+                    
                     $rows = $db->select($id_string, $table, $m2m_id_string."='".$this->id."'");
                     if($rows and count($rows)) {
                         if(!isset($res[$model_label])) {
@@ -529,19 +665,23 @@ namespace Gino;
         }
 
         return count($res) ? $res : TRUE;
-
     }
 
     /**
      * @brief Elimina le associazioni m2m
      * @return risultato dell'operazione, bool
      */
-    public function deletem2m() {
-        $result = true;
-        foreach($this->_structure as $field => $obj) {
-            if(is_a($obj, 'ManyToManyField')) {
-                $result = $result and $this->_db->delete($obj->getJoinTable(), $obj->getJoinTableId()."='".$this->id."'");
-            }
+	public function deletem2m() {
+        
+		$result = true;
+		
+		foreach($this->_structure as $field => $obj) {
+        	
+        	if(is_a($obj, '\Gino\ManyToManyField')) {
+            	
+        		$build = $this->build($obj);
+                $result = $result and $this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
+        	}
         }
         return $result;
     }
@@ -551,10 +691,12 @@ namespace Gino;
      * @return risultato dell'operazione, bool
      */
     public function deletem2mthrough() {
-        $result = true;
+        
+    	$result = true;
         foreach($this->_structure as $field => $obj) {
-            if(is_a($obj, 'ManyToManyThroughField')) {
-                $result = $result and $this->deletem2mthroughField($field);
+        	
+        	if(is_a($obj, '\Gino\ManyToManyThroughField')) {
+        		$result = $result and $this->deletem2mthroughField($field);
             }
         }
         return $result;
@@ -562,18 +704,23 @@ namespace Gino;
 
     /**
      * @brief Elimina lòe associazioni di un campo m2mt
+     * 
      * @param string $field_name nome campo
      * @return risultato dell'operazione, bool
      */
     public function deletem2mthroughField($field_name) {
-        $obj = $this->_structure[$field_name];
-        $class = $obj->getM2m();
-        foreach($this->_m2mt[$field_name] as $id) {
-            $m2m_obj = new $class($id, $obj->getController());
-            return $m2m_obj->delete();
-        }
-
-        return TRUE;
+        
+    	$field_obj = $this->_structure[$field_name];
+        
+    	if(!is_a($field_obj, '\Gino\ManyToManyThroughField'))
+    		throw new \Exception(_("Il tipo di campo non è corretto"));
+    	
+    	$build = $this->buid($field_obj);
+        
+        $class = $build->getM2m();
+        
+        $m2m_obj = new $class($build->getValue(), $this->getController());
+        return $m2m_obj->delete();
     }
 
     /**
@@ -591,150 +738,184 @@ namespace Gino;
     public function getTable() {
         return $this->_tbl_data;
     }
-
+    
     /**
-     * @brief Struttura dei campi di una tabella del database
+     * Verifica se il tipo di campo di un modello è un oggetto ManyToMany
      * 
-     * Gli elementi della struttura possono essere sovrascritti all'interno del metodo structure() della classe che estende model. \n
+     * @param object $field oggetto del tipo di campo
+     * @return boolean
+     */
+    private function checkM2m($field_obj) {
+    	
+    	if(is_a($field_obj, '\Gino\ManyToManyField') 
+    	or is_a($field_obj, '\Gino\ManyToManyThroughField')) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    
+    /**
+     * Recupera l'oggetto del tipo di campo di un modello
      * 
-     * Ogni elemento viene associato a una classe del tipo di dato e le vengono passate le specifiche del campo. \n
-     * Esistono classi che corrispondono al tipo di dato e classi specifiche, per poter associare le quali è necessario sovrascrivere il campo nel metodo structure(). \n
-     * Classi specifiche per particolati tipi di dato sono foreignKeyField, imageField, fileField
-     * 
-     * @see DbManager::getTableStructure()
-     * @see dataCache::get()
-     * @see dataCache::save()
-     * Esempio di riscrittura del metodo structure():
-     * @code
-     * public function structure($id) {
-     *   
-     *   $structure = parent::structure($id);
-     *   
-     *   $structure['ctg'] = new foreignKeyField(array(
-     *     'name'=>'ctg', 
-     *     'model'=>$this, 
-     *     'foreign'=>'MyModel', 
-     *     'foreign_order'=>'name', 
-     *     'foreign_controller'=>$this->_controller
-     *   ));
-     *   
-     *   $base_path = $this->_controller->getBasePath(); // example -> /contents/events/eventsInterface/
-     *   $add_path_image = $this->id ? $this->_controller->getAddPath($this->id, 'image') : '';	// example -> id/img/
-     *   
-     *   $structure['image'] = new imageField(array(
-     *     'name'=>'image', 
-     *     'model'=>$this, 
-     *     'extensions'=>self::$extension_media, 
-     *     'path'=>$base_path, 
-     *     'add_path'=>$add_path_image, 
-     *     'resize'=>true, 
-     *     'check_type'=>false, 
-     *     'width'=>$this->_controller->getImageWidth(),
-     *     'thumb_width'=>$this->_controller->getImageThumbWidth()
-     *   ));
-     * }
-     * @endcode
+     * @param string $field_name nome del campo
+     * @return object or null
+     */
+    /*private function getFieldObject($field_name) {
+    	
+		$class = get_class($this);
+		
+		if(array_key_exists($field_name, $class::$columns))
+			return $class::$columns[$field_name];
+		else
+			return null;
+    }*/
+    
+    /**
+     * Struttura dei campi della tabella di un modello
      *
-     * @param integer $id valore ID del record di riferimento
      * @return array
      *
+     * @description Il formato degli elementi dell'array è il seguente:
+     * @code
+     * field_name = new \Gino\{Type}Field(array(
+     *   'name' => string,
+     *   'label' => string,
+     *   'primary_key' => bool,
+     *   'unique_key' => bool,
+     *   'auto_increment' => bool,
+     *   'default' => mixed,
+     *   'max_lenght' => integer,
+     *   'required' => boolean,
+     *   'int_digits' => integer,
+     *   'decimal_digits' => integer,
+     * ));
+     * @endcode
      */
-    public function structure($id) {
-
-        if(!$this->_tbl_data) {
-            throw new \Exception('La tabella _tbl_data del modello non è definita');
-        }
-
-        loader::import('class', array('\Gino\Cache'));
-        if($id)
-        {
-            $records = $this->_db->select('*', $this->_tbl_data, "id='$id'");
-            if($records and count($records)) {
-                $this->_p = $records[0];
-            }
-            else {
-                error::warning(sprintf(_('Oggetto %s, id %d inesistente.'), get_class($this), $id));
-                $this->_p = array();
-                $id = null;
-            }
-        }
-
-        $cache = new \Gino\DataCache();
-        if(!$fieldsTable = $cache->get('table_structure', $this->_tbl_data, 3600) or DEBUG) {
-            $fieldsTable = $this->_db->getTableStructure($this->_tbl_data);
-            $cache->save($fieldsTable);
-        }
-
-        $structure = array();
-        if(sizeof($fieldsTable) > 0)
-        {
-            $primary_key = $fieldsTable['primary_key'];
-            $fields = $fieldsTable['fields'];
-            $keys = $fieldsTable['keys']; // array delle chiavi uniche
-
-            foreach($fields AS $key=>$value)
-            {
-                if(!$id) $this->_p[$key] = null;
-
-                $type = $value['type'];
-                $maxLenght = $value['max_length'];
-                $numberIntDigits = $value['n_int'];
-                $numberDecimalDigits = $value['n_precision'];
-                $order = $value['order'];
-                $default = $value['default'];
-                $null = $value['null'];
-                $extra = $value['extra'];
-                $enum = $value['enum'];
-
-                $pkey = $key == $primary_key ? TRUE : FALSE;
-                $ukey = in_array($key, $keys) ? TRUE : FALSE;
-                $auto_increment = $extra == 'auto_increment' ? TRUE : FALSE;
-
-                $dataType = $this->dataType($type);
-                if($id) $this->_p[$key] = $this->_db->changeFieldType($dataType, $this->_p[$key]);
-
-                // Valori di un campo enumerazione
-                if($enum)
-                {
-                    $array = explode(',', $enum);
-                    $array_clean = array();
-                    foreach($array AS $evalue)
-                    {
-                        preg_match("#\'([0-9a-zA-Z-_,.']+)\'#", $evalue, $matches);
-                        if(isset($matches[1]))
-                            $array_clean[$matches[1]] = $matches[1];
-                    }
-                    $enum = $array_clean;
-                }
-
-                $label = array_key_exists($key, $this->_fields_label) ? $this->_fields_label[$key] : ucfirst($key);
-
-                $options_field = array(
-                    'name'=>$key,
-                    'model'=>$this,
-                    'lenght'=>$maxLenght,
-                    'primary_key'=>$pkey,
-                    'unique_key'=>$ukey,
-                    'auto_increment'=>$auto_increment, 
-                    'type'=>$type, 
-                    'int_digits'=>$numberIntDigits, 
-                    'decimal_digits'=>$numberDecimalDigits, 
-                    'order'=>$order, 
-                    'default'=>$default, 
-                    'required'=>$null=='NO' ? TRUE : FALSE, 
-                    'extra'=>$extra, 
-                    'enum'=>$enum, 
-                    'label'=>$label, 
-                );
-
-                $structure[$key] = loader::load('fields/'.$dataType, array($options_field));
-            }
-        }
-
-        return $structure;
+    public static function columns() {
+    
+    	return array();
     }
-
+    
     /**
+     * Imposta le opzioni "model, field_object, value, table" e recupera le proprietà del campo dipendenti dai valori del record 
+     * 
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return array
+     */
+    public function getProperties($field_obj) {
+    	
+    	$field_name = $field_obj->getName();
+    	$controller = $this->getController();
+    	
+    	$prop = $this->properties($this, $controller);
+    	
+    	$prop_base = array(
+    		'model' => $this,
+    		'field_object' => $field_obj, 
+    		'value' => $field_obj->valueFromDb($this->$field_name),
+    		'table' => $this->getTable()
+    	);
+    	
+    	if(array_key_exists($field_name, $prop)) {
+    		$prop_model = $prop[$field_name];
+    		
+    		if(!is_array($prop_model)) {
+    			throw new \Exception(_("Le proprietà specifiche di un campo del modello devono essere definite in un array"));
+    		}
+    		
+    		return array_merge($prop_base, $prop_model);
+    	}
+    	else return $prop_base;
+    }
+    
+    /**
+     * Proprietà specifiche di un modello dipendenti dai valori del record (ad esempio dal valore id)
+     * 
+     * @param object $model
+     * @param object $controller
+     * @return array
+     */
+    protected static function properties($model, $controller=null) {
+    	
+    	return array();
+    }
+    
+    /**
+     * Classe Build del campo di tabella
+     * 
+     * @description Le eventuali proprietà del modello dipendenti dai valori del record sovrascrivono le proprietà del campo
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return object
+     */
+    public function build($field_obj) {
+    	
+    	if(!is_object($field_obj))
+    		throw new \Exception(_("Gino.Model::build() expects an object"));
+    	
+    	// model properties
+    	$prop_model = $this->getProperties($field_obj);
+    	
+    	// field properties
+    	$prop_column = $field_obj->getProperties();
+    	
+    	$field_obj_class = get_class($field_obj);
+    	$class = preg_replace("#^(.+)(Field)$#", '$1Build', $field_obj_class);
+    	
+    	return new $class(array_merge($prop_column, $prop_model));
+    }
+    
+    /**
+     * Valore da mostrare in output
+     * 
+     * @see Gino.Build::retrieveValue()
+     * @param object $field_obj oggetto della classe del tipo di campo
+     * @return mixed
+     */
+    public function shows($field_obj) {
+    	
+    	$obj = $this->build($field_obj);
+    	$value = $obj->retrieveValue();
+    	
+    	return $value;
+    }
+    
+    /**
+     * @brief Recupera i valori del record e li carica nella proprietà _p
+     * @description I campi di tipo m2m recuperano il valore del campo id
+     * 
+     * @param integer $id valore id del record
+     * @throws \Exception
+     */
+	public function fetchColumns($id) {
+		
+		$row = $this->_db->select('*', $this->_tbl_data, "id='$id'", array('debug'=>false));
+		
+		$class = get_class($this);
+		
+		if(!is_array($class::$columns)) {
+			throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+		}
+		
+		foreach($class::$columns as $field_name=>$field_obj) {
+			
+			if($row && count($row)) {
+				
+				if($this->checkM2m($field_obj)) {
+					$this->_p[$field_name] = $field_obj->valueFromDb($row[0]['id']);
+				}
+				else {
+					$this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
+				}
+			}
+			else {
+				$this->_p[$field_name] = null;
+			}
+		}
+	}
+	
+	/**
      * @brief Update della struttura da chiamare manualmente
      *
      * Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina
@@ -746,40 +927,9 @@ namespace Gino;
      * @return void
      */
     public function updateStructure() {
-        $this->_structure = $this->structure($this->id);
-    }
-
-    /**
-     * @brief Uniforma il tipo di dato di un campo definito dal metodo Gino.DbManager::getTableStructure()
-     * @description ritorna il nome della classe che gestisce il modello del tipo di campo
-     * @param string $type tipo di dato
-     * @return tipo di dato
-     */
-    private function dataType($type) {
-
-        if($type == 'tinyint' || $type == 'smallint' || $type == 'int' || $type == 'mediumint' || $type == 'bigint')
-        {
-            $dataType = 'integer';
-        }
-        elseif($type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'numeric')
-        {
-            $dataType = 'float';
-        }
-        elseif($type == 'mediumtext' || $type == 'longtext')
-        {
-            $dataType = 'text';
-        }
-        elseif($type == 'varchar')
-        {
-            $dataType = 'char';
-        }
-        else
-        {
-            $dataType = $type;
-        }
-
-        $dataType = ucfirst($dataType).'Field';
-
-        return $dataType;
+        
+    	// @todo come gestire?
+    	// richiamato in Gino.AdminTable::m2mthroughAction()
+    	//$this->_structure = $this->structure($this->id);
     }
 }

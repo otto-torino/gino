@@ -20,8 +20,9 @@ use Gino\Http\Redirect;
  */
 class Template extends Model {
 
-    protected $_tbl_data;
-    public static $table = 'sys_layout_tpl';
+	public static $table = 'sys_layout_tpl';
+    public static $columns;
+    
     private static $table_block = 'sys_layout_tpl_block';
     private $_home, $_interface;
 
@@ -48,7 +49,40 @@ class Template extends Model {
 
         $this->_align_dict = array("1"=>"sinistra", "2"=>"centro", "3"=>"destra");
         $this->_um_dict = array("1"=>"px", "2"=>"%");
-
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    	
+     	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+     	$columns['filename'] = new \Gino\FileField(array(
+     			'name' => 'filename',
+     			'required' => true,
+     			'max_lenght' => 200
+     	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name' => 'label',
+    			'required' => true,
+    			'max_lenght' => 200
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'required'=>true
+    	));
+    	$columns['free'] = new \Gino\BooleanField(array(
+    			'name'=>'free',
+    			'required'=>true,
+    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    	));
+    	return $columns;
     }
 
     /**
@@ -69,12 +103,12 @@ class Template extends Model {
         if($rows and count($rows)) {
             foreach($rows as $row) {
                 $this->_blocks_properties[$row['position']] = array(
-                        "id"=>$row['id'],
-                        "width"=>$row['width'],
-                        "um"=>$row['um'],
-                        "align"=>$row['align'],
-                        "rows"=>$row['rows'],
-                        "cols"=>$row['cols']
+                	"id"=>$row['id'],
+                	"width"=>$row['width'],
+                	"um"=>$row['um'],
+                	"align"=>$row['align'],
+                	"rows"=>$row['rows'],
+                	"cols"=>$row['cols']
                 );
             }
         }
@@ -1111,3 +1145,5 @@ class Template extends Model {
         return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template'));
     }
 }
+
+Template::$columns=Template::columns();

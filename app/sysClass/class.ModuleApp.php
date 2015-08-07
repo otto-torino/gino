@@ -19,9 +19,10 @@ namespace Gino\App\SysClass;
  */
 class ModuleApp extends \Gino\Model {
 
-  public static $table = TBL_MODULE_APP;
-
-    /**
+	public static $table = TBL_MODULE_APP;
+	public static $columns;
+	
+	/**
      * @brief Costruttore
      * @param int $id
      * @return istanza di Gino.App.SysClass.ModuleApp
@@ -29,8 +30,8 @@ class ModuleApp extends \Gino\Model {
     function __construct($id) {
 
         $this->_tbl_data = self::$table;
+        
         parent::__construct($id);
-
     }
 
     /**
@@ -74,4 +75,61 @@ class ModuleApp extends \Gino\Model {
 
         return null;
     }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    	
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name'=>'label',
+    			'required'=>true,
+     			'max_lenght'=>100,
+    	));
+    	$columns['name'] = new \Gino\CharField(array(
+    			'name'=>'name',
+    			'required'=>true,
+     			'max_lenght'=>100,
+    	));
+    	$columns['active'] = new \Gino\BooleanField(array(
+    			'name'=>'active',
+    			'required'=>true,
+    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    			'default'=>1,
+    	));
+    	$columns['tbl_name'] = new \Gino\CharField(array(
+    			'name'=>'tbl_name',
+    			'required'=>true,
+     			'max_lenght'=>30,
+    	));
+    	$columns['instantiable'] = new \Gino\BooleanField(array(
+    			'name'=>'instantiable',
+    			'required'=>true,
+    			'enum'=>array(1 => _('si'), 0 => _('no'))
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'required'=>true
+    	));
+    	$columns['removable'] = new \Gino\BooleanField(array(
+    			'name'=>'removable',
+    			'required'=>true,
+    			'enum'=>array(1 => _('si'), 0 => _('no'))
+    	));
+    	$columns['class_version'] = new \Gino\CharField(array(
+    			'name'=>'class_version',
+    			'required'=>true,
+     			'max_lenght'=>200,
+    	));
+    	return $columns;
+    }
 }
+
+ModuleApp::$columns=ModuleApp::columns();

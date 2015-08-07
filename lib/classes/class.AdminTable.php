@@ -132,7 +132,7 @@ class AdminTable {
      */
     function __construct($controller, $opts = array()) {
 
-        loader::import('class', array('\Gino\Form', '\Gino\InputForm'));
+        Loader::import('class', array('\Gino\Form'));	// array('\Gino\Form', '\Gino\InputForm')
 
         $this->_registry = registry::instance();
         $this->_request = $this->_registry->request;
@@ -148,6 +148,19 @@ class AdminTable {
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
+    }
+    
+    /**
+     * @brief Definisce l'ordinamento della query
+     *
+     * @param string $order_dir
+     * @param string $table
+     * @param string $name
+     * @return order clause
+     */
+    private function adminListOrder($order_dir, $table, $name) {
+    
+    	return $table.".".$name." ".$order_dir;
     }
 
     /**
@@ -276,7 +289,6 @@ class AdminTable {
         $trnsl_id = array_key_exists('trnsl_id', $options) ? $options['trnsl_id'] : $model->id;
         $verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
         $only_inputs = array_key_exists('only_inputs', $options) ? $options['only_inputs'] : false;
-        $inputs_prefix = array_key_exists('inputs_prefix', $options) ? $options['inputs_prefix'] : '';
         $show_save_and_continue = array_key_exists('show_save_and_continue', $options) ? $options['show_save_and_continue'] : TRUE;
 
         $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
@@ -331,19 +343,20 @@ class AdminTable {
                     $object->setWidget(null);
                     $object->setRequired(false);
                 }
-                if($inputs_prefix) {
-                    $object->setName($inputs_prefix.$object->getName());
-                }
-                $structure[$field] = $object->formElement($gform, $options_input);
+                
+                $build = $model->build($object);
+                $structure[$field] = $build->formElement($gform, $options_input);
 
                 $name_class = get_class($object);
 
-                if($object instanceof fileField || $object instanceof imageField)
+                if($object instanceof FileField || $object instanceof ImageField)
                     $form_upload = true;
 
-                if($object->getRequired() == true && $object->getWidget() != 'hidden')
-                    $form_required[] = $field;
-            }
+				$model_properties = $model->getProperties($object);
+                
+				if($object->getRequired() == true && $build->getViewInput() == true & $object->getWidget() != 'hidden')
+					$form_required[] = $field;
+			}
         }
         if(sizeof($form_required) > 0)
             $form_required = implode(',', $form_required);
@@ -396,7 +409,7 @@ class AdminTable {
                 $form_content .= "<legend>$legend</legend>\n";
                 foreach($fields as $field) {
                         if(isset($structure[$field])) {
-                                $form_content .= $structure[$field];
+                			$form_content .= $structure[$field];
                         }
                 }
                 $form_content .= "</fieldset>";
@@ -447,7 +460,7 @@ class AdminTable {
      * @endcode
      *
      * @see Gino.Model::save()
-     * @see Gino.Field::clean()
+     * @see Gino.Build::clean()
      * @param object $model
      * @param array $options
      *     - opzioni per il recupero dei dati dal form
@@ -500,6 +513,8 @@ class AdminTable {
             return array('error'=>1);
 
         $m2mt = array();
+        $builds = array();
+        
         foreach($model->getStructure() as $field=>$object) {
 
             if($this->permission($options, $field) &&
@@ -527,16 +542,13 @@ class AdminTable {
                 }
                 else
                 {
-                    $value = $object->clean($opt_element);
-                    $result = $object->validate($value);
-
-                    if($result === TRUE) {
-                        $model->{$field} = $value;
-                    }
-                    else {
-                        return array('error'=>$result['error']);
-                    }
-
+                	$build = $model->build($object);
+                	
+                	$value = $build->clean($opt_element, $model->id);
+                	$builds[$field] = $build;
+                	// imposta il valore; @see Gino.Model::__set()
+                	$model->{$field} = $value;
+                    
                     if($import)
                     {
                         if($field == $field_import)
@@ -552,118 +564,120 @@ class AdminTable {
             if($field_log)
                 $model->{$field_log} = $result;
         }
-
-        $result = $model->save();
+        
+        //$result = $model->save(array('builds'=>$builds, 'm2mt'=>$m2mt, 'opt_action'=>$options));
+        $result = $model->save(array('builds'=>$builds));
 
         // error
         if(is_array($result)) {
             return $result;
         }
-
+        
         foreach($m2mt as $data) {
-            $result = $this->m2mthroughAction($data['field'], $data['object'], $model, $options);
-            // error
-            if(is_array($result)) {
-                return $result;
-            }
+        	$result = $this->m2mThroughAction($data['field'], $data['object'], $model, $options);
+        	
+        	// error
+        	if(is_array($result)) {
+        		return $result;
+        	}
         }
 
         return $result;
     }
-
+    
     /**
      * @brief Salvataggio dei campi Gino.ManyToManyThroughField
      *
      * @description Il salvataggio di questi tipi di campi avviene in automatico utilizzando
      *              la class Gino.AdminTable. Non è gestito dalla classe Gino.Model.
      *
-     * @param string $m2m_field nome campo
-     * @param \Gino\ManyToManyThroughField $m2m_field_object istanza della classe di tipo Gino.Field che rappresenta il campo
+     * @param string $m2m_name nome del campo ManytoManyThroughField
+     * @param \Gino\ManyToManyThroughField $m2m_object istanza della classe di tipo Gino.Field che rappresenta il campo
      * @param \Gino\Model $model istanza del model cui appartiene il campo
      * @param $options array associativo di opzioni
      * @return risultato operazione, bool o errori
      */
-    protected function m2mthroughAction($m2m_field, $m2m_field_object, $model, $options) {
-
-        $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-        $m2m_class = $m2m_field_object->getM2m();
-
-        $check_ids = array();
-
-        $m2m_m2m = array();
-        $indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_ids', 'array', '');
-        if(!is_array($indexes)) $indexes = array();
-        $object_names = array();
-        foreach($indexes as $index) {
-            $id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_field.'_id_'.$index, 'int', '');
-            // oggetto pronto per edit or insert
-            $m2m_model = new $m2m_class($id, $m2m_field_object->getController());
-            foreach($m2m_model->getStructure() as $field=>$object) {
-
-                if(!isset($object_names[$field])) {
-                    $object_names[$field] = $object->getName();
-                }
-
-                if($this->permission($options, $field) &&
-                (
-                    ($removeFields && !in_array($field, $removeFields)) || 
-                    (!$removeFields)
-                ))
-                {
-                    $opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_field.'_check_del_'.$object_names[$field].'_'.$index);
-                    if(isset($options_element[$field])) {
-                        $opt_element = array_merge($opt_element, $options_element[$field]);
-                    }
-
-                    if($field == 'instance' && is_null($m2m_model->instance))
-                    {
-                        $m2m_model->instance = $this->_controller->getInstance();
-                    }
-                    elseif(is_a($object, '\Gino\ManyToManyThroughField'))
-                    {
-                        $this->m2mthroughAction($object, $m2m_model);
-                    }
-                    else
-                    {
-                        $object->setName('m2mt_'.$m2m_field.'_'.$object_names[$field].'_'.$index);
-                        $value = $object->clean($opt_element);
-                        $result = $object->validate($value);
-
-                        if($result === TRUE) {
-                            $m2m_model->{$field} = $value;
-                        }
-                        else {
-                            return array('error'=>$result['error']);
-                        }
-
-                        if(isset($import) and $import)
-                        {
-                            if($field == $field_import)
-                                $path_to_file = $object->getPath();
-                        }
-                    }
-                }
-            }
-            $m2m_model->{$m2m_field_object->getModelTableId()} = $model->id;
-            $m2m_model->save();
-            $check_ids[] = $m2m_model->id;
-        }
-        // eliminazione tutti m2mt che non ci sono piu
-        $db = Db::instance();
-        $where = count($check_ids) ? $m2m_field_object->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $m2m_field_object->getModelTableId()."='".$model->id."'";
-        $objs = $m2m_class::objects($m2m_field_object->getController(), array('where' => $where));
-
-        if($objs and count($objs)) {
-            foreach($objs as $obj) {
-                $obj->delete();
-            }
-        }
-
-        // update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-        $model->updateStructure();
-
-        return TRUE;
-
+    private function m2mThroughAction($m2m_name, $m2m_object, $model, $options=array()) {
+    
+    	$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
+    	 
+    	$build = $model->build($m2m_object);
+    	$m2m_class = $build->getM2m();
+    	
+    	$indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_ids', 'array', '');
+    	
+    	if(!is_array($indexes)) $indexes = array();
+    	
+    	$check_ids = array();
+    	$m2m_m2m = array();
+    	$object_names = array();
+    	
+    	foreach($indexes as $index) {
+    
+    		$id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_id_'.$index, 'int', '');
+    
+    		// oggetto pronto per edit or insert
+    		$m2m_model = new $m2m_class($id, $build->getController());
+    		
+    		foreach($m2m_model->getStructure() as $field=>$object) {
+    
+    			if(!isset($object_names[$field])) {
+    				$object_names[$field] = $object->getName();
+    			}
+    
+    			if($this->permission($options, $field) &&
+    			(($removeFields && !in_array($field, $removeFields)) || (!$removeFields)))
+    			{
+    				$opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_name.'_check_del_'.$object_names[$field].'_'.$index);
+    
+    				if(isset($options_element[$field])) {
+    					$opt_element = array_merge($opt_element, $options_element[$field]);
+    				}
+    
+    				if($field == 'instance' && is_null($m2m_model->instance))
+    				{
+    					$m2m_model->instance = $this->_controller->getInstance();
+    				}
+    				elseif(is_a($object, '\Gino\ManyToManyThroughField'))
+    				{
+    					$this->m2mThroughAction($field, $object, $m2m_model);
+    				}
+    				else
+    				{
+    					$m2m_build = $m2m_model->build($object);
+    					$m2m_build->setName('m2mt_'.$m2m_name.'_'.$object_names[$field].'_'.$index);
+    					
+    					$value = $m2m_build->clean($opt_element);
+    					$m2m_model->{$field} = $value;
+    
+    					if(isset($import) and $import)
+    					{
+    						if($field == $field_import)
+    							$path_to_file = $object->getPath();
+    					}
+    				}
+    			}
+    		}
+    		$m2m_model->{$build->getModelTableId()} = $model->id;
+    		$m2m_model->save();
+    		$check_ids[] = $m2m_model->id;
+    	}
+    	
+    	// eliminazione tutti m2mt che non ci sono più
+    	$db = Db::instance();
+    	$where = count($check_ids) ? $build->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $build->getModelTableId()."='".$model->id."'";
+    	$objs = $m2m_class::objects($build->getController(), array('where' => $where));
+    	
+    	if($objs and count($objs)) {
+    		foreach($objs as $obj) {
+    			$obj->delete();
+    		}
+    	}
+    	
+    	// update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
+    	$model->updateStructure();	//// DA FARE
+    	
+    	return TRUE;
     }
 
     /**
@@ -704,7 +718,6 @@ class AdminTable {
             $options_view['export'] = $export;
             return $this->adminList($model_obj, $options_view);
         }
-
     }
 
     /**
@@ -756,7 +769,8 @@ class AdminTable {
         $form_description = gOpt('form_description', $options_form, null);
 
         if($this->_request->method === 'POST') {
-            $insert = !$model_obj->id;
+            
+        	$insert = !$model_obj->id;
             $popup = cleanVar($this->_request->POST, '_popup', 'int');
             // link error
             $link_error = $this->editUrl(array(), array());
@@ -780,7 +794,7 @@ class AdminTable {
             }
             if($action_result === TRUE and $popup) {
                 $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
-                return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
+            	return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
             }
             elseif($action_result === TRUE) {
                 return new \Gino\Http\Redirect($link_return);
@@ -905,7 +919,7 @@ class AdminTable {
         $db = Db::instance();
         $model_structure = $model->getStructure();
         $model_table = $model->getTable();
-
+        
         // some options
         $this->_filter_fields = gOpt('filter_fields', $options_view, array());
         $this->_filter_join = gOpt('filter_join', $options_view, array());
@@ -976,14 +990,14 @@ class AdminTable {
         if(count($list_where)) {
             $query_where = array_merge($query_where, $list_where);
         }
-            $query_where_no_filters = implode(' AND ', $query_where);
+        $query_where_no_filters = implode(' AND ', $query_where);
         // filters
         if($tot_ff) {
             $this->addWhereClauses($query_where, $model);
         }
         // order
-        $query_order = $model_structure[$field_order]->adminListOrder($order_dir, $query_where, $query_table);
-
+        $query_order = $this->adminListOrder($order_dir, $model_table, $field_order);
+        
         $tot_records_no_filters_result = $db->select("COUNT(id) as tot", $query_table, $query_where_no_filters);
         $tot_records_no_filters = $tot_records_no_filters_result[0]['tot'];
 
@@ -994,7 +1008,7 @@ class AdminTable {
 
         $limit = $export ? null: $paginator->limitQuery();
 
-        $records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit));
+        $records = $db->select($query_selection, $query_table, implode(' AND ', $query_where), array('order'=>$query_order, 'limit'=>$limit, 'debug'=>false));
         if(!$records) $records = array();
 
         $heads = array();
@@ -1005,15 +1019,23 @@ class AdminTable {
             if($this->permission($options_view, $field_name))
             {
                 if(is_array($field_obj)) {
-                 $label = $field_obj['label'];
+                	$label = $field_obj['label'];
                 }
                 else {
                     $model_label = $model_structure[$field_name]->getLabel();
                     $label = is_array($model_label) ? $model_label[0] : $model_label;
                 }
                 $export_header[] = $label;
+                
+                if(is_object($field_obj)) {
+                	$build_obj = $model->build($field_obj);
+                	$can_be_ordered = $build_obj->canBeOrdered();
+                }
+                else {
+                	$can_be_ordered = false;
+                }
 
-                if(!is_array($field_obj) and $field_obj->canBeOrdered()) {
+                if(!is_array($field_obj) and $can_be_ordered) {
 
                     $ord = $order == $field_name." ASC" ? $field_name." DESC" : $field_name." ASC";
                     if($order == $field_name." ASC") {
@@ -1052,8 +1074,7 @@ class AdminTable {
         foreach($records as $r) {
 
             $record_model = new $model($r['id'], $this->_controller);
-            $record_model_structure = $record_model->getStructure();
-
+            
             $row = array();
             $export_row = array();
             foreach($fields_loop as $field_name=>$field_obj) {
@@ -1064,7 +1085,7 @@ class AdminTable {
                         $record_value = $record_model->$field_obj['member']();
                     }
                     else {
-                        $record_value = (string) $record_model_structure[$field_name];
+                        $record_value = $record_model->shows($field_obj);
                     }
 
                     $export_row[] = $record_value;
@@ -1200,7 +1221,9 @@ class AdminTable {
 
             foreach($this->_filter_fields as $fname) {
                 if(isset($this->_request->POST[$fname]) && $this->_request->POST[$fname] !== '') {
-                    $this->_session->{$class_name.'_'.$fname.'_filter'} = $model_structure[$fname]->cleanFilter(array("escape"=>false));
+                    
+                	$build = $model->build($model_structure[$fname]);
+                	$this->_session->{$class_name.'_'.$fname.'_filter'} = $build->cleanFilter(array("escape"=>false));
                 }
                 else {
                     $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
@@ -1264,6 +1287,8 @@ class AdminTable {
 
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
+        
+        $model_table = $model->getTable();
 
         foreach($this->_filter_fields as $fname) {
             if(isset($this->_session->{$class_name.'_'.$fname.'_filter'})) {
@@ -1271,13 +1296,19 @@ class AdminTable {
                 // Filtri aggiuntivi associati ai campi automatici
                 if(count($this->_filter_join))
                 {
-                    $where_join = $this->addWhereJoin($model_structure, $class_name, $fname);
-                    if(!is_null($where_join))
+                    $where_join = $this->addWhereJoin($model, $class_name, $fname);
+                    if(!is_null($where_join)) {
                         $query_where[] = $where_join;
-                    else
-                        $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                    }
+                    else {
+                        $build = $model->build($model_structure[$fname]);
+                    	$query_where[] = $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                    }
                 }
-                else $query_where[] = $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                else {
+                	$build = $model->build($model_structure[$fname]);
+                	$query_where[] = $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'});
+                }
             }
         }
 
@@ -1301,14 +1332,16 @@ class AdminTable {
      *
      * Ci può essere una solo campo input di tipo join.
      *
-     * @param array $model_structure struttura del modello
+     * @param object $model modello
      * @param string $class_name nome della classe
      * @param string $fname nome del campo della tabella al quale associare le condizioni aggiuntive
      * @return array di condizioni o null
      */
-    private function addWhereJoin($model_structure, $class_name, $fname) {
+    private function addWhereJoin($model, $class_name, $fname) {
 
-        foreach($this->_filter_join AS $array)
+    	$model_structure = $model->getStructure();
+    	
+    	foreach($this->_filter_join AS $array)
         {
             $field = gOpt('field', $array, null);
 
@@ -1331,7 +1364,9 @@ class AdminTable {
                     }
                 }
 
-                return $model_structure[$fname]->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
+                $build = $model->build($model_structure[$fname]);
+                
+                return $build->filterWhereClause($this->_session->{$class_name.'_'.$fname.'_filter'}, $ff_where_clause);
             }
         }
 
@@ -1403,13 +1438,17 @@ class AdminTable {
 
             if($this->permission($options, $fname))
             {
-                $field = $model_structure[$fname];
-                $field->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
-                $field_label = $field->getLabel();
+            	$field = $model_structure[$fname];
+            	
+            	$field_label = $field->getLabel();
                 if(is_array($field_label)) {
                     $field->setLabel($field_label[0]);
                 }
-                $form .= $field->formFilter($gform, array('default'=>null));
+                
+                $build = $model->build($field);
+                $build->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
+                
+                $form .= $build->formFilter($gform, array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);

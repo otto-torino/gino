@@ -62,7 +62,8 @@ class Document {
                 '\Gino\Skin',
                 '\Gino\Template',
                 '\Gino\Css',
-                '\Gino\Javascript'
+                '\Gino\Javascript',
+                '\Gino\Cache'	// aggiunto 20150610
             )
         );
 

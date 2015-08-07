@@ -42,6 +42,7 @@ class Permission extends \Gino\Model {
 
     public static $table = TBL_PERMISSION;
     public static $table_perm_user = TBL_USER_PERMISSION;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -51,14 +52,7 @@ class Permission extends \Gino\Model {
     function __construct($id) {
 
         $this->_model_label = _('Permesso');
-        $this->_fields_label = array(
-            'class' => _('Nome della classe'), 
-            'code' => _('Codice del permesso'), 
-            'label' => _('Label'), 
-            'description' => _('Descrizione'), 
-            'admin' => _('Richiede accesso area amministrativa'), 
-        );
-
+        
         $this->_tbl_data = TBL_PERMISSION;
         parent::__construct($id);
     }
@@ -70,26 +64,51 @@ class Permission extends \Gino\Model {
     function __toString() {
         return (string) $this->label;
     }
-    /*
-     * @brief Sovrascrive la struttura di default
+    
+    /**
+     * Struttura dei campi della tabella di un modello
      *
-     * @see Gino.Model::structure()
-     * @param int $id
-     * @return array, struttura
+     * @return array
      */
-     public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['admin'] = new \Gino\BooleanField(array(
-            'name'=>'admin', 
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
-        ));
-
-        return $structure;
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['class'] = new \Gino\CharField(array(
+    			'name'=>'class',
+    			'label' => _('Nome della classe'),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['code'] = new \Gino\CharField(array(
+    			'name'=>'code',
+    			'label' => _('Codice del permesso'),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name'=>'label',
+    			'label' => _("Label"),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'label' => _("Descrizione"),
+    			'required'=>false
+    	));
+    	$columns['admin'] = new \Gino\BooleanField(array(
+    			'name'=>'admin',
+    			'label' => _('Richiede accesso area amministrativa'),
+    			'required'=>true,
+    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    			'default'=>0,
+    	));
+    
+    	return $columns;
     }
 
     /**
@@ -280,3 +299,5 @@ class Permission extends \Gino\Model {
         return $items;
     }
 }
+
+Permission::$columns=Permission::columns();

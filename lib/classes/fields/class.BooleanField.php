@@ -3,7 +3,7 @@
  * @file class.BooleanField.php
  * @brief Contiene la definizione ed implementazione della classe Gino.BooleanField
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,95 +16,81 @@ loader::import('class/fields', '\Gino\Field');
  *
  * Tipologie di input associabili: radio
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class BooleanField extends Field {
 
-    /**
-     * Proprietà dei campi specifiche del tipo di campo
-     */
-    protected $_enum, $_default;
-
+	/**
+	 * Proprietà dei campi specifiche del tipo di campo
+	 */
+	protected $_choice;
+	
     /**
      * Costruttore
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe field()
-     *   - @b enum (array): elenco degli elementi di scelta
-     *   - @b default (mixed): valore di default (input radio)
+     *   - opzioni generali definite come proprietà nella classe Field()
+     *   - opzioni specifiche del tipo di campo
+     *     - @b choice (array): elenco degli elementi di scelta
      * @return istanza di Gino.BooleanField
      */
     function __construct($options) {
 
-        parent::__construct($options);
-
         $this->_default_widget = 'radio';
+        parent::__construct($options);
+        
         $this->_value_type = 'int';
-
-        $this->_enum = array_key_exists('enum', $options) ? $options['enum'] : array();
-        $this->_default = array_key_exists('default', $options) ? $options['default'] : '';
+        $this->setLenght(1);
+        $this->_choice = array_key_exists('choice', $options) ? $options['choice'] : array(1 => _('si'), 0 => _('no'));
+    }
+    
+    /**
+     * @see Gino.Field::getProperties()
+     */
+    public function getProperties() {
+    	
+    	$prop = parent::getProperties();
+    	
+    	$prop['choice'] = $this->_choice;
+    	
+    	return $prop;
     }
 
     /**
-     * @brief Rappresentazione a stringa dell'oggetto
-     * @return valore del campo
+     * @see Gino.Field::valueFromDb()
+     * @return null or boolean
      */
-    public function __toString() {
-
-        $value = count($this->_enum) ? $this->_enum[$this->_value] : $this->_value;
-        return (string) $value;
+    public function valueFromDb($value) {
+    	 
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_int($value) or is_string($value)) {
+    		return (bool) $value;
+    	}
+    	elseif(is_bool($value)) {
+    		return $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
-
+    
     /**
-     * @brief Getter della proprietà enum
-     * @return proprietà enum
+     * @see Gino.Field::valueToDb()
+     * @return null or integer[1|0]
      */
-    public function getEnum() {
-
-        return $this->_enum;
-    }
-
-    /**
-     * @brief Setter della proprietà enum
-     * @param array $value
-     * @return void
-     */
-    public function setEnum($value) {
-
-        if($value) $this->_enum = $value;
-    }
-
-    /**
-     * @brief Getter della proprietà default
-     * @return proprietà default
-     */
-    public function getDefault() {
-
-        return $this->_default;
-    }
-
-    /**
-     * @brief Setter della proprietà default
-     * @param mixed $value
-     * @return void
-     */
-    public function setDefault($value) {
-
-        if($value) $this->_default = $value;
-    }
-
-    /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
+    public function valueToDb($value) {
+    
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif($value) {
+    		return 1;
+    	}
+    	else {
+    		return 0;
+    	}
     }
 }

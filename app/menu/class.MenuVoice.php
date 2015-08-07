@@ -21,6 +21,8 @@ use \Gino\View;
 class MenuVoice extends \Gino\Model {
 
     public static $tbl_voices = "sys_menu_voices";
+    public static $columns;
+    
     private static $_tbl_user_role = "user_role";
     private $_gform;
 
@@ -231,5 +233,56 @@ class MenuVoice extends \Gino\Model {
         }
         return null;
     }
-
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    	 
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['instance'] = new \Gino\IntegerField(array(
+    			'name'=>'instance',
+    			'required'=>true,
+    	));
+    	$columns['parent'] = new \Gino\IntegerField(array(
+    			'name'=>'parent',
+    			'required'=>true,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name'=>'label',
+    			'label' => _("Voce"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['url'] = new \Gino\CharField(array(
+    			'name'=>'url',
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['type'] = new \Gino\EnumField(array(
+    			'name' => 'type',
+    			'label' => _("Tipo di link"), 
+    			'required' => true,
+    			'choice' => array('int'=>_("interno"), 'ext'=>_("esterno"))
+    	));
+    	$columns['order_list'] = new \Gino\IntegerField(array(
+    			'name' => 'order_list',
+    			'required' => true,
+    	));
+    	$columns['perms'] = new \Gino\CharField(array(
+    			'name'=>'perms',
+    			'label' => _("Permessi"),
+    			'required'=>true,
+    			'max_lenght'=>255,
+    	));
+    	return $columns;
+    }
 }
+
+MenuVoice::$columns=MenuVoice::columns();

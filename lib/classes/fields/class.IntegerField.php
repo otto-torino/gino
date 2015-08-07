@@ -25,26 +25,47 @@ class IntegerField extends Field {
      *
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
-     *   - opzioni generali definite come proprietà nella classe field()
+     *   - opzioni generali definite come proprietà nella classe Field()
      * @return istanza di Gino.IntegerField
      */
     function __construct($options) {
 
+        $this->_default_widget = 'text';
         parent::__construct($options);
 
-        $this->_default_widget = $this->_auto_increment ? 'hidden' : 'text';
+        if($this->_auto_increment) $this->_widget = 'hidden';
         $this->_value_type = 'int';
     }
-
+    
     /**
-     * @brief Widget html per il form
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni
-     * @see Gino.Field::formElement()
-     * @return widget html
+     * @see Gino.Field::valueFromDb()
+     * @return null or integer
      */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
+    public function valueFromDb($value) {
+    	 
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_int($value)) {
+    		return $value;
+    	}
+    	elseif(is_string($value)) {
+    		return (int) $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
+    }
+    
+    /**
+     * @see Gino.Field::valueToDb()
+     * @return null or integer
+     */
+    public function valueToDb($value) {
+    
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	else {
+    		return (int) $value;
+    	}
     }
 }

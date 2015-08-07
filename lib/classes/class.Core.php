@@ -3,7 +3,7 @@
  * @file class.Core.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Core
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\ResponseNotFound;
 /**
  * @brief Gestisce una Gino.Http.Request ed invia una Gino.Http.Response adeguata
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -82,11 +82,55 @@ class Core {
             '\Gino\IntegerField',
             '\Gino\ManyToManyField',
             '\Gino\ManyToManyThroughField',
-            '\Gino\ManyToManyInlineField',
             '\Gino\TextField',
             '\Gino\TimeField',
             '\Gino\YearField',
-            '\Gino\TagField'
+            '\Gino\TagField',
+        ));
+        
+        Loader::import('class/build', array(
+			'\Gino\Build',
+			'\Gino\BooleanBuild',
+			'\Gino\CharBuild',
+			'\Gino\SlugBuild',
+			'\Gino\DateBuild',
+			'\Gino\DatetimeBuild',
+			'\Gino\DirectoryBuild',
+			'\Gino\EmailBuild',
+			'\Gino\EnumBuild',
+			'\Gino\FileBuild',
+			'\Gino\FloatBuild',
+			'\Gino\ForeignKeyBuild',
+			'\Gino\ImageBuild',
+			'\Gino\IntegerBuild',
+			'\Gino\ManyToManyBuild',
+			'\Gino\ManyToManyThroughBuild',
+			'\Gino\TextBuild',
+			'\Gino\TimeBuild',
+			'\Gino\YearBuild',
+			'\Gino\TagBuild',
+        ));
+        
+        Loader::import('class/widget', array(
+        	'\Gino\Widget',
+        	'\Gino\HiddenWidget',
+        	'\Gino\ConstantWidget',
+        	'\Gino\SelectWidget',
+        	'\Gino\RadioWidget',
+        	'\Gino\CheckboxWidget',
+        	'\Gino\MulticheckWidget',
+        	'\Gino\EditorWidget',
+        	'\Gino\TextareaWidget',
+        	'\Gino\FloatWidget',
+        	'\Gino\DateWidget',
+        	'\Gino\DatetimeWidget',
+        	'\Gino\TimeWidget',
+        	'\Gino\PasswordWidget',
+        	'\Gino\FileWidget',
+        	'\Gino\ImageWidget',
+        	'\Gino\EmailWidget',
+        	'\Gino\TextWidget',
+        	'\Gino\UnitWidget',
         ));
 
         // gettext
@@ -147,7 +191,6 @@ class Core {
         if(!(isset($session->L_avoid_mobile) && $session->L_avoid_mobile)) {
             $this->detectMobile($session);
         }
-
     }
 
     /**

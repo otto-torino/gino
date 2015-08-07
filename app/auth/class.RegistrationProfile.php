@@ -9,6 +9,8 @@
  */
 namespace Gino\App\Auth;
 
+use Gino\Registry;
+use Gino\IntegerField;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un profilo di registrazione utenti
  *
@@ -23,6 +25,7 @@ class RegistrationProfile extends \Gino\Model {
 
     public static $table = TBL_REGISTRATION_PROFILE;
     public static $table_groups = TBL_REGISTRATION_PROFILE_GROUP;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -31,18 +34,6 @@ class RegistrationProfile extends \Gino\Model {
      * @return istanza di Gino.App.Auth.RegistrationProfile
      */
     function __construct($id) {
-
-        $this->_fields_label = array(
-            'description' => _('Descrizione'),
-            'title' => _('Titolo'),
-            'text' => _('Testo'),
-            'terms' => _('Informativa termini e condizioni di utilizzo/privacy'),
-            'auto_enable' => array(_('Attivazione automatica'), _('Se falso l\'utente deve essere attivato da un altro utente di sistema')),
-            'add_information' => array(_('Informazioni aggiuntive'), _('Richiesta di informazioni aggiuntive gestite da un\'altra applicazione')),
-            'add_information_module_type' => _('Tipologia applicazione'),
-            'add_information_module_id' => _('Id applicazione'),
-            'groups' => _('Gruppi associati all\'utenza'),
-        );
 
         $this->_model_label = _('Profilo di Registrazione');
         $this->_tbl_data = self::$table;
@@ -53,59 +44,85 @@ class RegistrationProfile extends \Gino\Model {
      * @brief Rappresentazione a stringa dell'oggetto
      * @return descrizione profilo
      */
-    function __toString()
-    {
-        return $this->description;
+    function __toString() {
+        
+    	return $this->description;
     }
 
-    /*
-     * @brief Sovrascrive la struttura di default
-     *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
-     */
-     public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['auto_enable'] = new \Gino\BooleanField(array(
-            'name'=>'auto_enable', 
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
+    /**
+      * Struttura dei campi della tabella di un modello
+      *
+      * @return array
+      */
+     public static function columns() {
+     
+     	$registry = Registry::instance();
+     	
+     	$columns['id'] = new \Gino\IntegerField(array(
+     		'name'=>'id',
+     		'primary_key'=>true,
+     		'auto_increment'=>true,
+     	));
+     	$columns['description'] = new \Gino\CharField(array(
+     		'name'=>'description',
+     		'label'=>_('Descrizione'),
+     		'required'=>true,
+     		'max_lenght'=>255,
+     	));
+     	$columns['title'] = new \Gino\CharField(array(
+     		'name'=>'title',
+     		'label'=>_('Titolo'),
+     		'required'=>false,
+     		'max_lenght'=>255,
+     	));
+     	$columns['text'] = new \Gino\TextField(array(
+     		'name'=>'text',
+     		'label' => _("Testo"),
+     		'required'=>false
+     	));
+     	$columns['terms'] = new \Gino\TextField(array(
+     		'name'=>'terms',
+     		'label' => _('Informativa termini e condizioni di utilizzo/privacy'),
+     		'required'=>false
+     	));
+     	$columns['auto_enable'] = new \Gino\BooleanField(array(
+        	'name'=>'auto_enable', 
+     		'label'=>array(_('Attivazione automatica'), _('Se falso l\'utente deve essere attivato da un altro utente di sistema')),
+        	'required'=>true,
+        	'default'=>0,
+        ));
+		$columns['add_information'] = new \Gino\BooleanField(array(
+        	'name'=>'add_information', 
+        	'label'=>array(_('Informazioni aggiuntive'), _('Richiesta di informazioni aggiuntive gestite da un\'altra applicazione')),
+        	'required'=>false,
+        	'default'=>0,
+        ));
+		$columns['add_information_module_type'] = new \Gino\EnumField(array(
+        	'name'=>'add_information_module_type', 
+        	'label'=>_('Tipologia applicazione'),
+        	'widget'=>'select',
+        	'max_lenght'=>1, 
+        	'choice'=>array(self::MODULE_TYPE_SYS => _('modulo di sistema'), self::MODULE_TYPE_INS => _('modulo istanza')),
+        ));
+		$columns['add_information_module_id'] = new \Gino\CharField(array(
+			'name'=>'add_information_module_id',
+			'label'=>_('Id applicazione'),
+			'max_lenght'=>11,
+			'required'=>false
+		));
+        $columns['groups'] = new \Gino\ManyToManyField(array(
+        	'name'=>'groups',
+        	'label'=>_('Gruppi associati all\'utenza'),
+        	'required'=>FALSE,
+        	'm2m'=>'\Gino\App\Auth\Group',
+        	'm2m_where'=>null,
+        	'm2m_order'=>'name ASC',
+        	'join_table'=>self::$table_groups,
+        	'add_related' => TRUE,
+        	'add_related_url' => $registry->router->link('auth', 'manageAuth', array(), "block=group&insert=1")
         ));
 
-        $structure['groups'] = new \Gino\ManyToManyField(array(
-            'name'=>'groups',
-            'model'=>$this,
-            'required'=>FALSE,
-            'm2m'=>'\Gino\App\Auth\Group',
-            'm2m_where'=>null,
-            'm2m_order'=>'name ASC',
-            'join_table'=>self::$table_groups,
-            'add_related' => TRUE,
-            'add_related_url' => $this->_registry->router->link('auth', 'manageAuth', array(), "block=group&insert=1")
-        ));
-
-        $structure['add_information'] = new \Gino\BooleanField(array(
-            'name'=>'add_information', 
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
-        ));
-
-        $structure['add_information_module_type'] = new \Gino\EnumField(array(
-            'name'=>'add_information_module_type', 
-            'model'=>$this,
-            'widget'=>'select',
-            'lenght'=>4, 
-            'enum'=>array(self::MODULE_TYPE_SYS => _('modulo di sistema'), self::MODULE_TYPE_INS => _('modulo istanza')),
-        ));
-
-        return $structure;
+        return $columns;
     }
 
     /**
@@ -156,3 +173,5 @@ class RegistrationProfile extends \Gino\Model {
     }
 
 }
+
+RegistrationProfile::$columns=RegistrationProfile::columns();

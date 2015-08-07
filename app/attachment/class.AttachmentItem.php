@@ -9,6 +9,7 @@
  */
 namespace Gino\App\Attachment;
 
+use Gino\Registry;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una singolo allegato
  *
@@ -22,6 +23,8 @@ class AttachmentItem extends \Gino\Model {
      * @brief tabella del modello
      */
     public static $table = 'attachment';
+    
+    public static $columns;
 
     /**
      * @brief estensioni associate a icone immagini
@@ -43,7 +46,6 @@ class AttachmentItem extends \Gino\Model {
      */
     private $_doc_extension;
 
-
     /**
      * @brief Costruttore
      *
@@ -52,27 +54,18 @@ class AttachmentItem extends \Gino\Model {
      */
     function __construct($id) {
 
-        $this->_tbl_data = self::$table;
-
-        $this->_fields_label = array(
-            'insertion_date'=>_('Inserimento'),
-            'last_edit_date'=>_('Ultima modifica'),
-            'category'=>_('Categoria'),
-            'file'=>_("File"),
-            'notes'=>_("Note")
-        );
-
-        parent::__construct($id);
-
-        $this->_model_label = _('Allegato');
+    	$this->_tbl_data = self::$table;
+    	
+    	parent::__construct($id);
+    	
+    	$this->_model_label = _('Allegato');
 
         $this->_img_extension = array('jpg','jpeg','png','gif');
         $this->_xls_extension = array('xls','xlt','xlsx','csv','sxc','stc','ods','ots');
         $this->_doc_extension = array('doc','docx','odt','ott','sxw','stw','rtf','txt');
         $this->_pdf_extension = array('pdf');
-
     }
-
+    
     /**
      * @brief Rappresentazione a stringa del modello
      * @return nome file
@@ -103,64 +96,84 @@ class AttachmentItem extends \Gino\Model {
             return 'other';
         }
     }
-
+    
+    private function getPath($model) {
+    	
+    	if($model->id) {
+    		$ctg = new AttachmentCtg($model->category);
+    		$base_path = $ctg->path('abs');
+    	}
+    	else {
+    		$base_path = null;
+    	}
+    	
+    	return $base_path;
+    }
+    
     /**
-     * @brief Sovrascrive la struttura di default
-     *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
+     * @see Gino.Model::properties()
      */
-    public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['category'] = new \Gino\ForeignKeyField(array(
+    protected static function properties($model) {
+    	 
+    	$property['file'] = array(
+    		'path'=>$model->getPath($model),
+    	);
+    	
+    	return $property;
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    	
+    	$registry = Registry::instance();
+    	
+    	$columns['id'] = new \Gino\IntegerField(array(
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
+    	));
+    	$columns['category'] = new \Gino\ForeignKeyField(array(
             'name' => 'category',
-            'model' => $this,
+    		'label' => _('Categoria'),
             'required' => TRUE,
             'foreign' => '\Gino\App\Attachment\AttachmentCtg',
             'foreign_order' => 'name',
             'add_related' => TRUE,
-            'add_related_url' => $this->_registry->router->link('attachment', 'manageAttachment', array(), "block=ctg&insert=1")
+            'add_related_url' => $registry->router->link('attachment', 'manageAttachment', array(), "block=ctg&insert=1")
         ));
-
-        $structure['insertion_date'] = new \Gino\DatetimeField(array(
-            'name' => 'insertion_date',
-            'model' => $this,
-            'required' => TRUE,
-            'auto_now' => FALSE,
-            'auto_now_add' => TRUE
-        ));
-
-        $structure['last_edit_date'] = new \Gino\DatetimeField(array(
-            'name' => 'last_edit_date',
-            'model' => $this,
-            'required' => TRUE,
-            'auto_now' => TRUE,
-            'auto_now_add' => TRUE
-        ));
-
-        // se esiste l'id costruisce il path, in inserimento lo costruisce la subclass di adminTable
-        if($id) {
-            $ctg = new AttachmentCtg($this->category);
-            $base_path = $ctg->path('abs');
-        }
-        else {
-            $base_path = null;
-        }
-
-        $structure['file'] = new \Gino\FileField(array(
-            'name' => 'file',
-            'model' => $this,
-            'required' => TRUE,
-            'extensions' => array(),
-            'path' => $base_path,
-            'check_type' => FALSE
-        ));
-
-        return $structure;
-
+    	$columns['file'] = new \Gino\FileField(array(
+    		'name' => 'file',
+    		'label' => _("File"),
+    		'required' => TRUE,
+    		'extensions' => array(),
+    		'path' => null,
+    		'check_type' => FALSE,
+    		'max_lenght'=>100,
+    	));
+    	$columns['insertion_date'] = new \Gino\DatetimeField(array(
+    		'name' => 'insertion_date',
+    		'label'=>_('Inserimento'),
+    		'required' => TRUE,
+    		'auto_now' => FALSE,
+    		'auto_now_add' => TRUE
+    	));
+    	$columns['last_edit_date'] = new \Gino\DatetimeField(array(
+    		'name' => 'last_edit_date',
+    		'label'=>_('Ultima modifica'),
+    		'required' => TRUE,
+    		'auto_now' => TRUE,
+    		'auto_now_add' => TRUE
+    	));
+    	$columns['notes'] = new \Gino\TextField(array(
+    		'name' => 'notes',
+    		'label' => _("Note")
+    	));
+    	
+    	return $columns;
     }
 
     /**
@@ -256,3 +269,5 @@ class AttachmentItem extends \Gino\Model {
     }
 
 }
+
+AttachmentItem::$columns=AttachmentItem::columns();

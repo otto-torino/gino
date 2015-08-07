@@ -42,8 +42,8 @@ class Translation {
      */
     function __construct($language, $language_dft) {
 
-        $this->_registry = registry::instance();
-        $this->_db = db::instance();
+        $this->_registry = Registry::instance();
+        $this->_db = Db::instance();
 
         $this->_lng = $language;
         $this->_lngDft = $language_dft;
