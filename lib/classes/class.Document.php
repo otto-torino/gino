@@ -63,7 +63,7 @@ class Document {
                 '\Gino\Template',
                 '\Gino\Css',
                 '\Gino\Javascript',
-                '\Gino\Cache'	/////// aggiunto 20150610
+                '\Gino\Cache'	// aggiunto 20150610
             )
         );
 

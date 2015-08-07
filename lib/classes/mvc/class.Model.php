@@ -113,7 +113,7 @@ namespace Gino;
         
         $this->fetchColumns($id);
 
-        $this->_trd = new translation($this->_lng_nav, $this->_lng_dft);
+        $this->_trd = new Translation($this->_lng_nav, $this->_lng_dft);
     }
 
     /**
@@ -748,7 +748,6 @@ namespace Gino;
     private function checkM2m($field_obj) {
     	
     	if(is_a($field_obj, '\Gino\ManyToManyField') 
-    	or is_a($field_obj, '\Gino\ManyToManyInlineField') 
     	or is_a($field_obj, '\Gino\ManyToManyThroughField')) {
     		return true;
     	}

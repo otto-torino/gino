@@ -3,7 +3,7 @@
  * @file class.Core.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Core
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\ResponseNotFound;
 /**
  * @brief Gestisce una Gino.Http.Request ed invia una Gino.Http.Response adeguata
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -82,7 +82,6 @@ class Core {
             '\Gino\IntegerField',
             '\Gino\ManyToManyField',
             '\Gino\ManyToManyThroughField',
-            '\Gino\ManyToManyInlineField',
             '\Gino\TextField',
             '\Gino\TimeField',
             '\Gino\YearField',
@@ -106,7 +105,6 @@ class Core {
 			'\Gino\IntegerBuild',
 			'\Gino\ManyToManyBuild',
 			'\Gino\ManyToManyThroughBuild',
-			'\Gino\ManyToManyInlineBuild',
 			'\Gino\TextBuild',
 			'\Gino\TimeBuild',
 			'\Gino\YearBuild',

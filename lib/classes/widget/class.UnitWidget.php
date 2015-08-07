@@ -10,7 +10,7 @@
 namespace Gino;
 
 /**
- * @brief Insieme di campi di di un modello
+ * @brief Insieme di campi di un modello
  *
  * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -33,8 +33,6 @@ class UnitWidget extends Widget {
 		$admin_table = Loader::load('AdminTable', array($controller, array()));
 		
 		$buffer = "<div id=\"m2mthrough-fieldset_".$this->_name."\">";
-		
-		//var_dump($inputs);	////////////////////
 		
 		if(count($inputs))
 		{
