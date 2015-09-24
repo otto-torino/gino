@@ -172,12 +172,14 @@ class MenuVoice extends \Gino\Model {
 
         $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
         $gform->load('dataform');
+        
+        if(!$parent) $parent = 0;
 
         $parentVoice = new MenuVoice($parent);
 
         if($this->_p['id']) {$title = _("Modifica voce"); $submit = _("modifica");$action='modify';}
         else {
-            $title = ($parent)? _("Nuova voce sotto ")."\"".\Gino\htmlChars($parentVoice->label)."\"":_("Nuova voce principale");
+            $title = ($parent) ? _("Nuova voce sotto ")."\"".\Gino\htmlChars($parentVoice->label)."\"":_("Nuova voce principale");
             $submit = _("inserisci");
             $action='insert';
         }

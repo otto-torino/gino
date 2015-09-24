@@ -129,27 +129,31 @@ class ManyToManyBuild extends Build {
         else {
             $m2m = new $this->_m2m(null);
         }
-        $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
-        $choice = array();
-        $selected_part = array();
-        $not_selected_part = array();
         
-        foreach($rows as $row) {
-            if($this->_m2m_controller) {
-                $m2m = new $this->_m2m($row['id'], $this->_m2m_controller);
-            }
-            else {
-                $m2m = new $this->_m2m($row['id']);
-            }
-            if(is_array($this->_value) and in_array($row['id'], $this->_value)) {
-                $selected_part[$row['id']] = (string) $m2m;
-            }
-            else {
-                $not_selected_part[$row['id']] = (string) $m2m;
-            }
+        $choice = array();
+        $rows = $db->select('id', $m2m->getTable(), $this->_m2m_where, array('order' => $this->_m2m_order));
+        if($rows && count($rows))
+        {
+        	$selected_part = array();
+        	$not_selected_part = array();
+        	
+        	foreach($rows as $row) {
+        		if($this->_m2m_controller) {
+        			$m2m = new $this->_m2m($row['id'], $this->_m2m_controller);
+        		}
+        		else {
+        			$m2m = new $this->_m2m($row['id']);
+        		}
+        		if(is_array($this->_value) and in_array($row['id'], $this->_value)) {
+        			$selected_part[$row['id']] = (string) $m2m;
+        		}
+        		else {
+        			$not_selected_part[$row['id']] = (string) $m2m;
+        		}
+        	}
+        	
+        	$choice = $selected_part + $not_selected_part;
         }
-
-        $choice = $selected_part + $not_selected_part;
 
         $options['choice'] = $choice;
         

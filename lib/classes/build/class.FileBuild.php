@@ -23,7 +23,7 @@ class FileBuild extends Build {
 	/**
 	 * Proprietà dei campi specifiche del modello
 	 */
-	protected $_extensions, $_path, $_add_path, $_prefix, $_check_type, $_types_allowed, $_max_file_size;
+	protected $_extensions, $_path, $_add_path, $_prefix, $_check_type, $_filesize_field, $_types_allowed, $_max_file_size;
 	
     /**
      * Percorso assoluto della directory del file

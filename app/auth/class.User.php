@@ -80,79 +80,79 @@ class User extends \Gino\Model {
      public static function columns() {
      
      	$columns['id'] = new \Gino\IntegerField(array(
-     			'name'=>'id',
-     			'primary_key'=>true,
-     			'auto_increment'=>true,
+     		'name' => 'id',
+     		'primary_key' => true,
+     		'auto_increment' => true,
      	));
      	$columns['firstname'] = new \Gino\CharField(array(
-     			'name'=>'firstname',
-     			'label' => _("Nome"),
-     			'required'=>true,
-     			'max_lenght'=>50,
+     		'name' => 'firstname',
+     		'label' => _("Nome"),
+     		'required' => true,
+     		'max_lenght' => 50,
      	));
      	$columns['lastname'] = new \Gino\CharField(array(
-     			'name'=>'lastname',
-     			'label' => _("Cognome"),
-     			'required'=>true,
-     			'max_lenght'=>50,
+     		'name' => 'lastname',
+     		'label' => _("Cognome"),
+     		'required' => true,
+     		'max_lenght' => 50,
      	));
      	$columns['company'] = new \Gino\CharField(array(
-     			'name'=>'company',
-     			'label' => _("Società"),
-     			'required'=>false,
-     			'max_lenght'=>100,
+     		'name'=>'company',
+     		'label' => _("Società"),
+     		'required'=>false,
+     		'max_lenght'=>100,
      	));
      	$columns['phone'] = new \Gino\CharField(array(
-     			'name'=>'phone',
-     			'label' => _("Telefono"),
-     			'required'=>false,
-     			'max_lenght'=>30,
+     		'name' => 'phone',
+     		'label' => _("Telefono"),
+     		'required' => false,
+     		'max_lenght' => 30,
      	));
      	$columns['fax'] = new \Gino\CharField(array(
-     			'name'=>'company',
-     			'required'=>false,
-     			'max_lenght'=>30,
+     		'name' => 'fax',
+     		'required' => false,
+     		'max_lenght' => 30,
      	));
      	$columns['email'] = new \Gino\EmailField(array(
-     			'name'=>'email',
-     			'label'=>_("Email"),
-     			'required'=>true,
-     			'max_lenght'=>100,
+     		'name'=>'email',
+     		'label'=>_("Email"),
+     		'required'=>true,
+     		'max_lenght'=>100,
      	));
      	$columns['username'] = new \Gino\CharField(array(
-     			'name'=>'username',
-     			'label' => _("Username"),
-     			'required'=>true,
-     			'max_lenght'=>50,
+     		'name'=>'username',
+     		'label' => _("Username"),
+     		'required'=>true,
+     		'max_lenght'=>50,
      	));
      	$columns['userpwd'] = new \Gino\CharField(array(
-     			'name'=>'userpwd',
-     			'label' => _("Password"),
-     			'required'=>true,
-     			'max_lenght'=>100,
+     		'name'=>'userpwd',
+     		'label' => _("Password"),
+     		'required'=>true,
+     		'max_lenght'=>100,
      	));
      	$columns['is_admin'] = new \Gino\BooleanField(array(
-     			'name'=>'is_admin',
-     			'label' => _('Super-amministratore'),
-     			'required'=>true,
-     			'default'=>0,
+     		'name'=>'is_admin',
+     		'label' => _('Super-amministratore'),
+     		'required'=>true,
+     		'default'=>0,
      	));
      	$columns['address'] = new \Gino\CharField(array(
-     			'name'=>'address',
-     			'label' => _("Indirizzo"),
-     			'required'=>false,
-     			'max_lenght'=>200,
+     		'name'=>'address',
+     		'label' => _("Indirizzo"),
+     		'required'=>false,
+     		'max_lenght'=>200,
      	));
      	$columns['cap'] = new \Gino\IntegerField(array(
-     			'name'=>'cap',
-     			'label' => _("CAP"),
-     			'required'=>false
+     		'name'=>'cap',
+     		'label' => _("CAP"),
+     		'required'=>false
      	));
      	$columns['city'] = new \Gino\CharField(array(
-     			'name'=>'city',
-     			'label' => _("Città"),
-     			'required'=>false,
-     			'max_lenght'=>50,
+     		'name'=>'city',
+     		'label' => _("Città"),
+     		'required'=>false,
+     		'max_lenght'=>50,
      	));
      	
      	$db = \Gino\Db::instance();
@@ -164,62 +164,62 @@ class User extends \Gino\Model {
      	}
      	
      	$columns['nation'] = new \Gino\EnumField(array(
-     			'name'=>'nation',
-     			'label'=>_("Nazione"),
-     			'widget'=>'select',
-     			'choice'=>$nations,
+     		'name' => 'nation',
+     		'label' => _("Nazione"),
+     		'widget' => 'select',
+     		'choice' => $nations,
      	));
      	$columns['text'] = new \Gino\TextField(array(
-     			'name'=>'text',
-     			'label' => _("Informazioni"),
-     			'required'=>false
+     		'name' => 'text',
+     		'label' => _("Informazioni"),
+     		'required' => false
      	));
      	
      	$columns['photo'] = new \Gino\ImageField(array(
-     			'name'=>'photo',
-     			'label'=>_("Foto"),
-     			'required'=>false,
-     			'extensions'=>self::$extension_media,
-     			'path'=>null,
-     			'add_path'=>null,
-     			'max_lenght'=>50,
+     		'name'=>'photo',
+     		'label'=>_("Foto"),
+     		'required'=>false,
+     		'extensions'=>self::$extension_media,
+     		'path'=>null,
+     		'add_path'=>null,
+     		'max_lenght'=>50,
      	));
      	$columns['publication'] = new \Gino\BooleanField(array(
-     			'name'=>'publication',
-     			'label'=>_('Pubblicazione dati'),
-     			'required'=>false,
-     			'default'=>0,
+     		'name'=>'publication',
+     		'label'=>_('Pubblicazione dati'),
+     		'required'=>false,
+     		'default'=>0,
      	));
      	$columns['date'] = new \Gino\DatetimeField(array(
-     			'name'=>'date',
-     			'required'=>true
+     		'name'=>'date',
+     		'required'=>true
      	));
      	$columns['active'] = new \Gino\BooleanField(array(
-     			'name'=>'active',
-     			'label'=>_('Attivo'),
-     			'required'=>true,
-     			'default'=>0,
+     		'name' => 'active',
+     		'label' => _('Attivo'),
+     		'required' => true,
+     		'default' => 0,
      	));
      	$columns['ldap'] = new \Gino\BooleanField(array(
-     			'name'=>'ldap',
-     			'label'=>_('Ldap'),
-     			'required'=>true,
-     			'default'=>0,
+     		'name' => 'ldap',
+     		'label' => _('Ldap'),
+     		'required' => true,
+     		'default' => 0,
      	));
      	
      	$registry = \Gino\Registry::instance();
      	
      	$columns['groups'] = new \Gino\ManyToManyField(array(
-     			'name'=>'groups',
-     			'label'=>_("Gruppi"),
-     			'required'=>false,
-     			'm2m'=>'\Gino\App\Auth\Group',
-     			'm2m_where'=>null,
-     			'm2m_order'=>'name ASC',
-     			'join_table'=>self::$table_groups,
-     			'self'=>'\Gino\App\Auth\User',
-     			'add_related' => true,
-     			'add_related_url' => $registry->router->link('auth', 'manageAuth', array(), "block=group&insert=1")
+     		'name'=>'groups',
+     		'label'=>_("Gruppi"),
+     		'required'=>false,
+     		'm2m'=>'\Gino\App\Auth\Group',
+     		'm2m_where'=>null,
+     		'm2m_order'=>'name ASC',
+     		'join_table'=>self::$table_groups,
+     		'self'=>'\Gino\App\Auth\User',
+     		'add_related' => true,
+     		'add_related_url' => $registry->router->link('auth', 'manageAuth', array(), "block=group&insert=1")
      	));
      	
      	return $columns;
@@ -301,10 +301,10 @@ class User extends \Gino\Model {
         $req_error = $gform->arequired();
 
         if($req_error > 0) 
-            return array('error'=>1);
+        	return array('error'=>1);
 
         $password = \Gino\cleanVar($request->POST, 'userpwd', 'string', '');
-         $options['password'] = $password;
+        $options['password'] = $password;
 
         $check_password = self::checkPassword($options);
 

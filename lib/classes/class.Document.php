@@ -424,23 +424,24 @@ class Document {
         if(!count($perms)) {
             return TRUE;
         }
+        
+        $request = \Gino\Http\Request::instance();
 
         foreach($perms as $perm) {
             if(strpos($perm, '.') !== FALSE) {
                 list($class_name_perm, $perm_name) = explode('.', $perm);
-                if($this->_registry->user->hasPerm($class_name_perm, $perm_name, 0)) {
+                if($request->user->hasPerm($class_name_perm, $perm_name, 0)) {
                     return TRUE;
                 }
             }
             else {
-                if($this->_registry->user->hasPerm($class_name, $perm, $instance)) {
+                if($request->user->hasPerm($class_name, $perm, $instance)) {
                     return TRUE;
                 }
             }
         }
 
         return FALSE;
-
     }
 
     /**

@@ -374,17 +374,11 @@ namespace Gino;
      * 
      * @param array $options
      *   array associativo di opzioni
-     *   //- @b builds (array): elenco degli input form nel formato input_name=>build_object (@see Gino.Build::clean())
      *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; default array('id', 'instance')
      * @return il risultato dell'operazione o errori
      */
     public function save($options=array()) {
 
-		//$builds = array_key_exists('builds', $options) && count($options['builds']) ? $options['builds'] : array();	// TOGLIERE ???
-		
-		//$m2mt = array_key_exists('m2mt', $options) ? $options['m2mt'] : array();
-		//$opt_action = array_key_exists('opt_action', $options) ? $options['opt_action'] : array();
-		
 		$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array('id', 'instance');
 		
 		$event_dispatcher = EventDispatcher::instance();
@@ -416,13 +410,6 @@ namespace Gino;
             			}
             			else
             			{
-            				/*if(array_key_exists($pName, $builds)) {
-            					$build = $builds[$pName];
-            				}
-            				else {
-            					$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
-            				}
-            				$fields[$pName] = $build->validate($pValue, $this->_p['id']);*/
             				$fields[$pName] = $field_obj->valueToDb($pValue);
             			}
             		}
@@ -430,7 +417,7 @@ namespace Gino;
             	}
 			}
 			
-			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'", true);
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
 		}
 		else
 		{
@@ -451,13 +438,6 @@ namespace Gino;
 					}
 					else
 					{
-						/*if(array_key_exists($pName, $builds)) {
-							$build = $builds[$pName];
-						}
-						else {
-							$build = $this->build($field_obj);	//$field_obj = $this->getFieldObject($pName);
-						}
-						$fields[$pName] = $build->validate($pValue);*/
 						$fields[$pName] = $field_obj->valueToDb($pValue);
 					}
 				}
@@ -474,7 +454,6 @@ namespace Gino;
         if(!$this->_p['id']) $this->_p['id'] = $this->_db->getlastid($this->_tbl_data);
 
         if(count($m2m)) {
-        	//$result = $this->savem2m($m2m, array('m2mt'=>$m2mt, 'opt_action'=>$opt_action));
         	$result = $this->savem2m($m2m);
         }
 
@@ -491,9 +470,6 @@ namespace Gino;
      */
     public function savem2m($m2m) {
         
-    	//$m2mt = array_key_exists('m2mt', $options) ? $options['m2mt'] : array();
-    	//$opt_action = array_key_exists('opt_action', $options) ? $options['opt_action'] : array();
-    	
     	$class = get_class($this);
     	$columns = $class::$columns;
     	
@@ -510,24 +486,10 @@ namespace Gino;
     				$this->_db->insert(array(
     						$build->getJoinTableId() => $this->id,
     						$build->getJoinTableM2mId() => $fid
-    					), $build->getJoinTable(), true
+    					), $build->getJoinTable()
     				);
     			}
     		}
-    		/*
-    		elseif(is_a($field_obj, '\Gino\ManyToManyThroughField') && count($m2mt)) {
-    			
-    			foreach($m2mt as $data) {
-    				
-    				$result = $this->m2mThroughAction($data['field'], $data['object'], $this, $opt_action);
-    				
-    				// error
-    				if(is_array($result)) {
-    					return $result;
-    				}
-    			}
-    		}
-    		*/
     	}
     	
         return true;

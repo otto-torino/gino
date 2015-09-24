@@ -72,8 +72,9 @@ class ModuleApp extends \Gino\Model {
         if($rows and count($rows)) {
             return new ModuleApp($rows[0]['id']);
         }
-
-        return null;
+        else {
+        	return null;
+        }
     }
     
     /**

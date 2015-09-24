@@ -104,7 +104,6 @@ class Permission extends \Gino\Model {
     			'name'=>'admin',
     			'label' => _('Richiede accesso area amministrativa'),
     			'required'=>true,
-    			'enum'=>array(1 => _('si'), 0 => _('no')),
     			'default'=>0,
     	));
     
@@ -146,11 +145,13 @@ class Permission extends \Gino\Model {
 
         $res = array();
 
-        $rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
+    	$rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
         foreach($rows as $row) {
-            $class = $row['class'];
+            
+        	$class = $row['class'];
             $module_app = \Gino\App\SysClass\ModuleApp::getFromName($class);
-            if($class === 'core' or !$module_app->instantiable) {
+            
+            if($class === 'core' or (is_object($module_app) && !$module_app->instantiable)) {
                 if($class === 'core' or $module_app->active) {
                     if(!isset($res[$class.',0'])) {
                         $res[$class.',0'] = array();
@@ -158,7 +159,7 @@ class Permission extends \Gino\Model {
                     $res[$class.',0'][] = new Permission($row['id']);
                 }
             }
-            else {
+            elseif(is_object($module_app)) {
                 $modules = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
                 foreach($modules as $module) {
                     if($module->active) {

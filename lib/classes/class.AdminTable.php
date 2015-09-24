@@ -545,7 +545,6 @@ class AdminTable {
                 	$build = $model->build($object);
                 	
                 	$value = $build->clean($opt_element, $model->id);
-                	$builds[$field] = $build;
                 	// imposta il valore; @see Gino.Model::__set()
                 	$model->{$field} = $value;
                     
@@ -565,8 +564,7 @@ class AdminTable {
                 $model->{$field_log} = $result;
         }
         
-        //$result = $model->save(array('builds'=>$builds, 'm2mt'=>$m2mt, 'opt_action'=>$options));
-        $result = $model->save(array('builds'=>$builds));
+        $result = $model->save();
 
         // error
         if(is_array($result)) {
@@ -675,7 +673,7 @@ class AdminTable {
     	}
     	
     	// update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-    	$model->updateStructure();	//// DA FARE
+    	$model->updateStructure();	// @todo
     	
     	return TRUE;
     }

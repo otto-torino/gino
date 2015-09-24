@@ -1076,7 +1076,6 @@ class auth extends \Gino\Controller {
                 array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=user&op=jup'), 'param_id'=>'ref'),
                 array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=password'), 'param_id'=>'ref')
             )
-
         );
 
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');

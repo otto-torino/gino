@@ -46,6 +46,7 @@ class FileField extends Field {
      *     - @b add_path (string): parte del percorso assoluto dal parametro @a path fino a prima del file
      *     - @b prefix (string)
      *     - @b check_type (boolean)
+     *     - @b filesize_field (string): nome dell'eventuale campo nel quale viene registrata la dimensione del file
      *     - @b types_allowed(array)
      *     - @b max_file_size (integer)
      */

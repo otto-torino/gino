@@ -113,10 +113,10 @@ class AttachmentItem extends \Gino\Model {
     /**
      * @see Gino.Model::properties()
      */
-    protected static function properties($model) {
+    protected static function properties($model, $controller) {
     	 
     	$property['file'] = array(
-    		'path'=>$model->getPath($model),
+    		'path' => $model->getPath($model),
     	);
     	
     	return $property;
@@ -152,7 +152,7 @@ class AttachmentItem extends \Gino\Model {
     		'extensions' => array(),
     		'path' => null,
     		'check_type' => FALSE,
-    		'max_lenght'=>100,
+    		'max_lenght' => 100,
     	));
     	$columns['insertion_date'] = new \Gino\DatetimeField(array(
     		'name' => 'insertion_date',
@@ -269,5 +269,4 @@ class AttachmentItem extends \Gino\Model {
     }
 
 }
-
 AttachmentItem::$columns=AttachmentItem::columns();

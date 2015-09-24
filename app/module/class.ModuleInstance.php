@@ -139,5 +139,4 @@ class ModuleInstance extends \Gino\Model {
 		return $columns;
 	}
 }
-
 ModuleInstance::$columns=ModuleInstance::columns();
