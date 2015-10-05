@@ -63,7 +63,7 @@ class Document {
                 '\Gino\Template',
                 '\Gino\Css',
                 '\Gino\Javascript',
-                '\Gino\Cache'	// aggiunto 20150610
+                '\Gino\Cache'
             )
         );
 
@@ -460,14 +460,14 @@ class Document {
 
         $code = $this->_registry->sysconf->google_analytics;
         $buffer = "<script type=\"text/javascript\">";
-            $buffer .= "var _gaq = _gaq || [];";
+        $buffer .= "var _gaq = _gaq || [];";
         $buffer .= "_gaq.push(['_setAccount', '".$code."']);";
-            $buffer .= "_gaq.push(['_trackPageview']);";
+        $buffer .= "_gaq.push(['_trackPageview']);";
         $buffer .= "(function() {
-                        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-                })();";
+        	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();";
         $buffer .= "</script>";
 
         return $buffer;

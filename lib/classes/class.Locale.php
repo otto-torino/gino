@@ -151,19 +151,31 @@ class Locale extends Singleton {
     public function get($key) {
         return array_key_exists($key, $this->_strings) ? $this->_strings[$key] : $key;
     }
+    
     /**
      * @brief Setta la lingua del client
+     * @description Quando viene richiesto un cambio di lingua viene effettuato un refresh della pagina per poter reimpostare le librerie gettext
+     *
      * @return TRUE
      */
     public static function init() {
-
-        $registry = Registry::instance();
-        $session = Session::instance();
-
-        self::setLanguage();
-        $registry->trd = new translation($session->lng, $session->lngDft);
-
-        return TRUE;
+    
+    	$registry = Registry::instance();
+    	$session = Session::instance();
+    	
+    	$init_language = $session->lng;
+    	
+    	self::setLanguage();
+    	
+    	$session = Session::instance();
+    	$registry->trd = new translation($session->lng, $session->lngDft);
+    	
+    	if($session->lng != $init_language) {
+    		\header('Location: '.$_SERVER['REQUEST_URI']);
+    		exit();
+    	}
+    	
+    	return TRUE;
     }
 
     /**
