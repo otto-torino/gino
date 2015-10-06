@@ -200,23 +200,6 @@ namespace Gino;
     	}
     	else throw new \Exception(sprintf(_("Il campo %s non è presente"), $pName));
     }
-    /*
-    public function &__get($pName) {
-    	...
-		elseif(array_key_exists($pName, $this->_m2m)) return $this->_m2m[$pName];
-    	elseif(array_key_exists($pName, $this->_m2mt)) return $this->_m2mt[$pName];
-    }
-    
-    public function __set($pName, $pValue) {
-    	...
-    	elseif(array_key_exists($pName, $this->_m2m)) {
-    		$this->_m2m[$pName] = $pValue;
-    	}
-    	elseif(array_key_exists($pName, $this->_structure) and get_class($this->_structure[$pName]) == 'ManyToManyThroughField') {
-    		$this->_m2mt[$pName] = $pValue;
-    	}
-    }
-    */
 
     /**
      * @brief Eliminazione di tutti i record legati all'istanza del controller passato come argomento
@@ -465,7 +448,7 @@ namespace Gino;
     /**
      * @brief Salvataggio dei ManyToMany
      * 
-     * @param array $m2m
+     * @param array $m2m campi m2m del modello (field_name => (array) join_table_id_values)
      * @return true
      */
     public function savem2m($m2m) {
@@ -845,7 +828,7 @@ namespace Gino;
     
     /**
      * @brief Recupera i valori del record e li carica nella proprietà _p
-     * @description I campi di tipo m2m recuperano il valore del campo id
+     * @description Il valore dei campi di tipo ManyToMany è un array che racchiude i valori id dei record della tabella di join associata al modello
      * 
      * @param integer $id valore id del record
      * @throws \Exception
@@ -865,7 +848,8 @@ namespace Gino;
 			if($row && count($row)) {
 				
 				if($this->checkM2m($field_obj)) {
-					$this->_p[$field_name] = $field_obj->valueFromDb($row[0]['id']);
+					$build = $this->build($field_obj);
+					$this->_p[$field_name] = $build->getValue();
 				}
 				else {
 					$this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
