@@ -72,7 +72,7 @@ class ManyToManyBuild extends Build {
     }
 
     /**
-     * @brief Getter della proprietà jon_table
+     * @brief Getter della proprietà join_table
      * @return proprietà join_table
      */
     public function getJoinTable() {

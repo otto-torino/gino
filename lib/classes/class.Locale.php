@@ -167,7 +167,6 @@ class Locale extends Singleton {
     	
     	self::setLanguage();
     	
-    	$session = Session::instance();
     	$registry->trd = new translation($session->lng, $session->lngDft);
     	
     	if($session->lng != $init_language) {

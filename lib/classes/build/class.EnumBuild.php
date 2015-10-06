@@ -50,8 +50,8 @@ class EnumBuild extends Build {
     }
 
     /**
-     * @brief Getter della proprietà enum
-     * @return proprietà enum
+     * @brief Getter della proprietà choice
+     * @return proprietà choice
      */
     public function getChoice() {
 
@@ -59,7 +59,7 @@ class EnumBuild extends Build {
     }
 
     /**
-     * @brief Setter della proprietà enum
+     * @brief Setter della proprietà choice
      * @param array $value
      * @return void
      */

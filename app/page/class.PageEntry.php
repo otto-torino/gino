@@ -175,12 +175,15 @@ class PageEntry extends \Gino\Model {
         	'label'=>array(_("Privata"), _("pagina visualizzabile da utenti con il relativo permesso")),
         	'required'=>true,
         ));
-        $columns['users'] = new \Gino\CharField(array(
-        	'name'=>'users',
-        	'label'=>array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),
-        	'required'=>false,
-        	'max_lenght'=>255,
-        ));
+        $columns['users'] = new \Gino\MulticheckField(array(
+			'name' => 'users', 
+        	'label' => array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),
+        	'required' => false,
+        	'max_lenght' => 255,
+			'refmodel' => '\Gino\App\Auth\User', 
+			'refmodel_where' => "active='1'", 
+			'refmodel_order' => "lastname ASC, firstname", 
+		));
         $columns['read'] = new \Gino\IntegerField(array(
         	'name'=>'read',
         	'label'=>_('Visualizzazioni'),

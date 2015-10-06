@@ -27,7 +27,7 @@ class ManyToManyField extends Field {
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
-	protected $_join_table, $_join_table_id, $_join_table_m2m_id;
+	protected $_join_table;
 	protected $_add_related, $_add_related_url;
 	
     /**
