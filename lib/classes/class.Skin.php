@@ -234,10 +234,10 @@ class Skin extends Model {
         $before_skins = self::objects(null, array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
         $before_skin = $before_skins[0];
         $this->priority = $before_skin->priority;
-        $this->save(array('no_update'=>array('id', 'rexp', 'urls')));
+        $this->save(array('only_update'=>'priority'));
 
         $before_skin->priority = $priority;
-        $before_skin->save(array('no_update'=>array('id', 'rexp', 'urls')));
+        $before_skin->save(array('only_update'=>'priority'));
     }
 
     /**

@@ -357,14 +357,17 @@ namespace Gino;
      * 
      * @param array $options
      *   array associativo di opzioni
-     *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; default array('id', 'instance')
+     *   - @b only_update (string|array): nome o nomi dei campi da aggiornare
+     *     - string, nome o nomi dei campi separati da virgola
+     *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; di default vengono aggiunti i campi 'id', 'instance'
      * @return il risultato dell'operazione o errori
      */
     public function save($options=array()) {
 
-		$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array('id', 'instance');
-		
-		$event_dispatcher = EventDispatcher::instance();
+    	$only_update = array_key_exists('only_update', $options) ? $options['only_update'] : null;
+    	$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
+    	
+    	$event_dispatcher = EventDispatcher::instance();
 
 		$result = true;
 		
@@ -374,30 +377,55 @@ namespace Gino;
 		
 		if($this->_p['id']) {
             
+			if($only_update && is_string($only_update)) {
+				$only_update = explode(',', $only_update);
+			}
+			
+			// Set_options
+			$no_update_fields = array('id', 'instance');
+			
+			if(count($only_update)) {
+				$no_update = array();
+			}
+			elseif(count($no_update)) {
+				
+				foreach($no_update_fields AS $value)
+				{
+					if(!in_array($value, $no_update)) {
+						$no_update[] = $value;
+					}
+				}
+			}
+			else {
+				$no_update = $no_update_fields;
+			}
+			// /Set_options
+			
 			$fields = array();
+			
 			foreach($this->_p as $pName=>$pValue)
 			{
-            	if(!in_array($pName, $no_update))
-            	{
-            		if(!array_key_exists($pName, $columns)) {
-            			throw new \Exception(_("The field name does not exist"));
-            		}
-            		
-            		$field_obj = $columns[$pName];
-            		
-            		if(!$this->checkM2m($field_obj))
-            		{
-            			if(is_object($pValue))
-            			{
-            				$fields[$pName] = $pValue->id;
-            			}
-            			else
-            			{
-            				$fields[$pName] = $field_obj->valueToDb($pValue);
-            			}
-            		}
-            		else $m2m[$pName] = $pValue;
-            	}
+				if((count($only_update) && in_array($pName, $only_update)) or (count($no_update) && !in_array($pName, $no_update)))
+				{
+					if(!array_key_exists($pName, $columns)) {
+						throw new \Exception(_("The field name does not exist"));
+					}
+					
+					$field_obj = $columns[$pName];
+					
+					if(!$this->checkM2m($field_obj))
+					{
+						if(is_object($pValue))
+						{
+							$fields[$pName] = $pValue->id;
+						}
+						else
+						{
+							$fields[$pName] = $field_obj->valueToDb($pValue);
+						}
+					}
+					else $m2m[$pName] = $pValue;
+				}
 			}
 			
 			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");

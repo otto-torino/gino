@@ -624,7 +624,7 @@ class page extends \Gino\Controller {
         if(!$request->user->id) {
             
 			$item->read = $item->read + 1;
-        	$item->save(array('no_update'=>array('author')));
+        	$item->save(array('only_update'=>'read'));
         }
 
         $view = new \Gino\View($this->_view_dir);
