@@ -72,7 +72,7 @@ function download($full_path)
  * @return TRUE se $extension è vuoto o se il file ha un'estensione valida
  *
  */
-function extension($filename, $extensions){
+function extension($filename, $extensions) {
     $ext = str_replace('.','',strrchr($filename, '.'));
     $count = 0;
     if(is_array($extensions) AND sizeof($extensions) > 0)
@@ -101,12 +101,12 @@ function baseFileName($filename) {
  * @brief Elimina ricorsivamente i file e le directory
  *
  * @param string $dir percorso assoluto alla directory
- * @param boolean $delete_dir per eliminare o meno le directory
- * @return void
+ * @param boolean $delete_dir per eliminare anche le directory (default true)
+ * @return true
  */
-function deleteFileDir($dir, $delete_dir = TRUE){
+function deleteFileDir($dir, $delete_dir=TRUE) {
 
-    if(is_dir($dir))
+	if(is_dir($dir))
     {
         if(substr($dir, -1) != '/') $dir .= OS;    // Append slash if necessary
 
@@ -116,13 +116,16 @@ function deleteFileDir($dir, $delete_dir = TRUE){
             {
                 if($file == "." || $file == "..") continue;
 
-                if(is_file($dir.$file)) unlink($dir.$file);
-                else \Gino\deleteFileDir($dir.$file, TRUE);
+                if(is_file($dir.$file)) {
+                	unlink($dir.$file);
+                }
+                else {
+                	\Gino\deleteFileDir($dir.$file, $delete_dir);
+                }
             }
+            closedir($dh);
 
-            if($delete_dir)
-            {
-                closedir($dh);
+            if($delete_dir) {
                 rmdir($dir);
             }
         }
