@@ -101,10 +101,10 @@ function baseFileName($filename) {
  * @brief Elimina ricorsivamente i file e le directory
  *
  * @param string $dir percorso assoluto alla directory
- * @param boolean $delete_dir per eliminare o meno le directory
+ * @param boolean $delete_dir per eliminare anche le directory (default true)
  * @return void
  */
-function deleteFileDir($dir, $delete_dir = TRUE){
+function deleteFileDir($dir, $delete_dir=TRUE) {
 
     if(is_dir($dir))
     {
@@ -116,13 +116,16 @@ function deleteFileDir($dir, $delete_dir = TRUE){
             {
                 if($file == "." || $file == "..") continue;
 
-                if(is_file($dir.$file)) unlink($dir.$file);
-                else \Gino\deleteFileDir($dir.$file, TRUE);
+                if(is_file($dir.$file)) {
+                	unlink($dir.$file);
+                }
+                else {
+                	\Gino\deleteFileDir($dir.$file, $delete_dir);
+                }
             }
+            closedir($dh);
 
-            if($delete_dir)
-            {
-                closedir($dh);
+            if($delete_dir) {
                 rmdir($dir);
             }
         }
