@@ -369,8 +369,6 @@ namespace Gino;
     	
     	$event_dispatcher = EventDispatcher::instance();
 
-		$result = true;
-		
 		$class = get_class($this);
 		$columns = $class::$columns;
 		$m2m = array();
@@ -890,20 +888,19 @@ namespace Gino;
 	}
 	
 	/**
-     * @brief Update della struttura da chiamare manualmente
+     * @brief Refresh del modello (da chiamare manualmente)
      *
-     * Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina
+     * @description Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina. \n
      * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
      * viene gestito da AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
      * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
-     * metodo modelAction di Gino.AdminTable
+     * metodo modelAction di Gino.AdminTable.
      *
+     * @see Gino.AdminTable::m2mthroughAction()
      * @return void
      */
-    public function updateStructure() {
-        
-    	// @todo come gestire?
-    	// richiamato in Gino.AdminTable::m2mthroughAction()
-    	//$this->_structure = $this->structure($this->id);
+    public function refreshModel() {
+    	
+    	$this->fetchColumns($this->id);
     }
 }

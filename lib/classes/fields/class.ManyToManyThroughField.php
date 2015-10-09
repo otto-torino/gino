@@ -75,12 +75,11 @@ class ManyToManyThroughField extends Field {
     	if(is_null($value)) {
     		return null;
     	}
-    	elseif(is_int($value)) {
+    	elseif(is_array($value)) {
     		return $value;
     	}
-    	elseif(is_string($value)) {
-    		return (int) $value;
+    	else {
+    		throw new \Exception(_("Valore non valido"));
     	}
-    	else throw new \Exception(_("Valore non valido"));
     }
 }

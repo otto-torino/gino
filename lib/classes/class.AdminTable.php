@@ -672,8 +672,8 @@ class AdminTable {
     		}
     	}
     	
-    	// update della struttura di modo che le modifiche agli m2mt si riflettano immediatamente sul modello cui appartengono
-    	$model->updateStructure();	// @todo
+    	// aggiornamento del modello di modo che le modifiche agli m2mt si riflettano immediatamente sul modello di appartenenza
+    	$model->refreshModel();
     	
     	return TRUE;
     }
