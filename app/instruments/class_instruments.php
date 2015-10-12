@@ -138,6 +138,8 @@ class instruments extends \Gino\Controller {
             $tbl_rows = array();
             foreach($modules as $module) {
                 $class = $module->classNameNs();
+                $class_name = $module->className();
+                
                 if(method_exists($class, 'outputFunctions'))
                 {
                     $list = call_user_func(array($class, 'outputFunctions'));
@@ -148,7 +150,11 @@ class instruments extends \Gino\Controller {
                         $permissions = array();
                         if($permissions_code and count($permissions_code)) {
                             foreach($permissions_code as $permission_code) {
-                                $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+                            	if(!preg_match('#\.#', $permission_code)) {
+                            		$permission_code = $class_name.'.'.$permission_code;
+                            	}
+                            	$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+                                if(!is_object($p)) var_dump($permission_code);
                                 $permissions[] = $p->label;
                             }
                         }

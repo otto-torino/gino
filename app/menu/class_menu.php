@@ -741,10 +741,10 @@ class menu extends \Gino\Controller {
                             $perms_js = array();
                             if($permissions_code and count($permissions_code)) {
                                 foreach($permissions_code as $permission_code) {
-                                    if(!preg_match('#\.#', $permission_code)) {
-                                            $permission_code = $class_name.'.'.$permission_code;
-                                    }
-                                        $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+                                	if(!preg_match('#\.#', $permission_code)) {
+                                		$permission_code = $class_name.'.'.$permission_code;
+                                	}
+                                    $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
                                     $permissions[] = $p->label;
                                     $perms_js[] = $p->id;
                                 }
