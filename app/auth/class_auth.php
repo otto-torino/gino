@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -38,7 +38,7 @@ require_once('class.AdminTable_AuthUser.php');
  * Questo implica che nell'interfaccia di associazione utente/permessi occorre mostrare i permessi relativi a ogni applicazione (classe) per tutte le istanze presenti.
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -1781,7 +1781,16 @@ class auth extends \Gino\Controller {
      */
     public function login(\Gino\Http\Request $request){
 
-        $referer = isset($request->session->auth_redirect)
+    	// Ridefinizione dell'indirizzo di reindirizzamento (a seguito del login) quando questo indirizzo corrisponde 
+    	// all'area amministrativa e l'utente non ha i permessi per accedervi
+    	if(isset($request->session->auth_redirect) &&
+    		$request->user->id &&
+    		!$request->user->hasPerm('core', 'is_staff') &&
+    		$request->session->auth_redirect == $this->link('index', 'admin_page')) {
+    			$request->session->auth_redirect = $this->_home;
+    	}
+    	
+    	$referer = isset($request->session->auth_redirect)
             ? $request->session->auth_redirect
             : ((isset($request->META['HTTP_REFERER']) and $request->META['HTTP_REFERER'])
                 ? $request->META['HTTP_REFERER']

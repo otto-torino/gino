@@ -68,7 +68,7 @@ class ManyToManyThroughField extends Field {
      * @see Gino.Field::valueFromDb()
      * 
      * @param integer $value valore id del record
-     * @return null or integer
+     * @return null or array (valori id dei record di associazione)
      */
     public function valueFromDb($value) {
     
