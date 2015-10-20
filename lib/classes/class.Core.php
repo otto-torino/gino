@@ -148,7 +148,7 @@ class Core {
     }
 
     /**
-     * @brief Inizializza il registro di sitema
+     * @brief Inizializza il registro di sistema
      * @return void
      */
     private function initRegistry() {

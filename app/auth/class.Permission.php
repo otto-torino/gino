@@ -3,40 +3,39 @@
  * @file class.Permission.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.Permission.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 namespace Gino\App\Auth;
 
 /**
- * I permessi sono relativi ad una classe.
- * Nel momento in cui vengono associati a gruppi o utenti si aggiunge l'informazione istanza, che vale 0 per classi non istanziabili
- * Quando richiedo il controllo bloccante di un permesso (requirePerm) devo dare classe, codice e istanza. Il codice puo' essere un array di codici di permessi
- * tutti appartenenti alla stessa classe e istanza. Se voglio permettere l'accesso con permessi di classi o istanze diverse uso più volte il metodo
- * requirePerm.
- * I Controller hanno una shortcut di requirePerm (che è un metodo di Access) dove classe e istanza sono passati direttamente e 
- * coincidono con le proprietà del Controller stesso.
- * La stessa cosa per il controllo non bloccante, con i metodi hasPerm di User e lo shortcut userHasPerm di Controller.
- * Esistono permessi di sistema (hanno class='core') che sono generici. La classe core non esiste tra le ModuleApp, ma l'eccezione viene 
- * gestita interamente all'interno della classe Permission, per tutti gli altri si tratta di permessi analoghi agli altri e non vedono alcuna differenza.
- * Il nome della classe è core e non system siccome core è una classe esistente e non si può creare un modulo di uguale nome.
- * I Controller devono definire i permessi per le outputFunction, in quel contesto si considerano i permessi di classe, non di istanza. Servono per 
- * mostrare i permessi quando si trattano i metodi di output (menu, layout etc...). In tale contesto l'indicazione del permesso deve essere necessariamente
- * nel formato classe.codice, in questo modo si possono attibuire permessi di tipo core alla visualizzazione dei metodi, oppure permessi di altre classi.
- * Non ho usato la stessa notazione per i controlli in quanto li bisogna specificare anche l'istanza e diventerebbe complicato, ed inoltre non si 
- * potrebbero definire gli shortcut che nel 90% dei casi sono sufficienti.
- * Per recuperare i permessi di tutti i moduli istnziabili e non ed i permessi core da utilizzare in un form per una associazione, utilizzare
- * il metodo getForMulticheck di Permission
- *
- */
-
-/**
  * @brief Classe tipo Gino.Model che rappresenta un permesso
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
+ * 
+ * I permessi sono relativi ad una classe. 
+ * Nel momento in cui vengono associati a gruppi o utenti si aggiunge l'informazione istanza, che vale 0 per classi non istanziabili. 
+ * Quando richiedo il controllo bloccante di un permesso (Gino.Access::requirePerm()) devo dare classe, codice e istanza. Il codice puo' essere un array di codici di permessi 
+ * tutti appartenenti alla stessa classe e istanza. Se voglio permettere l'accesso con permessi di classi o istanze diverse uso più volte Gino.Access::requirePerm().
+ * 
+ * I Controller hanno una shortcut di Gino.Access::requirePerm() dove classe e istanza sono passati direttamente e coincidono con le proprietà del Controller stesso.
+ * 
+ * La stessa cosa per il controllo non bloccante, con i metodi Gino.App.Auth.User::hasPerm() e lo shortcut Gino.Controller::userHasPerm(). \n
+ * Esistono permessi di sistema (hanno class='core') che sono generici. La classe Gino.Core non esiste tra le ModuleApp, ma l'eccezione viene 
+ * gestita interamente all'interno della classe Permission, per tutti gli altri si tratta di permessi analoghi agli altri e non vedono alcuna differenza. 
+ * Il nome della classe è core e non system siccome core è una classe esistente e non si può creare un modulo di uguale nome.
+ * 
+ * I Controller devono definire i permessi per le outputFunction(), in quel contesto si considerano i permessi di classe, non di istanza. 
+ * Servono per mostrare i permessi quando si trattano i metodi di output (menu, layout etc...). 
+ * In tale contesto l'indicazione del permesso deve essere necessariamente nel formato classe.codice, 
+ * in questo modo si possono attibuire permessi di tipo core alla visualizzazione dei metodi, oppure permessi di altre classi. \n
+ * Non è stata utilizzata la stessa notazione per i controlli in quanto in questo caso bisogna specificare anche l'istanza e diventerebbe complicato, ed inoltre non si 
+ * potrebbero definire gli shortcut che nel 90% dei casi sono sufficienti.
+ * 
+ * Per recuperare i permessi di tutti i moduli (istanziabili e non) ed i permessi core da utilizzare in un form per una associazione, utilizzare Gino.App.Auth.Permission::getForMulticheck().
  */
 class Permission extends \Gino\Model {
 
@@ -112,7 +111,8 @@ class Permission extends \Gino\Model {
 
     /**
      * @brief Restituisce un oggetto dato il codice completo
-     * @param string $code codice
+     * 
+     * @param string $code codice nel formato classname.code_perm
      * @return istanza di Gino.App.Auth.Permission o null se non lo trova
      */
     public static function getFromFullCode($code) {

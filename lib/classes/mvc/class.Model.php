@@ -12,35 +12,26 @@ namespace Gino;
 /**
  * @brief Classe astratta che definisce un modello, cioè un oggetto che rappresenta una tabella su database
  *
- * @description La classe permette di descrivere la struttura dei dati del modello. Sono supportati molti tipi di dati, compresi le relazioni molti a molti, comprensive se il caso di campi aggiuntivi.
- *              La classe gestisce il salvataggio del modello su db e l'eliminazione, controllando, se specificato, che le constraint siano rispettate.
- *              Sono presenti metodi di generico utilizzo quali un selettore di oggetti, un selettore attraverso slug.
+ * @description La classe permette di descrivere la struttura dei dati del modello. 
+ * Sono supportati molti tipi di dati (@see lib/classes/fields/*), compresi le relazioni molti a molti, comprensivi, nel caso, di campi aggiuntivi. 
+ * La classe gestisce il salvataggio del modello su db e l'eliminazione, controllando, se specificato, che le constraint siano rispettate. 
+ * Sono presenti metodi di generico utilizzo quali un selettore di oggetti, un selettore attraverso slug.
  *
- *              Le proprietà su DB possono essere lette attraverso la funzione __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe. \n
- *              Le proprietà su DB possono essere impostate attraverso il metodo __set, possono essere definiti setter specifici definendo dei metodi setFieldname \n
+ * Le proprietà su DB possono essere lette attraverso il metodo __get, ma possono anche essere protette costruendo una funzione get personalizzata all'interno della classe. \n
+ * Le proprietà su DB possono essere impostate attraverso il metodo __set; in aggiunta possono essere definiti setter specifici definendo dei metodi @a setFieldname. \n
  *
- *              La classe figlia che istanzia il parent passa il valore ID del record dell'oggetto direttamente nel costruttore:
- *              @code
- *              parent::__construct($id);
- *              @endcode
+ * La classe figlia che istanzia il parent passa il valore ID del record dell'oggetto direttamente nel costruttore:
+ * @code
+ * parent::__construct($id);
+ * @endcode
  *
- *              ##Criteri di costruzione di una tabella per la definizione della struttura
- *              Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a adminTable. \n
- *              I modelli delle tabelle estendono la classe @a Model che ne ricava la struttura. Ne deriva che le tabelle devono essere costruite seguendo specifici criteri:
- *                - i campi obbligatori devono essere 'not null'
- *                - un campo auto-increment viene gestito automaticamente come input di tipo hidden
- *                - definire gli eventuali valori di default (soprattutto nei campi enumerazione)
- *
- *              ##Ulteriori elementi che contribuiscono alla definizione della struttura
- *              Le label dei campi devono essere definite nel modello nella proprietà @a $_fields_label. Una label non definita prende il nome del campo. \n
- *              Esempio:
- *              @code
- *              $this->_fields_label = array(
- *                'ctg'=>_("Categoria"),
- *                'name'=>_("Titolo"),
- *                'private'=>array(_("Tipologia"), _("privato: visibile solo dal relativo gruppo"))
- *              );
- *              @endcode
+ * ##Criteri di costruzione di un modello/tabella per la definizione della struttura
+ * Le tabelle che si riferiscono alle applicazioni possono essere gestite in modo automatico attraverso la classe @a Gino.AdminTable. \n
+ * Ognuna di queste tabelle viene definita in un modello che estende la classe @a Gino.Model, e in particolare il modello definisce i propri campi nel metodo statico columns(). 
+ * In questo metodo vengono definiti tutti i campi del modello utilizzando le opzioni generali dei campi (@see Gino.Field::__construct()) e quelle specifiche del tipo di campo.
+ * 
+ * Le tabelle devono essere coerenti con la definizione del modello per cui, ad esempio, i campi obbligatori devono essere 'not null' e gli eventuali valori di default 
+ * devono essere indicati anche nel campo della tabella.
  *
  * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -892,9 +883,9 @@ namespace Gino;
      *
      * @description Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina. \n
      * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
-     * viene gestito da AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
-     * le modifiche si riflettono immediatamente anche sul modello. Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso del
-     * metodo modelAction di Gino.AdminTable.
+     * viene gestito da Gino.AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
+     * le modifiche si riflettono immediatamente anche sul modello. 
+     * Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso di Gino.AdminTable::modelAction().
      *
      * @see Gino.AdminTable::m2mthroughAction()
      * @return void

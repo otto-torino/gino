@@ -35,10 +35,13 @@ require_once('class.PageComment.php');
  * Per ogni singola pagina è possibile abilitare l'inserimento dei commenti (il form include un controllo captcha).
  *
  * ##PERMESSI
- * - visualizzazione pagine private (can_view_private)
- * - redazione (can_edit)
- * - pubblicazione (can_publish)
- * - amministrazione modulo (can_admin)
+ * - visualizzazione pagine private (@a can_view_private)
+ * - redazione (@a can_edit)
+ * - pubblicazione (@a can_publish)
+ * - amministrazione modulo (@a can_admin)
+ * 
+ * Il metodo utilizzato per verificare le condizioni di accesso alle pagine è accessPage(). 
+ * Questo metodo è pubblico e può essere utilizzato anche dalle altre classi e applicazioni, come ad esempio la classe Gino.App.Menu.menu.
  *
  * ##POLITICHE DI VISUALIZZAZIONE
  * Alla visualizzazione di una pagina concorrono i seguenti elementi:
@@ -46,20 +49,10 @@ require_once('class.PageComment.php');
  * - visualizzazione a utenti con permesso 'visualizza pagine private' (campo @a private)
  * - visualizzazione a utenti specifici (campo @a users)
  *
- * ###Utenti non autenticati
- * Una pagina viene visualizzata se:
+ * Per un utente non autenticato una pagina è quindi visibile nel caso in cui:
  * - è pubblicata (published=1)
  * - non è associata a specifici utenti (users='')
  * - non è privata (private=0)
- *
- * Se non sono verificate le precedenti condizioni
- * 1) se la pagina è associata a specifici utenti si controlla se l'utente della sessione è compreso tra questi utenti
- * 2) se la pagina è privata si controlla se l'utente della sessione appartiene al gruppo "utenti pagine private"
- * 3) se la pagina è associata a specifici utenti ed è anche privata dovranno essere valide entrambe le condizioni 1 e 2
- *
- * ###Metodi
- * Il metodo utilizzato per verificare le condizioni di accesso alle pagine è accessPage().
- * Questo metodo è pubblico e può essere utilizzato anche dalle altre classi e applicazioni, come ad esempio la classe menu().
  *
  * ##OPZIONI CONFIGURABILI
  * - titolo vetrina pagine più lette + numero + template singolo elemento
@@ -273,16 +266,6 @@ class page extends \Gino\Controller {
     }
 
     /**
-     * @brief Permessi di visualizzazione
-     * @return array di codici di permessi
-     */
-    public function permissions() {
-        return array(
-          'can_view_private' => 'Visualizzazione pagine private'
-        );
-    }
-
-    /**
      * @brief Restituisce alcune proprietà della classe
      * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
      */
@@ -315,7 +298,7 @@ class page extends \Gino\Controller {
      * Questo metodo viene letto dal motore di generazione dei layout (prende i metodi non presenti nel file ini) e dal motore di generazione di 
      * voci di menu (presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
      *
-     * @return array associativo metodi pubblici metodo => array('label' => label, 'permissions' => permissions)
+     * @return array, METHOD_NAME => array('label' => (string) [label], 'permissions' => (array) [permissions list in the format classname.code_perm])
      */
     public static function outputFunctions() {
 

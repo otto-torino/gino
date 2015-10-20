@@ -14,6 +14,7 @@
 -- --------------------------------------------------------
 
 -- Data query
+DELETE FROM auth_permission WHERE id='5';
 
 -- Structure query
 ALTER TABLE `sys_module` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
@@ -23,6 +24,7 @@ ALTER TABLE `sys_module` CHANGE `description` `description` TEXT CHARACTER SET u
 -- --------------------------------------------------------
 
 -- Data query
+DELETE FROM auth_permission WHERE id='5';
 
 -- Structure query
 ALTER TABLE sys_module ALTER COLUMN description TEXT;

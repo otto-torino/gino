@@ -134,7 +134,6 @@ INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VAL
 (2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1),
 (3, 'attachment', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
 (6, 'instruments', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (7, 'instruments', 'can_view', 'visualizzazione', 'visualizzazione degli strumenti', 1),
 (8, 'language', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
