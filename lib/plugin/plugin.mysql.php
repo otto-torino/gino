@@ -772,7 +772,7 @@ class mysql implements \Gino\DbManager {
 				{
           			if($value !== null) {
 						  $a_fields[] = $field;
-						  $a_values[] = "'$value'";	//@TODO ///// VERIFICARE
+						  $a_values[] = "'$value'";	//@TODO VERIFICARE
           			}
 				}
 			}

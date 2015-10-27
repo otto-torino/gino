@@ -3,7 +3,7 @@
  * @file class.Template.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Template
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Redirect;
 /**
  * @brief Libreria per la gestione dei template del documento html da associare alle @ref Gino.Skin
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -47,7 +47,7 @@ class Template extends Model {
 
         $this->initBlocksProperties();
 
-        $this->_align_dict = array("1"=>"sinistra", "2"=>"centro", "3"=>"destra");
+        $this->_align_dict = array("1"=>_("sinistra"), "2"=>_("centro"), "3"=>_("destra"));
         $this->_um_dict = array("1"=>"px", "2"=>"%");
     }
     
@@ -59,28 +59,27 @@ class Template extends Model {
     public static function columns() {
     	
      	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
     	));
      	$columns['filename'] = new \Gino\FileField(array(
-     			'name' => 'filename',
-     			'required' => true,
-     			'max_lenght' => 200
+     		'name' => 'filename',
+     		'required' => true,
+     		'max_lenght' => 200
      	));
     	$columns['label'] = new \Gino\CharField(array(
-    			'name' => 'label',
-    			'required' => true,
-    			'max_lenght' => 200
+    		'name' => 'label',
+    		'required' => true,
+    		'max_lenght' => 200
     	));
     	$columns['description'] = new \Gino\TextField(array(
-    			'name'=>'description',
-    			'required'=>true
+    		'name' => 'description',
+    		'required' => true
     	));
     	$columns['free'] = new \Gino\BooleanField(array(
-    			'name'=>'free',
-    			'required'=>true,
-    			'enum'=>array(1 => _('si'), 0 => _('no')),
+    		'name' => 'free',
+    		'required' => true
     	));
     	return $columns;
     }
@@ -168,7 +167,7 @@ class Template extends Model {
         $buffer .= ($this->id)
             ? $gform->cinput('filename', 'text', htmlInput($this->filename), _("Nome file"), array("other"=>"disabled", "size"=>40, "maxlength"=>200))
             : $gform->cinput('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
-        $buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
+        $buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
 
         if(!$free) {
 
@@ -307,8 +306,9 @@ class Template extends Model {
         $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 
         $buffer = $this->formData($gform);
-        if($this->id)
+        if($this->id) {
             $buffer .= $gform->hidden('modTpl', 1);
+        }
         $buffer .= $this->formBlock($gform);
         $buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
@@ -398,7 +398,7 @@ class Template extends Model {
 
         if($this->id) {
 
-            $buffer = $gform->cinput('blocks', 'text', $this->_blocks_number, _("Numero blocchi"), array());
+            $buffer = $gform->cinput('blocks', 'text', $this->_blocks_number, _("Numero blocchi"), array('size'=>4));
             $buffer .= $gform->hidden('blocks_number', $this->_blocks_number);
             $buffer .= "<div id=\"blocks_form\">".$this->tplBlockForm()."</div>";
         }
@@ -464,6 +464,8 @@ class Template extends Model {
               $('block$i').setStyle('color', '#FFF');
               $('del$i').value = 1;
               $('block$i').getElements('input, select').each(function(el) { el.setProperty('disabled', 'disabled'); });
+              $('id_$i').removeProperty('disabled');
+              $('del$i').removeProperty('disabled');
             };";
 
             $text_block = "<legend>"._("Blocco")." $i <span onclick=\"$moo\" class=\"pull-right\" style=\"cursor: pointer\">".\Gino\icon('delete')."</span></legend>";
@@ -473,7 +475,7 @@ class Template extends Model {
                 $text_block .= $gform->hidden('del'.$i, 0, array('id'=>'del'.$i));
                 $buffer .= $text_block;
 
-                $buffer .= $gform->hidden('id_'.$i, $this->_blocks_properties[$i]['id']);
+                $buffer .= $gform->hidden('id_'.$i, $this->_blocks_properties[$i]['id'], array('id'=>'id_'.$i));
 
                 $width = $this->_blocks_properties[$i]['width'] ? $this->_blocks_properties[$i]['width'] : '';
 
@@ -667,7 +669,8 @@ class Template extends Model {
             $num = 1;
             for($i=1; $i<=$blocks_number; $i++)
             {
-                $add_form = cleanVar($request->POST, 'addblocks_'.$i, 'int', '');
+                // Blocchi da aggiungere
+            	$add_form = cleanVar($request->POST, 'addblocks_'.$i, 'int', '');
                 for($y=1; $y<=$add_form; $y++) {
 
                     $ref_name = $i.'_'.$y;
@@ -680,22 +683,28 @@ class Template extends Model {
                     $buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_add'.$ref_name, 'int', ''));
                     $num++;
                 }
+                // /End
 
                 $id_block = cleanVar($_POST, 'id_'.$i, 'int', '');
                 $del_block = cleanVar($_POST, 'del'.$i, 'int', '');
-
-                $buffer .= $gform->hidden('id_'.$num, $id_block);
-                $buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_'.$i, 'int', ''));
-                $buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_'.$i, 'int', ''));
-
+                
                 if($del_block == 1)
-                    $blocks_del[$id_block] = $i;
+                {
+                	$blocks_del[$id_block] = $i;
+                }
                 else
-                    $num++;
+                {
+                	$buffer .= $gform->hidden('id_'.$num, $id_block);
+                	$buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_'.$i, 'int', ''));
+                	$buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_'.$i, 'int', ''));
+                	$buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_'.$i, 'int', ''));
+                	$buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_'.$i, 'int', ''));
+                	$buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_'.$i, 'int', ''));
+                	
+                	$num++;
+                }
             }
+            
             $buffer .= $gform->hidden('blocks_number', $num-1);
             $buffer .= $gform->hidden('blocks_del', base64_encode(json_encode($blocks_del)));
         }
@@ -950,7 +959,8 @@ class Template extends Model {
 
     /**
      * @brief Processa il form di inserimento/modifica template
-     * @see self::formTemplate()
+     * 
+     * @see formTemplate()
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Response
      */
@@ -966,7 +976,7 @@ class Template extends Model {
         if($tplFilename) $this->filename = $tplFilename.".tpl";
         $modTpl = cleanVar($request->POST, 'modTpl', 'int', '');
         
-        $action = ($this->id)? "modify":"insert";
+        $action = ($this->id) ? "modify":"insert";
 
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => $action));
 
@@ -1006,10 +1016,24 @@ class Template extends Model {
                 $align = cleanVar($request->POST, 'align_'.$i, 'int', '');
                 $rows = cleanVar($request->POST, 'rows_'.$i, 'int', '');
                 $cols = cleanVar($request->POST, 'cols_'.$i, 'int', '');
+                
+                // Queste forzature vengono effettuate per mantenere invariata la struttura dei campi width, um e align della tabella sys_layout_tpl_block (NOT NULL)
+                // @todo occorrerebbe cambiare i campi width, um e align in NULL e verificare il funzionamento dei template, visto che si aspettano il valore 0
+                if($width === null) {
+                	$width = 0;
+                }
+                if($um === null) {
+                	$um = 0;
+                }
+                if($align === null) {
+                	$align = 0;
+                }
+                // /End
 
                 if($width == 0) $um = 0;
-                if($rows > 0 && $cols > 0)
+                if($rows > 0 && $cols > 0) {
                     $this->saveBlock($bid, $i, $width, $um, $align, $rows, $cols);
+                }
             }
         }
 
@@ -1021,8 +1045,8 @@ class Template extends Model {
      * @param int $id id blocco
      * @param int $position posizione
      * @param int $width larghezza
-     * @param string $um unita di misura (1: px, 2: %)
-     * @param string $align allineamento (1: sinistra, 2: centrato, 3: destra)
+     * @param int $um unita di misura (1: px, 2: %)
+     * @param int $align allineamento (1: sinistra, 2: centrato, 3: destra)
      * @param int $rows numero righe
      * @param int $cols numero colonne
      * @return risultato, bool
@@ -1069,6 +1093,7 @@ class Template extends Model {
             'rows' => $rows,
             'cols' => $cols
             ), self::$table_block);
+            
             return $res;
         }
     }
