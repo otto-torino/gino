@@ -171,45 +171,6 @@ class DirectoryBuild extends Build {
     }
 
     /**
-     * @see Gino.Build::validate()
-     * @description Crea la directory se non esiste
-     */
-    /*public function validate($value){
-
-    	$existing_values = $this->_model->getRecordValues();
-    	$existing_dir = $existing_values ? $existing_values[$this->getName()] : null;
-    	
-    	if($value == $existing_dir)
-        {
-            return $value;
-        }
-        elseif($value)
-        {
-            if(!$this->_model->id)
-            {
-                if(!mkdir($this->_path.$value))
-                	return array('error'=>32);
-            }
-            else
-            {
-                if(!$existing_dir)
-                {
-                    if(!mkdir($this->_path.$value))
-                        return array('error'=>32);
-                }
-                else
-                {
-                    if(!rename($this->_path.$existing_dir, $this->_path.$value))
-                        return array('error'=>32);
-                }
-            }
-
-            return $value;
-        }
-        else return null;
-    }*/
-
-    /**
      * @brief Eliminazione della directory
      * @return TRUE o errore
      */

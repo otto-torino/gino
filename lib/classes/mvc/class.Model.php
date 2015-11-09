@@ -500,6 +500,7 @@ namespace Gino;
      * @return risultato dell'operazione, bool
      */
     public function deleteDbData() {
+        
         $this->_registry->trd->deleteTranslations($this->_tbl_data, $this->_p['id']);
         $result = $this->_db->delete($this->_tbl_data, "id='{$this->_p['id']}'");
         return $result;
@@ -510,7 +511,7 @@ namespace Gino;
      * @description Elimina i dati su db, le traduzioni, e le associazioni m2m e m2mt
      *              Controlla che non ci siano regole di constraint che impediscano l'eliminazione, in caso
      *              ce ne fossero di non rispettate ritorna un elenco di regole che impediscono l'eliminazione.
-     * @return risultato dell'operazione (bool) o un errore
+     * @return bool (true) or array (error)
      */
     public function delete() {
 
@@ -518,17 +519,15 @@ namespace Gino;
 		if($this->_check_is_constraint and count($this->_is_constraint)) {
 			$res = $this->checkIsConstraint();
 			if($res !== true) {
-				return array("error"=>$this->isConstraintError($res));
+				return array("error" => $this->isConstraintError($res));
 			}
 		}
 
         $this->deletem2m();
         $this->deletem2mthrough();
 
-        $result = $this->deleteDbData();
-        if($result !== TRUE) {
-            return array("error"=>37);
-        }
+        $this->deletem2m();
+        $this->deletem2mthrough();
 
         foreach($this->_structure as $field) {
             
@@ -537,9 +536,14 @@ namespace Gino;
         	if(method_exists($build, 'delete')) {
                 $result = $build->delete();
                 if($result !== TRUE) {
-                    return $result;
+                    return array('error' => _("Si è verificato un errore nel processo di eliminazione di elementi correlati a una tipologia di campo."));
                 }
             }
+        }
+        
+        $result = $this->deleteDbData();
+        if($result !== TRUE) {
+        	return array("error" => 37);
         }
 
         return TRUE;

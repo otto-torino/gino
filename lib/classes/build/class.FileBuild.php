@@ -90,7 +90,7 @@ class FileBuild extends Build {
     }
 
     /**
-     * @brief Setter della proprietà enum
+     * @brief Setter della proprietà path
      * @param mixed $value
      *   - string
      *   - array, array(object controller, string method_name, array method_params)
@@ -242,7 +242,6 @@ class FileBuild extends Build {
     private function checkDeleteFile($input_file, $check_delete) {
     	
     	$existing_values = $this->_model->getRecordValues();
-    	//var_dump($existing_values);
     	
     	$existing_file = $existing_values ? $existing_values[$this->_field_object->getName()] : null;
     	$delete = (($input_file && $existing_file) || $check_delete) ? TRUE : FALSE;
@@ -254,7 +253,7 @@ class FileBuild extends Build {
      * @brief Salva il file uploadato
      * @param string $filename nome file
      * @param resource $filename_tmp file temporaneo
-     * @return risultato operazione, bool
+     * @return bool (true) or array (error)
      */
     protected function saveFile($filename, $filename_tmp) {
 
@@ -277,7 +276,7 @@ class FileBuild extends Build {
 
     /**
      * @brief Eliminazione diretta del file
-     * @return True o errore
+     * @return bool (true) or array (error)
      */
     public function delete() {
 
@@ -450,6 +449,7 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::clean()
      * @description Effettua l'upload del file
+     * @return string or Exception
      */
     public function clean($options=null) {
     	
@@ -509,8 +509,15 @@ class FileBuild extends Build {
     			throw new \Exception($code_messages[3]);	//return array('error'=>03);
     		}
     		
-    		if($this->saveFile($filename, $filename_tmp)) {
+    		// Save File
+    		$save = $this->saveFile($filename, $filename_tmp);
+    		
+    		if($save === true) {
     			return $filename;
+    		}
+    		elseif(is_array($save)) {
+    			$code = $save['error'];
+    			throw new \Exception($code_messages[$code]);
     		}
     		else {
     			throw new \Exception(_("Errore nel salvataggio del file"));

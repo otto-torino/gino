@@ -3,7 +3,7 @@
  * @file class.AttachmentItem.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.AttachmentItem.
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,7 +13,7 @@ use Gino\Registry;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una singolo allegato
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -55,6 +55,7 @@ class AttachmentItem extends \Gino\Model {
     function __construct($id) {
 
     	$this->_tbl_data = self::$table;
+    	$this->_controller = new attachment();
     	
     	parent::__construct($id);
     	
@@ -97,26 +98,13 @@ class AttachmentItem extends \Gino\Model {
         }
     }
     
-    private function getPath($model) {
-    	
-    	if($model->id) {
-    		$ctg = new AttachmentCtg($model->category);
-    		$base_path = $ctg->path('abs');
-    	}
-    	else {
-    		$base_path = null;
-    	}
-    	
-    	return $base_path;
-    }
-    
     /**
      * @see Gino.Model::properties()
      */
     protected static function properties($model, $controller) {
-    	 
+    	
     	$property['file'] = array(
-    		'path' => $model->getPath($model),
+    		'path' => $controller->getPath($model->category),
     	);
     	
     	return $property;
@@ -191,6 +179,7 @@ class AttachmentItem extends \Gino\Model {
                 $item->delete();
             }
         }
+        return true;
     }
 
     /**

@@ -3,7 +3,7 @@
  * @file class_attachment.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.attachment
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ require_once('class.AttachmentCtg.php');
 /**
  * @brief Classe controller del modulo di gestione di archivi di file categorizzati
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -60,6 +60,25 @@ class attachment extends \Gino\Controller {
     public function getDataWWW() {
 
         return $this->_data_www;
+    }
+    
+    /**
+     * @brief Percorso della directory di una categoria di allegati
+     *
+     * @param integer $ctg_id valore id della categoria
+     * @return percorso
+     */
+    public function getPath($ctg_id) {
+
+    	if($ctg_id) {
+    		$ctg = new AttachmentCtg($ctg_id);
+    		$directory = $ctg->path('abs');
+    	}
+    	else {
+    		$directory = $this->getDataDir().OS;
+    	}
+    	
+    	return $directory;
     }
 
     /**
