@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -34,11 +34,12 @@ require_once('class.AdminTable_AuthUser.php');
  *
  * I permessi delle applicazioni sono definiti nella tabella @a auth_permission. Il campo @a admin indica se il permesso necessita dell'accesso all'area amministrativa. \n
  * Ogni utente può essere associato a un permesso definito nella tabella @a auth_permission, e tale associazione viene registrata nella tabella @a auth_user_perm. \n
- * La tabella @a auth_user_perm registra il valore ID dell'utente, del permesso e dell'istanza relativa all'applicazione del permesso. \n
+ * La tabella @a auth_user_perm registra il valore id dell'utente, del permesso e dell'istanza relativa all'applicazione del permesso. \n
  * Questo implica che nell'interfaccia di associazione utente/permessi occorre mostrare i permessi relativi a ogni applicazione (classe) per tutte le istanze presenti.
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -1076,7 +1077,6 @@ class auth extends \Gino\Controller {
                 array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=user&op=jup'), 'param_id'=>'ref'),
                 array('label'=>\Gino\icon('password', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=password'), 'param_id'=>'ref')
             )
-
         );
 
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
@@ -1782,7 +1782,16 @@ class auth extends \Gino\Controller {
      */
     public function login(\Gino\Http\Request $request){
 
-        $referer = isset($request->session->auth_redirect)
+    	// Ridefinizione dell'indirizzo di reindirizzamento (a seguito del login) quando questo indirizzo corrisponde 
+    	// all'area amministrativa e l'utente non ha i permessi per accedervi
+    	if(isset($request->session->auth_redirect) &&
+    		$request->user->id &&
+    		!$request->user->hasPerm('core', 'is_staff') &&
+    		$request->session->auth_redirect == $this->link('index', 'admin_page')) {
+    			$request->session->auth_redirect = $this->_home;
+    	}
+    	
+    	$referer = isset($request->session->auth_redirect)
             ? $request->session->auth_redirect
             : ((isset($request->META['HTTP_REFERER']) and $request->META['HTTP_REFERER'])
                 ? $request->META['HTTP_REFERER']

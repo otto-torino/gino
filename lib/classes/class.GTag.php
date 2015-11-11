@@ -26,6 +26,7 @@ class GTag {
 
     /**
      * @brief Salva i tag su db, sia nella tabella tag che nella tabella di associazione ai contenuti
+     * 
      * @param string $content_controller_class nome della classe controller del modello cui i tag sono associati
      * @param string $content_controller_instance id dell'istanza della classe controller del modello cui i tag sono associati
      * @param string $content_class la classe del modello cui i tag sono associati
@@ -184,9 +185,16 @@ class GTag {
      * @return istogramma tags
      */
     public static function getTagsHistogram() {
-        $res = array();
+        
+    	$res = array();
         $db = db::instance();
-        $rows = $db->select(self::$_table_tag.'.tag', array(self::$_table_tag,  self::$_table_tag_taggeditem), self::$_table_tag.'.id = '.self::$_table_tag_taggeditem.'.tag_id', array('order' => self::$_table_tag_taggeditem.'.tag_id'));
+        
+        $rows = $db->select(
+        	self::$_table_tag.'.tag', 
+        	array(self::$_table_tag,  self::$_table_tag_taggeditem), 
+        	self::$_table_tag.'.id = '.self::$_table_tag_taggeditem.'.tag_id', 
+        	array('order' => self::$_table_tag_taggeditem.'.tag_id')
+        );
         if($rows and count($rows)) {
             foreach($rows as $row) {
                 if(!isset($res[$row['tag']])) {
@@ -219,8 +227,8 @@ class GTag {
     	 
     	$db = db::instance();
     	$result = $db->delete(
-    			self::$_table_tag_taggeditem,
-    			"content_controller_class='$controller_class' AND content_controller_instance='$controller_instance' AND content_class='$model_class' AND content_id='$model_id'"
+    		self::$_table_tag_taggeditem,
+    		"content_controller_class='$controller_class' AND content_controller_instance='$controller_instance' AND content_class='$model_class' AND content_id='$model_id'"
     	);
     	return $result;
     }

@@ -134,7 +134,6 @@ INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VAL
 (2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1),
 (3, 'attachment', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
 (6, 'instruments', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (7, 'instruments', 'can_view', 'visualizzazione', 'visualizzazione degli strumenti', 1),
 (8, 'language', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
@@ -1052,7 +1051,7 @@ CREATE TABLE sys_conf (
   email_from_app nvarchar(100) NULL,
   mobile tinyint NOT NULL DEFAULT '0',
   password_crypt nvarchar(5) NOT NULL 
-  	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'none',
+  	CONSTRAINT CK_sys_conf_password_crypt CHECK (password_crypt IN('none','sha1','md5')) DEFAULT 'md5',
   enable_cache tinyint NOT NULL, 
   query_cache tinyint NOT NULL 
   	CONSTRAINT DF_sys_conf_query_cache DEFAULT '0', 
@@ -1249,8 +1248,8 @@ SET IDENTITY_INSERT sys_layout_tpl_block OFF
 
 CREATE TABLE sys_log_access (
   id int IDENTITY(1, 1),
-  user_id int NULL,
-  date datetime NULL,
+  user_id int NOT NULL,
+  date datetime NOT NULL,
   CONSTRAINT PK_sys_log_access PRIMARY KEY (id)
 )
 
@@ -1316,7 +1315,7 @@ CREATE TABLE sys_module (
   name nvarchar(100) NOT NULL,
   module_app int NOT NULL,
   active tinyint NOT NULL,
-  description text NOT NULL,
+  description text NULL,
   CONSTRAINT PK_sys_module PRIMARY KEY (id)
 )
 

@@ -148,7 +148,6 @@ INSERT INTO `auth_permission` (`id`, `class`, `code`, `label`, `description`, `a
 (2, 'core', 'is_staff', 'appartenenza allo staff', 'Possibilità di accedere all''area amministrativa', 1),
 (3, 'attachment', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (4, 'auth', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(5, 'auth', 'can_manage', 'gestione utenti', 'gestione gli utenti. Inserimento e modifica di utenti. Impossibilità di eliminare utenti.', 1),
 (6, 'instruments', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (7, 'instruments', 'can_view', 'visualizzazione', 'visualizzazione degli strumenti', 1),
 (8, 'language', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
@@ -860,7 +859,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
   `mobile` tinyint(1) NOT NULL DEFAULT '0',
-  `password_crypt` enum('none','sha1','md5') DEFAULT 'none',
+  `password_crypt` enum('none','sha1','md5') DEFAULT 'md5',
   `enable_cache` tinyint(1) NOT NULL, 
   `query_cache` tinyint(1) NOT NULL DEFAULT '0', 
   `query_cache_time` smallint(4) DEFAULT NULL,
@@ -1066,8 +1065,8 @@ INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `ali
 
 CREATE TABLE IF NOT EXISTS `sys_log_access` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `date` datetime DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -1132,7 +1131,7 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
   `name` varchar(100) NOT NULL,
   `module_app` int(11) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  `description` text NOT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 

@@ -178,7 +178,7 @@ class Paginator {
      * @param array $options
      *   array associativo di opzioni
      *   - @b summary_label (string): label del sommario
-     *   - @b gotopage (array): parametri dell'interfaccia di invio a una pagina specifica
+     *   - @b gotopage (array): parametri dell'interfaccia di rimando a una pagina specifica
      *     - @a view (boolean), indica se mostrare l'interfaccia
      *     - parametri del metodo goToPage()
      * @return codice html paginazione

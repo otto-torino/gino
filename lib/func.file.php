@@ -72,7 +72,7 @@ function download($full_path)
  * @return TRUE se $extension è vuoto o se il file ha un'estensione valida
  *
  */
-function extension($filename, $extensions){
+function extension($filename, $extensions) {
     $ext = str_replace('.','',strrchr($filename, '.'));
     $count = 0;
     if(is_array($extensions) AND sizeof($extensions) > 0)
@@ -102,11 +102,11 @@ function baseFileName($filename) {
  *
  * @param string $dir percorso assoluto alla directory
  * @param boolean $delete_dir per eliminare anche le directory (default true)
- * @return void
+ * @return true
  */
 function deleteFileDir($dir, $delete_dir=TRUE) {
 
-    if(is_dir($dir))
+	if(is_dir($dir))
     {
         if(substr($dir, -1) != '/') $dir .= OS;    // Append slash if necessary
 

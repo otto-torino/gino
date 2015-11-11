@@ -19,6 +19,7 @@ namespace Gino\App\Page;
 class PageCategory extends \Gino\Model {
 
     public static $table = "page_category";
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -28,13 +29,7 @@ class PageCategory extends \Gino\Model {
      */
     function __construct($id) {
 
-        $this->_controller = new page();
         $this->_tbl_data = self::$table;
-
-        $this->_fields_label = array(
-            'name'=>_("Nome"), 
-            'description'=>_('Descrizione')
-        );
 
         parent::__construct($id);
 
@@ -49,4 +44,42 @@ class PageCategory extends \Gino\Model {
 
         return (string) $this->name;
     }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    
+    	$controller = new page();
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['name'] = new \Gino\CharField(array(
+    			'name'=>'name',
+    			'label'=>_("Nome"),
+    			'required'=>true,
+    			'max_lenght'=>60,
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'label' => _("Descrizione"),
+    			'required'=>false
+    	));
+    	$columns['date'] = new \Gino\DatetimeField(array(
+    			'name'=>'date',
+    			'label'=>_('Data'),
+    			'required'=>true,
+    			'auto_now'=>false,
+    			'auto_now_add'=>true,
+    	));
+    	
+    	return $columns;
+    }
 }
+
+PageCategory::$columns=PageCategory::columns();

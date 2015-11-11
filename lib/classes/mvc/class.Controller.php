@@ -45,6 +45,10 @@ abstract class Controller {
     function __construct($instance_id = 0) {
 
         $this->_registry = registry::instance();
+        
+        if(is_null($this->_registry->session)) {
+        	$this->_registry->session = \Gino\Session::instance();
+        }
 
         // alias
         $this->_db = $this->_registry->db;
@@ -59,7 +63,6 @@ abstract class Controller {
         $this->_locale = locale::instance_to_class($this->_class_name);
 
         $this->setPaths();
-
       }
 
     /**

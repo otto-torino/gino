@@ -3,7 +3,7 @@
  * @file class.AdminTable_AuthUser.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.AdminTable_AuthUser
  *
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,50 +12,32 @@ namespace Gino\App\Auth;
 /**
  * @brief Sovrascrive la classe AdminTable
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class AdminTable_AuthUser extends \Gino\AdminTable {
 
     /**
-     * Gestisce l'azione del form
-     * 
-     * @see readFile()
-     * @see Model::save()
-     * @see field::clean()
-     * @param object $model
-     * @param array $options
-     *   - opzioni per il recupero dei dati dal form
-     *   - opzioni per selezionare gli elementi da recuperare dal form
-     *     - @b removeFields (array): elenco dei campi non presenti nel form
-     *     - @b viewFields (array): elenco dei campi presenti nel form
-     *   - @b import_file (array): attivare l'importazione di un file (richiama il metodo readFile())
-     *     - @a field_import (string): nome del campo del file di importazione
-     *     - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
-     *     - @a field_log (string): nome del campo del file di log
-     *     - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
-     *     - @a dump_path (string): percorso del file di dump
-     * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
-     * @return void
-     * 
-     * Personalizzazioni: \n
-     *   - @b username_as_email
-     *   - @b user_more_info
-     *   - @b aut_password
-     *   - @b aut_password_length
-     *   - @b pwd_length_min
-     *   - @b pwd_length_max
-     *   - @b pwd_numeric_number
-     *   - @b ldap_auth
-     *   - @b ldap_auth_password
-     *   
-     * @see User::checkEmail()
-     * @see User::checkPassword()
-     * @see User::checkUsername()
-     * @see User::setPassword()
-     * @see User::setMoreInfo()
-     */
+	 * @see \Gino\AdminTable::modelAction()
+	 * 
+	 * Customizations: \n
+	 *   - @b username_as_email
+	 *   - @b user_more_info
+	 *   - @b aut_password
+	 *   - @b aut_password_length
+	 *   - @b pwd_length_min
+	 *   - @b pwd_length_max
+	 *   - @b pwd_numeric_number
+	 *   - @b ldap_auth
+	 *   - @b ldap_auth_password
+	 *
+	 * @see User::checkEmail()
+	 * @see User::checkPassword()
+	 * @see User::checkUsername()
+	 * @see User::setPassword()
+	 * @see User::setMoreInfo()
+	 */
     public function modelAction($model, $options=array(), $options_element=array()) {
 
         // Importazione di un file
@@ -87,7 +69,6 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 
         $gform = new \Gino\Form($formId, $method, $validation);
         $gform->save($session_value);
-        
         $req_error = $gform->arequired();
 
         // Controllo campo ldap per le interazioni col campo password (ldap true => password non obbligatoria)
@@ -99,10 +80,9 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
             return array('error'=>1);
 
         /*
-         * Personalizzazioni
+         * Customizations
          */
-
-        $insert = $model->id ? false : true;
+		$insert = $model->id ? false : true;
 
         $check_email = User::checkEmail($model->id);
         if(is_array($check_email)) return $check_email;
@@ -120,6 +100,8 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
         }
         // End
 
+        $m2mt = array();
+        
         foreach($model->getStructure() as $field=>$object) {
 
             if($this->permission($options, $field) &&
@@ -138,23 +120,26 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
                 {
                     $model->instance = $this->_controller->getInstance();
                 }
+                elseif(is_a($object, '\Gino\ManyToManyThroughField'))
+                {
+                	$m2mt[] = array(
+                		'field' => $field,
+                		'object' => $object,
+                	);
+                }
                 else
                 {
-                    $value = $object->clean($opt_element);
-                    $result = $object->validate($value);
-
-                    if($result === true) {
-                        $model->{$field} = $value;
-                    }
-                    else {
-                        return array('error'=>$result['error']);
-                    }
-
-                    if($import)
-                    {
-                        if($field == $field_import)
-                            $path_to_file = $object->getPath();
-                    }
+                	$build = $model->build($object);
+                	
+                	$value = $build->clean($opt_element, $model->id);
+                	// imposta il valore; @see Gino.Model::__set()
+                	$model->{$field} = $value;
+                
+                	if($import)
+                	{
+                		if($field == $field_import)
+                			$path_to_file = $object->getPath();
+                	}
                 }
             }
         }
@@ -167,10 +152,9 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
         }
 
         /*
-         * Personalizzazioni
+         * Customizations
          */
-
-        $username_as_email = \Gino\gOpt('username_as_email', $options, false);
+		$username_as_email = \Gino\gOpt('username_as_email', $options, false);
         $user_more_info = \Gino\gOpt('user_more_info', $options, false);
         
 		if($username_as_email) $model->username = $model->email;
@@ -185,17 +169,34 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
 				if($model->ldap && $ldap_auth_password)
 					$model->userpwd = $ldap_auth_password;
 			}
+			else {
+				$model->ldap = 0;
+			}
 			
 			$model->userpwd = User::setPassword($model->userpwd, $options);
 		}
-
-        $update_db = $model->save();
-
-        if($update_db && $user_more_info)
-        {
-            return User::setMoreInfo($model->id);
+		// End
+        
+        $result = $model->save();
+        
+        if($result && $user_more_info) {
+        	return User::setMoreInfo($model->id);
         }
-        else return $update_db;
-        // End
+        
+        // error
+        if(is_array($result)) {
+        	return $result;
+        }
+        
+        foreach($m2mt as $data) {
+        	$result = $this->m2mThroughAction($data['field'], $data['object'], $model, $options);
+        	 
+        	// error
+        	if(is_array($result)) {
+        		return $result;
+        	}
+        }
+        
+        return $result;
     }
 }

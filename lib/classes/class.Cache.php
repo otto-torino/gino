@@ -10,7 +10,7 @@
 namespace Gino;
 
 /**
- * @brief Classe che viene esteda da Gino.OutputCache() e Gino.DataCache()
+ * @brief Classe che viene estesa da Gino.OutputCache() e Gino.DataCache()
  *
  * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com

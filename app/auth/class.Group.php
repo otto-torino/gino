@@ -20,6 +20,7 @@ class Group extends \Gino\Model {
 
     public static $table = TBL_GROUP;
     public static $table_group_perm = TBL_GROUP_PERMISSION;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -28,11 +29,6 @@ class Group extends \Gino\Model {
      * @return istanza di Gino.App.Auth.Group
      */
     function __construct($id) {
-
-        $this->_fields_label = array(
-            'name' => _('Nome'), 
-            'description' => _('Descrizione')
-        );
 
         $this->_model_label = _('Gruppo');
         $this->_tbl_data = self::$table;
@@ -45,6 +41,33 @@ class Group extends \Gino\Model {
      */
     function __toString() {
         return $this->name;
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    	 
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['name'] = new \Gino\CharField(array(
+    			'name'=>'name',
+    			'label' => _("Nome"),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'label' => _("Descrizione"),
+    			'required'=>false
+    	));
+    
+    	return $columns;
     }
 
     /**
@@ -116,3 +139,5 @@ class Group extends \Gino\Model {
         return $items;
     }
 }
+
+Group::$columns=Group::columns();

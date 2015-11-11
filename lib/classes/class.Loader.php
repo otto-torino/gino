@@ -17,7 +17,22 @@ namespace {
      */
     function __autoload($class) {
 
-        if(preg_match("#\\\#", $class))
+    	// Model
+    	if(preg_match("#\\\#", $class))
+    	{
+    		$cut = strlen('\Gino\App\\');
+    		$len = strlen($class)-$cut+1;
+    		$ns = substr($class, -$len);
+    		
+    		$ns = explode("\\", $ns);
+    		$path_to_model = APP_DIR.'/'.strtolower($ns[0]).'/'.'class.'.ucfirst($ns[1]).'.php';
+    		if(is_file($path_to_model)) {
+    			require_once($path_to_model);
+    			return null;
+    		}
+    	}
+    	
+    	if(preg_match("#\\\#", $class))
         {
             $class_name = get_name_class($class);
         }
@@ -25,7 +40,10 @@ namespace {
 
         if(is_dir(APP_DIR.OS.$class_name)) {
             $dir = APP_DIR.OS.$class_name.OS;
-            require_once($dir.CONTROLLER_CLASS_PREFIX.$class_name.'.php');
+            $path_to_controller = $dir.CONTROLLER_CLASS_PREFIX.$class_name.'.php';
+            if(is_file($path_to_controller)) {
+            	require_once($path_to_controller);
+            }
             if (!class_exists(get_app_name_class_ns($class_name), false)) {
                 trigger_error(sprintf(_("Unable to load the controller: %s"), $class), E_USER_WARNING);
             }

@@ -22,21 +22,25 @@ require_once('class.PhpModule.php');
 /**
  * @brief Permette la creazione di moduli di classe in grado di eseguire codice php completamente personalizzabile
  * 
- * Procedura:
- *   - si crea un modulo di classe selezionando la classe phpModuleView
- *   - il modulo diventa visibile nella sezione moduli
- *   - selezionando il modulo creato si accede alle funzionalità della classe phpModuleView
- *   - nella sezione @a Contenuto è possibile scrivere direttamente il codice php
+ * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * ##PROCEDURA
+ * - si crea un modulo di classe selezionando la classe phpModuleView
+ * - il modulo diventa visibile nella sezione moduli
+ * - selezionando il modulo creato si accede alle funzionalità della classe phpModuleView
+ * - nella sezione @a Contenuto è possibile scrivere direttamente il codice php
  * 
  * Per precauzione tutte le funzioni di php che permettono di eseguire programmi direttamente sulla macchina sono vietate.
  * Nel caso in cui venisse rilevata la presenza di una di queste funzioni il codice non verrebbe eseguito e l'output risultante sarebbe nullo.
  * 
- * Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di non utilizzare le funzioni per la stampa diretta @a echo e @a print, ma di immagazzinare tutto l'output all'interno della variabile @a $buffer, che verrà stampata all'interno del layout.
+ * Per una corretta integrazione dell'output prodotto all'interno del layout del sito, si consiglia di non utilizzare le funzioni per la stampa diretta @a echo e @a print, ma di immagazzinare tutto l'output all'interno della variabile @a $buffer, che verrà stampata all'interno del layout. 
  * Si consiglia di fare molta attenzione perché nonostante l'accesso alle funzionalità più pericolose del php sia proibito, si ha un controllo completo sulle variabili, ed in caso di cattivo uso del modulo si potrebbe seriamente compromettere la visualizzazione del modulo o dell'intero sito.
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * ##PERMESSI
+ * - can_admin, amministrazione completa modulo
+ * 
  */
 class phpModuleView extends \Gino\Controller {
 
@@ -112,12 +116,6 @@ class phpModuleView extends \Gino\Controller {
         }
 
         return $result;
-    }
-
-    public function permissions() {
-        return array(
-            'can_admin' => 'amministrazione completa modulo'
-        );
     }
 
     /**

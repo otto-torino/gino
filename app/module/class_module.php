@@ -387,8 +387,11 @@ class module extends \Gino\Controller {
         $folder_structure = (isset($class_elements['folderStructure'])) ? $class_elements['folderStructure'] : array();
         if(count($folder_structure)) {
             foreach($folder_structure as $k=>$v) {
-                mkdir($k.OS.$name);
-                $this->createMdlFolders($k.OS.$name, $v);
+                $dir = $k.OS.$name;
+            	if(!is_dir($dir)) {
+                	mkdir($dir);
+                	$this->createMdlFolders($dir, $v);
+                }
             }
         }
 
@@ -399,9 +402,8 @@ class module extends \Gino\Controller {
         $module->description = $description;
 
         $module->save();
-
+        
         return new Redirect($this->linkAdmin());
-
     }
 
     /**

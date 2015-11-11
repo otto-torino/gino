@@ -14,7 +14,7 @@
  *              - type: string, int|ext tipo link,
  *              - url: string, url
  *
- * @copyright 2005-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2005-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -38,7 +38,7 @@ if(!function_exists('\Gino\App\Menu\printVoice')) {
   }
 }
 ?>
-<ul class="menu-main nav navbar-nav navbar-right">
+<ul class="menu-admin nav navbar-nav navbar-right">
     <?php
     $i = 0;
     foreach($tree as $v) {

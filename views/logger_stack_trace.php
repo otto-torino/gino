@@ -11,7 +11,7 @@
 * - **system_variables_html**: html, dump delle variabili di sistema ($_SERVER, $_SESSION, $_REQUEST)
 *
 * @see Gino.Logger
-* @copyright 2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -21,6 +21,7 @@
 <! DOCTYPE html>
 <html>
     <head>
+    	<meta charset="utf-8" />
         <title><?= $registry->sysconf->head_title ?></title>
         <!-- system css -->
         <?=  $registry->variables('css') ?>

@@ -3,45 +3,45 @@
  * @file class.Permission.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.Permission.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 namespace Gino\App\Auth;
 
 /**
- * I permessi sono relativi ad una classe.
- * Nel momento in cui vengono associati a gruppi o utenti si aggiunge l'informazione istanza, che vale 0 per classi non istanziabili
- * Quando richiedo il controllo bloccante di un permesso (requirePerm) devo dare classe, codice e istanza. Il codice puo' essere un array di codici di permessi
- * tutti appartenenti alla stessa classe e istanza. Se voglio permettere l'accesso con permessi di classi o istanze diverse uso più volte il metodo
- * requirePerm.
- * I Controller hanno una shortcut di requirePerm (che è un metodo di Access) dove classe e istanza sono passati direttamente e 
- * coincidono con le proprietà del Controller stesso.
- * La stessa cosa per il controllo non bloccante, con i metodi hasPerm di User e lo shortcut userHasPerm di Controller.
- * Esistono permessi di sistema (hanno class='core') che sono generici. La classe core non esiste tra le ModuleApp, ma l'eccezione viene 
- * gestita interamente all'interno della classe Permission, per tutti gli altri si tratta di permessi analoghi agli altri e non vedono alcuna differenza.
- * Il nome della classe è core e non system siccome core è una classe esistente e non si può creare un modulo di uguale nome.
- * I Controller devono definire i permessi per le outputFunction, in quel contesto si considerano i permessi di classe, non di istanza. Servono per 
- * mostrare i permessi quando si trattano i metodi di output (menu, layout etc...). In tale contesto l'indicazione del permesso deve essere necessariamente
- * nel formato classe.codice, in questo modo si possono attibuire permessi di tipo core alla visualizzazione dei metodi, oppure permessi di altre classi.
- * Non ho usato la stessa notazione per i controlli in quanto li bisogna specificare anche l'istanza e diventerebbe complicato, ed inoltre non si 
- * potrebbero definire gli shortcut che nel 90% dei casi sono sufficienti.
- * Per recuperare i permessi di tutti i moduli istnziabili e non ed i permessi core da utilizzare in un form per una associazione, utilizzare
- * il metodo getForMulticheck di Permission
- *
- */
-
-/**
  * @brief Classe tipo Gino.Model che rappresenta un permesso
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
+ * 
+ * I permessi sono relativi ad una classe. 
+ * Nel momento in cui vengono associati a gruppi o utenti si aggiunge l'informazione istanza, che vale 0 per classi non istanziabili. 
+ * Quando richiedo il controllo bloccante di un permesso (Gino.Access::requirePerm()) devo dare classe, codice e istanza. Il codice puo' essere un array di codici di permessi 
+ * tutti appartenenti alla stessa classe e istanza. Se voglio permettere l'accesso con permessi di classi o istanze diverse uso più volte Gino.Access::requirePerm().
+ * 
+ * I Controller hanno una shortcut di Gino.Access::requirePerm() dove classe e istanza sono passati direttamente e coincidono con le proprietà del Controller stesso.
+ * 
+ * La stessa cosa per il controllo non bloccante, con i metodi Gino.App.Auth.User::hasPerm() e lo shortcut Gino.Controller::userHasPerm(). \n
+ * Esistono permessi di sistema (hanno class='core') che sono generici. La classe Gino.Core non esiste tra le ModuleApp, ma l'eccezione viene 
+ * gestita interamente all'interno della classe Permission, per tutti gli altri si tratta di permessi analoghi agli altri e non vedono alcuna differenza. 
+ * Il nome della classe è core e non system siccome core è una classe esistente e non si può creare un modulo di uguale nome.
+ * 
+ * I Controller devono definire i permessi per le outputFunction(), in quel contesto si considerano i permessi di classe, non di istanza. 
+ * Servono per mostrare i permessi quando si trattano i metodi di output (menu, layout etc...). 
+ * In tale contesto l'indicazione del permesso deve essere necessariamente nel formato classe.codice, 
+ * in questo modo si possono attibuire permessi di tipo core alla visualizzazione dei metodi, oppure permessi di altre classi. \n
+ * Non è stata utilizzata la stessa notazione per i controlli in quanto in questo caso bisogna specificare anche l'istanza e diventerebbe complicato, ed inoltre non si 
+ * potrebbero definire gli shortcut che nel 90% dei casi sono sufficienti.
+ * 
+ * Per recuperare i permessi di tutti i moduli (istanziabili e non) ed i permessi core da utilizzare in un form per una associazione, utilizzare Gino.App.Auth.Permission::getForMulticheck().
  */
 class Permission extends \Gino\Model {
 
     public static $table = TBL_PERMISSION;
     public static $table_perm_user = TBL_USER_PERMISSION;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -51,14 +51,7 @@ class Permission extends \Gino\Model {
     function __construct($id) {
 
         $this->_model_label = _('Permesso');
-        $this->_fields_label = array(
-            'class' => _('Nome della classe'), 
-            'code' => _('Codice del permesso'), 
-            'label' => _('Label'), 
-            'description' => _('Descrizione'), 
-            'admin' => _('Richiede accesso area amministrativa'), 
-        );
-
+        
         $this->_tbl_data = TBL_PERMISSION;
         parent::__construct($id);
     }
@@ -70,31 +63,56 @@ class Permission extends \Gino\Model {
     function __toString() {
         return (string) $this->label;
     }
-    /*
-     * @brief Sovrascrive la struttura di default
+    
+    /**
+     * Struttura dei campi della tabella di un modello
      *
-     * @see Gino.Model::structure()
-     * @param int $id
-     * @return array, struttura
+     * @return array
      */
-     public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['admin'] = new \Gino\BooleanField(array(
-            'name'=>'admin', 
-            'model'=>$this,
-            'required'=>true,
-            'enum'=>array(1 => _('si'), 0 => _('no')), 
-            'default'=>0,
-        ));
-
-        return $structure;
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	$columns['class'] = new \Gino\CharField(array(
+    			'name'=>'class',
+    			'label' => _('Nome della classe'),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['code'] = new \Gino\CharField(array(
+    			'name'=>'code',
+    			'label' => _('Codice del permesso'),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name'=>'label',
+    			'label' => _("Label"),
+    			'required'=>true,
+    			'max_lenght'=>128,
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'label' => _("Descrizione"),
+    			'required'=>false
+    	));
+    	$columns['admin'] = new \Gino\BooleanField(array(
+    			'name'=>'admin',
+    			'label' => _('Richiede accesso area amministrativa'),
+    			'required'=>true,
+    			'default'=>0,
+    	));
+    
+    	return $columns;
     }
 
     /**
      * @brief Restituisce un oggetto dato il codice completo
-     * @param string $code codice
+     * 
+     * @param string $code codice nel formato classname.code_perm
      * @return istanza di Gino.App.Auth.Permission o null se non lo trova
      */
     public static function getFromFullCode($code) {
@@ -127,11 +145,13 @@ class Permission extends \Gino\Model {
 
         $res = array();
 
-        $rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
+    	$rows = $db->select('*', self::$table, null, array('order' => 'class, id'));
         foreach($rows as $row) {
-            $class = $row['class'];
+            
+        	$class = $row['class'];
             $module_app = \Gino\App\SysClass\ModuleApp::getFromName($class);
-            if($class === 'core' or !$module_app->instantiable) {
+            
+            if($class === 'core' or (is_object($module_app) && !$module_app->instantiable)) {
                 if($class === 'core' or $module_app->active) {
                     if(!isset($res[$class.',0'])) {
                         $res[$class.',0'] = array();
@@ -139,7 +159,7 @@ class Permission extends \Gino\Model {
                     $res[$class.',0'][] = new Permission($row['id']);
                 }
             }
-            else {
+            elseif(is_object($module_app)) {
                 $modules = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
                 foreach($modules as $module) {
                     if($module->active) {
@@ -280,3 +300,5 @@ class Permission extends \Gino\Model {
         return $items;
     }
 }
+
+Permission::$columns=Permission::columns();

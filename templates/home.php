@@ -19,9 +19,9 @@
     <link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
     <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->
-    <?= \Gino\Javascript::vendor() ?> 
-    <?= \Gino\Javascript::onLoadFunction() ?>  
-    <?= \Gino\Javascript::analytics() ?>  
+    <?= \Gino\Javascript::vendor() ?>
+    <?= \Gino\Javascript::onLoadFunction() ?>
+    <?= \Gino\Javascript::analytics() ?>
   </head>
   <body>
     <!-- top bar -->

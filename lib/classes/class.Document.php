@@ -62,7 +62,8 @@ class Document {
                 '\Gino\Skin',
                 '\Gino\Template',
                 '\Gino\Css',
-                '\Gino\Javascript'
+                '\Gino\Javascript',
+                '\Gino\Cache'
             )
         );
 
@@ -423,23 +424,24 @@ class Document {
         if(!count($perms)) {
             return TRUE;
         }
+        
+        $request = \Gino\Http\Request::instance();
 
         foreach($perms as $perm) {
             if(strpos($perm, '.') !== FALSE) {
                 list($class_name_perm, $perm_name) = explode('.', $perm);
-                if($this->_registry->user->hasPerm($class_name_perm, $perm_name, 0)) {
+                if($request->user->hasPerm($class_name_perm, $perm_name, 0)) {
                     return TRUE;
                 }
             }
             else {
-                if($this->_registry->user->hasPerm($class_name, $perm, $instance)) {
+                if($request->user->hasPerm($class_name, $perm, $instance)) {
                     return TRUE;
                 }
             }
         }
 
         return FALSE;
-
     }
 
     /**
@@ -458,14 +460,14 @@ class Document {
 
         $code = $this->_registry->sysconf->google_analytics;
         $buffer = "<script type=\"text/javascript\">";
-            $buffer .= "var _gaq = _gaq || [];";
+        $buffer .= "var _gaq = _gaq || [];";
         $buffer .= "_gaq.push(['_setAccount', '".$code."']);";
-            $buffer .= "_gaq.push(['_trackPageview']);";
+        $buffer .= "_gaq.push(['_trackPageview']);";
         $buffer .= "(function() {
-                        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-                })();";
+        	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();";
         $buffer .= "</script>";
 
         return $buffer;

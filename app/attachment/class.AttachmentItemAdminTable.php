@@ -23,7 +23,7 @@ class AttachmentItemAdminTable extends \Gino\AdminTable {
     public function modelAction($model, $options=array(), $options_element=array()) {
 
         $request = \Gino\Http\Request::instance();
-        $structure = $model->getStructure();
+        
         $ctg = new AttachmentCtg($request->POST['category']);
 
         if($model->id and $model->category != $ctg->id) {
@@ -36,8 +36,6 @@ class AttachmentItemAdminTable extends \Gino\AdminTable {
                 @unlink($old_ctg->path('abs').$filename);
             }
         }
-
-        $structure['file']->setDirectory($ctg->path('abs'));
 
         return parent::modelAction($model, $options, $options_element);
     }

@@ -3,7 +3,7 @@
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -49,7 +49,7 @@ use \Gino\App\Auth\Permission;
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -698,10 +698,8 @@ class layout extends \Gino\Controller {
         if(count($pages)) {
             foreach($pages as $page) {
                 $access_txt = '';
-                if($page->private)
-                {
-                    $perm = $page->getController()->permissions();
-                    $access_txt .= $page->getController()->$perm['can_view_private']."<br />";
+                if($page->private) {
+                    $access_txt .= _("visualizzazione pagine private")."<br />";
                 }
                 if($page->users)
                     $access_txt .= _("pagina limitata ad utenti selezionati");
@@ -886,10 +884,8 @@ class layout extends \Gino\Controller {
         if(count($pages)) {
             foreach($pages as $page) {
                 $access_txt = '';
-                if($page->private)
-                {
-                    $perm = $page->getController()->permissions();
-                    $access_txt .= $perm['can_view_private']."<br />";
+                if($page->private) {
+                    $access_txt .= _("visualizzazione pagine private")."<br />";
                 }
                 if($page->users)
                     $access_txt .= _("pagina limitata ad utenti selezionati");
@@ -928,12 +924,29 @@ class layout extends \Gino\Controller {
                     : array();
 
                 if(count($output_functions)) {
+                	
+                	$count = count($output_functions);
+                	$methods = array();
+                	
                     $first = true;
-                    foreach($output_functions as $func=>$data) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(!isset($public_method)) {
-                            $permissions_code = $data['permissions'];
+                    foreach($output_functions as $func=>$data)
+                    {
+                    	$method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
+                    	$public_method = @$method_check['PUBLIC_METHODS'][$func];
+                    	
+                    	if(isset($public_method)) {
+                    		$count--;
+                    	}
+                    	else {
+                    		$methods[$func] = $data;
+                    	}
+                    }
+                    
+                    if(count($methods))
+                    {
+                    	foreach ($methods AS $func=>$data)
+                    	{
+                    		$permissions_code = $data['permissions'];
                             $permissions = array();
                             if($permissions_code and count($permissions_code)) {
                                 foreach($permissions_code as $permission_code) {
@@ -948,7 +961,7 @@ class layout extends \Gino\Controller {
                                 count($permissions) ? implode(', ', $permissions) : _('pubblico')
                             );
                             if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => count($output_functions))), $row);
+                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => $count)), $row);
                                 $first = false;
                             }
                             else {
@@ -981,12 +994,29 @@ class layout extends \Gino\Controller {
                     : array();
 
                 if(count($output_functions)) {
-                    $first = true;
-                    foreach($output_functions as $func=>$data) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(!isset($public_method)) {
-                            $permissions_code = $data['permissions'];
+                	
+                	$count = count($output_functions);
+                	$methods = array();
+                	
+                	$first = true;
+                    foreach($output_functions as $func=>$data)
+                    {
+                    	$method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
+                    	$public_method = @$method_check['PUBLIC_METHODS'][$func];
+                    	
+                    	if(isset($public_method)) {
+                    		$count--;
+                    	}
+                    	else {
+                    		$methods[$func] = $data;
+                    	}
+                    }
+                    
+                    if(count($methods))
+                    {
+                    	foreach ($methods AS $func=>$data)
+                    	{
+                    		$permissions_code = $data['permissions'];
                             $permissions = array();
                             if($permissions_code and count($permissions_code)) {
                                 foreach($permissions_code as $permission_code) {
@@ -1001,7 +1031,7 @@ class layout extends \Gino\Controller {
                                 count($permissions) ? implode(', ', $permissions) : _('pubblico')
                             );
                             if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => count($output_functions))), $row);
+                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => $count)), $row);
                                 $first = false;
                             }
                             else {

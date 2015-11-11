@@ -22,6 +22,8 @@ class PhpModule extends \Gino\Model {
 
     protected $_tbl_data;
     public static $table = 'php_module';
+    public static $columns;
+    
     private $_interface;
 
     /**
@@ -65,6 +67,32 @@ class PhpModule extends \Gino\Model {
         $this->_p['content'] = $value;
 
         return TRUE;
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
+    		'max_lenght' => 11,
+    	));
+    	$columns['instance'] = new \Gino\IntegerField(array(
+    		'name' => 'instance',
+    		'required' => true,
+    		'max_lenght' => 11,
+    	));
+    	$columns['content'] = new \Gino\TextField(array(
+    		'name'=>'content',
+    		'required'=>true
+    	));
+    
+    	return $columns;
     }
 
     /**
@@ -158,3 +186,4 @@ class PhpModule extends \Gino\Model {
         return new Redirect($this->_registry->router->link($this->_interface, 'manageDoc'));
     }
 }
+PhpModule::$columns=PhpModule::columns();

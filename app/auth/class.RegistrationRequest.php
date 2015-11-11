@@ -19,6 +19,7 @@ namespace Gino\App\Auth;
 class RegistrationRequest extends \Gino\Model {
 
     public static $table = TBL_REGISTRATION_REQUEST;
+    public static $columns;
 
     /**
      * @brief Costruttore
@@ -28,75 +29,89 @@ class RegistrationRequest extends \Gino\Model {
      */
     function __construct($id) {
 
-        $this->_fields_label = array(
-            'registration_profile' => _('Profilo registrazione'),
-            'date' => _('Data'),
-            'code' => _('Codice'),
-            'firstname' => _('Nome'),
-            'lastname' => _('Cognome'),
-            'username' => _('Username'),
-            'password' => _('Password'),
-            'email' => _('Email'),
-            'confirmed' => _('Confermato'),
-            'user' => _('Utente'),
-        );
-
         $this->_model_label = _('Richiesta di Registrazione');
         $this->_tbl_data = self::$table;
         parent::__construct($id);
     }
 
-    /*
-     * @brief Sovrascrive la struttura di default
-     *
-     * @see Gino.Model::structure()
-     * @param integer $id
-     * @return array, struttura
-     */
-     public function structure($id) {
-
-        $structure = parent::structure($id);
-
-        $structure['registration_profile'] = new \Gino\ForeignKeyField(array(
+    /**
+      * Struttura dei campi della tabella di un modello
+      *
+      * @return array
+      */
+     public static function columns() {
+     
+     	$columns['id'] = new \Gino\IntegerField(array(
+     			'name'=>'id',
+     			'primary_key'=>true,
+     			'auto_increment'=>true,
+     	));
+     	$columns['registration_profile'] = new \Gino\ForeignKeyField(array(
             'name' => 'registration_profile',
-            'model' => $this,
+            'label' => _('Profilo registrazione'),
             'required' => TRUE,
             'foreign' => '\Gino\App\Auth\RegistrationProfile',
             'foreign_order' => 'id ASC',
         ));
-
-        $structure['date'] = new \Gino\DatetimeField(array(
+        $columns['date'] = new \Gino\DatetimeField(array(
             'name' => 'date',
-            'model' => $this,
+            'label' => _('Data'),
             'required' => TRUE,
             'auto_now' => FALSE,
             'auto_now_add' => TRUE,
         ));
-
-        $structure['email'] = new \Gino\EmailField(array(
-            'name'=>'email',
-            'model'=>$this,
-            'required'=>TRUE,
+        $columns['code'] = new \Gino\CharField(array(
+        	'name'=>'code',
+        	'label'=>_('Codice'),
+        	'required'=>true,
+        	'max_lenght'=>32,
         ));
-
-        $structure['confirmed'] = new \Gino\BooleanField(array(
-            'name'=>'confirmed',
-            'model'=>$this,
+        $columns['firstname'] = new \Gino\CharField(array(
+        	'name'=>'firstname',
+        	'label'=>_('Nome'),
+        	'required'=>true,
+        	'max_lenght'=>255,
+        ));
+        $columns['lastname'] = new \Gino\CharField(array(
+        	'name'=>'lastname',
+        	'label'=>_('Cognome'),
+        	'required'=>true,
+        	'max_lenght'=>255,
+        ));
+        $columns['username'] = new \Gino\CharField(array(
+        	'name'=>'username',
+        	'label'=>_('Username'),
+        	'required'=>true,
+        	'max_lenght'=>50,
+        ));
+        $columns['password'] = new \Gino\CharField(array(
+        	'name'=>'password',
+        	'label'=>_('Password'),
+        	'required'=>true,
+        	'widget'=>'password', 
+        	'max_lenght'=>100,
+        ));
+        $columns['email'] = new \Gino\EmailField(array(
+            'name'=>'email',
+            'label'=>_('Email'),
             'required'=>TRUE,
-            'enum'=>array(1 => _('si'), 0 => _('no')),
+        	'max_lenght'=>128,
+        ));
+        $columns['confirmed'] = new \Gino\BooleanField(array(
+            'name'=>'confirmed',
+            'label'=>_('Confermato'),
+            'required'=>TRUE,
             'default'=>0,
         ));
-
-        $structure['user'] = new \Gino\ForeignKeyField(array(
+        $columns['user'] = new \Gino\ForeignKeyField(array(
             'name' => 'user',
-            'model' => $this,
-            'required' => TRUE,
+            'label' => _('Utente'),
+            'required' => false,
             'foreign' => '\Gino\App\Auth\User',
             'foreign_order' => 'lastname, firstname ASC',
         ));
 
-        return $structure;
-
+        return $columns;
      }
 
     /**
@@ -116,3 +131,5 @@ class RegistrationRequest extends \Gino\Model {
     }
 
 }
+
+RegistrationRequest::$columns=RegistrationRequest::columns();

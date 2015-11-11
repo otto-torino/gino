@@ -21,6 +21,8 @@ use Gino\Http\Redirect;
 class Css extends Model {
 
     public static $table = 'sys_layout_css';
+    public static $columns;
+    
     protected $_tbl_data;
     private $_class, $_module, $_name, $_label, $_css_list;
     private $_instance_class;
@@ -68,6 +70,40 @@ class Css extends Model {
 
             $this->_interface = 'layout';
         }
+    }
+    
+    /**
+     * Struttura dei campi della tabella di un modello
+     *
+     * @return array
+     */
+    public static function columns() {
+    
+    	$columns['id'] = new \Gino\IntegerField(array(
+    			'name'=>'id',
+    			'primary_key'=>true,
+    			'auto_increment'=>true,
+    	));
+    	
+    	$columns['filename'] = new \Gino\CharField(array(
+    			'name'=>'filename',
+    			'label'=>_("File"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['label'] = new \Gino\CharField(array(
+    			'name'=>'label',
+    			'label'=>_("Label"),
+    			'required'=>true,
+    			'max_lenght'=>200,
+    	));
+    	$columns['description'] = new \Gino\TextField(array(
+    			'name'=>'description',
+    			'label' => _("Descrizione"),
+    			'required'=>false
+    	));
+    	
+    	return $columns;
     }
 
     /**
@@ -266,3 +302,5 @@ class Css extends Model {
         return $buffer;
     }
 }
+
+Css::$columns=Css::columns();
