@@ -68,8 +68,8 @@ class AdminTable_AuthUser extends \Gino\AdminTable {
         $viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
 
         $gform = new \Gino\Form($formId, $method, $validation);
-        $gform->save($session_value);
-        $req_error = $gform->arequired();
+        $gform->saveSession($session_value);
+        $req_error = $gform->checkRequired();
 
         // Controllo campo ldap per le interazioni col campo password (ldap true => password non obbligatoria)
         $password = \Gino\cleanVar($this->_request->POST, 'userpwd', 'string', '');

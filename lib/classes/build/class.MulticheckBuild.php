@@ -74,7 +74,7 @@ class MulticheckBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         $db = Db::instance();
         if($this->_refmodel_controller) {
@@ -114,7 +114,7 @@ class MulticheckBuild extends Build {
         $this->_value = explode(',', $this->_model->{$this->_name});
         $this->_name .= "[]";
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**

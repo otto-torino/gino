@@ -40,14 +40,6 @@ class DateBuild extends Build {
     }
 
     /**
-     * @see Gino.Build::formElement()
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
-    }
-
-    /**
      * @see Gino.Build::filterWhereClause()
      * 
      * @param array $options

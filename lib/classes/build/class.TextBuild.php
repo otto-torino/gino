@@ -93,7 +93,7 @@ class TextBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
         if(!isset($options['field'])) $options['field'] = $this->_name;
@@ -102,7 +102,7 @@ class TextBuild extends Build {
             $options['widget'] = 'text';
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**

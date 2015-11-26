@@ -97,10 +97,10 @@ class User extends \Gino\Model {
      		'max_lenght' => 50,
      	));
      	$columns['company'] = new \Gino\CharField(array(
-     		'name'=>'company',
+     		'name' => 'company',
      		'label' => _("Società"),
-     		'required'=>false,
-     		'max_lenght'=>100,
+     		'required' => false,
+     		'max_lenght' => 100,
      	));
      	$columns['phone'] = new \Gino\CharField(array(
      		'name' => 'phone',
@@ -114,34 +114,35 @@ class User extends \Gino\Model {
      		'max_lenght' => 30,
      	));
      	$columns['email'] = new \Gino\EmailField(array(
-     		'name'=>'email',
-     		'label'=>_("Email"),
-     		'required'=>true,
-     		'max_lenght'=>100,
+     		'name' => 'email',
+     		'label' => _("Email"),
+     		'required' => true,
+     		'max_lenght' => 100,
      	));
      	$columns['username'] = new \Gino\CharField(array(
      		'name'=>'username',
      		'label' => _("Username"),
-     		'required'=>true,
+     		'required' => true,
      		'max_lenght'=>50,
      	));
      	$columns['userpwd'] = new \Gino\CharField(array(
-     		'name'=>'userpwd',
+     		'name' => 'userpwd',
      		'label' => _("Password"),
-     		'required'=>true,
-     		'max_lenght'=>100,
+     		'required' => true,
+     		'max_lenght' => 100,
+     		'widget' => 'password'
      	));
      	$columns['is_admin'] = new \Gino\BooleanField(array(
-     		'name'=>'is_admin',
+     		'name' => 'is_admin',
      		'label' => _('Super-amministratore'),
-     		'required'=>true,
-     		'default'=>0,
+     		'required' => true,
+     		'default' => 0,
      	));
      	$columns['address'] = new \Gino\CharField(array(
-     		'name'=>'address',
+     		'name' => 'address',
      		'label' => _("Indirizzo"),
-     		'required'=>false,
-     		'max_lenght'=>200,
+     		'required' => false,
+     		'max_lenght' => 200,
      	));
      	$columns['cap'] = new \Gino\IntegerField(array(
      		'name'=>'cap',
@@ -152,7 +153,7 @@ class User extends \Gino\Model {
      		'name'=>'city',
      		'label' => _("Città"),
      		'required'=>false,
-     		'max_lenght'=>50,
+     		'max_lenght' => 50,
      	));
      	
      	$db = \Gino\Db::instance();
@@ -297,8 +298,8 @@ class User extends \Gino\Model {
         $request = \Gino\Http\Request::instance();
         $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
 
-        $gform->save('pwdform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('pwdform');
+        $req_error = $gform->checkRequired();
 
         if($req_error > 0) 
         	return array('error'=>1);

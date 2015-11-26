@@ -40,14 +40,6 @@ class TimeBuild extends Build {
     }
 
     /**
-     * @see Gino.Build::formElement()
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
-    }
-
-    /**
      * @see Gino.Build::clean()
      */
     public function clean($options=null) {

@@ -67,18 +67,20 @@ class sysconf extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $admin_table = \Gino\Loader::load('AdminTable', array($this));
         $conf = new Conf(1);
-
-        $myform = \Gino\Loader::load('Form', array(null, null, null));
-
+		$mform = \Gino\Loader::load('ModelForm', array($conf));
+        
         if(isset($request->POST['empty_cache'])) {
             \Gino\deleteFileDir(CACHE_DIR, FALSE);
             return new Redirect($this->linkAdmin());
         }
         elseif(isset($request->POST['id'])) {
-            $result = $admin_table->modelAction($conf);
-            $robots = filter_input(INPUT_POST, 'robots');
+            
+        	// VERIFICARE
+        	
+        	$result = $mform->save();	// $mform->save($options_form, $options_field);
+        	
+        	$robots = filter_input(INPUT_POST, 'robots');
             if($fp = @fopen(SITE_ROOT.OS."robots.txt", "wb")) {
                 fwrite($fp, $robots);
                 fclose($fp);
@@ -89,37 +91,43 @@ class sysconf extends \Gino\Controller {
             return $this->_trd->manageTranslation($request);
         }
         else {
-            $content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
-            $content .= $admin_table->modelForm($conf, array(
-                'addCell' => array(
-                    'google_analytics' => array(
-                        'name' => 'robots',
-                        'field' => $myform->ctextarea('robots', is_readable(SITE_ROOT.OS.'robots.txt') ? file_get_contents(SITE_ROOT.OS.'robots.txt') : "", $conf->fieldLabel('robots'))
-                    ),
-                    'enable_cache' => array(
-                        'name' => 'empty_cache',
-                        'field' => $myform->cinput('empty_cache', 'submit', _('svuota'), _('svuota la cache'), null)
-                    )
-                ),
-                'fieldsets' => array(
-                    _('Lingua') => array('id', 'multi_language', 'dft_language'),
-                    _('Log') => array('log_access'),
-                    _('Password') => array('password_crypt'),
-                    _('E-mail') => array('email_admin', 'email_from_app'),
-                    _('Mobile') => array('mobile'),
-                    _('Cache') => array('enable_cache', 'empty_cache', 'query_cache', 'query_cache_time'),
-                    _('Meta') => array('head_title', 'head_description', 'head_keywords'),
-                    _('Robots') => array('robots'),
-                    _('Servizi') => array('google_analytics', 'captcha_public', 'captcha_private', 'sharethis_public_key', 'disqus_shortname')
-                )
-                ), array(
-                	'query_cache_time' => array('size' => 4), 
-                    'google_analytics' => array('trnsl' => FALSE),
-                    'captcha_public' => array('trnsl' => FALSE),
-                    'captcha_private' => array('trnsl' => FALSE),
-                    'sharethis_public_key' => array('trnsl' => FALSE),
-                    'disqus_shortname' => array('trnsl' => FALSE),
-                ));
+            
+        	$form = $mform->view(
+        		array(
+        			'addCell' => array(
+                    	'google_analytics' => array(
+                        	'name' => 'robots',
+                        	'field' => $mform->_input->textarea_label('robots', is_readable(SITE_ROOT.OS.'robots.txt') ? file_get_contents(SITE_ROOT.OS.'robots.txt') : "", $conf->fieldLabel('robots'))
+            			),
+                    	'enable_cache' => array(
+                        	'name' => 'empty_cache',
+                        	'field' => $mform->_input->input_label('empty_cache', 'submit', _('svuota'), _('svuota la cache'), null)
+                    	)
+                	),
+                	'fieldsets' => array(
+                    	_('Lingua') => array('id', 'multi_language', 'dft_language'),
+                    	_('Log') => array('log_access'),
+                    	_('Password') => array('password_crypt'),
+                    	_('E-mail') => array('email_admin', 'email_from_app'),
+                    	_('Mobile') => array('mobile'),
+                    	_('Cache') => array('enable_cache', 'empty_cache', 'query_cache', 'query_cache_time'),
+                    	_('Meta') => array('head_title', 'head_description', 'head_keywords'),
+                   		_('Robots') => array('robots'),
+                    	_('Servizi') => array('google_analytics', 'captcha_public', 'captcha_private', 'sharethis_public_key', 'disqus_shortname')
+                	)
+        		),
+        		array(
+        			'query_cache_time' => array('size' => 4),
+        			'google_analytics' => array('trnsl' => FALSE),
+        			'captcha_public' => array('trnsl' => FALSE),
+        			'captcha_private' => array('trnsl' => FALSE),
+        			'sharethis_public_key' => array('trnsl' => FALSE),
+        			'disqus_shortname' => array('trnsl' => FALSE),
+        		)
+        	);
+        	
+        	$content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
+            $content .=$form;
         }
 
         $dict = array(

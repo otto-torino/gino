@@ -45,11 +45,11 @@ class SlugBuild extends Build {
      * @see Gino.Build::formElement()
      * @description Aggiunge il codice javascript che permette l'autoriempimento del campo se è stata passata l'opzione autofill.
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         if(!isset($options['field'])) $options['field'] = $this->_name;
         $options['id'] = $this->_name;
-        $widget = parent::formElement($form, $options);
+        $widget = parent::formElement($mform, $options);
 
         // autofill solo in inserimento
         if(!$this->_model->id and $this->_autofill) {

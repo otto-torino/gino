@@ -11,6 +11,8 @@ namespace Gino;
 
 use \Gino\App\Language\language;
 
+\Gino\Loader::import('class/exceptions', array('\Gino\Exception\Exception403'));
+
 /**
  * @brief Classe per la creazione ed il salvataggio dati di un form
  *
@@ -22,168 +24,146 @@ use \Gino\App\Language\language;
  */
 class Form {
 
-    const _IMAGE_GIF_ = 1;
-    const _IMAGE_JPG_ = 2;
-    const _IMAGE_PNG_ = 3;
-
-    private $_registry;
-    private $_request;
-    private $_method, $_requestVar;
-    private $_validation;
-    private $_form_name;
-    private $_options;
-
-    private $_max_file_size;
-
-    private $session, $_trd;
-    private $_lng_trl, $_multi_language;
-    private $_trnsl_table, $_trnsl_id;
-
-    private $_input_size, $_input_max;
-    private $_prefix_file, $_prefix_thumb;
-
-    private $_tbl_attachment_ctg;
-    private $_tbl_attachment;
-
-    private $_extension_denied;
-
-    private $_div_label_width, $_div_field_width;
-
-    private $_input_field, $_textarea_field, $_fckeditor_field;
-
-    private $_ico_calendar_path;
-
-    /**
+	protected $_registry;
+	protected $_request;
+	protected $_session;
+	
+	private $_form_id;
+	private $_method, $_requestVar;
+	private $_validation;
+	
+	/**
+	 * @brief Nome della variabile di sessione dei dati del form
+	 * @var string
+	 */
+	private $_session_value;
+	
+	private $_hidden;
+	
+	/**
+	 * @brief Multilingua
+	 * @var boolean
+	 */
+	private $_multi_language;
+	
+	/**
      * @brief Costruttore
      * 
-     * @param mixed $formId valore ID del form
-     * @param string $method metodo del form (get/post)
-     * @param boolean $validation attiva il controllo di validazione tramite javascript
      * @param array $options
-     *     array associativo di opzioni
-     *     - @b trnsl_table (string): nome della tabella per le traduzioni
-     *     - @b trnsl_id (integer): riferimento da passare alla tabella per le traduzioni
-     *     - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
-     *     - @b form_label_width (string): larghezza (%) della colonna con il tag label (default FORM_LABEL_WIDTH)
-     *     - @b form_field_width (string): larghezza (%) della colonna con il tag input (default FORM_FIELD_WIDTH)
+     *   array associativo di opzioni
+     *   
+     *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
+     *   - @b form_label_width (string): larghezza (%) della colonna con il tag label (default FORM_LABEL_WIDTH)
+     *   - @b form_field_width (string): larghezza (%) della colonna con il tag input (default FORM_FIELD_WIDTH)
      * @throws Exception se viene rilevato un attacco CSRF
      * @return istanza di Gino.Form
+     * 
+     * Le proprietà $_form_id, $_validation, $_method, $_session_value vengono impostate nel metodo render().
      */
-    function __construct($formId, $method, $validation, $options=null){
+    function __construct($options=array()){
 
-        $this->_registry = registry::instance();
-        $this->_request = $this->_registry->request;
-        $this->session = Session::instance();
-
-        $this->_formId = $formId;
-        $this->setMethod($method);
-        $this->setValidation($validation);    // js:validateForm();
-        $this->_trnsl_table = isset($options['trnsl_table'])?$options['trnsl_table']:null;
-        $this->_trnsl_id = isset($options['trnsl_id'])?$options['trnsl_id']:null;
-        if(isset($options['verifyToken']) && $options['verifyToken']) {
-            if(!$this->verifyFormToken($formId)) {
-                throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
-            }
-        }
-
-        $this->_max_file_size = MAX_FILE_SIZE;
-
-        $this->_lng_trl = new language;
-        $this->_multi_language = $this->_registry->sysconf->multi_language;
-        $this->_trd = new translation($this->session->lng, $this->session->lngDft);
-
-        $this->_prefix_file = 'img_';
-        $this->_prefix_thumb = 'thumb_';
-
-        $this->_tbl_attachment_ctg = "attachment_ctg";
-        $this->_tbl_attachment = "attachment";
-
-        $this->_input_field = 'input';
-        $this->_textarea_field = 'textarea';
-        $this->_editor_field = 'editor';
-
-        $this->_extension_denied = array(
-        	'php', 'phps', 'js', 'py', 'asp', 'rb', 'cgi', 'cmd', 'sh', 'exe', 'bin'
-        );
-
-        $this->_ico_calendar_path = SITE_IMG."/ico_calendar.png";
+    	$this->_registry = registry::instance();
+    	$this->_request = $this->_registry->request;
+    	$this->_session = Session::instance();
+    	
+    	$this->_multi_language = $this->_registry->sysconf->multi_language;
+    	
+    	$this->_form_id = null;
+    	$this->_hidden = null;
+    	
+    	$verify_token = gOpt('verifyToken', $options, false);
+    	$form_id = gOpt('form_id', $options, null);	// per l'action form
+    	
+    	/*		DEFINIRE PRIMA form_id
+    	if($verify_token) {
+    		if(!$this->verifyFormToken($formId)) {
+    			throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
+    		}
+    	}*/
     }
-
+    
     /**
-     * @brief Imposta le opzioni
-     * @param array $options
-     * @return void
+     * @brief Getter della proprietà $_form_id
+     * @return string
      */
-    private function setOptions($options) {
-        $this->_options = $options;
+    public function getFormId() {
+    	
+    	return $this->_form_id;
     }
-
+    
     /**
-     * @brief Valore di un'opzione
-     * @param string $opt opzione da recuperare
-     * @return valore opzione
-     */
-    private function option($opt) {
-
-        if($opt=='trnsl_id') return isset($this->_options['trnsl_id']) ? $this->_options['trnsl_id'] : $this->_trnsl_id;
-        if($opt=='trnsl_table') return isset($this->_options['trnsl_table']) ? $this->_options['trnsl_table'] : $this->_trnsl_table;
-
-        return isset($this->_options[$opt]) ? $this->_options[$opt] : null;
-    }
-
-    /**
-     * @brief Setter della proprietà method
-     * @param string $method 'post' o 'get'
+     * @brief Setter della proprietà $_method
+     * @description Imposta le proprietà $_method, $_requestVar
+     * 
+     * @param string $method metodo di passaggio dei dati del form (metodi validi: post, get, request)
      * @return void
      */
     private function setMethod($method){
 
+    	$valid = array('post', 'get', 'request');
+    	
+    	if(!$method or ($method && !in_array($method, $valid))) {
+    		$method = 'post';
+    	}
         $this->_method = $method;
         $this->_requestVar = $method == 'post' ? $this->_request->POST : ($method=='get' ? $this->_request->GET : $this->_request->REQUEST);
 
-        if(is_null($this->session->form)) $this->session->form = array();
+        if(is_null($this->_session->form)) $this->_session->form = array();
     }
 
     /**
-     * @brief Setter della proprietà validation (eseguire o meno la validazione del form)
-     * @param bool $validation
+     * @brief Setter della proprietà $_validation
+     * 
+     * @param bool $validation indica se eseguire o meno la validazione del form (attiva la chiamata javascript validateForm())
      * @return void
      */
     private function setValidation($validation){
 
         $this->_validation = (bool) $validation;
     }
+    
+    private function setDefaultFormId($model) {
+    	
+    	return 'form'.$model->getTable().$model->id;
+    }
+    
+    private function setDefaultSession($model) {
+    	 
+    	return 'dataform'.$model->getTable().$model->id;
+    }
 
     /**
      * @brief Genera un token per prevenire attacchi CSRF
-     * @param string $form_name
+     * @param string $form_id
      * @return token
      */
-    private function generateFormToken($form_name) {
-            $token = md5(uniqid(microtime(), TRUE));
-            $this->session->{$form_name.'_token'} = $token;
-            return $token;
+    private function generateFormToken($form_id) {
+    	
+    	$token = md5(uniqid(microtime(), TRUE));
+    	$this->_session->{$form_id.'_token'} = $token;
+    	return $token;
     }
 
     /**
      * @brief Verifica il token per prevenire attacchi CSRF
-     * @param string $form_name
+     * @param string $form_id
      * @return risultato verifica, bool
      */
-    private function verifyFormToken($form_name) {
-        $index = $form_name.'_token';
+    private function verifyFormToken($form_id) {
+        
+    	$index = $form_id.'_token';
         // There must be a token in the session
-        if(!isset($this->session->$index)) return FALSE;
+        if(!isset($this->_session->$index)) return FALSE;
         // There must be a token in the form
         if(!isset($this->_requestVar['token'])) return FALSE;
         // The token must be identical
-        if($this->session->$index !== $this->_requestVar['token']) return FALSE;
+        if($this->_session->$index !== $this->_requestVar['token']) return FALSE;
 
         return TRUE;
     }
 
     /**
-     * @brief Recupera i dati dalla sessione del form
+     * @brief Recupera i valori inseriti negli input form e salvati nella sessione del form
      *
      * @description Permette di mostrare i campi correttamente compilati a seguito di errore
      *
@@ -193,28 +173,27 @@ class Form {
      */
     public function load($session_value, $clear = TRUE){
 
-        $this->session->form = array($this->_method => '');
+        $this->_session->form = array($this->_method => '');
         $form_data = array();
 		
 		//$this->session->form[$this->_method] = array();	// @todo implementare a partire dalla versione 5.4
 		
-		if(isset($this->session->$session_value))
+		if(isset($this->_session->$session_value))
         {
-            if(isset($this->session->GINOERRORMSG) AND !empty($this->session->GINOERRORMSG))
+            if(isset($this->_session->GINOERRORMSG) AND !empty($this->_session->GINOERRORMSG))
             {
-                for($a=0, $b=count($this->session->$session_value); $a < $b; $a++)
+                for($a=0, $b=count($this->_session->$session_value); $a < $b; $a++)
                 {
-                    foreach($this->session->{$session_value}[$a] as $key => $value)
+                    foreach($this->_session->{$session_value}[$a] as $key => $value)
                     {
                         $form_data[$key] = $value;
                     }
                 }
-                $this->session->form = array($this->_method => $form_data);
+                $this->_session->form = array($this->_method => $form_data);
             }
 
-            if($clear) unset($this->session->$session_value);
+            if($clear) unset($this->_session->$session_value);
         }
-
     }
 
     /**
@@ -223,15 +202,19 @@ class Form {
      * @param string $session_value nome della variabile di sessione, come definito nel metodo load()
      * @return void
      */
-    public function save($session_value){
+    public function saveSession($session_value=null){
 
-        $this->session->{$session_value} = array();
-        $session_prop = $this->session->{$session_value};
-        foreach($this->_requestVar as $key => $value)
-            array_push($session_prop, array($key => $value));
+    	if(!$session_value) {
+    		$session_value = $this->_session_value;
+    	}
+    	
+        $this->_session->{$session_value} = array();
+        $session_prop = $this->_session->{$session_value};
+        foreach($this->_requestVar as $key => $value) {
+        	array_push($session_prop, array($key => $value));
+        }
 
-        $this->session->$session_value = $session_prop;
-
+        $this->_session->$session_value = $session_prop;
     }
 
     /**
@@ -243,8 +226,9 @@ class Form {
      * @param mixed $default valore di default
      * @return valore campo
      */
-    public function retvar($name, $default = ''){
-        return (is_null($this->session->form) or !isset($this->session->form[$this->_method][$name])) ? $default : $this->session->form[$this->_method][$name];
+    public function retvar($name, $default = '') {
+        
+    	return (is_null($this->_session->form) or !isset($this->_session->form[$this->_method][$name])) ? $default : $this->_session->form[$this->_method][$name];
     }
 
     /**
@@ -256,140 +240,74 @@ class Form {
      * @param boolean $upload attiva l'upload di file
      * @param string $list_required lista di elementi obbligatori (separati da virgola)
      * @param array $options
-     *     array associativo di opzioni
-     *     - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend())
-     *     - @b text_confirm (string): testo del messaggio che compare nel box di conferma
-     *     - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
+     *   array associativo di opzioni
+     *   - @b form_id (string): valore id del tag form
+     *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend())
+     *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma
+     *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
      * @return parte iniziale del form, html
      */
-    public function open($action, $upload, $list_required, $options=null){
+    public function open($action, $upload, $list_required, $options=array()) {
 
-        $GFORM = '';
+        $form_id = gOpt('form_id', $options, null);
+        
+        if($form_id) {
+        	$this->_form_id = $form_id;
+        }
+    	
+    	$buffer = '';
 
         $confirm = '';
-        if(isset($options['func_confirm']) && $options['func_confirm'])
-            $confirm = " && ".$options['func_confirm'];
-        if(isset($options['text_confirm']) && $options['text_confirm'])
-            $confirm = " && confirmSubmit('".$options['text_confirm']."')";
+        if(isset($options['func_confirm']) && $options['func_confirm']) {
+        	$confirm = " && ".$options['func_confirm'];
+        }
+        if(isset($options['text_confirm']) && $options['text_confirm']) {
+        	$confirm = " && confirmSubmit('".$options['text_confirm']."')";
+        }
 
-        $GFORM .= "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_formId."\" name=\"".$this->_formId."\" action=\"$action\" method=\"$this->_method\"";
-        if($this->_validation) $GFORM .= " onsubmit=\"return (gino.validateForm($(this))".$confirm.")\"";
-        $GFORM .= ">\n";
+        $buffer .= "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_form_id."\" name=\"".$this->_form_id."\" action=\"$action\" method=\"$this->_method\"";
+        if($this->_validation) {
+        	$buffer .= " onsubmit=\"return (gino.validateForm($(this))".$confirm.")\"";
+        }
+        $buffer .= ">\n";
 
         if($list_required) {
-            $GFORM .= "<p class=\"form-info\">"._("I campi in grassetto sono obbligatori.")."</p>";
+            $buffer .= "<p class=\"form-info\">"._("I campi in grassetto sono obbligatori.")."</p>";
         }
 
-        if(isset($options['generateToken']) && $options['generateToken']) 
-            $GFORM .= $this->hidden('token', $this->generateFormToken($this->_formId));
-        if(!empty($list_required)) $GFORM .= $this->hidden('required', $list_required);
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Chiusura form, /FORM TAG
-     * @return chiusura form, html
-     */
-    public function close(){
-
-        $GFORM = "</form>\n";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Inizializza l'editor visuale CKEditor
-     * 
-     * @param string $name
-     * @param string $value
-     * @param array $options
-     *   - @b toolbar (string): nome della toolbar
-     *   - @b width (string): larghezza dell'editor (pixel o %)
-     *   - @b height (integer): altezza dell'editor (pixel)
-     * @return string, script js
-     */
-    public function editorHtml($name, $value, $options=null){
-
-    	$toolbar = gOpt('toolbar', $options, null);
-    	$width = gOpt('width', $options, '100%');
-    	$height = gOpt('height', $options, 300);
-    	
-    	$height .= 'px';
-    	
-    	if(empty($value)) $value = '';
-    	if(!$toolbar) $toolbar = 'Full';
-
-        $this->_registry->addCustomJs(SITE_WWW.'/ckeditor/ckeditor.js', array('compress'=>false, 'minify'=>false));
-        
-        // Replace the textarea id $name
-        $buffer = "<script>
-        CKEDITOR.replace('$name', {
-        	customConfig: '".SITE_CUSTOM_CKEDITOR."/config.js',
-        	contentsCss: '".SITE_CUSTOM_CKEDITOR."/stylesheet.css', 
-        	toolbar: '$toolbar', 
-        	width: '$width',
-        	height: '$height',
-        });
-        ";
-        
-        if($toolbar == 'Basic')
-        {
-        	$buffer .= "
-        	CKEDITOR.replace('$name', {
-				toolbarGroups: [
-				{ name: 'document',	   groups: [ 'mode', 'document' ] },
- 				{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
- 				'/',
- 				{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
- 				{ name: 'links' }
-				]
-        	});";
+        if(isset($options['generateToken']) && $options['generateToken']) {
+            $buffer .= Input::hidden('token', $this->generateFormToken($this->_form_id));
         }
-        
-        $buffer .= "</script>";
-        
+        if(!empty($list_required)) {
+        	$buffer .= Input::hidden('required', $list_required);
+        }
+
         return $buffer;
     }
 
     /**
-     * @brief TAG LABEL
-     *
-     * @param string $name nome dell'etichetta
-     * @param mixed $text testo dell'etichetta, testo o array (array-> array('label'=>_("..."), 'description'=>_("...")))
-     * @param boolean $required campo obbligatorio
-     * @return label tag, html
+     * @brief Chiusura form, FORM TAG
+     * @return chiusura form, html
      */
-    public function label($name, $text, $required){
+    public function close(){
 
-        if(!$text) return '<label></label>';
-
-        if(is_array($text)) {
-            $label = isset($text['label']) ? $text['label'] : $text[0];
-        }
-        else {
-            $label = $text;
-        }
-
-        $GFORM = "<label for=\"$name\"".($required ? "class=\"req\"":"").">";
-        $GFORM .= $label;
-        $GFORM .= "</label>";
-
-        return $GFORM;
+        return "</form>\n";
     }
 
     /**
      * @brief Controlla la compilazione dei campi obbligatori
      * @return numero campi obbligatori non compilati
      */
-    public function arequired(){
+    public function checkRequired(){
 
         $required = isset($this->_requestVar['required']) ? cleanVar($this->_requestVar, 'required', 'string', '') : '';
         $error = 0;
 
-        if(!empty($required))
-            foreach(explode(",", $required) as $fieldname)
-                if((!isset($this->_requestVar[$fieldname]) or $this->_requestVar[$fieldname] == '') and (!isset($this->_request->FILES[$fieldname]) or $this->_request->FILES[$fieldname] == '')) $error++;
+        if(!empty($required)) {
+        	foreach(explode(",", $required) as $fieldname) {
+            	if((!isset($this->_requestVar[$fieldname]) or $this->_requestVar[$fieldname] == '') and (!isset($this->_request->FILES[$fieldname]) or $this->_request->FILES[$fieldname] == '')) $error++;
+        	}
+        }
         return $error;
     }
 
@@ -403,9 +321,9 @@ class Form {
      * @see self::reCaptcha()
      * @see self::defaultCaptcha()
      * @param array $options
-     *     array associativo di opzioni
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b text_add (string): testo che segue il controllo
+     *   array associativo di opzioni
+     *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
+     *   - @b text_add (string): testo che segue il controllo
      * @return widget captcha
      */
     public function captcha($options=null) {
@@ -413,8 +331,12 @@ class Form {
         $public_key = $this->_registry->sysconf->captcha_public;
         $private_key = $this->_registry->sysconf->captcha_private;
 
-        if($public_key && $private_key) return $this->reCaptcha($public_key, $options);
-        else return $this->defaultCaptcha($options);
+        if($public_key && $private_key) {
+        	return $this->reCaptcha($public_key, $options);
+        }
+        else {
+        	return $this->defaultCaptcha($options);
+        }
      }
 
     /**
@@ -424,26 +346,31 @@ class Form {
      * 
      * @param string $public_key
      * @param array $options
-     *     array associativo di opzioni
+     *   array associativo di opzioni
+     *   - @b text_add (string)
      * @return widget captcha
      */
     private function reCaptcha($public_key, $options=null) {
 
-        $options["required"] = TRUE;
-        $this->setOptions($options);
-        $GFORM .= $this->label('captcha_input', _("Inserisci il codice di controllo"), $this->option('required'))."\n";
-        $GFORM .= "<div id=\"".$this->_formId."_recaptcha\"></div>";
-        $GFORM .= "<script>
+        $text_add = gOpt('text_add', $options, null);
+        
+        $required = true;
+        
+        $buffer = Input::label('captcha_input', _("Inserisci il codice di controllo"), $required)."\n";
+        $buffer .= "<div id=\"".$this->_form_id."_recaptcha\"></div>";
+        $buffer .= "<script>
             function createCaptcha() {
-                if(\$chk($('".$this->_formId."_recaptcha'))) {
-                    Recaptcha.create('$public_key', '".$this->_formId."_recaptcha', {theme: 'red', callback: Recaptcha.focus_response_field});
+                if(\$chk($('".$this->_form_id."_recaptcha'))) {
+                    Recaptcha.create('$public_key', '".$this->_form_id."_recaptcha', {theme: 'red', callback: Recaptcha.focus_response_field});
                     clearInterval(window.captcha_int);
                 }
             }
             window.captcha_int = setInterval(createCaptcha, 50);
         </script>";
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        return $GFORM;
+        if($text_add) {
+        	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+        }
+        return $buffer;
     }
 
     /**
@@ -451,24 +378,25 @@ class Form {
      *
      * @see Gino.Captcha::render()
      * @param array $options
-     *     array associativo di opzioni
+     *   array associativo di opzioni
+     *   - @b text_add (string)
      * @return widget captcha
      */
     private function defaultCaptcha($options) {
 
-        $options["required"] = TRUE;
-        $options["id"] = "captcha_input";
-        $options["size"] = "20";
-        $options["maxlength"] = "20";
-        $this->setOptions($options);
+        $text_add = gOpt('text_add', $options, null);
+        
+        $required = true;
 
         $captcha = Loader::load('Captcha', array('captcha_input'));
 
-        $GFORM = $this->label('captcha_input', _("Inserisci il codice dell'immagine"), $this->option('required'), $this->option('classLabel'))."\n";
-        $GFORM .= $captcha->render();
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
+        $buffer = Input::label('captcha_input', _("Inserisci il codice dell'immagine"), $required)."\n";
+        $buffer .= $captcha->render();
+        if($text_add) {
+        	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+        }
 
-        return $GFORM;
+        return $buffer;
     }
 
     /**
@@ -517,958 +445,6 @@ class Form {
     }
 
     /**
-     * @brief Simula un campo ma senza input
-     *
-     * @param string $label contenuto della prima colonna
-     *     - string
-     *     - array, ad esempio array(_("etichetta"), _("spiegazione"))
-     * @param string $value contenuto della seconda colonna
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): ID del tag TD della label
-     *     - @b style (string): stile del tag TR
-     *     - @b other (string): altro nel tag TD della label
-     *     - @b class_label (string): classe del tag TD della label
-     *     - @b class (string): classe dello span della label
-     * @return codice html riga del form
-     */
-    public function noinput($label, $value, $options=null) {
-
-        $this->setOptions($options);
-
-        $id = $this->option('id') ? "id=\"".$this->option('id')."\"" : '';
-        $style = $this->option('style') ? "style=\"".$this->option('style')."\"" : '';
-        $other = $this->option('other') ? $this->option('other') : '';
-        $class_label = $this->option('class_label') ? $this->option('class_label') : 'form_label';
-        $class = $this->option('class') ? $this->option('class') : 'form_text_label';
-
-        $GFORM = '';
-        if(!empty($label) OR !empty($value))
-        {
-            $GFORM = "<div class=\"form-row\">";
-            $GFORM .= $this->label('', $label, FALSE);
-            $GFORM .= "<div class=\"form-noinput\">$value</div>\n";
-            $GFORM .= "</div>";
-        }
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input hidden
-     *
-     * @param string $name nome del tag
-     * @param mixed $value valore del tag
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): valore ID del tag
-     * @return widget html
-     */
-    public function hidden($name, $value, $options=null) {
-
-        $GFORM = '';
-        $this->setOptions($options);
-        $GFORM .= "<input type=\"hidden\" name=\"$name\" value=\"$value\" ".($this->option("id")?"id=\"{$this->option("id")}\"":"")."/>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input tag
-     * 
-     * @param string $name nome input
-     * @param string $type valore della proprietà @a type (text)
-     * @param string $value valore attivo
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): valore ID del tag
-     *     - @b pattern (string): espressione regolare che verifica il valore dell'elemento input
-     *     - @b hint (string): placeholder
-     *     - @b size (integer): lunghezza del tag
-     *     - @b maxlength (integer): numero massimo di caratteri consentito
-     *     - @b classField (string): nome della classe del tag
-     *     - @b js (string): javascript
-     *     - @b readonly (boolean): campo di sola lettura
-     *     - @b other (string): altro nel tag
-     * @return widget html
-     */
-    public function input($name, $type, $value, $options=null){
-
-        $this->setOptions($options);
-        $GFORM = "<input type=\"$type\" name=\"$name\" value=\"$value\" ";
-
-        $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-        $GFORM .= $this->option('required')?"required ":"";
-        $GFORM .= $this->option('pattern')?"pattern=\"{$this->option('pattern')}\" ":"";
-        $GFORM .= $this->option('hint')?"placeholder=\"{$this->option('hint')}\" ":"";
-        $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $GFORM .= $this->option('size')?"size=\"{$this->option('size')}\" ":"";
-        $GFORM .= $this->option('maxlength')?"maxlength=\"{$this->option('maxlength')}\" ":"";
-        $GFORM .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-        $GFORM .= $this->option('js')?$this->option('js')." ":"";
-        $GFORM .= $this->option('other')?$this->option('other')." ":"";
-
-        $GFORM .= "/>";
-
-        if(isset($options['helptext'])) {
-            $title = $options['helptext']['title'];
-            $text = $options['helptext']['text'];
-            $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-        }
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input con label
-     * 
-     * @see self::label()
-     * @see self::formFieldTranslation()
-     * @param string $name nome input
-     * @param string $type valore della proprietà @a type (text)
-     * @param string $value valore attivo
-     * @param mixed $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo input())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b trnsl (boolean): attiva la traduzione
-     *     - @b trnsl_table (string): nome della tabella con il campo da tradurre
-     *     - @b trnsl_id (integer): valore dell'ID del record di riferimento per la traduzione
-     *     - @b field (string): nome del campo con il testo da tradurre
-     *     - @b size (integer): lunghezza del tag
-     *     - @b text_add (string): testo dopo il tag input
-     * @return codice html riga form, label + input
-     */
-    public function cinput($name, $type, $value, $label, $options){
-
-        $this->setOptions($options);
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-        $GFORM .= $this->input($name, $type, $value, $options);
-        if($this->option('trnsl') AND $this->_multi_language) {
-            if($this->option('trnsl_id'))
-                $GFORM .= "<div class=\"form-trnsl\">".$this->formFieldTranslation($this->_input_field, $this->option('trnsl_table'), $this->option('field'), $this->option('trnsl_id'), $this->option('size'), '')."</div>";
-        }
-
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input di tipo data con label
-     * 
-     * @see self::label()
-     * @see self::input()
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param mixed $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo input())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo
-     *     - @b text_add (string): testo dopo il tag input
-     * @return codice html riga form, input + label
-     */
-    public function cinput_date($name, $value, $label, $options){
-
-        $this->setOptions($options);
-        if($this->option('inputClickEvent')) $options['other'] = "onclick=\"gino.printCalendar($(this).getNext('img'), $(this))\"";
-        $options['id'] = $name;
-        $options['size'] = 10;
-        $options['maxlength'] = 10;
-        $options['pattern'] = "^\d\d/\d\d/\d\d\d\d$";
-        $options['hint'] = _("dd/mm/yyyy");
-
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-        $GFORM .= $this->input($name, 'text', $value, $options);
-        $days = "['"._("Domenica")."', '"._("Lunedì")."', '"._("Martedì")."', '"._("Mercoledì")."', '"._("Giovedì")."', '"._("Venerdì")."', '"._("Sabato")."']";
-        $months = "['"._("Gennaio")."', '"._("Febbraio")."', '"._("Marzo")."', '"._("Aprile")."', '"._("Maggio")."', '"._("Giugno")."', '"._("Luglio")."', '"._("Agosto")."', '"._("Settembre")."', '"._("Ottobre")."', '"._("Novembre")."', '"._("Dicembre")."']";
-
-        $GFORM .= "<span style=\"margin-left:5px;margin-bottom:2px;cursor:pointer;\" class=\"fa fa-calendar calendar-tooltip\" title=\""._("calendario")."\" id=\"cal_button_$name\" src=\"".$this->_ico_calendar_path."\" onclick=\"gino.printCalendar($(this), $(this).getPrevious('input'), $days, $months)\"></span>";
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Tectarea con label
-     *
-     * @see self::label()
-     * @see self::formFieldTranslation()
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param string $label testo del tag label
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo textarea())
-     *     - @b classLabel (string): nome della classe del tag span nel tag label
-     *     - @b text_add (string): testo aggiuntivo stampato sotto il box
-     *     - @b trnsl (boolean): attiva la traduzione
-     *     - @b trsnl_id (integer): valore dell'ID del record di riferimento per la traduzione
-     *     - @b trsnl_table (string): nome della tabella con il campo da tradurre
-     *     - @b field (string): nome del campo da tradurre
-     *     - @b cols (integer): numero di colonne
-     * @return codice htlm riga form, textarea + label
-     */
-    public function ctextarea($name, $value, $label, $options=null){
-
-        $this->setOptions($options);
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
-
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-        $GFORM .= $this->textarea($name, $value, $options);
-        if($this->option('trnsl') AND $this->_multi_language) {
-            if($this->option('trnsl_id'))
-                $GFORM .= "<div class=\"form-trnsl\">".$this->formFieldTranslation($this->_textarea_field, $this->option('trnsl_table'), $this->option('field'), $this->option('trnsl_id'), $this->option('cols'), '')."</div>";
-        }
-
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Textarea
-     *
-     * @see imagePreviewer()
-     * @see editorHtml()
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param array $options array associativo di opzioni
-     *     opzioni del textarea
-     *     - @b id (string): valore della proprietà id del tag
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classField (string): nome della classe del tag
-     *     - @b rows (integer): numero di righe
-     *     - @b cols (integer): numero di colonne
-     *     - @b readonly (boolean): campo di sola lettura
-     *     - @b js (string): javascript
-     *     - @b other (string): altro nel tag
-     *     - @b maxlength (integer): numero massimo di caratteri consentiti \n
-     *     - @b helptext (array)
-     *       - @a title
-     *       - @a text
-     *     opzioni del tag label
-     *     - @b classLabel (string): nome della classe del tag label \n
-     *     opzioni dell'editor html
-     *     - @b label (string): label
-     *     - @b ckeditor (boolean): attiva l'editor html
-     *     - @b ckeditor_toolbar (string): nome della toolbar dell'editor html
-     *     - @b ckeditor_container (boolean): racchiude l'input editor in un contenitore div
-     *     - @b width (string): larghezza dell'editor (pixel o %)
-     *     - @b height (integer): altezza dell'editor (pixel)
-     *     - @b notes (boolean): mostra le note
-     *     - @b img_preview (boolean): mostra il browser di immagini di sistema
-     *     - @b text_add (boolean): testo aggiuntivo
-     *     - @b trnsl (boolean): attiva la traduzione
-     *     - @b trnsl_table (string): nome della tabella con il campo da tradurre
-     *     - @b trnsl_id (integer): valore dell'ID del record di riferimento per la traduzione
-     *     - @b field (string): nome del campo con il testo da tradurre
-     * @return string, codice html
-     */
-    public function textarea($name, $value, $options){
-
-        $ckeditor = gOpt('ckeditor', $options, false);
-        $id = gOpt('id', $options, null);
-        
-        if($ckeditor && !$id) $id = $name;
-        
-    	$this->setOptions($options);
-    	
-    	$buffer = '';
-    	
-        $textarea = "<textarea name=\"$name\" ";
-        $textarea .= $id ? "id=\"$id\" " : "";
-        $textarea .= $this->option('required') ? "required=\"required\" ":"";
-        $textarea .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $textarea .= $this->option('rows')?"rows=\"{$this->option('rows')}\" ":"";
-        $textarea .= $this->option('cols')?"cols=\"{$this->option('cols')}\" ":"";
-        $textarea .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-        $textarea .= $this->option('js')?$this->option('js')." ":"";
-        $textarea .= $this->option('other')?$this->option('other')." ":"";
-        $textarea .= ">";
-        $textarea .= "$value</textarea>";
-        
-        if($ckeditor)
-        {
-        	$label = gOpt('label', $options, null);
-        	$notes = gOpt('notes', $options, false);
-        	$ckeditor_toolbar = gOpt('ckeditor_toolbar', $options, null);
-        	$ckeditor_container = gOpt('ckeditor_container', $options, true);
-        	$width = gOpt('width', $options, null);
-        	$height = gOpt('height', $options, null);
-        	
-        	if($ckeditor_container)
-        	{
-        		$text_note = '';
-        		if($notes) {
-        			$text_note .= "[Enter] "._("inserisce un &lt;p&gt;");
-        			$text_note .= " - [Shift+Enter] "._("inserisce un &lt;br&gt;");
-        		}
-        		
-        		$buffer .= "<div class=\"form-row\">";
-        		$buffer .= "<div class=\"form-ckeditor\">\n";
-        		$buffer .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'));
-        		if($text_note) $buffer .= "<div>".$text_note."</div>";
-        		if($this->option('img_preview')) $buffer .= $this->imagePreviewer();
-        	}
-        	
-        	$buffer .= $textarea;
-        	
-        	$buffer .= $this->editorHtml($name, $value, array('toolbar'=>$ckeditor_toolbar, 'width'=>$width, 'height'=>$height));
-        	
-        	if($ckeditor_container)
-        	{
-        		if($this->option('trnsl') AND $this->_multi_language) {
-        			if($this->option('trnsl_id'))
-        				$buffer .= "<div class=\"form-trnsl\">".$this->formFieldTranslation(
-        					$this->_editor_field, 
-        					$this->option('trnsl_table'), 
-        					$this->option('field'), 
-        					$this->option('trnsl_id'), 
-        					$width, 
-        					$ckeditor_toolbar
-        				)."</div>";
-        		}
-        		
-        		if($this->option('text_add')) $buffer .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        		$buffer .= "</div>\n";
-        		$buffer .= "</div>\n";
-        	}
-        }
-        else 
-        {
-        	$buffer .= $textarea;
-        	
-        	if(isset($options['helptext'])) {
-            	$title = $options['helptext']['title'];
-           		$text = $options['helptext']['text'];
-            	$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-        	}
-
-        	if($this->option('maxlength') AND $this->option('maxlength') > 0)
-        	{
-            	// Limite caratteri con visualizzazione del numero di quelli restanti
-            	$buffer .= $this->jsCountCharText();
-            	$buffer .= "<script type=\"text/javascript\" language=\"javascript\">initCounter($$('#$this->_formId textarea[name=$name]')[0], {$this->option('maxlength')})</script>";
-        	}
-        }
-        
-        return $buffer;
-    }
-
-    /**
-     * @brief Codice per la visualizzazione allegati contestualmente all'editor CKEDITOR
-     * @see Gino.App.Attachment.attachment::editorList()
-     * @return codice html
-     */
-    private function imagePreviewer() {
-
-        $onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
-            window.att_win = new gino.layerWindow({
-            'title': '"._('Allegati')."',
-            'width': 1000,
-            'overlay': false,
-            'maxHeight': 600,
-            'url': '".HOME_FILE."?evt[attachment-editorList]'
-            });
-            window.att_win.display();
-        }";
-        $GFORM = "<p><span class=\"link\" onclick=\"$onclick\">"._("Visualizza file disponibili in allegati")."</span></p>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input radio con label
-     * 
-     * @see self::label()
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
-     * @param mixed $default valore di default
-     * @param mixed $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo radio())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b text_add (boolean): testo aggiuntivo stampato sotto il box
-     * @return codice html riga form, input radio + label
-     */
-    public function cradio($name, $value, $data, $default, $label, $options=null){
-        $this->setOptions($options);
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'))."\n";
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-        $GFORM .= $this->radio($name, $value, $data, $default, $options);
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>\n";
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input radio
-     * 
-     * @param string $name nome input
-     * @param string $value valore attivo
-     * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
-     * @param mixed $default valore di default
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b aspect (string): col valore 'v' gli elementi vengono messi uno sotto l'altro
-     *     - @b id (string): valore ID del tag <input>
-     *     - @b classField (string): valore CLASS del tag <input>
-     *     - @b js (string): javascript
-     *     - @b other (string): altro nel tag
-     * @return widget html
-     */
-    public function radio($name, $value, $data, $default, $options){
-
-        $this->setOptions($options);
-        $GFORM = '';
-        $comparison = is_null($value)? $default:$value;
-        $space = $this->option('aspect')=='v'? "<br />":"&nbsp;";
-        $container = $this->option('aspect')=='v'? TRUE : FALSE;
-
-        if($container) {
-            $GFORM .= "<div class=\"form-radio-group\">";
-        }
-        if(is_array($data)) {
-            $i=0;
-            foreach($data AS $k => $v) {
-                $GFORM .= ($i?$space:'')."<input type=\"radio\" name=\"$name\" value=\"$k\" ".(!is_null($comparison) && $comparison==$k?"checked=\"checked\"":"")." ";
-                $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-                $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-                $GFORM .= $this->option('js')?$this->option('js')." ":"";
-                $GFORM .= $this->option('other')?$this->option('other')." ":"";
-                $GFORM .= "/> ".$v;
-                $i++;
-            }
-        }
-        if(isset($options['helptext'])) {
-            $title = $options['helptext']['title'];
-            $text = $options['helptext']['text'];
-            $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-        }
-        if($container) {
-            $GFORM .= "</div>";
-        }
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input checkbox con label
-     *
-     * Esempio
-     * @code
-     * $buffer = $gform->ccheckbox('public', $value=='yes'?TRUE:FALSE, 'yes', _("Pubblico"));
-     * @endcode
-     *
-     * @see self::label()
-     * @see self::checkbox()
-     * @param string $name nome input
-     * @param boolean $checked valore selezionato
-     * @param mixed $value valore del tag input
-     * @param string $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo checkbox())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b text_add (string): testo da aggiungere dopo il checkbox
-     * @return codice html riga form, input + label
-     */
-    public function ccheckbox($name, $checked, $value, $label, $options=null){
-
-        $this->setOptions($options);
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
-        $GFORM .= $this->checkbox($name, $checked, $value, $options);
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>\n";
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input checkbox
-     *
-     * @param string $name nome input
-     * @param boolean $checked valore selezionato
-     * @param mixed    $value valore del tag input
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): valore ID del tag input
-     *     - @b classField (string): nome della classe del tag input
-     *     - @b js (string): javascript
-     *     - @b other (string): altro nel tag
-     * @return widget html
-     */
-    public function checkbox($name, $checked, $value, $options){
-
-        $this->setOptions($options);
-        $GFORM = '';
-
-        $GFORM .= "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked?"checked=\"checked\"":"")." ";
-        $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-        $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $GFORM .= $this->option('js')?$this->option('js')." ":"";
-        $GFORM .= $this->option('other')?$this->option('other')." ":"";
-        $GFORM .= "/>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Iput checkbox multiplo (many to many) con label
-     * 
-     * @param string $name nome input
-     * @param array $checked valori degli elementi selezionati
-     * @param mixed $data
-     *     - string, query
-     *     - array, elementi del checkbox (value_check=>text)
-     * @param string $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string)
-     *     - @b classField (string)
-     *     - @b readonly (boolean)
-     *     - @b js (string)
-     *     - @b other (string)
-     *     - @b required (string)
-     *     - @b classLabel (string)
-     *     - @b checkPosition (stringa): posizionamento del checkbox (left)
-     *     - @b table (string): nome della tabella con il campo da tradurre
-     *     - @b field (mixed): nome o nomi dei campi da recuperare
-     *         - string: nome del campo con il testo da tradurre
-     *         - array: nomi dei campi da concatenare
-     *     - @b idName (string): nome del campo di riferimento
-     *     - @b encode_html (boolean): attiva la conversione del testo dal database ad html (default TRUE)
-     * @return codice html riga form, input multicheck + label
-     */
-    public function multipleCheckbox($name, $checked, $data, $label, $options=null){
-
-        if(!is_array($checked)) {
-            $checked = array();
-        }
-
-        $this->setOptions($options);
-        $encode_html = is_bool($this->option('encode_html')) ? $this->option('encode_html') : TRUE;
-
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'), $this->option('classLabel'))."\n";
-
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-
-        $GFORM .= "<div class=\"form-multicheck\">\n";
-        $GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
-
-        if(is_string($data))
-        {
-            $db = db::instance();
-            $a = $db->select(null, null, null, array('custom_query'=>$data));
-            if(sizeof($a) > 0)
-            {
-                $GFORM .= "<thead>";
-                if(sizeof($data) > 10) {
-                        $GFORM .= "<tr>";
-                        $GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
-                        $GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
-                        $GFORM .= "</tr>";
-                }
-                $GFORM .= "<tr>";
-                $GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-                $GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
-                $GFORM .= "</tr>";
-                $GFORM .= "</thead>";
-                foreach($a AS $b)
-                {
-                    $b = array_values($b);
-                    $val1 = $b[0];
-                    $val2 = $b[1];
-
-                    if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
-
-                    $GFORM .= "<tr>\n";
-
-                    $checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$val1\" $check";
-                    $checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-                    $checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-                    $checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-                    $checkbox .= $this->option('js')?$this->option('js')." ":"";
-                    $checkbox .= $this->option('other')?$this->option('other')." ":"";
-                    $checkbox .= " />";
-
-                    $field = $this->option('field');
-                    if(is_array($field) && count($field))
-                    {
-                        if(sizeof($field) > 1)
-                        {
-                            $array = array();
-                            foreach($field AS $value)
-                            {
-                                $array[] = $value;
-                                $array[] = '\' \'';
-                            }
-                            array_pop($array);
-
-                            $fields = $db->concat($array);
-                        }
-                        else $fields = $field[0];
-
-                        $record = $db->select($fields." AS v", $this->option('table'), $this->option('idName')."='$val1'");
-                        if(!$record)
-                            $value_name = '';
-                        else
-                        {
-                            foreach($record AS $r)
-                            {
-                                $value_name = $r['v'];
-                            }
-                        }
-                    }
-                    elseif(is_string($field))
-                    {
-                        $value_name = $this->_trd->selectTXT($this->option('table'), $field, $val1, $this->option('idName'));
-                    }
-                    else $value_name = '';
-
-                    if($encode_html && $value_name) $value_name = htmlChars($value_name);
-
-                    if($this->option("checkPosition")=='left') {
-                        $GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-                        $GFORM .= "<td>".$value_name."</td>";
-                    }
-                    else {
-                        $GFORM .= "<td>".$value_name."</td>";
-                        $GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
-                    }
-                    $GFORM .= "</tr>\n";
-
-                }
-
-            }
-            else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
-        }
-        elseif(is_array($data))
-        {
-            $i = 0;
-            if(sizeof($data)>0)
-            {
-                                $GFORM .= "<thead>";
-                                if(sizeof($data) > 10) {
-                                        $GFORM .= "<tr>";
-                                        $GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
-                                        $GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
-                                        $GFORM .= "</tr>";
-                                }
-                                $GFORM .= "<tr>";
-                                $GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-                                $GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
-                                $GFORM .= "</tr>";
-                                $GFORM .= "</thead>";
-                foreach($data as $k=>$v)
-                {
-                    $check = in_array($k, $checked)? "checked=\"checked\"": "";
-                    $value_name = $v;
-                    if($encode_html && $value_name) $value_name = htmlChars($value_name);
-
-                    $GFORM .= "<tr>\n";
-
-                    $checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$k\" $check";
-                    $checkbox .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-                    $checkbox .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-                    $checkbox .= $this->option('readonly')?"readonly=\"readonly\" ":"";
-                    $checkbox .= $this->option('js')?$this->option('js')." ":"";
-                    $checkbox .= $this->option('other')?$this->option('other')." ":"";
-                    $checkbox .= " />";
-
-                    if($this->option("checkPosition")=='left') {
-                    $GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-                    $GFORM .= "<td>$value_name</td>";
-                    }
-                    else {
-                    $GFORM .= "<td>$value_name</td>";
-                    $GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
-                    }
-
-                    $GFORM .= "</tr>\n";
-
-                    $i++;
-                }
-                $GFORM .= "</table>\n";
-            }
-            else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
-        }
-
-        $GFORM .= "</table>\n";
-        $GFORM .= "</div>\n";
-
-        if(isset($options['helptext'])) {
-            $title = $options['helptext']['title'];
-            $text = $options['helptext']['text'];
-            $GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-        }
-        if(isset($options['add_related'])) {
-            $title = $options['add_related']['title'];
-            $id = $options['add_related']['id'];
-            $url = $options['add_related']['url'];
-            $GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
-        }
-        $GFORM .= "</div>\n";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input select con label
-     *
-     * @see self::label()
-     * @param string $name nome input
-     * @param string $value elemento selezionato (ad es. valore da 'modifica')
-     * @param mixed $data elementi del select
-     * @param mixed $label testo del tag label
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo select())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b text_add (string): testo dopo il select
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     * @return codice html riga form, select + label
-     */
-    public function cselect($name, $value, $data, $label, $options=null) {
-
-        $this->setOptions($options);
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $label, $this->option('required'))."\n";
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-        $GFORM .= $this->select($name, $value, $data, $options);
-        if($this->option('text_add')) $GFORM .= "<div class=\"form-textadd\">".$this->option('text_add')."</div>";
-        $GFORM .= "</div>";
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input select
-     *
-     * @param string $name nome input
-     * @param mixed $selected elemento selezionato
-     * @param mixed $data elementi del select (query-> recupera due campi, array-> key=>value)
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo select())
-     *     - @b id (string): ID del tag select
-     *     - @b classField (string): nome della classe del tag select
-     *     - @b size (integer)
-     *     - @b multiple (boolean): scelta multipla di elementi
-     *     - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
-     *     - @b other (string): altro da inserire nel tag select
-     *     - @b noFirst (boolean): FALSE-> mostra la prima voce vuota
-     *     - @b firstVoice (string): testo del primo elemento
-     *     - @b firstValue (mixed): valore del primo elemento
-     *     - @b maxChars (integer): numero massimo di caratteri del testo
-     *     - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri
-     * @return widget html
-     */
-    public function select($name, $selected, $data, $options) {
-
-        $this->setOptions($options);
-        $GFORM = "<select name=\"$name\" ";
-        $GFORM .= $this->option('id')?"id=\"{$this->option('id')}\" ":"";
-        $GFORM .= $this->option('required')?"required ":"";
-        $GFORM .= $this->option('classField')?"class=\"{$this->option('classField')}\" ":"";
-        $GFORM .= $this->option('size')?"size=\"{$this->option('size')}\" ":"";
-        $GFORM .= $this->option('multiple')?"multiple=\"multiple\" ":"";
-        $GFORM .= $this->option('js')?$this->option('js')." ":"";
-        $GFORM .= $this->option('other')?$this->option('other')." ":"";
-        $GFORM .= ">\n";
-
-        if(!$this->option('noFirst')) $GFORM .= "<option value=\"\"></option>\n";
-        elseif($this->option('firstVoice')) $GFORM .= "<option value=\"".$this->option('firstValue')."\">".$this->option("firstVoice")."</option>";
-
-        if(is_array($data)) {
-            if(sizeof($data) > 0) {
-                foreach ($data as $key=>$value) {
-                    if($this->option('maxChars'))
-                    {
-                        $value = cutHtmlText($value, $this->option('maxChars'), '...', TRUE, $this->option('cutWords')?$this->option('cutWords'):FALSE, TRUE);
-                    }
-                    $value = htmlChars($value);
-
-                    $GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
-                }
-            }
-            //else return _("non risultano opzioni disponibili");
-        }
-        elseif(is_string($data)) {
-
-            $db = Db::instance();
-            $a = $db->select(null, null, null, array('custom_query'=>$data));
-            if(sizeof($a) > 0)
-            {
-                foreach($a AS $b)
-                {
-                    $b = array_values($b);
-                    $val1 = $b[0];
-                    $val2 = $b[1];
-
-                    if($this->option('maxChars')) $value = cutHtmlText($val2, $this->option('maxChars'), '...', TRUE, $this->option('cutWords')?$this->option('cutWords'):FALSE, TRUE);
-                    else $value = $val2;
-                    $GFORM .= "<option value=\"".htmlInput($val1)."\" ".($val1==$selected?"selected=\"selected\"":"").">".htmlChars($value)."</option>\n";
-                }
-            }
-        }
-
-        $GFORM .= "</select>\n";
-
-		if(isset($options['helptext'])) {
-			$title = $options['helptext']['title'];
-			$text = $options['helptext']['text'];
-			$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-		}
-
-        if(isset($options['add_related']) && $options['add_related']) {
-            $title = $options['add_related']['title'];
-            $id = $options['add_related']['id'];
-            $url = $options['add_related']['url'];
-            $GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
-        }
-
-        return $GFORM;
-    }
-
-    /**
-     * @brief Input file con label
-     *
-     * Integra il checkbox di eliminazione del file e non è gestita l'obbligatorietà del campo.
-     *
-     * @code
-     * $obj->cfile('image', $filename, _("testo label"), array("extensions"=>array('jpg', ...), "preview"=>TRUE, "previewSrc"=>/path/to/image);
-     * @endcode
-     *
-     * @see self::label()
-     * @param string $name nome input
-     * @param string $value nome del file
-     * @param string $label testo <label>
-     * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo input())
-     *     - @b extensions (array): estensioni valide
-     *     - @b classLabel (string): valore CLASS del tag SPAN in <label>
-     *     - @b preview (boolean): mostra l'anteprima di una immagine
-     *     - @b previewSrc (string): percorso relativo dell'immagine
-     *     - @b text_add (string): testo da aggiungere in coda al tag input
-     * @return codice html riga form, input file + label
-     */
-    public function cfile($name, $value, $label, $options){
-
-        $this->setOptions($options);
-
-        $text_add = $this->option('text_add') ? $this->option('text_add') : '';
-        $valid_extension = $this->option('extensions');
-        $text = (is_array($valid_extension) AND sizeof($valid_extension) > 0) ? "[".(count($valid_extension) ? implode(', ', $valid_extension) : _("non risultano formati permessi."))."]":"";
-        $finLabel = array();
-        $finLabel['label'] = is_array($label) ? $label[0]:$label;
-        $finLabel['description'] = (is_array($label) && $label[1]) ? $text."<br/>".$label[1]:$text;
-
-        $GFORM = "<div class=\"form-row\">";
-        $GFORM .= $this->label($name, $finLabel, $this->option('required'), $this->option('classLabel'))."\n";
-
-        if(is_array($finLabel)) {
-            $options['helptext'] = array(
-                'title' => _('Formati consentiti'),
-                'text' => $finLabel['description']
-            );
-        }
-
-        if(is_array($label)) {
-            $options['helptext'] = array(
-                'title' => isset($label['label']) ? $label['label'] : $label[0],
-                'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
-        }
-
-        if(!empty($value)) {
-            $value_link = ($this->option('preview') && $this->option('previewSrc'))
-                ? ($this->isImage($this->option('previewSrc'))
-                    ? sprintf('<span onclick="Slimbox.open(\'%s\')" class="link">%s</span>', $this->option('previewSrc'), $value)
-                    : sprintf('<a target="_blank" href="%s">%s</a>', $this->option('previewSrc'), $value))
-                : $value;
-            $required = $options['required'];
-            $options['required'] = FALSE;
-            $GFORM .= $this->input($name, 'file', $value, $options);
-            $GFORM .= "<div class=\"form-file-check\">";
-            if(!$required) {
-                $GFORM .= "<input type=\"checkbox\" name=\"check_del_$name\" value=\"ok\" />";
-                $GFORM .= " "._("elimina")." ";
-            }
-            $GFORM .= _("file caricato").": <b>$value_link</b>";
-            $GFORM .= "</div>";
-            $GFORM .= $text_add;
-        }
-        else
-        {
-            $GFORM .= $this->input($name, 'file', $value, $options);
-            $GFORM .= $text_add;
-        }
-
-        if($value) 
-            $GFORM .= $this->hidden('old_'.$name, $value);
-
-        $GFORM .= "</div>";
-
-        return $GFORM;
-    }
-
-    /*+
-     * @brief Controlla che il path sia di un'immagine
-     * @param string $path
-     * @return TRUE se immagine, FALSE altrimenti
-     */
-    private function isImage($path) {
-
-        $info = pathinfo($path);
-
-        return in_array($info['extension'], array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif'));
-    }
-
-    /**
      * @brief Conteggio di file con stesso nome all'interno di $directory
      * @param string $file_new nome nuovo file
      * @param string $file_old nome file precedente
@@ -1478,6 +454,7 @@ class Form {
      * @param string $directory path
      * @return numero files con stesso nome
      */
+    /*
     private function countEqualName($file_new, $file_old, $resize, $prefix_file, $prefix_thumb, $directory){
 
         $listFile = searchNameFile($directory);
@@ -1528,6 +505,7 @@ class Form {
         }
         return $count;
     }
+    */
 
     /**
      * @brief Upload del file temporaneo nella directory di destinazione
@@ -1536,12 +514,14 @@ class Form {
      * @param string $uploaddir directory di destinazione
      * @return risultato operazione, bool
      */
+    /*
     private function upload($file_tmp, $file_name, $uploaddir){
 
         $uploadfile = $uploaddir.$file_name;
         if(move_uploaded_file($file_tmp, $uploadfile)) return TRUE;
         else return FALSE;
     }
+    */
 
     /**
      * @brief Imposta il carattere '/' come ultimo carattere della directory
@@ -1549,11 +529,13 @@ class Form {
      * @param string $directory nome della directory
      * @return path directory
      */
+    /*
     private function dirUpload($directory){
 
         $directory = (substr($directory, -1) != '/' && $directory != '') ? $directory.'/' : $directory;
         return $directory;
     }
+    */
 
     /**
      * @brief Sostituisce nel nome di un file i caratteri diversi da [a-zA-Z0-9_.-] con il carattere underscore (_)
@@ -1562,11 +544,13 @@ class Form {
      * @param string $prefix prefisso da aggiungere al nome del file
      * @return nome file normalizzato
      */
+    /*
     private function checkFilename($filename, $prefix) {
 
         $filename = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $filename);
         return $prefix.$filename;
     }
+    */
 
     /**
      * @brief Gestisce l'upload di un file
@@ -1604,6 +588,7 @@ class Form {
      *     - @b errorQuery (string): query di eliminazione del record qualora non vada a buon fine l'upload del file (INSERT)
      * @return risultato operazione, bool o errori
      */
+    /*
 	public function manageFile($name, $old_file, $resize, $valid_extension, $directory, $link_error, $table, $field, $idName, $id, $options=null){
 
         $db = Db::instance();
@@ -1756,6 +741,7 @@ class Form {
 
         return TRUE;
     }
+    */
 
     /**
      * @brief Calcola le dimensioni alle quali deve essere ridimensionata una immagine
@@ -1766,6 +752,7 @@ class Form {
      * @param integer $im_height
      * @return array (larghezza, altezza)
      */
+    /*
     private function resizeImage($new_width, $new_height, $im_width, $im_height){
 
         if(!empty($new_width) AND $im_width > $new_width)
@@ -1786,6 +773,7 @@ class Form {
 
         return array($width, $height);
     }
+    */
 
     /**
      * @brief Salva le immagini eventualmente ridimensionandole
@@ -1802,6 +790,7 @@ class Form {
      * @param integer $thumb_height altezza del thumbnail
      * @return risultato operazione, bool
      */
+    /*
     public function saveImage($filename, $directory, $prefix_file, $prefix_thumb, $new_width, $new_height, $thumb_width, $thumb_height){
 
         $thumb = (is_null($thumb_width) && is_null($thumb_height)) ? FALSE : TRUE;
@@ -1888,6 +877,7 @@ class Form {
             return FALSE;
         }
     }
+    */
 
     /**
      * @brief Ricalcola le dimensioni di un'immagine, dimensionando rispetto al lato lungo
@@ -1896,6 +886,7 @@ class Form {
      * @param int $im_height altezza immagine
      * @return array(larghezza, altezza)
      */
+    /*
     private function dimensionFile($dimension, $im_width, $im_height){
 
         $width = $im_width;
@@ -1916,6 +907,7 @@ class Form {
         }
         return array($width, $height);
     }
+    */
 
     /**
      * @brief Ridimensiona e crea il thumbnail di una immagine già caricata
@@ -1930,6 +922,7 @@ class Form {
      *     - @b thumb_width (integer): dimensione in pixel alla quale creare il thumbnail (larghezza)
      * @return risultato operazione, bool o errore
      */
+    /*
     public function createImage($filename, $directory, $options=array()){
 
         $prefix_file = array_key_exists('prefix_file', $options) ? $options['prefix_file'] : '';
@@ -2005,59 +998,7 @@ class Form {
             return FALSE;
         }
     }
-
-    /**
-     * @brief Funzione javascript che conta il numero dei caratteri ancora disponibili all'interno di un textarea
-     *
-     * @code
-     * $buffer = "<script type=\"text/javascript\" language=\"javascript\">initCounter($('id_elemento'), {$this->option('maxlength')})</script>";
-     * @endcode
-     *
-     * @return codice html
-     */
-    public function jsCountCharText(){
-
-        $GFORM = "<script type=\"text/javascript\">\n";
-        $GFORM .= "
-        function countlimit(field, limit){
-            chars = field.get('value').length;
-            return limit-chars;
-        }
-
-        function initCounter(field, limit){
-
-            act_limit = countlimit(field, limit);
-
-            var limit_text = new Element('div', {style:'font-weight:bold;'});
-            var limit_number = new Element('span');
-            limit_number.set('text', act_limit);
-            limit_text.set('html', '"._("Caratteri rimasti: ")."');
-            limit_number.inject(limit_text, 'bottom');
-
-            field.addEvent('keypress', function(e) {
-                var left_chars = countlimit(field, limit);
-                if(left_chars<1) {
-                    var event = new DOMEvent(e);
-                    if(event.key != 'delete' && event.key != 'backspace') {
-                        e.stopPropagation();
-                        return false;
-                    }
-                }
-
-            });
-
-            field.addEvent('keyup', function(e) {
-                var left_chars = countlimit(field, limit);
-                limit_number.set('text', left_chars);
-
-            });
-
-            limit_text.inject(field, 'after');
-
-        }";
-        $GFORM .= "</script>";
-        return $GFORM;
-    }
+    */
 
     /**
      * @brief Interfaccia che apre o chiude il form per l'inserimento e la modifica delle traduzioni
@@ -2065,38 +1006,360 @@ class Form {
      * Viene richiamato nei metodi della classe Gino.Form: cinput(), ctextarea(), textarea()
      * 
      * @see gino-min.js
-     * @param string $type tipologia di input (input, textarea, fckeditor)
-     * @param string $tbl nome della tabella con il campo da tradurre
+     * @param string $type tipologia di input (input, textarea, editor)
      * @param string $field nome del campo con il testo da tradurre
-     * @param integer $id_value valore dell'ID del record di riferimento per la traduzione
      * @param integer $width lunghezza del tag input o numero di colonne (textarea)
      * @param string $toolbar nome della toolbar dell'editor html
      * @return codice html interfaccia
      */
-    private function formFieldTranslation($type, $tbl, $field, $id_value, $width, $toolbar='') {
+    public static function formFieldTranslation($type, $table, $field, $id_value, $width, $toolbar='') {
 
-        Loader::import('language', 'Lang');
-
-        $GINO = '';
-
-        if(empty($id_name)) $id_name = 'id';
+    	$registry = Registry::instance();
+    	$multi_language = $registry->sysconf->multi_language;
+    	
+    	if(!$multi_language) {
+    		return null;
+    	}
+    	
+    	Loader::import('language', 'Lang');
+    	
+    	$buffer = '';
 
         $langs = \Gino\App\Language\Lang::objects(null, array(
-            'where' => "active='1' AND id != '".$this->_registry->sysconf->dft_language."'"
+        	'where' => "active='1' AND id != '".$registry->sysconf->dft_language."'"
         ));
         if($langs)
         {
             $first = TRUE;
+            $buffer .= "<div class=\"form-trnsl\">";
+            
             foreach($langs AS $lang) {
                 $label = htmlChars($lang->label);
                 $code = $lang->language_code.'_'.$lang->country_code;
-                $GINO .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$tbl', '$field', '$type', '$id_value', '$width', '$toolbar', '".$this->_registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
+                $buffer .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
+                
                 $first = FALSE;
             }
-            $GINO .= " &nbsp; <span id=\"".$tbl.$field."\"></span>\n";
+            $buffer .= " &nbsp; <span id=\"".$table.$field."\"></span>\n";
+            $buffer .= "</div>";
         }
 
-         return $GINO;
+         return $buffer;
     }
+    
+    /**
+     * @brief Wrapper per la stampa del form
+     *
+     * @see self::printForm()
+     * @see self::editUrl()
+     * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
+     * @param array $opt array associativo di opzioni
+     *   - @b fields (array): 
+     *   - @b options_form (array): opzioni del form e del layout
+     *     //- @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
+     *     - @b allow_insertion (boolean)
+     *     - @b edit_deny (array)
+     *     - @b form_id (mixed): valore ID del form
+     *     - @b session_value (string)
+     *     - @b method (string): metodo del form (get/post/request); default post
+     *     - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
+     *     - @b view_folder (string): percorso al file della vista
+     *     - @b view_title (string): visualizza l'intestazione del form (default true)
+     *     - @b form_title (string): intestazione personalizzata del form
+     *     - @b form_description (string): testo che compare tra il titolo ed il form
+     *   - @b options_field (array): opzioni dei campi
+     * @return Gino.Http.Redirect se viene richiesta una action o si verifica un errore, form html altrimenti
+     * 
+     * Vengono impostate le proprietà: $_form_id, $_validation, $_method, $_session_value.
+     */
+    public function render($model_obj, $opt=array()) {
+    	
+    	$fields = gOpt('fields', $opt, array());
+    	$options_form = gOpt('options_form', $opt, array());
+    	$options_field = gOpt('options_field', $opt, array());
+    	
+    	// Opzioni di options_form
+    	
+    	// 1. opzioni del form
+    	$allow_insertion = gOpt('allow_insertion', $options_form, true);
+    	$edit_deny = gOpt('edit_deny', $options_form, array());
+    	
+    	$this->_form_id = gOpt('form_id', $options_form, null);
+    	$this->_session_value = gOpt('session_value', $options_form, null);
+    	$method = gOpt('method', $options_form, null);
+    	$validation = gOpt('validation', $options_form, true);
+    	
+    	$this->setMethod($method);
+    	$this->setValidation($validation);
+    	
+    	// 2. opzioni del layout
+    	$view_folder = gOpt('view_folder', $options_form, null);
+    	$view_title = gOpt('view_title', $options_form, null);
+    	$form_title = gOpt('form_title', $options_form, null);
+    	$form_description = gOpt('form_description', $options_form, null);
+    	
+    	$view = new View($view_folder);
+    	// end
+    	
+    	// Default settings
+    	if(!$this->_form_id) {
+    		$this->_form_id = $this->setDefaultFormId($model_obj);
+    	}
+    	if(!$this->_session_value) {
+    		$this->_session_value = $this->setDefaultSession($model_obj);
+    	}
+    	// end
+    	
+    	if($view_title)
+    	{
+    		if($form_title)
+    		{
+    			$title = $form_title;
+    		}
+    		else
+    		{
+    			// edit
+    			if($model_obj->id) {
+    				if($edit_deny == 'all' || in_array($model_obj->id, $edit_deny)) {
+    					throw new \Gino\Exception\Exception403();
+    				}
+    				$title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
+    			}
+    			// insert
+    			else {
+    				if(!$allow_insertion) {
+    					throw new \Gino\Exception\Exception403();
+    				}
+    				$title = sprintf(_("Inserimento %s"), $model_obj->getModelLabel());
+    			}
+    		}
+    	}
+    	else {
+    		$title = null;
+    	}
+    	
+    	$form = $this->printForm($model_obj, $fields, $options_form, $options_field);
+    	
+    	$view->setViewTpl('admin_table_form');
+    	$view->assign('title', $title);
+    	$view->assign('form_description', $form_description);
+    	$view->assign('form', $form);
+    
+    	return $view->render();
+    }
+    
+    /**
+     * @brief Permessi di modifica dei campo
+     * @todo Implementare il metodo che restituisce TRUE se l'utente ha il permesso di agire sul campo, FALSE altrimenti.
+     * @param array $options array associativo di opzioni
+     * @param string $fname nome del campo
+     * @return TRUE
+     */
+    public function permission($options, $fname) {
+    	return true;
+    }
+    
+    /**
+     * @brief Setta la proprietà $_hidden (campi hidden del form)
+     * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente
+     * @return void
+     */
+    public function hidden($hidden=array()) {
+    	$this->_hidden = $hidden;
+    }
+    
+    /**
+     * @brief Generazione automatica del form di inserimento/modifica di un Gino.Model
+     *
+     * Cicla sulla struttura del modello e per ogni campo costruisce l'elemento del form.
+     * 
+     * Nella costruzione del form vengono impostati i seguenti parametri di default:
+     * - @b formId, valore generato
+     * - @b method, post
+     * - @b validation, true
+     * - @b session_value, valore generato
+     * - @b upload, viene impostato a TRUE se l'oggetto di un campo del form appartiene almeno a una classe fileField() o imageField()
+     * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
+     * - @b s_name, il nome del submit è 'submit'
+     * - @b s_value, il valore del submit è 'salva'
+     *
+     * Le opzioni degli elementi input sono formattate nel seguente modo: nome_campo=>array(opzione=>valore[,...]) \n
+     * È possibile rimuovere gli elementi input dalla struttura del form (@a removeFields) oppure selezionare gli elementi da mostrare (@a viewFields). \n
+     * È inoltre possibile aggiungere degli elementi input all'interno della struttura del form indicando come chiave il nome del campo prima del quale inserire ogni elemento (@a addCell). \n
+     * Il campo @a instance non viene mostrato nel form, neanche come campo nascosto.
+     *
+     * @param object $model oggetto del modello
+     * @param array $fields elementi del form
+     * @param array $options opzioni generali del form
+     *   array associativo di opzioni
+     *   - @b removeFields (array): elenco dei campi da non mostrare nel form
+     *   - @b viewFields (array): elenco dei campi da mostrare nel form
+     *   - @b addCell (array): elementi da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
+     *     Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
+     *     - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
+     *     - @a field, codice da implementare
+     *       Riassumento, la struttura di addCell è la seguente:
+     *       @code
+     *       array('next_field_name' => array('name' => 'name_item_add', 'field' => 'content_item_add'))
+     *       @endcode
+     *   // layout
+     *   - @b only_inputs (boolean): mostra soltanto gli input dei campi (default false)
+     *   - @b show_save_and_continue (boolean): mostra il submit "save and continue" (default true)
+     *   // tag form
+     *   - @b f_action (string): (default '')
+     *   - @b f_upload (boolean): (di default viene impostato automaticamente)
+     *   - @b f_required (string): campi obbligatori separati da virgola (di default viene impostato automaticamente)
+     *   - @b f_func_confirm (string): (default '')
+     *   - @b f_text_confirm (string): (default '')
+     *   - @b f_generateToken (boolean): (default false)
+     *   // input submit
+     *   - @b s_name (string): nome dell'input submit (se non indicato viene impostato automaticamente)
+     *   - @b s_value (string): valore dell'input submit (default 'salva')
+     *   - @b s_classField (string): valore dell'opzione classField dell'input submit (default 'submit')
+     * 
+     * @param array $inputs opzioni specifiche dei campi del form (passate in Gino.Build::formElement())
+     * @return form di inserimento/modifica
+     */
+    protected function printForm($model, $fields, $options=array(), $inputs=array()) {
+    
+    	//$verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
+    	
+    	$popup = cleanVar($this->_request->GET, '_popup', 'int');
 
+    	$this->load($this->_session_value);
+    
+    	// Options
+    	
+    	// - items
+    	$removeFields = gOpt('removeFields', $options, null);
+    	$viewFields = gOpt('viewFields', $options, null);
+    	$addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
+    	
+    	// - layout
+    	$only_inputs = gOpt('only_inputs', $options, false);
+    	$show_save_and_continue = gOpt('show_save_and_continue', $options, true);
+    	
+    	// - tag form ($f_upload e $f_required vengono definite più avanti)
+    	$f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
+    	$f_func_confirm = array_key_exists('f_func_confirm', $options) ? $options['f_func_confirm'] : '';
+    	$f_text_confirm = array_key_exists('f_text_confirm', $options) ? $options['f_text_confirm'] : '';
+    	$f_generateToken = array_key_exists('f_generateToken', $options) ? $options['f_generateToken'] : false;
+    	
+    	// - input submit
+    	$s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit_'.$this->_form_id;
+    	$s_value = array_key_exists('s_value', $options) ? $options['s_value'] : _('salva');
+    	$s_classField = array_key_exists('s_classField', $options) ? $options['s_classField'] : 'submit';
+    	// /Options
+    	
+    	$structure = array();
+    	$form_upload = false;
+    	$form_required = array();
+    
+    	foreach($fields as $field=>$build)
+    	{
+    		if($addCell)
+    		{
+    			foreach($addCell AS $ref_key=>$cell)
+    			{
+    				if($ref_key == $field)
+    				{
+    					$structure[$cell['name']] = $cell['field'];
+    				}
+    			}
+    		}
+    
+    		if($this->permission($options, $field) && (				//////////////////// VEDERE METODO ////////////////////
+    			($removeFields && !in_array($field, $removeFields)) ||
+    			($viewFields && in_array($field, $viewFields)) ||
+    			(!$viewFields && !$removeFields)
+    		))
+    		{
+    			if(isset($inputs[$field])) {
+    				$options_input = $inputs[$field];
+    			} else {
+    				$options_input = array();
+    			}
+    
+    			// Input form
+    			$structure[$field] = $build->formElement($this, $options_input);
+    			
+    			if($build instanceof FileBuild || $build instanceof ImageBuild) {
+    				$form_upload = true;
+    			}
+    
+    			if($build->getRequired() == true && $build->getViewInput() == true & $build->getWidget() != 'hidden') {
+    				$form_required[] = $field;
+    			}
+    		}
+    	}
+    
+    	if(sizeof($form_required) > 0) {
+    		$form_required = implode(',', $form_required);
+    	}
+    	
+    	// Options (+)
+    	$f_upload = array_key_exists('f_upload', $options) ? $options['f_upload'] : $form_upload;
+    	$f_required = array_key_exists('f_required', $options) ? $options['f_required'] : $form_required;
+    	// /Options
+    	
+    	$buffer = '';
+    
+    	if(!$only_inputs) {
+    		$buffer .= $this->open($f_action, $f_upload, $f_required,
+    			array(
+    				'func_confirm'=>$f_func_confirm,
+    				'text_confirm'=>$f_text_confirm,
+    				'generateToken'=>$f_generateToken
+    			)
+    		);
+    		$buffer .= Input::hidden('_popup', $popup);
+    	}
+    
+    	if(sizeof($this->_hidden) > 0)
+    	{
+    		foreach($this->_hidden AS $key=>$value)
+    		{
+    			if(is_array($value))
+    			{
+    				$h_value = array_key_exists('value', $options) ? $options['value'] : '';
+    				$h_id = array_key_exists('id', $options) ? $options['id'] : '';
+    				$buffer .= Input::hidden($key, $h_value, array('id'=>$h_id));
+    			}
+    			else $buffer .= Input::hidden($key, $value);
+    		}
+    	}
+    
+    	$form_content = '';
+    
+    	if(isset($options['fieldsets'])) {
+    		foreach($options['fieldsets'] as $legend => $fields) {
+    			$form_content .= "<fieldset>\n";
+    			$form_content .= "<legend>$legend</legend>\n";
+    			foreach($fields as $field) {
+    				if(isset($structure[$field])) {
+    					$form_content .= $structure[$field];
+    				}
+    			}
+    			$form_content .= "</fieldset>";
+    		}
+    	}
+    	elseif(isset($options['ordering'])) {
+    		foreach($options['ordering'] as $field) {
+    			$form_content .= $structure[$field];
+    		}
+    	}
+    	else {
+    		$form_content = implode('', $structure);
+    	}
+    
+    	$buffer .= $form_content;
+    
+    	if(!$only_inputs) {
+    		$save_and_continue = Input::input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
+    		$buffer .= Input::input_label($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
+    		$buffer .= $this->close();
+    	}
+    
+    	return $buffer;
+    }
 }

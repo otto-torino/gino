@@ -210,8 +210,8 @@ class Css extends Model {
     public function actionCssLayout(\Gino\Http\Request $request) {
 
         $gform = Loader::load('Form', array('gform', 'post', TRUE));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $action = $this->id ? 'modify' : 'insert';
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=css&id=$this->id&action=$action");

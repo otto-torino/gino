@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -84,7 +84,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
 
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -665,8 +665,8 @@ class page extends \Gino\Controller {
     public function actionComment(\Gino\Http\Request $request) {
 
         $myform = \Gino\Loader::load('Form', array('form_comment', 'post', true, null));
-        $myform->save('dataform');
-        $req_error = $myform->arequired();
+        $myform->saveSession('dataform');
+        $req_error = $myform->checkRequired();
 
         $id = \Gino\cleanVar($request->POST, 'entry', 'int');
         $entry = new PageEntry($id, $this);
@@ -961,7 +961,7 @@ class page extends \Gino\Controller {
      */
     private function manageEntry($request) {
 
-        $edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
+        //$edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
 
         $this->_registry->addJs($this->_class_www.'/page.js');
 
@@ -981,7 +981,7 @@ class page extends \Gino\Controller {
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 
         $admin_table = new \Gino\AdminTable($this, array());
-
+        
         $backend = $admin_table->backOffice(
             'PageEntry',
             array(
@@ -989,7 +989,7 @@ class page extends \Gino\Controller {
                 'list_title'=>_("Elenco pagine"), 
                 'filter_fields'=>array('title', 'category_id', 'tags', 'published')
             ),
-            array(
+        	array(
                 'removeFields' => $remove_fields
             ),
             array(

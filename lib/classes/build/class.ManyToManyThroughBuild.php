@@ -142,12 +142,12 @@ class ManyToManyThroughBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
     	$widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
     	
     	if($widget != 'unit') {
-    		return parent::formElement($form, $options);
+    		return parent::formElement($options);
     	}
     	
     	$m2m_model = $this->_m2m_controller ? new $this->_m2m(null, $this->_m2m_controller) : new $this->_m2m(null);
@@ -168,7 +168,7 @@ class ManyToManyThroughBuild extends Build {
     	$options['inputs'] = $inputs;
     	$options['remove_fields'] = $this->_remove_fields;
     	
-    	return parent::formElement($form, $options);
+    	return parent::formElement($mform, $options);
     }
 
     /**

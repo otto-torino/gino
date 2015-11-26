@@ -134,6 +134,28 @@ class Core {
         	'\Gino\TextWidget',
         	'\Gino\UnitWidget',
         ));
+        
+        Loader::import('class/input', array(
+        	'\Gino\Input',
+        	/*'\Gino\HiddenInput',
+        	'\Gino\ConstantInput',
+        	'\Gino\SelectInput',
+        	'\Gino\RadioInput',
+        	'\Gino\CheckboxInput',
+        	'\Gino\MulticheckInput',
+        	'\Gino\EditorInput',
+        	'\Gino\TextareaInput',
+        	'\Gino\FloatInput',
+        	'\Gino\DateInput',
+        	'\Gino\DatetimeInput',
+        	'\Gino\TimeInput',
+        	'\Gino\PasswordInput',
+        	'\Gino\FileInput',
+        	'\Gino\ImageInput',
+        	'\Gino\EmailInput',
+        	'\Gino\TextInput',
+        	'\Gino\UnitInput',*/
+        ));
 
         // gettext
         Locale::initGettext();

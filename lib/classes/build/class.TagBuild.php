@@ -41,7 +41,7 @@ class TagBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
         // moocomplete
         $registry = registry::instance();
         $registry->addJs(SITE_JS.'/MooComplete.js');
@@ -52,7 +52,9 @@ class TagBuild extends Build {
         $js_tags_list = "['".implode("','", $tags)."']";
         
         $text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar($this->tagCloud())."'}); win.display();\"></span>";
-        $field = $form->cinput($this->_name, 'text', $this->_value, $this->_label, array('id' => $this->_name, 'text_add' => $text_add));
+        
+        $field = Input::input_label($this->_name, 'text', $this->_value, $this->_label, array('id' => $this->_name, 'text_add' => $text_add));
+        
         $field .= "<script>";
         // moocomplete script
         $field .= "window.addEvent('load', function() {

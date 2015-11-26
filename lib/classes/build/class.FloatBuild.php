@@ -38,12 +38,4 @@ class FloatBuild extends Build {
 
         return (string) dbNumberToNumber($this->_value, $this->_decimal_digits);
     }
-
-    /**
-     * @see Gino.Build::formElement()
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
-    }
 }

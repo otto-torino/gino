@@ -420,8 +420,8 @@ class sysClass extends \Gino\Controller {
         $this->requirePerm('can_admin');
 
         $gform = Loader::load('Form', array('mform', 'post', false));
-        $gform->save('mdataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('mdataform');
+        $req_error = $gform->checkRequired();
 
         $link_error = $this->linkAdmin(array(), array('action' => 'insert'));
 

@@ -254,8 +254,8 @@ class Options {
         $registry = registry::instance();
         $request = $registry->request;
         $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $action = cleanVar($request->POST, 'action', 'string', '');
 

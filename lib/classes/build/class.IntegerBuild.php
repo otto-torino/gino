@@ -31,12 +31,4 @@ class IntegerBuild extends Build {
 
         parent::__construct($options);
     }
-
-    /**
-     * @see Gino.Build::formElement()
-     */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
-    }
 }

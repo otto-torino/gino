@@ -21,13 +21,11 @@ class EmailWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
-		
-		$buffer = $this->_form->cinput($this->_name, 'email', $value, $this->_label, $options);
+		$buffer = Input::input_label($this->_name, 'email', $this->_value_retrieve, $this->_label, $options);
 		
 		return $buffer;
 	}

@@ -169,8 +169,8 @@ class PhpModule extends \Gino\Model {
     public function actionPhpModule(\Gino\Http\Request $request) {
 
         $gform = \Gino\Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $content = $this->_db->escapeString(htmlspecialchars_decode($request->POST['content']));
         $link_error = $this->_registry->router->link($this->_interface, 'manageDoc', array(), array('action' => 'modify'));

@@ -65,7 +65,7 @@ class ForeignKeyBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
     	$db = db::instance();
     	
@@ -97,7 +97,7 @@ class ForeignKeyBuild extends Build {
             );
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
     
     /**

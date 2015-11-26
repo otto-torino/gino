@@ -67,12 +67,4 @@ class EnumBuild extends Build {
 
         if($value) $this->_choice = $value;
     }
-
-    /**
-     * @see Gino.Build::formElement()
-     */
-    public function formElement(\Gino\Form $form, $options) {
-    	
-        return parent::formElement($form, $options);
-    }
 }

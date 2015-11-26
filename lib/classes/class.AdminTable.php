@@ -20,8 +20,6 @@ namespace Gino;
  * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
  * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a Gino.Field::canBeOrdered() ritorna il valore @a true. \n    
  *
- * Per attivare l'importazione dei file utilizzare l'opzione @a import_file come specificato nel metodo modelAction() e sovrascrivere il metodo readFile(). \n
- *
  * ##Gestione dei permessi
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
@@ -85,9 +83,8 @@ class AdminTable {
               $_request,
               $_db,
               $_session;
-    protected $_form,
-              $_view,
-              $_hidden;
+    
+    protected $_view;
 
     protected $_allow_insertion,
               $_edit_deny,
@@ -132,7 +129,7 @@ class AdminTable {
      */
     function __construct($controller, $opts = array()) {
 
-        Loader::import('class', array('\Gino\Form'));	// array('\Gino\Form', '\Gino\InputForm')
+        Loader::import('class', array('\Gino\Form'));
 
         $this->_registry = registry::instance();
         $this->_request = $this->_registry->request;
@@ -142,7 +139,6 @@ class AdminTable {
 
         $view_folder = gOpt('view_folder', $opts, null);
 
-        $this->_form = new Form('', '', '');
         $this->_view = new view($view_folder);
 
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
@@ -164,534 +160,20 @@ class AdminTable {
     }
 
     /**
-     * @brief Setta la proprietà _hidden (campi hidden del form)
-     * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente 
-     * @return void
-     */
-    public function hidden($hidden=array()) {
-        $this->_hidden = $hidden;
-    }
-
-    /**
-     * @brief Generazione automatica del form di inserimento/modifica di un Gino.Model
-     *
-     * Cicla sulla struttura del modello e per ogni field costruisce l'elemento del form. \n
-     * L'elemento del form di base lo prende da $model->structure[nome_campo]->formElement(opzioni);
-     *
-     * Nella costruzione del form vengono impostati i seguenti parametri di default:
-     * - @b formId, valore generato
-     * - @b method, post
-     * - @b validation, true
-     * - @b trnsl_table, il nome della tabella viene recuperato dal modello
-     * - @b trnsl_id, il valore del record id viene recuperato dal modello
-     * - @b session_value, valore generato
-     * - @b upload, viene impostato a TRUE se l'oggetto di un campo del form appartiene almeno a una classe fileField() o imageField()
-     * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
-     * - @b s_name, il nome del submit è 'submit'
-     * - @b s_value, il valore del submit è 'salva'
-     *
-     * Le opzioni degli elementi input sono formattate nel seguente modo: nome_campo=>array(opzione=>valore[,...]) \n
-     * E' possibile rimuovere gli elementi input dalla struttura del form (@a removeFields) oppure selezionare gli elementi da mostrare (@a viewFields). \n
-     * E' inoltre possibile aggiungere degli elementi input all'interno della struttura del form indicando come chiave il nome del campo prima del quale inserire ogni elemento (@a addCell). \n
-     * Il campo @a instance non viene mostrato nel form, neanche come campo nascosto.
-     * 
-     * Esempio:
-     * @code
-     * $gform = new Form('', '', '');
-     * $addCell = array(
-     *     'lng'=>$gform->cinput('map_address', 'text', '', array(_("Indirizzo evento"), _("es: torino, via mazzini 37)), array("size"=>40, "maxlength"=>200, "id"=>"map_address"))
-     *     .$gform->cinput('map_coord', 'button', _("converti"), '', array("id"=>"map_coord", "classField"=>"generic", "js"=>$onclick))
-     * );
-     * 
-     * $removeFields = array('instance');
-     * if(!$manage_ctg) $removeFields[] = 'ctg';
-     * 
-     * $options_form = array(
-     * 'formId'=>'eform',
-     * 'f_action'=>$this->_home."?evt[$this->_instanceName-actionEvent]",
-     * 's_name'=>'submit_action', 
-     * 'removeFields'=>$removeFields, 
-     * 'viewFields'=>null, 
-     * 'addCell'=>$addCell
-     * );
-     * 
-     * $admin_table = new adminTable($this);
-     * $admin_table->hidden(array('ref'=>$reference));
-     * $form = $admin_table->modelForm(
-     *     $model, 
-     *     $options_form, 
-     *     array(
-     *         'ctg'=>array('required'=>true), 
-     *         'name'=>array('required'=>false), 
-     *         'lat'=>array('id'=>'lat', 'trnsl'=>false), 
-     *         'lng'=>array('id'=>'lng', 'trnsl'=>false), 
-     *         'image'=>array('preview'=>true),    
-     *         'description'=>array(
-     *             'widget'=>'editor', 
-     *             'notes'=>false, 
-     *             'img_preview'=>true, 
-     *             'fck_toolbar'=>self::$_fck_toolbar, 
-     *             'fck_height'=>100), 
-     *         'summary'=>array(
-     *             'maxlength'=>$maxlength_summary, 
-     *             'id'=>'summary', 
-     *             'rows'=>6, 
-     *             'cols'=>55)
-     *     )
-     * );
-     * @endcode
-     *
-     * @see permission()
-     * @param object $model oggetto dell'elemento (record da processare)
-     * @param array $options
-     *     - opzioni del form
-     *     - opzioni per modificare la struttura del form
-     *         - @b removeFields (array): elenco dei campi da non mostrare nel form
-     *         - @b viewFields (array): elenco dei campi da mostrare nel form
-     *         - @b addCell (array): elementi html da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
-     *         Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
-     *             - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
-     *             - @a field, codice da aggiungere
-     *         Riassumento, la struttura di addCell è la seguente:
-     *         @code
-     *         array(
-     *             'field_table'=>array(
-     *                 'name'=>'name_item_add', 
-     *                 'field'=>'content_item_add'
-     *             )
-     *         )
-     *         @endcode
-     *     - @b permission (array): raggruppa le autorizzazioni ad accedere a una determinata funzione/campo
-     * @param array $inputs opzioni degli elementi input che vengono passate al metodo formElement()
-     *     opzioni valide
-     *     - opzioni dei metodi della classe Form()
-     *     - @b widget (string): tipo di input
-     *     - @b enum (mixed): recupera gli elementi che popolano gli input radio, select, multicheck
-     *         - @a string, query per recuperare gli elementi (select di due campi)
-     *         - @a array, elenco degli elementi (key=>value)
-     *     - @b seconds (boolean): mostra i secondi
-     *     - @b default (mixed): valore di default (input radio)
-     *     - @b checked (boolean): valore selezionato (input checkbox)
-     * @return form di inserimento/modifica
-     *
-     */
-    public function modelForm($model, $options=array(), $inputs=array()) {
-
-        // Valori di default di form e sessione
-        $default_formid = 'form'.$model->getTable().$model->id;
-        $default_session = 'dataform'.$model->getTable().$model->id;
-
-        // Opzioni generali form
-        $formId = array_key_exists('formId', $options) ? $options['formId'] : $default_formid;
-        $method = array_key_exists('method', $options) ? $options['method'] : 'post';
-        $validation = array_key_exists('validation', $options) ? $options['validation'] : true;
-        $trnsl_table = array_key_exists('trnsl_table', $options) ? $options['trnsl_table'] : $model->getTable();
-        $trnsl_id = array_key_exists('trnsl_id', $options) ? $options['trnsl_id'] : $model->id;
-        $verifyToken = array_key_exists('verifyToken', $options) ? $options['verifyToken'] : false;
-        $only_inputs = array_key_exists('only_inputs', $options) ? $options['only_inputs'] : false;
-        $show_save_and_continue = array_key_exists('show_save_and_continue', $options) ? $options['show_save_and_continue'] : TRUE;
-
-        $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
-
-        // popup
-        $popup = cleanVar($this->_request->GET, '_popup', 'int');
-
-        $gform = new Form($formId, $method, $validation, 
-            array(
-                "trnsl_table"=>$trnsl_table,
-                "trnsl_id"=>$trnsl_id,
-                "verifyToken"=>$verifyToken,
-            )
-        );
-        $gform->load($session_value);
-
-        // Opzioni per la modifica della struttura del form
-        $removeFields = gOpt('removeFields', $options, null);
-        $viewFields = gOpt('viewFields', $options, null);
-        $addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
-
-        $structure = array();
-        $form_upload = false;
-        $form_required = array();
-        foreach($model->getStructure() as $field=>$object) {
-
-            if($addCell)
-            {
-                foreach($addCell AS $ref_key=>$cell)
-                {
-                    if($ref_key == $field)
-                    {
-                        $structure[$cell['name']] = $cell['field'];
-                    }
-                }
-            }
-
-            if($this->permission($options, $field) &&
-            (
-                ($removeFields && !in_array($field, $removeFields)) || 
-                ($viewFields && in_array($field, $viewFields)) || 
-                (!$viewFields && !$removeFields)
-            ))
-            {
-                if(isset($inputs[$field]))
-                    $options_input = $inputs[$field];
-                else 
-                    $options_input = array();
-
-                if($field == 'instance')
-                {
-                    $object->setWidget(null);
-                    $object->setRequired(false);
-                }
-                
-                $build = $model->build($object);
-                $structure[$field] = $build->formElement($gform, $options_input);
-
-                $name_class = get_class($object);
-
-                if($object instanceof FileField || $object instanceof ImageField)
-                    $form_upload = true;
-
-				$model_properties = $model->getProperties($object);
-                
-				if($object->getRequired() == true && $build->getViewInput() == true & $object->getWidget() != 'hidden')
-					$form_required[] = $field;
-			}
-        }
-        if(sizeof($form_required) > 0)
-            $form_required = implode(',', $form_required);
-
-        $submit = _('salva');
-
-        $f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
-        $f_upload = array_key_exists('f_upload', $options) ? $options['f_upload'] : $form_upload;
-        $f_required = array_key_exists('f_required', $options) ? $options['f_required'] : $form_required;
-        $f_func_confirm = array_key_exists('f_func_confirm', $options) ? $options['f_func_confirm'] : '';
-        $f_text_confirm = array_key_exists('f_text_confirm', $options) ? $options['f_text_confirm'] : '';
-        $f_generateToken = array_key_exists('f_generateToken', $options) ? $options['f_generateToken'] : false;
-
-        $s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit_'.$formId;
-        $s_value = array_key_exists('s_value', $options) ? $options['s_value'] : $submit;
-        $s_classField = array_key_exists('s_classField', $options) ? $options['s_classField'] : 'submit';
-
-        $buffer = '';
-
-        if(!$only_inputs) {
-            $buffer .= $gform->open($f_action, $f_upload, $f_required, 
-                array(
-                    'func_confirm'=>$f_func_confirm,
-                    'text_confirm'=>$f_text_confirm,
-                    'generateToken'=>$f_generateToken
-                )
-            );
-            $buffer .= $gform->hidden('_popup', $popup);
-        }
-
-        if(sizeof($this->_hidden) > 0)
-        {
-            foreach($this->_hidden AS $key=>$value)
-            {
-                if(is_array($value))
-                {
-                    $h_value = array_key_exists('value', $options) ? $options['value'] : '';
-                    $h_id = array_key_exists('id', $options) ? $options['id'] : '';
-                    $buffer .= $gform->hidden($key, $h_value, array('id'=>$h_id));
-                }
-                else $buffer .= $gform->hidden($key, $value);
-            }
-        }
-
-        $form_content = '';
-
-        if(isset($options['fieldsets'])) {
-            foreach($options['fieldsets'] as $legend => $fields) {
-                $form_content .= "<fieldset>\n";
-                $form_content .= "<legend>$legend</legend>\n";
-                foreach($fields as $field) {
-                        if(isset($structure[$field])) {
-                			$form_content .= $structure[$field];
-                        }
-                }
-                $form_content .= "</fieldset>";
-            }
-        }
-        elseif(isset($options['ordering'])) {
-            foreach($options['ordering'] as $field) {
-                $form_content .= $structure[$field];
-            }
-        }
-        else {
-            $form_content = implode('', $structure);
-        }
-
-        $buffer .= $form_content;
-
-        if(!$only_inputs) {
-            $save_and_continue = $gform->input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-            $buffer .= $gform->cinput($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
-            $buffer .= $gform->close();
-        }
-
-        return $buffer;
-    }
-
-    /**
-     * @brief Salvataggio dei dati a seguito del submit di un form di inserimento/modifica
-     *
-     * Per recuperare i dati dal form vengono impostati i seguenti parametri di default:
-     * - @b formId, valore generato
-     * - @b method, post
-     * - @b validation, true
-     * - @b session_value, valore generato
-     *
-     * Esempio:
-     * @code
-     * $id = cleanVar($this->_request->POST, 'id', 'int', '');
-     * $start = cleanVar($this->_request->POST, 'start', 'int', '');
-     *
-     * $item = new eventItem($id, $this);
-     * $options_form = array(
-     *     'removeFields'=>null
-     * );
-     * $options_element = array('code'=>array('value_type'=>'int'));
-     *
-     * $admin_table = new adminTable();
-     * $admin_table->modelAction($item, $options_form, $options_element);
-     * @endcode
-     *
-     * @see Gino.Model::save()
-     * @see Gino.Build::clean()
-     * @param object $model
-     * @param array $options
-     *     - opzioni per il recupero dei dati dal form
-     *     - opzioni per selezionare gli elementi da recuperare dal form
-     *         - @b removeFields (array): elenco dei campi non presenti nel form
-     *         - @b viewFields (array): elenco dei campi presenti nel form
-     *     - @b import_file (array): attivare l'importazione di un file (richiama il metodo readFile())
-     *         - @a field_import (string): nome del campo del file di importazione
-     *         - @a field_verify (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
-     *         - @a field_log (string): nome del campo del file di log
-     *         - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
-     *         - @a dump_path (string): percorso del file di dump
-     * @param array $options_element opzioni per formattare uno o più elementi da inserire nel database
-     * @return risultato operazione, bool o errori
-     */
-    public function modelAction($model, $options=array(), $options_element=array()) {
-
-        // Importazione di un file
-        $import = false;
-        if(isset($options['import_file']) && is_array($options['import_file']))
-        {
-            $field_import = array_key_exists('field_import', $options['import_file']) ? $options['import_file']['field_import'] : null;
-            $field_verify = array_key_exists('field_verify', $options['import_file']) ? $options['import_file']['field_verify'] : array();
-            $field_log = array_key_exists('field_log', $options['import_file']) ? $options['import_file']['field_log'] : null;
-            $dump = array_key_exists('dump', $options['import_file']) ? $options['import_file']['dump'] : false;
-            $dump_path = array_key_exists('dump_path', $options['import_file']) ? $options['import_file']['dump_path'] : null;
-
-            if($field_import) $import = TRUE;
-        }
-
-        // Valori di default di form e sessione
-        $default_formid = 'form'.$model->getTable().$model->id;
-        $default_session = 'dataform'.$model->getTable().$model->id;
-
-        // Opzioni generali per il recupero dei dati dal form
-        $formId = array_key_exists('formId', $options) ? $options['formId'] : $default_formid;
-        $method = array_key_exists('method', $options) ? $options['method'] : 'post';
-        $validation = array_key_exists('validation', $options) ? $options['validation'] : TRUE;
-        $session_value = array_key_exists('session_value', $options) ? $options['session_value'] : $default_session;
-
-        // Opzioni per selezionare gli elementi da recuperare dal form
-        $removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-        $viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
-
-        $gform = new Form($formId, $method, $validation);
-        $gform->save($session_value);
-        $req_error = $gform->arequired();
-
-        if($req_error > 0) 
-            return array('error'=>1);
-
-        $m2mt = array();
-        $builds = array();
-        
-        foreach($model->getStructure() as $field=>$object) {
-
-            if($this->permission($options, $field) &&
-            (
-                ($removeFields && !in_array($field, $removeFields)) || 
-                ($viewFields && in_array($field, $viewFields)) || 
-                (!$viewFields && !$removeFields)
-            ))
-            {
-                if(isset($options_element[$field]))
-                    $opt_element = $options_element[$field];
-                else 
-                    $opt_element = array();
-
-                if($field == 'instance' && is_null($model->instance))
-                {
-                    $model->instance = $this->_controller->getInstance();
-                }
-                elseif(is_a($object, '\Gino\ManyToManyThroughField')) 
-                {
-                    $m2mt[] = array(
-                        'field' => $field, 
-                        'object' => $object, 
-                    );
-                }
-                else
-                {
-                	$build = $model->build($object);
-                	
-                	$value = $build->clean($opt_element, $model->id);
-                	// imposta il valore; @see Gino.Model::__set()
-                	$model->{$field} = $value;
-                    
-                    if($import)
-                    {
-                        if($field == $field_import)
-                            $path_to_file = $object->getPath();
-                    }
-                }
-            }
-        }
-
-        if($import)
-        {
-            $result = $this->readFile($model, $path_to_file, array('field_verify'=>$field_verify, 'dump'=>$dump, 'dump_path'=>$dump_path));
-            if($field_log)
-                $model->{$field_log} = $result;
-        }
-        
-        $result = $model->save();
-
-        // error
-        if(is_array($result)) {
-            return $result;
-        }
-        
-        foreach($m2mt as $data) {
-        	$result = $this->m2mThroughAction($data['field'], $data['object'], $model, $options);
-        	
-        	// error
-        	if(is_array($result)) {
-        		return $result;
-        	}
-        }
-
-        return $result;
-    }
-    
-    /**
-     * @brief Salvataggio dei campi Gino.ManyToManyThroughField
-     *
-     * @description Il salvataggio di questi tipi di campi avviene in automatico utilizzando
-     *              la class Gino.AdminTable. Non è gestito dalla classe Gino.Model.
-     *
-     * @param string $m2m_name nome del campo ManytoManyThroughField
-     * @param \Gino\ManyToManyThroughField $m2m_object istanza della classe di tipo Gino.Field che rappresenta il campo
-     * @param \Gino\Model $model istanza del model cui appartiene il campo
-     * @param $options array associativo di opzioni
-     * @return risultato operazione, bool o errori
-     */
-    private function m2mThroughAction($m2m_name, $m2m_object, $model, $options=array()) {
-    
-    	$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-    	 
-    	$build = $model->build($m2m_object);
-    	$m2m_class = $build->getM2m();
-    	
-    	$indexes = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_ids', 'array', '');
-    	
-    	if(!is_array($indexes)) $indexes = array();
-    	
-    	$check_ids = array();
-    	$m2m_m2m = array();
-    	$object_names = array();
-    	
-    	foreach($indexes as $index) {
-    
-    		$id = cleanVar($this->_request->POST, 'm2mt_'.$m2m_name.'_id_'.$index, 'int', '');
-    
-    		// oggetto pronto per edit or insert
-    		$m2m_model = new $m2m_class($id, $build->getController());
-    		
-    		foreach($m2m_model->getStructure() as $field=>$object) {
-    
-    			if(!isset($object_names[$field])) {
-    				$object_names[$field] = $object->getName();
-    			}
-    
-    			if($this->permission($options, $field) &&
-    			(($removeFields && !in_array($field, $removeFields)) || (!$removeFields)))
-    			{
-    				$opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_name.'_check_del_'.$object_names[$field].'_'.$index);
-    
-    				if(isset($options_element[$field])) {
-    					$opt_element = array_merge($opt_element, $options_element[$field]);
-    				}
-    
-    				if($field == 'instance' && is_null($m2m_model->instance))
-    				{
-    					$m2m_model->instance = $this->_controller->getInstance();
-    				}
-    				elseif(is_a($object, '\Gino\ManyToManyThroughField'))
-    				{
-    					$this->m2mThroughAction($field, $object, $m2m_model);
-    				}
-    				else
-    				{
-    					$m2m_build = $m2m_model->build($object);
-    					$m2m_build->setName('m2mt_'.$m2m_name.'_'.$object_names[$field].'_'.$index);
-    					
-    					$value = $m2m_build->clean($opt_element);
-    					$m2m_model->{$field} = $value;
-    
-    					if(isset($import) and $import)
-    					{
-    						if($field == $field_import)
-    							$path_to_file = $object->getPath();
-    					}
-    				}
-    			}
-    		}
-    		$m2m_model->{$build->getModelTableId()} = $model->id;
-    		$m2m_model->save();
-    		$check_ids[] = $m2m_model->id;
-    	}
-    	
-    	// eliminazione tutti m2mt che non ci sono più
-    	$db = Db::instance();
-    	$where = count($check_ids) ? $build->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $build->getModelTableId()."='".$model->id."'";
-    	$objs = $m2m_class::objects($build->getController(), array('where' => $where));
-    	
-    	if($objs and count($objs)) {
-    		foreach($objs as $obj) {
-    			$obj->delete();
-    		}
-    	}
-    	
-    	// aggiornamento del modello di modo che le modifiche agli m2mt si riflettano immediatamente sul modello di appartenenza
-    	$model->refreshModel();
-    	
-    	return TRUE;
-    }
-
-    /**
      * @brief Gestisce il backoffice completo di un modello (wrapper)
      * 
-     * @see self::permission()
-     * @see self::adminForm()
-     * @see self::adminDelete()
+     * @see Translation::manageTranslation()
+     * @see ModelForm::form()
+     * @see self::action()
+     * @see self::delete()
      * @see self::adminList()
      * @param string $model_class_name nome della classe del modello
      * @param array $options_view opzioni della vista (comprese le autorizzazioni a visualizzare singoli campi)
      * @param array $options_form opzioni del form (comprese le autorizzazioni a mostrare l'input di singoli campi e a salvarli)
-     * @param array $inputs opzioni degli elementi nel form
+     * @param array $options_field opzioni degli elementi nel form
      * @return interfaccia di amministrazione
      */
-    public function backOffice($model_class_name, $options_view=array(), $options_form=array(), $inputs=array()) {
+    public function backOffice($model_class_name, $options_view=array(), $options_form=array(), $options_field=array()) {
 
         $id = cleanVar($this->_request->REQUEST, 'id', 'int', '');
         $model_class = get_model_app_name_class_ns(get_name_class($this->_controller), $model_class_name);
@@ -707,17 +189,32 @@ class AdminTable {
             return $this->_registry->trd->manageTranslation($this->_request);
         }
         elseif($insert or $edit) {
-            return $this->adminForm($model_obj, $options_form, $inputs);
+            
+        	$mform = new \Gino\ModelForm($model_obj);
+        	
+        	$options_form['allow_insertion'] = $this->_allow_insertion;
+        	$options_form['edit_deny'] = $this->_edit_deny;
+        	
+        	if($this->_request->method === 'POST') {
+        		return $this->action($mform, $options_form, $options_field);
+        	}
+        	else {
+        		return $mform->view($options_form, $options_field);
+        	}
         }
         elseif($delete) {
-            return $this->adminDelete($model_obj, $options_form);
+        	
+        	$link_delete = gOpt('link_delete', $options_form, null);
+        	$opt = array('link_delete' => $link_delete);
+        	
+        	return $this->delete($model_obj, $opt);
         }
         else {
             $options_view['export'] = $export;
             return $this->adminList($model_obj, $options_view);
         }
     }
-
+    
     /**
      * @brief Eliminazione di un record (richiesta di conferma soltanto da javascript)
      *
@@ -728,105 +225,67 @@ class AdminTable {
      *   - @b link_delete (string): indirizzo al quale si viene rimandati dopo la procedura di eliminazione del record (se non presente viene costruito automaticamente)
      * @return Gino.Http.Redirect
      */
-    public function adminDelete($model, $options_form) {
-
-        if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
-            throw new \Gino\Exception\Exception403();
-        }
-
-        $result = $model->delete();
-
-        $link_return = (isset($options_form['link_delete']) && $options_form['link_delete'])
-            ? $options_form['link_delete']
-            : $this->editUrl(array(), array('delete', 'id'));
-
-        if($result === TRUE) {
-            return new \Gino\Http\Redirect($link_return);
-        }
-        else {
-            return Error::errorMessage($result, $link_return);
-        }
+    public function delete($model, $options) {
+    	 
+    	$link_delete = gOpt('link_delete', $options, null);
+    	
+    	if($this->_delete_deny == 'all' || in_array($model->id, $this->_delete_deny)) {
+    		throw new \Gino\Exception\Exception403();
+    	}
+    	
+    	$result = $model->delete();
+    	
+    	$link_return = $link_delete ? $link_delete : $this->editUrl(array(), array('delete', 'id'));
+    	
+    	if($result === TRUE) {
+    		return new \Gino\Http\Redirect($link_return);
+    	}
+    	else {
+    		return Error::errorMessage($result, $link_return);
+    	}
     }
-
+    
     /**
-     * @brief Wrapper per mostrare e processare il form
-     *
-     * @see self::modelForm()
-     * @see self::modelAction()
-     * @see self::editUrl()
-     * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
-     * @param array $options_form
-     *     array associativo di opzioni
-     *     - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
-     *     - @b form_description (string): testo che compare tra il titolo ed il form
-     * @param array $inputs
-     * @return Gino.Http.Redirect se viene richiesta una action o si verifica un errore, form html altrimenti
+     * 
      */
-    public function adminForm($model_obj, $options_form, $inputs) {
-
-        $form_description = gOpt('form_description', $options_form, null);
-
-        if($this->_request->method === 'POST') {
-            
-        	$insert = !$model_obj->id;
-            $popup = cleanVar($this->_request->POST, '_popup', 'int');
-            // link error
-            $link_error = $this->editUrl(array(), array());
-            $options_form['link_error'] = $link_error ;
-            // action
-            $action_result = $this->modelAction($model_obj, $options_form, $inputs);
-            // link success
-            if(isset($options_form['link_return']) and $options_form['link_return']) {
-                $link_return = $options_form['link_return'];
-            }
-            else {
-                if(isset($this->_request->POST['save_and_continue']) and !$insert) {
-                    $link_return = $this->editUrl(array(), array());
-                }
-                elseif(isset($this->_request->POST['save_and_continue']) and $insert) {
-                    $link_return = $this->editUrl(array('edit' => 1, 'id' => $model_obj->id), array('insert'));
-                }
-                else {
-                    $link_return = $this->editUrl(array(), array('insert', 'edit', 'id'));
-                }
-            }
-            if($action_result === TRUE and $popup) {
-                $script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model_obj->id', '".htmlspecialchars((string) $model_obj, ENT_QUOTES)."' );</script>";
-            	return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
-            }
-            elseif($action_result === TRUE) {
-                return new \Gino\Http\Redirect($link_return);
-            }
-            else {
-                return Error::errorMessage($action_result, $link_error);
-            }
-        }
-        else {
-
-            // edit
-            if($model_obj->id) {
-                if($this->_edit_deny == 'all' || in_array($model_obj->id, $this->_edit_deny)) {
-                    throw new \Gino\Exception403();
-                }
-                $title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
-            }
-            // insert
-            else {
-                if(!$this->_allow_insertion) {
-                    throw new \Gino\Exception403();
-                }
-                $title = sprintf(_("Inserimento %s"), $model_obj->getModelLabel());
-            }
-
-            $form = $this->modelForm($model_obj, $options_form, $inputs);
-
-            $this->_view->setViewTpl('admin_table_form');
-            $this->_view->assign('title', $title);
-            $this->_view->assign('form_description', $form_description);
-            $this->_view->assign('form', $form);
-
-            return $this->_view->render();
-        }
+    public function action($model_form, $options_form, $options_field) {
+    	
+    	$model = $model_form->getModel();
+    	
+    	$insert = !$model->id;
+    	$popup = cleanVar($this->_request->POST, '_popup', 'int');
+    	
+    	// link error
+    	$link_error = $this->editUrl(array(), array());
+    	$options_form['link_error'] = $link_error;
+    	
+    	$action_result = $model_form->save($options_form, $options_field);
+    	
+    	// link success
+    	if(isset($options_form['link_return']) and $options_form['link_return']) {
+    		$link_return = $options_form['link_return'];
+    	}
+    	else {
+    		if(isset($this->_request->POST['save_and_continue']) and !$insert) {
+    			$link_return = $this->editUrl(array(), array());
+    		}
+    		elseif(isset($this->_request->POST['save_and_continue']) and $insert) {
+    			$link_return = $this->editUrl(array('edit' => 1, 'id' => $model->id), array('insert'));
+    		}
+    		else {
+    			$link_return = $this->editUrl(array(), array('insert', 'edit', 'id'));
+    		}
+    	}
+    	if($action_result === TRUE and $popup) {
+    		$script = "<script>opener.gino.dismissAddAnotherPopup(window, '$model->id', '".htmlspecialchars((string) $model, ENT_QUOTES)."' );</script>";
+    		return new \Gino\Http\Response($script, array('wrap_in_document' => FALSE));
+    	}
+    	elseif($action_result === TRUE) {
+    		return new \Gino\Http\Redirect($link_return);
+    	}
+    	else {
+    		return Error::errorMessage($action_result, $link_error);
+    	}
     }
 
     /**
@@ -1428,7 +887,10 @@ class AdminTable {
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
 
-        $gform = new Form('atbl_filter_form', 'post', false);
+        $gform = new Form(array(
+        	'form_id' => 'atbl_filter_form', 
+        	'validation' => false
+        ));
 
         $form = $gform->open($this->editUrl(array(), array('start')), false, '');
 
@@ -1446,7 +908,7 @@ class AdminTable {
                 $build = $model->build($field);
                 $build->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
                 
-                $form .= $build->formFilter($gform, array('default'=>null));
+                $form .= $build->formFilter(array('default'=>null));
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);
@@ -1459,8 +921,8 @@ class AdminTable {
             else if(el.get('tag')=='select') el.getChildren('option').removeProperty('selected');
         });\"";
 
-        $input_reset = $gform->input('ats_reset', 'button', _("tutti"), array("classField"=>"generic", "js"=>$onclick));
-        $form .= $gform->cinput('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
+        $input_reset = Input::input('ats_reset', 'button', _("tutti"), array("classField"=>"generic", "js"=>$onclick));
+        $form .= Input::input_label('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
         $form .= $gform->close();
 
         return $form;
@@ -1496,15 +958,15 @@ class AdminTable {
 
                     if($ff_input == 'radio')
                     {
-                        $form .= $gform->cradio($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
+                        $form .= $gform->_input->radio_label($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
                     }
                     elseif($ff_input == 'select')
                     {
-                        $form .= $gform->cselect($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+                        $form .= $gform->_input->select($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
                     }
                     else
                     {
-                        $form .= $gform->cinput($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
+                        $form .= $gform->_input->input_label($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
                     }
                 }
             }
@@ -1522,12 +984,11 @@ class AdminTable {
     protected function editUrl($add_params = array(), $remove_params = array()) {
 
         return $this->_registry->router->transformPathQueryString($add_params, $remove_params);
-
      }
 
     /**
-     * @brief Ripulisce un input per l'inserimento in database
-     *
+     * @brief Ripulisce l'input di un form di ricerca
+     * 
      * @param string $name nome dell'input form
      * @param array $options array associativo di opzioni
      *     - @b value_type (string)
@@ -1542,53 +1003,5 @@ class AdminTable {
         $escape = gOpt('escape', $options, true);
 
         return cleanVar($method, $name, $value_type, null, array('escape'=>$escape));
-    }
-
-    /**
-     * @brief Legge il file e ne importa il contenuto
-     * 
-     * @todo Implementare la funzionalità di importazione del file
-     * @param \Gino\Model $model Gino.Model
-     * @param string $path_to_file
-     * @param array $options
-     *     array associativo di opzioni
-     *     - @b verify_items (array): valori da verificare nel processo di importazione, nel formato array(nome_campo=>valore[, ])
-     *     - @b dump (boolean): effettua il dump della tabella prima dell'importazione
-     *     - @b dump_path (string): percorso del file di dump
-     * @return string (log dell'importazione)
-     */
-    protected function readFile($model, $path_to_file, $options=array()) {
-
-        return null;
-    }
-
-    /**
-     * @brief Restore di un file
-     * @todo Implementare la funzionalità di restore di un file
-     * @see Gino.Db::restore()
-     * @param string $table nome della tabella
-     * @param string $filename nome del file da importare
-     * @param array $options arra
-     * @return boolean
-     */
-    protected function restore($table, $filename, $options=array()) {            
-
-        $db = Db::instance();
-        return $db->restore($table, $filename, $options);
-    }
-
-    /**
-     * @brief Dump di una tabella
-     *
-     * @see Gino.Db::dump()
-     * @param string $table
-     * @param string $filename nome del file completo di percorso
-     * @param array $options array associativo di opzioni
-     * @return string (nome del file di dump)
-     */
-    protected function dump($table, $filename, $options=array()) {
-
-        $db = Db::instance();
-        return $db->dump($table, $filename, $options);
     }
 }

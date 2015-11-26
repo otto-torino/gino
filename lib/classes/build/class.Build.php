@@ -100,7 +100,7 @@ class Build {
     	$this->_field_object = $options['field_object'];
     	$this->_table = $options['table'];
     	$this->_view_input = true;
-		
+    	
     	if(array_key_exists('value', $options)) {
     		$this->_value = $options['value'];
     	}
@@ -226,6 +226,44 @@ class Build {
     }
     
     /**
+     * @brief Getter della proprietà required
+     * @return TRUE se il campo è obbligatorio, FALSE altrimenti
+     */
+    public function getRequired() {
+    
+    	return $this->_required;
+    }
+    
+    /**
+     * @brief Setter della proprietà required
+     * @param bool $value
+     * @return void
+     */
+    public function setRequired($value) {
+    
+    	$this->_required = !!$value;
+    }
+    
+    /**
+     * @brief Getter della proprietà widget
+     * @return widget
+     */
+    public function getWidget() {
+    
+    	return $this->_widget;
+    }
+    
+    /**
+     * @brief Setter della proprietà widget
+     * @param string|null $value
+     * @return void
+     */
+    public function setWidget($value) {
+    
+    	if(is_string($value) or is_null($value)) $this->_widget = $value;
+    }
+    
+    /**
      * @brief Stampa un elemento del form facendo riferimento al valore della chiave @a widget
      *
      * Nella chiamata del form occorre definire la chiave @a widget nell'array degli elementi input. \n
@@ -244,11 +282,11 @@ class Build {
      * @endcode
      *
      * @see Gino.Widget::printInputForm()
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni dell'elemento del form
+     * @param object $mform istanza di Gino.Form o Gino.ModelForm
+     * @param array $options opzioni del campo del form
      *   - opzioni dei metodi della classe Form
      *   - opzioni che sovrascrivono le impostazioni del campo/modello
-     *     - @b widget (string): tipo di input form; può assumenre uno dei seguenti valori
+     *     - @b widget (string): tipo di input form; può assumere uno dei seguenti valori
      *       - @a hidden
      *       - @a constant
      *       - @a select
@@ -268,8 +306,10 @@ class Build {
      *       - @a unit
      *     - @b required (boolean): campo obbligatorio
      * @return controllo del campo, html
+     * 
+     * Definisce le opzioni: trnsl_id, trnsl_table, form_id, value_input, value_retrieve.
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
     
     	$widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
     	
@@ -277,32 +317,77 @@ class Build {
     		return '';
     	}
     	else {
+    
+    		$wìdget_class = "\Gino\\".ucfirst($widget)."Widget";
+    		$widget_obj = new $wìdget_class();
     		
     		if(!array_key_exists('required', $options)) {
     			$options['required'] = $this->_required;
     		}
     		$opt = array_merge($this->properties(), $options);
     		
-    		$wìdget_class = "\Gino\\".ucfirst($widget)."Widget";
+    		// Translation options
+    		$opt['trnsl_id'] = $this->_model->id;
+    		$opt['trnsl_table'] = $this->_model->getTable();
     		
-    		$obj = new $wìdget_class();
-    		return $obj->printInputForm($form, $opt);
+    		// Form options
+    		$opt['form_id'] = $mform->getFormId();
+    		
+    		// Define value to be shown in the input form
+    		if(!is_null($opt['default']) and $opt['value'] === null) {	// $this->_default ??? $this->_value ???
+    			$opt['value'] = $opt['default'];
+    		}
+    		
+    		/*
+    		checkboxWidget		-		$this->_value
+    		constantWidget		-		htmlInput($this->_value)
+    		datetimeWidget		retvar	htmlInput($this->_value)
+    		dateWidget			retvar	htmlInput($this->_value)
+    		editorWidget		retvar	htmlInputEditor($this->_value)
+    		emailWidget			retvar	htmlInput($this->_value)
+    		fileWidget			-		htmlInput($this->_value)
+    		floatWidget			retvar	htmlInput($this->_value)
+    		hiddenWidget		-		htmlInput($this->_value)
+    		ImageWidget			-		htmlInput($this->_value)
+    		MulticheckWidget	-		$this->_value
+    		PasswordWidget		retvar	htmlInput($this->_value)
+    		RadioWidget			retvar	htmlInput($this->_value)
+    		SelectWidget		-		$this->_value
+    		TextareaWidget		retvar	htmlInput($this->_value)
+    		TextWidget			retvar	htmlInput($this->_value)
+    		TimeWidget			retvar	htmlInput($value)
+    		UnitWidget			-
+    		
+    		se passo da retvar utilizzo $this->_value_retrieve in Gino.Widget::printInputForm()
+    		altrimenti utilizzo $this->_value_input:
+    		
+    		-		$this->_value				$this->_value
+    		-		htmlInput($this->_value)	$this->_value_input
+    		retvar	htmlInput($this->_value)	$this->_value_retrieve
+    		*/
+    		
+    		$input_value = $widget_obj->inputValue($opt['value'], $opt);
+    		$opt['value_input'] = $input_value;
+    		$opt['value_retrieve'] = $mform->retvar($opt['name'], $input_value);
+    		
+    		return $widget_obj->printInputForm($opt);
     	}
     }
     
     /**
      * @brief Stampa un elemento del form di filtri area amministrativa
-     * @param \Gino\Form $form istanza di Gino.Form
+     * 
      * @param array $options
      *   - @b default (mixed): valore di default
      * @return controllo del campo, html
      */
-    public function formFilter(\Gino\Form $form, $options)
+    public function formFilter($options)
     {
     	$options['required'] = FALSE;
     	$options['is_filter'] = TRUE;
     	
-    	return $this->formElement($form, $options);
+    	$mform = new ModelForm($this->_model);
+    	return $this->formElement($mform, $options);
     }
     
     /**

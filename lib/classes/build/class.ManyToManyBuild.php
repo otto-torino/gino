@@ -120,7 +120,7 @@ class ManyToManyBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         $db = Db::instance();
         if($this->_m2m_controller) {
@@ -167,7 +167,7 @@ class ManyToManyBuild extends Build {
             );
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**

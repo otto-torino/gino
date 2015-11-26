@@ -21,11 +21,11 @@ class HiddenWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$buffer = $this->_form->hidden($this->_name, htmlInput($this->_value), $options);
+		$buffer = Input::hidden($this->_name, $this->_value_input, $options);
 		
 		return $buffer;
 	}

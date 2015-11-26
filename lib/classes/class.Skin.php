@@ -302,8 +302,8 @@ class Skin extends Model {
     public function actionSkin(\Gino\Http\Request $request) {
 
         $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $action = ($this->id) ? 'modify' : 'insert';
 

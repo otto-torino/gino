@@ -21,17 +21,15 @@ class FloatWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		if(!array_key_exists('maxlength', $options)) {
 			$options['maxlength'] = $this->_int_digits+1;
 		}
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
-		
-		$buffer = $this->_form->cinput($this->_name, 'text', $value, $this->_label, $options);
+		$buffer = Input::input_label($this->_name, 'text', $this->_value_retrieve, $this->_label, $options);
 		
 		return $buffer;
 	}

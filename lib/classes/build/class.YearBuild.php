@@ -33,10 +33,10 @@ class YearBuild extends IntegerBuild {
     /**
      * @see Gino.IntegerBuild::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
     
     	$options['maxlength'] = 4;
     
-    	return parent::formElement($form, $options);
+    	return parent::formElement($mform, $options);
     }
 }

@@ -384,14 +384,14 @@ class auth extends \Gino\Controller {
             $profile = new RegistrationProfile($profile_id);
 
             $formobj = Loader::load('Form', array('auth_registration', 'post', FALSE));
-            $formobj->save('authregistrationdata');
+            $formobj->saveSession('authregistrationdata');
             $error_redirect = $this->_registry->router->link($this->_class_name, 'registration', array('id' => $profile->id));
             // captcha
             if(!$formobj->checkCaptcha()) {
                 //return \Gino\Error::errorMessage(array('error' => _('Il codice inserito non è corretto.')), $error_redirect);
             }
             // campi obbligatori
-            if($formobj->arequired()) {
+            if($formobj->checkRequired()) {
                 return \Gino\Error::errorMessage(array('error' => 1), $error_redirect);
             }
 
@@ -1811,18 +1811,21 @@ class auth extends \Gino\Controller {
             if($this->_access->Authentication()) exit();
             else return error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface);
         }
-
-        $gform = \Gino\Loader::load('Form', array('login', 'post', true));
-
-        $form = $gform->open('', FALSE, '');
-        $form .= $gform->hidden('action', 'auth');
-
-        $form .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));
-        $form .= $gform->cinput('pwd', 'password', '', _("Password"), array('size'=>30));
-
-        $form .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
-        $form .= $gform->close();
-
+		
+        $mform = \Gino\Loader::load('ModelForm', array(new User(null), array('fields'=>array('username', 'userpwd'))));
+        
+        $form = $mform->view(
+        	array(
+        		'form_id' => 'login',
+        		'show_save_and_continue' => false,
+        		'view_title' => false,
+        		'addCell' => array('username'=>array('name'=>'action', 'field'=>\Gino\Input::hidden('action', 'auth'))),
+        		's_name' => 'submit_login',
+        		's_value' => _("login")
+        	),
+        	array('username'=>array('trnsl'=>false), 'userpwd'=>array('trnsl'=>false))
+        );
+        
         $view = new \Gino\View($this->_view_dir, 'login');
         $dict = array(
             'form' => $form,
@@ -1871,7 +1874,7 @@ class auth extends \Gino\Controller {
 
             if($request->method == 'POST') {
                 $formobj = Loader::load('Form', array('data_recovery', 'post', FALSE));
-                if($formobj->arequired()) {
+                if($formobj->checkRequired()) {
                     return \Gino\Error::errorMessage(array('error' => 1), $this->_registry->router->link($this->_class_name, 'dataRecovery'));
                 }
 

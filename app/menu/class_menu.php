@@ -432,8 +432,8 @@ class menu extends \Gino\Controller {
         $this->requirePerm(array('can_admin', 'can_edit'));
 
         $gform = \Gino\Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int');
         $action = \Gino\cleanVar($request->POST, 'action', 'string');

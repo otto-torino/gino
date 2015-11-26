@@ -1116,8 +1116,8 @@ class Template extends Model {
     public function actionCopyTemplate(\Gino\Http\Request $request) {
 
         $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $ref = cleanVar($request->POST, 'ref', 'int', '');
         $label = cleanVar($request->POST, 'label', 'string', '');

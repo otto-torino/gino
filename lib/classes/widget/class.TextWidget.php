@@ -21,13 +21,17 @@ class TextWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
+		$print_label = gOpt('print_label', $options, true);
 		
-		$buffer = $this->_form->cinput($this->_name,'text', $value, $this->_label, $options);
+		if($print_label) {
+			$buffer = Input::input_label($this->_name, 'text', $this->_value_retrieve, $this->_label, $options);
+		} else {
+			$buffer = Input::input($this->_name, 'text', $this->_value_retrieve, $options);
+		}
 		
 		return $buffer;
 	}

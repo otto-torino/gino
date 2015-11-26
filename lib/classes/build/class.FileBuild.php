@@ -434,7 +434,7 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
     
     	if($this->_value != '' and (!isset($options['preview']) or $options['preview']))
     	{
@@ -443,7 +443,7 @@ class FileBuild extends Build {
     	}
     	if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
     
-    	return parent::formElement($form, $options);
+    	return parent::formElement($mform, $options);
     }
     
     /**

@@ -312,8 +312,8 @@ class module extends \Gino\Controller {
         \Gino\Loader::import('sysClass', 'ModuleApp');
 
         $gform = \Gino\Loader::load('Form', array('gform','post', true));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $name = \Gino\cleanVar($request->POST, 'name', 'string', '');
         $module_app_id = \Gino\cleanVar($request->POST, 'module_app', 'string', '');

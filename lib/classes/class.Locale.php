@@ -840,8 +840,8 @@ class Locale extends Singleton {
     	$lang = cleanVar($request->POST, 'lang', 'string', '');
     	
     	$gform = Loader::load('Form', array(null, null, null));
-    	$gform->save('dataform');
-    	$req_error = $gform->arequired();
+    	$gform->saveSession('dataform');
+    	$req_error = $gform->checkRequired();
     	
     	if($req_error > 0)
     		return Error::errorMessage(array('error'=>1), $this->_mdlLink);
