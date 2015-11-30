@@ -71,12 +71,14 @@ class Lang extends \Gino\Model {
     		'label' => _('etichetta'),
     		'required'=>true,
     		'max_lenght'=>10,
+    		'trnsl' => false
     	));
     	$columns['language'] = new \Gino\CharField(array(
     		'name'=>'language',
     		'label' =>  _('lingua'),
     		'required'=>true,
     		'max_lenght'=>50,
+    		'trnsl' => false
     	));
     	$columns['language_code'] = new \Gino\EnumField(array(
     		'name'=>'language_code',

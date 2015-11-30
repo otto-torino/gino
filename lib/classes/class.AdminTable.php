@@ -3,7 +3,7 @@
  * @file class.AdminTable.php
  * @brief Contiene la definizione ed implementazione della classe Gino.AdminTable
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,9 +17,10 @@ namespace Gino;
  *
  * Il campo di nome @a instance viene trattato diversamente dagli altri campi: non compare nel form e il valore gli viene passato direttamente dall'istanza. \n
  *
+ * ##Filtri/Ordinamento
  * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
  * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a Gino.Field::canBeOrdered() ritorna il valore @a true. \n    
- *
+ * 
  * ##Gestione dei permessi
  * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
  * Esempio:
@@ -51,28 +52,8 @@ namespace Gino;
  * @endcode
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
- *
- * ##Tabella delle associazioni del tipo di campo con il tipo input di default
- *
- * <table>
- * <tr><th>Classe</th><th>Tipo di campo</th><th>Widget principale</th></tr>
- * <tr><td>charField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
- * <tr><td>dateField()</td><td>DATE</td><td>date</td></tr>
- * <tr><td>datetimeField()</td><td>DATETIME</td><td>null</td></tr>
- * <tr><td>directoryField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
- * <tr><td>enumField()</td><td>ENUM</td><td>radio</td></tr>
- * <tr><td>fileField()</td><td>FILE</td><td>file</td></tr>
- * <tr><td>floatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
- * <tr><td>foreignKeyField()</td><td>FOREIGN_KEY</td><td>select</td></tr>
- * <tr><td>imageField()</td><td>IMAGE</td><td>image</td></tr>
- * <tr><td>integerField()</td><td>TINYINT, SMALLINT, MEDIUMINT, INT</td><td>text</td></tr>
- * <tr><td>manyToManyField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
- * <tr><td>textField()</td><td>TEXT</td><td>textarea</td></tr>
- * <tr><td>timeField()</td><td>TIME</td><td>time</td></tr>
- * <tr><td>yearField()</td><td>YEAR</td><td>text</td></tr>
- * </table>
- *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -112,6 +93,12 @@ class AdminTable {
     protected $_ifp;
 
     /**
+     * Nome della classe Gino.ModelForm
+     * @var string
+     */
+    private $_model_form;
+    
+    /**
      * @brief Costruttore
      *
      * @param \Gino\Controller $controller istanza di Gino.Controller che gestisce il backend
@@ -144,6 +131,18 @@ class AdminTable {
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
+        
+        $this->_model_form = '\Gino\ModelForm';
+    }
+    
+    /**
+     * @brief Imposta una classe personalizzata che estende Gino.ModelForm
+     * 
+     * @param string $class nome della classe da istanziare
+     */
+    public function setModelForm($class) {
+    	
+    	$this->_model_form = $class;
     }
     
     /**
@@ -190,7 +189,7 @@ class AdminTable {
         }
         elseif($insert or $edit) {
             
-        	$mform = new \Gino\ModelForm($model_obj);
+        	$mform = new $this->_model_form($model_obj);
         	
         	$options_form['allow_insertion'] = $this->_allow_insertion;
         	$options_form['edit_deny'] = $this->_edit_deny;
@@ -246,7 +245,14 @@ class AdminTable {
     }
     
     /**
+     * @brief Azione del form
      * 
+     * @param object $model_form oggetto Gino.ModelForm
+     * @param array $options_form
+     *   array associativo di opzioni
+     *   - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
+     * @param array $options_field
+     * @return response or redirect
      */
     public function action($model_form, $options_form, $options_field) {
     	
@@ -887,12 +893,12 @@ class AdminTable {
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
 
-        $gform = new Form(array(
+        $gform = new Form();
+
+        $form = $gform->open($this->editUrl(array(), array('start')), false, '', array(
         	'form_id' => 'atbl_filter_form', 
         	'validation' => false
         ));
-
-        $form = $gform->open($this->editUrl(array(), array('start')), false, '');
 
         foreach($this->_filter_fields as $fname) {
 
@@ -910,8 +916,8 @@ class AdminTable {
                 
                 $form .= $build->formFilter(array('default'=>null));
 
-                $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name, $gform);
-                $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name, $gform);
+                $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name);
+                $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name);
             }
         }
 
@@ -934,10 +940,9 @@ class AdminTable {
      * @param array $filters elenco dei filtri
      * @param string $fname nome del campo della tabella al quale far seguire gli eventuali filtri aggiuntivi
      * @param string $class_name nome della classe
-     * @param \Gino\Form $gform istanza di Gino.Form
      * @return elementi del form in html
      */
-    private function formFiltersAdd($filters, $fname, $class_name, $gform) {
+    private function formFiltersAdd($filters, $fname, $class_name) {
 
         $form = '';
 
@@ -958,15 +963,15 @@ class AdminTable {
 
                     if($ff_input == 'radio')
                     {
-                        $form .= $gform->_input->radio_label($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
+                        $form .= Input::radio_label($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
                     }
                     elseif($ff_input == 'select')
                     {
-                        $form .= $gform->_input->select($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+                        $form .= Input::select($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
                     }
                     else
                     {
-                        $form .= $gform->_input->input_label($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
+                        $form .= Input::input_label($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
                     }
                 }
             }

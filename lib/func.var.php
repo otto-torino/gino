@@ -201,6 +201,46 @@ function stripEditor($text)
 // 1. from HTML Form to DB
 
 /**
+ * 
+ * @param mixed $value valore direttamente dalla request ($_POST['name'])
+ * @param array $options
+ * 
+ */
+function clean_text($value, $options = array()) {
+	
+	$escape = gOpt('escape', $options, true);
+	
+	$value = trim($value);
+	
+	if(get_magic_quotes_gpc()) {
+		$value = stripslashes($value);
+	}
+	
+	$value = strip_invisible_tags($value);
+	$value = strip_tags_attributes($value, true, true);
+	
+	$value = replaceChar($value);
+	$value = str_replace ('€', '&euro;', $value);	// with DB ISO-8859-1
+	
+	if($escape)
+	{
+		$db = Db::instance();
+		$value = $db->escapeString($value);
+	}
+	
+	if($value !== null) {
+		settype($value, 'string');
+	}
+	
+	return $value;
+}
+
+function clean_html() {
+
+	// gestisce strip_tags con inserimento da amministrazione e da interfaccia utente
+}
+
+/**
  * @brief Modifica il valore presente in un campo del form per inserirlo nel database
  *
  * Imposta il tipo del testo

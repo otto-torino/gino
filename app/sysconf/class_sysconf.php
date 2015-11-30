@@ -3,7 +3,7 @@
  * @file class_sysconf.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Sysconf.sysconf
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -44,7 +44,7 @@ require_once('class.Conf.php');
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
  *   - Contenuto file robots.txt
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -97,11 +97,11 @@ class sysconf extends \Gino\Controller {
         			'addCell' => array(
                     	'google_analytics' => array(
                         	'name' => 'robots',
-                        	'field' => $mform->_input->textarea_label('robots', is_readable(SITE_ROOT.OS.'robots.txt') ? file_get_contents(SITE_ROOT.OS.'robots.txt') : "", $conf->fieldLabel('robots'))
+                        	'field' => \Gino\Input::textarea_label('robots', is_readable(SITE_ROOT.OS.'robots.txt') ? file_get_contents(SITE_ROOT.OS.'robots.txt') : "", $conf->fieldLabel('robots'))
             			),
                     	'enable_cache' => array(
                         	'name' => 'empty_cache',
-                        	'field' => $mform->_input->input_label('empty_cache', 'submit', _('svuota'), _('svuota la cache'), null)
+                        	'field' => \Gino\Input::input_label('empty_cache', 'submit', _('svuota'), _('svuota la cache'), null)
                     	)
                 	),
                 	'fieldsets' => array(
@@ -127,7 +127,7 @@ class sysconf extends \Gino\Controller {
         	);
         	
         	$content = "<p class=\"backoffice-info\">"._("Configurazione del sistema.")."</p>";
-            $content .=$form;
+            $content .= $form;
         }
 
         $dict = array(

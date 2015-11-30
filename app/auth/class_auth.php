@@ -26,8 +26,8 @@ require_once('class.Group.php');
 require_once('class.Permission.php');
 require_once('class.RegistrationProfile.php');
 
-require_once(CLASSES_DIR.OS.'class.AdminTable.php');
-require_once('class.AdminTable_AuthUser.php');
+require_once(CLASSES_DIR.OS.'class.ModelForm.php');
+require_once('class.ModelFormUser.php');
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
@@ -1113,9 +1113,8 @@ class auth extends \Gino\Controller {
             $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
             $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
             
-            $gform = \Gino\Loader::load('Form', array('', '', ''));
-            $check_username = $gform->cinput('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
-            $check_email = $gform->cinput('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
+            $check_username = \Gino\Input::input_label('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
+            $check_email = \Gino\Input::input_label('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
 
             $removeFields = array();
 
@@ -1220,7 +1219,8 @@ class auth extends \Gino\Controller {
             )
         );
 
-        $admin_table = new AdminTable_AuthUser($this);
+        $admin_table = \Gino\Loader::load('AdminTable', array($this));
+        $admin_table->setModelForm('\Gino\App\Auth\ModelFormUser');
 
         $backend = $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
         
@@ -1509,15 +1509,15 @@ class auth extends \Gino\Controller {
         $obj_user = new User($id);
         $checked = $obj_user->getPermissions();
 
-        $gform = \Gino\Loader::load('Form', array('j_userperm', 'post', false));
+        $gform = \Gino\Loader::load('Form', array());
 
         $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserPermission]';
 
-        $content = $gform->open($form_action, false, '');
-        $content .= $gform->hidden('id', $obj_user->id);
-        $content .= $this->formPermission($gform, $checked);
+        $content = $gform->open($form_action, false, '', array('form_id'=>'j_userperm', 'validation'=>false));
+        $content .= \Gino\Input::hidden('id', $obj_user->id);
+        $content .= $this->formPermission($checked);
 
-        $content .= $gform->input('submit', 'submit', _("associa"), null);
+        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
         $content .= $gform->close();
 
         $dict = array(
@@ -1611,15 +1611,15 @@ class auth extends \Gino\Controller {
         $obj_group = new Group($id);
         $checked = $obj_group->getPermissions();
 
-        $gform = \Gino\Loader::load('Form', array('j_groupperm', 'post', false));
+        $gform = \Gino\Loader::load('Form', array());
 
         $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinGroupPermission]';
 
-        $content = $gform->open($form_action, false, '');
-        $content .= $gform->hidden('id', $obj_group->id);
-        $content .= $this->formPermission($gform, $checked);
+        $content = $gform->open($form_action, false, '', array('form_id'=>'j_groupperm', 'validation'=>false));
+        $content .= \Gino\Input::hidden('id', $obj_group->id);
+        $content .= $this->formPermission($checked);
 
-        $content .= $gform->input('submit', 'submit', _("associa"), null);
+        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
         $content .= $gform->close();
 
         $dict = array(
@@ -1697,9 +1697,11 @@ class auth extends \Gino\Controller {
 
     /**
      * @brief Imposta il multicheckbox sui permessi
+     * 
+     * @param array $checked
      * @return html, multicheck
      */
-    private function formPermission($obj_form, $checked=array()) {
+    private function formPermission($checked=array()) {
 
         $perm = Permission::getList();
 
@@ -1731,7 +1733,7 @@ class auth extends \Gino\Controller {
             }
         }
 
-        $content = $obj_form->multipleCheckbox('perm[]', $a_checked, $items, '', null);
+        $content = \Gino\Input::multipleCheckbox('perm[]', $a_checked, $items, '', null);
 
         return $content;
     }

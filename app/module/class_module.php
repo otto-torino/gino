@@ -3,7 +3,7 @@
  * @file class_module.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.module
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,7 +25,7 @@ require_once('class.ModuleInstance.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -165,15 +165,14 @@ class module extends \Gino\Controller {
      */
     private function formRemoveModule($module) {
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array());
         $gform->load('dataform');
 
         $GINO = "<p class=\"lead\">"._("Attenzione! L'eliminazione del modulo comporta l'eliminazione di tutti i dati!")."</p>\n";
 
-        $required = '';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveModule]", '', $required);
-        $GINO .= $gform->hidden('id', $module->id);
-        $GINO .= $gform->cinput('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
+        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveModule]", '', '');
+        $GINO .= \Gino\Input::hidden('id', $module->id);
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
@@ -254,17 +253,16 @@ class module extends \Gino\Controller {
         $module_app = $module->moduleApp();
         $modules_app = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='1' AND active='1'", 'order' => 'label'));
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id)));
+        $gform = \Gino\Loader::load('Form', array());
         $gform->load('dataform');
 
-        $required = 'name,label';
-        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionModule]", '', $required);
-        $GINO .= $gform->hidden('id', $module->id);
-        $GINO .= $gform->cselect('module_app', $gform->retvar('module_app', $module_app->id), \Gino\App\SysClass\ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
-        $GINO .= $gform->cinput('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
-        $GINO .= $gform->cinput('label', 'text', $gform->retvar('label', $module->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
-        $GINO .= $gform->ctextarea('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
-        $GINO .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
+        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionModule]", '', 'name,label');
+        $GINO .= \Gino\Input::hidden('id', $module->id);
+        $GINO .= \Gino\Input::select_label('module_app', $gform->retvar('module_app', $module_app->id), \Gino\App\SysClass\ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
+        $GINO .= \Gino\Input::input_label('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
+        $GINO .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', $module->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id));
+        $GINO .= \Gino\Input::textarea_label('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
         
         $view = new View();
@@ -331,11 +329,11 @@ class module extends \Gino\Controller {
 
         // check name
         if(ModuleInstance::getFromName($name)) {
-            return error::errorMessage(array('error'=>_("è già presente un modulo con lo stesso nome")), $link_error);
+            return Error::errorMessage(array('error'=>_("è già presente un modulo con lo stesso nome")), $link_error);
         }
 
         if(preg_match("/[^\w]/", $name)) {
-            return error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error);
+            return Error::errorMessage(array('error'=>_("il nome del modulo contiene caratteri non permessi")), $link_error);
         }
 
         $class = $module_app->classNameNs();
@@ -464,7 +462,7 @@ class module extends \Gino\Controller {
      */
     private function formActivateModule($module) {
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array());
         $gform->load('dataform');
 
         $GINO = '';
@@ -472,10 +470,9 @@ class module extends \Gino\Controller {
             $GINO .= "<p>"._('Prima di disattivare un modulo assicurarsi di aver rimosso ogni suo output da tutti i template.')."</p>";
         }
 
-        $required = '';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditModuleActive]", '', $required);
-        $GINO .= $gform->hidden('id', $module->id);
-        $GINO .= $gform->cinput('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditModuleActive]", '', '');
+        $GINO .= \Gino\Input::hidden('id', $module->id);
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();

@@ -1124,12 +1124,12 @@ class layout extends \Gino\Controller {
 
         if(is_file($pathToFile))
         {
-            $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
+            $gform = \Gino\Loader::load('Form', array());	// array("tblLayout"=>false)
             $gform->load('dataform');
-            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '');
-            $buffer .= $gform->hidden('fname', $filename);
-            $buffer .= $gform->hidden('code', $code);
-            $buffer .= $gform->hidden('action', $action);
+            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '', array('form_id'=>'gform'));
+            $buffer .= \Gino\Input::hidden('fname', $filename);
+            $buffer .= \Gino\Input::hidden('code', $code);
+            $buffer .= \Gino\Input::hidden('action', $action);
 
             $contents = file_get_contents($pathToFile);
             $buffer .= "<div class=\"form-row\">";
@@ -1137,8 +1137,8 @@ class layout extends \Gino\Controller {
             $buffer .= "</div>";
 
             $buffer .= "<div class=\"form-row\">";
-            $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-            $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
+            $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+            $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
             $buffer .= "</div>";
 
             $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";

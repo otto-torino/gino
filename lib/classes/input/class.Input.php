@@ -162,7 +162,6 @@ class Input {
      * @param array $options
      *   array associativo di opzioni (aggiungere quelle del metodo input())
      *   - @b required (boolean): campo obbligatorio
-     *   //- @b classLabel (string): valore CLASS del tag SPAN in <label>
      *   - @b size (integer): lunghezza del tag
      *   - @b text_add (string): testo dopo il tag input
      *   - @b trnsl (boolean): attiva la traduzione
@@ -173,17 +172,14 @@ class Input {
     public static function input_label($name, $type, $value, $label, $options=array()){
     
     	$required = gOpt('required', $options, false);
-    	//$classLabel = gOpt('classLabel', $options, null);
     	$size = gOpt('size', $options, null);
     	$text_add = gOpt('text_add', $options, null);
-    	
     	
     	$trnsl = gOpt('trnsl', $options, false);
     	$trnsl_id = gOpt('trnsl_id', $options, null);
     	$trnsl_table = gOpt('trnsl_table', $options, null);
     	
     	$buffer = "<div class=\"form-row\">";
-    	//$buffer .= self::label($name, $label, $required, $this->option('classLabel'))."\n";
     	$buffer .= self::label($name, $label, $required)."\n";
     	
     	if(is_array($label)) {

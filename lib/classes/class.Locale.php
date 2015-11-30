@@ -718,15 +718,12 @@ class Locale extends Singleton {
      */
     private function formModuleFile($request) {
     
+    	$key = cleanVar($request->GET, 'key', 'string', '');
+    	
     	$registry = registry::instance();
     
     	$registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
     	$registry->addCss(CSS_WWW."/codemirror.css");
-    	$gform = Loader::load('Form', array('gform', 'post', true));
-    	$gform->load('dataform');
-    
-    	$key = cleanVar($request->GET, 'key', 'string', '');
-    
     	$registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
     	$registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
     	$registry->addJs(SITE_JS."/CodeMirror/css.js");
@@ -747,16 +744,18 @@ class Locale extends Singleton {
     	 
     	$title = sprintf(_("Modifica il file delle traduzioni \"%s\""), $key);
     
-    	$required = '';
-    	$buffer = $gform->open($this->_mdlLink."&action=save&key=$key", '', $required);
+    	$gform = Loader::load('Form', array(array('form_id'=>'gform')));
+    	$gform->load('dataform');
+    	
+    	$buffer = $gform->open($this->_mdlLink."&action=save&key=$key", '', '');
     
     	$contents = file_get_contents($path_to_file);
     
     	$buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
     
     	$buffer .= "<div class=\"form-row\">";
-    	$buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-    	$buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+    	$buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+    	$buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
     	$buffer .= "</div>";
     	$buffer .= $gform->close();
     
@@ -798,24 +797,23 @@ class Locale extends Singleton {
      */
     private function formCreateFile($request) {
     
-    	$gform = Loader::load('Form', array('gform', 'post', true));
+    	$gform = Loader::load('Form', array(array('form_id'=>'gform')));
     	$gform->load('dataform');
     
     	$title = _("Crea un nuovo file");
     	$subtitle = _("Scegliere per quale lingua creare il file delle traduzioni");
     
-    	$required = 'lang';
-    	$buffer = $gform->open($this->_mdlLink."&action=create", '', $required);
+    	$buffer = $gform->open($this->_mdlLink."&action=create", '', 'lang');
     	
-    	$db = db::instance();
+    	$db = Db::instance();
     	
     	$concat = $db->concat(array('language_code', "'_'", 'country_code'));
     	$codes = array_keys($this->_file_list);
     	$where = "$concat NOT IN ('".implode("','", $codes)."')";
     	$query = $db->query($concat." AS lang, language", Lang::$table, $where, array('order'=>'language ASC'));
     	
-    	$buffer .= $gform->cselect('lang', null, $query, _("Lingua"), array('required'=>true));
-    	$buffer .= $gform->cinput('submit_action', 'submit', _("crea"), null, array("classField"=>"submit"));
+    	$buffer .= \Gino\Input::select_label('lang', null, $query, _("Lingua"), array('required'=>true));
+    	$buffer .= \Gino\Input::input_label('submit_action', 'submit', _("crea"), null, array("classField"=>"submit"));
     	
     	$buffer .= $gform->close();
     	
@@ -839,7 +837,7 @@ class Locale extends Singleton {
     
     	$lang = cleanVar($request->POST, 'lang', 'string', '');
     	
-    	$gform = Loader::load('Form', array(null, null, null));
+    	$gform = Loader::load('Form', array());
     	$gform->saveSession('dataform');
     	$req_error = $gform->checkRequired();
     	

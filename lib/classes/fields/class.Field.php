@@ -17,6 +17,31 @@ use \Gino\Http\Request;
  * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ##Tabella delle associazioni predefinite del tipo di campo con il tipo input
+ *
+ * <table>
+ * <tr><th>Classe</th><th>Tipo di campo (database)</th><th>Widget predefinito</th></tr>
+ * <tr><td>BooleanField()</td><td>TINYINT</td><td>text</td></tr>
+ * <tr><td>CharField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>DateField()</td><td>DATE</td><td>date</td></tr>
+ * <tr><td>DatetimeField()</td><td>DATETIME</td><td>null</td></tr>
+ * <tr><td>DirectoryField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>EnumField()</td><td>ENUM</td><td>radio</td></tr>
+ * <tr><td>FileField()</td><td>CHAR, VARCHAR</td><td>file</td></tr>
+ * <tr><td>FloatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
+ * <tr><td>foreignKeyField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>select</td></tr>
+ * <tr><td>ImageField()</td><td>CHAR, VARCHAR</td><td>image</td></tr>
+ * <tr><td>IntegerField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>text</td></tr>
+ * <tr><td>ManyToManyField()</td><td>-</td><td>multicheck</td></tr>
+ * <tr><td>ManyToManyThroughField()</td><td>-</td><td>unit</td></tr>
+ * <tr><td>MulticheckField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
+ * <tr><td>SlugField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>TagField()</td><td>CHAR, VARCHAR</td><td>-</td></tr>
+ * <tr><td>TextField()</td><td>TEXT</td><td>textarea</td></tr>
+ * <tr><td>TimeField()</td><td>TIME</td><td>time</td></tr>
+ * <tr><td>YearField()</td><td>YEAR</td><td>text</td></tr>
+ * </table>
  */
 class Field {
 

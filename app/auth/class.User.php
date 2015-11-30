@@ -3,7 +3,7 @@
  * @file class.User.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.User.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un utente
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -263,19 +263,16 @@ class User extends \Gino\Model {
          $rules = \Gino\gOpt('rules', $options, null);
          $maxlength = \Gino\gOpt('maxlength', $options, null);
 
-         $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
-
+         $gform = \Gino\Loader::load('Form', array(array('form_id'=>'pwdform')));
          $gform->load('pwdform');
 
-         $required = 'userpwd,check_userpwd';
+         $buffer = $gform->open($form_action, '', 'userpwd,check_userpwd');
+         $buffer .= \Gino\Input::hidden('id', $this->id);
 
-         $buffer = $gform->open($form_action, '', $required);
-         $buffer .= $gform->hidden('id', $this->id);
+         $buffer .= \Gino\Input::input_label('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
+         $buffer .= \Gino\Input::input_label('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
 
-         $buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
-         $buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
-
-         $buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
+         $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
 
          $buffer .= $gform->close();
 
@@ -296,7 +293,7 @@ class User extends \Gino\Model {
     public function savePassword($options=array()) {
 
         $request = \Gino\Http\Request::instance();
-        $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array(array('form_id'=>'pwdform')));
 
         $gform->saveSession('pwdform');
         $req_error = $gform->checkRequired();

@@ -84,21 +84,12 @@ class PageComment extends \Gino\Model {
     		'auto_now'=>false,
     		'auto_now_add'=>true,
     	));
-    	/*
-    	$columns['author'] = new \Gino\ForeignKeyField(array(
-    		'name'=>'author',
-    		'label'=>_("Autore"),
-    		'required'=>true,
-    		'foreign'=>'\Gino\App\Auth\User',
-    		'foreign_order'=>'lastname ASC, firstname ASC',
-    		'add_related' => false,
-    	));
-    	*/
     	$columns['author'] = new \Gino\CharField(array(
-    		'name'=>'author',
-    		'label'=>_("Autore"),
-    		'required'=>true,
-    		'max_lenght'=>200,
+    		'name' => 'author',
+    		'label' => _("Autore"),
+    		'required' => true,
+    		'max_lenght' => 200,
+    		'trnsl' => false
     	));
     	$columns['email'] = new \Gino\EmailField(array(
     		'name'=>'email',
@@ -107,20 +98,21 @@ class PageComment extends \Gino\Model {
     		'max_lenght'=>200,
     	));
     	$columns['web'] = new \Gino\CharField(array(
-    		'name'=>'web',
-    		'label'=>_("Sito web"),
-    		'required'=>true,
-    		'max_lenght'=>200,
+    		'name' => 'web',
+    		'label' => _("Sito web"),
+    		'required' => true,
+    		'max_lenght' => 200,
+    		'trnsl' => false
     	));
     	$columns['text'] = new \Gino\TextField(array(
-    		'name'=>'text',
+    		'name' => 'text',
     		'label' => _("Descrizione"),
-    		'required'=>true
+    		'required' => true
     	));
     	$columns['notification'] = new \Gino\BooleanField(array(
-    		'name'=>'notification',
-    		'label'=>_('Notifica altri commenti'),
-    		'required'=>true,
+    		'name' => 'notification',
+    		'label' => _('Notifica altri commenti'),
+    		'required' => true,
     	));
     	$columns['reply'] = new \Gino\ForeignKeyField(array(
     		'name'=>'reply',
@@ -131,9 +123,9 @@ class PageComment extends \Gino\Model {
     		'foreign_order'=>'datetime',
     	));
 		$columns['published'] = new \Gino\BooleanField(array(
-            'name'=>'published', 
-            'label'=>_('Pubblicato'),
-            'required'=>true,
+            'name' => 'published', 
+            'label' => _('Pubblicato'),
+            'required' => true,
         ));
 
         return $columns;
@@ -240,7 +232,6 @@ class PageComment extends \Gino\Model {
 
         $entry = new pageEntry($this->entry, $this->_controller);
 
-        $plink = new \Gino\Link();    
         $link = $this->_registry->router->link('page', 'view', array('id' => $entry->slug), array(), array('abs' => TRUE)).'#comment'.$this->id;
 
         $email_from_app = $this->_registry->sysconf->email_from_app;

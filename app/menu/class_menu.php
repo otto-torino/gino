@@ -3,7 +3,7 @@
  * @file class_menu.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.menu
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -21,13 +21,12 @@ use \Gino\Http\Redirect;
 use \Gino\App\SysClass\ModuleApp;
 use \Gino\App\Module\ModuleInstance;
 
-// Include il file class_menuVoice.php
 require_once('class.MenuVoice.php');
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei menu
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -54,10 +53,7 @@ class menu extends \Gino\Controller {
 
         $this->_tbl_opt = "sys_menu_opt";
 
-        /*
-            Opzioni
-        */
-
+        // Options
         $this->_title = \Gino\htmlChars($this->setOption('title', true));
         $this->_cache = $this->setOption('cache', array("value"=>0));
 
@@ -431,7 +427,7 @@ class menu extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin', 'can_edit'));
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', false));
+        $gform = \Gino\Loader::load('Form', array());
         $gform->saveSession('dataform');
         $req_error = $gform->checkRequired();
 
@@ -445,7 +441,7 @@ class menu extends \Gino\Controller {
         $link_error = $this->linkAdmin(array(), $link_params);
 
         if($req_error > 0)
-            return error::errorMessage(array('error'=>1), $link_error);
+            return Error::errorMessage(array('error'=>1), $link_error);
 
         $menu_voice = new MenuVoice($id);
 
@@ -479,7 +475,7 @@ class menu extends \Gino\Controller {
 
         $link_error = $this->linkAdmin();
         if(!$id)
-            return error::errorMessage(array('error'=>9), $link_error);
+            return Error::errorMessage(array('error'=>9), $link_error);
 
         $voice = new MenuVoice($id);
         $voice->deleteVoice();
@@ -497,13 +493,14 @@ class menu extends \Gino\Controller {
         $this->requirePerm(array('can_admin', 'can_edit'));
 
         $buffer = "<p class=\"backoffice-info\">"._('Utilizzando il modulo di ricerca viste i campi url e permessi verranno autocompilati con i valori corretti per la vista selezionata.')."</p>";
-        $gform = new \Gino\Form('gform', 'post', false);
+        $gform = new \Gino\Form();
+        $gform->setValidation(false);
         $buffer .= $this->jsSearchModulesLib();
         $buffer .= "<div class=\"text-center\">\n";
         $buffer .= _("pagine").": <input type=\"text\" id=\"s_page\" name=\"s_page\" size=\"10\" />&nbsp; &nbsp; ";
         $buffer .= _("moduli").": <input type=\"text\" id=\"s_class\" name=\"s_class\" size=\"10\" />\n";
         $buffer .= "&nbsp; ";
-        $buffer .= $gform->input('s_all', 'button', _("mostra tutti"), array("classField"=>"generic", "id"=>"s_all"));
+        $buffer .= \Gino\Input::input('s_all', 'button', _("mostra tutti"), array("classField"=>"generic", "id"=>"s_all"));
 
         $buffer .= "</div>\n";
 
@@ -847,6 +844,5 @@ class menu extends \Gino\Controller {
         }
 
         return $GINO;
-
     }
 }

@@ -407,9 +407,9 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::formFilter()
      */
-    public function formFilter(\Gino\Form $form, $options = array()) {
+    public function formFilter($options = array()) {
     	
-    	return $form->cinput($this->_name, 'text', $this->_value, $this->_label, array());
+    	return \Gino\Input::input($this->_name, 'text', $this->_value, $this->_label, array());
     }
     
     /**

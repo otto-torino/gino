@@ -3,7 +3,7 @@
  * @file class_sysClass.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SysClass.sysClass
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ require_once('class.ModuleApp.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei moduli di sistema
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -177,15 +177,15 @@ class sysClass extends \Gino\Controller {
      */
     private function formInsertSysClass() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $GINO = "<p class=\"backoffice-info\">"._("Caricare il pacchetto del modulo. Se la procedura di installazione va a buon fine modificare il modulo appena inserito per personalizzarne l'etichetta ed eventualmente altri parametri.")."</p>\n";
 
         $required = 'archive';
         $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionInsertSysClass]", true, $required);
-        $GINO .= $gform->cfile('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
-        $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
+        $GINO .= \Gino\Input::input_file('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
@@ -368,33 +368,31 @@ class sysClass extends \Gino\Controller {
      */
     private function formManualSysClass() {
 
-        $gform = Loader::load('Form', array('mform', 'post', true));
+        $gform = Loader::load('Form', array(array('form_id'=>'mform')));
         $gform->load('mdataform');
 
         $GINO = "<div class=\"backoffice-info\">";
         $GINO .= "<p>"._("Per eseguire l'installazione manuale effettuare il submit del form prendendo come riferimento il file config.txt.");
         $GINO .= "<br />"._("In seguito effettuare la procedura indicata").":</p>\n";
         $GINO .= "<ul>";
-        $GINO .= "<li>creare la directory app/nomeclasse e copiare tutti i file della libreria</li>";
-        $GINO .= "<li>creare la directory contents/nomeclasse se è previsto l'upload di file</li>";
-        $GINO .= "<li>di default le classi vengono create rimovibili</li>";
-        $GINO .= "<li>eseguire manualmente le query di creazione delle tabelle presenti nel file SQL</li>";
+        $GINO .= "<li>"._("creare la directory app/nomeclasse e copiare tutti i file della libreria")."</li>";
+        $GINO .= "<li>"._("creare la directory contents/nomeclasse se è previsto l'upload di file")."</li>";
+        $GINO .= "<li>"._("di default le classi vengono create rimovibili")."</li>";
+        $GINO .= "<li>"._("eseguire manualmente le query di creazione delle tabelle presenti nel file SQL")."</li>";
         $GINO .= "</ul>";
         $GINO .= "</div>";
 
-        $required = 'label,name,tblname';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionManualSysClass]", false, $required);
+       $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionManualSysClass]", false, 'label,name,tblname');
 
-        $instance = 'yes';
-        $GINO .= $gform->cselect('instantiable', '3', array('1'=>_("istanziabile"), '0'=>_("non istanziabile")), _("Tipo di classe")); // 3 to have no one selected
+        $GINO .= \Gino\Input::select_label('instantiable', '3', array('1'=>_("istanziabile"), '0'=>_("non istanziabile")), _("Tipo di classe")); // 3 to have no one selected
 
-        $GINO .= $gform->cinput('label', 'text', '', _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>100));
-        $GINO .= $gform->cinput('name', 'text', '', _("Nome classe"), array("required"=>true, "size"=>40, "maxlength"=>100));
-        $GINO .= $gform->ctextarea('description', '', _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4));
-        $GINO .= $gform->cinput('tblname', 'text', '', _("Prefisso tabelle"), array("required"=>true, "size"=>40, "maxlength"=>30));
-        $GINO .= $gform->cinput('version', 'text', '', _("Versione"), array("required"=>false, "size"=>40, "maxlength"=>200));
+        $GINO .= \Gino\Input::input_label('label', 'text', '', _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>100));
+        $GINO .= \Gino\Input::input_label('name', 'text', '', _("Nome classe"), array("required"=>true, "size"=>40, "maxlength"=>100));
+        $GINO .= \Gino\Input::textarea_label('description', '', _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4));
+        $GINO .= \Gino\Input::input_label('tblname', 'text', '', _("Prefisso tabelle"), array("required"=>true, "size"=>40, "maxlength"=>30));
+        $GINO .= \Gino\Input::input_label('version', 'text', '', _("Versione"), array("required"=>false, "size"=>40, "maxlength"=>200));
 
-        $GINO .= $gform->cinput('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
@@ -419,7 +417,7 @@ class sysClass extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $gform = Loader::load('Form', array('mform', 'post', false));
+        $gform = Loader::load('Form', array(array('form_id'=>'mform')));
         $gform->saveSession('mdataform');
         $req_error = $gform->checkRequired();
 
@@ -464,7 +462,7 @@ class sysClass extends \Gino\Controller {
      */
     private function formEditSysClass($id) {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $module_app = new ModuleApp($id);
@@ -472,15 +470,14 @@ class sysClass extends \Gino\Controller {
             throw new \Exception("ID non associato ad alcuna classe di sistema");
         }
 
-        $required = 'label';
-        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClass]", '', $required);
-        $GINO .= $gform->hidden('id', $id);
-        $GINO .= $gform->cinput('label', 'text', $gform->retvar('label', $module_app->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, 
+        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClass]", '', 'label');
+        $GINO .= \Gino\Input::hidden('id', $id);
+        $GINO .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', $module_app->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, 
             "trnsl"=>true, "trnsl_table"=>TBL_MODULE_APP, "field"=>"label", "trnsl_id"=>$id));
-        $GINO .= $gform->ctextarea('description', $gform->retvar('description', $module_app->description), _("Descrizione"), array("cols"=>45, "rows"=>4, 
+        $GINO .= \Gino\Input::textarea_label('description', $gform->retvar('description', $module_app->description), _("Descrizione"), array("cols"=>45, "rows"=>4, 
             "trnsl"=>true, "trnsl_table"=>TBL_MODULE_APP, "field"=>"description", "trnsl_id"=>$id));
 
-        $GINO .= $gform->cinput('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("modifica"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
@@ -508,14 +505,14 @@ class sysClass extends \Gino\Controller {
             throw new \Exception("ID non associato ad alcuna classe di sistema");
         }
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $GINO = "<p class=\"lead\">"._("Attenzione! La disattivazione di alcuni moduli potrebbe causare malfunzionamenti nel sistema")."</p>";
 
         $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClassActive]", '', '');
-        $GINO .= $gform->hidden('id', $id);
-        $GINO .= $gform->cinput('submit_action', 'submit', $module_app->active ? _('disattiva') : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        $GINO .= \Gino\Input::hidden('id', $id);
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', $module_app->active ? _('disattiva') : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
@@ -542,7 +539,7 @@ class sysClass extends \Gino\Controller {
             throw new \Exception("ID non associato ad alcuna classe di sistema");
         }
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $GINO = "<div class=\"backoffice-info\">";
@@ -553,10 +550,10 @@ class sysClass extends \Gino\Controller {
 
         $required = 'archive';
         $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionUpgradeSysClass]", true, $required);
-        $GINO .= $gform->hidden('id', $id);
+        $GINO .= \Gino\Input::hidden('id', $id);
 
-        $GINO .= $gform->cfile('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
-        $GINO .= $gform->cinput('submit_action', 'submit', _("upgrade"), '', array("classField"=>"submit"));
+        $GINO .= \Gino\Input::input_file('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("upgrade"), '', array("classField"=>"submit"));
 
         $GINO .= $gform->close();
 
@@ -802,9 +799,6 @@ class sysClass extends \Gino\Controller {
      */
     private function formRemoveSysClass($id) {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
-        $gform->load('dataform');
-
         $module_app = new ModuleApp($id);
 
         if(!$module_app->id) {
@@ -830,10 +824,12 @@ class sysClass extends \Gino\Controller {
         }
         $GINO .= "<p>"._("La disinstallazione non determina la rimozione dei moduli all'interno dei template.")."</p>\n";
 
-        $required = '';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveSysClass]", '', $required);
-        $GINO .= $gform->hidden('id', $id);
-        $GINO .= $gform->cinput('submit_action', 'submit', _("disinstalla"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
+        $gform = Loader::load('Form', array());
+        $gform->load('dataform');
+        
+        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveSysClass]", '', '');
+        $GINO .= \Gino\Input::hidden('id', $id);
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("disinstalla"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new View();
