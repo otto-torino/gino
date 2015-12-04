@@ -373,7 +373,7 @@ class Form {
      * @brief Controlla la compilazione dei campi obbligatori
      * @return numero campi obbligatori non compilati
      */
-    public function checkRequired(){
+    public function checkRequired() {
 
         $required = isset($this->_requestVar['required']) ? cleanVar($this->_requestVar, 'required', 'string', '') : '';
         $error = 0;
@@ -428,9 +428,7 @@ class Form {
 
         $text_add = gOpt('text_add', $options, null);
         
-        $required = true;
-        
-        $buffer = Input::label('captcha_input', _("Inserisci il codice di controllo"), $required)."\n";
+        $buffer = Input::label('captcha_input', _("Inserisci il codice di controllo"), true)."\n";
         $buffer .= "<div id=\"".$this->_form_id."_recaptcha\"></div>";
         $buffer .= "<script>
             function createCaptcha() {
@@ -460,11 +458,9 @@ class Form {
 
         $text_add = gOpt('text_add', $options, null);
         
-        $required = true;
-
         $captcha = Loader::load('Captcha', array('captcha_input'));
 
-        $buffer = Input::label('captcha_input', _("Inserisci il codice dell'immagine"), $required)."\n";
+        $buffer = Input::label('captcha_input', _("Inserisci il codice dell'immagine"), true)."\n";
         $buffer .= $captcha->render();
         if($text_add) {
         	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
@@ -567,11 +563,11 @@ class Form {
      * @brief Wrapper per la stampa del form
      * @description Imposta le proprietà $_form_id, $_validation, $_method, $_requestVar, $_session_value
      * 
-     * @see self::printForm()
+     * @see self::makeInputForm()
      * @see self::editUrl()
      * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
      * @param array $opt array associativo di opzioni
-     *   - @b fields (array): elementi del form
+     *   - @b fields (array): campi da mostrare nel form
      *   - @b options_form (array): opzioni del form e del layout
      *     - @b allow_insertion (boolean)
      *     - @b edit_deny (array)
@@ -652,7 +648,7 @@ class Form {
     		$title = null;
     	}
     	
-    	$form = $this->printForm($model_obj, $fields, $options_form, $options_field);
+    	$form = $this->makeInputForm($model_obj, $fields, $options_form, $options_field);
     	
     	$view->setViewTpl('admin_table_form');
     	$view->assign('title', $title);
@@ -698,7 +694,7 @@ class Form {
      * @param array $inputs opzioni specifiche dei campi del form nel formato array(field_name=>array(option=>value[,...])); queste opzioni vengono passate in Gino.Build::formElement()
      * @return form di inserimento/modifica
      */
-    protected function printForm($model, $fields, $options=array(), $inputs=array()) {
+    protected function makeInputForm($model, $fields, $options=array(), $inputs=array()) {
     
     	$popup = cleanVar($this->_request->GET, '_popup', 'int');
 

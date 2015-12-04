@@ -31,4 +31,15 @@ class IntegerBuild extends Build {
 
         parent::__construct($options);
     }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     * @return integer
+     */
+    public function clean($options=null) {
+    	
+    	parent::clean($options);
+    	return clean_int($this->_request_value);
+    }
 }

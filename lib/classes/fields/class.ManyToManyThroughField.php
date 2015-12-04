@@ -43,8 +43,6 @@ class ManyToManyThroughField extends Field {
         $this->_default_widget = 'unit';
         parent::__construct($options);
         
-        $this->_value_type = 'int';
-        
         $this->_controller = $options['controller'];
         $this->_m2m = $options['m2m'];
         $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;

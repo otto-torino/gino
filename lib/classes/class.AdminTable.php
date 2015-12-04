@@ -10,7 +10,7 @@
 namespace Gino;
 
 /**
- * @brief Gestisce l'interfaccia di amministrazione di un modello con iserimento, modifica ed eliminazione
+ * @brief Gestisce l'interfaccia di amministrazione di un modello con inserimento, modifica ed eliminazione
  *
  * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione). \n
  * Nel metodo backOffice() viene ricercato automaticamente il parametro 'id' come identificatore del record sul quale interagire. Non utilizzare il parametro 'id' per altri riferimenti.
@@ -303,17 +303,17 @@ class AdminTable {
      *     array associativo di opzioni
      *     - @b filter_fields (array): campi sui quali applicare il filtro per la ricerca automatica
      *     - @b filter_join (array): contiene le proprietà degli input form da associare ai campi ai quali viene applicato il filtro; i valori in arrivo da questi input concorrono alla definizione delle condizioni dei campi ai quali sono associati
-     *         - @a field (string): nome del campo di riferimento; l'input form viene posizionato dopo questo campo
-     *         - @a name (string): nome dell'input
-     *         - @a label (string): nome della label
-     *         - @a data (array): elementi che compongono gli input form radio e select
-     *         - @a default (string): valore di default
-     *         - @a input (string): tipo di input form, valori validi: radio (default), select
-     *         - @a where_clause (string): nome della chiave da passare alle opzioni del metodo addWhereClauses(); per i campi data: @a operator
+     *       - @a field (string): nome del campo di riferimento; l'input form viene posizionato dopo questo campo
+     *       - @a name (string): nome dell'input
+     *       - @a label (string): nome della label
+     *       - @a data (array): elementi che compongono gli input form radio e select
+     *       - @a default (string): valore di default
+     *       - @a input (string): tipo di input form, valori validi: radio (default), select
+     *       - @a where_clause (string): nome della chiave da passare alle opzioni del metodo addWhereClauses(); per i campi data: @a operator
      *         inoltre contiene le opzioni da passare al metodo clean
-     *         - @a value_type (string): tipo di dato (default string)
-     *         - @a method (array): default $this->_request->POST
-     *         - @a escape (boolean): default true \n
+     *       - @a value_type (string): tipo di dato (default string)
+     *       - @a method (array): default $this->_request->POST
+     *       - @a escape (boolean): default true \n
      *         Esempio:
      *         @code
      *         array(
@@ -325,17 +325,17 @@ class AdminTable {
      *         )
      *         @endcode
      *     - @b filter_add (array): contiene le proprietà degli input form che vengono aggiunti come filtro per la ricerca automatica
-     *         - @a field (string): nome del campo che precede l'input form aggiuntivo nel form di ricerca
-     *         - @a name (string): nome dell'input
-     *         - @a label (string): nome della label
-     *         - @a data (array): elementi che compongono gli input form radio e select
-     *         - @a default (string): valore di default
-     *         - @a input (string): tipo di input form, valori validi: radio (default), select
-     *         - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable()
+     *       - @a field (string): nome del campo che precede l'input form aggiuntivo nel form di ricerca
+     *       - @a name (string): nome dell'input
+     *       - @a label (string): nome della label
+     *       - @a data (array): elementi che compongono gli input form radio e select
+     *       - @a default (string): valore di default
+     *       - @a input (string): tipo di input form, valori validi: radio (default), select
+     *       - @a filter (string): nome del metodo da richiamare per la condizione aggiuntiva; il metodo dovrà essere creato in una classe che estende @a adminTable()
      *         inoltre contiene le opzioni da passare al metodo clean
-     *         - @a value_type (string): tipo di dato (default string)
-     *         - @a method (array): default $this->_request->POST
-     *         - @a escape (boolean): default true \n
+     *       - @a value_type (string): tipo di dato (default string)
+     *       - @a method (array): default $this->_request->POST
+     *       - @a escape (boolean): default true \n
      *         Esempio:
      *         @code
      *         array(
@@ -356,22 +356,22 @@ class AdminTable {
      *         @endcode
      *     - @b list_display (array): nomi dei campi da mostrare nella lista (se vuoto mostra tutti); 
      *         al posto del nome di un campo è possibile indicare un array con le seguenti chiavi
-     *         - @a member (string): nome del metodo del modello da richiamare e il cui output verrà mostrato nelle righe della colonna
-     *         - @a label (string): intestazione della colonna
+     *       - @a member (string): nome del metodo del modello da richiamare e il cui output verrà mostrato nelle righe della colonna
+     *       - @a label (string): intestazione della colonna
      *     - @b list_remove (array): campi da non mostrare nella lista (default: instance)
      *     - @b items_for_page (integer): numero di record per pagina
      *     - @b list_title (string): titolo
      *     - @b list_description (string): descrizione sotto il titolo (informazioni aggiuntive)
      *     - @b list_where (array): condizioni della query che estrae i dati dell'elenco
      *     - @b link_fields (array): campi sui quali impostare un collegamento, nel formato nome_campo=>array('link'=>indirizzo, 'param_id'=>'ref')
-     *         - @a link (string), indirizzo del collegamento
-     *         - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
+     *       - @a link (string), indirizzo del collegamento
+     *       - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
      *         esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_registry->router->link($this->_instance_name, 'view')))
      *     - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record
      *     - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>\Gino\icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
-     *         - @a label (string), nome del bottone
-     *         - @a link (string), indirizzo del collegamento
-     *         - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
+     *       - @a label (string), nome del bottone
+     *       - @a link (string), indirizzo del collegamento
+     *       - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
      *     - @b view_export (boolean): attiva il collegamento per l'esportazione dei record (default false)
      *     - @b name_export (string): nome del file di esportazione
      *     - @b export (integer): valore che indica la richiesta del file di esportazione (il parametro viene passato dal metodo backOffice)
@@ -664,7 +664,7 @@ class AdminTable {
 
     /**
      * @brief Setta le variabili di sessione usate per filtrare i record nella lista amministrativa
-     *
+     * 
      * @param \Gino\Model $model istanza di Gino.Model
      * @return void
      */
@@ -884,6 +884,7 @@ class AdminTable {
      * 
      * @see self::permission()
      * @see self::formFiltersAdd()
+     * @see Gino.Build::formFilter()
      * @param \Gino\Model $model istanza di Gino.Model
      * @param array $options autorizzazioni alla visualizzazione dei singoli campi
      * @return form html

@@ -45,8 +45,6 @@ class TextField extends Field {
         $this->_default_widget = 'textarea';
         parent::__construct($options);
         
-        $this->_value_type = 'string';
-        
         $this->_trnsl = isset($options['trnsl']) ? $options['trnsl'] : TRUE;
     }
     
@@ -60,34 +58,5 @@ class TextField extends Field {
     	$prop['trnsl'] = $this->_trnsl;
     
     	return $prop;
-    }
-    
-    /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
-     */
-    public function valueFromDb($value) {
-    
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
-    }
-    
-    /**
-     * @see Gino.Field::valueToDb()
-     * @return null or string
-     */
-    public function valueToDb($value) {
-    
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	else {
-    		return (string) $value;
-    	}
     }
 }

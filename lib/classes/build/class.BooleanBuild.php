@@ -74,4 +74,14 @@ class BooleanBuild extends Build {
     		return null;
     	}
     }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @return boolean
+     */
+    public function clean($options=null) {
+    	
+    	parent::clean($options);
+    	return clean_bool($this->_request_value);
+    }
 }

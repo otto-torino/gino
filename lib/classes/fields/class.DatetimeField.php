@@ -42,8 +42,6 @@ class DatetimeField extends Field {
 
         $this->_default_widget = 'datetime';
         parent::__construct($options);
-
-        $this->_value_type = 'string';
         
         $this->_auto_now = array_key_exists('auto_now', $options) ? $options['auto_now'] : true;
         $this->_auto_now_add = array_key_exists('auto_now_add', $options) ? $options['auto_now_add'] : true;
@@ -105,19 +103,5 @@ class DatetimeField extends Field {
     public function setAutoNowAdd($value) {
     
     	if(is_bool($value)) $this->_auto_now_add = $value;
-    }
-
-    /**
-     * @see Gino.Field::valueFromDb()
-     */
-    public function valueFromDb($value) {
-    	 
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
     }
 }

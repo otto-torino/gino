@@ -107,20 +107,30 @@ class TextBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html(), Gino.clean_editor()
+     *   - @b widget (string): widget (editor!textarea)
+     *   - @b typeoftext (string): tipo di dato da ripulire; accetta i valori @a text (default) e @a html
+     * @return string or null
      */
     public function clean($options=null) {
-
-        $request = Request::instance();
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-        $escape = gOpt('escape', $options, TRUE);
-        $widget = gOpt('widget', $options, null);
-
-        if($widget == 'editor') {
-            return cleanVarEditor($method, $this->_name, '');
-        }
-        else {
-            return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
-        }
+    	
+    	parent::clean($options);
+    	
+    	$widget = gOpt('widget', $options, null);
+    	$typeoftext = gOpt('typeoftext', $options, 'text');
+    	
+    	if($widget == 'editor') {
+    		return clean_editor($this->_request_value, $options);
+    	}
+    	else {
+    		if($typeoftext == 'text') {
+    			return clean_text($this->_request_value, $options);
+    		} elseif($typeoftext == 'html') {
+    			return clean_html($this->_request_value, $options);
+    		} else {
+    			return null;
+    		}
+    	}
     }
 }

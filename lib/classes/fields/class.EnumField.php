@@ -41,7 +41,6 @@ class EnumField extends Field {
         $this->_default_widget = 'radio';
         parent::__construct($options);
         
-        $this->_value_type = 'string';
         $this->_choice = array_key_exists('choice', $options) ? $options['choice'] : array();
     }
     
@@ -59,6 +58,7 @@ class EnumField extends Field {
 
     /**
      * @see Gino.Field::valueFromDb()
+     * @return null, string or integer
      */
     public function valueFromDb($value) {
     

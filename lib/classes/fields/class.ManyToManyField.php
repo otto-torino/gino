@@ -52,8 +52,6 @@ class ManyToManyField extends Field {
         $this->_default_widget = 'multicheck';
         parent::__construct($options);
         
-        $this->_value_type = 'array';
-        
         $this->_add_related = array_key_exists('add_related', $options) ? $options['add_related'] : false;
         $this->_add_related_url = array_key_exists('add_related_url', $options) ? $options['add_related_url'] : '';
         
@@ -84,14 +82,18 @@ class ManyToManyField extends Field {
     
 	/**
 	 * @see Gino.Field::valueToDb()
+	 * @return null or array
 	 */
     public function valueToDb($value) {
     
-    	if(is_null($value))
+    	if(is_null($value)) {
     		return null;
-    	elseif(is_array($value))
+    	}
+    	elseif(is_array($value)) {
     		return $value;
-    	else
+    	}
+    	else {
     		return null;
+    	}
     }
 }

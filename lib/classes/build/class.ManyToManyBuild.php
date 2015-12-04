@@ -172,14 +172,14 @@ class ManyToManyBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
-     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_array()
      * @return array
      */
     public function clean($options=null) {
-
-        $value = parent::clean($options);
-        
-        return is_null($value) ? array() : $value;
+    	
+    	parent::clean($options);
+    	return clean_array($this->_request_value, $options);
     }
 
     /**

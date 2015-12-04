@@ -43,35 +43,13 @@ class EmailBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_text()
+     * @return string
      */
     public function clean($options=array()) {
 
-        $request = Request::instance();
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-        $value = cleanVar($method, $this->_name, 'string', null);
-        
-        if(is_null($value)) {
-        	return null;
-        }
-        elseif(is_string($value)) {
-        
-        	/*$check = \Gino\checkEmail($value, true);
-        	if(!$check) {
-        		throw new \Exception(_("Formato dell'email non valido"));
-        	}
-        	return $value;*/
-        	
-        	$value = \filter_var($value, FILTER_VALIDATE_EMAIL);
-        	
-        	if($value === false) {
-        		throw new \Exception(_("Formato dell'email non valido"));
-        	}
-        	else {
-        		return $value;
-        	}
-        }
-        else {
-        	throw new \Exception(_("Valore non valido"));
-        }
+    	parent::clean($options);
+    	return clean_email($this->_request_value, $options);
     }
 }

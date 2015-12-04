@@ -114,4 +114,15 @@ class ForeignKeyBuild extends Build {
     	else
     		return new $this->_foreign((int) $this->_value);
     }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     * @return integer
+     */
+    public function clean($options=null) {
+    	
+    	parent::clean($options);
+    	return clean_int($this->_request_value);
+    }
 }

@@ -67,5 +67,4 @@ class Widget {
     	$this->_value_input = $options['value_input'];
     	$this->_value_retrieve = $options['value_retrieve'];
     }
-    
 }

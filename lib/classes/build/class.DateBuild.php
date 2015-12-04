@@ -56,11 +56,13 @@ class DateBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_date()
+     * @return string
      */
     public function clean($options=null) {
 
-        $value = parent::clean($options);
-        
-        return \Gino\dateToDbDate($value, "/");
+       parent::clean($options);
+       return clean_date($this->_request_value, $options);
     }
 }

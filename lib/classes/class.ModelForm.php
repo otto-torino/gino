@@ -60,7 +60,7 @@ class ModelForm extends Form {
     /**
      * Interfaccia per il metodo di renderizzazione del form
      * 
-     * @see Form::render()
+     * @see Gino.Form::render()
      * @param array $options_form
      * @param array $options_field
      */
@@ -125,11 +125,11 @@ class ModelForm extends Form {
     
     /**
      * @brief Salvataggio dei dati a seguito del submit di un form di inserimento/modifica
-     *
+     * 
      * @see Gino.Model::save()
      * @see Gino.Build::clean()
-     * @param object $model
-     * @param array $options
+     * @param object $model oggetto del modello
+     * @param array $options array associativo di opzioni
      *   - opzioni per il recupero dei dati dal form
      *   - opzioni per selezionare gli elementi da recuperare dal form
      *     - @b removeFields (array): elenco dei campi non presenti nel form
@@ -206,8 +206,9 @@ class ModelForm extends Form {
     			else
     			{
     				$build = $this->_model->build($object);
-    					
-    				$value = $build->clean($opt_element, $this->_model->id);
+    				
+    				$opt_element['model_id'] = $this->_model->id;
+    				$value = $build->clean($opt_element);
     				// imposta il valore; @see Gino.Model::__set()
     				$this->_model->{$field} = $value;
     

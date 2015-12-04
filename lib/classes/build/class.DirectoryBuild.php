@@ -79,6 +79,9 @@ class DirectoryBuild extends Build {
 
     /**
      * @brief Nome di default della directory
+     * 
+     * @see Gino.clean_text()
+     * @param array $options
      * @return nome directory o null
      */
     private function defaultName($options){
@@ -88,10 +91,9 @@ class DirectoryBuild extends Build {
 		{
 			$field = array_key_exists('field', $this->_default_name) ? $this->_default_name['field'] : 'id';
 			$maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 15;
-			$value_type = array_key_exists('value_type', $this->_default_name) ? $this->_default_name['value_type'] : 'string';
 
-			$method = isset($options['method']) ? $options['method'] : $request->POST;
-			$value = cleanVar($method, $field, $value_type, null);
+			$request = Request::instance();
+			$value = clean_text($request->method->$field, $options);
 
 			$name_dir = substr($value, 0, $maxlentgh);
 			$name_dir = preg_replace("#[^a-zA-Z0-9_\.-]#", "_", $name_dir);
@@ -124,10 +126,16 @@ class DirectoryBuild extends Build {
     /**
      * @see Gino.Build::clean()
      * @description Crea la directory se non esiste
+     * 
+     * @see defaultName()
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione clean_text()
+     * @return string
      */
     public function clean($options=null) {
     
-    	$value = parent::clean($options);
+    	parent::clean($options);
+    	$value = clean_text($this->_request_value, $options);
     	
     	if(!$value) {
     		$value = $this->defaultName($options);

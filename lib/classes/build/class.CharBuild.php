@@ -89,4 +89,26 @@ class CharBuild extends Build {
 
         return parent::formElement($mform, $options);
     }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html()
+     *   - @b typeoftext (string): tipo di dato da ripulire; accetta i valori @a text (default) e @a html
+     * @return string
+     */
+    public function clean($options=null) {
+    	
+    	parent::clean($options);
+    	
+    	$typeoftext = gOpt('typeoftext', $options, 'text');
+    	
+    	if($typeoftext == 'text') {
+    		return clean_text($this->_request_value, $options);
+    	} elseif($typeoftext == 'html') {
+    		return clean_html($this->_request_value, $options);
+    	} else {
+    		return null;
+    	}
+    }
 }

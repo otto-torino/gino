@@ -71,13 +71,6 @@ class Field {
     protected $_default_widget;
 
     /**
-     * @brief Tipo di valore in arrivo dall'input
-     * @description viene impostato nelle singole classi Field
-     * @var string
-     */
-    protected $_value_type;
-
-    /**
      * Costruttore
      * 
      * @param array $options array associativo di opzioni del campo del database
@@ -289,25 +282,6 @@ class Field {
     }
 
     /**
-     * @brief Getter della proprietà value_type
-     * @return tipo di dato
-     */
-    public function getValueType() {
-
-        return $this->_value_type;
-    }
-
-    /**
-     * @brief Setter della proprietà value_type
-     * @param string $value tipo di dato
-     * @return void
-     */
-    public function setValueType($value) {
-
-        if(is_string($value)) $this->_value_type = $value;
-    }
-    
-    /**
      * @brief Getter della proprietà int_digits (cifre intere)
      * @return integer
      */
@@ -362,7 +336,6 @@ class Field {
     		'unique_key' => $this->_unique_key,
     		'required' => $this->_required,
     		'widget' => $this->_widget,
-    		'value_type' => $this->_value_type,
     		'int_digits' => $this->_int_digits,
     		'decimal_digits' => $this->_decimal_digits,
     	);
@@ -373,26 +346,34 @@ class Field {
      * 
      * @see Gino.Model::getProperties()
      * @see Gino.Model::fetchColumns()
-     * @param mixed $value
-     * @return mixed
+     * @param mixed $value valore del campo
+     * @return null or string
      */
     public function valueFromDb($value) {
     	
-    	return $value;
+    	if(is_null($value)) {
+			return null;
+		}
+		elseif(is_string($value)) {
+    		return $value;
+    	}
+    	else throw new \Exception(_("Valore non valido"));
     }
 
     /**
-     * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean(). \n
-     * Il valore viene poi utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.Model::__set()).
+     * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean()
+     * @description Il valore viene utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.Model::__set()).
      * 
-     * @param mixed $value
-     * @return mixed
+     * @param mixed $value valore da salvare
+     * @return null or string
      */
 	public function valueToDb($value) {
 
-		if(is_null($value))
+		if(is_null($value)) {
 			return null;
-		else
+		}
+		else {
 			return (string) $value;
+		}
 	}
 }

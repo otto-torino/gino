@@ -32,7 +32,6 @@ class Build {
     	$_unique_key,
     	$_required,
     	$_widget,
-    	$_value_type,
     	$_int_digits,
     	$_decimal_digits;
 
@@ -67,6 +66,12 @@ class Build {
     protected $_value;
     
     /**
+     * @brief Valore del campo presente nella request
+     * @var mixed
+     */
+    protected $_request_value;
+    
+    /**
      * Contiene tutte le opzioni di un campo del modello
      * @var array
      */
@@ -92,7 +97,6 @@ class Build {
     	$this->_unique_key = $options['unique_key'];
     	$this->_required = $options['required'];
     	$this->_widget = $options['widget'];
-    	$this->_value_type = $options['value_type'];
     	$this->_int_digits = $options['int_digits'];
     	$this->_decimal_digits = $options['decimal_digits'];
     	
@@ -308,6 +312,26 @@ class Build {
      * @return controllo del campo, html
      * 
      * Definisce le opzioni: trnsl_id, trnsl_table, form_id, value_input, value_retrieve.
+     * 
+     * Il valore da utilizzare nel parametro @a value di ogni input varia in base al tipo di Widget; lo schema è il seguente: \n
+     *   - CheckboxWidget		$this->_value
+     *   - ConstantWidget		$this->_value_input
+     *   - DatetimeWidget		$this->_value_retrieve
+     *   - DateWidget			$this->_value_retrieve
+     *   - EditorWidget			$this->_value_retrieve
+     *   - EmailWidget			$this->_value_retrieve
+     *   - FileWidget			$this->_value_input
+     *   - FloatWidget			$this->_value_retrieve
+     *   - HiddenWidget			$this->_value_input
+     *   - ImageWidget			$this->_value_input
+     *   - MulticheckWidget		$this->_value
+     *   - PasswordWidget		$this->_value_retrieve
+     *   - RadioWidget			$this->_value_retrieve
+     *   - SelectWidget			$this->_value
+     *   - TextareaWidget		$this->_value_retrieve
+     *   - TextWidget			$this->_value_retrieve
+     *   - TimeWidget			$this->_value_retrieve
+     *   - UnitWidget			-
      */
     public function formElement($mform, $options=array()) {
     
@@ -338,34 +362,6 @@ class Build {
     			$opt['value'] = $opt['default'];
     		}
     		
-    		/*
-    		checkboxWidget		-		$this->_value
-    		constantWidget		-		htmlInput($this->_value)
-    		datetimeWidget		retvar	htmlInput($this->_value)
-    		dateWidget			retvar	htmlInput($this->_value)
-    		editorWidget		retvar	htmlInputEditor($this->_value)
-    		emailWidget			retvar	htmlInput($this->_value)
-    		fileWidget			-		htmlInput($this->_value)
-    		floatWidget			retvar	htmlInput($this->_value)
-    		hiddenWidget		-		htmlInput($this->_value)
-    		ImageWidget			-		htmlInput($this->_value)
-    		MulticheckWidget	-		$this->_value
-    		PasswordWidget		retvar	htmlInput($this->_value)
-    		RadioWidget			retvar	htmlInput($this->_value)
-    		SelectWidget		-		$this->_value
-    		TextareaWidget		retvar	htmlInput($this->_value)
-    		TextWidget			retvar	htmlInput($this->_value)
-    		TimeWidget			retvar	htmlInput($value)
-    		UnitWidget			-
-    		
-    		se passo da retvar utilizzo $this->_value_retrieve in Gino.Widget::printInputForm()
-    		altrimenti utilizzo $this->_value_input:
-    		
-    		-		$this->_value				$this->_value
-    		-		htmlInput($this->_value)	$this->_value_input
-    		retvar	htmlInput($this->_value)	$this->_value_retrieve
-    		*/
-    		
     		$input_value = $widget_obj->inputValue($opt['value'], $opt);
     		$opt['value_input'] = $input_value;
     		$opt['value_retrieve'] = $mform->retvar($opt['name'], $input_value);
@@ -377,8 +373,7 @@ class Build {
     /**
      * @brief Stampa un elemento del form di filtri area amministrativa
      * 
-     * @param array $options
-     *   - @b default (mixed): valore di default
+     * @param array $options array associativo di opzioni di formElement()
      * @return controllo del campo, html
      */
     public function formFilter($options)
@@ -404,37 +399,66 @@ class Build {
     
     /**
      * @brief Ripulisce un input usato come filtro in area amministrativa
-     * @param $options
-     *   array associativo di opzioni
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
+     * 
+     * @param $options array associativo di opzioni
      * @return input ripulito
      */
     public function cleanFilter($options) {
     	
     	$options['asforminput'] = TRUE;
+    	
     	return $this->clean($options);
     }
     
     /**
      * @brief Ripulisce un input per l'inserimento del valore in database
      * 
-     * @see Gino.cleanVar()
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b value_type (string): tipo di valore
-     *   - @b method (array): metodo di recupero degli elementi del form
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     * @param integer $id valore id del record
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni di tipo clean
+     *   - @b model_id (integer): valore id del modello	(@see Gino.ModelForm::save())
      * @return valore ripulito dell'input
+     * 
+     * Tabella del clean associato al tipo di campo: \n
+     *   CLASSE				OPT_BUILD			FUNC
+     *   BooleanBuild		-					clean_bool
+     *   CharBuild			typeoftext			clean_text (default) | clean_html
+     *   DateBuild			-					clean_date (->clean_text)
+     *   DatetimeBuild		-					clean_date (->clean_text)
+     *   DirectoryBuild		-					clean_text
+     *   EmailBuild			-					clean_email (->clean_text)
+     *   EnumBuild			-					clean_text
+     *   FileBuild			-					-- personalizzato
+     *   FloatBuild			-					clean_float
+     *   ForeignKeyBuild	-					clean_int
+     *   ImageBuild			-					-- extend FileBuild
+     *   IntegerBuild		-					clean_int
+     *   ManyToManyBuild	-					clean_array
+     *   ManyToManyThroughBuild					-- passa attraverso Gino.ModelForm::m2mThroughAction()
+     *   MulticheckBuild	-					clean_array (asforminput false)
+     *   SlugBuild			-					clean_text
+     *   TagBuild			-					clean_text
+     *   TextBuild			widget,typeoftext	clean_editor (widget 'editor') | clean_text (default) | clean_html
+     *   TimeBuild			-					clean_time
+     *   YearBuild			-					clean_int
      */
-    public function clean($options=null, $id=null) {
+    public function clean($options=null) {
     	
     	$request = Request::instance();
-    	$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-    	$method = isset($options['method']) ? $options['method'] : $request->POST;
-    	$escape = gOpt('escape', $options, TRUE);
     	
-    	return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+    	if($request->method && in_array($request->method, array('POST', 'GET', 'REQUEST'))) {
+    		
+    		$method = $request->method;
+    		$vars = $request->$method;
+    		if(array_key_exists($this->_name, $vars)) {
+    			$this->_request_value = $vars[$this->_name];
+    		}
+    		else {
+    			$this->_request_value = null;
+    		}
+    	}
+    	else {
+    		$this->_request_value = null;
+    	}
     }
     
     /**

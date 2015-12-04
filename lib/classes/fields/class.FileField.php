@@ -55,8 +55,6 @@ class FileField extends Field {
         $this->_default_widget = 'file';
         parent::__construct($options);
 
-        $this->_value_type = null;
-        
         $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array('txt','xml','html','htm','doc','xls','zip','pdf');
         $this->_path = isset($options['path']) && $options['path'] ? $options['path'] : '';
         $this->_add_path = isset($options['add_path']) && $options['add_path'] ? $options['add_path'] : '';
@@ -99,20 +97,5 @@ class FileField extends Field {
     	$prop['max_file_size'] = $this->_max_file_size;
     
     	return $prop;
-    }
-
-    /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
-     */
-    public function valueFromDb($value) {
-    	 
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
     }
 }

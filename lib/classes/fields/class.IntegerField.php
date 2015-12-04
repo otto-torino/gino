@@ -34,7 +34,6 @@ class IntegerField extends Field {
         parent::__construct($options);
 
         if($this->_auto_increment) $this->_widget = 'hidden';
-        $this->_value_type = 'int';
     }
     
     /**

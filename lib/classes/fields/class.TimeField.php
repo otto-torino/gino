@@ -33,7 +33,5 @@ class TimeField extends Field {
 
         $this->_default_widget = 'time';
         parent::__construct($options);
-        
-        $this->_value_type = 'string';
     }
 }

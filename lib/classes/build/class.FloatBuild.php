@@ -38,4 +38,15 @@ class FloatBuild extends Build {
 
         return (string) dbNumberToNumber($this->_value, $this->_decimal_digits);
     }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @param array $options array associativo di opzioni
+     * @return float
+     */
+    public function clean($options=null) {
+    	 
+    	parent::clean($options);
+    	return clean_float($this->_request_value);
+    }
 }

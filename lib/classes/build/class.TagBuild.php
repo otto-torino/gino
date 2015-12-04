@@ -83,13 +83,18 @@ class TagBuild extends Build {
     /**
      * @see Gino.Build::clean()
      * @description Ripulisce l'input e registra un listener per salvare i tag quando il modello è stato correttamente salvato
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_text()
+     * @return string
      */
     public function clean($options=null) {
         
     	$event_dispatcher = EventDispatcher::instance();
         $event_dispatcher->listenEmitter($this->_model, 'post_save', array($this, 'save'));
 
-        return parent::clean($options);
+        parent::clean($options);
+        return clean_text($this->_request_value, $options);
     }
 
     /**
