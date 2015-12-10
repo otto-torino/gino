@@ -177,8 +177,7 @@ function convertEntities($text)
 
 /**
  * @brief Sostituisce alcuni tag utilizzati dall'editor html con i tag standard
- *
- * Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html (CK Editor)
+ * @description Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html
  *
  * @param string $text testo
  * @return testo ripulito
@@ -195,13 +194,14 @@ function replaceTag($text)
     $text = str_replace ($search, '', $text);
     $text = str_replace ('target="_blank"', 'rel="external"', $text);
     // End
+    
     return $text;
 }
 
 // 1. from HTML Form to DB
 
 /**
- * @brief Plain text
+ * @brief Clean plain text
  * @description Rimuove tutti i tag html
  * 
  * @param string $value valore preso direttamente dalla request ($_POST['name'])
@@ -223,9 +223,6 @@ function clean_text($value, $options=array()) {
 	
 	$value = strip_tags($value);
 	
-	//$value = replaceChar($value);
-	//$value = str_replace ('€', '&euro;', $value);	// with DB ISO-8859-1
-	
 	if($escape) {
 		$db = Db::instance();
 		$value = $db->escapeString($value);
@@ -235,7 +232,7 @@ function clean_text($value, $options=array()) {
 }
 
 /**
- * @brief Testo html
+ * @brief Clean html
  * @description Se viene impostata l'opzione @a strip_tags, vengono rimossi tutti i tag html dal testo a parte quelli presenti nell'opzione.
  * 
  * @param string $value valore preso direttamente dalla request ($_POST['name'])
@@ -274,10 +271,9 @@ function clean_html($value, $options=array()) {
 			$value = strip_embedded_tags($value);
 			$value = strip_tags_attributes($value, true, true);
 		}
-		
-		//$value = replaceChar($value);
-		//$value = str_replace ('€', '&euro;', $value);	// with DB ISO-8859-1
 	}
+	
+	$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 	
 	if($escape) {
 		$db = Db::instance();
@@ -288,6 +284,7 @@ function clean_html($value, $options=array()) {
 }
 
 /**
+ * @brief Clean boolean
  * 
  * @param int $value (1|0)
  * @return NULL or bool
@@ -303,7 +300,8 @@ function clean_bool($value) {
 }
 
 /**
- *
+ * @brief Clean integer
+ * 
  * @param int $value
  * @return NULL or integer
  */
@@ -318,7 +316,8 @@ function clean_int($value) {
 }
 
 /**
- *
+ * @brief Clean float
+ * 
  * @param float $value
  * @return NULL or float
  */
@@ -338,11 +337,12 @@ function clean_float($value) {
 }
 
 /**
+ * @brief Clean date
  * 
  * @see clean_text()
  * @param string $value valore direttamente dalla request ($_POST['name'])
  * @param array $options array associativo di opzioni
- *   - opzioni del metodo clean_text
+ *   - opzioni del metodo clean_text()
  *   - @b typeofdate (string): tipo di data; valori validi: date (default), datetime
  *   - @b separator (string): separatore utilizzato nella data (default /)
  * @return NULL or string
@@ -380,11 +380,12 @@ function clean_date($value, $options=array()) {
 }
 
 /**
- *
+ * @brief Clean time
+ * 
  * @see clean_text()
  * @param string $value valore direttamente dalla request ($_POST['name'])
  * @param array $options array associativo di opzioni
- *   - opzioni del metodo clean_text
+ *   - opzioni del metodo clean_text()
  * @return NULL or string
  */
 function clean_time($value, $options=array()) {
@@ -399,11 +400,12 @@ function clean_time($value, $options=array()) {
 }
 
 /**
- *
+ * @brief Clean email
+ * 
  * @see clean_text()
  * @param string $value valore direttamente dalla request ($_POST['name'])
  * @param array $options array associativo di opzioni
- *   - opzioni del metodo clean_text
+ *   - opzioni del metodo clean_text()
  * @return NULL or string
  */
 function clean_email($value, $options=array()) {
@@ -432,17 +434,16 @@ function clean_email($value, $options=array()) {
 		}
 	}
 	else {
-		throw new \Exception(_("Valore non valido"));
+		throw new \Exception(_("Valore non valido per il metodo clean_email"));
 	}
 }
 
 /**
- * @brief 
- * @description 
+ * @brief Clean array
  *
  * @param string $value valore direttamente dalla request ($_POST['name'])
  * @param array $options array associativo di opzioni
- *   - opzioni del metodo clean_text
+ *   - opzioni del metodo clean_text()
  *   - @b datatype (string): tipo di dato degli elementi dell'array; valori validi: int (default), string, float, bool
  *   - @b asforminput (boolean): indica se ritornare gli elementi in un array (default true) o separati da virgola in formato stringa
  * @return array, string or null
@@ -489,42 +490,55 @@ function clean_array($value, $options=array()) {
 }
 
 /**
- *
- * @param string $value valore direttamente dalla request ($_POST['name'])
+ * @brief Modifica il valore presente in un campo del form per inserirlo nel database
+ * @description È stato modificato per mantenere la compatibilità con le vecchie versioni
+ * 
+ * @param string $method metodo utilizzato (GET, POST, REQUEST)
+ * @param string $name nome della variabile
+ * @param string $type tipo di variabile (bool,int,float,string,array,object,null)
+ * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
  * @param array $options array associativo di opzioni
- *   - @b strip_tags (string): elenco dei tag da rimuovere (ad esempio '<p><a><quote>')
- * @return NULL or string
+ * @return testo ripulito
  */
-function clean_editor($value, $options=array()) {
+function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
+{
+	$options['strip_tags'] = $strip_tags;
 	
-	$strip_tags = gOpt('strip_tags', $options, null);
-	
-	settype($value, 'string');
-	
-	$value = trim($value);
-	
-	$value = replaceTag($value);
-	
-	if($strip_tags) {
-		$value = strip_selected_tags($value, $strip_tags, false);
+	if(isset($method[$name]) AND $method[$name] !== '') {
+		$value = $method[$name];
+	}
+	else {
+		$value = null;
 	}
 	
-	//$value = strip_tags_attributes($value, true, true);
-	$value = html_entity_decode($value, null, 'UTF-8');
-	
-	//$value = replaceChar($value);
-	$value = convertEntities($value);
-	
-	$db = Db::instance();
-	$value = $db->escapeString($value);
-	
-	return $value;
+	if($type == 'int')
+	{
+		return clean_int($value);
+	}
+	elseif($type == 'string')
+	{
+		return clean_text($value, $options);
+	}
+	elseif($type == 'array')
+	{
+		return clean_array($value, $options);
+	}
+	elseif($type == 'bool')
+	{
+		return clean_bool($value);
+	}
+	elseif($type == 'float')
+	{
+		return clean_float($value);
+	}
+	else
+	{
+		return null;
+	}
 }
 
 /**
  * @brief Modifica il valore presente in un campo del form per inserirlo nel database
- *
- * Imposta il tipo del testo
  *
  * @see clean_sequence()
  * @param string $method metodo utilizzato (GET, POST, REQUEST)
@@ -534,7 +548,7 @@ function clean_editor($value, $options=array()) {
  * @param array $options array associativo di opzioni
  * @return testo ripulito
  */
-function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
+function cleanVar_OLD_VERSION($method, $name, $type, $strip_tags = '', $options = array())
 {
     if(isset($method[$name]) AND $method[$name] !== '')
     {
@@ -636,6 +650,7 @@ function cleanVarEditor($method, $name, $strip_tags)
         }
         $value = strip_tags_attributes($value, true, true);
         $value = html_entity_decode($value, null, 'UTF-8');
+        //$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');	// @see clean_editor()
 
         $value = replaceChar($value);
         $value = convertEntities($value);
@@ -660,6 +675,7 @@ function utf8_urldecode($str) {
 
     $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;", urldecode($str));
     $str = html_entity_decode($str, null, 'UTF-8');
+    //$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');	// @see clean_editor()
 
     return $str;
 }
@@ -893,8 +909,9 @@ function htmlCharsText($string)
  */
 function htmlInput($string)
 {
-    if(is_null($string))
-        return null;
+    if(is_null($string)) {
+    	return null;
+    }
 
     $string = convertToHtml($string);
 

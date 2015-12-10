@@ -47,6 +47,8 @@ class User extends \Gino\Model {
         self::$lng_dft = $this->_lng_dft;
 
         parent::__construct($id);
+        
+        $this->_model_label = _("Utente");
     }
 
     /**

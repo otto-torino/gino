@@ -129,13 +129,12 @@ class DirectoryBuild extends Build {
      * 
      * @see defaultName()
      * @param array $options array associativo di opzioni
-     *   - opzioni della funzione clean_text()
+     *   - opzioni della funzione Gino.clean_text()
      * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     
-    	parent::clean($options);
-    	$value = clean_text($this->_request_value, $options);
+    	$value = clean_text($request_value, $options);
     	
     	if(!$value) {
     		$value = $this->defaultName($options);

@@ -45,6 +45,12 @@ use \Gino\Http\Request;
  */
 class Field {
 
+	/**
+	 * @brief Oggetto request
+	 * @var object
+	 */
+    protected $_request;
+    
     /**
      * @brief Proprietà dei campi
      * Vengono esposte dai relativi metodi __get e __set
@@ -87,7 +93,9 @@ class Field {
      */
     function __construct($options) {
 
-        $this->_default = null;
+    	$this->_request = \Gino\Http\Request::instance();
+    	
+    	$this->_default = null;
         
         $this->_name = array_key_exists('name', $options) ? $options['name'] : '';
         $this->_label = array_key_exists('label', $options) ? $options['label'] : $this->_name;
@@ -342,10 +350,26 @@ class Field {
     }
     
     /**
-     * @brief Valore del campo del modello nel formato richiesto
+     * @brief Valore del campo in una richiesta HTTP (@see Gino.ModelForm::save()))
      * 
-     * @see Gino.Model::getProperties()
-     * @see Gino.Model::fetchColumns()
+     * @param string $field_name nome del campo
+     * @return mixed
+     */
+    public function retrieveValue($field_name) {
+    	
+    	if(array_key_exists($field_name, $this->_request->{$this->_request->method})) {
+    		$value = $this->_request->{$this->_request->method}[$field_name];
+    	}
+    	else {
+    		$value = null;
+    	}
+    	return $value;
+    }
+    
+    /**
+     * @brief Valore del campo del modello nel suo formato specifico
+     * @description Questo metodo viene richiamato nei metodi: @see Gino.Model::getProperties(), @see Gino.Model::fetchColumns().
+     * 
      * @param mixed $value valore del campo
      * @return null or string
      */
@@ -357,12 +381,16 @@ class Field {
 		elseif(is_string($value)) {
     		return $value;
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
+    	}
     }
 
     /**
      * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean()
-     * @description Il valore viene utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.Model::__set()).
+     * @description Il valore viene utilizzato per la definizione della query e la gestione dei ManyToMany.
+     * @see Gino.Model::__set()
+     * @see Gino.Model::save()
      * 
      * @param mixed $value valore da salvare
      * @return null or string

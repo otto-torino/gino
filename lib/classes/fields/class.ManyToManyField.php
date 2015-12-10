@@ -15,7 +15,7 @@ loader::import('class/fields', '\Gino\Field');
  * @brief Campo di tipo many to many
  *
  * I valori da associare al campo risiedono in una tabella esterna e i parametri per accedervi devono essere definiti nelle opzioni del campo. \n
- * Tipologie di input associabili: multicheck
+ * Tipologie di input associabili: multicheck.
  *
  * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -78,6 +78,24 @@ class ManyToManyField extends Field {
     	$prop['join_table'] = $this->_join_table;
     	
     	return $prop;
+    }
+    
+    /**
+     * @see Gino.Field::valueFromDb()
+     * @param integer $value valore id del record
+     * @return null or array (valori id dei record di associazione)
+     */
+    public function valueFromDb($value) {
+    	
+    	if(is_null($value)) {
+    		return null;
+    	}
+    	elseif(is_array($value)) {
+    		return $value;
+    	}
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
+    	}
     }
     
 	/**

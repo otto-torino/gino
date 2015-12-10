@@ -101,28 +101,28 @@ class ForeignKeyBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      * @return object
      */
-    public function retrieveValue() {
+    public function printValue() {
     	 
     	if(is_object($this->_value)) {
     		return new $this->_foreign((int) $this->_value->id);
     	}
-    	elseif(is_null($this->_value))
+    	elseif(is_null($this->_value)) {
     		return null;
-    	else
+    	}
+    	else {
     		return new $this->_foreign((int) $this->_value);
+    	}
     }
     
     /**
      * @see Gino.Build::clean()
-     * @param array $options array associativo di opzioni
      * @return integer
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     	
-    	parent::clean($options);
-    	return clean_int($this->_request_value);
+    	return clean_int($request_value);
     }
 }

@@ -92,19 +92,19 @@ class PageEntry extends \Gino\Model {
         	'add_related_url' => $controller->linkAdmin(array(), "block=ctg&insert=1"),
         ));
 		$columns['author'] = new \Gino\ForeignKeyField(array(
-			'name'=>'author',
-			'label'=>_("Autore"),
-			'required'=>true,
-			'foreign'=>'\Gino\App\Auth\User',
-			'foreign_order'=>'lastname ASC, firstname ASC',
+			'name' => 'author',
+			'label' => _("Autore"),
+			'required' => true,
+			'foreign' => '\Gino\App\Auth\User',
+			'foreign_order' => 'lastname ASC, firstname ASC',
 			'add_related' => false,
 		));
 		$columns['creation_date'] = new \Gino\DatetimeField(array(
-			'name'=>'creation_date',
-			'label'=>_('Inserimento'),
-			'required'=>true,
-			'auto_now'=>false,
-			'auto_now_add'=>true,
+			'name' => 'creation_date',
+			'label' => _('Inserimento'),
+			'required' => true,
+			'auto_now' => false,
+			'auto_now_add' => true,
 		));
 		$columns['last_edit_date'] = new \Gino\DatetimeField(array(
 			'name'=>'last_edit_date',
@@ -143,15 +143,15 @@ class PageEntry extends \Gino\Model {
         	'max_lenght'=>200,
         ));
         $columns['text'] = new \Gino\TextField(array(
-        	'name'=>'text',
+        	'name' => 'text',
         	'label' => _("Testo"),
-        	'required'=>true
+        	'required' => true
         ));
         $columns['tags'] = new \Gino\TagField(array(
         	'name' => 'tags',
-        	'label'=>array(_('Tag'), _("elenco separato da virgola")),
-        	'required'=>false,
-        	'max_lenght'=>255,
+        	'label' => array(_('Tag'), _("elenco separato da virgola")),
+        	'required' => false,
+        	'max_lenght' => 255,
         	'model_controller_class' => 'page',
         	'model_controller_instance' => 0,
         ));

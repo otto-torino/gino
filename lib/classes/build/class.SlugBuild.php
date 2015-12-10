@@ -71,10 +71,9 @@ class SlugBuild extends Build {
      *   - @b model_id (integer): valore id del modello
      * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     
-    	parent::clean($options);
-    	$value = clean_text($this->_request_value, $options);
+    	$value = clean_text($request_value, $options);
     	
     	if(is_null($value)) {
     		return null;

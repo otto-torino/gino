@@ -99,7 +99,7 @@ class TextBuild extends Build {
         if(!isset($options['field'])) $options['field'] = $this->_name;
 
         if(isset($options['is_filter']) and $options['is_filter']) {
-            $options['widget'] = 'text';
+            $options['widget'] = 'textarea';
         }
 
         return parent::formElement($mform, $options);
@@ -107,27 +107,26 @@ class TextBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * 
      * @param array $options array associativo di opzioni
-     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html(), Gino.clean_editor()
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html()
      *   - @b widget (string): widget (editor!textarea)
      *   - @b typeoftext (string): tipo di dato da ripulire; accetta i valori @a text (default) e @a html
      * @return string or null
      */
-    public function clean($options=null) {
-    	
-    	parent::clean($options);
+    public function clean($request_value, $options=null) {
     	
     	$widget = gOpt('widget', $options, null);
     	$typeoftext = gOpt('typeoftext', $options, 'text');
     	
     	if($widget == 'editor') {
-    		return clean_editor($this->_request_value, $options);
+    		return clean_html($request_value, $options);
     	}
     	else {
     		if($typeoftext == 'text') {
-    			return clean_text($this->_request_value, $options);
+    			return clean_text($request_value, $options);
     		} elseif($typeoftext == 'html') {
-    			return clean_html($this->_request_value, $options);
+    			return clean_html($request_value, $options);
     		} else {
     			return null;
     		}

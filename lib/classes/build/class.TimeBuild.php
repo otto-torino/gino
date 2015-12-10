@@ -41,13 +41,13 @@ class TimeBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * 
      * @param array $options array associativo di opzioni
      *   - opzioni della funzione Gino.clean_time()
      * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
 
-        parent::clean($options);
-        return clean_time($this->_request_value, $options);
+        return clean_time($request_value, $options);
     }
 }

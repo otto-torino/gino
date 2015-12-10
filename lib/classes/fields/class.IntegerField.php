@@ -51,7 +51,9 @@ class IntegerField extends Field {
     	elseif(is_string($value)) {
     		return (int) $value;
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido riferito al campo \"%s\""), $this->_name));
+    	}
     }
     
     /**

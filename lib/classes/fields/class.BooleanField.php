@@ -73,7 +73,9 @@ class BooleanField extends Field {
     	elseif(is_bool($value)) {
     		return $value;
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido riferito al campo \"%s\""), $this->_name));
+    	}
     }
     
     /**

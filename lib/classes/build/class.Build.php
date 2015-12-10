@@ -66,12 +66,6 @@ class Build {
     protected $_value;
     
     /**
-     * @brief Valore del campo presente nella request
-     * @var mixed
-     */
-    protected $_request_value;
-    
-    /**
      * Contiene tutte le opzioni di un campo del modello
      * @var array
      */
@@ -358,7 +352,7 @@ class Build {
     		$opt['form_id'] = $mform->getFormId();
     		
     		// Define value to be shown in the input form
-    		if(!is_null($opt['default']) and $opt['value'] === null) {	// $this->_default ??? $this->_value ???
+    		if(!is_null($opt['default']) and $opt['value'] === null) {
     			$opt['value'] = $opt['default'];
     		}
     		
@@ -400,19 +394,21 @@ class Build {
     /**
      * @brief Ripulisce un input usato come filtro in area amministrativa
      * 
+     * @param mixed $request_value valore della variabile in una richiesta HTTP
      * @param $options array associativo di opzioni
      * @return input ripulito
      */
-    public function cleanFilter($options) {
+    public function cleanFilter($request_value, $options) {
     	
     	$options['asforminput'] = TRUE;
     	
-    	return $this->clean($options);
+    	return $this->clean($request_value, $options);
     }
     
     /**
      * @brief Ripulisce un input per l'inserimento del valore in database
      * 
+     * @param mixed $request_value valore della variabile in una richiesta HTTP (@see Gino.ModelForm::save()))
      * @param array $options array associativo di opzioni
      *   - opzioni delle funzioni di tipo clean
      *   - @b model_id (integer): valore id del modello	(@see Gino.ModelForm::save())
@@ -437,37 +433,21 @@ class Build {
      *   MulticheckBuild	-					clean_array (asforminput false)
      *   SlugBuild			-					clean_text
      *   TagBuild			-					clean_text
-     *   TextBuild			widget,typeoftext	clean_editor (widget 'editor') | clean_text (default) | clean_html
+     *   TextBuild			widget,typeoftext	clean_text (default) | clean_html
      *   TimeBuild			-					clean_time
      *   YearBuild			-					clean_int
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     	
-    	$request = Request::instance();
-    	
-    	if($request->method && in_array($request->method, array('POST', 'GET', 'REQUEST'))) {
-    		
-    		$method = $request->method;
-    		$vars = $request->$method;
-    		if(array_key_exists($this->_name, $vars)) {
-    			$this->_request_value = $vars[$this->_name];
-    		}
-    		else {
-    			$this->_request_value = null;
-    		}
-    	}
-    	else {
-    		$this->_request_value = null;
-    	}
+    	return $request_value;
     }
     
     /**
      * @brief Valore del campo predisposto per l'output html
-     *
-     * @param mixed $value
+     * 
      * @return mixed
      */
-    public function retrieveValue() {
+    public function printValue() {
     
     	return $this->_value;
     }

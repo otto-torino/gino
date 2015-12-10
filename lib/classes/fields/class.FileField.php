@@ -98,4 +98,18 @@ class FileField extends Field {
     
     	return $prop;
     }
+    
+    /**
+     * @see Gino.Field::retrieveValue()
+     */
+    public function retrieveValue($field_name) {
+    	
+    	if(isset($this->_request->FILES[$field_name]['name']) AND $this->_request->FILES[$field_name]['name'] != '') {
+    		$filename = $this->_request->FILES[$field_name]['name'];
+    	}
+    	else {
+    		$filename = '';
+    	}
+    	return $filename;
+    }
 }

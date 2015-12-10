@@ -43,13 +43,13 @@ class EmailBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * 
      * @param array $options array associativo di opzioni
      *   - opzioni della funzione Gino.clean_text()
      * @return string
      */
-    public function clean($options=array()) {
+    public function clean($request_value, $options=array()) {
 
-    	parent::clean($options);
-    	return clean_email($this->_request_value, $options);
+    	return clean_email($request_value, $options);
     }
 }

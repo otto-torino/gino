@@ -88,13 +88,12 @@ class TagBuild extends Build {
      *   - opzioni della funzione Gino.clean_text()
      * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
         
     	$event_dispatcher = EventDispatcher::instance();
         $event_dispatcher->listenEmitter($this->_model, 'post_save', array($this, 'save'));
 
-        parent::clean($options);
-        return clean_text($this->_request_value, $options);
+        return clean_text($request_value, $options);
     }
 
     /**

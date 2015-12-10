@@ -43,7 +43,7 @@ class ModelFormUser extends \Gino\ModelForm {
 		// Opzioni per selezionare gli elementi da recuperare dal form
 		$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
 		$viewFields = array_key_exists('viewFields', $options) ? $options['viewFields'] : null;
-		 
+		
 		// Opzioni per l'ìmportazione di un file
 		$import = false;
 		if(isset($options['import_file']) && is_array($options['import_file']))
@@ -96,10 +96,10 @@ class ModelFormUser extends \Gino\ModelForm {
 		foreach($this->_model->getStructure() as $field=>$object) {
 	
 			if($this->permission($options, $field) && (
-					($removeFields && !in_array($field, $removeFields)) ||
-					($viewFields && in_array($field, $viewFields)) ||
-					(!$viewFields && !$removeFields)
-					))
+				($removeFields && !in_array($field, $removeFields)) ||
+				($viewFields && in_array($field, $viewFields)) ||
+				(!$viewFields && !$removeFields)
+			))
 			{
 				if(isset($options_field[$field])) {
 					$opt_element = $options_field[$field];

@@ -210,10 +210,10 @@ class Input {
      * @param string $value valore attivo
      * @param mixed $label testo <label>
      * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo input())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo
-     *     - @b text_add (string): testo dopo il tag input
+     *   array associativo di opzioni (aggiungere quelle del metodo input())
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo (default false)
+     *   - @b text_add (string): testo da aggiungere dopo il tag input
      * @return codice html riga form, input + label
      */
     public static function input_date($name, $value, $label, $options=array()){
@@ -266,8 +266,8 @@ class Input {
      * @param array $options array associativo di opzioni
      *   opzioni del metodo textarea()
      *   opzioni specifiche
-     *   - @b required (boolean)
-     *   - @b text_add (string): testo aggiuntivo stampato sotto il box
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b text_add (string): testo da aggiungere stampato sotto il textarea
      *   - @b cols (integer): numero di colonne
      *   - @b trnsl (boolean): attiva la traduzione
      *   - @b trnsl_id (integer): valore id del record del modello
@@ -316,11 +316,11 @@ class Input {
      * @param array $options array associativo di opzioni
      *   opzioni del textarea
      *     - @b id (string): valore della proprietà id del tag
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b classField (string): nome della classe del tag
+     *     - @b required (boolean): campo obbligatorio (default false)
+     *     - @b classField (string): nome della classe del tag textarea
      *     - @b rows (integer): numero di righe
      *     - @b cols (integer): numero di colonne
-     *     - @b readonly (boolean): campo di sola lettura
+     *     - @b readonly (boolean): campo di sola lettura (default false)
      *     - @b js (string): javascript
      *     - @b other (string): altro nel tag
      *     - @b maxlength (integer): numero massimo di caratteri consentiti \n
@@ -584,7 +584,7 @@ class Input {
      * @param array $options array associativo di opzioni
      *   opzioni del metodo checkbox()
      *   opzioni specifiche
-     *     - @b required (boolean): campo obbligatorio
+     *     - @b required (boolean): campo obbligatorio (default false)
      *     - @b text_add (string): testo da aggiungere dopo il checkbox
      * @return codice html riga form, input + label
      */
@@ -636,12 +636,7 @@ class Input {
     
     /**
      * @brief Input file con label
-     *
-     * Integra il checkbox di eliminazione del file e non è gestita l'obbligatorietà del campo.
-     *
-     * @code
-     * $obj->cfile('image', $filename, _("testo label"), array("extensions"=>array('jpg', ...), "preview"=>TRUE, "previewSrc"=>/path/to/image);
-     * @endcode
+     * @description Integra il checkbox di eliminazione del file e non è gestita l'obbligatorietà del campo.
      *
      * @see self::label()
      * @param string $name nome input
@@ -649,9 +644,9 @@ class Input {
      * @param string $label testo <label>
      * @param array $options
      *   array associativo di opzioni (aggiungere quelle del metodo input())
-     *   - @b required (boolean)
-     *   - @b extensions (array): estensioni valide
-     *   - @b preview (boolean): mostra l'anteprima di una immagine
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b extensions (array): elenco delle estensioni valide
+     *   - @b preview (boolean): mostra l'anteprima di una immagine (default false)
      *   - @b previewSrc (string): percorso relativo dell'immagine
      *   - @b text_add (string): testo da aggiungere in coda al tag input
      * @return codice html riga form, input file + label
@@ -749,8 +744,7 @@ class Input {
      *   - @b readonly (boolean)
      *   - @b js (string)
      *   - @b other (string)
-     *   - @b required (string)
-     *   - @b classLabel (string)
+     *   - @b required (string): campo obbligatorio (default false)
      *   - @b checkPosition (stringa): posizionamento del checkbox (left|right)
      *   - @b encode_html (boolean): attiva la conversione del testo dal database ad html (default TRUE)
      *   - @b add_related (array): array(title=>string, id=>int, url=>string)
@@ -781,7 +775,6 @@ class Input {
     	if(!is_array($checked)) {
     		$checked = array();
     	}
-    
     	
     	$GFORM = "<div class=\"form-row\">";
     	$GFORM .= self::label($name, $label, $required)."\n";
@@ -954,15 +947,16 @@ class Input {
      * @brief Input radio con label
      *
      * @see self::label()
+     * @see self::radio()
      * @param string $name nome input
      * @param string $value valore attivo
      * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
      * @param mixed $default valore di default
      * @param mixed $label testo <label>
      * @param array $options
-     *     array associativo di opzioni (aggiungere quelle del metodo radio())
-     *     - @b required (boolean): campo obbligatorio
-     *     - @b text_add (boolean): testo aggiuntivo stampato sotto il box
+     *   array associativo di opzioni (aggiungere quelle del metodo radio())
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b text_add (boolean): testo da aggiungere dopo i pulsanti radio
      * @return codice html riga form, input radio + label
      */
     public static function radio_label($name, $value, $data, $default, $label, $options=array()){
@@ -1056,8 +1050,8 @@ class Input {
      * @param array $options array associativo di opzioni
      *   opzioni del metodo select()
      *   opzioni specifiche
-     *   - @b required (boolean): campo obbligatorio
-     *   - @b text_add (string): testo dopo il select
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b text_add (string): testo da aggiungere dopo il select
      * @return codice html riga form, select + label
      */
     public static function select_label($name, $value, $data, $label, $options=array()) {
@@ -1089,20 +1083,21 @@ class Input {
      * @param mixed $selected elemento selezionato
      * @param mixed $data elementi del select (query-> recupera due campi, array-> key=>value)
      * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): ID del tag select
-     *     - @b classField (string): nome della classe del tag select
-     *     - @b size (integer)
-     *     - @b multiple (boolean): scelta multipla di elementi
-     *     - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
-     *     - @b other (string): altro da inserire nel tag select
-     *     - @b noFirst (boolean): FALSE-> mostra la prima voce vuota
-     *     - @b firstVoice (string): testo del primo elemento
-     *     - @b firstValue (mixed): valore del primo elemento
-     *     - @b maxChars (integer): numero massimo di caratteri del testo
-     *     - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri
-     *     - @b helptext (array)
-     *     - @b add_related (array): array(title=>string, id=>int, url=>string)
+     *   array associativo di opzioni
+     *   - @b id (string): ID del tag select
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b classField (string): nome della classe del tag select
+     *   - @b size (integer)
+     *   - @b multiple (boolean): scelta multipla di elementi (default false)
+     *   - @b js (string): utilizzare per eventi javascript (ad es. onchange=\"jump\")
+     *   - @b other (string): altro da inserire nel tag select
+     *   - @b noFirst (boolean): col valore FALSE mostra la prima voce vuota (default false)
+     *   - @b firstVoice (string): testo del primo elemento
+     *   - @b firstValue (mixed): valore del primo elemento
+     *   - @b maxChars (integer): numero massimo di caratteri del testo
+     *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri (default false)
+     *   - @b helptext (array)
+     *   - @b add_related (array): array(title=>string, id=>int, url=>string)
      * @return widget html
      */
     public static function select($name, $selected, $data, $options=array()) {

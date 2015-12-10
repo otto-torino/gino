@@ -61,8 +61,9 @@ class ModelForm extends Form {
      * Interfaccia per il metodo di renderizzazione del form
      * 
      * @see Gino.Form::render()
-     * @param array $options_form
-     * @param array $options_field
+     * @param array $options_form opzioni del form e del layout
+     * @param array $options_field opzioni dei campi
+     * @return form html
      */
     public function view($options_form=array(), $options_field=array()) {
     	
@@ -125,10 +126,11 @@ class ModelForm extends Form {
     
     /**
      * @brief Salvataggio dei dati a seguito del submit di un form di inserimento/modifica
+     * @description Per attivare l'importazione dei file utilizzare l'opzione @a import_file e sovrascrivere il metodo readFile().
      * 
-     * @see Gino.Model::save()
+     * @see Gino.Field::retrieveValue()
      * @see Gino.Build::clean()
-     * @param object $model oggetto del modello
+     * @see Gino.Model::save()
      * @param array $options array associativo di opzioni
      *   - opzioni per il recupero dei dati dal form
      *   - opzioni per selezionare gli elementi da recuperare dal form
@@ -143,9 +145,6 @@ class ModelForm extends Form {
      *     - @a dump_path (string): percorso del file di dump
      * @param array $options_field opzioni per formattare i valori dei campi da salvare nel database
      * @return risultato operazione, bool o errori
-     * 
-     * Per attivare l'importazione dei file utilizzare l'opzione @a import_file e sovrascrivere il metodo readFile().
-     * 
      */
     public function save($options=array(), $options_field=array()) {
     
@@ -172,7 +171,7 @@ class ModelForm extends Form {
     	if($req_error > 0) {
     		return array('error'=>1);
     	}
-    	 
+    	
     	$controller = $this->_model->getController();
     	$m2mt = array();
     	$builds = array();
@@ -205,10 +204,13 @@ class ModelForm extends Form {
     			}
     			else
     			{
-    				$build = $this->_model->build($object);
+    				$retrieve_value = $object->retrieveValue($field);
     				
+    				$build = $this->_model->build($object);
     				$opt_element['model_id'] = $this->_model->id;
-    				$value = $build->clean($opt_element);
+    				
+    				$value = $build->clean($retrieve_value, $opt_element);
+    				
     				// imposta il valore; @see Gino.Model::__set()
     				$this->_model->{$field} = $value;
     
@@ -310,7 +312,7 @@ class ModelForm extends Form {
     					$m2m_build = $m2m_model->build($object);
     					$m2m_build->setName('m2mt_'.$m2m_name.'_'.$object_names[$field].'_'.$index);
     
-    					$value = $m2m_build->clean($opt_element);
+    					$value = $m2m_build->clean($m2m_build->getName(), $opt_element);
     					$m2m_model->{$field} = $value;
     
     					if(isset($import) and $import)

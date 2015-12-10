@@ -123,7 +123,7 @@ class Form {
     	// Default settings
     	$this->_form_id = $form_id;
     	$this->_hidden = null;
-    	$this->setMethod('post');
+    	$this->setMethod('POST');
     	$this->setValidation(true);
     	
     	if($verify_token) {
@@ -151,13 +151,14 @@ class Form {
      */
     public function setMethod($method){
 
-    	$valid = array('post', 'get', 'request');
+    	$valid = array('POST', 'GET', 'REQUEST');
+    	$method = strtoupper($method);
     	
     	if(!$method or ($method && !in_array($method, $valid))) {
-    		$method = 'post';
+    		$method = 'POST';
     	}
         $this->_method = $method;
-        $this->_requestVar = $method == 'post' ? $this->_request->POST : ($method=='get' ? $this->_request->GET : $this->_request->REQUEST);
+        $this->_requestVar = $method == 'POST' ? $this->_request->POST : ($method=='GET' ? $this->_request->GET : $this->_request->REQUEST);
 
         if(is_null($this->_session->form)) $this->_session->form = array();
     }
@@ -576,7 +577,7 @@ class Form {
      *     - @b method (string): metodo del form (get/post/request); default post
      *     - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
      *     - @b view_folder (string): percorso al file della vista
-     *     - @b view_title (string): visualizza l'intestazione del form (default true)
+     *     - @b view_title (boolean): per visualizzare l'intestazione del form (default true)
      *     - @b form_title (string): intestazione personalizzata del form
      *     - @b form_description (string): testo che compare tra il titolo ed il form
      *   - @b options_field (array): opzioni dei campi
@@ -604,7 +605,7 @@ class Form {
     	
     	// 2. opzioni del layout
     	$view_folder = gOpt('view_folder', $options_form, null);
-    	$view_title = gOpt('view_title', $options_form, null);
+    	$view_title = gOpt('view_title', $options_form, true);
     	$form_title = gOpt('form_title', $options_form, null);
     	$form_description = gOpt('form_description', $options_form, null);
     	

@@ -139,6 +139,7 @@ class AdminTable {
      * @brief Imposta una classe personalizzata che estende Gino.ModelForm
      * 
      * @param string $class nome della classe da istanziare
+     * @return void
      */
     public function setModelForm($class) {
     	
@@ -686,7 +687,7 @@ class AdminTable {
                 if(isset($this->_request->POST[$fname]) && $this->_request->POST[$fname] !== '') {
                     
                 	$build = $model->build($model_structure[$fname]);
-                	$this->_session->{$class_name.'_'.$fname.'_filter'} = $build->cleanFilter(array("escape"=>false));
+                	$this->_session->{$class_name.'_'.$fname.'_filter'} = $build->cleanFilter($this->_request->POST[$fname], array("escape"=>false));
                 }
                 else {
                     $this->_session->{$class_name.'_'.$fname.'_filter'} = null;
@@ -997,9 +998,9 @@ class AdminTable {
      * 
      * @param string $name nome dell'input form
      * @param array $options array associativo di opzioni
-     *     - @b value_type (string)
-     *     - @b method (array)
-     *     - @b escape (boolean)
+     *   - @b value_type (string)
+     *   - @b method (array)
+     *   - @b escape (boolean)
      * @return valore ripulito
      */
     private function clean($name, $options=null) {

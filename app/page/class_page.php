@@ -1013,11 +1013,11 @@ class page extends \Gino\Controller {
                 ),
                 'tpl_code'=>array(
                     'cols'=>40,
-                    'rows'=>10
+                    'rows'=>10, 
                 ),
                 'box_tpl_code'=>array(
                     'cols'=>40,
-                    'rows'=>10
+                    'rows'=>10, 
                 )
             )
         );

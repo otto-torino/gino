@@ -70,13 +70,13 @@ class EnumBuild extends Build {
     
     /**
      * @see Gino.Build::clean()
+     * 
      * @param array $options array associativo di opzioni
      *   - opzioni delle funzioni Gino.clean_text()
      * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     	
-    	parent::clean($options);
-    	return clean_text($this->_request_value, $options);
+    	return clean_text($request_value, $options);
     }
 }

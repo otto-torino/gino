@@ -18,16 +18,40 @@ namespace Gino;
  */
 class Widget {
 
-    protected $_name, $_label, $_value, $_default;
+	/**
+	 * @brief Nome del campo
+	 * @var string
+	 */
+    protected $_name;
     
     /**
-     * @brief Valore da visualizzare nell'input form passato attraverso inputValue()
+     * @brief Label del campo
+     * @var mixed
+     */
+    protected $_label;
+    
+    /**
+     * @brief Valore del record
+     * @var mixed
+     */
+    protected $_value;
+    
+    /**
+     * @brief Valore di default
+     * @var mixed
+     */
+    protected $_default;
+    
+    /**
+     * @brief Valore da visualizzare nell'input form
+     * @description Il valore viene passato al metodo inputValue() (@see Gino.Build::formElement()).
      * @var mixed
      */
 	protected $_value_input;
 	
 	/**
-	 * @brief Valore da visualizzare nell'input form eventualmente recuperato dal valore salvato in sessione
+	 * @brief Valore da visualizzare nell'input form
+	 * @description Questo valore può corrispondere al valore recuperato dal salvataggio in sessione degli input form (@see Gino.Build::formElement()).
 	 * @var mixed
 	 */
 	protected $_value_retrieve;

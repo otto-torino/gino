@@ -124,8 +124,9 @@ class layout extends \Gino\Controller {
     private function manageTemplate(\Gino\Http\Request $request) {
 
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int');
-        $tpl = \Gino\Loader::load('Template', array($id));
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
+        
+        $tpl = \Gino\Loader::load('Template', array($id));
 
         if($request->checkGETKey('trnsl', '1'))
         {

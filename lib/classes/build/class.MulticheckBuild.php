@@ -119,16 +119,15 @@ class MulticheckBuild extends Build {
 
     /**
      * @see Gino.Build::clean()
+     * 
      * @param array $options array associativo di opzioni
      *   - opzioni della funzione Gino.clean_array()
      * @return string
      */
-    public function clean($options=null) {
-    	
-    	parent::clean($options);
+    public function clean($request_value, $options=null) {
     	
     	$options['asforminput'] = false;
-    	return clean_array($this->_request_value, $options);
+    	return clean_array($request_value, $options);
     }
 
     /**
@@ -147,9 +146,9 @@ class MulticheckBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      */
-    public function retrieveValue() {
+    public function printValue() {
     	
     	$db = \Gino\Db::instance();
     	

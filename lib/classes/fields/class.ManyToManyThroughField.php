@@ -64,7 +64,6 @@ class ManyToManyThroughField extends Field {
     
     /**
      * @see Gino.Field::valueFromDb()
-     * 
      * @param integer $value valore id del record
      * @return null or array (valori id dei record di associazione)
      */
@@ -77,7 +76,7 @@ class ManyToManyThroughField extends Field {
     		return $value;
     	}
     	else {
-    		throw new \Exception(_("Valore non valido"));
+    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
     	}
     }
 }

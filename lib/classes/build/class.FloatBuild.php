@@ -41,12 +41,10 @@ class FloatBuild extends Build {
     
     /**
      * @see Gino.Build::clean()
-     * @param array $options array associativo di opzioni
      * @return float
      */
-    public function clean($options=null) {
-    	 
-    	parent::clean($options);
-    	return clean_float($this->_request_value);
+    public function clean($request_value, $options=null) {
+    	
+    	return clean_float($request_value);
     }
 }
