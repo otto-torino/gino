@@ -21,16 +21,14 @@ class DatetimeWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$options['size'] = 20;
 		$options['maxlength'] = 19;
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
-		
-		$buffer = $this->_form->cinput($this->_name, 'text', $value, $this->_label, $options);
+		$buffer = Input::input_label($this->_name, 'text', $this->_value_retrieve, $this->_label, $options);
 		
 		return $buffer;
 	}

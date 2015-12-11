@@ -160,14 +160,14 @@ class Template extends Model {
         else {
             $formaction = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => 'mngtpl'));
         }
-        $required = 'label';
-        $buffer = $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
+        
+        $buffer = $gform->open($formaction, '', 'label', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
         $buffer .= ($this->id)
-            ? $gform->cinput('filename', 'text', htmlInput($this->filename), _("Nome file"), array("other"=>"disabled", "size"=>40, "maxlength"=>200))
-            : $gform->cinput('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
-        $buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
+            ? \Gino\Input::input_label('filename', 'text', htmlInput($this->filename), _("Nome file"), array("other"=>"disabled", "size"=>40, "maxlength"=>200))
+            : \Gino\Input::input_label('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
+        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
 
         if(!$free) {
 
@@ -176,7 +176,7 @@ class Template extends Model {
             foreach(Css::getAll('label') as $css) {
                 $css_list[$css->id] = htmlInput($css->label);
             }
-            $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
+            $buffer .= \Gino\Input::select_label('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
         }
 
         return $buffer;
@@ -215,7 +215,7 @@ class Template extends Model {
             $code = file_get_contents(TPL_DIR.OS."default_free_tpl.php");
         }
 
-        $gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
@@ -233,10 +233,10 @@ class Template extends Model {
         $buffer .= "</div>";
 
         $buffer .= $this->formData($gform, TRUE);
-        $buffer .= $gform->hidden('free', 1);
-        $buffer .= $gform->ctextarea('code', $gform->retvar('code', $code), _("Codice PHP"), array("cols"=>45, "rows"=>14, 'id'=>'codemirror'));
-        $save_and_continue = $gform->input('savecontinue_action', 'submit', _('salva e continua la modifica'), array("classField"=>"submit"));
-        $buffer .= $gform->cinput('submit_action', 'submit', _('salva'), '', array("classField"=>"submit", 'text_add'=>$save_and_continue));
+        $buffer .= \Gino\Input::hidden('free', 1);
+        $buffer .= \Gino\Input::textarea_label('code', $gform->retvar('code', $code), _("Codice PHP"), array("cols"=>45, "rows"=>14, 'id'=>'codemirror'));
+        $save_and_continue = \Gino\Input::input('savecontinue_action', 'submit', _('salva e continua la modifica'), array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _('salva'), '', array("classField"=>"submit", 'text_add'=>$save_and_continue));
         $buffer .= $gform->close();
 
         $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
@@ -300,17 +300,17 @@ class Template extends Model {
      */
     public function formTemplate() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
 
         $buffer = $this->formData($gform);
         if($this->id) {
-            $buffer .= $gform->hidden('modTpl', 1);
+            $buffer .= \Gino\Input::hidden('modTpl', 1);
         }
         $buffer .= $this->formBlock($gform);
-        $buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View();
@@ -333,14 +333,14 @@ class Template extends Model {
 
         if(!$this->id) return null;
 
-        $gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = _("Modifica lo schema");
 
         $buffer = $this->formData($gform);
-        $buffer .= $gform->cinput('blocks_number', 'text', $this->_blocks_number, _('numero blocchi'), array("other"=>"disabled", 'size'=>1));
-        $buffer .= $gform->cinput('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('blocks_number', 'text', $this->_blocks_number, _('numero blocchi'), array("other"=>"disabled", 'size'=>1));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View();
@@ -361,18 +361,17 @@ class Template extends Model {
      */
     public function formCopyTemplate() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = sprintf(_('Duplica template "%s"'), htmlChars($this->label));
 
-        $required = 'label,filename';
-        $buffer = $gform->open($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', $required);
-        $buffer .= $gform->hidden('ref', $this->id);
-        $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
-        $buffer .= $gform->cinput('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
-        $buffer .= $gform->ctextarea('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
-        $buffer .= $gform->cinput('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
+        $buffer = $gform->open($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', 'label,filename', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('ref', $this->id);
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
+        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
 
         $buffer .= $gform->close();
 
@@ -398,15 +397,15 @@ class Template extends Model {
 
         if($this->id) {
 
-            $buffer = $gform->cinput('blocks', 'text', $this->_blocks_number, _("Numero blocchi"), array('size'=>4));
-            $buffer .= $gform->hidden('blocks_number', $this->_blocks_number);
+            $buffer = \Gino\Input::input_label('blocks', 'text', $this->_blocks_number, _("Numero blocchi"), array('size'=>4));
+            $buffer .= \Gino\Input::hidden('blocks_number', $this->_blocks_number);
             $buffer .= "<div id=\"blocks_form\">".$this->tplBlockForm()."</div>";
         }
         else {
             for($i=1, $blocks_list=array(); $i<11; $i++) $blocks_list[$i] = $i;
 
             $onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
-            $buffer = $gform->cselect('blocks_number', $gform->retvar('blocks_number', $this->_blocks_number), $blocks_list, array(_("Numero blocchi"), _("Selezionare il numero di blocchi che devono comporre il layout")), array("js"=>$onchange));
+            $buffer = \Gino\Input::select_label('blocks_number', $gform->retvar('blocks_number', $this->_blocks_number), $blocks_list, array(_("Numero blocchi"), _("Selezionare il numero di blocchi che devono comporre il layout")), array("js"=>$onchange));
             $buffer .= "<div id=\"blocks_form\"></div>";
         }
 
@@ -420,7 +419,7 @@ class Template extends Model {
      */
     public function tplBlockForm($request = null) {
 
-        $gform = Loader::load('Form', array('gform', 'post', false));
+        $gform = Loader::load('Form', array());
 
         $post_blocks_number = $request ? cleanVar($request->POST, 'blocks_number', 'int', '') : cleanVar($_POST, 'blocks_number', 'int', '');
 
@@ -441,7 +440,7 @@ class Template extends Model {
                 $name_select = 'addblocks_'.$i;
                 $div_id = 'addblocks_form'.$i;
                 $onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=addblocks', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
-                $test_add = $gform->cselect($name_select, '', array(1=>1, 2=>2), _('Numero blocchi da aggiungere'), array("js"=>$onchange));
+                $test_add = \Gino\Input::select_label($name_select, '', array(1=>1, 2=>2), _('Numero blocchi da aggiungere'), array("js"=>$onchange));
                 $buffer .= $test_add;
 
                 $buffer .= "<div id=\"$div_id\">";
@@ -472,31 +471,31 @@ class Template extends Model {
 
             if($this->id) {
 
-                $text_block .= $gform->hidden('del'.$i, 0, array('id'=>'del'.$i));
+                $text_block .= \Gino\Input::hidden('del'.$i, 0, array('id'=>'del'.$i));
                 $buffer .= $text_block;
 
-                $buffer .= $gform->hidden('id_'.$i, $this->_blocks_properties[$i]['id'], array('id'=>'id_'.$i));
+                $buffer .= \Gino\Input::hidden('id_'.$i, $this->_blocks_properties[$i]['id'], array('id'=>'id_'.$i));
 
                 $width = $this->_blocks_properties[$i]['width'] ? $this->_blocks_properties[$i]['width'] : '';
 
-                $um = " ".$gform->select('um_'.$i, $this->_blocks_properties[$i]['um'], $this->_um_dict, array());
-                $buffer .= $gform->cinput('width_'.$i, 'text', $width, array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
+                $um = " ".\Gino\Input::select('um_'.$i, $this->_blocks_properties[$i]['um'], $this->_um_dict, array());
+                $buffer .= \Gino\Input::input_label('width_'.$i, 'text', $width, array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
 
-                $buffer .= $gform->cselect('align_'.$i, $this->_blocks_properties[$i]['align'], $this->_align_dict, _("Allineamento"), array());
+                $buffer .= \Gino\Input::select_label('align_'.$i, $this->_blocks_properties[$i]['align'], $this->_align_dict, _("Allineamento"), array());
 
-                $buffer .= $gform->cinput('rows_'.$i, 'text', $this->_blocks_properties[$i]['rows'], _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+                $buffer .= \Gino\Input::input_label('rows_'.$i, 'text', $this->_blocks_properties[$i]['rows'], _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
 
-                $buffer .= $gform->cinput('cols_'.$i, 'text', $this->_blocks_properties[$i]['cols'], _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
+                $buffer .= \Gino\Input::input_label('cols_'.$i, 'text', $this->_blocks_properties[$i]['cols'], _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
             }
             else {
 
                 $buffer .= $text_block;
 
-                $um = " ".$gform->select('um_'.$i, '', $this->_um_dict, array());
-                $buffer .= $gform->cinput('width_'.$i, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
-                $buffer .= $gform->cselect('align_'.$i, '', $this->_align_dict, _("Allineamento"), array());
-                $buffer .= $gform->cinput('rows_'.$i, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
-                $buffer .= $gform->cinput('cols_'.$i, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
+                $um = " ".\Gino\Input::select('um_'.$i, '', $this->_um_dict, array());
+                $buffer .= \Gino\Input::input_label('width_'.$i, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
+                $buffer .= \Gino\Input::select_label('align_'.$i, '', $this->_align_dict, _("Allineamento"), array());
+                $buffer .= \Gino\Input::input_label('rows_'.$i, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+                $buffer .= \Gino\Input::input_label('cols_'.$i, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
             }
             $buffer .= "</fieldset>";
         }
@@ -516,23 +515,23 @@ class Template extends Model {
         if(is_null($ref)) $ref = cleanVar($request->POST, 'ref', 'int', '');
         if(!$ref) return null;
 
-        $gform = Loader::load('Form', array('gform', 'post', FALSE));
+        $gform = Loader::load('Form', array());
 
         $buffer = '';
 
         $add_num = is_null($request) ? cleanVar($_POST, 'addblocks_'.$ref, 'int', '') : cleanVar($request->POST, 'addblocks_'.$ref, 'int', '');
-        $buffer .= $gform->hidden('addblocks_'.$ref, $add_num);
+        $buffer .= \Gino\Input::hidden('addblocks_'.$ref, $add_num);
 
         for($i=1; $i<$add_num+1; $i++) {
 
             $ref_name = $ref.'_'.$i;
             $buffer .= "<fieldset>";
             $buffer .= "<legend>"._('Nuovo blocco')."</legend>";
-            $um = " ".$gform->select('um_add'.$ref_name, '', $this->_um_dict, array());
-            $buffer .= $gform->cinput('width_add'.$ref_name, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
-            $buffer .= $gform->cselect('align_add'.$ref_name, '', $this->_align_dict, _("Allineamento"), array());
-            $buffer .= $gform->cinput('rows_add'.$ref_name, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
-            $buffer .= $gform->cinput('cols_add'.$ref_name, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
+            $um = " ".\Gino\Input::select('um_add'.$ref_name, '', $this->_um_dict, array());
+            $buffer .= \Gino\Input::input_label('width_add'.$ref_name, 'text', '', array(_("Larghezza"), _("Se non specificata occupa tutto lo spazio disponibile")), array("required"=>false, "size"=>4, "maxlength"=>4, "text_add"=>$um));
+            $buffer .= \Gino\Input::select_label('align_add'.$ref_name, '', $this->_align_dict, _("Allineamento"), array());
+            $buffer .= \Gino\Input::input_label('rows_add'.$ref_name, 'text', '', _("Numero righe"), array("required"=>true, "size"=>2, "maxlength"=>2));
+            $buffer .= \Gino\Input::input_label('cols_add'.$ref_name, 'text', '', _("Numero colonne"), array("required"=>true, "size"=>2, "maxlength"=>2));
             $buffer .= "</fieldset>";
         }
 
@@ -546,14 +545,14 @@ class Template extends Model {
      */
     public function formDelTemplate() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $buffer = "<p class=\"backoffice-info\">"._("L'eliminazione di un template determina l'eliminazione del template dalle skin che lo contengono!")."</p>";
-        $required = '';
-        $buffer .= $gform->open($this->_home."?evt[".$this->_interface."-actionDelTemplate]", '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
+        
+        $buffer .= $gform->open($this->_home."?evt[".$this->_interface."-actionDelTemplate]", '', '', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View();
@@ -606,7 +605,7 @@ class Template extends Model {
 
         $request = \Gino\Http\Request::instance();
 
-        $gform = Loader::load('Form', array('tplform', 'post', false, array("tblLayout"=>false)));
+        $gform = Loader::load('Form', array());	// array("tblLayout"=>false)
         $gform->load('dataform');
 
         $modTpl = cleanVar($request->POST, 'modTpl', 'int');    // parametro di ricostruzione del template
@@ -649,21 +648,20 @@ class Template extends Model {
         $buffer .= $render;
 
         // Form
-        $required = '';
         $formaction = $this->_registry->router->link($this->_interface, 'actionTemplate');
         
-        $buffer .= $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->hidden('label', htmlInput($label));
-        $buffer .= $gform->hidden('description', htmlInput($description));
-        $buffer .= $gform->hidden('filename', $filename);
-        $buffer .= $gform->hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
-        $buffer .= $gform->hidden('tplform_text', '', array("id"=>"tplform_text"));
+        $buffer .= $gform->open($formaction, '', '', array('form_id'=>'tplform', 'validation'=>false));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::hidden('label', htmlInput($label));
+        $buffer .= \Gino\Input::hidden('description', htmlInput($description));
+        $buffer .= \Gino\Input::hidden('filename', $filename);
+        $buffer .= \Gino\Input::hidden('selMdlTitle', _("Selezione modulo"), array("id"=>"selMdlTitle"));
+        $buffer .= \Gino\Input::hidden('tplform_text', '', array("id"=>"tplform_text"));
 
         if(!$this->id || ($this->id && $modTpl))
         {
             if($modTpl)
-                $buffer .= $gform->hidden('modTpl', $modTpl);
+                $buffer .= \Gino\Input::hidden('modTpl', $modTpl);
 
             $blocks_del = array();
             $num = 1;
@@ -675,12 +673,12 @@ class Template extends Model {
 
                     $ref_name = $i.'_'.$y;
 
-                    $buffer .= $gform->hidden('id_'.$num, 0);
-                    $buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_add'.$ref_name, 'int', ''));
-                    $buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_add'.$ref_name, 'int', ''));
+                    $buffer .= \Gino\Input::hidden('id_'.$num, 0);
+                    $buffer .= \Gino\Input::hidden('width_'.$num, cleanVar($request->POST, 'width_add'.$ref_name, 'int', ''));
+                    $buffer .= \Gino\Input::hidden('um_'.$num, cleanVar($request->POST, 'um_add'.$ref_name, 'int', ''));
+                    $buffer .= \Gino\Input::hidden('align_'.$num, cleanVar($request->POST, 'align_add'.$ref_name, 'int', ''));
+                    $buffer .= \Gino\Input::hidden('rows_'.$num, cleanVar($request->POST, 'rows_add'.$ref_name, 'int', ''));
+                    $buffer .= \Gino\Input::hidden('cols_'.$num, cleanVar($request->POST, 'cols_add'.$ref_name, 'int', ''));
                     $num++;
                 }
                 // /End
@@ -694,22 +692,22 @@ class Template extends Model {
                 }
                 else
                 {
-                	$buffer .= $gform->hidden('id_'.$num, $id_block);
-                	$buffer .= $gform->hidden('width_'.$num, cleanVar($request->POST, 'width_'.$i, 'int', ''));
-                	$buffer .= $gform->hidden('um_'.$num, cleanVar($request->POST, 'um_'.$i, 'int', ''));
-                	$buffer .= $gform->hidden('align_'.$num, cleanVar($request->POST, 'align_'.$i, 'int', ''));
-                	$buffer .= $gform->hidden('rows_'.$num, cleanVar($request->POST, 'rows_'.$i, 'int', ''));
-                	$buffer .= $gform->hidden('cols_'.$num, cleanVar($request->POST, 'cols_'.$i, 'int', ''));
+                	$buffer .= \Gino\Input::hidden('id_'.$num, $id_block);
+                	$buffer .= \Gino\Input::hidden('width_'.$num, cleanVar($request->POST, 'width_'.$i, 'int', ''));
+                	$buffer .= \Gino\Input::hidden('um_'.$num, cleanVar($request->POST, 'um_'.$i, 'int', ''));
+                	$buffer .= \Gino\Input::hidden('align_'.$num, cleanVar($request->POST, 'align_'.$i, 'int', ''));
+                	$buffer .= \Gino\Input::hidden('rows_'.$num, cleanVar($request->POST, 'rows_'.$i, 'int', ''));
+                	$buffer .= \Gino\Input::hidden('cols_'.$num, cleanVar($request->POST, 'cols_'.$i, 'int', ''));
                 	
                 	$num++;
                 }
             }
             
-            $buffer .= $gform->hidden('blocks_number', $num-1);
-            $buffer .= $gform->hidden('blocks_del', base64_encode(json_encode($blocks_del)));
+            $buffer .= \Gino\Input::hidden('blocks_number', $num-1);
+            $buffer .= \Gino\Input::hidden('blocks_del', base64_encode(json_encode($blocks_del)));
         }
-        $buffer .= $gform->input('back', 'button', _("indietro"), array("classField"=>"generic", "js"=>"onclick=\"history.go(-1)\""));
-        $buffer .= " ".$gform->input('save', 'button', _("salva template"), array("classField"=>"submit", "js"=>"onclick=\"saveTemplate();\""));
+        $buffer .= \Gino\Input::input('back', 'button', _("indietro"), array("classField"=>"generic", "js"=>"onclick=\"history.go(-1)\""));
+        $buffer .= " ".\Gino\Input::input('save', 'button', _("salva template"), array("classField"=>"submit", "js"=>"onclick=\"saveTemplate();\""));
         $buffer .= $gform->close();
 
         $buffer .= "</div>\n";
@@ -981,15 +979,18 @@ class Template extends Model {
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => $action));
 
         if(!$this->id && is_file(TPL_DIR.OS.$this->filename.".tpl")) 
-            return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
+            return Error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
 
         if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
-            if(!fwrite($fp, $tplContent))
-                return error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
+        	if(!fwrite($fp, $tplContent)) {
+        		return Error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
+            }
 
             fclose($fp);
         }
-        else return error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+        else {
+        	return Error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+        }
 
         $this->save();
 
@@ -1115,9 +1116,10 @@ class Template extends Model {
      */
     public function actionCopyTemplate(\Gino\Http\Request $request) {
 
-        $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform = Loader::load('Form', array());
+        //$gform->setValidation(false);
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $ref = cleanVar($request->POST, 'ref', 'int', '');
         $label = cleanVar($request->POST, 'label', 'string', '');
@@ -1129,17 +1131,18 @@ class Template extends Model {
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template&id=$ref&action=copy');
 
         if($req_error > 0) 
-            return error::errorMessage(array('error'=>1), $link_error);
+            return Error::errorMessage(array('error'=>1), $link_error);
 
         // Valori del template da duplicare
         $obj = new Template($ref);
 
         if(is_file(TPL_DIR.OS.$filename)) {
-            return error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
+            return Error::errorMessage(array('error'=>_("Nome file già presente")), $link_error);
         }
         else {
-            if(!copy(TPL_DIR.OS.$obj->filename, TPL_DIR.OS.$filename))
-                return error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+            if(!copy(TPL_DIR.OS.$obj->filename, TPL_DIR.OS.$filename)) {
+            	return Error::errorMessage(array('error'=>_("Impossibile creare il file").' '.$filename, 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+            }
         }
 
         $db = Db::instance();

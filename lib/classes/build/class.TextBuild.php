@@ -93,34 +93,43 @@ class TextBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
         if(!isset($options['field'])) $options['field'] = $this->_name;
 
         if(isset($options['is_filter']) and $options['is_filter']) {
-            $options['widget'] = 'text';
+            $options['widget'] = 'textarea';
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**
      * @see Gino.Build::clean()
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html()
+     *   - @b widget (string): widget (editor!textarea)
+     *   - @b typeoftext (string): tipo di dato da ripulire; accetta i valori @a text (default) e @a html
+     * @return string or null
      */
-    public function clean($options=null) {
-
-        $request = Request::instance();
-        $value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-        $method = isset($options['method']) ? $options['method'] : $request->POST;
-        $escape = gOpt('escape', $options, TRUE);
-        $widget = gOpt('widget', $options, null);
-
-        if($widget == 'editor') {
-            return cleanVarEditor($method, $this->_name, '');
-        }
-        else {
-            return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
-        }
+    public function clean($request_value, $options=null) {
+    	
+    	$widget = gOpt('widget', $options, null);
+    	$typeoftext = gOpt('typeoftext', $options, 'text');
+    	
+    	if($widget == 'editor') {
+    		return clean_html($request_value, $options);
+    	}
+    	else {
+    		if($typeoftext == 'text') {
+    			return clean_text($request_value, $options);
+    		} elseif($typeoftext == 'html') {
+    			return clean_html($request_value, $options);
+    		} else {
+    			return null;
+    		}
+    	}
     }
 }

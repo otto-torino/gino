@@ -17,9 +17,40 @@ use \Gino\Http\Request;
  * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ##Tabella delle associazioni predefinite del tipo di campo con il tipo input
+ *
+ * <table>
+ * <tr><th>Classe</th><th>Tipo di campo (database)</th><th>Widget predefinito</th></tr>
+ * <tr><td>BooleanField()</td><td>TINYINT</td><td>text</td></tr>
+ * <tr><td>CharField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>DateField()</td><td>DATE</td><td>date</td></tr>
+ * <tr><td>DatetimeField()</td><td>DATETIME</td><td>null</td></tr>
+ * <tr><td>DirectoryField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>EnumField()</td><td>ENUM</td><td>radio</td></tr>
+ * <tr><td>FileField()</td><td>CHAR, VARCHAR</td><td>file</td></tr>
+ * <tr><td>FloatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
+ * <tr><td>foreignKeyField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>select</td></tr>
+ * <tr><td>ImageField()</td><td>CHAR, VARCHAR</td><td>image</td></tr>
+ * <tr><td>IntegerField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>text</td></tr>
+ * <tr><td>ManyToManyField()</td><td>-</td><td>multicheck</td></tr>
+ * <tr><td>ManyToManyThroughField()</td><td>-</td><td>unit</td></tr>
+ * <tr><td>MulticheckField()</td><td>CHAR, VARCHAR</td><td>multicheck</td></tr>
+ * <tr><td>SlugField()</td><td>CHAR, VARCHAR</td><td>text</td></tr>
+ * <tr><td>TagField()</td><td>CHAR, VARCHAR</td><td>-</td></tr>
+ * <tr><td>TextField()</td><td>TEXT</td><td>textarea</td></tr>
+ * <tr><td>TimeField()</td><td>TIME</td><td>time</td></tr>
+ * <tr><td>YearField()</td><td>YEAR</td><td>text</td></tr>
+ * </table>
  */
 class Field {
 
+	/**
+	 * @brief Oggetto request
+	 * @var object
+	 */
+    protected $_request;
+    
     /**
      * @brief Proprietà dei campi
      * Vengono esposte dai relativi metodi __get e __set
@@ -46,13 +77,6 @@ class Field {
     protected $_default_widget;
 
     /**
-     * @brief Tipo di valore in arrivo dall'input
-     * @description viene impostato nelle singole classi Field
-     * @var string
-     */
-    protected $_value_type;
-
-    /**
      * Costruttore
      * 
      * @param array $options array associativo di opzioni del campo del database
@@ -69,7 +93,9 @@ class Field {
      */
     function __construct($options) {
 
-        $this->_default = null;
+    	$this->_request = \Gino\Http\Request::instance();
+    	
+    	$this->_default = null;
         
         $this->_name = array_key_exists('name', $options) ? $options['name'] : '';
         $this->_label = array_key_exists('label', $options) ? $options['label'] : $this->_name;
@@ -264,25 +290,6 @@ class Field {
     }
 
     /**
-     * @brief Getter della proprietà value_type
-     * @return tipo di dato
-     */
-    public function getValueType() {
-
-        return $this->_value_type;
-    }
-
-    /**
-     * @brief Setter della proprietà value_type
-     * @param string $value tipo di dato
-     * @return void
-     */
-    public function setValueType($value) {
-
-        if(is_string($value)) $this->_value_type = $value;
-    }
-    
-    /**
      * @brief Getter della proprietà int_digits (cifre intere)
      * @return integer
      */
@@ -337,37 +344,64 @@ class Field {
     		'unique_key' => $this->_unique_key,
     		'required' => $this->_required,
     		'widget' => $this->_widget,
-    		'value_type' => $this->_value_type,
     		'int_digits' => $this->_int_digits,
     		'decimal_digits' => $this->_decimal_digits,
     	);
     }
     
     /**
-     * @brief Valore del campo del modello nel formato richiesto
+     * @brief Valore del campo in una richiesta HTTP (@see Gino.ModelForm::save()))
      * 
-     * @see Gino.Model::getProperties()
-     * @see Gino.Model::fetchColumns()
-     * @param mixed $value
+     * @param string $field_name nome del campo
      * @return mixed
+     */
+    public function retrieveValue($field_name) {
+    	
+    	if(array_key_exists($field_name, $this->_request->{$this->_request->method})) {
+    		$value = $this->_request->{$this->_request->method}[$field_name];
+    	}
+    	else {
+    		$value = null;
+    	}
+    	return $value;
+    }
+    
+    /**
+     * @brief Valore del campo del modello nel suo formato specifico
+     * @description Questo metodo viene richiamato nei metodi: @see Gino.Model::getProperties(), @see Gino.Model::fetchColumns().
+     * 
+     * @param mixed $value valore del campo
+     * @return null or string
      */
     public function valueFromDb($value) {
     	
-    	return $value;
+    	if(is_null($value)) {
+			return null;
+		}
+		elseif(is_string($value)) {
+    		return $value;
+    	}
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
+    	}
     }
 
     /**
-     * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean(). \n
-     * Il valore viene poi utilizzato per la definizione della query e la gestione dei ManyToMany (@see Gino.Model::__set()).
+     * @brief Imposta il valore recuperato dal form e ripulito con Gino.Build::clean()
+     * @description Il valore viene utilizzato per la definizione della query e la gestione dei ManyToMany.
+     * @see Gino.Model::__set()
+     * @see Gino.Model::save()
      * 
-     * @param mixed $value
-     * @return mixed
+     * @param mixed $value valore da salvare
+     * @return null or string
      */
 	public function valueToDb($value) {
 
-		if(is_null($value))
+		if(is_null($value)) {
 			return null;
-		else
+		}
+		else {
 			return (string) $value;
+		}
 	}
 }

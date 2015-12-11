@@ -67,12 +67,16 @@ class EnumBuild extends Build {
 
         if($value) $this->_choice = $value;
     }
-
+    
     /**
-     * @see Gino.Build::formElement()
+     * @see Gino.Build::clean()
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni Gino.clean_text()
+     * @return string
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function clean($request_value, $options=null) {
     	
-        return parent::formElement($form, $options);
+    	return clean_text($request_value, $options);
     }
 }

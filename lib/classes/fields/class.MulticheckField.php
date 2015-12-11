@@ -49,8 +49,6 @@ class MulticheckField extends Field {
         $this->_default_widget = 'multicheck';
         parent::__construct($options);
         
-        $this->_value_type = 'array';
-         
         $this->_refmodel = $options['refmodel'];
         $this->_refmodel_where = array_key_exists('refmodel_where', $options) ? $options['refmodel_where'] : null;
         $this->_refmodel_order = array_key_exists('refmodel_order', $options) ? $options['refmodel_order'] : 'id';

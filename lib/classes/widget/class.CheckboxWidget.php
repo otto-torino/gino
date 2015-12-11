@@ -19,14 +19,29 @@ namespace Gino;
 class CheckboxWidget extends Widget {
 
 	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+		
+		return $value;
+	}
+	
+	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$checked = array_key_exists('checked', $options) ? $options['checked'] : false;
-		$buffer = $this->_form->ccheckbox($this->_name, $checked, $this->_value, $this->_label, $options);
+		$checked = gOpt('checked', $options, false);
+		$print_label = gOpt('print_label', $options, true);
+		
+		if($print_label) {
+			$buffer = Input::checkbox_label($this->_name, $checked, $this->_value, $this->_label, $options);
+		}
+		else {
+			$buffer = Input::checkbox($this->_name, $checked, $this->_value, $options);
+		}
 		
 		return $buffer;
 	}

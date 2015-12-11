@@ -136,17 +136,15 @@ class PhpModule extends \Gino\Model {
             tabMode: \"shift\"
         }";
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array(array('form_id'=>'gform')));
         $gform->load('dataform');
 
-        $required = 'content';
-
-        $buffer = $gform->open($this->_registry->router->link($this->_interface, 'manageDoc', array(), array('action' => 'save')), '', $required, array("generateToken"=>true));
+        $buffer = $gform->open($this->_registry->router->link($this->_interface, 'manageDoc', array(), array('action' => 'save')), '', 'content', array("generateToken"=>true));
 
         $content = $this->content? $this->content:"\$buffer = '';";
-        $buffer .= $gform->ctextarea('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("id"=>"codemirror", "required"=> true, "other"=>"style=\"width: 95%\"", "rows"=>30, 'trnsl' => TRUE, 'trnsl_table' => self::$table, 'trnsl_id' => $this->id, 'field' => 'content'));
+        $buffer .= \Gino\Input::textarea_label('content', htmlspecialchars($gform->retvar('content',$content)), array(_("Codice"), _("Il codice php deve ritornare tutto l'output immagazzinato dentro la variabile <b>\$buffer</b>, la quale <b>non</b> deve essere reinizializzata. Attenzione a <b>non stampare</b> direttamente variabili con <b>echo</b> o <b>print()</b>, perchè in questo caso i contenuti verrebbero stampati al di fuori del layout.<br/>Le funzioni di esecuzione di programmi sono disabilitate.")), array("id"=>"codemirror", "required"=> true, "other"=>"style=\"width: 95%\"", "rows"=>30, 'trnsl' => TRUE, 'trnsl_table' => self::$table, 'trnsl_id' => $this->id, 'field' => 'content'));
 
-        $buffer .= $gform->cinput('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
@@ -168,15 +166,15 @@ class PhpModule extends \Gino\Model {
      */
     public function actionPhpModule(\Gino\Http\Request $request) {
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', false, array("verifyToken"=>true)));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform = \Gino\Loader::load('Form', array(array('form_id'=>'gform', 'validation'=>false, "verifyToken"=>true)));
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $content = $this->_db->escapeString(htmlspecialchars_decode($request->POST['content']));
         $link_error = $this->_registry->router->link($this->_interface, 'manageDoc', array(), array('action' => 'modify'));
 
         if($req_error > 0) {
-            return error::errorMessage(array('error'=>1), $link_error);
+            return Error::errorMessage(array('error'=>1), $link_error);
         }
 
         $this->instance = $this->_controller->getInstance();

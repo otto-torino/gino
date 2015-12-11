@@ -348,8 +348,9 @@ namespace Gino;
      * 
      * @param array $options
      *   array associativo di opzioni
-     *   - @b only_update (string|array): nome o nomi dei campi da aggiornare
-     *     - string, nome o nomi dei campi separati da virgola
+     *   - @b only_update (mixed): nomi dei campi da aggiornare
+     *     - string, nomi dei campi separati da virgola
+     *     - array, elenco dei nomi dei campi
      *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; di default vengono aggiunti i campi 'id', 'instance'
      * @return il risultato dell'operazione o errori
      */
@@ -397,7 +398,7 @@ namespace Gino;
 				if((count($only_update) && in_array($pName, $only_update)) or (count($no_update) && !in_array($pName, $no_update)))
 				{
 					if(!array_key_exists($pName, $columns)) {
-						throw new \Exception(_("The field name does not exist"));
+						throw new \Exception(sprintf(_("The field name \"%s\" does not exist"), $pName));
 					}
 					
 					$field_obj = $columns[$pName];
@@ -765,7 +766,8 @@ namespace Gino;
     }
     
     /**
-     * Imposta le opzioni "model, field_object, value, table" e recupera le proprietà del campo dipendenti dai valori del record 
+     * @brief Racchiude tutte le proprietà di un mdello
+     * @description Recupera le proprietà del campo dipendenti dai valori del record e imposta le opzioni: model, field_object, value, table. 
      * 
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return array
@@ -835,14 +837,14 @@ namespace Gino;
     /**
      * Valore da mostrare in output
      * 
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      * @param object $field_obj oggetto della classe del tipo di campo
      * @return mixed
      */
     public function shows($field_obj) {
     	
     	$obj = $this->build($field_obj);
-    	$value = $obj->retrieveValue();
+    	$value = $obj->printValue();
     	
     	return $value;
     }
@@ -884,14 +886,14 @@ namespace Gino;
 	
 	/**
      * @brief Refresh del modello (da chiamare manualmente)
-     *
+     * 
      * @description Quando ad esempio si modificano gli m2mt e si vogliono vederne gli effetti prima del ricaricamento pagina. \n
      * Modificando gli m2mt, questi vengono aggiornati sul db, ma il modello che ha tali m2mt continua a referenziare i vecchi, questo perché il salvataggio
-     * viene gestito da Gino.AdminTable e non da modello stesso che quindi ne è quasi all'oscuro. Ora questo metodo viene anche chiamato da AdminTable e quindi
-     * le modifiche si riflettono immediatamente anche sul modello. 
-     * Chiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso di Gino.AdminTable::modelAction().
+     * viene gestito da Gino.ModelForm e non da modello stesso. 
+     * Per fare in modo che le modifiche agli m2mt si riflettano immediatamente sul modello di appartenenza questo metodo viene richiamato da Gino.ModelForm. 
+     * Allo stesso modo richiamarlo manualmente se la modifica agli m2mt viene fatta in modo diverso dall'uso di Gino.ModelForm::save().
      *
-     * @see Gino.AdminTable::m2mthroughAction()
+     * @see Gino.ModelForm::m2mthroughAction()
      * @return void
      */
     public function refreshModel() {

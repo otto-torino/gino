@@ -21,16 +21,14 @@ class RadioWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$choice = array_key_exists('choice', $options) ? $options['choice'] : null;
 		$default = array_key_exists('default', $options) ? $options['default'] : $this->_default;
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($this->_value));
-		
-		$buffer = $this->_form->cradio($this->_name, $value, $choice, $default, $this->_label, $options);
+		$buffer = Input::radio_label($this->_name, $this->_value_retrieve, $choice, $default, $this->_label, $options);
 		
 		return $buffer;
 	}

@@ -35,14 +35,12 @@ class DirectoryField extends Field {
      *     - @b default_name (array): valori per il nome di default
      *       - @a field (string): nome dell'input dal quale ricavare il nome della directory (default id)
      *       - @a maxlentgh (integer): numero di caratteri da considerare nel nome dell'input (default 15)
-     *       - @a value_type (string): tipo di valore (default string)
      */
     function __construct($options) {
 
     	$this->_default_widget = 'text';
+    	
     	parent::__construct($options);
-
-        $this->_value_type = 'string';
         
         $this->_path = isset($options['path']) ? $options['path'] : '';
         if(!$this->_path) {
@@ -68,19 +66,4 @@ class DirectoryField extends Field {
 
 		return $prop;
 	}
-
-    /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
-     */
-    public function valueFromDb($value) {
-    	 
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
-    }
 }

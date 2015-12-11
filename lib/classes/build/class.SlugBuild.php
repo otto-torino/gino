@@ -45,11 +45,11 @@ class SlugBuild extends Build {
      * @see Gino.Build::formElement()
      * @description Aggiunge il codice javascript che permette l'autoriempimento del campo se è stata passata l'opzione autofill.
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         if(!isset($options['field'])) $options['field'] = $this->_name;
         $options['id'] = $this->_name;
-        $widget = parent::formElement($form, $options);
+        $widget = parent::formElement($mform, $options);
 
         // autofill solo in inserimento
         if(!$this->_model->id and $this->_autofill) {
@@ -65,10 +65,15 @@ class SlugBuild extends Build {
     /**
      * @see Gino.Build::clean()
      * @description Controlla la preesistenza del valore nei record della tabella
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_text()
+     *   - @b model_id (integer): valore id del modello
+     * @return string
      */
-    public function clean($options=null, $id=null) {
+    public function clean($request_value, $options=null) {
     
-    	$value = parent::clean($options);
+    	$value = clean_text($request_value, $options);
     	
     	if(is_null($value)) {
     		return null;
@@ -76,10 +81,11 @@ class SlugBuild extends Build {
     	else
     	{
     		$db = \Gino\Db::instance();
-    		 
+    		
+    		$model_id = gOpt('model_id', $options, null);
     		$where = $this->_name."='".$value."'";
-    		if($id) {
-    			$where .= " AND id!='".$id."'";
+    		if($model_id) {
+    			$where .= " AND id!='".$model_id."'";
     		}
     	
     		$res = $db->select('id', $this->_table, $where);

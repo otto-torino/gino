@@ -43,8 +43,6 @@ class ManyToManyThroughField extends Field {
         $this->_default_widget = 'unit';
         parent::__construct($options);
         
-        $this->_value_type = 'int';
-        
         $this->_controller = $options['controller'];
         $this->_m2m = $options['m2m'];
         $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
@@ -66,7 +64,6 @@ class ManyToManyThroughField extends Field {
     
     /**
      * @see Gino.Field::valueFromDb()
-     * 
      * @param integer $value valore id del record
      * @return null or array (valori id dei record di associazione)
      */
@@ -79,7 +76,7 @@ class ManyToManyThroughField extends Field {
     		return $value;
     	}
     	else {
-    		throw new \Exception(_("Valore non valido"));
+    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
     	}
     }
 }

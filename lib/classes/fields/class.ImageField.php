@@ -51,9 +51,9 @@ class ImageField extends FileField {
         
         $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array("jpg, png");
         $this->_types_allowed = isset($options['types_allowed']) ? $options['types_allowed'] : array(
-        		"image/jpeg",
-        		"image/gif",
-        		"image/png"
+        	"image/jpeg",
+        	"image/gif",
+        	"image/png"
         );
         
         $this->_resize = isset($options['resize']) ? $options['resize'] : true;

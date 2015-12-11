@@ -42,7 +42,6 @@ class BooleanField extends Field {
         $this->_default_widget = 'radio';
         parent::__construct($options);
         
-        $this->_value_type = 'int';
         $this->setLenght(1);
         $this->_choice = array_key_exists('choice', $options) ? $options['choice'] : array(1 => _('si'), 0 => _('no'));
     }
@@ -64,7 +63,7 @@ class BooleanField extends Field {
      * @return null or boolean
      */
     public function valueFromDb($value) {
-    	 
+    	
     	if(is_null($value)) {
     		return null;
     	}
@@ -74,7 +73,9 @@ class BooleanField extends Field {
     	elseif(is_bool($value)) {
     		return $value;
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	else {
+    		throw new \Exception(sprintf(("Valore non valido riferito al campo \"%s\""), $this->_name));
+    	}
     }
     
     /**

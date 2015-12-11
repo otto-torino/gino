@@ -19,15 +19,23 @@ namespace Gino;
 class MulticheckWidget extends Widget {
 
 	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+		
+		return $value;
+	}
+	
+	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$choice = array_key_exists('choice', $options) ? $options['choice'] : null;
 		
-		$buffer = $this->_form->multipleCheckbox($this->_name, $this->_value, $choice, $this->_label, $options);
+		$buffer = Input::multipleCheckbox($this->_name, $this->_value, $choice, $this->_label, $options);
 		
 		return $buffer;
 	}

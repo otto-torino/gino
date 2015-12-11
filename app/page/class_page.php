@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -84,7 +84,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
 
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -631,7 +631,7 @@ class page extends \Gino\Controller {
      */
     private function formComment($entry) {
 
-        $myform = \Gino\Loader::load('Form', array('form_comment', 'post', true, null));
+        $myform = \Gino\Loader::load('Form', array());
         $myform->load('dataform');
 
         $buffer = '';
@@ -640,16 +640,16 @@ class page extends \Gino\Controller {
             $buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
         }
 
-        $buffer .= $myform->open($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', null);
-        $buffer .= $myform->hidden('entry', $entry->id);
-        $buffer .= $myform->hidden('form_reply', 0, array('id'=>'form_reply'));
-        $buffer .= $myform->cinput('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= $myform->cinput('email', 'text', \Gino\htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= $myform->cinput('web', 'text', \Gino\htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
-        $buffer .= $myform->ctextarea('text', \Gino\htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
-        $buffer .= $myform->cradio('notification', \Gino\htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
+        $buffer .= $myform->open($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', array('form_id'=>'form_comment'));
+        $buffer .= \Gino\Input::hidden('entry', $entry->id);
+        $buffer .= \Gino\Input::hidden('form_reply', 0, array('id'=>'form_reply'));
+        $buffer .= \Gino\Input::input_label('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
+        $buffer .= \Gino\Input::input_label('email', 'text', \Gino\htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
+        $buffer .= \Gino\Input::input_label('web', 'text', \Gino\htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
+        $buffer .= \Gino\Input::textarea_label('text', \Gino\htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
+        $buffer .= \Gino\Input::radio_label('notification', \Gino\htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
         $buffer .= $myform->captcha();
-        $buffer .= $myform->cinput('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
+        $buffer .= \Gino\Input::input_label('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
 
         $buffer .= $myform->close();
 
@@ -664,9 +664,9 @@ class page extends \Gino\Controller {
      */
     public function actionComment(\Gino\Http\Request $request) {
 
-        $myform = \Gino\Loader::load('Form', array('form_comment', 'post', true, null));
-        $myform->save('dataform');
-        $req_error = $myform->arequired();
+        $myform = \Gino\Loader::load('Form', array(array('form_id'=>'form_comment')));
+        $myform->saveSession('dataform');
+        $req_error = $myform->checkRequired();
 
         $id = \Gino\cleanVar($request->POST, 'entry', 'int');
         $entry = new PageEntry($id, $this);
@@ -961,8 +961,6 @@ class page extends \Gino\Controller {
      */
     private function manageEntry($request) {
 
-        $edit = \Gino\cleanVar($request->GET, 'edit', 'int', '');
-
         $this->_registry->addJs($this->_class_www.'/page.js');
 
         if(!$this->userHasPerm(array('can_admin', 'can_publish'))) {
@@ -981,7 +979,7 @@ class page extends \Gino\Controller {
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 
         $admin_table = new \Gino\AdminTable($this, array());
-
+        
         $backend = $admin_table->backOffice(
             'PageEntry',
             array(
@@ -989,7 +987,7 @@ class page extends \Gino\Controller {
                 'list_title'=>_("Elenco pagine"), 
                 'filter_fields'=>array('title', 'category_id', 'tags', 'published')
             ),
-            array(
+        	array(
                 'removeFields' => $remove_fields
             ),
             array(
@@ -1015,11 +1013,11 @@ class page extends \Gino\Controller {
                 ),
                 'tpl_code'=>array(
                     'cols'=>40,
-                    'rows'=>10
+                    'rows'=>10, 
                 ),
                 'box_tpl_code'=>array(
                     'cols'=>40,
-                    'rows'=>10
+                    'rows'=>10, 
                 )
             )
         );

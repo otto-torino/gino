@@ -51,8 +51,6 @@ class ForeignKeyField extends Field {
         $this->_default_widget = 'select';
         parent::__construct($options);
         
-        $this->_value_type = 'int';
-        
         $this->_foreign = $options['foreign'];
         $this->_foreign_where = array_key_exists('foreign_where', $options) ? $options['foreign_where'] : null;
         $this->_foreign_order = array_key_exists('foreign_order', $options) ? $options['foreign_order'] : 'id';
@@ -80,10 +78,10 @@ class ForeignKeyField extends Field {
 
     /**
      * @see Gino.Field::valueToDb()
-     * @return object
+     * @return integer
      */
     public function valueToDb($value) {
-    	 
+    	
     	return (int) $value;
     }
 }

@@ -3,7 +3,7 @@
  * @file class.User.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.User.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un utente
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -47,6 +47,8 @@ class User extends \Gino\Model {
         self::$lng_dft = $this->_lng_dft;
 
         parent::__construct($id);
+        
+        $this->_model_label = _("Utente");
     }
 
     /**
@@ -97,10 +99,10 @@ class User extends \Gino\Model {
      		'max_lenght' => 50,
      	));
      	$columns['company'] = new \Gino\CharField(array(
-     		'name'=>'company',
+     		'name' => 'company',
      		'label' => _("Società"),
-     		'required'=>false,
-     		'max_lenght'=>100,
+     		'required' => false,
+     		'max_lenght' => 100,
      	));
      	$columns['phone'] = new \Gino\CharField(array(
      		'name' => 'phone',
@@ -114,34 +116,35 @@ class User extends \Gino\Model {
      		'max_lenght' => 30,
      	));
      	$columns['email'] = new \Gino\EmailField(array(
-     		'name'=>'email',
-     		'label'=>_("Email"),
-     		'required'=>true,
-     		'max_lenght'=>100,
+     		'name' => 'email',
+     		'label' => _("Email"),
+     		'required' => true,
+     		'max_lenght' => 100,
      	));
      	$columns['username'] = new \Gino\CharField(array(
      		'name'=>'username',
      		'label' => _("Username"),
-     		'required'=>true,
+     		'required' => true,
      		'max_lenght'=>50,
      	));
      	$columns['userpwd'] = new \Gino\CharField(array(
-     		'name'=>'userpwd',
+     		'name' => 'userpwd',
      		'label' => _("Password"),
-     		'required'=>true,
-     		'max_lenght'=>100,
+     		'required' => true,
+     		'max_lenght' => 100,
+     		'widget' => 'password'
      	));
      	$columns['is_admin'] = new \Gino\BooleanField(array(
-     		'name'=>'is_admin',
+     		'name' => 'is_admin',
      		'label' => _('Super-amministratore'),
-     		'required'=>true,
-     		'default'=>0,
+     		'required' => true,
+     		'default' => 0,
      	));
      	$columns['address'] = new \Gino\CharField(array(
-     		'name'=>'address',
+     		'name' => 'address',
      		'label' => _("Indirizzo"),
-     		'required'=>false,
-     		'max_lenght'=>200,
+     		'required' => false,
+     		'max_lenght' => 200,
      	));
      	$columns['cap'] = new \Gino\IntegerField(array(
      		'name'=>'cap',
@@ -152,7 +155,7 @@ class User extends \Gino\Model {
      		'name'=>'city',
      		'label' => _("Città"),
      		'required'=>false,
-     		'max_lenght'=>50,
+     		'max_lenght' => 50,
      	));
      	
      	$db = \Gino\Db::instance();
@@ -262,19 +265,16 @@ class User extends \Gino\Model {
          $rules = \Gino\gOpt('rules', $options, null);
          $maxlength = \Gino\gOpt('maxlength', $options, null);
 
-         $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
-
+         $gform = \Gino\Loader::load('Form', array(array('form_id'=>'pwdform')));
          $gform->load('pwdform');
 
-         $required = 'userpwd,check_userpwd';
+         $buffer = $gform->open($form_action, '', 'userpwd,check_userpwd');
+         $buffer .= \Gino\Input::hidden('id', $this->id);
 
-         $buffer = $gform->open($form_action, '', $required);
-         $buffer .= $gform->hidden('id', $this->id);
+         $buffer .= \Gino\Input::input_label('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
+         $buffer .= \Gino\Input::input_label('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
 
-         $buffer .= $gform->cinput('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
-         $buffer .= $gform->cinput('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
-
-         $buffer .= $gform->cinput('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
+         $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
 
          $buffer .= $gform->close();
 
@@ -295,10 +295,10 @@ class User extends \Gino\Model {
     public function savePassword($options=array()) {
 
         $request = \Gino\Http\Request::instance();
-        $gform = \Gino\Loader::load('Form', array('pwdform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array(array('form_id'=>'pwdform')));
 
-        $gform->save('pwdform');
-        $req_error = $gform->arequired();
+        $gform->saveSession('pwdform');
+        $req_error = $gform->checkRequired();
 
         if($req_error > 0) 
         	return array('error'=>1);

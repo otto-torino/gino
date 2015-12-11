@@ -19,34 +19,41 @@ namespace Gino;
 class TimeWidget extends Widget {
 
 	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+		 
+		$seconds = array_key_exists('seconds', $options) ? $options['seconds'] : false;
+		
+		$value = dbTimeToTime($value, $seconds);
+		
+		return $value;
+	}
+	
+	/**
 	 * @see Gino.Widget::printInputForm()
 	 * 
 	 * @param array $options opzioni dell'elemento del form
-     *   - opzioni dei metodi input() e cinput() della classe Form
+     *   - opzioni dei metodi input() e input_label() della classe Gino.Input
      *   - @b seconds (boolean): per mostrare i secondi
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$seconds = array_key_exists('seconds', $options) ? $options['seconds'] : false;
-		if($seconds)
-		{
+		if($seconds) {
 			$size = 9;
 			$maxlength = 8;
 		}
-		else
-		{
+		else {
 			$size = 6;
 			$maxlength = 5;
 		}
-		$value = dbTimeToTime($this->_value, $seconds);
 		$options['size'] = $size;
 		$options['maxlength'] = $maxlength;
 		
-		$value = $this->_form->retvar($this->_name, htmlInput($value));
-		
-		$buffer = $this->_form->cinput($this->_name, 'text', $value, $this->_label, $options);
+		$buffer = Input::input_label($this->_name, 'text', $this->_value_retrieve, $this->_label, $options);
 		
 		return $buffer;
 	}

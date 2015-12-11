@@ -53,19 +53,4 @@ class TagField extends Field {
     	 
     	return $prop;
     }
-
-    /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
-     */
-    public function valueFromDb($value) {
-    	 
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
-    }
 }

@@ -65,7 +65,7 @@ class ForeignKeyBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
     	$db = db::instance();
     	
@@ -97,21 +97,32 @@ class ForeignKeyBuild extends Build {
             );
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      * @return object
      */
-    public function retrieveValue() {
+    public function printValue() {
     	 
     	if(is_object($this->_value)) {
     		return new $this->_foreign((int) $this->_value->id);
     	}
-    	elseif(is_null($this->_value))
+    	elseif(is_null($this->_value)) {
     		return null;
-    	else
+    	}
+    	else {
     		return new $this->_foreign((int) $this->_value);
+    	}
+    }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @return integer
+     */
+    public function clean($request_value, $options=null) {
+    	
+    	return clean_int($request_value);
     }
 }

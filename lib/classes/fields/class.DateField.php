@@ -31,7 +31,5 @@ class DateField extends Field {
 
 		$this->_default_widget = 'date';
 		parent::__construct($options);
-		
-		$this->_value_type = 'string';
     }
 }

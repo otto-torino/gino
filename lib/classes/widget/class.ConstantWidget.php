@@ -21,14 +21,14 @@ class ConstantWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$view_value = array_key_exists('view_value', $options) ? htmlChars($options['view_value']) : null;
 		
-		$buffer = $this->_form->hidden($this->_name, htmlInput($this->_value), $options);
-		$buffer .= $this->_form->noinput($this->_label, $view_value, $options);
+		$buffer = Input::hidden($this->_name, $this->_value_input, $options);
+		$buffer .= Input::noinput($this->_label, $view_value, $options);
 		
 		return $buffer;
 	}

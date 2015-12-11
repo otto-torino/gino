@@ -31,12 +31,13 @@ class IntegerBuild extends Build {
 
         parent::__construct($options);
     }
-
+    
     /**
-     * @see Gino.Build::formElement()
+     * @see Gino.Build::clean()
+     * @return integer
      */
-    public function formElement(\Gino\Form $form, $options) {
-
-        return parent::formElement($form, $options);
+    public function clean($request_value, $options=null) {
+    	
+    	return clean_int($request_value);
     }
 }

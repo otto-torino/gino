@@ -26,8 +26,8 @@ require_once('class.Group.php');
 require_once('class.Permission.php');
 require_once('class.RegistrationProfile.php');
 
-require_once(CLASSES_DIR.OS.'class.AdminTable.php');
-require_once('class.AdminTable_AuthUser.php');
+require_once(CLASSES_DIR.OS.'class.ModelForm.php');
+require_once('class.ModelFormUser.php');
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
@@ -280,8 +280,8 @@ class auth extends \Gino\Controller {
 
         if($request->method == 'POST') {
 
-            $formobj = Loader::load('Form', array('auth_registration', 'post', FALSE));
-            $formobj->save('authactivateprofiledata');
+            $formobj = Loader::load('Form', array());	// array('form_id'=>'auth_registration')
+            $formobj->saveSession('authactivateprofiledata');
 
             $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
             $profile = new RegistrationProfile($profile_id);
@@ -328,7 +328,6 @@ class auth extends \Gino\Controller {
             $request->user->save();
 
             return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'profile'));
-
         }
 
         $profile_id = \Gino\cleanVar($request->GET, 'id', 'int');
@@ -339,11 +338,11 @@ class auth extends \Gino\Controller {
         }
 
         /* form */
-        $formobj = Loader::load('Form', array('auth_activate_profile', 'post', TRUE));
+        $formobj = Loader::load('Form', array());
         $formobj->load('authactivateprofiledata');
 
-        $form = $formobj->open('', TRUE, '');
-        $form .= $formobj->hidden('profile', $profile->id);
+        $form = $formobj->open('', TRUE, '', array('form_id'=>'auth_activate_profile'));
+        $form .= \Gino\Input::hidden('profile', $profile->id);
 
         // add_information
         if($profile->add_information) {
@@ -354,10 +353,10 @@ class auth extends \Gino\Controller {
         // terms
         if($profile->terms) {
            $form .= \Gino\htmlChars($profile->terms);
-           $form .= $formobj->ccheckbox('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
+           $form .= \Gino\Input::checkbox_label('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
         }
 
-        $form .= $formobj->cinput('submit_auth_activate_profile', 'submit', _('invia'), '', array());
+        $form .= \Gino\Input::input_label('submit_auth_activate_profile', 'submit', _('invia'), '', array());
         $form .= $formobj->close();
 
         $view = new \Gino\View($this->_view_dir, 'activate_profile');
@@ -379,19 +378,21 @@ class auth extends \Gino\Controller {
     {
         // form submission
         if($request->method == 'POST') {
+            
             // validazione dati classe auth
             $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
             $profile = new RegistrationProfile($profile_id);
 
-            $formobj = Loader::load('Form', array('auth_registration', 'post', FALSE));
-            $formobj->save('authregistrationdata');
+            $formobj = Loader::load('Form', array());	// array('form_id'=>'auth_registration')
+            $formobj->saveSession('authregistrationdata');
+            
             $error_redirect = $this->_registry->router->link($this->_class_name, 'registration', array('id' => $profile->id));
             // captcha
             if(!$formobj->checkCaptcha()) {
-                //return \Gino\Error::errorMessage(array('error' => _('Il codice inserito non è corretto.')), $error_redirect);
+                return \Gino\Error::errorMessage(array('error' => _('Il codice inserito non è corretto.')), $error_redirect);
             }
             // campi obbligatori
-            if($formobj->arequired()) {
+            if($formobj->checkRequired()) {
                 return \Gino\Error::errorMessage(array('error' => 1), $error_redirect);
             }
 
@@ -482,7 +483,6 @@ class auth extends \Gino\Controller {
             }
 
             return new \Gino\Http\Redirect($this->_registry->router->link($this->_class_name, 'registrationResult', array('id' => $registration_request->id)));
-
         }
         // show form
         else {
@@ -498,16 +498,16 @@ class auth extends \Gino\Controller {
             }
 
             /* form */
-            $formobj = Loader::load('Form', array('auth_registration', 'post', TRUE));
+            $formobj = Loader::load('Form', array());
             $formobj->load('authregistrationdata');
             $required = $this->_username_as_email
                 ? 'firstname,lastname,password,check_password,email,check_email'
                 : 'firstname,lastname,username,password,check_password,email,check_email';
 
-            $form = $formobj->open('', TRUE, $required);
-            $form .= $formobj->hidden('profile', $profile->id);
-            $form .= $formobj->cinput('firstname', 'text', $formobj->retvar('firstname'), _('Nome'), array('required' => TRUE));
-            $form .= $formobj->cinput('lastname', 'text', $formobj->retvar('lastname'), _('Cognome'), array('required' => TRUE));
+            $form = $formobj->open('', TRUE, $required, array('form_id'=>'auth_registration'));
+            $form .= \Gino\Input::hidden('profile', $profile->id);
+            $form .= \Gino\Input::input_label('firstname', 'text', $formobj->retvar('firstname'), _('Nome'), array('required' => TRUE));
+            $form .= \Gino\Input::input_label('lastname', 'text', $formobj->retvar('lastname'), _('Cognome'), array('required' => TRUE));
             if(!$this->_username_as_email) {
                 // onblur check username availability
                 $js = "
@@ -522,11 +522,11 @@ class auth extends \Gino\Controller {
                     });\"
                 onfocus=\"var self=this; $('username-check-result').set('text', ''); $(self).removeClass('invalid');\"";
                 $username_check_result = '<span id="username-check-result"></span>';
-                $form .= $formobj->cinput('username', 'text', '', _('Username'), array('required' => TRUE, 'js'=>$js, 'text_add' => $username_check_result));
+                $form .= \Gino\Input::input_label('username', 'text', '', _('Username'), array('required' => TRUE, 'js'=>$js, 'text_add' => $username_check_result));
             }
 
-            $form .= $formobj->cinput('email', 'email', $formobj->retvar('email'), _('Email'), array('required' => TRUE));
-            $form .= $formobj->cinput('check_email', 'email', '', _('Ripeti email'), array('required' => TRUE, 'other' => 'autocomplete="off"'));
+            $form .= \Gino\Input::input_label('email', 'email', $formobj->retvar('email'), _('Email'), array('required' => TRUE));
+            $form .= \Gino\Input::input_label('check_email', 'email', '', _('Ripeti email'), array('required' => TRUE, 'other' => 'autocomplete="off"'));
 
             // onblur validate password and check strength
             $js = "
@@ -541,8 +541,8 @@ class auth extends \Gino\Controller {
                 });\"
             onfocus=\"var self=this; $('password-check-result').set('text', ''); $(self).removeClass('invalid');\"";
             $password_check_result = '<span id="password-check-result"></span>';
-            $form .= $formobj->cinput('password', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
-            $form .= $formobj->cinput('check_password', 'password', '', _('Ripeti password'), array('required' => TRUE));
+            $form .= \Gino\Input::input_label('password', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
+            $form .= \Gino\Input::input_label('check_password', 'password', '', _('Ripeti password'), array('required' => TRUE));
 
             // add_information
             if($profile->add_information) {
@@ -554,10 +554,10 @@ class auth extends \Gino\Controller {
             // terms
             if($profile->terms) {
                $form .= \Gino\htmlChars($profile->terms);
-               $form .= $formobj->ccheckbox('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
+               $form .= \Gino\Input::checkbox_label('terms', FALSE, 1, _('Termini e condizioni'), array('id' => 'terms', 'required' => TRUE, 'text_add' => _('Ho letto ed accetto i termini e le condizioni del servizio')));
             }
 
-            $form .= $formobj->cinput('submit_auth_registration', 'submit', _('invia'), '', array());
+            $form .= \Gino\Input::input_label('submit_auth_registration', 'submit', _('invia'), '', array());
             $form .= $formobj->close();
 
             $view = new \Gino\View($this->_view_dir, 'registration');
@@ -576,8 +576,8 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return \Gino\Http\Response
      */
-    public function registrationResult(\Gino\Http\Request $request)
-    {
+    public function registrationResult(\Gino\Http\Request $request) {
+    	
         Loader::import('auth', 'RegistrationRequest');
         $id = \Gino\cleanVar($request->GET, 'id', 'int');
         $registration_request = new RegistrationRequest($id);
@@ -609,10 +609,9 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request
      * @return Gino.Http.Response
      */
-    public function confirmRegistration(\Gino\Http\Request $request)
-    {
-
-        Loader::import('auth', 'RegistrationRequest');
+    public function confirmRegistration(\Gino\Http\Request $request) {
+		
+    	Loader::import('auth', 'RegistrationRequest');
 
         $id = \Gino\cleanVar($request->GET, 'id', 'int');
         $code = \Gino\cleanVar($request->GET, 'code', 'string');
@@ -682,8 +681,7 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request
      * @return Gino.Http.Redirect
      */
-    public function activateRegistrationUser(\Gino\Http\Request $request)
-    {
+    public function activateRegistrationUser(\Gino\Http\Request $request) {
 
         Loader::import('auth', 'RegistrationRequest');
 
@@ -703,7 +701,6 @@ class auth extends \Gino\Controller {
         else {
             throw new \Exception(sprintf(_('Impossibile creare l\'utente per la richiesta di registrazione con id %s'), $registration_request->id));
         }
-
     }
 
     /**
@@ -712,8 +709,7 @@ class auth extends \Gino\Controller {
      * @param \Gino\App\Auth\RegistrationRequest $registration_request richiesta di registrazione
      * @return bool, risultato
      */
-    private function createAndActivateUser(\Gino\App\Auth\RegistrationRequest $registration_request)
-    {
+    private function createAndActivateUser(\Gino\App\Auth\RegistrationRequest $registration_request) {
 
         $profile = new RegistrationProfile($registration_request->registration_profile);
 
@@ -754,7 +750,6 @@ class auth extends \Gino\Controller {
         $email_message = $view->render($dict);
 
         return mail($user->email, $email_object, $email_message, $headers);
-
     }
 
     /**
@@ -767,8 +762,7 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request
      * @return Gino.Http.Response
      */
-    public function profile(\Gino\Http\Request $request)
-    {
+    public function profile(\Gino\Http\Request $request) {
 
         Loader::import('auth', 'RegistrationRequest');
 
@@ -807,8 +801,9 @@ class auth extends \Gino\Controller {
 
         // change password
         $pwd_updated = \Gino\cleanVar($request->GET, 'pwd', 'int');
-        $formobj = Loader::load('Form', array('auth_profile_chg_password', 'post', TRUE));
-        $form_password = $formobj->open('', FALSE, 'userpwd,check_userpwd');
+        
+        $formobj = Loader::load('Form', array());
+        $form_password = $formobj->open('', FALSE, 'userpwd,check_userpwd', array('form_id'=>'auth_profile_chg_password'));
 
         // onblur validate password and check strength
         $js = "
@@ -823,10 +818,10 @@ class auth extends \Gino\Controller {
             });\"
         onfocus=\"var self=this; $('password-check-result').set('text', ''); $(self).removeClass('invalid');\"";
         $password_check_result = '<span id="password-check-result"></span>';
-        $form_password .= $formobj->cinput('userpwd', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
-        $form_password .= $formobj->cinput('check_userpwd', 'password', '', _('Ripeti password'), array('required' => TRUE));
+        $form_password .= \Gino\Input::input_label('userpwd', 'password', '', array(_('Password'), $this->passwordRules()), array('required' => TRUE, 'js'=>$js, 'text_add' => $password_check_result));
+        $form_password .= \Gino\Input::input_label('check_userpwd', 'password', '', _('Ripeti password'), array('required' => TRUE));
 
-        $form_password .= $formobj->cinput('submit_auth_profile_chg_password', 'submit', _('modifica password'), '', array());
+        $form_password .= \Gino\Input::input_label('submit_auth_profile_chg_password', 'submit', _('modifica password'), '', array());
         $form_password .= $formobj->close();
 
         // add information data
@@ -880,9 +875,9 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request
      * @return Gino.Http.Redirect
      */
-    public function deleteAccount(\Gino\Http\Request $request)
-    {
-        if(!$request->user->id or !$request->user->active) {
+    public function deleteAccount(\Gino\Http\Request $request) {
+        
+    	if(!$request->user->id or !$request->user->active) {
             throw new \Gino\Exception\Exception404();
         }
 
@@ -936,10 +931,11 @@ class auth extends \Gino\Controller {
         }
         elseif($block=='group') {
 
-            if($op == 'jgp')
+            if($op == 'jgp') {
                 $backend = $this->joinGroupPermission($request);
-            else
+            } else {
                 $backend = $this->manageGroup();
+            }
 
             $sel_link = $link_group;
         }
@@ -960,10 +956,11 @@ class auth extends \Gino\Controller {
             $sel_link = $link_dft;
         }
         else {
-            if($op == 'jup')
+            if($op == 'jup') {
                 $backend = $this->joinUserPermission($request);
-            else
+            } else {
                 $backend = $this->manageUser($request);
+            }
         }
 
         if(is_a($backend, '\Gino\Http\Response')) {
@@ -989,8 +986,8 @@ class auth extends \Gino\Controller {
      *
      * @return html oppure \Gino\Http\Redirect
      */
-    private function manageRegistrationRequest()
-    {
+    private function manageRegistrationRequest() {
+    	
         Loader::import('auth', 'RegistrationRequest');
 
         $info = _("Elenco delle richieste di registrazione.");
@@ -1008,14 +1005,13 @@ class auth extends \Gino\Controller {
         return $admin_table->backoffice('RegistrationRequest', $opts, array(), array());
     }
 
-
     /**
      * Interfaccia di amministrazione profili di registrazione
      *
      * @return html oppure \Gino\Http\Redirect
      */
-    private function manageRegistrationProfile()
-    {
+    private function manageRegistrationProfile() {
+    	
         $info = _("Elenco dei profili di registrazione automatica al sistema.");
 
         $fieldsets = array(
@@ -1113,9 +1109,8 @@ class auth extends \Gino\Controller {
             $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
             $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
             
-            $gform = \Gino\Loader::load('Form', array('', '', ''));
-            $check_username = $gform->cinput('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
-            $check_email = $gform->cinput('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
+            $check_username = \Gino\Input::input_label('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
+            $check_email = \Gino\Input::input_label('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
 
             $removeFields = array();
 
@@ -1220,7 +1215,8 @@ class auth extends \Gino\Controller {
             )
         );
 
-        $admin_table = new AdminTable_AuthUser($this);
+        $admin_table = \Gino\Loader::load('AdminTable', array($this));
+        $admin_table->setModelForm('\Gino\App\Auth\ModelFormUser');
 
         $backend = $admin_table->backoffice('User', $opts, $opts_form, $opts_input);
         
@@ -1509,15 +1505,15 @@ class auth extends \Gino\Controller {
         $obj_user = new User($id);
         $checked = $obj_user->getPermissions();
 
-        $gform = \Gino\Loader::load('Form', array('j_userperm', 'post', false));
+        $gform = \Gino\Loader::load('Form', array());
 
         $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserPermission]';
 
-        $content = $gform->open($form_action, false, '');
-        $content .= $gform->hidden('id', $obj_user->id);
-        $content .= $this->formPermission($gform, $checked);
+        $content = $gform->open($form_action, false, '', array('form_id'=>'j_userperm', 'validation'=>false));
+        $content .= \Gino\Input::hidden('id', $obj_user->id);
+        $content .= $this->formPermission($checked);
 
-        $content .= $gform->input('submit', 'submit', _("associa"), null);
+        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
         $content .= $gform->close();
 
         $dict = array(
@@ -1611,15 +1607,15 @@ class auth extends \Gino\Controller {
         $obj_group = new Group($id);
         $checked = $obj_group->getPermissions();
 
-        $gform = \Gino\Loader::load('Form', array('j_groupperm', 'post', false));
+        $gform = \Gino\Loader::load('Form', array());
 
         $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinGroupPermission]';
 
-        $content = $gform->open($form_action, false, '');
-        $content .= $gform->hidden('id', $obj_group->id);
-        $content .= $this->formPermission($gform, $checked);
+        $content = $gform->open($form_action, false, '', array('form_id'=>'j_groupperm', 'validation'=>false));
+        $content .= \Gino\Input::hidden('id', $obj_group->id);
+        $content .= $this->formPermission($checked);
 
-        $content .= $gform->input('submit', 'submit', _("associa"), null);
+        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
         $content .= $gform->close();
 
         $dict = array(
@@ -1697,9 +1693,11 @@ class auth extends \Gino\Controller {
 
     /**
      * @brief Imposta il multicheckbox sui permessi
+     * 
+     * @param array $checked
      * @return html, multicheck
      */
-    private function formPermission($obj_form, $checked=array()) {
+    private function formPermission($checked=array()) {
 
         $perm = Permission::getList();
 
@@ -1731,7 +1729,7 @@ class auth extends \Gino\Controller {
             }
         }
 
-        $content = $obj_form->multipleCheckbox('perm[]', $a_checked, $items, '', null);
+        $content = \Gino\Input::multipleCheckbox('perm[]', $a_checked, $items, '', null);
 
         return $content;
     }
@@ -1788,7 +1786,7 @@ class auth extends \Gino\Controller {
     		$request->user->id &&
     		!$request->user->hasPerm('core', 'is_staff') &&
     		$request->session->auth_redirect == $this->link('index', 'admin_page')) {
-    			$request->session->auth_redirect = $this->_home;
+    			$request->session->auth_redirect = $request->root_absolute_url;
     	}
     	
     	$referer = isset($request->session->auth_redirect)
@@ -1809,20 +1807,23 @@ class auth extends \Gino\Controller {
         if(isset($_POST['submit_login']))
         {
             if($this->_access->Authentication()) exit();
-            else return error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface);
+            else return Error::errorMessage(array('error'=>_("Username o password non valida")), $link_interface);
         }
-
-        $gform = \Gino\Loader::load('Form', array('login', 'post', true));
-
-        $form = $gform->open('', FALSE, '');
-        $form .= $gform->hidden('action', 'auth');
-
-        $form .= $gform->cinput('user', 'text', '', _("Username"), array('size'=>30));
-        $form .= $gform->cinput('pwd', 'password', '', _("Password"), array('size'=>30));
-
-        $form .= $gform->cinput('submit_login', 'submit', _("login"), '', null);
-        $form .= $gform->close();
-
+		
+        $mform = \Gino\Loader::load('ModelForm', array(new User(null), array('fields'=>array('username', 'userpwd'))));
+        
+        $form = $mform->view(
+        	array(
+        		'form_id' => 'login',
+        		'show_save_and_continue' => false,
+        		'view_title' => false,
+        		'addCell' => array('username'=>array('name'=>'action', 'field'=>\Gino\Input::hidden('action', 'auth'))),
+        		's_name' => 'submit_login',
+        		's_value' => _("login")
+        	),
+        	array('username'=>array('trnsl'=>false), 'userpwd'=>array('trnsl'=>false))
+        );
+        
         $view = new \Gino\View($this->_view_dir, 'login');
         $dict = array(
             'form' => $form,
@@ -1870,8 +1871,8 @@ class auth extends \Gino\Controller {
         else {
 
             if($request->method == 'POST') {
-                $formobj = Loader::load('Form', array('data_recovery', 'post', FALSE));
-                if($formobj->arequired()) {
+                $formobj = Loader::load('Form', array());	// array('form_id'=>'data_recovery')
+                if($formobj->checkRequired()) {
                     return \Gino\Error::errorMessage(array('error' => 1), $this->_registry->router->link($this->_class_name, 'dataRecovery'));
                 }
 
@@ -1901,10 +1902,11 @@ class auth extends \Gino\Controller {
             }
             else {
                 $view = new \Gino\View($this->_view_dir, 'data_recovery_request');
-                $formobj = Loader::load('Form', array('data_recovery', 'post', TRUE));
-                $form = $formobj->open('', TRUE, 'email');
-                $form .= $formobj->cinput('email', 'email', '', _('Indirizzo email'), array('required' => TRUE));
-                $form .= $formobj->cinput('submit_data_recovery', 'submit', _('invia'), '', array());
+                
+                $formobj = Loader::load('Form', array());
+                $form = $formobj->open('', TRUE, 'email', array('form_id'=>'data_recovery'));
+                $form .= \Gino\Input::input_label('email', 'email', '', _('Indirizzo email'), array('required' => TRUE));
+                $form .= \Gino\Input::input_label('submit_data_recovery', 'submit', _('invia'), '', array());
                 $form .= $formobj->close();
 
                 $dict = array(
@@ -1925,7 +1927,5 @@ class auth extends \Gino\Controller {
         );
         $document = new Document($view->render($dict));
         return $document();
-
     }
-
 }

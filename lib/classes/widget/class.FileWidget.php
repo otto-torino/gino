@@ -21,11 +21,11 @@ class FileWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$buffer = $this->_form->cfile($this->_name, htmlInput($this->_value), $this->_label, $options);
+		$buffer = Input::input_file($this->_name, $this->_value_input, $this->_label, $options);
 		
 		return $buffer;
 	}

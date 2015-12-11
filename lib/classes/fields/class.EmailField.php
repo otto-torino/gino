@@ -40,7 +40,6 @@ class EmailField extends Field {
         $this->_default_widget = 'email';
         parent::__construct($options);
 
-        $this->_value_type = 'string';
         $this->_trnsl = false;
     }
     
@@ -54,20 +53,5 @@ class EmailField extends Field {
     	$prop['trnsl'] = $this->_trnsl;
     
     	return $prop;
-    }
-
-    /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
-     */
-    public function valueFromDb($value) {
-    	
-    	if(is_null($value)) {
-    		return null;
-    	}
-    	elseif(is_string($value)) {
-    		return $value;
-    	}
-    	else throw new \Exception(_("Valore non valido"));
     }
 }

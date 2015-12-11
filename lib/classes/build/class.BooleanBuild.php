@@ -59,9 +59,9 @@ class BooleanBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      */
-    public function retrieveValue() {
+    public function printValue() {
     
     	if(is_null($this->_value)) {
     		return null;
@@ -73,5 +73,14 @@ class BooleanBuild extends Build {
     	else {
     		return null;
     	}
+    }
+    
+    /**
+     * @see Gino.Build::clean()
+     * @return boolean
+     */
+    public function clean($request_value, $options=null) {
+    	
+    	return clean_bool($request_value);
     }
 }

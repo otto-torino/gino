@@ -149,5 +149,4 @@ class Request extends Singleton {
     private function valueOrNull(array $array, $key) {
         return isset($array[$key]) ? $array[$key] : null;
     }
-
 }
