@@ -238,48 +238,6 @@ class pdo_mysql extends pdo {
 	}
 	
 	/**
-	 * @see Gino.Plugin.pdo::getTableStructure()
-	 * 
-	 * In MySQL:
-     * @code
-     * field_float          'n_int' => int 0        'n_precision' => int 0
-     * field_float(10,2)    'n_int' => string '10'  'n_precision' => string '2'
-     * field_decimal(10,2)  'n_int' => string '10'  'n_precision' => string '2'
-     * @endcode
-	 */
-	public function getTableStructure($table) {
-
-		$structure = array("primary_key"=>null, "keys"=>array());
-		$fields = array();
-
-		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = $this->queryResults($query);
-		
-		while($row = $this->fetch($res)) {
-			
-			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
-			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
-			$fields[$row['COLUMN_NAME']] = array(
-				"order"=>$row['ORDINAL_POSITION'],
-				"default"=>$row['COLUMN_DEFAULT'],
-				"null"=>$row['IS_NULLABLE'],
-				"type"=>$row['DATA_TYPE'],
-				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
-				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
-				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
-				"key"=>$row['COLUMN_KEY'],
-				"extra"=>$row['EXTRA'],
-				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
-			);
-			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
-			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
-		}
-		$structure['fields'] = $fields;
-		
-		return $structure;
-	}
-	
-	/**
 	 * @see Gino.Plugin.pdo::restore()
 	 */
 	public function restore($table, $filename, $options=array()) {      
@@ -405,14 +363,6 @@ class pdo_mysql extends pdo {
 	protected function SQLForFieldInformations($table) {
 	
 		return "SELECT * FROM ".$table." LIMIT 0,1";
-	}
-	
-	/**
-	 * @see Gino.Plugin.pdo::SQLForGetFieldsName()
-	 */
-	protected function SQLForGetFieldsName($table) {
-	
-		return "SHOW COLUMNS FROM ".$table;
 	}
 	
 	/**

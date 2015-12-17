@@ -117,6 +117,9 @@ class sysconf extends \Gino\Controller {
                 	)
         		),
         		array(
+        			'head_title' => array('size' => 50),
+        			'head_description' => array('cols' => 50, 'rows' => 4),
+        			'head_keywords' => array('size' => 50),
         			'query_cache_time' => array('size' => 4),
         			'google_analytics' => array('trnsl' => FALSE),
         			'captcha_public' => array('trnsl' => FALSE),

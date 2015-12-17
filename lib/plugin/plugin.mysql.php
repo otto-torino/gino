@@ -28,8 +28,6 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  * La proprietà self::$_query_cache indica se è stata abilita la cache delle query. \n
  * Le query che vengono salvate in cache sono quelle che passano dal metodo select() ed execCustomQuery(), e non riguardano quindi le query di struttura, quali quelle presenti nei metodi:
  *   - fieldInformations()
- *   - getTableStructure()
- *   - getFieldsName()
  * 
  * Qualora non si desideri caricare in cache una determinata query è sufficiente passare l'opzione @a cache=false ai metodi select() e execCustomQuery(). \n
  * La cache delle query viene svuotata ogni volta che viene effettuata una istruzione di tipo action.
@@ -568,66 +566,11 @@ class mysql implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see DbManager::getTableStructure()
-	 */
-	public function getTableStructure($table) {
-
-		$structure = array("primary_key"=>null, "keys"=>array());
-		$fields = array();
-
-		$query = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->_db_name."' AND TABLE_NAME = '$table'";
-		$res = $this->queryResults($query);
-		while($row = mysql_fetch_array($res)) {
-			
-			preg_match("#(\w+)\((\'[0-9a-zA-Z-_,.']+\')\)#", $row['COLUMN_TYPE'], $matches_enum);
-			preg_match("#(\w+)\((\d+),?(\d+)?\)#", $row['COLUMN_TYPE'], $matches);
-			$fields[$row['COLUMN_NAME']] = array(
-				"order"=>$row['ORDINAL_POSITION'],
-				"default"=>$row['COLUMN_DEFAULT'],
-				"null"=>$row['IS_NULLABLE'],
-				"type"=>$row['DATA_TYPE'],
-				"max_length"=>$row['CHARACTER_MAXIMUM_LENGTH'],
-				"n_int"=>isset($matches[2]) ? $matches[2] : 0,
-				"n_precision"=>isset($matches[3]) ? $matches[3] : 0,
-				"key"=>$row['COLUMN_KEY'],
-				"extra"=>$row['EXTRA'],
-				"enum"=>isset($matches_enum[2]) ? $matches_enum[2] : null
-			);
-			if($row['COLUMN_KEY']=='PRI') $structure['primary_key'] = $row['COLUMN_NAME'];
-			if($row['COLUMN_KEY']!='') $structure['keys'][] = $row['COLUMN_NAME'];
-		}
-		$structure['fields'] = $fields;
-		
-		return $structure;
-	}
-	
-	/**
 	 * @see Gino.DbManager::changeFieldType()
 	 */
 	public function changeFieldType($data_type, $value) {
 	
 		return $value;
-	}
-
-	/**
-	 * @see DbManager::getFieldsName()
-	 * @see freeresult()
-	 */
-	public function getFieldsName($table) {
-
-		$fields = array();
-		$query = "SHOW COLUMNS FROM ".$table;
-		$res = $this->queryResults($query);
-		while($row = mysql_fetch_assoc($res)) {
-			$results[] = $row;
-		}
-		$this->freeresult($res);
-
-		foreach($results as $r) {
-			$fields[] = $r['Field'];
-		}
-
-		return $fields;
 	}
 
 	/**

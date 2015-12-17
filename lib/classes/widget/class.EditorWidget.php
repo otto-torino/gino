@@ -19,14 +19,6 @@ namespace Gino;
 class EditorWidget extends Widget {
 
 	/**
-	 * @see Gino.Widget::inputValue()
-	 */
-	public function inputValue($value, $options=array()) {
-		
-		return htmlInputEditor($value);
-	}
-	
-	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
 	public function printInputForm($options) {
