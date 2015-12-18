@@ -76,7 +76,7 @@ class ManyToManyThroughField extends Field {
     		return $value;
     	}
     	else {
-    		throw new \Exception(sprintf(("Valore non valido del campo \"%s\""), $this->_name));
+    		throw new \Exception(sprintf(_("Valore non valido del campo \"%s\""), $this->_name));
     	}
     }
 }

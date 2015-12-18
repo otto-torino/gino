@@ -345,7 +345,7 @@ function clean_email($value, $options=array()) {
 		}
 	}
 	else {
-		throw new \Exception(_("Valore non valido per il metodo clean_email"));
+		throw new \Exception(_("Valore non valido per la funzione clean_email"));
 	}
 }
 
