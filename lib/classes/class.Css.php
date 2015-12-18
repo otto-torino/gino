@@ -136,18 +136,6 @@ class Css extends Model {
     }
 
     /**
-     * @brief Setta il nome del file
-     * @param string $value nome file
-     * @return TRUE
-     */
-    public function setFilename($value) {
-
-        if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
-        $this->_p['filename'] = $value;
-        return TRUE;
-    }
-
-    /**
      * @brief Recupera l'oggetto a partire dal mone del file
      * @return Gino.Css o null se non lo trova
      */

@@ -114,20 +114,6 @@ class Template extends Model {
     }
 
     /**
-     * @brief Imposta il nome del file
-     *
-     * @param string $value nome del file dei template
-     * @return TRUE
-     */
-    public function setFilename($value) {
-
-        if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
-        $this->_p['filename'] = $value;
-
-        return TRUE;
-    }
-
-    /**
      * @brief Descrizione della procedura
      *
      * @return html, informazioni
