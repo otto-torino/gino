@@ -55,8 +55,6 @@ class FileField extends Field {
         $this->_default_widget = 'file';
         parent::__construct($options);
 
-        $this->_value_type = null;
-        
         $this->_extensions = isset($options['extensions']) ? $options['extensions'] : array('txt','xml','html','htm','doc','xls','zip','pdf');
         $this->_path = isset($options['path']) && $options['path'] ? $options['path'] : '';
         $this->_add_path = isset($options['add_path']) && $options['add_path'] ? $options['add_path'] : '';
@@ -100,19 +98,18 @@ class FileField extends Field {
     
     	return $prop;
     }
-
+    
     /**
-     * @see Gino.Field::valueFromDb()
-     * @return null or string
+     * @see Gino.Field::retrieveValue()
      */
-    public function valueFromDb($value) {
-    	 
-    	if(is_null($value)) {
-    		return null;
+    public function retrieveValue($field_name) {
+    	
+    	if(isset($this->_request->FILES[$field_name]['name']) AND $this->_request->FILES[$field_name]['name'] != '') {
+    		$filename = $this->_request->FILES[$field_name]['name'];
     	}
-    	elseif(is_string($value)) {
-    		return $value;
+    	else {
+    		$filename = '';
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	return $filename;
     }
 }

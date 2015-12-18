@@ -3,7 +3,7 @@
  * @file class_instruments.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Instruments.instruments
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,6 +16,7 @@ namespace Gino\App\Instruments;
 
 use \Gino\View;
 use \Gino\Document;
+use \Gino\App\Layout\layout;
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di strumenti aggiuntivi di gino
@@ -26,7 +27,7 @@ use \Gino\Document;
  *   - associare nel metodo viewItem() il valore del campo id dello strumento con un suo metodo personalizzato (ad es. itemNew)
  *   - creare il metodo personalizzato (ad es. itemNew)
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -83,11 +84,11 @@ class instruments extends \Gino\Controller {
      */
     private function links(){
 
-        \Gino\Loader::import('page', 'PageEntry');
+    	\Gino\Loader::import('page', 'PageEntry');
         \Gino\Loader::import('module', 'ModuleInstance');
         \Gino\Loader::import('sysClass', 'ModuleApp');
         \Gino\Loader::import('auth', 'Permission');
-
+        
         $GINO = "<p class=\"backoffice-info\">"._('Elenco di tutte le pagine presenti e di tutti gli output dei moduli, con relativi url e permessi di visualizzazione. Quelle elencate qui non sono le uniche viste disponibili dei moduli, ma quelle che non necessitano di parametri e sono quindi includibili in ogni layout.')."</p>";
 
         $rows = $this->_db->select('id', \Gino\App\Page\PageEntry::$table, "published='1'", array('order' => 'title'));
@@ -99,22 +100,20 @@ class instruments extends \Gino\Controller {
             $view_table->assign('heads', array(
                 _('Titolo'),
                 _('Url'),
-                _('Permessi')
+                _('Permessi'),
+            	_('Codice template')
             ));
             $tbl_rows = array();
             foreach($rows as $row) {
                 $page = new \Gino\App\Page\PageEntry($row['id']);
 
-                $access_txt = '';
-                if($page->private)
-                    $access_txt .= _("pagina privata")."<br />";
-                if($page->users)
-                    $access_txt .= _("pagina limitata ad utenti selezionati");
+                $page_code = layout::getPageData($page);
 
                 $tbl_rows[] = array(
-                $page->title,
-                $page->getUrl(),
-                $access_txt
+                	$page->title,
+                	$page_code['url'],
+                	$page_code['perm'],
+                	$page_code['code']
                 );
             }
             $view_table->assign('rows', $tbl_rows);
@@ -122,54 +121,84 @@ class instruments extends \Gino\Controller {
             $GINO .= $view_table->render();
         }
 
-        $modules = \Gino\App\Module\ModuleInstance::objects();
-        $modules = array_merge($modules, \Gino\App\SysClass\ModuleApp::objects());
-
+        $modules = \Gino\App\Module\ModuleInstance::objects(null, array('order' => 'label'));
+        
         if(count($modules)) {
-            $GINO .= "<h2>"._("Moduli di sistema e istanze")."</h2>";
+            $GINO .= "<h2>"._("Istanze di moduli")."</h2>";
 
             $view_table = new \Gino\View(null, 'table');
             $view_table->assign('heads', array(
                 _('Modulo'),
                 _('Url'),
                 _('Descrizione'),
-                _('Permessi')
+                _('Permessi'),
+            	_('Codice template')
             ));
             $tbl_rows = array();
             foreach($modules as $module) {
-                $class = $module->classNameNs();
-                $class_name = $module->className();
+                
+            	$class = $module->classNameNs();
                 
                 if(method_exists($class, 'outputFunctions'))
                 {
                     $list = call_user_func(array($class, 'outputFunctions'));
-                    foreach($list as $func => $desc)
+                    foreach($list as $method_name => $method_info)
                     {
-                        $description = $desc['label'];
-                        $permissions_code = $desc['permissions'];
-                        $permissions = array();
-                        if($permissions_code and count($permissions_code)) {
-                            foreach($permissions_code as $permission_code) {
-                            	if(!preg_match('#\.#', $permission_code)) {
-                            		$permission_code = $class_name.'.'.$permission_code;
-                            	}
-                            	$p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
-                                if(!is_object($p)) var_dump($permission_code);
-                                $permissions[] = $p->label;
-                            }
-                        }
-                        $tbl_rows[] = array(
-                            \Gino\htmlChars($module->label),
-                            $this->link($module->name, $func),
-                            $description,
-                            implode(', ', $permissions)
-                        );
+                    	$method_code = layout::getMethodData($method_name, $method_info, $module);
+                    	
+                    	$tbl_rows[] = array(
+                    		\Gino\htmlChars($module->label),
+                    		$this->link($module->name, $method_name),
+                    		$method_code['info'],
+                    		$method_code['perm'],
+                    		$method_code['code'],
+                    	);
                     }
                 }
             }
             $view_table->assign('rows', $tbl_rows);
             $view_table->assign('class', 'table table-striped table-bordered table-hover');
             $GINO .= $view_table->render();
+        }
+        
+        $modules = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='0'", 'order' => 'label'));
+        
+        if(count($modules)) {
+        	$GINO .= "<h2>"._("Moduli di sistema")."</h2>";
+        
+        	$view_table = new \Gino\View(null, 'table');
+        	$view_table->assign('heads', array(
+        		_('Modulo'),
+        		_('Url'),
+        		_('Descrizione'),
+        		_('Permessi'),
+        		_('Codice template')
+        	));
+        	$tbl_rows = array();
+        	foreach($modules as $module) {
+        
+        		$class = $module->classNameNs();
+        
+        		if(method_exists($class, 'outputFunctions'))
+        		{
+        			$list = call_user_func(array($class, 'outputFunctions'));
+        			foreach($list as $method_name => $method_info)
+        			{
+        				$method_code = layout::getMethodData($method_name, $method_info, $module, true);
+        				
+        				$tbl_rows[] = array(
+        					\Gino\htmlChars($module->label),
+        					$this->link($module->name, $method_name),
+        					$method_code['info'],
+        					$method_code['perm'],
+        					$method_code['code'],
+        				);
+        			}
+        		}
+        	}
+        	$view_table->assign('rows', $tbl_rows);
+        	$view_table->assign('class', 'table table-striped table-bordered table-hover');
+        	$GINO .= $view_table->render();
         }
 
         $view = new \Gino\View(null, 'section');

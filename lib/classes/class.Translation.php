@@ -152,7 +152,7 @@ class Translation {
      * @return form inserimento traduzione
      */
     public function formTranslation() {
-         
+        
 		$lng_code = cleanVar($_POST, 'lng_code', 'string', '');
         $tbl = cleanVar($_POST, 'tbl', 'string', '');
         $field = cleanVar($_POST, 'field', 'string', '');
@@ -161,14 +161,16 @@ class Translation {
         $width = cleanVar($_POST, 'width', 'string', '');
         $toolbar = cleanVar($_POST, 'toolbar', 'string', '');
 
-        $myform = loader::load('Form', array('gform', 'post', true));
-
         $rows = $this->_registry->db->select('text', TBL_TRANSLATION, "tbl_id_value='$id_value' AND tbl='$tbl' AND field='$field' AND language='$lng_code'");
         if($rows and count($rows))
         {
             foreach($rows AS $row) {
-                if($type == 'input' || $type == 'textarea') $text = htmlInput($row['text']);
-                elseif($type == 'editor') $text = htmlInputEditor($row['text']);
+                if($type == 'input' || $type == 'textarea') {
+                	$text = htmlInput($row['text']);
+                }
+                elseif($type == 'editor') {
+                	$text = htmlInputEditor($row['text']);
+                }
             }
             $action = 'modify';
         }
@@ -176,7 +178,7 @@ class Translation {
             $text = '';
             $action = 'insert';
         }
-
+        
         $GINO = "<div style=\"margin-top:10px;\">";
         $GINO .= "<p>";
 
@@ -184,15 +186,15 @@ class Translation {
         $onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', false, '$lng_code', '$action')";
 
         if($type == 'input') {
-            $GINO .= $myform->input('trnsl_'.$field, 'text', $text, array("size"=>$width, "id"=>'trnsl_'.$field));
+            $GINO .= Input::input('trnsl_'.$field, 'text', $text, array("size"=>$width, "id"=>'trnsl_'.$field));
         }
         elseif($type == 'textarea') {
-            $GINO .= $myform->textarea('trnsl_'.$field, $text, array("cols"=>$width, "rows"=>4, "id"=>'trnsl_'.$field));
+            $GINO .= Input::textarea('trnsl_'.$field, $text, array("cols"=>$width, "rows"=>4, "id"=>'trnsl_'.$field));
         }
         elseif($type == 'editor') {
             $onclick = "gino.translations.callAction('".$url."', '$type', '$tbl', '$field', '$id_value', true, '$lng_code', '$action')";
             
-            $GINO .= $myform->textarea('trnsl_'.$field, $text, array(
+            $GINO .= Input::textarea('trnsl_'.$field, $text, array(
             	'ckeditor' => true, 
             	'ckeditor_toolbar' => $toolbar, 
             	'ckeditor_container' => false, 
@@ -202,7 +204,7 @@ class Translation {
         }
         $onclick = "onclick=\"$onclick\"";
         $GINO .= "</p>";
-        $GINO .= "<p>".$myform->input('submit', 'button', _("applica"), array("classField"=>"submit", "js"=>$onclick))."</p>";
+        $GINO .= "<p>".Input::input('submit', 'button', _("applica"), array("classField"=>"submit", "js"=>$onclick))."</p>";
         $GINO .= "</div>";
 
         return $GINO;

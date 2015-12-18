@@ -35,8 +35,6 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
  * Le query che vengono salvate in cache sono quelle che passano dal metodo select() ed execCustomQuery(), e non riguardano quindi le query di struttura, 
  * quali quelle presenti nei metodi:
  *   - fieldInformations()
- *   - getTableStructure()
- *   - getFieldsName()
  * 
  * Qualora non si desideri caricare in cache una determinata query è sufficiente passare l'opzione @a cache=false ai metodi select() e execCustomQuery(). \n
  * La cache delle query viene svuotata ogni volta che viene eseguita una query di tipo @a action (@see queryResults()).
@@ -765,43 +763,11 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * @see Gino.DbManager::getTableStructure()
-	 * @see driver
-	 */
-	public function getTableStructure($table) {
-
-		return null;
-	}
-	
-	/**
 	 * @see Gino.DbManager::changeFieldType()
 	 */
 	public function changeFieldType($data_type, $value) {
 	
 		return $value;
-	}
-
-	/**
-	 * @see Gino.DbManager::getFieldsName()
-	 * @see SQLForGetFieldsName()
-	 */
-	public function getFieldsName($table) {
-
-		$fields = array();
-		
-		$query = $this->SQLForGetFieldsName($table);
-		$res = $this->queryResults($query);
-		
-		while($row = $this->fetch($res)) {
-			$results[] = $row;
-		}
-		$this->freeresult($res);
-		
-		foreach($results as $r) {
-			$fields[] = $r['Field'];
-		}
-		
-		return $fields;
 	}
 
 	/**
@@ -1330,17 +1296,6 @@ class pdo implements \Gino\DbManager {
 	 * @return string
 	 */
 	protected function SQLForFieldInformations($table) {
-	
-		return null;
-	}
-	
-	/**
-	 * SQL code specifico del driver per il metodo getFieldsName()
-	 *
-	 * @param string $table nome della tabella
-	 * @return string
-	 */
-	protected function SQLForGetFieldsName($table) {
 	
 		return null;
 	}

@@ -32,7 +32,6 @@ class Build {
     	$_unique_key,
     	$_required,
     	$_widget,
-    	$_value_type,
     	$_int_digits,
     	$_decimal_digits;
 
@@ -92,7 +91,6 @@ class Build {
     	$this->_unique_key = $options['unique_key'];
     	$this->_required = $options['required'];
     	$this->_widget = $options['widget'];
-    	$this->_value_type = $options['value_type'];
     	$this->_int_digits = $options['int_digits'];
     	$this->_decimal_digits = $options['decimal_digits'];
     	
@@ -100,7 +98,7 @@ class Build {
     	$this->_field_object = $options['field_object'];
     	$this->_table = $options['table'];
     	$this->_view_input = true;
-		
+    	
     	if(array_key_exists('value', $options)) {
     		$this->_value = $options['value'];
     	}
@@ -226,6 +224,44 @@ class Build {
     }
     
     /**
+     * @brief Getter della proprietà required
+     * @return TRUE se il campo è obbligatorio, FALSE altrimenti
+     */
+    public function getRequired() {
+    
+    	return $this->_required;
+    }
+    
+    /**
+     * @brief Setter della proprietà required
+     * @param bool $value
+     * @return void
+     */
+    public function setRequired($value) {
+    
+    	$this->_required = !!$value;
+    }
+    
+    /**
+     * @brief Getter della proprietà widget
+     * @return widget
+     */
+    public function getWidget() {
+    
+    	return $this->_widget;
+    }
+    
+    /**
+     * @brief Setter della proprietà widget
+     * @param string|null $value
+     * @return void
+     */
+    public function setWidget($value) {
+    
+    	if(is_string($value) or is_null($value)) $this->_widget = $value;
+    }
+    
+    /**
      * @brief Stampa un elemento del form facendo riferimento al valore della chiave @a widget
      *
      * Nella chiamata del form occorre definire la chiave @a widget nell'array degli elementi input. \n
@@ -244,11 +280,11 @@ class Build {
      * @endcode
      *
      * @see Gino.Widget::printInputForm()
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options opzioni dell'elemento del form
+     * @param object $mform istanza di Gino.Form o Gino.ModelForm
+     * @param array $options opzioni del campo del form
      *   - opzioni dei metodi della classe Form
      *   - opzioni che sovrascrivono le impostazioni del campo/modello
-     *     - @b widget (string): tipo di input form; può assumenre uno dei seguenti valori
+     *     - @b widget (string): tipo di input form; può assumere uno dei seguenti valori
      *       - @a hidden
      *       - @a constant
      *       - @a select
@@ -268,8 +304,30 @@ class Build {
      *       - @a unit
      *     - @b required (boolean): campo obbligatorio
      * @return controllo del campo, html
+     * 
+     * Definisce le opzioni: trnsl_id, trnsl_table, form_id, value_input, value_retrieve.
+     * 
+     * Il valore da utilizzare nel parametro @a value di ogni input varia in base al tipo di Widget; lo schema è il seguente: \n
+     *   - CheckboxWidget		$this->_value
+     *   - ConstantWidget		$this->_value_input
+     *   - DatetimeWidget		$this->_value_retrieve
+     *   - DateWidget			$this->_value_retrieve
+     *   - EditorWidget			$this->_value_retrieve
+     *   - EmailWidget			$this->_value_retrieve
+     *   - FileWidget			$this->_value_input
+     *   - FloatWidget			$this->_value_retrieve
+     *   - HiddenWidget			$this->_value_input
+     *   - ImageWidget			$this->_value_input
+     *   - MulticheckWidget		$this->_value
+     *   - PasswordWidget		$this->_value_retrieve
+     *   - RadioWidget			$this->_value_retrieve
+     *   - SelectWidget			$this->_value
+     *   - TextareaWidget		$this->_value_retrieve
+     *   - TextWidget			$this->_value_retrieve
+     *   - TimeWidget			$this->_value_retrieve
+     *   - UnitWidget			-
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
     
     	$widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
     	
@@ -277,32 +335,48 @@ class Build {
     		return '';
     	}
     	else {
+    
+    		$wìdget_class = "\Gino\\".ucfirst($widget)."Widget";
+    		$widget_obj = new $wìdget_class();
     		
     		if(!array_key_exists('required', $options)) {
     			$options['required'] = $this->_required;
     		}
     		$opt = array_merge($this->properties(), $options);
     		
-    		$wìdget_class = "\Gino\\".ucfirst($widget)."Widget";
+    		// Translation options
+    		$opt['trnsl_id'] = $this->_model->id;
+    		$opt['trnsl_table'] = $this->_model->getTable();
     		
-    		$obj = new $wìdget_class();
-    		return $obj->printInputForm($form, $opt);
+    		// Form options
+    		$opt['form_id'] = $mform->getFormId();
+    		
+    		// Define value to be shown in the input form
+    		if(!is_null($opt['default']) and $opt['value'] === null) {
+    			$opt['value'] = $opt['default'];
+    		}
+    		
+    		$input_value = $widget_obj->inputValue($opt['value'], $opt);
+    		$opt['value_input'] = $input_value;
+    		$opt['value_retrieve'] = $mform->retvar($opt['name'], $input_value);
+    		
+    		return $widget_obj->printInputForm($opt);
     	}
     }
     
     /**
      * @brief Stampa un elemento del form di filtri area amministrativa
-     * @param \Gino\Form $form istanza di Gino.Form
-     * @param array $options
-     *   - @b default (mixed): valore di default
+     * 
+     * @param array $options array associativo di opzioni di formElement()
      * @return controllo del campo, html
      */
-    public function formFilter(\Gino\Form $form, $options)
+    public function formFilter($options)
     {
     	$options['required'] = FALSE;
     	$options['is_filter'] = TRUE;
     	
-    	return $this->formElement($form, $options);
+    	$mform = new ModelForm($this->_model);
+    	return $this->formElement($mform, $options);
     }
     
     /**
@@ -319,46 +393,61 @@ class Build {
     
     /**
      * @brief Ripulisce un input usato come filtro in area amministrativa
-     * @param $options
-     *   array associativo di opzioni
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
+     * 
+     * @param mixed $request_value valore della variabile in una richiesta HTTP
+     * @param $options array associativo di opzioni
      * @return input ripulito
      */
-    public function cleanFilter($options) {
+    public function cleanFilter($request_value, $options) {
     	
     	$options['asforminput'] = TRUE;
-    	return $this->clean($options);
+    	
+    	return $this->clean($request_value, $options);
     }
     
     /**
      * @brief Ripulisce un input per l'inserimento del valore in database
      * 
-     * @see Gino.cleanVar()
-     * @param array $options
-     *   array associativo di opzioni
-     *   - @b value_type (string): tipo di valore
-     *   - @b method (array): metodo di recupero degli elementi del form
-     *   - @b escape (boolean): evita che venga eseguito il mysql_real_escape_string sul valore del campo
-     * @param integer $id valore id del record
+     * @param mixed $request_value valore della variabile in una richiesta HTTP (@see Gino.ModelForm::save()))
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni di tipo clean
+     *   - @b model_id (integer): valore id del modello	(@see Gino.ModelForm::save())
      * @return valore ripulito dell'input
+     * 
+     * Tabella del clean associato al tipo di campo: \n
+     *   CLASSE				OPT_BUILD			FUNC
+     *   BooleanBuild		-					clean_bool
+     *   CharBuild			typeoftext			clean_text (default) | clean_html
+     *   DateBuild			-					clean_date (->clean_text)
+     *   DatetimeBuild		-					clean_date (->clean_text)
+     *   DirectoryBuild		-					clean_text
+     *   EmailBuild			-					clean_email (->clean_text)
+     *   EnumBuild			-					clean_text
+     *   FileBuild			-					-- personalizzato
+     *   FloatBuild			-					clean_float
+     *   ForeignKeyBuild	-					clean_int
+     *   ImageBuild			-					-- extend FileBuild
+     *   IntegerBuild		-					clean_int
+     *   ManyToManyBuild	-					clean_array
+     *   ManyToManyThroughBuild					-- passa attraverso Gino.ModelForm::m2mThroughAction()
+     *   MulticheckBuild	-					clean_array (asforminput false)
+     *   SlugBuild			-					clean_text
+     *   TagBuild			-					clean_text
+     *   TextBuild			widget,typeoftext	clean_text (default) | clean_html
+     *   TimeBuild			-					clean_time
+     *   YearBuild			-					clean_int
      */
-    public function clean($options=null, $id=null) {
+    public function clean($request_value, $options=null) {
     	
-    	$request = Request::instance();
-    	$value_type = isset($options['value_type']) ? $options['value_type'] : $this->_value_type;
-    	$method = isset($options['method']) ? $options['method'] : $request->POST;
-    	$escape = gOpt('escape', $options, TRUE);
-    	
-    	return cleanVar($method, $this->_name, $value_type, null, array('escape'=>$escape));
+    	return $request_value;
     }
     
     /**
      * @brief Valore del campo predisposto per l'output html
-     *
-     * @param mixed $value
+     * 
      * @return mixed
      */
-    public function retrieveValue() {
+    public function printValue() {
     
     	return $this->_value;
     }

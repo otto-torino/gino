@@ -3,12 +3,13 @@
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 use \Gino\App\SysClass\ModuleApp;
+use Gino\Http\Request;
 
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
@@ -23,7 +24,7 @@ use \Gino\App\SysClass\ModuleApp;
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -35,8 +36,6 @@ class Options {
     private $_instance;
     private $_title;
     private $_home;
-
-    private $_action;
 
     /**
      * @brief Costruttore
@@ -51,12 +50,10 @@ class Options {
 
         Loader::import('sysClass', 'ModuleApp');
 
-        $this->_db = db::instance();
+        $this->_db = Db::instance();
         $this->_title = _("Opzioni");
 
         $this->setData($controller);
-
-        $this->_action = cleanVar($_REQUEST, 'action', 'string', '');
 
         $this->_home = HOME_FILE;
     }
@@ -112,16 +109,20 @@ class Options {
      */
     public function manageDoc(){
 
-        $registry = registry::instance();
+        $registry = Registry::instance();
         $request = $registry->request;
+        
+        $action = array_key_exists('action', $request->REQUEST) ? clean_text($request->REQUEST['action']) : null;
         
         if($request->checkGETKey('trnsl', '1')) {
             return $registry->trd->manageTranslation($request);
         }
 
-        if($this->_action == 'insert' || $this->_action == 'modify') return $this->actionOptions();
+        if($action == 'insert' || $action == 'modify') {
+        	return $this->actionOptions();
+        }
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $class_instance = ($this->_instance) ? new $this->_class($this->_instance) : new $this->_class();
@@ -138,8 +139,9 @@ class Options {
                         $field_option = $class_instance->_optionsLabels[$f->name];
                         if(is_array($field_option) AND array_key_exists('label', $field_option))
                         {
-                            if(array_key_exists('required', $field_option) AND $field_option['required'] == true)
-                                $required .= $f->name.",";
+                            if(array_key_exists('required', $field_option) AND $field_option['required'] == true) {
+                            	$required .= $f->name.",";
+                            }
                         }
                         else $required .= $f->name.",";
 
@@ -161,11 +163,13 @@ class Options {
                     $field_option = $class_instance->_optionsLabels[$f->name];
                     if(is_array($field_option) AND array_key_exists('label', $field_option))
                     {
-                        if(array_key_exists('required', $field_option) AND $field_option['required'] == true)
-                            $required .= $f->name.",";
+                        if(array_key_exists('required', $field_option) AND $field_option['required'] == true) {
+                        	$required .= $f->name.",";
+                        }
 
-                        if(array_key_exists('value', $field_option) AND $field_option['value'] != '')
-                            ${$f->name} = $field_option['value'];
+                        if(array_key_exists('value', $field_option) AND $field_option['value'] != '') {
+                        	${$f->name} = $field_option['value'];
+                        }
                     }
                     else $required .= $f->name.",";
                 }
@@ -176,13 +180,19 @@ class Options {
 
         $label = $this->_module_app->ml('label');
 
-        if(method_exists($this->_class, 'manageDoc')) $function = 'manageDoc';
-        else $function = 'manage'.ucfirst($this->_class_name);
+        if(method_exists($this->_class, 'manageDoc')) {
+        	$function = 'manageDoc';
+        }
+        else {
+        	$function = 'manage'.ucfirst($this->_class_name);
+        }
 
-        if($required) $required = substr($required, 0, strlen($required)-1);
-        $GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", '', $required);
-        $GINO .= $gform->hidden('func', 'actionOptions');
-        $GINO .= $gform->hidden('action', $action);
+        if($required) {
+        	$required = substr($required, 0, strlen($required)-1);
+        }
+        $GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", '', $required, array('form_id'=>'gform'));
+        $GINO .= \Gino\Input::hidden('func', 'actionOptions');
+        $GINO .= \Gino\Input::hidden('action', $action);
 
         foreach($table_info AS $f) {
 
@@ -214,24 +224,24 @@ class Options {
                 }
 
                 if($f->type == 'char') {
-                    $GINO .= $gform->cinput($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
+                    $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "trnsl_id"=>$id));
                 }
                 elseif($f->type == 'text') {
-                    $GINO .= $gform->ctextarea($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "field"=>$f->name, "trnsl_id"=>$id));
+                    $GINO .= \Gino\Input::textarea_label($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "trnsl_id"=>$id));
                 }
                 elseif($f->type == 'int' && $f->length>1) {
-                    $GINO .= $gform->cinput($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));
+                    $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));
                 }
                 elseif(($f->type == 'int' && $f->length == 1) || $f->type == 'bool') {
-                    $GINO .= $gform->cradio($f->name, ${$f->name}, array(1=>_("si"),0=>_("no")), 'no',  $field_label, array("required"=>$field_required));
+                    $GINO .= \Gino\Input::radio_label($f->name, ${$f->name}, array(1=>_("si"),0=>_("no")), 'no',  $field_label, array("required"=>$field_required));
                 }
                 elseif($f->type == 'date') {
-                    $GINO .= $gform->cinput_date($f->name, dbDateToDate(${$f->name}, '/'),  $field_label, array("required"=>$field_required));
+                    $GINO .= \Gino\Input::input_date($f->name, dbDateToDate(${$f->name}, '/'),  $field_label, array("required"=>$field_required));
                 }
                 else $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
             }
         }
-        $GINO .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
+        $GINO .= \Gino\Input::input_label('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
         $GINO .= $gform->close();
 
         $view = new view();
@@ -253,11 +263,12 @@ class Options {
 
         $registry = registry::instance();
         $request = $registry->request;
-        $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        
+        $gform = Loader::load('Form', array('form_id'=>'gform'));
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
-        $action = cleanVar($request->POST, 'action', 'string', '');
+        $action = clean_text($request->POST['action']);
 
         $table_info = $this->_db->fieldInformations($this->_tbl_options);
 
@@ -266,12 +277,14 @@ class Options {
         foreach($table_info AS $f) {
             if($this->editableField($f->name)) {
                 if($f->type == 'int') {
-                    ${$f->name} = cleanVar($request->POST, $f->name, 'int', '');
+                    ${$f->name} = clean_int($request->POST[$f->name]);
                 }
                 elseif($f->type == 'date') {
-                    ${$f->name} = dateToDbDate(cleanVar($request->POST, $f->name, 'string', ''), '/');
+                    ${$f->name} = clean_date($request->POST[$f->name]);
                 }
-                else ${$f->name} = cleanVar($request->POST, $f->name, 'string', '');
+                else {
+                	${$f->name} = clean_text($request->POST[$f->name]);
+                }
 
                 $data[$f->name] = ${$f->name};
             }

@@ -62,8 +62,8 @@ class Access {
         Loader::import('auth', 'User');
 
         if($request->checkPOSTKey('action', 'auth')) {
-            $user = cleanVar($request->POST, 'user', 'string', '');
-            $password = cleanVar($request->POST, 'pwd', 'string', '');
+            $user = cleanVar($request->POST, 'username', 'string', '');
+            $password = cleanVar($request->POST, 'userpwd', 'string', '');
             $result = $this->AuthenticationMethod($user, $password);
             $request->user = new User($this->_session->user_id);
             return $result ? $this->loginSuccess($request) : $this->loginError($request);

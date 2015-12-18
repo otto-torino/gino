@@ -3,7 +3,7 @@
  * @file func.var.php
  * @brief Racchiude le librerie per il trattamento di stringhe e dei valori da e per un input/database
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -38,66 +38,35 @@ function convertToDatabase($value, $character_set=null)
 }
 
 /**
- * @brief Sostituzione caratteri "strani" di word
- *
- * @param string $text
- * @return stringa ripulita
- */
-function replaceChar($text)
-{
-    $find = array("’", "‘", "`");
-    $text = str_replace($find, "'", $text);
-    $find = array("“", "”");
-    $text = str_replace($find, "\"", $text);
-    $text = str_replace("…", "...", $text);
-    $text = str_replace("–", "-", $text);
-
-    return $text;
-}
-
-/**
  * @brief Rimuove gli attributi javascript insicuri nei tag html
  *
  * @see remove_attributes()
  * @param string $text testo
- * @param boolean $strip_js rimuove gli attributi javascript
- * @param boolean $strip_attributes rimuove alcuni attributi html
+ * @param boolean $strip_js rimuove gli attributi javascript (default true)
+ * @param boolean $strip_attributes rimuove alcune proprietà quando risultano vuote (default true)
  * @return testo ripulito
  */
-function strip_tags_attributes($text, $strip_js, $strip_attributes)
+function strip_tags_attributes($text, $strip_js=true, $strip_attributes=true)
 {
     if($strip_js)
     {
-        $js_attributes = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onbounce', 'oncellchange', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavaible', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragdrop', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterupdate', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onlayoutcomplete', 'onlosecapture', 'onmoveout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onunload');
-
-        $text = preg_replace('/\s(' . implode('|', $js_attributes) . ').*?([\s\>])/', '\\2', preg_replace('/<(.*?)>/ie', "'<' . preg_replace(array('/javascript:[^\"\']*/i', '/(" . implode('|', $js_attributes) . ")[ \\t\\n]*=[ \\t\\n]*[\"\'][^\"\']*[\"\']/i', '/\s+/'), array('', '', ' '), stripslashes('\\1')) . '>'", $text));
+    	$js_attributes = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onbounce', 'oncellchange', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavaible', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragdrop', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterupdate', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onlayoutcomplete', 'onlosecapture', 'onmoveout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onunload');
+    	$text = preg_replace('/\s(' . implode('|', $js_attributes) . ').*?([\s\>])/', '\\2', preg_replace('/<(.*?)>/ie', "'<' . preg_replace(array('/javascript:[^\"\']*/i', '/(" . implode('|', $js_attributes) . ")[ \\t\\n]*=[ \\t\\n]*[\"\'][^\"\']*[\"\']/i', '/\s+/'), array('', '', ' '), stripslashes('\\1')) . '>'", $text));
     }
+	if($strip_attributes) {
+		$text = str_replace(" class=\"\"", '', $text);
+	}
 
-    if($strip_attributes) $text = remove_attributes($text);
-
-    return $text;
-}
-
-/**
- * @brief Rimuove l'attributo class quando vuoto
- *
- * @param string $text testo
- * @return testo ripulito
- */
-function remove_attributes($text)
-{
-    $text = str_replace(" class=\"\"", '', $text);
     return $text;
 }
 
 /**
  * @brief Rimuove i tag indicati
- *
- * Simile a strip_tags(), ma mentre strip_tags rimuove tutti i tag, questa funzione li preserva
- *
+ * @description Funziona in modo opposto alla funzione strip_tags() con la quale è possibile indicare i tag da preservare.
+ * 
  * @param string $text testo
  * @param string $tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
- * @param boolean $stripContent rimuove anche il testo contenuto tra l'apertura e la chiusura del tag
+ * @param boolean $stripContent rimuove anche il testo contenuto tra l'apertura e la chiusura del tag (default false)
  * @return stringa ripulita
  */
 function strip_selected_tags($text, $tags='', $stripContent=false)
@@ -113,12 +82,12 @@ function strip_selected_tags($text, $tags='', $stripContent=false)
 }
 
 /**
- * @brief Rimuove script, stili e altro testo indesiderato (e invisibile) tra i tag 
+ * @brief Rimuove i tag di tipo embedded (unitamente al testo incluso)
  *
  * @param string $text testo
  * @return string
  */
-function strip_invisible_tags($text)
+function strip_embedded_tags($text)
 {
     $text = preg_replace(
         array(
@@ -140,228 +109,362 @@ function strip_invisible_tags($text)
     return $text;
 }
 
-/**
- * @brief Sostituzione entities con il carattere corrispondente
- *
- * Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html (CK Editor)
- *
- * @param string $text testo
- * @return testo ripulito
- */
-function stripAll($text)
-{
-    $text = str_replace("&#8364;","€",$text);
-    $text = str_replace("&#36;","$",$text);
-    $text = str_replace("&#169;","©",$text);
-    $text = str_replace("&#174;","®",$text);
-    $text = str_replace("&#176;","°",$text);
-    $text = str_replace("&#224;","à",$text);
-    $text = str_replace("&#232;","è",$text);
-    $text = str_replace("&#242;","ò",$text);
-    $text = str_replace("&#249;","ù",$text);
-    $text = str_replace("&#160;"," ",$text);
-    $text = str_replace("&#224;","à",$text);
-    $text = str_replace("&#176;","°",$text);
-    $text = str_replace("&#38;","&",$text);
-    $text = str_replace("&#8212;","-",$text);
-    $text = str_replace("&ndash;","-",$text);
-    $find = array ("&#39;","&lsquo;","&rsquo;");
-    $text = str_replace($find,"'",$text);
-    $text = str_replace("&sbquo;",",",$text);
-    $find = array("&ldquo;","&rdquo;","&bdquo;","&quot;","&#8220;","&#34;");
-    $text = str_replace($find, "\"", $text);
-    $text = str_replace("&hellip;","...",$text);
-
-    return $text;
-}
-
-/**
- * @brief Sostituisce alcuni tag utilizzati dall'editor html con i tag standard
- *
- * Questa funzione viene utilizzata per "ripulire" il testo che arriva dall'editor html (CK Editor)
- *
- * @param string $text testo
- * @return testo ripulito
- */
-function stripEditor($text)
-{
-    $text = str_replace ('<strong>', '<b>', $text);
-    $text = str_replace ('</strong>', '</b>', $text);
-    $text = str_replace ('<em>', '<i>', $text);
-    $text = str_replace ('</em>', '</i>', $text);
-
-    // Link
-    $search = array('target="_top"', 'target="_self"', 'target="_parent"');
-    $text = str_replace ($search, '', $text);
-    $text = str_replace ('target="_blank"', 'rel="external"', $text);
-    // End
-    return $text;
-}
-
 // 1. from HTML Form to DB
 
 /**
+ * @brief Clean plain text
+ * @description Rimuove tutti i tag html
+ * 
+ * @param string $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - @b escape (boolean): aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL (@see Gino.Db::escapeString())
+ * @return string or null
+ */
+function clean_text($value, $options=array()) {
+	
+	$escape = gOpt('escape', $options, true);
+	
+	if($value === null) {
+		return null;
+	}
+	
+	$value = trim($value);
+	
+	settype($value, 'string');
+	
+	$value = strip_tags($value);
+	
+	if($escape) {
+		$db = Db::instance();
+		$value = $db->escapeString($value);
+	}
+	
+	return $value;
+}
+
+/**
+ * @brief Clean html
+ * @description Se viene impostata l'opzione @a strip_tags, vengono rimossi tutti i tag html dal testo a parte quelli presenti nell'opzione.
+ * 
+ * @param string $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - @b escape (boolean): aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL (@see Gino.Db::escapeString()); default true
+ *   - @b strip_tags (string): elenco dei tag da rimuovere (ad esempio '<p><a><quote>')
+ *   - @b strip_embedded (boolean): rimuove tutti i tag html di tipo embedded (default false)
+ *   - @b allowable_tags (string): elenco dei tag da non rimuovere (ad esempio '<p><a>')
+ * @return string or null
+ */
+function clean_html($value, $options=array()) {
+
+	$escape = gOpt('escape', $options, true);
+	$strip_tags = gOpt('strip_tags', $options, null);
+	$strip_embedded = gOpt('strip_embedded', $options, false);
+	$allowable_tags = gOpt('allowable_tags', $options, null);
+	
+	if($value === null) {
+		return null;
+	}
+	
+	$value = trim($value);
+	
+	settype($value, 'string');
+	
+	if($allowable_tags) {
+		$value = strip_tags($value, $allowable_tags);
+	}
+	else {
+		if($strip_tags) {
+			$value = strip_selected_tags($value, $strip_tags, false);
+		}
+		
+		if($strip_embedded)
+		{
+			$value = strip_embedded_tags($value);
+			$value = strip_tags_attributes($value);
+		}
+	}
+	
+	$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+	
+	if($escape) {
+		$db = Db::instance();
+		$value = $db->escapeString($value);
+	}
+	
+	return $value;
+}
+
+/**
+ * @brief Clean boolean
+ * 
+ * @param int (0|1) $value value taken from the request ($_POST[input_name])
+ * @return NULL or bool
+ */
+function clean_bool($value) {
+
+	if($value === null) {
+		return null;
+	}
+	settype($value, 'bool');
+
+	return $value;
+}
+
+/**
+ * @brief Clean integer
+ * 
+ * @param int $value value taken from the request ($_POST[input_name])
+ * @return NULL or integer
+ */
+function clean_int($value) {
+
+	if($value === null) {
+		return null;
+	}
+	settype($value, 'int');
+	
+	return $value;
+}
+
+/**
+ * @brief Clean float
+ * 
+ * @param float $value value taken from the request ($_POST[input_name])
+ * @return NULL or float
+ */
+function clean_float($value) {
+
+	if($value === null) {
+		return null;
+	}
+	
+	//$larr = localeconv();
+	//$value = str_replace($larr['decimal_point'], '.', $value);
+	$value = str_replace(',', '.', $value);
+	
+	settype($value, 'float');
+
+	return $value;
+}
+
+/**
+ * @brief Clean date
+ * 
+ * @see clean_text()
+ * @param string $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - opzioni del metodo Gino.clean_text()
+ *   - @b typeofdate (string): tipo di data; valori validi: date (default), datetime
+ *   - @b separator (string): separatore utilizzato nella data (default /)
+ * @return NULL or string
+ */
+function clean_date($value, $options=array()) {
+
+	$typeofdate = gOpt('typeofdate', $options, 'date');
+	$separator = gOpt('separator', $options, '/');
+	
+	$value = clean_text($value, $options);
+	
+	if($typeofdate == 'date')
+	{
+		$value = dateToDbDate($value, $separator);
+	}
+	elseif($typeofdate == 'datetime')
+	{
+		$spilt = explode(" ", $value);
+		$date = dateToDbDate($spilt[0], $separator);
+		
+		if(isset($split[1])) {
+			$time = timeToDbTime($split[1]);
+		} else {
+			$time = '00:00:00';
+		}
+		
+		$value = $date.' '.$time;
+	}
+	else
+	{
+		return null;
+	}
+
+	return $value;
+}
+
+/**
+ * @brief Clean time
+ * 
+ * @see clean_text()
+ * @param string $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - opzioni del metodo Gino.clean_text()
+ * @return NULL or string
+ */
+function clean_time($value, $options=array()) {
+
+	$value = clean_text($value, $options);
+	
+	if($value === null) {
+		return null;
+	} else {
+		return timeToDbTime($value);
+	}
+}
+
+/**
+ * @brief Clean email
+ * 
+ * @see clean_text()
+ * @param string $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - opzioni del metodo Gino.clean_text()
+ * @return NULL or string
+ */
+function clean_email($value, $options=array()) {
+
+	$value = clean_text($value, $options);
+	
+	if(is_null($value))
+	{
+		return null;
+	}
+	elseif(is_string($value))
+	{
+		/*$check = \Gino\checkEmail($value, true);
+		 if(!$check) {
+		 	throw new \Exception(_("Formato dell'email non valido"));
+		 }
+		 return $value;*/
+		
+		$value = \filter_var($value, FILTER_VALIDATE_EMAIL);
+		
+		if($value === false) {
+			throw new \Exception(_("Formato dell'email non valido"));
+		}
+		else {
+			return $value;
+		}
+	}
+	else {
+		throw new \Exception(_("Valore non valido per la funzione clean_email"));
+	}
+}
+
+/**
+ * @brief Clean array
+ *
+ * @param array $value value taken from the request ($_POST[input_name])
+ * @param array $options array associativo di opzioni
+ *   - opzioni del metodo clean_text()
+ *   - @b datatype (string): tipo di dato degli elementi dell'array; valori validi: int (default), string, float, bool
+ *   - @b asforminput (boolean): indica se ritornare gli elementi in un array (default true) o separati da virgola in formato stringa
+ * @return array, string or null
+ */
+function clean_array($value, $options=array()) {
+
+	$datatype = gOpt('datatype', $options, 'int');
+	$asforminput = gOpt('asforminput', $options, true);
+	
+	if($value === null) {
+		return null;
+	}
+	
+	if(is_array($value))
+	{
+		$items = array();
+		foreach($value AS $item)
+		{
+			if($datatype == 'int') {
+				$item = clean_int($item);
+			} elseif($datatype == 'string') {
+				$item = clean_text($item, $options);
+			} elseif($datatype == 'float') {
+				$item = clean_float($item);
+			} elseif($datatype == 'bool') {
+				$item = clean_bool($item);
+			} else {
+				$item = null;
+			}
+			
+			$items[] = $item;
+		}
+		
+		if($asforminput) {
+			return $items;
+		} else {
+			return implode(',', $items);
+		}
+	}
+	else {
+		return null;
+	}
+}
+
+/**
  * @brief Modifica il valore presente in un campo del form per inserirlo nel database
- *
- * Imposta il tipo del testo
- *
- * @see clean_sequence()
- * @param string $method metodo utilizzato (GET, POST, REQUEST)
+ * @description È stato mantenuto per mantenere la compatibilità con le versioni precedenti
+ * 
+ * @param array $method parametri della request ($_GET, $_POST, $_REQUEST)
  * @param string $name nome della variabile
- * @param string $type tipo di variabile (bool,int,float,string,array,object,null)
+ * @param string $type tipo di variabile (bool,int,float,string,array)
  * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
  * @param array $options array associativo di opzioni
  * @return testo ripulito
  */
 function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
 {
-    if(isset($method[$name]) AND $method[$name] !== '')
-    {
-        $value = $method[$name];
-
-        if($type == 'array')
-        {
-            $n_array = array();
-            foreach($value AS $element)
-            {
-                $n_array[] = clean_sequence($element, $strip_tags, $options);
-            }
-            $value = $n_array;
-        }
-        else
-        {
-            $value = clean_sequence($value, $strip_tags, $options);
-        }
-    }
-    else
-        $value = null;
-
-    if(isset($type))
-    {
-        if($type == 'float')
-        {
-            $larr = localeconv();
-            if($value !== null) {
-                $value = str_replace(',', '.', $value);
-                $value = floatval($value);
-                $value = str_replace($larr['decimal_point'], '.', $value);
-            }
-        }
-        elseif($value !== null) settype($value, $type);
-    }
-
-    return $value;
+	$options['strip_tags'] = $strip_tags;
+	
+	if(array_key_exists($name, $method)) {
+		$value = $method[$name];
+	}
+	else {
+		$value = null;
+	}
+	
+	if($type == 'int')
+	{
+		return clean_int($value);
+	}
+	elseif($type == 'string')
+	{
+		return clean_text($value, $options);
+	}
+	elseif($type == 'array')
+	{
+		return clean_array($value, $options);
+	}
+	elseif($type == 'bool')
+	{
+		return clean_bool($value);
+	}
+	elseif($type == 'float')
+	{
+		return clean_float($value);
+	}
+	else
+	{
+		return null;
+	}
 }
 
 /**
- * @brief Esegue una serie di operazioni sul testo per renderlo compatibile con gino e col database
+ * @brief Conversione dei dati Unicode $_GET/$_POST (generati dalla funzione javascript escape()) in UTF8 per il processo server-side
  *
- * @param string $text testo
- * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
- * @param array $options
- *   array associativo di opzioni
- *   - @b escape (boolean)
- * @return testo ripulito
- */
-function clean_sequence($text, $strip_tags, $options){
-
-    $escape = gOpt('escape', $options, true);
-
-    $text = trim($text);
-    if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
-
-    // Strip
-    if(isset($strip_tags) && !empty($strip_tags)) $text = strip_selected_tags($text, $strip_tags, false);
-    $text = strip_invisible_tags($text);
-    $text = strip_tags_attributes($text, true, true);
-
-    $text = replaceChar($text);
-    $text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
-
-    if($escape)
-    {
-        $db = db::instance();
-        $text = $db->escapeString($text);
-    }
-
-    return $text;
-}
-
-/**
- * @brief Modifica il valore presente in un campo del form di tipo editor html per inserirlo nel database
- * 
- * @param string $method metodo utilizzato (GET, POST, REQUEST)
- * @param string $name nome della variabile
- * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
- * @return testo ripulito
- */
-function cleanVarEditor($method, $name, $strip_tags)
-{
-    if(isset($method[$name]) AND !empty($method[$name]))
-    {
-        $value = $method[$name];
-
-        settype($value, 'string');
-
-        $value = trim($value);
-        if(get_magic_quotes_gpc()) $value = stripslashes($value);	// magic_quotes_gpc = On
-
-        $value = stripEditor($value);
-
-        if(isset($strip_tags) && !empty($strip_tags)) $value = strip_selected_tags($value, $strip_tags, false);
-        $value = strip_tags_attributes($value, true, true);
-        $value = html_entity_decode($value, null, 'UTF-8');
-
-        $value = replaceChar($value);
-        $value = stripAll($value);
-
-        $db = db::instance();
-        $value = $db->escapeString($value);
-    }
-    else
-    {
-        $value = '';
-    }
-    return $value;
-}
-
-/**
- * @brief Conversione dei dati Unicode $_GET/$_POST, generati dalla funzione javascript escape(), in UTF8 per il processo server-side
- *
- * @param string $str
+ * @param string $value
  * @return stringa decodificata
  */
-function utf8_urldecode($str) {
+function utf8_urldecode($value) {
 
-    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;", urldecode($str));
-    $str = html_entity_decode($str, null, 'UTF-8');
+    $value = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;", urldecode($value));
+    $value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');	// prev version: ENT_QUOTES => null
 
-    return $str;
-}
-
-/**
- * @brief Prepara il testo da inserire nel database senza rimuovere il codice html
- *
- * @param string $text testo
- * @return testo
- */
-function codeDb($text) {	
-
-    if(get_magic_quotes_gpc()) $text = stripslashes($text);	// magic_quotes_gpc = On
-    $text = str_replace ('€', '&euro;', $text);	// con DB ISO-8859-1
-
-    $db = db::instance();
-    $text = $db->escapeString($text);
-
-    return $text;
+    return $value;
 }
 
 /**
  * @brief Modifica il valore presente in un campo testo del form per inserirlo nel database
- *
- * Si tratta di testo di tipo "codice", nel quale non viene rimosso il codice html
- *
- * @see codeDB()
+ * @description Testo di tipo "codice", nel quale non viene rimosso il codice html
+ * 
  * @param string $method metodo utilizzato (GET, POST, REQUEST)
  * @param string $name nome della variabile
  * @param array $options
@@ -372,18 +475,22 @@ function codeDb($text) {
  */
 function codeToDB($method, $name, $options=array()){
 
-    if(isset($method[$name]) AND !empty($method[$name]))
-    {
-        $value = $method[$name];
-        if(array_key_exists('width', $options))
-            $value = preg_replace("#width=\"(.*?)\"#", "width=\"".$options['width']."\"", $value);
-        if(array_key_exists('height', $options))
-            $value = preg_replace("#height=\"(.*?)\"#", "height=\"".$options['height']."\"", $value);
-        $value = codeDB($value);
-    }
-    else $value = null;
+	if(isset($method[$name]) AND !empty($method[$name]))
+	{
+		$value = $method[$name];
+		if(array_key_exists('width', $options)) {
+			$value = preg_replace("#width=\"(.*?)\"#", "width=\"".$options['width']."\"", $value);
+		}
+		if(array_key_exists('height', $options)){
+			$value = preg_replace("#height=\"(.*?)\"#", "height=\"".$options['height']."\"", $value);
+		}
+		
+		$db = Db::instance();
+		$value = $db->escapeString($value);
+	}
+	else $value = null;
 
-    return $value;
+	return $value;
 }
 
 // End 1
@@ -391,7 +498,7 @@ function codeToDB($method, $name, $options=array()){
 // 2. from DB to HTML
 
 /**
- * @brief Modifica il valore di un campo testo del database per visualizzarlo in HTML
+ * @brief Modifica il valore di un campo di tipo testo per visualizzarlo in HTML
  *
  * @param string $string testo
  * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
@@ -414,18 +521,17 @@ function htmlChars($string, $id='', $options=array())
     $string = str_replace ('&', '&amp;', $string);	// CSS2
     $string = str_replace ('\'', '&#039;', $string);
 
-    if($newline)
-        $string = nl2br($string);
+    if($newline) {
+    	$string = nl2br($string);
+    }
 
     if($id) $string = slimboxReplace($string, $id);
     return $string;
 }
 
 /**
- * @brief Modifica il valore di un campo testo di tipo "codice" del database per visualizzarlo in HTML
- *
- * Si tratta di testo di tipo "codice", ovvero inserito con la funzione @a codeToDB().
- * Crea un blocco che racchiude il codice.
+ * @brief Modifica il valore di un campo testuale di tipo "codice" per visualizzarlo in HTML
+ * @description Testo di tipo "codice", ovvero inserito con la funzione @a codeToDB(). Crea un blocco che racchiude il codice.
  *
  * @see codeToDB()
  * @param string $string
@@ -457,10 +563,8 @@ function preCodeParser($string) {
 }
 
 /**
- * @brief Modifica il valore di un campo testo del database per visualizzarlo in HTML
- *
- * Si tratta di testo di tipo "codice", ovvero inserito con la funzione @a codeToDB().
- * Crea un blocco che racchiude il codice e ne evidenzia le righe.
+ * @brief Modifica il valore di un campo testuale di tipo "codice" per visualizzarlo in HTML
+ * @description Testo di tipo "codice", ovvero inserito con la funzione @a codeToDB(). Crea un blocco che racchiude il codice e ne evidenzia le righe.
  *
  * @see codeToDB()
  * @see preCodeParser()
@@ -513,7 +617,7 @@ function codeParser($string, $id='') {
 }
 
 /**
- * @brief Modifica il valore di un campo testo del database per attivare le librerie slimbox
+ * @brief Modifica il valore di un campo di tipo testo per attivare le librerie slimbox
  * 
  * @param string $string testo
  * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
@@ -536,9 +640,8 @@ function slimboxReplace($string, $id) {
 }
 
 /**
- * @brief Mostra il valore di un campo testo del database formattato come "solo testo"
- *
- * Inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i \r\n)
+ * @brief Mostra il valore di un campo di tipo testo formattato come "solo testo"
+ * @description Inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i caratteri di fine riga \\r\\n)
  *
  * @param string $string
  * @return testo modificato
@@ -561,44 +664,29 @@ function htmlCharsText($string)
 // 3. from DB to Form
 
 /**
- * @brief Modifica il valore di un campo testo del database per visualizzarlo in un input form
+ * @brief Modifica il valore di un campo di tipo testo per visualizzarlo in un input form
  *
  * @param string $string
  * @return testo modificato
  */
 function htmlInput($string)
 {
-    if(is_null($string))
-        return null;
+    if(is_null($string)) {
+    	return null;
+    }
 
     $string = convertToHtml($string);
 
     $string = trim($string);
     $string = stripslashes($string);
-    $string = replaceChar($string);
+    //$string = replaceChar($string);
     $string = htmlspecialchars($string);
 
     return $string;
 }
 
 /**
- * @brief Modifica il valore di un campo testo del database per visualizzarlo in un input form di tipo editor html
- *
- * @param string $string
- * @return testo modificato
- */
-function htmlInputEditor($string)
-{
-    $string = convertToHtml($string);
-
-    $string = trim($string);
-    $string = stripslashes($string);
-    $string = str_replace ('rel="external"', 'target="_blank"', $string);
-    return $string;
-}
-
-/**
- * @brief Modifica il valore di un campo testo del database per visualizzarlo in un input form di tipo "solo testo"
+ * @brief Modifica il valore di un campo di tipo testo per visualizzarlo in un input form di tipo "solo testo"
  *
  * @param string $string
  * @return testo modificato

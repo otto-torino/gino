@@ -407,9 +407,9 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::formFilter()
      */
-    public function formFilter(\Gino\Form $form, $options = array()) {
+    public function formFilter($options = array()) {
     	
-    	return $form->cinput($this->_name, 'text', $this->_value, $this->_label, array());
+    	return \Gino\Input::input($this->_name, 'text', $this->_value, $this->_label, array());
     }
     
     /**
@@ -434,7 +434,7 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
     
     	if($this->_value != '' and (!isset($options['preview']) or $options['preview']))
     	{
@@ -443,36 +443,38 @@ class FileBuild extends Build {
     	}
     	if(!isset($options['extensions'])) $options['extensions'] = $this->_extensions;
     
-    	return parent::formElement($form, $options);
+    	return parent::formElement($mform, $options);
     }
     
     /**
      * @see Gino.Build::clean()
      * @description Effettua l'upload del file
+     * 
      * @return string or Exception
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
     	
-    	// Filename
     	$request = \Gino\Http\Request::instance();
     	
-    	if(isset($request->FILES[$this->_name]['name']) AND $request->FILES[$this->_name]['name'] != '')
-    	{
-    		$req_filename = $request->FILES[$this->_name]['name'];
-    		$req_filename = $this->checkFilename($req_filename, $this->_prefix, $options);
+    	if($request_value) {
+    		$request_value = $this->checkFilename($request_value, $this->_prefix, $options);
     	}
-    	else $req_filename = '';
     	
     	$check_name = isset($options['check_del_file_name']) ? $options['check_del_file_name'] : "check_del_".$this->_name;
     	$check_delete = $request->checkPOSTKey($check_name, 'ok');
-    	$upload = $req_filename ? TRUE : FALSE;
+    	$upload = $request_value ? TRUE : FALSE;
     	
-    	$this->_delete_file = $this->checkDeleteFile($req_filename, $check_delete);
+    	$this->_delete_file = $this->checkDeleteFile($request_value, $check_delete);
     	
-    	if($upload) $filename = (string) $req_filename;
-    	elseif($this->_delete_file) $filename = '';
-    	else $filename = $this->_value;
-    	// /Filename
+    	if($upload) {
+    		$filename = (string) $request_value;
+    	}
+    	elseif($this->_delete_file) {
+    		$filename = '';
+    	}
+    	else {
+    		$filename = $this->_value;
+    	}
     	
     	if($this->_delete_file) {
     		$this->delete();
@@ -497,7 +499,7 @@ class FileBuild extends Build {
     		}
     		
     		if($this->_max_file_size && $filename_size > $this->_max_file_size) {
-    			throw new \Exception($code_messages[33]);	//return array('error'=>33);
+    			throw new \Exception($code_messages[33]);
     		}
     		
     		$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -506,7 +508,7 @@ class FileBuild extends Build {
     		if(!\Gino\extension($filename, $this->_extensions) ||
     		preg_match('#%00#', $filename) ||
     		($this->_check_type && !in_array($mime, $this->_types_allowed))) {
-    			throw new \Exception($code_messages[3]);	//return array('error'=>03);
+    			throw new \Exception($code_messages[3]);
     		}
     		
     		// Save File

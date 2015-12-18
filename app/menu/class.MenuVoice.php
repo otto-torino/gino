@@ -3,7 +3,7 @@
  * @file class.MenuVoice.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.MenuVoice
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\View;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una voce di menu
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -170,7 +170,7 @@ class MenuVoice extends \Gino\Model {
 
         \Gino\Loader::import('auth', array('Permission'));
 
-        $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
+        $gform = \Gino\Loader::load('Form', array());
         $gform->load('dataform');
         
         if(!$parent) $parent = 0;
@@ -185,24 +185,22 @@ class MenuVoice extends \Gino\Model {
         }
         $title = $title."<a name=\"top\"> </a>";
 
-        $required = 'label,type,voice';    
+        $buffer = $gform->open($formaction, '', '', array('form_id'=>'gform'));	//$required = 'label,type,voice';
+        $buffer .= \Gino\Input::hidden('action', $action);
+        $buffer .= \Gino\Input::hidden('parent', $parent);
+        if($this->_p['id']) {
+        	$buffer .= \Gino\Input::hidden('id', $this->_p['id']);
+        }
 
-        $required = '';
-        $buffer = $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('action', $action);
-        $buffer .= $gform->hidden('parent', $parent);
-        if($this->_p['id'])
-            $buffer .= $gform->hidden('id', $this->_p['id']);
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', \Gino\htmlInput($this->_p['label'])), _("Voce"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>self::$tbl_voices, "field"=>"label", "trnsl_id"=>$this->_p['id']));
 
-        $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', \Gino\htmlInput($this->_p['label'])), _("Voce"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>self::$tbl_voices, "field"=>"label", "trnsl_id"=>$this->_p['id']));
+        $buffer .= \Gino\Input::input_label('url', 'text', $gform->retvar('url', \Gino\htmlInput($this->_p['url'])), _("url"), array("size"=>40, "maxlength"=>200, "id"=>"url"));
 
-        $buffer .= $gform->cinput('url', 'text', $gform->retvar('url', \Gino\htmlInput($this->_p['url'])), _("url"), array("size"=>40, "maxlength"=>200, "id"=>"url"));
+        $buffer .= \Gino\Input::radio_label('type', $gform->retvar('type', \Gino\htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare la ricerca viste)"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
 
-        $buffer .= $gform->cradio('type', $gform->retvar('type', \Gino\htmlInput($this->_p['type'])), array('int'=>_("interno (utilizzare la ricerca viste)"), 'ext'=>_("esterno (http://www.otto.to.it)")), 'int', _("Tipo di link"), array("required"=>true, "aspect"=>"v"));
+        $buffer .= \Gino\Input::multipleCheckbox('perm[]', explode(';', $this->perms), \Gino\App\Auth\Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
 
-        $buffer .= $gform->multipleCheckbox('perm[]', explode(';', $this->perms), \Gino\App\Auth\Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
-
-        $buffer .= $gform->cinput('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View(null, 'section');
@@ -224,7 +222,7 @@ class MenuVoice extends \Gino\Model {
     public static function getSelectedVoice($instance) {
 
         $request = \Gino\Http\Request::instance();
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $result_link = null;
         $result = null;
@@ -244,44 +242,44 @@ class MenuVoice extends \Gino\Model {
     public static function columns() {
     	 
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
     	));
     	$columns['instance'] = new \Gino\IntegerField(array(
-    			'name'=>'instance',
-    			'required'=>true,
+    		'name'=>'instance',
+    		'required'=>true,
     	));
     	$columns['parent'] = new \Gino\IntegerField(array(
-    			'name'=>'parent',
-    			'required'=>true,
+    		'name'=>'parent',
+    		'required'=>true,
     	));
     	$columns['label'] = new \Gino\CharField(array(
-    			'name'=>'label',
-    			'label' => _("Voce"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'label',
+    		'label' => _("Voce"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['url'] = new \Gino\CharField(array(
-    			'name'=>'url',
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'url',
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['type'] = new \Gino\EnumField(array(
-    			'name' => 'type',
-    			'label' => _("Tipo di link"), 
-    			'required' => true,
-    			'choice' => array('int'=>_("interno"), 'ext'=>_("esterno"))
+    		'name' => 'type',
+    		'label' => _("Tipo di link"), 
+    		'required' => true,
+    		'choice' => array('int'=>_("interno"), 'ext'=>_("esterno"))
     	));
     	$columns['order_list'] = new \Gino\IntegerField(array(
-    			'name' => 'order_list',
-    			'required' => true,
+    		'name' => 'order_list',
+    		'required' => true,
     	));
     	$columns['perms'] = new \Gino\CharField(array(
-    			'name'=>'perms',
-    			'label' => _("Permessi"),
-    			'required'=>true,
-    			'max_lenght'=>255,
+    		'name'=>'perms',
+    		'label' => _("Permessi"),
+    		'required'=>true,
+    		'max_lenght'=>255,
     	));
     	return $columns;
     }

@@ -82,11 +82,32 @@ class CharBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         if(!isset($options['trnsl'])) $options['trnsl'] = $this->_trnsl;
         if(!isset($options['field'])) $options['field'] = $this->_name;
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
+    }
+    
+    /**
+     * @see Gino.Build::clean()
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_html()
+     *   - @b typeoftext (string): tipo di dato da ripulire; accetta i valori @a text (default) e @a html
+     * @return string
+     */
+    public function clean($request_value, $options=null) {
+    	
+    	$typeoftext = gOpt('typeoftext', $options, 'text');
+    	
+    	if($typeoftext == 'text') {
+    		return clean_text($request_value, $options);
+    	} elseif($typeoftext == 'html') {
+    		return clean_html($request_value, $options);
+    	} else {
+    		return null;
+    	}
     }
 }

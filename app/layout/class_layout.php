@@ -124,8 +124,9 @@ class layout extends \Gino\Controller {
     private function manageTemplate(\Gino\Http\Request $request) {
 
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int');
-        $tpl = \Gino\Loader::load('Template', array($id));
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
+        
+        $tpl = \Gino\Loader::load('Template', array($id));
 
         if($request->checkGETKey('trnsl', '1'))
         {
@@ -658,6 +659,82 @@ class layout extends \Gino\Controller {
 
         return $tpl->actionDelTemplate($request);
     }
+    
+    /**
+     * @brief Fornisce le informazioni per accedere a una pagina e per poterla implementare nel template
+     * 
+     * @param \Gino\App\Page\PageEntry object $page oggetto pagina
+     * @return array array(url => (string), perm => (string), code => (string))
+     */
+    public static function getPageData($page) {
+    	
+    	$access_txt = '';
+        if($page->private) {
+        	$access_txt .= _("visualizzazione pagine private")."<br />";
+        }
+        if($page->users) {
+        	$access_txt .= _("pagina limitata ad utenti selezionati");
+        }
+        if(!$page->private and !$page->users) {
+        	$access_txt .= _('pagina pubblica');
+        }
+
+        $code_full = "{module pageid=".$page->id." func=full}";
+        $url = $page->getUrl();
+        
+        return array(
+        	'url' => $url,
+        	'perm' => $access_txt,
+        	'code' => $code_full
+        );
+    }
+    
+    /**
+     * @brief Fornisce le informazioni per accedere a un metodo e per poterlo implementare nel template
+     * @description I metodi sono quelli elencati nel metodo outputFunctions() del controller, ovvero i metodi pubblici che forniscono un output per il front-end. \n
+     * 
+     * @param string $method_name nome del metodo (chiave del metodo outputFunctions)
+     * @param array $method_info informazioni sul metodo (valore del metodo outputFunctions)
+     * @param object $module oggetto \Gino\App\Module\ModuleInstance o \Gino\App\SysClass\ModuleApp
+     * @param boolean $sys_module modulo di sistema (default false); col valore @a true si indica un modulo non istanziabile
+     * @return null or array array(info => (string), perm => (string), code => (string))
+     */
+    public static function getMethodData($method_name, $method_info, $module, $sys_module=false) {
+    	
+    	$class_name = $module->className();
+    	
+    	$method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$class_name.".ini", TRUE);
+    	$public_method = @$method_check['PUBLIC_METHODS'][$method_name];
+    	
+    	if(!isset($public_method))
+    	{
+    		$permissions_code = $method_info['permissions'];
+    		$permissions = array();
+    		if($permissions_code and count($permissions_code)) {
+    			foreach($permissions_code as $permission_code) {
+    				
+    				if(!preg_match('#\.#', $permission_code)) {
+    					$permission_code = $class_name.'.'.$permission_code;
+    				}
+    				$p = Permission::getFromFullCode($permission_code);
+    				$permissions[] = $p->label;
+    			}
+    		}
+    		
+    		$param = $sys_module ? 'sysclassid' : 'classid';
+    		
+    		$code = "{module $param=".$module->id." func=".$method_name."}";
+    		
+    		return array(
+    			'info' => $method_info['label'],
+    			'perm' => count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+    			'code' => $code
+    		);
+    	}
+    	else {
+    		return null;
+    	}
+    }
 
     /**
      * @brief Elenco dei moduli di sistema, istanze di moduli di sistema e delle pagine disponibili come blocchi all'interno del template
@@ -697,22 +774,14 @@ class layout extends \Gino\Controller {
         $pages = PageEntry::objects(null, array('where' => "published='1'", 'order' => 'title'));
         if(count($pages)) {
             foreach($pages as $page) {
-                $access_txt = '';
-                if($page->private) {
-                    $access_txt .= _("visualizzazione pagine private")."<br />";
-                }
-                if($page->users)
-                    $access_txt .= _("pagina limitata ad utenti selezionati");
-                if(!$page->private and !$page->users) 
-                    $access_txt .= _('pubblica');
-
-                $code_full = "{module pageid=".$page->id." func=full}";
-                $url = $page->getUrl();
+                
+            	$page_code = self::getPageData($page);
+            	
                 $tbl_rows[] = array(
                     \Gino\htmlChars($page->title),
                     _("Pagina completa"),
-                    $access_txt,
-                    $code_full
+                    $page_code['perm'],
+                    $page_code['code']
                 );
             }
         }
@@ -733,32 +802,19 @@ class layout extends \Gino\Controller {
         $modules = ModuleInstance::objects(null, array('where' => "active='1'", 'order' => 'label'));
         if(count($modules)) {
             foreach($modules as $module) {
-                $class = $module->classNameNs();
+                
+            	$class = $module->classNameNs();
                 $output_functions = method_exists($class, 'outputFunctions') 
                     ? call_user_func(array($class, 'outputFunctions'))
                     : array();
 
                 if(count($output_functions)) {
                     foreach($output_functions as $func=>$data) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$module->className().".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(!isset($public_method)) {
-                            $permissions_code = $data['permissions'];
-                            $permissions = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                    $p = Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                }
-                            }
-                            $code = "{module classid=".$module->id." func=".$func."}";
-                            $row = array(
-                                $data['label'],
-                                count($permissions) ? implode(', ', $permissions) : _('pubblico'),
-                                $code
-                            );
-                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label))), $row);
-                        }
+                        
+                    	$method_code = self::getMethodData($func, $data, $module);
+                    	if($method_code) {
+                    		$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label))), $method_code);
+                    	}
                     }
                 }
             }
@@ -787,25 +843,11 @@ class layout extends \Gino\Controller {
 
                 if(count($output_functions)) {
                     foreach($output_functions as $func=>$data) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$module_app->className().OS.$module_app->className().".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(!isset($public_method)) {
-                            $permissions_code = $data['permissions'];
-                            $permissions = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                    $p = Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                }
-                            }
-                            $code = "{module sysclassid=".$module_app->id." func=".$func."}";
-                            $row = array(
-                                $data['label'],
-                                count($permissions) ? implode(', ', $permissions) : _('pubblico'),
-                                $code
-                            );
-                            $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label))), $row);
-                        }
+                    	
+                    	$method_code = self::getMethodData($func, $data, $module_app, true);
+                    	if($method_code) {
+                    		$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label))), $method_code);
+                    	}
                     }
                 }
             }
@@ -839,7 +881,6 @@ class layout extends \Gino\Controller {
 
         return new Response($buffer);
     }
-
 
     /**
      * @brief Elenco dei moduli di sistema, istanze di moduli di sistema e delle pagine disponibili come blocchi all'interno del template
@@ -883,23 +924,16 @@ class layout extends \Gino\Controller {
         $pages = PageEntry::objects(null, array('where' => "published='1'", 'order' => 'title'));
         if(count($pages)) {
             foreach($pages as $page) {
-                $access_txt = '';
-                if($page->private) {
-                    $access_txt .= _("visualizzazione pagine private")."<br />";
-                }
-                if($page->users)
-                    $access_txt .= _("pagina limitata ad utenti selezionati");
-                if(!$page->private and !$page->users)
-                    $access_txt .= _('pubblica');
-
-                $code_full = "{module pageid=".$page->id." func=full}";
-
-                $url = $page->getUrl();
-                $tbl_rows[] = array(
-                    \Gino\htmlChars($page->ml('title')),
-                    "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\jsVar(\Gino\htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
-                    $access_txt
-                );
+                
+            	$page_code = self::getPageData($page);
+            	$url = $page_code['url'];
+            	$code_full = $page_code['code'];
+            	
+            	$tbl_rows[] = array(
+            		\Gino\htmlChars($page->ml('title')),
+            		"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\jsVar(\Gino\htmlChars($page->title))."', '$code_full')\";>"._("Pagina completa")."</span>",
+            		$page_code['perm']
+            	);
             }
         }
 
@@ -946,27 +980,24 @@ class layout extends \Gino\Controller {
                     {
                     	foreach ($methods AS $func=>$data)
                     	{
-                    		$permissions_code = $data['permissions'];
-                            $permissions = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                    $p = Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                }
-                            }
-                            $code = "{module classid=".$module->id." func=".$func."}";
-
-                            $row = array(
-                                "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
-                                count($permissions) ? implode(', ', $permissions) : _('pubblico')
-                            );
-                            if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => $count)), $row);
-                                $first = false;
-                            }
-                            else {
-                                $tbl_rows[] = $row;
-                            }
+                    		$method_code = self::getMethodData($func, $data, $module);
+                    		if($method_code) {
+                    		
+                    			$code = $method_code['code'];
+                    			
+                    			$row = array(
+                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                    				$method_code['perm']
+                    			);
+                    			
+                    			if($first) {
+                    				$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module->label), 'rowspan' => $count)), $row);
+                    				$first = false;
+                    			}
+                    			else {
+                    				$tbl_rows[] = $row;
+                    			}
+                    		}
                         }
                     }
                 }
@@ -1016,27 +1047,24 @@ class layout extends \Gino\Controller {
                     {
                     	foreach ($methods AS $func=>$data)
                     	{
-                    		$permissions_code = $data['permissions'];
-                            $permissions = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                    $p = Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                }
-                            }
-                            $code = "{module sysclassid=".$module_app->id." func=".$func."}";
-
-                            $row = array(
-                                "<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
-                                count($permissions) ? implode(', ', $permissions) : _('pubblico')
-                            );
-                            if($first) {
-                                $tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => $count)), $row);
-                                $first = false;
-                            }
-                            else {
-                                $tbl_rows[] = $row;
-                            }
+                    		$method_code = self::getMethodData($func, $data, $module_app, true);
+                    		if($method_code) {
+                    		
+                    			$code = $method_code['code'];
+                    			
+                    			$row = array(
+                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                    				$method_code['perm']
+                    			);
+                    			
+                    			if($first) {
+                    				$tbl_rows[] = array_merge(array(array('text' => \Gino\htmlChars($module_app->label), 'rowspan' => $count)), $row);
+                    				$first = false;
+                    			}
+                    			else {
+                    				$tbl_rows[] = $row;
+                    			}
+                    		}
                         }
                     }
                 }
@@ -1124,12 +1152,12 @@ class layout extends \Gino\Controller {
 
         if(is_file($pathToFile))
         {
-            $gform = \Gino\Loader::load('Form', array('gform', 'post', true, array("tblLayout"=>false)));
+            $gform = \Gino\Loader::load('Form', array());	// array("tblLayout"=>false)
             $gform->load('dataform');
-            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '');
-            $buffer .= $gform->hidden('fname', $filename);
-            $buffer .= $gform->hidden('code', $code);
-            $buffer .= $gform->hidden('action', $action);
+            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '', array('form_id'=>'gform'));
+            $buffer .= \Gino\Input::hidden('fname', $filename);
+            $buffer .= \Gino\Input::hidden('code', $code);
+            $buffer .= \Gino\Input::hidden('action', $action);
 
             $contents = file_get_contents($pathToFile);
             $buffer .= "<div class=\"form-row\">";
@@ -1137,8 +1165,8 @@ class layout extends \Gino\Controller {
             $buffer .= "</div>";
 
             $buffer .= "<div class=\"form-row\">";
-            $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-            $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
+            $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+            $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
             $buffer .= "</div>";
 
             $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";

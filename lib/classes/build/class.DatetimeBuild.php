@@ -67,11 +67,15 @@ class DatetimeBuild extends Build {
 
         return $this->_table.".".$this->_name." $operator '".$value."'";
     }
-
+    
     /**
      * @see Gino.Build::clean()
+     * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_date()
+     * @return string
      */
-    public function clean($options=null) {
+    public function clean($request_value, $options=null) {
 
         if($this->_auto_now || $this->_auto_now_add)
         {
@@ -85,6 +89,13 @@ class DatetimeBuild extends Build {
             }
             return $date;
         }
-        else return parent::clean($options);
+        else
+        {
+        	if(!$options['typeofdate']) {
+        		$options['typeofdate'] = 'datetime';
+        	}
+        	
+        	return clean_date($request_value, $options);
+        }
     }
 }

@@ -134,6 +134,10 @@ class Core {
         	'\Gino\TextWidget',
         	'\Gino\UnitWidget',
         ));
+        
+        Loader::import('class/input', array(
+        	'\Gino\Input',
+        ));
 
         // gettext
         Locale::initGettext();

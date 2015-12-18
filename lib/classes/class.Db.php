@@ -187,37 +187,6 @@ interface DbManager {
      * @return risultato operazione, bool
      */
     public function dumpDatabase($file);
-
-    /**
-     * @brief Informazioni sulla struttura di una tabella del database
-     *
-     * L'array deve essere così strutturato: \n
-     * @code
-     * array(
-     *   'primary_key' => string 'primary_key_name'
-     *   'keys' => 
-     *     array (key_name[, ...])
-     *   'fields' => 
-     *     array (field_1=>array (size=10), field_2=>array (size=10)[, ...])
-     * )
-     * @endcode
-     *
-     * Per ogni campo vengono definite le chiavi:
-     *   - @b order (string): the ordinal position
-     *   - @b default (null or mixed): the default value
-     *   - @b null (string): whether the field is nullable or not ('NO' or 'YES')
-     *   - @b type (string): the field type (varchar, int, text, ...); must return a compatible value with those defined in Model::dataType()
-     *   - @b max_length (null or string): the field max length (es. '200' in varchar field)
-     *   - @b n_int (string): the number of int digits
-     *   - @b n_precision (integer): the number of decimal digits
-     *   - @b key (string): the field key if set (ex. 'PRI' for primary key, 'UNI' for unique key)
-     *   - @b extra (string): extra information (ex. auto_increment for an auto-increment field)
-     *   - @b enum (null or string): valori di un campo enumerazione (es. ''yes','no'')
-     *
-     * @param string $table nome della tabella
-     * @return array di informazioni
-     */
-    public function getTableStructure($table);
     
     /**
      * Reimposta il corretto tipo di dato di un campo quando il valore recuperato da una istruzione select è di un tipo non corrispondente (vedi PDO_SQLSRV)
@@ -227,14 +196,6 @@ interface DbManager {
      * @return mixed
      */
     public function changeFieldType($data_type, $value);
-
-    /**
-     * @brief Recupera il nome dei campi di una tabella
-     *
-     * @param string $table nome della tabella
-     * @return array con i nomi dei campi
-     */
-    public function getFieldsName($table);
 
     /**
      * @brief Numero di record interessati da una query di selezione

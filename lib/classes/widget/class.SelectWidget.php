@@ -19,18 +19,26 @@ namespace Gino;
 class SelectWidget extends Widget {
 
 	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+		
+		return $value;
+	}
+	
+	/**
 	 * @see Gino.Widget::printInputForm()
 	 * 
 	 * @param array $options
 	 *   - @b choice (mixed): elementi del select
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
 		$choice = array_key_exists('choice', $options) ? $options['choice'] : null;
 		
-		$buffer = $this->_form->cselect($this->_name, $this->_value, $choice, $this->_label, $options);
+		$buffer = Input::select_label($this->_name, $this->_value, $choice, $this->_label, $options);
 		
 		return $buffer;
 	}

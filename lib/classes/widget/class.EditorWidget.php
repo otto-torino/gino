@@ -21,16 +21,14 @@ class EditorWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
-		
-		$value = $this->_form->retvar($this->_name, htmlInputEditor($this->_value));
+		parent::printInputForm($options);
 		
 		$options['ckeditor'] = true;
 		$options['label'] = $this->_label;
 		
-		$buffer =  $this->_form->textarea($this->_name, $value, $options);
+		$buffer =  Input::textarea($this->_name, $this->_value_retrieve, $options);
 		
 		return $buffer;
 	}

@@ -20,17 +20,19 @@ class UnitWidget extends Widget {
 
 	/**
 	 * @see Gino.Widget::printInputForm()
+	 * 
+	 * @param array $options array associativo di opzioni
+	 *   - @b m2m_model (object)
+	 *   - @b inputs (array)
+	 *   - @b remove_fields (array)
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 		
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$controller = \Gino\gOpt('controller', $options, null);
 		$m2m_model = \Gino\gOpt('m2m_model', $options, null);
 		$inputs = \Gino\gOpt('inputs', $options, array());
 		$remove_fields = \Gino\gOpt('remove_fields', $options, array());
-		
-		$admin_table = Loader::load('AdminTable', array($controller, array()));
 		
 		$buffer = "<div id=\"m2mthrough-fieldset_".$this->_name."\">";
 		
@@ -41,7 +43,10 @@ class UnitWidget extends Widget {
 				$buffer .= "<fieldset>";
 				$buffer .= "<legend><span data-clone-ctrl=\"minus\" class=\"link fa fa-minus-circle\"></span> ".ucfirst($m2m_model->getModelLabel())."</legend>";
 				$buffer .= "<div>";
-				$buffer .= $admin_table->modelForm($input, array('only_inputs' => true, 'removeFields' => $remove_fields), array());
+				
+				$mform = Loader::load('ModelForm', array($input));
+				$buffer .= $mform->view(array('only_inputs' => true, 'removeFields' => $remove_fields), array());
+				
 				$buffer .= "</div>";
 				$buffer .= "</fieldset>";
 			}
@@ -51,7 +56,9 @@ class UnitWidget extends Widget {
 		$buffer .= "<legend><span data-clone-ctrl=\"plus\" class=\"link fa fa-plus-circle\"></span> ".ucfirst($m2m_model->getModelLabel())."</legend>";
 		$buffer .= "<div class=\"hidden\" data-clone=\"1\">";
 		
-		$buffer .= $admin_table->modelForm($m2m_model, array('only_inputs' => true), array());
+		$mform = Loader::load('ModelForm', array($m2m_model));
+		$buffer .= $mform->view(array('only_inputs' => true), array());
+		
 		$buffer .= "</div>";
 		$buffer .= "</fieldset>";
 		$buffer .= "</div>";

@@ -3,7 +3,7 @@
  * @file class.Skin.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Skin
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\Http\Redirect;
  * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
  * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
  * @see Gino.App.Layout
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -248,37 +248,36 @@ class Skin extends Model {
 
         Loader::import('class', array('\Gino\Css', '\Gino\Template'));
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = ($this->id)? _("Modifica")." ".htmlChars($this->label):_("Nuova skin");
         
         $formaction = $this->_registry->router->link($this->_interface, 'actionSkin');
 
-        $required = 'template';
-        $buffer = $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
+        $buffer = $gform->open($formaction, '', 'template', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
         
-        $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "field"=>"label", "trnsl_id"=>$this->id));
-        $buffer .= $gform->cinput('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), _("esempi").":<br />mobile=1"), array("size"=>40, "maxlength"=>200));
-        $buffer .= $gform->cinput('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
-        $buffer .= $gform->cinput('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
+        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), _("esempi").":<br />mobile=1"), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
         $css_list = array();
         
         foreach(Css::getAll() as $css) {
             $css_list[$css->id] = htmlInput($css->label);
         }
-        $buffer .= $gform->cselect('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
+        $buffer .= \Gino\Input::select_label('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
         
         $tpl_list = array();
         foreach(Template::objects(null, array('order' => 'label')) as $tpl) {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
         }
-        $buffer .= $gform->cselect('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
-        $buffer .= $gform->cradio('auth', $gform->retvar('auth', $this->auth), array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), '', array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), array("required"=>true));
-        $buffer .= $gform->cinput('cache', 'text', $gform->retvar('cache', $this->cache), array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")), array("size"=>6, "maxlength"=>16, "pattern"=>"^\d*$"));
+        $buffer .= \Gino\Input::select_label('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
+        $buffer .= \Gino\Input::radio_label('auth', $gform->retvar('auth', $this->auth), array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), '', array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), array("required"=>true));
+        $buffer .= \Gino\Input::input_label('cache', 'text', $gform->retvar('cache', $this->cache), array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")), array("size"=>6, "maxlength"=>16, "pattern"=>"^\d*$"));
 
-        $buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
 
         $buffer .= $gform->close();
 
@@ -301,17 +300,18 @@ class Skin extends Model {
      */
     public function actionSkin(\Gino\Http\Request $request) {
 
-        $gform = Loader::load('Form', array('gform', 'post', false));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform = Loader::load('Form', array());
+        //$gform->setValidation(false);
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $action = ($this->id) ? 'modify' : 'insert';
 
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=skin&id=$this->id&action=$action");
 
-        if($req_error > 0)
-            return error::errorMessage(array('error'=>1), $link_error);
-
+        if($req_error > 0) {
+        	return Error::errorMessage(array('error'=>1), $link_error);
+        }
         $this->label = cleanVar($request->POST, 'label', 'string', null);
         $this->session = cleanVar($request->POST, 'session', 'string', null);
         $this->rexp = cleanVar($request->POST, 'rexp', 'string', null);
@@ -334,7 +334,7 @@ class Skin extends Model {
      */
     public function formDelSkin() {
 
-        $gform = Loader::load('Form', array('gform', 'post', false));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = sprintf(_('Elimina skin "%s"'), $this->label);
@@ -342,10 +342,10 @@ class Skin extends Model {
         $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione è definitiva')."</p>";
         
         $formaction = $this->_registry->router->link($this->_interface, 'actionDelSkin');
-        $required = '';
-        $buffer .= $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+
+        $buffer .= $gform->open($formaction, '', '', array('form_id'=>'gform', 'validation'=>false));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View();

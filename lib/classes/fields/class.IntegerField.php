@@ -34,7 +34,6 @@ class IntegerField extends Field {
         parent::__construct($options);
 
         if($this->_auto_increment) $this->_widget = 'hidden';
-        $this->_value_type = 'int';
     }
     
     /**
@@ -52,7 +51,9 @@ class IntegerField extends Field {
     	elseif(is_string($value)) {
     		return (int) $value;
     	}
-    	else throw new \Exception(_("Valore non valido"));
+    	else {
+    		throw new \Exception(sprintf(_("Valore non valido del campo \"%s\""), $this->_name));
+    	}
     }
     
     /**

@@ -3,7 +3,7 @@
  * @file class.Css.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Css
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Redirect;
 /**
  * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -80,27 +80,26 @@ class Css extends Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
     	));
-    	
     	$columns['filename'] = new \Gino\CharField(array(
-    			'name'=>'filename',
-    			'label'=>_("File"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'filename',
+    		'label'=>_("File"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['label'] = new \Gino\CharField(array(
-    			'name'=>'label',
-    			'label'=>_("Label"),
-    			'required'=>true,
-    			'max_lenght'=>200,
+    		'name'=>'label',
+    		'label'=>_("Label"),
+    		'required'=>true,
+    		'max_lenght'=>200,
     	));
     	$columns['description'] = new \Gino\TextField(array(
-    			'name'=>'description',
-    			'label' => _("Descrizione"),
-    			'required'=>false
+    		'name'=>'description',
+    		'label' => _("Descrizione"),
+    		'required'=>false
     	));
     	
     	return $columns;
@@ -136,19 +135,6 @@ class Css extends Model {
         return $name;
     }
 
-
-    /**
-     * @brief Setta il nome del file
-     * @param string $value nome file
-     * @return TRUE
-     */
-    public function setFilename($value) {
-
-        if($this->_p['filename']!=$value && !in_array('filename', $this->_chgP)) $this->_chgP[] = 'filename';
-        $this->_p['filename'] = $value;
-        return TRUE;
-    }
-
     /**
      * @brief Recupera l'oggetto a partire dal mone del file
      * @return Gino.Css o null se non lo trova
@@ -171,23 +157,21 @@ class Css extends Model {
      */
     public function formCssLayout() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true, array("trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id)));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
-        $action = $this->id ? 'modify':'insert';
+        $action = $this->id ? 'modify' : 'insert';
         $title = $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile");
 
-        $formaction = $this->_registry->router->link('layout', 'actionCss');
-        $required = 'label';
-        $buffer = $gform->open($formaction, true, $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->hidden('old_filename', $this->filename);
+        $buffer = $gform->open($this->_registry->router->link('layout', 'actionCss'), true, 'label', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::hidden('old_filename', $this->filename);
 
-        $buffer .= $gform->cfile('filename', $this->filename, _("File"), array("required"=>true, "extensions"=>array("css"), "del_check"=>true));
-        $buffer .= $gform->cinput('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "field"=>"label"));
-        $buffer .= $gform->ctextarea('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "field"=>"description"));
+        $buffer .= \Gino\Input::input_file('filename', $this->filename, _("File"), array("required"=>true, "extensions"=>array("css"), "del_check"=>true));
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
+        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
 
-        $buffer .= $gform->cinput('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View();
@@ -209,16 +193,16 @@ class Css extends Model {
      */
     public function actionCssLayout(\Gino\Http\Request $request) {
 
-        $gform = Loader::load('Form', array('gform', 'post', TRUE));
-        $gform->save('dataform');
-        $req_error = $gform->arequired();
+        $gform = Loader::load('Form', array());
+        $gform->saveSession('dataform');
+        $req_error = $gform->checkRequired();
 
         $action = $this->id ? 'modify' : 'insert';
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=css&id=$this->id&action=$action");
 
-        if($req_error > 0) 
-            return error::errorMessage(array('error'=>1), $link_error);
-
+        if($req_error > 0) {
+        	return Error::errorMessage(array('error'=>1), $link_error);
+        }
         $filename_tmp = $_FILES['filename']['tmp_name'];
         $old_filename = cleanVar($request->POST, 'old_filename', 'string', '');
 
@@ -245,18 +229,16 @@ class Css extends Model {
      */
     public function formDelCssLayout() {
 
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        $gform = Loader::load('Form', array());
         $gform->load('dataform');
 
         $title = sprintf(_('Elimina foglio di stile "%s"'), $this->label);
 
         $buffer = "<p class=\"backoffice-info\">"._('Attenzione! L\'eliminazione determina l\'eliminazione del file css dalle skin che lo contengono!')."</p>";
         
-        $formaction = $this->_registry->router->link($this->_interface, 'actionDelCss');
-        $required = '';
-        $buffer .= $gform->open($formaction, '', $required);
-        $buffer .= $gform->hidden('id', $this->id);
-        $buffer .= $gform->cinput('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        $buffer .= $gform->open($this->_registry->router->link($this->_interface, 'actionDelCss'), '', '', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new view();

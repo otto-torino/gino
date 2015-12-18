@@ -74,7 +74,7 @@ class MulticheckBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         $db = Db::instance();
         if($this->_refmodel_controller) {
@@ -114,26 +114,20 @@ class MulticheckBuild extends Build {
         $this->_value = explode(',', $this->_model->{$this->_name});
         $this->_name .= "[]";
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**
      * @see Gino.Build::clean()
      * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_array()
      * @return string
      */
-    public function clean($options=null) {
-
-        $value = parent::clean($options);
+    public function clean($request_value, $options=null) {
     	
-    	if(\Gino\gOpt('asforminput', $options, false)) {
-    		return $value;
-    	}
-    	
-    	if($value) {
-    		$value = implode(',', $value);
-    	}
-    	return $value;
+    	$options['asforminput'] = false;
+    	return clean_array($request_value, $options);
     }
 
     /**
@@ -152,9 +146,9 @@ class MulticheckBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      */
-    public function retrieveValue() {
+    public function printValue() {
     	
     	$db = \Gino\Db::instance();
     	

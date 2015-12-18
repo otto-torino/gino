@@ -232,7 +232,8 @@ class Frontend {
         
         $registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
         $registry->addCss(CSS_WWW."/codemirror.css");
-        $gform = Loader::load('Form', array('gform', 'post', true));
+        
+        $gform = Loader::load('Form', array(array('form_id'=>'gform')));
         $gform->load('dataform');
 
         $key = cleanVar($request->GET, 'key', 'int', '');
@@ -276,16 +277,15 @@ class Frontend {
             $title = sprintf(_("Modifica la vista \"%s\""), $filename);
         }
 
-        $required = '';
-        $buffer = $gform->open($this->_mdlLink."&action=save&code=$code&key=$key", '', $required);
+        $buffer = $gform->open($this->_mdlLink."&action=save&code=$code&key=$key", '', '');
 
         $contents = file_get_contents($this->pathToFile($code).$filename);
 
         $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
 
         $buffer .= "<div class=\"form-row\">";
-        $buffer .= $gform->input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-        $buffer .= " ".$gform->input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+        $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
+        $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
         $buffer .= "</div>";
         $buffer .= $gform->close();
 

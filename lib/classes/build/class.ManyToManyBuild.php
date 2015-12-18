@@ -120,7 +120,7 @@ class ManyToManyBuild extends Build {
     /**
      * @see Gino.Build::formElement()
      */
-    public function formElement(\Gino\Form $form, $options) {
+    public function formElement($mform, $options=array()) {
 
         $db = Db::instance();
         if($this->_m2m_controller) {
@@ -167,19 +167,19 @@ class ManyToManyBuild extends Build {
             );
         }
 
-        return parent::formElement($form, $options);
+        return parent::formElement($mform, $options);
     }
 
     /**
      * @see Gino.Build::clean()
      * 
+     * @param array $options array associativo di opzioni
+     *   - opzioni della funzione Gino.clean_array()
      * @return array
      */
-    public function clean($options=null) {
-
-        $value = parent::clean($options);
-        
-        return is_null($value) ? array() : $value;
+    public function clean($request_value, $options=null) {
+    	
+    	return clean_array($request_value, $options);
     }
 
     /**
@@ -198,9 +198,9 @@ class ManyToManyBuild extends Build {
     }
     
     /**
-     * @see Gino.Build::retrieveValue()
+     * @see Gino.Build::printValue()
      */
-    public function retrieveValue() {
+    public function printValue() {
     	
     	$db = \Gino\Db::instance();
     	

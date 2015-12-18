@@ -21,13 +21,13 @@ class DateWidget extends Widget {
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
-	public function printInputForm($form, $options) {
+	public function printInputForm($options) {
 	
-		parent::printInputForm($form, $options);
+		parent::printInputForm($options);
 		
-		$value = $this->_form->retvar($this->_name, htmlInput(dbDateToDate($this->_value, "/")));
+		$value = dbDateToDate($this->_value_retrieve, "/");
 		
-		$buffer = $this->_form->cinput_date($this->_name, $value, $this->_label, $options);
+		$buffer = Input::input_date($this->_name, $value, $this->_label, $options);
 		
 		return $buffer;
 	}
