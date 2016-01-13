@@ -2500,7 +2500,11 @@ msgstr "Username or password incorrect"
 msgid "Utente"
 msgstr "User"
 
-#: app/auth/class_auth.php:1520
+#: app/auth/class_auth.php:1518
+msgid "IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff)."
+msgstr "IMPORTANT: to allow a user access to administrative functionality of any application is not sufficient to assign application permissions, but we must also give it permission to access the administrative area (Module: core -> belonging to the staff)."
+
+#: app/auth/class_auth.php:1522
 #, php-format
 msgid "Utente \"%s\" - permessi"
 msgstr "User \"%s\" - permits"

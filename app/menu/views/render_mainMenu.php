@@ -14,7 +14,7 @@
  *              - type: string, int|ext tipo link,
  *              - url: string, url
  *
- * @copyright 2005-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2005-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -23,14 +23,34 @@
 <? //@cond no-doxygen ?>
 <?php
 if(!function_exists('\Gino\App\Menu\printVoice')) {
-  function printVoice($v, $selected, $i) {
-    $active = $selected == $v['id'] ? true : false;
-    if(!count($v['sub'])) return "<li class=\"".($active ? 'active' : '')."\"><a href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "").">".$v['label']."</a></li>\n";
+  function printVoice($v, $selected) {
+    
+  	$active = $selected == $v['id'] ? true : false;
+    $href = $v['url'] ? "href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "") : '';
+    
+    if(!count($v['sub'])) {
+    	return "<li class=\"".($active ? 'active' : '')."\"><a $href>".$v['label']."</a></li>\n";
+    }
     else {
-        $buffer = "<li class=\"dropdown".($active ? ' active' : '')."\" onclick=\"$(this).getParent().getChildren('li.open').each(function(item) { if(item != $(this)) item.removeClass('open'); }.bind(this)); $(this).toggleClass('open');\">";
-        $buffer .= "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "").">".$v['label']." <span class=\"caret\"></span></a>";
+        
+    	$buffer = "
+		<script>
+		var mngOpen = function(e) {
+			$(this).getParent().getChildren('li.open').each(function(item) { if(item != $(this)) item.removeClass('open'); }.bind(this));
+		
+			if(!($(this).hasClass('open') && e.target.getProperty('class') == 'dropdown-toggle') || (e.target.getParent('li') == this)) {
+				$(this).toggleClass('open');
+			}
+		}
+		</script>";
+    	
+    	$buffer .= "<li class=\"dropdown".($active ? ' active' : '')."\" onclick=\"mngOpen.bind(this)(event);\">";
+        $buffer .= "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" $href>".$v['label']." <span class=\"caret\"></span></a>";
+        
         $buffer .= "<ul class=\"dropdown-menu\">\n";
-        foreach($v['sub'] as $sv) $buffer .= printVoice($sv, $selected, null);
+        foreach($v['sub'] as $sv) {
+        	$buffer .= printVoice($sv, $selected);
+        }
         $buffer .= "</ul></li>\n"; 
 
         return $buffer;

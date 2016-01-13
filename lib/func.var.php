@@ -3,7 +3,7 @@
  * @file func.var.php
  * @brief Racchiude le librerie per il trattamento di stringhe e dei valori da e per un input/database
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -218,7 +218,7 @@ function clean_bool($value) {
  */
 function clean_int($value) {
 
-	if($value === null) {
+	if(is_null($value) or $value == '') {
 		return null;
 	}
 	settype($value, 'int');
@@ -234,7 +234,7 @@ function clean_int($value) {
  */
 function clean_float($value) {
 
-	if($value === null) {
+	if(is_null($value) or $value == '') {
 		return null;
 	}
 	

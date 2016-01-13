@@ -3,7 +3,7 @@
  * @file class.Document.php
  * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ use \Gino\App\Page\page;
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -460,17 +460,29 @@ class Document {
 
         $code = $this->_registry->sysconf->google_analytics;
         $buffer = "<script type=\"text/javascript\">";
+        /*
         $buffer .= "var _gaq = _gaq || [];";
         $buffer .= "_gaq.push(['_setAccount', '".$code."']);";
+        //$buffer .= "_gaq.push(['_gat._anonymizeIp']);";
         $buffer .= "_gaq.push(['_trackPageview']);";
         $buffer .= "(function() {
         	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
         	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })();";
+        */
+        
+        $buffer .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+		ga('create', '".$code."', 'auto');
+		ga('set', 'anonymizeIp', true);
+		ga('send', 'pageview');";
+        
         $buffer .= "</script>";
-
+        
         return $buffer;
     }
-
 }

@@ -3,7 +3,7 @@
  * @file class.EnumBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.EnumBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,9 +12,9 @@ namespace Gino;
 Loader::import('class/build', '\Gino\Build');
 
 /**
- * @brief Gestisce i campi di tipo ENUM
+ * @brief Gestisce i campi di tipo enumerazione
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,7 +23,7 @@ class EnumBuild extends Build {
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
-    protected $_choice;
+    protected $_choice, $_value_type;
 
     /**
      * Costruttore
@@ -37,6 +37,7 @@ class EnumBuild extends Build {
         parent::__construct($options);
         
         $this->_choice = $options['choice'];
+        $this->_value_type = $options['value_type'];
     }
 
     /**
@@ -72,11 +73,19 @@ class EnumBuild extends Build {
      * @see Gino.Build::clean()
      * 
      * @param array $options array associativo di opzioni
-     *   - opzioni delle funzioni Gino.clean_text()
-     * @return string
+     *   - opzioni delle funzioni Gino.clean_text(), Gino.clean_int()
+     * @return string or integer
      */
     public function clean($request_value, $options=null) {
     	
-    	return clean_text($request_value, $options);
+    	if($this->_value_type == 'int') {
+    		return clean_int($request_value);
+    	}
+    	elseif($this->_value_type == 'string') {
+    		return clean_text($request_value, $options);
+    	}
+    	else {
+    		return null;
+    	}
     }
 }

@@ -2475,7 +2475,11 @@ msgstr ""
 msgid "Utente"
 msgstr ""
 
-#: app/auth/class_auth.php:1520
+#: app/auth/class_auth.php:1518
+msgid "IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff)."
+msgstr ""
+
+#: app/auth/class_auth.php:1522
 #, php-format
 msgid "Utente \"%s\" - permessi"
 msgstr ""
