@@ -741,7 +741,7 @@ class Form {
     			}
     		}
     
-    		if($this->permission($options, $field) && (				//////////////////// VEDERE METODO ////////////////////
+    		if($this->permission($options, $field) && (
     			($removeFields && !in_array($field, $removeFields)) ||
     			($viewFields && in_array($field, $viewFields)) ||
     			(!$viewFields && !$removeFields)

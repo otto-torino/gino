@@ -3,7 +3,7 @@
  * @file class.EnumField.php
  * @brief Contiene la definizione ed implementazione della classe Gino.EnumField
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,11 +12,11 @@ namespace Gino;
 loader::import('class/fields', '\Gino\Field');
 
 /**
- * @brief Campo di tipo ENUM
+ * @brief Campo di tipo enumerazione
  * 
  * Tipologie di input associabili: radio, select
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,7 +25,7 @@ class EnumField extends Field {
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_choice;
+	protected $_choice, $_value_type;
 	
     /**
      * Costruttore
@@ -35,6 +35,9 @@ class EnumField extends Field {
      *   - opzioni generali definite come proprietà nella classe Field()
      *   - opzioni specifiche del tipo di campo
      *     - @b choice (array): elenco degli elementi di scelta
+     *     - @b value_type (string): tipo di valore del campo, accetta i valori
+     *       - @a int, campo numerico (default)
+     *       - @a string, campo alfanumerico
      */
     function __construct($options) {
 
@@ -42,6 +45,7 @@ class EnumField extends Field {
         parent::__construct($options);
         
         $this->_choice = array_key_exists('choice', $options) ? $options['choice'] : array();
+        $this->_value_type = array_key_exists('value_type', $options) ? $options['value_type'] : 'int';
     }
     
     /**
@@ -52,6 +56,7 @@ class EnumField extends Field {
     	$prop = parent::getProperties();
     	 
     	$prop['choice'] = $this->_choice;
+    	$prop['value_type'] = $this->_value_type;
     	 
     	return $prop;
     }

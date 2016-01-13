@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -39,7 +39,7 @@ require_once('class.ModelFormUser.php');
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
  * 
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -280,7 +280,7 @@ class auth extends \Gino\Controller {
 
         if($request->method == 'POST') {
 
-            $formobj = Loader::load('Form', array());	// array('form_id'=>'auth_registration')
+            $formobj = Loader::load('Form', array());
             $formobj->saveSession('authactivateprofiledata');
 
             $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
@@ -383,7 +383,7 @@ class auth extends \Gino\Controller {
             $profile_id = \Gino\cleanVar($request->POST, 'profile', 'int');
             $profile = new RegistrationProfile($profile_id);
 
-            $formobj = Loader::load('Form', array());	// array('form_id'=>'auth_registration')
+            $formobj = Loader::load('Form', array());
             $formobj->saveSession('authregistrationdata');
             
             $error_redirect = $this->_registry->router->link($this->_class_name, 'registration', array('id' => $profile->id));
@@ -1461,8 +1461,7 @@ class auth extends \Gino\Controller {
 
         $info = _("Elenco dei permessi.");
 
-
-        $opts = array(
+		$opts = array(
             'list_display' => array('id', 'class', 'code', 'label', 'admin'),
             'list_description' => $info
         );
@@ -1515,10 +1514,13 @@ class auth extends \Gino\Controller {
 
         $content .= \Gino\Input::input('submit', 'submit', _("associa"));
         $content .= $gform->close();
+        
+        $description = _("IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff).");
 
         $dict = array(
             'title' => sprintf(_("Utente \"%s\" - permessi"), $obj_user),
-            'content' => $content
+            'content' => $content, 
+        	'post_header' => $description
         );
 
         $view = new View(null, 'section');

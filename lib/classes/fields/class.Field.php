@@ -3,7 +3,7 @@
  * @file class.Field.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Field
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\Request;
 /**
  * @brief Gestisce le caratteristiche del tipo di campo (colonne)
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -42,6 +42,14 @@ use \Gino\Http\Request;
  * <tr><td>TimeField()</td><td>TIME</td><td>time</td></tr>
  * <tr><td>YearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
+ * 
+ * ##PROPRIETÅ GENERALI DEI CAMPI
+ * Le seguenti proprietà definite per tutti i tipi di campo dalla classe Gino.Field(): \n
+ * $_name, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_required, $int_digits, $decimal_digits. 
+ * 
+ * Queste proprietà hanno dei valori di default che possono venire sovrascritti passandoli come opzioni del tipo di campo al costruttore. \n
+ * Infine, queste proprietà vengono esposte attraverso i relativi metodi __get e __set.
+ * 
  */
 class Field {
 
@@ -52,16 +60,58 @@ class Field {
     protected $_request;
     
     /**
-     * @brief Proprietà dei campi
-     * Vengono esposte dai relativi metodi __get e __set
+     * @brief Nome del campo (default '')
+     * @var string
      */
-	protected $_name, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $int_digits, $decimal_digits;
+	protected $_name;
+	
+	/**
+     * @brief Valore di default del campo (default null)
+     * @var mixed
+     */
+	protected $_default;
+	
+	/**
+     * @brief Lunghezza massima del campo (default 11)
+     * @var integer
+     */
+	protected $_lenght;
+	
+	/**
+     * @brief Indica se il campo è di tipo auto_increment (default false)
+     * @var boolean
+     */
+	protected $_auto_increment;
+	
+	/**
+     * @brief Indica se il campo è una chiave primaria (default false)
+     * @var boolean
+     */
+	protected $_primary_key;
+	
+	/**
+     * @brief Indica se il campo è una chiave unica (default false)
+     * @var boolean
+     */
+	protected $_unique_key;
 
     /**
-     * @brief Indica se il tipo di campo è obbligatorio 
+     * @brief Indica se il campo è obbligatorio (default false)
      * @var boolean
      */
     protected $_required;
+    
+    /**
+     * @brief Numero di cifre intere di un campo float (default 0)
+     * @var integer
+     */
+    protected $int_digits;
+    
+    /**
+     * @brief Numero di cifre decimali di un campo float (default 0)
+     * @var integer
+     */
+    protected $decimal_digits;
     
     /**
      * @brief Tipo di widget associato al campo
@@ -95,10 +145,9 @@ class Field {
 
     	$this->_request = \Gino\Http\Request::instance();
     	
-    	$this->_default = null;
-        
-        $this->_name = array_key_exists('name', $options) ? $options['name'] : '';
+    	$this->_name = array_key_exists('name', $options) ? $options['name'] : '';
         $this->_label = array_key_exists('label', $options) ? $options['label'] : $this->_name;
+        $this->_default = array_key_exists('default', $options) ? $options['default'] : null;
         $this->_lenght = array_key_exists('max_lenght', $options) ? $options['max_lenght'] : 11;
         $this->_auto_increment = array_key_exists('auto_increment', $options) ? $options['auto_increment'] : FALSE;
         $this->_primary_key = array_key_exists('primary_key', $options) ? $options['primary_key'] : FALSE;
@@ -160,9 +209,9 @@ class Field {
      * @brief Getter della proprietà default
      * @return valore di default del campo
      */
-    public function getDefault()
-    {
-        return $this->_default;
+    public function getDefault() {
+        
+    	return $this->_default;
     }
 
     /**
@@ -170,9 +219,9 @@ class Field {
      * @param mixed $default
      * @return void
      */
-    public function setDefault($default)
-    {
-        $this->_default = $default;
+    public function setDefault($default) {
+        
+    	$this->_default = $default;
     }
 
     /**

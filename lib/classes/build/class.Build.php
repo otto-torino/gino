@@ -422,7 +422,7 @@ class Build {
      *   DatetimeBuild		-					clean_date (->clean_text)
      *   DirectoryBuild		-					clean_text
      *   EmailBuild			-					clean_email (->clean_text)
-     *   EnumBuild			-					clean_text
+     *   EnumBuild			-					clean_text | clean_int
      *   FileBuild			-					-- personalizzato
      *   FloatBuild			-					clean_float
      *   ForeignKeyBuild	-					clean_int
@@ -437,7 +437,7 @@ class Build {
      *   TimeBuild			-					clean_time
      *   YearBuild			-					clean_int
      */
-    public function clean($request_value, $options=null) {
+    public function clean($request_value, $options=array()) {
     	
     	return $request_value;
     }

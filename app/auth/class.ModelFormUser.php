@@ -3,7 +3,7 @@
  * @file class.ModelFormUser.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.ModelFormUser
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Sovrascrive la classe Gino.ModelForm
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -74,7 +74,9 @@ class ModelFormUser extends \Gino\ModelForm {
 		$insert = $this->_model->id ? false : true;
 		
 		$check_email = User::checkEmail($this->_model->id);
-		if(is_array($check_email)) return $check_email;
+		if(is_array($check_email)) {
+			return $check_email;
+		}
 		
 		if($insert)
 		{
@@ -107,7 +109,7 @@ class ModelFormUser extends \Gino\ModelForm {
 				else {
 					$opt_element = array();
 				}
-				 
+				
 				if($field == 'instance' && is_null($this->_model->instance))
 				{
 					$this->_model->instance = $controller->getInstance();
@@ -115,18 +117,22 @@ class ModelFormUser extends \Gino\ModelForm {
 				elseif(is_a($object, '\Gino\ManyToManyThroughField'))
 				{
 					$m2mt[] = array(
-							'field' => $field,
-							'object' => $object,
+						'field' => $field,
+						'object' => $object,
 					);
 				}
 				else
 				{
+					$retrieve_value = $object->retrieveValue($field);
+				
 					$build = $this->_model->build($object);
-						
-					$value = $build->clean($opt_element, $this->_model->id);
+					$opt_element['model_id'] = $this->_model->id;
+				
+					$value = $build->clean($retrieve_value, $opt_element);
+				
 					// imposta il valore; @see Gino.Model::__set()
 					$this->_model->{$field} = $value;
-	
+				
 					if($import)
 					{
 						if($field == $field_import)

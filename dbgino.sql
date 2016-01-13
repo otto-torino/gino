@@ -1117,7 +1117,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
 INSERT INTO `sys_menu_voices` (`id`, `instance`, `parent`, `label`, `url`, `type`, `order_list`, `perms`) VALUES
 (1, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
 (2, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, ''),
-(3, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '1,0');
+(3, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '');
 
 -- --------------------------------------------------------
 

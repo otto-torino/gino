@@ -3,7 +3,7 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -33,13 +33,18 @@ namespace Gino;
  * Le tabelle devono essere coerenti con la definizione del modello per cui, ad esempio, i campi obbligatori devono essere 'not null' e gli eventuali valori di default 
  * devono essere indicati anche nel campo della tabella.
  *
- * @copyright 2014-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
  abstract class Model {
 
     protected $_registry, $_request, $_db;
+    
+    /**
+     * Nome della tabella del modello
+     * @var string
+     */
     protected $_tbl_data;
     
     /**
@@ -62,11 +67,20 @@ namespace Gino;
 
     /**
      * Array contenente i valori di un record
-     * @var array(field_name=>field_value)
+     * @var array(field_name => field_value)
      */
     protected $_p = array();
 
+    /**
+     * Contiene le informazioni sui vincoli della tabella del modello
+     * @var array
+     */
     protected $_is_constraint = array();
+    
+    /**
+     * Controllo dei vincoli della tabella del modello
+     * @var boolean
+     */
     protected $_check_is_constraint = true;
 
     protected $_lng_dft, $_lng_nav;
@@ -341,10 +355,9 @@ namespace Gino;
 
     /**
      * @brief Salva il modello su db
-     * @description Salva sia i campi della tabella sia i m2m. I m2mt devono essere salvati manualmente,
+     * @description Salva sia i campi della tabella sia i campi m2m. I campi m2mt devono essere salvati manualmente,
      *              la classe @ref AdminTable lo fa in maniera automatica.
-     *              Quando il salvataggio avviene con successo viene emesso un segnale 'post_save' da parte
-     *              del modello.
+     *              Quando il salvataggio avviene con successo viene emesso un segnale 'post_save' da parte del modello.
      * 
      * @param array $options
      *   array associativo di opzioni
@@ -439,7 +452,17 @@ namespace Gino;
 					}
 					else
 					{
-						$fields[$pName] = $field_obj->valueToDb($pValue);
+						// se il campo è obbligatorio e il valore è nullo viene impostato il valore di default
+						$default = $field_obj->getDefault();
+						$required = $field_obj->getRequired();
+						$value_to_db = $field_obj->valueToDb($pValue);
+						
+						if($required === true && is_null($value_to_db)) {
+							$fields[$pName] = $default;
+						}
+						else {
+							$fields[$pName] = $value_to_db;
+						}
 					}
 				}
 				else $m2m[$pName] = $pValue;

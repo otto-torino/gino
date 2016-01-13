@@ -3,7 +3,7 @@
  * @file class.User.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.User.
  * 
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un utente
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -41,7 +41,7 @@ class User extends \Gino\Model {
         $this->_controller = new auth();
 
         $registry = \Gino\Registry::instance();
-        self::$extension_media = \Gino\enabledPng() ? array('jpg') : array('png', 'jpg');
+        self::$extension_media = \Gino\enabledPng() ? array('png', 'jpg') : array('jpg');
         
         self::$lng_nav = $this->_lng_nav;
         self::$lng_dft = $this->_lng_dft;
@@ -101,18 +101,15 @@ class User extends \Gino\Model {
      	$columns['company'] = new \Gino\CharField(array(
      		'name' => 'company',
      		'label' => _("Società"),
-     		'required' => false,
      		'max_lenght' => 100,
      	));
      	$columns['phone'] = new \Gino\CharField(array(
      		'name' => 'phone',
      		'label' => _("Telefono"),
-     		'required' => false,
      		'max_lenght' => 30,
      	));
      	$columns['fax'] = new \Gino\CharField(array(
      		'name' => 'fax',
-     		'required' => false,
      		'max_lenght' => 30,
      	));
      	$columns['email'] = new \Gino\EmailField(array(
@@ -143,18 +140,16 @@ class User extends \Gino\Model {
      	$columns['address'] = new \Gino\CharField(array(
      		'name' => 'address',
      		'label' => _("Indirizzo"),
-     		'required' => false,
      		'max_lenght' => 200,
      	));
      	$columns['cap'] = new \Gino\IntegerField(array(
-     		'name'=>'cap',
+     		'name' => 'cap',
      		'label' => _("CAP"),
-     		'required'=>false
+     		'max_lenght' => 5,
      	));
      	$columns['city'] = new \Gino\CharField(array(
-     		'name'=>'city',
+     		'name' => 'city',
      		'label' => _("Città"),
-     		'required'=>false,
      		'max_lenght' => 50,
      	));
      	
@@ -175,27 +170,25 @@ class User extends \Gino\Model {
      	$columns['text'] = new \Gino\TextField(array(
      		'name' => 'text',
      		'label' => _("Informazioni"),
-     		'required' => false
      	));
-     	
      	$columns['photo'] = new \Gino\ImageField(array(
-     		'name'=>'photo',
-     		'label'=>_("Foto"),
-     		'required'=>false,
-     		'extensions'=>self::$extension_media,
-     		'path'=>null,
-     		'add_path'=>null,
-     		'max_lenght'=>50,
+     		'name' => 'photo',
+     		'label' => _("Foto"),
+     		'required' => false,
+     		'extensions' => self::$extension_media,
+     		'path' => null,
+     		'add_path' => null,
+     		'max_lenght' => 50,
      	));
      	$columns['publication'] = new \Gino\BooleanField(array(
-     		'name'=>'publication',
-     		'label'=>_('Pubblicazione dati'),
-     		'required'=>false,
-     		'default'=>0,
+     		'name' => 'publication',
+     		'label' => _('Pubblicazione dati'),
+     		'required' => true,
+     		'default' => 0,
      	));
      	$columns['date'] = new \Gino\DatetimeField(array(
-     		'name'=>'date',
-     		'required'=>true
+     		'name' => 'date',
+     		'required' => true
      	));
      	$columns['active'] = new \Gino\BooleanField(array(
      		'name' => 'active',
@@ -339,7 +332,7 @@ class User extends \Gino\Model {
         }
         else
         {
-            $registry = \Gino\registry::instance();
+            $registry = \Gino\Registry::instance();
             $crypt_method = $registry->sysconf->password_crypt;
 
             $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $password;
@@ -466,19 +459,22 @@ class User extends \Gino\Model {
     public static function checkEmail($id=null){
 
         $request = \Gino\Http\Request::instance();
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $email = \Gino\cleanVar($request->POST, 'email', 'string', '');
         $check_email = \Gino\cleanVar($request->POST, 'check_email', 'string', '');
 
-        if($email && !\Gino\checkEmail($email, true))
-            return array('error'=>7);
+        if($email && !\Gino\checkEmail($email, true)) {
+        	return array('error'=>7);
+        }
 
-        if($db->columnHasValue(self::$table, 'email', $email, array('except_id'=>$id)))
-            return array('error'=>20);
+        if($db->columnHasValue(self::$table, 'email', $email, array('except_id'=>$id))) {
+        	return array('error'=>20);
+        }
 
-        if($check_email && $email != $check_email)
-            return array('error'=>25);
+        if($check_email && $email != $check_email) {
+        	return array('error'=>25);
+        }
 
         return true;
     }
@@ -500,14 +496,15 @@ class User extends \Gino\Model {
         $request = \Gino\Http\Request::instance();
         $username_as_email = \Gino\gOpt('username_as_email', $options, false);
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $input_name = $username_as_email ? 'email' : 'username';
 
         $username = \Gino\cleanVar($request->POST, $input_name, 'string', '');
 
-        if($db->columnHasValue(self::$table, 'username', $username))
-            return array('error'=>8);
+        if($db->columnHasValue(self::$table, 'username', $username)) {
+        	return array('error'=>8);
+        }
 
         return true;
     }
