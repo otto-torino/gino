@@ -13,8 +13,10 @@
  *              - label: string, voce di menu
  *              - type: string, int|ext tipo link,
  *              - url: string, url
- *
- * @copyright 2005-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * - **admin_voice**: voce di menu che rimanda all'area amministrativa
+ * - **logout_voice**: voce di menu che effettua il logout
+ * 
+ * @copyright 2005-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -23,14 +25,34 @@
 <? //@cond no-doxygen ?>
 <?php
 if(!function_exists('\Gino\App\Menu\printVoice')) {
-  function printVoice($v, $selected, $i) {
-    $active = $selected == $v['id'] ? true : false;
-    if(!count($v['sub'])) return "<li class=\"".($active ? 'active' : '')."\"><a href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "").">".$v['label']."</a></li>\n";
+  function printVoice($v, $selected) {
+    
+  	$active = $selected == $v['id'] ? true : false;
+    $href = $v['url'] ? "href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "") : '';
+    
+    if(!count($v['sub'])) {
+    	return "<li class=\"".($active ? 'active' : '')."\"><a $href>".$v['label']."</a></li>\n";
+    }
     else {
-        $buffer = "<li class=\"dropdown".($active ? ' active' : '')."\" onclick=\"$(this).getParent().getChildren('li.open').each(function(item) { if(item != $(this)) item.removeClass('open'); }.bind(this)); $(this).toggleClass('open');\">";
-        $buffer .= "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"".$v['url']."\"".($v['type'] == 'ext' ? " rel=\"external\"" : "").">".$v['label']." <span class=\"caret\"></span></a>";
+        
+    	$buffer = "
+		<script>
+		var mngOpen = function(e) {
+			$(this).getParent().getChildren('li.open').each(function(item) { if(item != $(this)) item.removeClass('open'); }.bind(this));
+		
+			if(!($(this).hasClass('open') && e.target.getProperty('class') == 'dropdown-toggle') || (e.target.getParent('li') == this)) {
+				$(this).toggleClass('open');
+			}
+		}
+		</script>";
+    	
+    	$buffer .= "<li class=\"dropdown".($active ? ' active' : '')."\" onclick=\"mngOpen.bind(this)(event);\">";
+        $buffer .= "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" $href>".$v['label']." <span class=\"caret\"></span></a>";
+        
         $buffer .= "<ul class=\"dropdown-menu\">\n";
-        foreach($v['sub'] as $sv) $buffer .= printVoice($sv, $selected, null);
+        foreach($v['sub'] as $sv) {
+        	$buffer .= printVoice($sv, $selected);
+        }
         $buffer .= "</ul></li>\n"; 
 
         return $buffer;
@@ -38,15 +60,27 @@ if(!function_exists('\Gino\App\Menu\printVoice')) {
   }
 }
 ?>
-<ul class="menu-admin nav navbar-nav navbar-right">
-    <?php
-    $i = 0;
-    foreach($tree as $v) {
-      echo printVoice($v, $selected, $i);
-      $i++;
+<ul class="menu-main nav navbar-nav navbar-right">
+	<?php
+	$i = 0;
+	foreach($tree as $v) {
+		echo printVoice($v, $selected);
+		$i++;
+	}
+    if($admin_voice) {
+    	echo "<li><a href=\"$admin_voice\">"._("Amministrazione")."</a></li>\n";
+    }
+    if($logout_voice) {
+    	echo "<li><a href=\"$logout_voice\">"._("Logout")."</a></li>\n";
     }
     ?>
-    <!-- <li><a href="#" style="padding: 8px 15px"><img src="img/ico_home.png" alt="home" /></a></li> -->
 </ul>
+<script>
+if($$('ul.menu-main li.active').length) {
+	$$('ul.menu-main li.active').getParents('li').each(function(li) {
+		li.addClass('active');
+	})
+}
+</script>
 <? // @endcond ?>
 
