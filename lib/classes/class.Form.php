@@ -38,7 +38,7 @@ use \Gino\App\Language\language;
  * 
  * Il campo @a instance non viene mostrato nel form, neanche come campo nascosto.
  * 
- * ##Definizione delle proprietà (predefinite) del tag dorm e del submit
+ * ##Definizione delle proprietà (predefinite) del tag form e del submit
  * Nella costruzione del form vengono impostati i seguenti parametri di default:
  * - @b form_id, valore generato
  * - @b method, post
@@ -185,8 +185,8 @@ class Form {
     }
     
     /**
-     * @brief Permessi di modifica dei campo
-     * @todo Implementare il metodo che restituisce TRUE se l'utente ha il permesso di agire sul campo, FALSE altrimenti.
+     * @brief Permessi di modifica del campo
+     * 
      * @param array $options array associativo di opzioni
      * @param string $fname nome del campo
      * @return TRUE
@@ -196,7 +196,7 @@ class Form {
     }
     
     /**
-     * @brief Setta la proprietà $_hidden (campi hidden del form)
+     * @brief Imposta la proprietà $_hidden (campi hidden del form)
      * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente
      * @return void
      */
