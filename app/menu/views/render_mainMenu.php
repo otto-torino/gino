@@ -13,6 +13,8 @@
  *              - label: string, voce di menu
  *              - type: string, int|ext tipo link,
  *              - url: string, url
+ * - **admin_voice**: voce di menu che rimanda all'area amministrativa
+ * - **logout_voice**: voce di menu che effettua il logout
  *
  * @copyright 2005-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
@@ -59,19 +61,25 @@ if(!function_exists('\Gino\App\Menu\printVoice')) {
 }
 ?>
 <ul class="menu-main nav navbar-nav navbar-right">
-    <?php
-    $i = 0;
-    foreach($tree as $v) {
-      echo printVoice($v, $selected, $i);
-      $i++;
+	<?php
+	$i = 0;
+	foreach($tree as $v) {
+		echo printVoice($v, $selected);
+		$i++;
+	}
+    if($admin_voice) {
+    	echo "<li><a href=\"$admin_voice\">"._("Amministrazione")."</a></li>\n";
+    }
+    if($logout_voice) {
+    	echo "<li><a href=\"$logout_voice\">"._("Logout")."</a></li>\n";
     }
     ?>
 </ul>
 <script>
-    if($$('ul.menu-main li.active').length) {
-        $$('ul.menu-main li.active').getParents('li').each(function(li) {
-            li.addClass('active');
-        })
-    }
+if($$('ul.menu-main li.active').length) {
+	$$('ul.menu-main li.active').getParents('li').each(function(li) {
+		li.addClass('active');
+	})
+}
 </script>
 <? // @endcond ?>

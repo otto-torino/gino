@@ -72,38 +72,38 @@ class Permission extends \Gino\Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
     	));
     	$columns['class'] = new \Gino\CharField(array(
-    			'name'=>'class',
-    			'label' => _('Nome della classe'),
-    			'required'=>true,
-    			'max_lenght'=>128,
+    		'name' => 'class',
+    		'label' => _('Nome della classe'),
+    		'required' => true,
+    		'max_lenght' => 128,
     	));
     	$columns['code'] = new \Gino\CharField(array(
-    			'name'=>'code',
-    			'label' => _('Codice del permesso'),
-    			'required'=>true,
-    			'max_lenght'=>128,
+    		'name' => 'code',
+    		'label' => _('Codice del permesso'),
+    		'required' => true,
+    		'max_lenght' => 128,
     	));
     	$columns['label'] = new \Gino\CharField(array(
-    			'name'=>'label',
-    			'label' => _("Label"),
-    			'required'=>true,
-    			'max_lenght'=>128,
+    		'name'=>'label',
+    		'label' => _("Label"),
+    		'required' => true,
+    		'max_lenght' => 128,
     	));
     	$columns['description'] = new \Gino\TextField(array(
-    			'name'=>'description',
-    			'label' => _("Descrizione"),
-    			'required'=>false
+    		'name' => 'description',
+    		'label' => _("Descrizione"),
+    		'required' => false
     	));
     	$columns['admin'] = new \Gino\BooleanField(array(
-    			'name'=>'admin',
-    			'label' => _('Richiede accesso area amministrativa'),
-    			'required'=>true,
-    			'default'=>0,
+    		'name' => 'admin',
+    		'label' => _('Richiede accesso area amministrativa'),
+    		'required' => true,
+    		'default' => 0,
     	));
     
     	return $columns;
@@ -126,7 +126,7 @@ class Permission extends \Gino\Model {
         $class = $matches[1];
         $perm_code = $matches[2];
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
         $rows = $db->select('id', self::$table, "class='$class' AND code='$perm_code'");
         if($rows and count($rows)) {
             return new Permission($rows[0]['id']);
@@ -141,7 +141,7 @@ class Permission extends \Gino\Model {
      */
     private static function getGroupedPermissions() {
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $res = array();
 
@@ -223,7 +223,7 @@ class Permission extends \Gino\Model {
      */
     public static function getList() {
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $items = array();
 

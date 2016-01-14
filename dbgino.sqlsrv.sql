@@ -1264,6 +1264,8 @@ CREATE TABLE sys_menu_opt (
   instance int NOT NULL,
   title nvarchar(200) NOT NULL,
   cache bigint DEFAULT '0',
+  view_admin_voice tinyint NOT NULL DEFAULT '0',
+  view_logout_voice tinyint NOT NULL DEFAULT '0',
   CONSTRAINT PK_sys_menu_opt PRIMARY KEY (id)
 )
 
@@ -1297,9 +1299,7 @@ CREATE TABLE sys_menu_voices (
 SET IDENTITY_INSERT sys_menu_voices ON
 
 INSERT INTO sys_menu_voices (id, instance, parent, label, url, type, order_list, perms) VALUES
-(1, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
-(2, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, ''),
-(3, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '');
+(1, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '');
 
 SET IDENTITY_INSERT sys_menu_voices OFF
 

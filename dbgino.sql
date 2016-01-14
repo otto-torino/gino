@@ -1081,6 +1081,8 @@ CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
   `instance` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
   `cache` bigint(16) DEFAULT '0',
+  `view_admin_voice` tinyint(1) NOT NULL DEFAULT '0',
+  `view_logout_voice` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
@@ -1089,8 +1091,8 @@ CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
 --
 
 INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `cache`) VALUES
-(1, 4, 'Menu principale', 0),
-(2, 5, 'Menu amministrazione', 0);
+(1, 4, 'Menu principale', 0, 0, 1),
+(2, 5, 'Menu amministrazione', 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -1108,16 +1110,14 @@ CREATE TABLE IF NOT EXISTS `sys_menu_voices` (
   `order_list` smallint(3) NOT NULL,
   `perms` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
 -- Dumping data for table `sys_menu_voices`
 --
 
 INSERT INTO `sys_menu_voices` (`id`, `instance`, `parent`, `label`, `url`, `type`, `order_list`, `perms`) VALUES
-(1, 5, 0, 'Amministrazione', 'admin', 'int', 1, '2,0'),
-(2, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, ''),
-(3, 5, 0, 'Logout', 'index.php?action=logout', 'int', 2, '');
+(1, 4, 0, 'Documentazione', 'page/view/documentazione', 'int', 2, '');
 
 -- --------------------------------------------------------
 

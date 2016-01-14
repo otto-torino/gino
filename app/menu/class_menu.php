@@ -3,7 +3,7 @@
  * @file class_menu.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.menu
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ require_once('class.MenuVoice.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei menu
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -40,6 +40,19 @@ class menu extends \Gino\Controller {
     public $_optionsLabels;
     private $_title;
     private $_cache;
+    
+    /**
+     * Visualizzazione della voce di menu che rimanda all'area amministrativa
+     * @var bool
+     */
+    private $_view_admin_voice;
+    
+    /**
+     * Visualizzazione del logout
+     * @var bool
+     */
+    private $_view_logout_voice;
+    
     private $_ico_more;
 
     /**
@@ -54,14 +67,24 @@ class menu extends \Gino\Controller {
         $this->_tbl_opt = "sys_menu_opt";
 
         // Options
-        $this->_title = \Gino\htmlChars($this->setOption('title', true));
-        $this->_cache = $this->setOption('cache', array("value"=>0));
+        $this->_optionsValue = array(
+        	'title' => _("Menu"),
+        	'cache' => 0,
+        	'view_admin_voice' => 0,
+        	'view_logout_voice' => 0
+        );
+        
+        $this->_title = \Gino\htmlChars($this->setOption('title', array('value'=>$this->_optionsValue['title'], 'translation'=>true)));
+        $this->_cache = $this->setOption('cache', array('value'=>$this->_optionsValue['cache']));
+        $this->_view_admin_voice = (bool) $this->setOption('view_admin_voice', array('value'=>$this->_optionsValue['view_admin_voice']));
+        $this->_view_logout_voice = (bool) $this->setOption('view_logout_voice', array('value'=>$this->_optionsValue['view_logout_voice']));
 
-        // the second paramether will be the class instance
         $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
-            "title"=>_("Titolo"),
-            "cache"=>array("label"=>array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")), "required"=>false)
+        	"title" => _("Titolo"),
+        	"cache" => array("label"=>array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")), "required"=>false), 
+        	'view_admin_voice' => _("Visualizzazione della voce di menu che rimanda all'area amministrativa"), 
+        	'view_logout_voice' => _("Visualizzazione del logout"),
         );
 
         $this->_ico_more = " / ";
@@ -152,6 +175,22 @@ class menu extends \Gino\Controller {
         if($cache->start($this->_instance_name, "view".$sel_voice.$session->lng, $this->_cache)) {
 
             $tree = $this->getTree();
+            
+            $request = \Gino\Http\Request::instance();
+            
+            if($this->_view_admin_voice && $request->user->hasPerm('core', 'is_staff')) {
+            	$admin_voice = "index/admin_page";
+            }
+            else {
+            	$admin_voice = null;
+            }
+            if($this->_view_logout_voice && $session->user_id) {
+            	$logout_voice = "index.php?action=logout";
+            }
+            else {
+            	$logout_voice = null;
+            }
+            
             $view = new View($this->_view_dir);
             $view->setViewTpl('render_'.$this->_instance_name);
             $dict = array(
@@ -159,6 +198,8 @@ class menu extends \Gino\Controller {
                 'title' => $this->_title,
                 'selected' => $sel_voice,
                 'tree' => $tree,
+            	'admin_voice' => $admin_voice,
+            	'logout_voice' => $logout_voice
             );
 
             $GINO = $view->render($dict);
@@ -191,9 +232,8 @@ class menu extends \Gino\Controller {
                 );
             }
         }
-
+        
         return $tree;
-
     }
 
     /**
