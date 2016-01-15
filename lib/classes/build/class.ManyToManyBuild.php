@@ -159,7 +159,9 @@ class ManyToManyBuild extends Build {
         
         $this->_name .= "[]";
 
-        if($this->_add_related) {
+        $is_filter = array_key_exists('is_filter', $options) ? $options['is_filter'] : false;
+        
+        if($this->_add_related && !$is_filter) {
             $options['add_related'] = array(
                 'title' => _('inserisci').' '.$m2m->getModelLabel(),
                 'id' => 'add_'.$this->_name,

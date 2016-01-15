@@ -409,7 +409,9 @@ class FileBuild extends Build {
      */
     public function formFilter($options = array()) {
     	
-    	return \Gino\Input::input($this->_name, 'text', $this->_value, $this->_label, array());
+    	$options['widget'] = 'text';
+    	
+    	return parent::formFilter($options);
     }
     
     /**

@@ -8781,6 +8781,7 @@ input[type=button]:hover {
   padding: 10px 20px 20px;
   border: 1px solid #aaa;
   margin-top: 5px;
+  z-index: 100;
 }
 #filter_form_layer h2 {
   margin-top: 0;
