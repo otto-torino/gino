@@ -955,11 +955,10 @@ if(!isset($_SESSION[''user_id''])) {
     $buffer .= "<script>var login_toggle = new Fx.Reveal(''topbar-login'');</script>";
 }
 else {
-    $admin_link = false;
-    
-    $buffer .= "<a href=\"admin.php\">"._("Amministrazione")."</a>";
-    $admin_link = true;
-    
+    $request = \Gino\Http\Request::instance();
+    if($request->user->hasPerm(''core'', ''is_staff'')) {
+    	$buffer .= "<a href=\\"admin\\">"._("Amministrazione")."</a>";
+    }
     $query = "SELECT CONCAT(firstname, '' '', lastname) AS name FROM user_app WHERE user_id=''".$_SESSION[''user_id'']."''";
     $a = $this->_db->execCustomQuery($query);
     $username = $a>0 ? $a[0][''name'']:null;
