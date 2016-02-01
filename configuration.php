@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -39,13 +39,15 @@ define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@o
 
 /**
  * Utilizzo della libreria PDO
- * @see db::instance()
+ * @see Db::instance()
+ * @var boolean
  */
-define("USE_PDO", false);
+define("USE_PDO", true);
 
 /**
  * Tipo di database
- * @see db::instance()
+ * @see Db::instance()
+ * @var string (mysql, sqlsrv)
  */
 define("DBMS", 'mysql');
 

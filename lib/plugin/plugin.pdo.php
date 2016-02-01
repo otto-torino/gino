@@ -3,7 +3,7 @@
  * @file plugin.pdo.php
  * @brief Contiene la classe pdo
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -575,7 +575,7 @@ class pdo implements \Gino\DbManager {
 	 */
 	public function closeConnection() {
 		if($this->_connection) {
-			$this->_pdo = null;
+			unset($this->_pdo);
 		}
 	}
 	

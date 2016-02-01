@@ -3,7 +3,7 @@
  * @file class.Db.php
  * @brief Contiene l'interfaccia Gino.DbManager e le classi Gino.Db e Gino.SqlParse
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,7 +15,7 @@ namespace Gino;
  *
  * Definisce i metodi che le librerie di connessione al database devono implementare.
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -403,7 +403,7 @@ interface DbManager {
  * 
  * Le librerie di connessione al database sono sottoclassi di questa (che funziona come "scheletro") e vengono instanziate nel metodo instance()
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -435,7 +435,7 @@ abstract class Db extends singleton {
                 $lib_class = USE_PDO ? 'pdo' : DBMS;
                 $lib_file = PLUGIN_DIR.OS."plugin.".$lib_class.".php";
                 
-                $lib_driver = $lib_class."_".DBMS;
+                $lib_driver = USE_PDO ? $lib_class."_".DBMS : DBMS;
                 $lib_driver_file = PLUGIN_DIR.OS."plugin.".$lib_driver.".php";
 
                 if(file_exists($lib_file))
@@ -449,7 +449,7 @@ abstract class Db extends singleton {
                     }
                     else
                     {
-                    	$lib_class = '\Gino\Plugin\\'.$lib_class;
+                    	$lib_class = '\Gino\Plugin\\'.$lib_driver;
                     }
 
                     self::$_instances[$class] = new $lib_class(

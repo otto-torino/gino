@@ -671,7 +671,7 @@ function htmlCharsText($string)
  */
 function htmlInput($string)
 {
-    if(is_null($string)) {
+	if(is_null($string) or empty($string)) {
     	return null;
     }
 

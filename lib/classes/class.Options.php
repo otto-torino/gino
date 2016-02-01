@@ -3,7 +3,7 @@
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,8 +14,12 @@ use Gino\Http\Request;
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
  *
- * Le opzioni che possono essere associate a ciascun campo sono:
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
  * 
+ * ##Utilizzo
+ * Le opzioni che possono essere associate a ciascun campo sono: \n
  *   - @b label (string): nome della label
  *   - @b value (mixed): valore di default
  *   - @b required (boolean): campo obbligatorio
@@ -23,10 +27,16 @@ use Gino\Http\Request;
  *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
- *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * 
+ * ##Informazioni sui campi
+ * Le informazioni sui campi della tabella vengono recuperate dal metodo Gino.Db::fieldInformations(), e vengono caricate nei seguenti parametri: \n
+ *   - @b name (string): nome del campo
+ *   - @b type (string): tipo di campo; valori validi
+ *     - @a char
+ *     - @a text
+ *     - @a int
+ *     - @a date
+ *   - @b length (integer): numero massimo di caratteri
  */
 class Options {
 
@@ -98,13 +108,8 @@ class Options {
 
     /**
      * @brief Interfaccia per la gestione delle opzioni di una istanza/modulo (Form)
-     *
-     * Come informazioni sui campi sono necessarie: \n
-     *   - @b name (string): nome del campo
-     *   - @b type (string): tipo di campo
-     *   - @b length (integer): numero massimo di caratteri
+     * 
      * @see Gino.Db::fieldInformations()
-     *
      * @return interfaccia
      */
     public function manageDoc(){
@@ -190,7 +195,7 @@ class Options {
         if($required) {
         	$required = substr($required, 0, strlen($required)-1);
         }
-        $GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", '', $required, array('form_id'=>'gform'));
+        $GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", false, $required, array('form_id'=>'gform'));
         $GINO .= \Gino\Input::hidden('func', 'actionOptions');
         $GINO .= \Gino\Input::hidden('action', $action);
 
@@ -257,6 +262,8 @@ class Options {
 
     /**
      * @brief Processa il form di opzioni
+     * 
+     * @see Gino.Db::fieldInformations()
      * @return Gino.Gttp.Redirect
      */
     public function actionOptions() {

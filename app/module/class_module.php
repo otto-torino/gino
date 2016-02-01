@@ -3,7 +3,7 @@
  * @file class_module.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.module
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,7 +25,7 @@ require_once('class.ModuleInstance.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -433,7 +433,7 @@ class module extends \Gino\Controller {
     private function actionEditModule(\Gino\Http\Request $request) {
 
         $gform = \Gino\Loader::load('Form', array('gform', 'post', true));
-        $gform->save('dataform');
+        $gform->saveSession('dataform');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int');
         $module = new ModuleInstance($id);
