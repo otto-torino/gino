@@ -975,7 +975,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
   `rexp` varchar(200) DEFAULT NULL,
   `urls` varchar(200) DEFAULT NULL,
   `template` varchar(200) NOT NULL,
-  `css` int(11) NOT NULL,
+  `css` int(11) DEFAULT NULL,
   `priority` int(11) NOT NULL,
   `auth` enum('yes','no','') NOT NULL,
   `cache` bigint(16) NOT NULL DEFAULT '0',

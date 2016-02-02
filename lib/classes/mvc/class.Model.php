@@ -431,7 +431,10 @@ namespace Gino;
 				}
 			}
 			
-			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'");
+			$result = $this->_db->update($fields, $this->_tbl_data, "id='{$this->_p['id']}'", DEBUG_ACTION_QUERY);
+			if(DEBUG_ACTION_QUERY) {
+				exit();
+			}
 		}
 		else
 		{
@@ -452,7 +455,7 @@ namespace Gino;
 					}
 					else
 					{
-						// se il campo è obbligatorio e il valore è nullo viene impostato il valore di default
+						// viene impostato il valore di default se il campo è obbligatorio e il valore è nullo
 						$default = $field_obj->getDefault();
 						$required = $field_obj->getRequired();
 						$value_to_db = $field_obj->valueToDb($pValue);
@@ -468,9 +471,12 @@ namespace Gino;
 				else $m2m[$pName] = $pValue;
 			}
             
-			$result = $this->_db->insert($fields, $this->_tbl_data);
+			$result = $this->_db->insert($fields, $this->_tbl_data, DEBUG_ACTION_QUERY);
+			if(DEBUG_ACTION_QUERY) {
+				exit();
+			}
 		}
-
+		
         if(!$result) {
             throw new \Exception(_("Salvataggio non riuscito"));
         }

@@ -21,6 +21,15 @@
 define("DEBUG", TRUE);
 
 /**
+ * #brief Opzione debug delle query di inserimento e modifica
+ * @description Quando il debug è attivo vengono stampate a video le query di inserimento e modifica del modello.
+ * Le query vengono eseguite e lo script terminato.
+ *
+ * @var boolean
+ */
+define('DEBUG_ACTION_QUERY', FALSE);
+
+/**
  * @brief Opzione statistiche
  * @description Quando il debug è attivo mostra una barra a scomparsa con le statistiche di esecuzione dello 
  *              script e delle query.

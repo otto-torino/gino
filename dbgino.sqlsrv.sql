@@ -1156,7 +1156,7 @@ CREATE TABLE sys_layout_skin (
   rexp nvarchar(200) NULL,
   urls nvarchar(200) NULL,
   template nvarchar(200) NOT NULL,
-  css int NOT NULL,
+  css int NULL,
   priority int NOT NULL,
   auth nvarchar(5) NOT NULL 
   	CONSTRAINT CK_sys_layout_skin_auth CHECK (auth IN('yes','no','')),

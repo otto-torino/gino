@@ -3,7 +3,7 @@
  * @file plugin.pdo.php
  * @brief Contiene la classe pdo
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -320,7 +320,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Esegue la query e ne calcola i tempi di esecuzione
+	 * @brief Esegue la query e ne calcola i tempi di esecuzione
 	 *
 	 * @param string $query query da eseguire
 	 * @param array $options array associativo di opzioni
@@ -331,7 +331,17 @@ class pdo implements \Gino\DbManager {
 	 *     - @a true, prima prepara e poi esegue la query
 	 *     - @a false (default), esegue la query
 	 *   - @b values (array): elenco dei valori da sostituire alle variabili parametrizzate
-	 * @return PDOStatement object
+	 * @return PDOStatement object or boolean
+	 * 
+	 * Synthesis of returns whereas parameterized queries return a boolean value: \n
+	 * - select query -> return PDOStatement object or FALSE
+	 * - insert/update/delete query -> return boolean
+	 * 
+	 * PDO methods and their returns: \n
+	 * - PDO::query(): returns a PDOStatement object, or FALSE on failure
+	 * - PDO::exec(): execute an SQL statement and return the number of affected rows
+	 * - PDO::prepare(): prepares a statement for execution and returns a statement object
+	 * - PDOStatement::execute(): executes a prepared statement, and returns TRUE on success or FALSE on failure
 	 */
 	protected function queryResults($query, $options=array()) {
 	
@@ -369,9 +379,9 @@ class pdo implements \Gino\DbManager {
 			if($statement == 'select')
 			{
 				$res = $this->_pdo->query($query);
-				
-				if(!$res)
+				if(!$res) {
 					throw new \Exception(_("Errore nella query").' '.$query);
+				}
 				
 				$rows = $this->checkRowsFromSelect($res);
 				$this->setNumberRows($rows);
@@ -399,11 +409,19 @@ class pdo implements \Gino\DbManager {
 			}
 		}
 		
-		return $res;
+		if(is_a($res, '\PDOStatement')) {
+			return $res;
+		}
+		elseif(is_int($res) or $res === 0 or $res === true) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	/**
- 	 * Imposta la modalità di recupero dei risultati della query
+ 	 * @brief Imposta la modalità di recupero dei risultati della query
  	 * 
  	 * @param object $results oggetto PDOStatement
  	 * @param array $options
@@ -830,7 +848,7 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Imposta la condizione where e i valori per le query con variabili parametrizzate
+	 * @brief Imposta la condizione where e i valori per le query con variabili parametrizzate
 	 * 
 	 * @param mixed $where
 	 *   - @a string, condizione where non parametrizzata
@@ -894,10 +912,12 @@ class pdo implements \Gino\DbManager {
 		else
 		{
 			$this->_result = $this->queryResults($query, array('statement'=>'action'));
-			if($this->_result)
+			if($this->_result) {
 				return true;
-			else
+			}
+			else {
 				return false;
+			}
 		}
 	}
 	
@@ -1021,12 +1041,16 @@ class pdo implements \Gino\DbManager {
 			if($debug) echo $query;
 			
 			$this->_result = $this->queryResults($query, array('statement'=>'action', 'parameters'=>$parameters, 'values'=>$a_values));
-			if($this->_result)
+			if($this->_result) {
 				return true;
-			else
+			}
+			else {
 				return false;
+			}
 		}
-		else return false;
+		else {
+			return false;
+		}
 	}
 	
 	/**
@@ -1086,12 +1110,16 @@ class pdo implements \Gino\DbManager {
 			$parameters = $placeholder ? true : false;
 			
 			$this->_result = $this->queryResults($query, array('statement'=>'action', 'parameters'=>$parameters, 'values'=>$a_values));
-			if($this->_result)
+			if($this->_result) {
 				return true;
-			else
+			}
+			else {
 				return false;
+			}
 		}
-		else return false;
+		else {
+			return false;
+		}
 	}
 	
 	/**
@@ -1115,10 +1143,12 @@ class pdo implements \Gino\DbManager {
 		if($debug) echo $query;
 		
 		$this->_result = $this->queryResults($query, array('statement'=>'action', 'parameters'=>$parameters, 'values'=>$where_values));
-		if($this->_result)
+		if($this->_result) {
 			return true;
-		else
+		}
+		else {
 			return false;
+		}
 	}
 
 	/**
@@ -1131,10 +1161,12 @@ class pdo implements \Gino\DbManager {
 		$query = "DROP TABLE $table";
 		
 		$this->_result = $this->queryResults($query, array('statement'=>'action'));
-		if($this->_result)
+		if($this->_result) {
 			return true;
-		else
+		}
+		else {
 			return false;
+		}
 	}
 
 	/**
@@ -1210,10 +1242,12 @@ class pdo implements \Gino\DbManager {
 		
 		$query = $this->SQLForDump($table, $path_to_file, $delimiter, $enclosed, $where);
 		$this->_result = $this->queryResults($query, array('statement'=>'action'));
-		if($this->_result)
+		if($this->_result) {
 			return $path_to_file;
-		else
+		}
+		else {
 			return null;
+		}
 	}
 	
 	/**
