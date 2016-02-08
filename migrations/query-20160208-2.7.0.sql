@@ -16,6 +16,7 @@
 -- Data query
 
 -- Structure query
+ALTER TABLE `sys_layout_skin` CHANGE `css` `css` INT(11) NULL;
 
 -- --------------------------------------------------------
 -- SQLServer
@@ -24,3 +25,4 @@
 -- Data query
 
 -- Structure query
+ALTER TABLE sys_layout_skin ALTER COLUMN css INT NULL;
