@@ -3,7 +3,7 @@
  * @file class.Form.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Form
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use \Gino\App\Language\language;
  *
  * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -127,7 +127,7 @@ class Form {
     	$this->setValidation(true);
     	
     	if($verify_token) {
-    		if(!$this->verifyFormToken($formId)) {
+    		if(!$this->verifyFormToken($form_id)) {
     			throw new \Exception(_("Rilevato attacco CSRF o submit del form dall'esterno "));
     		}
     	}

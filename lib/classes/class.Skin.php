@@ -3,7 +3,7 @@
  * @file class.Skin.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Skin
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\Http\Redirect;
  * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
  * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
  * @see Gino.App.Layout
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -48,9 +48,10 @@ class Skin extends Model {
     public static function columns() {
     	
     	$columns['id'] = new \Gino\IntegerField(array(
-    		'name'=>'id',
-    		'primary_key'=>true,
-    		'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
+    		'max_lenght' => 11
     	));
     	$columns['label'] = new \Gino\CharField(array(
     		'name' => 'label',
@@ -59,17 +60,14 @@ class Skin extends Model {
     	));
     	$columns['session'] = new \Gino\CharField(array(
     		'name' => 'session',
-    		'required' => false,
     		'max_lenght' => 128
     	));
     	$columns['rexp'] = new \Gino\CharField(array(
     		'name' => 'rexp',
-    		'required' => false,
     		'max_lenght' => 200
     	));
     	$columns['urls'] = new \Gino\CharField(array(
     		'name' => 'urls',
-    		'required' => false,
     		'max_lenght' => 200
     	));
     	$columns['template'] = new \Gino\CharField(array(
@@ -79,16 +77,17 @@ class Skin extends Model {
     	));
     	$columns['css'] = new \Gino\IntegerField(array(
     		'name' => 'css',
-    		'required' => true,
+    		'max_lenght' => 11,
     	));
     	$columns['priority'] = new \Gino\IntegerField(array(
     		'name' => 'priority',
     		'required' => true,
+    		'max_lenght' => 11
     	));
     	$columns['auth'] = new \Gino\EnumField(array(
     		'name' => 'auth',
     		'required' => true,
-    		'enum' => array('yes', 'no')
+    		'choice' => array('yes', 'no', '')
     	));
     	$columns['cache'] = new \Gino\IntegerField(array(
     		'name' => 'cache',
@@ -321,9 +320,12 @@ class Skin extends Model {
         $this->auth = cleanVar($request->POST, 'auth', 'string', null);
         $this->cache = cleanVar($request->POST, 'cache', 'int', null);
 
-        if(!$this->id) $this->priority = skin::newSkinPriority();
+        if(!$this->id) {
+        	$this->priority = skin::newSkinPriority();
+        }
+        
         $this->save();
-
+        
         return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'skin')));
     }
 

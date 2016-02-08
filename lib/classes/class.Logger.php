@@ -3,7 +3,7 @@
  * @file class.Logger.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Logger
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,12 +13,12 @@ namespace Gino;
 /**
  * @brief Classe per la notifica di log di sistema
  *
- * @description Gestisce un logger per errori e warning. Se la costante DEBUG definita in @ref configuration.php è settata a TRUE stampa a video errori e warnings.
+ * @description Gestisce un logger per errori e warning. Se la costante DEBUG definita in @ref configuration.php è settata a TRUE stampa a video errori e warning.
  *              Se DEBUG è impostata a FALSE invia una mail agli amministratori di sistema definiti dalla costante ADMIN in @ref configuration.php.
- *              Gestisce il comportamento a seguito del throw di una exception. La risposta si differenzia a seconda del valore
- *              della costante DEBUG.
+ *              L' email non viene inviata soltanto nel caso in cui l'errore sia di tipo 404.
+ *              Gestisce il comportamento a seguito del throw di una exception. La risposta si differenzia a seconda del valore della costante DEBUG.
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -35,7 +35,9 @@ class Logger {
 
         if(DEBUG) return FALSE;
         $admins = unserialize(ADMINS);
-        if(!is_array($admins) or !count($admins)) return FALSE;
+        if(!is_array($admins) or !count($admins)) {
+        	return FALSE;
+        }
 
         $registry = registry::instance();
 
@@ -49,7 +51,6 @@ class Logger {
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
         return mail(implode(',', $admins), $subject, $object, $headers);
-
     }
 
     /**
@@ -63,7 +64,9 @@ class Logger {
         if(DEBUG) return FALSE;
 
         $admins = unserialize(ADMINS);
-        if(!is_array($admins) or !count($admins)) return FALSE;
+        if(!is_array($admins) or !count($admins)) {
+        	return FALSE;
+        }
 
         $registry = registry::instance();
 
@@ -74,7 +77,6 @@ class Logger {
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
         return mail(implode(',', $admins), $subject, $object, $headers);
-
     }
 
     /**
@@ -91,17 +93,21 @@ class Logger {
      *
      * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS definiti
      *              nel file @ref configuration.php e ritorna una Gino.Http.Response definita dalla classe Exception oppure 
-     *              una Gino.Http.ResponseServerError
+     *              una Gino.Http.ResponseServerError. L' email non viene inviata soltanto nel caso in cui l'errore sia di tipo 404.
      * @param \Exception $exception oggetto Exception
      * return void
      */
     public static function manageException($exception) {
-        if(DEBUG) {
-            echo self::stackTraceHtml($exception);
-            exit;
+        
+    	if(DEBUG) {
+        	echo self::stackTraceHtml($exception);
+        	exit;
         }
         else {
-            self::exceptionReportAdmins($exception);
+        	if(!preg_match("#Exception404#", get_class($exception))) {
+        		self::exceptionReportAdmins($exception);
+        	}
+            
             if(method_exists($exception, 'httpResponse')) {
                 $response = $exception->httpResponse();
             }

@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,6 +19,15 @@
  * @var boolean
  */
 define("DEBUG", TRUE);
+
+/**
+ * #brief Opzione debug delle query di inserimento e modifica
+ * @description Quando il debug è attivo vengono stampate a video le query di inserimento e modifica del modello.
+ * Le query vengono eseguite e lo script terminato.
+ *
+ * @var boolean
+ */
+define('DEBUG_ACTION_QUERY', FALSE);
 
 /**
  * @brief Opzione statistiche
@@ -39,13 +48,15 @@ define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@o
 
 /**
  * Utilizzo della libreria PDO
- * @see db::instance()
+ * @see Db::instance()
+ * @var boolean
  */
-define("USE_PDO", false);
+define("USE_PDO", true);
 
 /**
  * Tipo di database
- * @see db::instance()
+ * @see Db::instance()
+ * @var string (mysql, sqlsrv)
  */
 define("DBMS", 'mysql');
 

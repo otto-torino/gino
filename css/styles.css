@@ -8315,6 +8315,7 @@ div.abiWinOverlay {
   overflow: hidden;
   border-top: 1px solid #000;
   border-left: 1px solid #000;
+  z-index: 1000;
 }
 .debug h1 {
   background: #ff9900;
@@ -8781,6 +8782,7 @@ input[type=button]:hover {
   padding: 10px 20px 20px;
   border: 1px solid #aaa;
   margin-top: 5px;
+  z-index: 100;
 }
 #filter_form_layer h2 {
   margin-top: 0;

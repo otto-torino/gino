@@ -292,8 +292,6 @@ class menu extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin', 'can_edit'));
 
-        $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
-
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
