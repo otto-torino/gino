@@ -527,7 +527,7 @@ class User extends \Gino\Model {
         $registry = \Gino\Registry::instance();
         $crypt_method = $registry->sysconf->password_crypt;
 
-        $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $pwd;
+        $password = $crypt_method ? \Gino\cryptMethod($password, $crypt_method) : $password;
 
         $rows = $db->select('id, ldap', self::$table, "username='$username' AND userpwd='$password' AND active='1'");
         if($rows and count($rows) == 1) {

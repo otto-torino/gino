@@ -3,7 +3,7 @@
  * @file class.Conf.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Sysconf.Conf
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,7 +15,7 @@ namespace Gino\App\Sysconf;
  *
  * Le impostazioni sono salvate in una riga di tabella corrispondente ad ID 1
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -145,6 +145,7 @@ class Conf extends \Gino\Model {
 			'label' => array(_('metodo di criptazione delle password'), _('se si modifica l\'impostazione è necessario risalvare tutte le password utenti per aggiornarle secondo la nuova impostazione.')),
             'required'=>true,
 			'choice'=>array('none' => _('nessuno'), 'sha1' => _('sha1'), 'md5' => _('md5')),
+			'value_type'=>'string', 
 			'default'=>'md5',
 		));
 		$columns['enable_cache'] = new \Gino\BooleanField(array(

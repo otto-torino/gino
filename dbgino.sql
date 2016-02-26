@@ -859,7 +859,7 @@ CREATE TABLE IF NOT EXISTS `sys_conf` (
   `email_admin` varchar(128) NOT NULL,
   `email_from_app` varchar(100) DEFAULT NULL,
   `mobile` tinyint(1) NOT NULL DEFAULT '0',
-  `password_crypt` enum('none','sha1','md5') DEFAULT 'md5',
+  `password_crypt` enum('none','sha1','md5') NOT NULL DEFAULT 'md5',
   `enable_cache` tinyint(1) NOT NULL, 
   `query_cache` tinyint(1) NOT NULL DEFAULT '0', 
   `query_cache_time` smallint(4) DEFAULT NULL,
