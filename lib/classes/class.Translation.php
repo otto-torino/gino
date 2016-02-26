@@ -3,7 +3,7 @@
  * @file class.Translation.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Translation
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,7 +16,7 @@ namespace Gino;
  * La lingua di navigazione è quella ricavata dallo user agent del client, oppure impostata in sessione a seguito di scelta dell'utente.
  * La lingua di default è quella impostata come tale da interfaccia.
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -165,11 +165,8 @@ class Translation {
         if($rows and count($rows))
         {
             foreach($rows AS $row) {
-                if($type == 'input' || $type == 'textarea') {
+                if($type == 'input' || $type == 'textarea' || $type == 'editor') {
                 	$text = htmlInput($row['text']);
-                }
-                elseif($type == 'editor') {
-                	$text = htmlInputEditor($row['text']);
                 }
             }
             $action = 'modify';
@@ -223,7 +220,7 @@ class Translation {
             $text = cleanVar($request->POST, 'text', 'string', '');
         }
         elseif($type == 'editor') {
-            $text = cleanVarEditor($request->POST, 'text', '');
+            $text = clean_html($request->POST['text']);
         }
         $lng_code = cleanVar($request->POST, 'lng_code', 'string', '');
         $tbl = cleanVar($request->POST, 'tbl', 'string', '');
