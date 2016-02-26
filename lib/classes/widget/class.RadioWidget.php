@@ -3,7 +3,7 @@
  * @file class.RadioWidget.php
  * @brief Contiene la definizione ed implementazione della classe Gino.RadioWidget
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,12 +12,24 @@ namespace Gino;
 /**
  * @brief Campi di tipo radio button nei form
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class RadioWidget extends Widget {
 
+	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+	
+		if(is_bool($value)) {
+			return (int) $value;
+		} else {
+			return parent::inputValue($value, $options);
+		}
+	}
+	
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 */
