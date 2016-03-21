@@ -1090,7 +1090,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu_opt` (
 -- Dumping data for table `sys_menu_opt`
 --
 
-INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `cache`) VALUES
+INSERT INTO `sys_menu_opt` (`id`, `instance`, `title`, `cache`, `view_admin_voice`, `view_logout_voice`) VALUES
 (1, 4, 'Menu principale', 0, 0, 1),
 (2, 5, 'Menu amministrazione', 0, 1, 1);
 

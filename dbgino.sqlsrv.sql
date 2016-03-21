@@ -1270,9 +1270,9 @@ CREATE TABLE sys_menu_opt (
 
 SET IDENTITY_INSERT sys_menu_opt ON
 
-INSERT INTO sys_menu_opt (id, instance, title, cache) VALUES
-(1, 4, 'Menu principale', 0),
-(2, 5, 'Menu amministrazione', 0);
+INSERT INTO sys_menu_opt (id, instance, title, cache, view_admin_voice, view_logout_voice) VALUES
+(1, 4, 'Menu principale', 0, 0, 1),
+(2, 5, 'Menu amministrazione', 0, 1, 1);
 
 SET IDENTITY_INSERT sys_menu_opt OFF
 
