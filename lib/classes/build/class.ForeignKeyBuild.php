@@ -107,13 +107,23 @@ class ForeignKeyBuild extends Build {
     public function printValue() {
     	 
     	if(is_object($this->_value)) {
-    		return new $this->_foreign((int) $this->_value->id);
+    		if($this->_foreign_controller) {
+    			return new $this->_foreign((int) $this->_value->id, $this->_foreign_controller);
+    		}
+    		else {
+    			return new $this->_foreign((int) $this->_value->id);
+    		}
     	}
     	elseif(is_null($this->_value)) {
     		return null;
     	}
     	else {
-    		return new $this->_foreign((int) $this->_value);
+    		if($this->_foreign_controller) {
+    			return new $this->_foreign((int) $this->_value, $this->_foreign_controller);
+    		}
+    		else {
+    			return new $this->_foreign((int) $this->_value);
+    		}
     	}
     }
     
