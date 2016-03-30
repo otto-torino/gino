@@ -3,7 +3,7 @@
  * @file class.UnitWidget.php
  * @brief Contiene la definizione ed implementazione della classe Gino.UnitWidget
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,12 +12,20 @@ namespace Gino;
 /**
  * @brief Insieme di campi di un modello
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class UnitWidget extends Widget {
 
+	/**
+	 * @see Gino.Widget::inputValue()
+	 */
+	public function inputValue($value, $options=array()) {
+	
+		return $value;
+	}
+	
 	/**
 	 * @see Gino.Widget::printInputForm()
 	 * 
