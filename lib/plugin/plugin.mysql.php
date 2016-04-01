@@ -3,7 +3,7 @@
  * @file plugin.mysql.php
  * @brief Contiene la classe mysql
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database MySQL
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -262,7 +262,7 @@ class mysql implements \Gino\DbManager {
 			$this->setconnection(TRUE);
 			
 			@mysql_select_db($this->_db_name, $this->_dbconn) OR die("ERROR DB: ".mysql_error());
-			if($this->_db_charset=='utf-8') $this->setUtf8();
+			if($this->_db_charset=='utf8') $this->setUtf8();
 			
 			return true;
 		} else {
