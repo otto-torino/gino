@@ -93,15 +93,16 @@ define("DB_SCHEMA", "");
 
 /**
  * Codifica del database
+ * @see \Gino\Plugin\pdo::getCharset()
  */
-define("DB_CHARSET", 'utf-8');
+define("DB_CHARSET", 'utf8');
 
 // Query cache
 
 /**
  * Tipologia di cache delle query
  * 
- * @see plugin_phpfastcache::cacheType()
+ * @see \Gino\Plugin\plugin_phpfastcache::cacheType()
  * @var string
  */
 define("QUERY_CACHE_TYPE", 'auto');
