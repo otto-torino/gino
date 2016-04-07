@@ -3,7 +3,7 @@
  * @file class.ModelForm.php
  * @brief Contiene la definizione ed implementazione della classe Gino.ModelForm
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ namespace Gino;
  *
  * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -311,8 +311,9 @@ class ModelForm extends Form {
     				{
     					$m2m_build = $m2m_model->build($object);
     					$m2m_build->setName('m2mt_'.$m2m_name.'_'.$object_names[$field].'_'.$index);
-    
-    					$value = $m2m_build->clean($m2m_build->getName(), $opt_element);
+    					
+    					$m2m_retrieve_value = $object->retrieveValue($m2m_build->getName());
+    					$value = $m2m_build->clean($m2m_retrieve_value, $opt_element);
     					$m2m_model->{$field} = $value;
     
     					if(isset($import) and $import)

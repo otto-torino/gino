@@ -699,7 +699,7 @@ namespace Gino;
     }
 
     /**
-     * @brief Elimina lòe associazioni di un campo m2mt
+     * @brief Elimina le associazioni di un campo m2mt
      * 
      * @param string $field_name nome campo
      * @return risultato dell'operazione, bool
@@ -708,15 +708,26 @@ namespace Gino;
         
     	$field_obj = $this->_structure[$field_name];
         
-    	if(!is_a($field_obj, '\Gino\ManyToManyThroughField'))
+    	if(!is_a($field_obj, '\Gino\ManyToManyThroughField')) {
     		throw new \Exception(_("Il tipo di campo non è corretto"));
+    	}
     	
-    	$build = $this->buid($field_obj);
-        
+    	$build = $this->build($field_obj);
         $class = $build->getM2m();
         
-        $m2m_obj = new $class($build->getValue(), $this->getController());
-        return $m2m_obj->delete();
+        $ids = $build->getValue();
+        if(count($ids))
+        {
+        	foreach($ids AS $id)
+        	{
+        		$m2m_obj = new $class($id, $this->getController());
+        		$res = $m2m_obj->delete();
+        		if(is_array($res)) {
+        			return $res;
+        		}
+        	}
+        }
+        return true;
     }
 
     /**
