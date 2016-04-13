@@ -378,7 +378,7 @@ class Form {
 
         $required = isset($this->_requestVar['required']) ? cleanVar($this->_requestVar, 'required', 'string', '') : '';
         $error = 0;
-
+        
         if(!empty($required)) {
         	foreach(explode(",", $required) as $fieldname) {
             	if((!isset($this->_requestVar[$fieldname]) or $this->_requestVar[$fieldname] == '') and (!isset($this->_request->FILES[$fieldname]) or $this->_request->FILES[$fieldname] == '')) $error++;
@@ -572,6 +572,7 @@ class Form {
      *   - @b options_form (array): opzioni del form e del layout
      *     - @b allow_insertion (boolean)
      *     - @b edit_deny (array)
+     *     - @b edit_allow (array)
      *     - @b form_id (mixed): valore id del tag form
      *     - @b session_value (string)
      *     - @b method (string): metodo del form (get/post/request); default post
@@ -594,6 +595,7 @@ class Form {
     	// 1. opzioni del form
     	$allow_insertion = gOpt('allow_insertion', $options_form, true);
     	$edit_deny = gOpt('edit_deny', $options_form, array());
+    	$edit_allow = gOpt('edit_allow', $options_form, array());
     	
     	$this->_form_id = gOpt('form_id', $options_form, null);
     	$this->_session_value = gOpt('session_value', $options_form, null);
@@ -631,7 +633,10 @@ class Form {
     		{
     			// edit
     			if($model_obj->id) {
-    				if($edit_deny == 'all' || in_array($model_obj->id, $edit_deny)) {
+    				// deny conditions
+    				if((is_array($edit_allow) && count($edit_allow) && !in_array($model_obj->id, $edit_allow)) || 
+    					($edit_deny == 'all' && ((is_array($edit_allow) && !count($edit_allow)) || !is_array($edit_allow))) || 
+    					(is_array($edit_deny) && in_array($model_obj->id, $edit_deny))) {
     					throw new \Gino\Exception\Exception403();
     				}
     				$title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
