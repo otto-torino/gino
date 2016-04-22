@@ -3,7 +3,7 @@
  * @file class.ManyToManyThroughBuild.php
  * @brief Contiene la definizione ed implementation della classe Gino.ManyToManyThroughBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ Loader::import('class/build', '\Gino\Build');
 /**
  * @brief Gestisce i campi di tipo many to many con associazione attraverso un modello che porta informazioni aggiuntive
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,9 +23,8 @@ class ManyToManyThroughBuild extends Build {
     /**
      * Proprietà dei campi specifiche del tipo di campo
      */
-    protected $_m2m, $_m2m_controller, $_controller;
+    protected $_controller, $_m2m, $_m2m_controller, $_remove_fields;
     
-    protected $_remove_fields;
     protected $_model_table_id;
 
     /**
@@ -33,8 +32,7 @@ class ManyToManyThroughBuild extends Build {
      *
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Build()
-     *   - opzioni definite come proprietà specifiche del modello
-     *     - @b remove_fields (array)
+     *   - opzioni definite come proprietà specifiche del tipo di campo
      * @return void
      * 
      * Ridefinisce il valore della proprietò $_value come array dei valori id dei record associati.
@@ -46,8 +44,8 @@ class ManyToManyThroughBuild extends Build {
         $this->_m2m = $options['m2m'];
         $this->_m2m_controller = $options['m2m_controller'];
         $this->_controller = $options['controller'];
-
-        $this->_remove_fields = array_key_exists('remove_fields', $options) ? $options['remove_fields'] : array();
+        $this->_remove_fields = $options['remove_fields'];
+        
         $this->_model_table_id = strtolower(get_name_class($this->_model)).'_id';
         
         $this->setValue($this->getValues());
@@ -147,7 +145,7 @@ class ManyToManyThroughBuild extends Build {
     	$widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
     	
     	if($widget != 'unit') {
-    		return parent::formElement($options);
+    		return parent::formElement($mform, $options);
     	}
     	
     	$m2m_model = $this->_m2m_controller ? new $this->_m2m(null, $this->_m2m_controller) : new $this->_m2m(null);

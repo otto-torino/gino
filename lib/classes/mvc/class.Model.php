@@ -226,7 +226,7 @@ namespace Gino;
     }
 
     /**
-     * @brief Ritorna l'oggetto ManyToMany through model
+     * @brief Ritorna l'oggetto ManyToMany Through Model
      * 
      * @param string $m2mt_field nome del campo m2mt
      * @param int $id id del record
@@ -313,7 +313,7 @@ namespace Gino;
         $limit = isset($options['limit']) ? $options['limit'] : null;
 
         $res = array();
-        $db = db::instance();
+        $db = Db::instance();
         $rows = $db->select('id', static::$table, $where, array('order'=>$order, 'limit'=>$limit, 'debug' => false));
         if($rows and count($rows)) {
             foreach($rows as $row) {
@@ -332,7 +332,7 @@ namespace Gino;
      */
     public static function getFromSlug($slug, $controller = null)
     {
-        $db = db::instance();
+        $db = Db::instance();
         $rows = $db->select('id', static::$table, "slug='".$slug."'");
         if($rows and count($rows)) {
             if($controller) {
@@ -764,20 +764,60 @@ namespace Gino;
     }
     
     /**
+     * Verifica se il tipo di campo di un modello è un oggetto file
+     *
+     * @param object $field oggetto del tipo di campo
+     * @return boolean
+     */
+    public function checkFile($field_obj) {
+    	 
+    	if(is_a($field_obj, '\Gino\FileField')
+    	or is_a($field_obj, '\Gino\ImageField')) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    
+    /**
      * Recupera l'oggetto del tipo di campo di un modello
      * 
      * @param string $field_name nome del campo
      * @return object or null
      */
-    /*private function getFieldObject($field_name) {
+    private function getFieldObject($field_name) {
     	
 		$class = get_class($this);
 		
-		if(array_key_exists($field_name, $class::$columns))
+		if(array_key_exists($field_name, $class::$columns)) {
 			return $class::$columns[$field_name];
-		else
+		}
+		else {
 			return null;
-    }*/
+		}
+    }
+	
+	/**
+	 * Verifica se il modello di un campo ManyToManyThroughField ha dei campi di tipo File
+	 * 
+	 * @param string $name nome del campo ManyToManyThroughField
+	 * @param integer $id valore id del modello che contiene il campo ManyToManyThroughField
+	 * @return boolean
+	 */
+	public function checkM2mtFileField($name, $id) {
+	
+		$m2mt_model = $this->m2mtObject($name, $id);
+		$columns = $m2mt_model::$columns;
+	
+		foreach ($columns AS $field_name => $field_obj) {
+			
+			if($this->checkFile($field_obj)) {
+				return true;
+			}
+		}
+		return false;
+	}
     
     /**
      * Struttura dei campi della tabella di un modello

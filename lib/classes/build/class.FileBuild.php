@@ -266,11 +266,11 @@ class FileBuild extends Build {
         if(!$upload) { 
             return array('error'=>16);
         }
-
+        
         if($this->_filesize_field) {
             $this->_model->{$this->_filesize_field} = $_FILES[$this->_name]['size'];
         };
-
+        
         return TRUE;
     }
 
@@ -507,6 +507,7 @@ class FileBuild extends Build {
     		$finfo = finfo_open(FILEINFO_MIME_TYPE);
     		$mime = finfo_file($finfo, $filename_tmp);
     		finfo_close($finfo);
+    		
     		if(!\Gino\extension($filename, $this->_extensions) ||
     		preg_match('#%00#', $filename) ||
     		($this->_check_type && !in_array($mime, $this->_types_allowed))) {

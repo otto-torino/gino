@@ -3,7 +3,7 @@
  * @file class.ManyToManyThroughField.php
  * @brief Contiene la definizione ed implementation della classe Gino.ManyToManyThroughField
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ Loader::import('class/fields', '\Gino\Field');
 /**
  * @brief Campo di tipo many to many con associazione attraverso un modello che porta informazioni aggiuntive
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -25,7 +25,7 @@ class ManyToManyThroughField extends Field {
 	/**
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
-	protected $_m2m, $_m2m_controller, $_controller;
+	protected $_controller, $_m2m, $_m2m_controller, $_remove_fields;
 	
     /**
      * @brief Costruttore
@@ -36,6 +36,7 @@ class ManyToManyThroughField extends Field {
      *     - @b controller (object): controller del modello cui appartiene il campo
      *     - @b m2m (string): classe attraverso la quale si esprime la relazione molti a molti (nome completo di namespace)
      *     - @b m2m_controller (object): oggetto controller da passare evenualmente al costruttore della classe m2m
+     *     - @b remove_fields (array): elenco dei campi da non mostrare nella porzione di form gestita con widget unit
      * @return void
      */
     function __construct($options) {
@@ -46,6 +47,7 @@ class ManyToManyThroughField extends Field {
         $this->_controller = $options['controller'];
         $this->_m2m = $options['m2m'];
         $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
+        $this->_remove_fields = array_key_exists('remove_fields', $options) ? $options['remove_fields'] : array();
     }
     
     /**
@@ -58,8 +60,18 @@ class ManyToManyThroughField extends Field {
     	$prop['controller'] = $this->_controller;
     	$prop['m2m'] = $this->_m2m;
     	$prop['m2m_controller'] = $this->_m2m_controller;
+    	$prop['remove_fields'] = $this->_remove_fields;
     
     	return $prop;
+    }
+    
+    /**
+     * @brief Getter della proprietà remove_fields
+     * @return array
+     */
+    public function getRemoveFields() {
+    	
+    	return $this->_remove_fields;
     }
     
     /**

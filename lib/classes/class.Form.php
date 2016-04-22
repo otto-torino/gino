@@ -761,16 +761,25 @@ class Form {
     			// Input form
     			$structure[$field] = $build->formElement($this, $options_input);
     			
-    			if($build instanceof FileBuild || $build instanceof ImageBuild) {
+    			// Form settings 
+    			if($build instanceof ManyToManyThroughBuild) {
+    				$m2mtf_file = $model->checkM2mtFileField($field, $model->id);
+    			}
+    			else {
+    				$m2mtf_file = false;
+    			}
+    			
+    			if($build instanceof FileBuild || $build instanceof ImageBuild || $m2mtf_file) {
     				$form_upload = true;
     			}
     
     			if($build->getRequired() == true && $build->getViewInput() == true & $build->getWidget() != 'hidden') {
     				$form_required[] = $field;
     			}
+    			// /Form settings
     		}
     	}
-    
+    	
     	if(sizeof($form_required) > 0) {
     		$form_required = implode(',', $form_required);
     	}
