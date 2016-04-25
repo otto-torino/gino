@@ -3,7 +3,7 @@
  * @file class.PageEntry.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\GTag;
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -175,15 +175,46 @@ class PageEntry extends \Gino\Model {
         	'label'=>array(_("Privata"), _("pagina visualizzabile da utenti con il relativo permesso")),
         	'required'=>true,
         ));
+        /*
+        $ids = \Gino\App\Auth\User::getUsersWithDefinedPermissions(array('can_view_private'), $controller);
+        if(count($ids)) {
+        	$where_mf = "active='1' AND id IN (".implode(',', $ids).")";
+        }
+        else {
+        	$where_mf = "id=NULL";
+        }*/
+        
         $columns['users'] = new \Gino\MulticheckField(array(
-			'name' => 'users', 
-        	'label' => array(_("Utenti che possono visualizzare la pagina"), _("sovrascrive l'impostazione precedente")),
-        	'required' => false,
+        	'name' => 'users',
+        	'label' => _("Utenti che possono visualizzare la pagina quando è privata"),
         	'max_lenght' => 255,
-			'refmodel' => '\Gino\App\Auth\User', 
-			'refmodel_where' => "active='1'", 
-			'refmodel_order' => "lastname ASC, firstname", 
-		));
+        	'refmodel' => '\Gino\App\Auth\User',
+        	'refmodel_where' => "active='1'",
+        	'refmodel_order' => "lastname ASC, firstname",
+        ));
+        $columns['view_last_edit_date'] = new \Gino\BooleanField(array(
+        	'name' => 'view_last_edit_date',
+        	'label' => _("Visualizzare la data di aggiornamento della pagina"),
+        	'required' => true,
+        	'default' => 0
+        ));
+        
+        $ids = \Gino\App\Auth\User::getUsersWithDefinedPermissions(array('can_edit_single_page'), $controller);
+        if(count($ids)) {
+        	$where_mf = "active='1' AND id IN (".implode(',', $ids).")";
+        }
+        else {
+        	$where_mf = "id=NULL";
+        }
+        
+        $columns['users_edit'] = new \Gino\MulticheckField(array(
+        	'name' => 'users_edit',
+        	'label' => array(_("Utenti che possono editare la pagina"), _("elenco degli utenti associati al permesso di redazione dei contenuti di singole pagine")),
+        	'max_lenght' => 255,
+        	'refmodel' => '\Gino\App\Auth\User',
+        	'refmodel_where' => $where_mf,
+        	'refmodel_order' => "lastname ASC, firstname",
+        ));
         $columns['read'] = new \Gino\IntegerField(array(
         	'name'=>'read',
         	'label'=>_('Visualizzazioni'),
@@ -215,7 +246,7 @@ class PageEntry extends \Gino\Model {
 
         $res = null;
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         if(preg_match('#^[0-9]+$#', $slug))
         {
@@ -230,6 +261,30 @@ class PageEntry extends \Gino\Model {
         }
 
         return $res;
+    }
+    
+    /**
+     * Elenco delle pagine che possono essere modificate da un utente
+     * 
+     * @see permission can_edit_single_page
+     * @param integer $user_id
+     * @return array(pages id)
+     */
+    public static function getEditEntry($user_id) {
+    	
+    	$db = \Gino\Db::instance();
+    	
+    	$items = array();
+    	
+    	$rows = $db->select('id', self::$table, "users_edit REGEXP '[[:<:]]".$user_id."[[:>:]]'");
+    	if(count($rows))
+    	{
+    		foreach ($rows AS $row)
+    		{
+    			$items[] = $row['id'];
+    		}
+    	}
+    	return $items;
     }
 
     /**

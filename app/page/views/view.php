@@ -10,6 +10,7 @@
  * - **tpl**: template del post deciso da opzioni
  * - **enable_comments**: abilitazione commenti
  * - **form_comment**: form inserimento commento
+ * - **last_edit_date**: data di aggiornamento dei contenuti
  *
  * @copyright 2012-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
@@ -19,6 +20,9 @@
 <? namespace Gino\App\Page; ?>
 <? //@cond no-doxygen ?>
 <section id="<?= $section_id ?>">
+	<? if($last_edit_date): ?>
+    	<p style="text-align: right; margin-top: 10px; font-size: 14px;"><?= _("ultimo aggiornamento") ?>: <?= $last_edit_date ?></p>
+    <? endif ?>
     <?= $tpl ?>
     <? if($enable_comments): ?>
         <h2><?= _('Commenti') ?></h2>

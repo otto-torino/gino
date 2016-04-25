@@ -140,15 +140,16 @@ INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VAL
 (9, 'page', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (10, 'page', 'can_publish', 'pubblicazione', 'Pubblicazione di pagine e commenti e redazione contenuti', 1),
 (11, 'page', 'can_edit', 'redazione', 'redazione dei contenuti', 1),
-(12, 'page', 'can_view_private', 'visualizzazione pagine private', 'visualizzazione di pagine che sono state salvate come private', 0),
-(13, 'phpModuleView', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(14, 'searchSite', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(15, 'sysConf', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(16, 'graphics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(17, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(18, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(19, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
-(20, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1);
+(12, 'page', 'can_edit_single_page', 'redazione singole pagine', 'redazione dei contenuti di singole pagine', 1),
+(13, 'page', 'can_view_private', 'visualizzazione pagine private', 'visualizzazione di pagine che sono state salvate come private', 0),
+(14, 'phpModuleView', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(15, 'searchSite', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(16, 'sysConf', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(17, 'graphics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(18, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(19, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(20, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
+(21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1);
 
 SET IDENTITY_INSERT auth_permission OFF
 
@@ -707,6 +708,8 @@ CREATE TABLE page_entry (
   social tinyint NOT NULL,
   private tinyint NOT NULL,
   users nvarchar(255) NULL,
+  view_last_edit_date tinyint NOT NULL DEFAULT '0',
+  users_edit nvarchar(255) NULL,
   [read] int NOT NULL DEFAULT '0',
   tpl_code text,
   box_tpl_code text,
@@ -715,15 +718,15 @@ CREATE TABLE page_entry (
 
 SET IDENTITY_INSERT page_entry ON
 
-INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, [read], tpl_code, box_tpl_code) VALUES
-(1, NULL, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(2, NULL, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>, tuttavia non è limitato a questi programmi potendo essere utilizzato anche con altri server web, quali ad esempio nginx e IIS, e con SQL Server, in attesa che vengano implementati altri connettori.</p><p><img alt="LAMP logos" class="img-responsive" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(3, NULL, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
-(4, NULL, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+INSERT INTO page_entry (id, category_id, author, creation_date, last_edit_date, title, slug, image, url_image, text, tags, enable_comments, published, social, private, users, view_last_edit_date, users_edit, [read], tpl_code, box_tpl_code) VALUES
+(1, NULL, 1, '2011-10-20 12:02:48', '2011-10-20 12:02:48', 'Che cos''è gino CMS', 'gino-CMS', NULL, NULL, '<p>gino CMS è uno dei framework open source sviluppati internamente da Otto, utilizzato al fine di offrire vari servizi ai nostri clienti.</p><p>È un <b>CMS</b>, acronimo di <i>Content Management System</i>, cioè un sistema di gestione dei contenuti web, creato appositamente per facilitarne l''organizzazione e la pubblicazione.</p>', '', 0, 1, 0, 0, '', 0, NULL, 0, NULL, NULL),
+(2, NULL, 1, '2011-10-26 17:34:44', '2013-01-09 12:36:54', 'Tecnologia', 'tecnologia', NULL, NULL, '<p>gino nasce ed è ottimizzato per il server model <b>LAMP</b>, tuttavia non è limitato a questi programmi potendo essere utilizzato anche con altri server web, quali ad esempio nginx e IIS, e con SQL Server, in attesa che vengano implementati altri connettori.</p><p><img alt="LAMP logos" class="img-responsive" src="contents/attachment/gino/lamp.jpg" /></p>', '', 0, 1, 0, 0, '', 0, NULL, 0, NULL, NULL),
+(3, NULL, 1, '2011-10-28 15:17:39', '2013-01-09 12:42:41', 'Licenza', 'licenza', NULL, NULL, '<p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Alla <a href="http://www.otto.to.it" rel="external">Otto</a> usiamo e produciamo software <a href="http://www.opensource.org/docs/osd" rel="external">open source</a>.</p><p>In particolare, gino CMS viene distribuito con licenza <a href="http://www.opensource.org/licenses/MIT" rel="external">MIT</a> (MIT).</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, 0, NULL, NULL),
+(4, NULL, 1, '2011-11-01 09:59:14', '2013-01-09 12:45:31', 'Documentazione', 'documentazione', NULL, NULL, '<p>La documentazione e le reference di tutti i file sono ospitate su <b>github</b> sotto forma di <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> che copre essenzialmente gli aspetti di sviluppo di gino.</p><p></p><p class="null"><img alt="github logo" src="contents/attachment/gino/github.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Per una documentazione più ampia, comprendente tutorial e how-to, potete fare riferimento alla pagina dedicata sul <a href="http://gino.otto.to.it" rel="external">sito ufficiale di gino</a>.</p><p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, 0, NULL, NULL),
 (5, NULL, 1, '2011-11-08 14:05:57', '2013-12-06 16:35:16', 'Estendere gino', 'estendere-gino', NULL, NULL, '<p>
 <img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="margin-left: 10px; margin-right: 10px; float: left;" />Le funzionalità di gino possono essere ampliate utilizzando i moduli aggiuntivi disponibili. gino incorpora un meccanismo per il caricamento semplificato e l''aggiornamento di questi moduli.</p>
 <p>Per un elenco dei moduli fate riferimento alla pagina sul <a href="http://gino.otto.to.it/" rel="external" title="Il link apre una nuova finestra">sito ufficiale di gino</a>.</p>
-<p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, NULL),
+<p class="null"></p>', '', 0, 1, 0, 0, '', 0, NULL, 0, NULL, NULL),
 (6, NULL, 1, '2015-05-11 15:05:21', '2015-05-12 12:40:08', 'Privacy - Cookie', 'privacy-cookie', NULL, NULL, '<p>Con riferimento all''art. 122 secondo comma del D.lgs. 196/2003 e a seguito delle modalità semplificate per l''informativa e l''acquisizione del consenso per l''uso dei cookie pubblicata sulla Gazzetta Ufficiale n.126 del 3 giugno 2014 e relativo registro dei provvedimenti n.229 dell''8 maggio 2014, si dichiara che:</p>
 
 <p>1 - Il sito web <b>NOMESITO</b> (più avanti "Sito") utilizza i cookie per offrire i propri servizi agli Utenti durante la consultazione delle sue pagine. Titolare del trattamento dei dati è <b>NOMEAZIENDA</b> (informazioni di contatto in fondo ad ogni pagina).</p>
@@ -836,7 +839,7 @@ Riportiamo qui di seguito le procedure per accedere a queste impostazioni per i 
 
 <p><a href="https://support.apple.com/kb/PH19214?locale=en_US" rel="external">Safari 8</a></p>
 
-<p><a href="https://support.apple.com/en-us/HT201265" rel="external">Safari mobile</a></p>', NULL, 0, 1, 0, 0, NULL, 0, NULL, NULL);
+<p><a href="https://support.apple.com/en-us/HT201265" rel="external">Safari mobile</a></p>', NULL, 0, 1, 0, 0, NULL, 0, NULL, 0, NULL, NULL);
 
 SET IDENTITY_INSERT page_entry OFF
 

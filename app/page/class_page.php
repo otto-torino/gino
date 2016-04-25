@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -37,6 +37,7 @@ require_once('class.PageComment.php');
  * ##PERMESSI
  * - visualizzazione pagine private (@a can_view_private)
  * - redazione (@a can_edit)
+ * - redazione singole pagine (@a can_edit_single_page)
  * - pubblicazione (@a can_publish)
  * - amministrazione modulo (@a can_admin)
  * 
@@ -84,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -427,12 +428,14 @@ class page extends \Gino\Controller {
         if($p_users)
         {
             $users = explode(',', $p_users);
-            if(!in_array($this->_registry->user->id, $users))
-                return FALSE;
+            if(!in_array($this->_registry->user->id, $users)) {
+            	return FALSE;
+            }
         }
 
-        if($p_private && !$this->userHasPerm('can_view_private'))
-            return FALSE;
+        if($p_private && !$this->userHasPerm('can_view_private')) {
+        	return FALSE;
+        }
 
         return TRUE;
     }
@@ -581,6 +584,12 @@ class page extends \Gino\Controller {
 
         preg_match_all("#{{[^}]+}}#", $tpl_item, $matches);
         $tpl = $this->parseTemplate($item, $tpl_item, $matches);
+        
+        if($item->view_last_edit_date) {
+        	$last_edit_date = date('d/m/Y', strtotime($item->last_edit_date));
+        } else {
+        	$last_edit_date = null;
+        }
 
         $comments = array();
         $form_comment = '';
@@ -616,6 +625,7 @@ class page extends \Gino\Controller {
         $view->assign('section_id', 'view_'.$this->_instance_name);
         $view->assign('page', $item);
         $view->assign('tpl', $tpl);
+        $view->assign('last_edit_date', $last_edit_date);
         $view->assign('enable_comments', $item->enable_comments);
         $view->assign('form_comment', $form_comment);
         $view->assign('comments', $comments);
@@ -893,7 +903,7 @@ class page extends \Gino\Controller {
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
         $action = \Gino\cleanVar($request->GET, 'action', 'string', '');
 
-        $this->requirePerm(array('can_admin', 'can_publish', 'can_edit'));
+        $this->requirePerm(array('can_admin', 'can_publish', 'can_edit', 'can_edit_single_page'));
 
         $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
         $link_locale = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=locale'), _('Traduzioni'));
@@ -963,9 +973,21 @@ class page extends \Gino\Controller {
 
         $this->_registry->addJs($this->_class_www.'/page.js');
 
+        $allow_insertion = true;
+        $delete_deny = null;
+        $edit_deny = null;
+        $edit_allow = null;
+        
         if(!$this->userHasPerm(array('can_admin', 'can_publish'))) {
             $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
-            $remove_fields = array('author', 'published', 'social', 'private', 'users', 'read');
+            $remove_fields = array('author', 'published', 'social', 'private', 'users', 'users_edit', 'read');
+            
+            if($this->userHasPerm(array('can_edit_single_page'))) {
+            	$allow_insertion = false;
+            	$delete_deny = 'all';
+            	$edit_deny = 'all';
+            	$edit_allow = PageEntry::getEditEntry($request->user->id);
+            }
         }
         else {
             $list_display = array('id', 'category_id', 'last_edit_date', 'title', 'tags', 'private', 'published', array('member'=>'getUrl', 'label'=>_('Url'))); 
@@ -978,7 +1000,12 @@ class page extends \Gino\Controller {
         $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 
-        $admin_table = new \Gino\AdminTable($this, array());
+        $admin_table = new \Gino\AdminTable($this, array(
+        		'allow_insertion'=>$allow_insertion, 
+        		'delete_deny'=>$delete_deny,
+        		'edit_deny'=>$edit_deny, 
+        		'edit_allow'=>$edit_allow
+        ));
         
         $backend = $admin_table->backOffice(
             'PageEntry',
@@ -1011,7 +1038,7 @@ class page extends \Gino\Controller {
                     'size'=>40,
                     'trnsl'=>false
                 ),
-                'tpl_code'=>array(
+            	'tpl_code'=>array(
                     'cols'=>40,
                     'rows'=>10, 
                 	'typeoftext' => 'html'

@@ -206,14 +206,13 @@ class User extends \Gino\Model {
      	$registry = \Gino\Registry::instance();
      	
      	$columns['groups'] = new \Gino\ManyToManyField(array(
-     		'name'=>'groups',
-     		'label'=>_("Gruppi"),
-     		'required'=>false,
-     		'm2m'=>'\Gino\App\Auth\Group',
-     		'm2m_where'=>null,
-     		'm2m_order'=>'name ASC',
-     		'join_table'=>self::$table_groups,
-     		'self'=>'\Gino\App\Auth\User',
+     		'name' => 'groups',
+     		'label' => _("Gruppi"),
+     		'm2m' => '\Gino\App\Auth\Group',
+     		'm2m_where' => null,
+     		'm2m_order' => 'name ASC',
+     		'join_table' => self::$table_groups,
+     		'self' => '\Gino\App\Auth\User',
      		'add_related' => true,
      		'add_related_url' => $registry->router->link('auth', 'manageAuth', array(), "block=group&insert=1")
      	));
@@ -557,31 +556,116 @@ class User extends \Gino\Model {
         }
         return null;
     }
-
+    
     /**
-     * @brief Elenco degli utenti associati a uno o più permessi
+     * Elenco degli utenti che possono accedere ai permessi indicati
      * 
-     * @param string!array $code codice o codici del permesso
+     * @param string|array $code codice/codici dei permessi
      * @param object $controller controller
-     * @return array (valori id)
+     * @param boolean $admins mostra anche gli utenti amministratori (default false)
+     * @return array(users id)
+     * 
+     * Comprende le seguenti tipologie di utenti: \n
+     *   - utenti associati ai permessi attraverso la tabella auth_user_perm
+     *   - utenti associati ai permessi attraverso l'associazione ai gruppi associati a tali permessi (tabella auth_user_group)
+     *   - utenti amministratori
+     */
+    public static function getUsersWithDefinedPermissions($code, $controller, $admins = false) {
+    	
+    	$db = \Gino\Db::instance();
+    	
+    	$admin = array();
+    	if($admins)
+    	{
+    		$res = $db->select("id", self::$table, "active='1' AND is_admin='1'");
+    		if($res && count($res))
+    		{
+    			foreach ($res AS $r) {
+    				$admin[] = $r['id'];
+    			}
+    		}
+    	}
+    	
+    	$users_from_permissions = self::getUsersFromPermissions($code, $controller);
+    	$users_from_groups = self::getUsersFromPermissionsThroughGroups($code, $controller);
+    	
+    	$merge = array_unique(array_merge($admin, $users_from_permissions, $users_from_groups), SORT_REGULAR);
+    	
+    	return $merge;
+    }
+    
+    /**
+     * @brief Elenco degli utenti associati ai permessi specificati attraverso 
+     * la loro eventuale associazione a gruppi con tali permessi (@see table auth_user_group)
+     * 
+     * @param string!array $code codice/codici dei permessi
+     * @param object $controller controller
+     * @return array (users id)
+     */
+    public static function getUsersFromPermissionsThroughGroups($code, $controller) {
+    
+    	$db = \Gino\Db::instance();
+    
+    	$array = array();
+    
+    	$class = get_name_class(get_class($controller));
+    	$instance = $controller->getInstance();
+    	
+    	if(is_string($code)) {
+    		$code = array($code);
+    	}
+    	elseif(!is_array($code)) {
+    		return $array;
+    	}
+    	
+    	if(count($code))
+    	{
+    		foreach ($code AS $value)
+    		{
+    			$res = $db->select(self::$table.".id", array(TBL_USER, TBL_PERMISSION, TBL_GROUP_PERMISSION, TBL_USER_GROUP),
+    				TBL_PERMISSION.".class='$class' AND
+    				".TBL_PERMISSION.".code='$value' AND
+    				".TBL_GROUP_PERMISSION.".perm_id=".TBL_PERMISSION.".id AND
+    				".TBL_GROUP_PERMISSION.".instance='$instance' AND
+    				".TBL_USER_GROUP.".group_id=".TBL_GROUP_PERMISSION.".group_id AND
+    				".TBL_USER.".id=".TBL_USER_GROUP.".user_id");
+    			if($res && count($res))
+    			{
+    				foreach ($res AS $r) {
+    					$array[] = $r['id'];
+    				}
+    			}
+    		}
+    	}
+    
+    	return $array;
+    }
+    
+    /**
+     * @brief Elenco degli utenti associati ai permessi specificati (@see table auth_user_perm)
+     * 
+     * @param string!array $code codice/codici dei permessi
+     * @param object $controller controller
+     * @return array (users id)
      */
     public static function getUsersFromPermissions($code, $controller) {
 
-        $db = \Gino\db::instance();
+        $db = \Gino\Db::instance();
 
         $array = array();
 
-        $class = get_class($controller);
+        $class = get_name_class(get_class($controller));
         $instance = $controller->getInstance();
 
         if(is_array($code) && count($code))
         {
             foreach ($code AS $value)
             {
-                $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+                $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'", array('debug'=>false));
                 if($res && count($res))
                 {
-                    $perm_id = $res[0];
+                    $perm_id = $res[0]['id'];
+                    
                     $records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
                     if($records && count($records))
                     {
@@ -599,7 +683,7 @@ class User extends \Gino\Model {
             $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
             if($res && count($res))
             {
-                $perm_id = $res[0];
+                $perm_id = $res[0]['id'];
                 $records = $db->select('user_id', Permission::$table_perm_user, "instance='$instance' AND perm_id='$perm_id'");
                 if($records && count($records))
                 {
@@ -616,7 +700,7 @@ class User extends \Gino\Model {
     }
 
     /**
-     * @brief Verifica se l'utente ha uno dei permessi della classe
+     * @brief Verifica se l'utente ha uno dei permessi di una determinata classe
      * @param string $class_name nome della classe
      * @param int|array $perms id o array di id dei permessi da verificare
      * @param int $instance istanza della classe (0 per classi non istanziabili)
@@ -661,7 +745,7 @@ class User extends \Gino\Model {
     }
 
     /**
-     * @brief Verifica se l'utente ha uno dei permessi amministrativi della classe
+     * @brief Verifica se l'utente ha uno dei permessi amministrativi di una determinata classe
      * @param string $class_name il nome della classe
      * @param int $instance istanza della classe (0 per classi non istanziabili)
      * @return bool
