@@ -3,7 +3,7 @@
  * @file class.AdminTable.php
  * @brief Contiene la definizione ed implementazione della classe Gino.AdminTable
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,25 +13,28 @@ namespace Gino;
  * @brief Gestisce l'interfaccia di amministrazione di un modello con inserimento, modifica ed eliminazione
  *
  * Fornisce gli strumenti per gestire la parte amministrativa di un modulo, mostrando gli elementi e interagendo con loro (inserimento, modifica, eliminazione). \n
- * Nel metodo backOffice() viene ricercato automaticamente il parametro 'id' come identificatore del record sul quale interagire. Non utilizzare il parametro 'id' per altri riferimenti.
+ * Nel metodo backOffice() viene ricercato automaticamente il parametro 'id' come identificatore del record sul quale interagire. 
+ * Non utilizzare il parametro 'id' per altri riferimenti.
  *
- * Il campo di nome @a instance viene trattato diversamente dagli altri campi: non compare nel form e il valore gli viene passato direttamente dall'istanza. \n
+ * Il campo di nome @a instance viene trattato diversamente dagli altri campi: non compare nel form e 
+ * il valore gli viene passato direttamente dall'istanza. \n
  *
  * ##Filtri/Ordinamento
- * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
- * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali la tipologia è "ordinabile", ovvero il metodo @a Gino.Field::canBeOrdered() ritorna il valore @a true. \n    
+ * Per attivare i filtri di ricerca nella pagina di visualizzazione dei record occorre indicare i campi sui quali 
+ * applicare il filtro nella chiave @a filter_fields (opzioni della vista). \n
+ * Nella tabella di visualizzazione dei record i campi sui quali è possibile ordinare i risultati sono quelli per i quali 
+ * la tipologia è "ordinabile", ovvero il metodo @a Gino.Field::canBeOrdered() ritorna il valore @a true. \n    
  * 
  * ##Gestione dei permessi
- * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni @a allow_insertion, @a edit_deny, @a delete_deny quando si istanzia la classe adminTable(). \n
+ * La gestione delle autorizzazioni a operare sulle funzionalità del modulo avviene impostando opportunamente le opzioni 
+ * @a allow_insertion, @a edit_allow, @a edit_deny, @a delete_deny quando si istanzia la classe AdminTable(). \n
  * Esempio:
  * @code
- * // se gruppo1 $edit_deny = 'all'
- * // se gruppo2 $edit_deny = array(2);
- * // altrimenti $edit_deny = null;
- * $admin_table = new adminTable($this, array('allow_insertion'=>true, 'delete_deny'=>'all'));
+ * $admin_table = new adminTable($this, array('allow_insertion' => true, 'delete_deny' => 'all'));
  * @endcode
  *
- * La gestione fine delle autorizzazioni a operare sui singoli campi della tabella avviene indicando i gruppi autorizzati nell'array delle opzioni della funzionalità utilizzando la chiave @a permission. \n
+ * La gestione fine delle autorizzazioni a operare sui singoli campi della tabella avviene indicando i gruppi autorizzati 
+ * nell'array delle opzioni della funzionalità utilizzando la chiave @a permission. \n
  * Il formato è il seguente:
  * @code
  * $buffer = $admin_table->backOffice('elearningCtg', 
@@ -53,7 +56,7 @@ namespace Gino;
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -70,6 +73,12 @@ class AdminTable {
     protected $_allow_insertion,
               $_edit_deny,
               $_delete_deny;
+    
+    /**
+     * Valori id dei record che posssono essere modificati da un utente
+     * @var array
+     */
+    protected $_edit_allow;
 
     /**
      * Filtri per la ricerca automatica (corrispondono ai nomi dei campi della tabella)
@@ -106,12 +115,13 @@ class AdminTable {
      *         array associativo di opzioni
      *         - @b view_folder (string): percorso della directory contenente la vista da caricare
      *         - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
+     *         - @b edit_allow (array): valori id dei record che posssono essere modificati da un utente
      *         - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
-     *                 - @a string, 'all' -> tutti
-     *                 - @a array, elenco ID
+     *           - @a string, 'all' -> tutti
+     *           - @a array, elenco ID
      *         - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
-     *                 - @a string, 'all' -> tutti
-     *                 - @a array, elenco ID
+     *           - @a string, 'all' -> tutti
+     *           - @a array, elenco ID
      * @return istanza di Gino.AdminTable
      */
     function __construct($controller, $opts = array()) {
@@ -129,6 +139,7 @@ class AdminTable {
         $this->_view = new view($view_folder);
 
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
+        $this->_edit_allow = gOpt('edit_allow', $opts, array());
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
         
@@ -194,6 +205,7 @@ class AdminTable {
         	
         	$options_form['allow_insertion'] = $this->_allow_insertion;
         	$options_form['edit_deny'] = $this->_edit_deny;
+        	$options_form['edit_allow'] = $this->_edit_allow;
         	
         	if($this->_request->method === 'POST') {
         		return $this->action($mform, $options_form, $options_field);
@@ -377,6 +389,9 @@ class AdminTable {
      *     - @b name_export (string): nome del file di esportazione
      *     - @b export (integer): valore che indica la richiesta del file di esportazione (il parametro viene passato dal metodo backOffice)
      * @return lista record paginata e ordinabile
+     * 
+     * ##Descrizione
+     * Impostando nel costruttore l'opzione @edit_allow vengono mostrati soltanto i record con i valori id indicati nell'opzione.
      */
     public function adminList($model, $options_view=array()) {
 
@@ -451,6 +466,10 @@ class AdminTable {
         //prepare query
         $query_selection = $db->distinct($model_table.".id");
         $query_table = array($model_table);
+        
+        if(is_array($this->_edit_allow) && count($this->_edit_allow)) {
+        	$query_where[] = "id IN (".implode(",", $this->_edit_allow).")";
+        }
         if(count($list_where)) {
             $query_where = array_merge($query_where, $list_where);
         }
@@ -600,8 +619,9 @@ class AdminTable {
                     $add_params_delete[$key] = $value;
                 }
             }
-
-            if($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny)) {
+            
+            if(($this->_edit_deny != 'all' && !in_array($r['id'], $this->_edit_deny))
+            		OR (is_array($this->_edit_allow) && in_array($r['id'], $this->_edit_allow))) {
                 $links[] = "<a href=\"".$this->editUrl($add_params_edit)."\">".\Gino\icon('modify', array('scale' => 1))."</a>";
             }
             if($this->_delete_deny != 'all' && !in_array($r['id'], $this->_delete_deny)) {

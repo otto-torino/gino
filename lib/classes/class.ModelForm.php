@@ -259,13 +259,13 @@ class ModelForm extends Form {
      * @param string $m2m_name nome del campo ManytoManyThroughField
      * @param \Gino\ManyToManyThroughField $m2m_object istanza della classe di tipo Gino.Field che rappresenta il campo
      * @param \Gino\Model $model istanza del model cui appartiene il campo
-     * @param $options array associativo di opzioni
+     * @param $options array associativo di opzioni (@see self::save)
      * @return risultato operazione, bool o errori
      */
     private function m2mThroughAction($m2m_name, $m2m_object, $model, $options=array()) {
     
-    	$removeFields = array_key_exists('removeFields', $options) ? $options['removeFields'] : null;
-    
+    	$removeFields = $m2m_object->getRemoveFields();
+    	
     	$controller = $model->getController();
     	$build = $model->build($m2m_object);
     	$m2m_class = $build->getM2m();
@@ -290,7 +290,7 @@ class ModelForm extends Form {
     			if(!isset($object_names[$field])) {
     				$object_names[$field] = $object->getName();
     			}
-    
+    			
     			if($this->permission($options, $field) && (($removeFields && !in_array($field, $removeFields)) || (!$removeFields)))
     			{
     				$opt_element = array('check_del_file_name' => 'm2mt_'.$m2m_name.'_check_del_'.$object_names[$field].'_'.$index);
@@ -315,21 +315,23 @@ class ModelForm extends Form {
     					$m2m_retrieve_value = $object->retrieveValue($m2m_build->getName());
     					$value = $m2m_build->clean($m2m_retrieve_value, $opt_element);
     					$m2m_model->{$field} = $value;
-    
+    					
     					if(isset($import) and $import)
     					{
-    						if($field == $field_import)
+    						if($field == $field_import) {
     							$path_to_file = $object->getPath();
+    						}
     					}
     				}
     			}
     		}
+    		
     		$m2m_model->{$build->getModelTableId()} = $model->id;
     		$m2m_model->save();
     		$check_ids[] = $m2m_model->id;
     	}
     
-    	// eliminazione tutti m2mt che non ci sono più
+    	// eliminazione di tutti gli m2mt che non ci sono più
     	$db = Db::instance();
     	$where = count($check_ids) ? $build->getModelTableId()."='".$model->id."' AND id NOT IN (".implode(',', $check_ids).")" : $build->getModelTableId()."='".$model->id."'";
     	$objs = $m2m_class::objects($build->getController(), array('where' => $where));

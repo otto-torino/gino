@@ -3,7 +3,7 @@
  * @file class.Access.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Access
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -20,7 +20,7 @@ use \Gino\App\Auth\Ldap;
  * 
  * La classe gestisce il processo di autenticazione e l'accesso al sito e alle sue funzionalità
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -106,9 +106,10 @@ class Access {
     }
 
     /**
-     * @brief Imposta le variabili di sessione (user_id, user_name) e logga l'accesso (logAccess())
-     *
+     * @brief Imposta le variabili di sessione (user_id, user_name, user_staff) e logga l'accesso
+     * 
      * @see \Gino\App\Auth\Auth::checkAuthenticationUser()
+     * @see logAccess()
      * @param string $username
      * @param string $password
      * @return risultato autenticazione, bool
@@ -124,6 +125,7 @@ class Access {
 		{
 			$this->_session->user_id = $user->id;
             $this->_session->user_name = \Gino\htmlChars($user->firstname.' '.$user->lastname);
+            $this->_session->user_staff = $user->hasPerm('core', 'is_staff');
             
             $registry = Registry::instance();
 

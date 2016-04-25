@@ -532,7 +532,7 @@ class auth extends \Gino\Controller {
             $js = "
             onblur=\"var self=this; gino.jsonRequest(
                 'post', 
-                '".$this->_registry->router->link($this->_class_name, 'checkPassowrdJson')."',
+                '".$this->_registry->router->link($this->_class_name, 'checkPasswordJson')."',
                 'password=' + $(this).get('value'),
                 function(response) { 
                     if(!response.result) if(!$(self).hasClass('invalid')) $(self).addClass('invalid');
@@ -809,7 +809,7 @@ class auth extends \Gino\Controller {
         $js = "
         onblur=\"var self=this; gino.jsonRequest(
             'post', 
-            '".$this->_registry->router->link($this->_class_name, 'checkPassowrdJson')."',
+            '".$this->_registry->router->link($this->_class_name, 'checkPasswordJson')."',
             'password=' + $(this).get('value'),
             function(response) { 
                 if(!response.result) if(!$(self).hasClass('invalid')) $(self).addClass('invalid');
@@ -1294,7 +1294,7 @@ class auth extends \Gino\Controller {
      * @param \Gino\Http\Request $request
      * @return Gino.Http.ResponseJson
      */
-    public function checkPassowrdJson(\Gino\Http\Request $request) {
+    public function checkPasswordJson(\Gino\Http\Request $request) {
 
         Loader::import('class/http', '\Gino\Http\ResponseJson');
 
