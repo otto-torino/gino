@@ -1818,6 +1818,7 @@ class auth extends \Gino\Controller {
         	array(
         		'form_id' => 'login',
         		'show_save_and_continue' => false,
+        		'view_info' => false,
         		'view_title' => false,
         		'addCell' => array('username'=>array('name'=>'action', 'field'=>\Gino\Input::hidden('action', 'auth'))),
         		's_name' => 'submit_login',

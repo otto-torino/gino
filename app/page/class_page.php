@@ -730,7 +730,7 @@ class page extends \Gino\Controller {
             }
         }
 
-        return Redirect($this->link('page', 'view', array('id' => $entry->slug)).'#comments');
+        return new Redirect($this->link('page', 'view', array('id' => $entry->slug)).'#comments');
     }
 
     /**
