@@ -730,7 +730,7 @@ class page extends \Gino\Controller {
             }
         }
 
-        return Redirect($this->link('page', 'view', array('id' => $entry->slug)).'#comments');
+        return new Redirect($this->link('page', 'view', array('id' => $entry->slug)).'#comments');
     }
 
     /**
@@ -740,7 +740,7 @@ class page extends \Gino\Controller {
      */
     public function relatedContentsList($page_entry)
     {
-        $related_contents = \Gino\GTag::getRelatedContents('PageEntry', $page_entry->id);
+        $related_contents = \Gino\GTag::getRelatedContents($this->getClassName(), 'PageEntry', $page_entry->id);
         if(count($related_contents)) {
             $view = new \Gino\View(null, 'related_contents_list');
             return $view->render(array('related_contents' => $related_contents));
@@ -1039,13 +1039,13 @@ class page extends \Gino\Controller {
                     'trnsl'=>false
                 ),
             	'tpl_code'=>array(
-                    'cols'=>40,
-                    'rows'=>10, 
+                    'cols' => 40,
+                    'rows' => 10, 
                 	'typeoftext' => 'html'
                 ),
                 'box_tpl_code'=>array(
-                    'cols'=>40,
-                    'rows'=>10, 
+                    'cols' => 40,
+                    'rows' => 10, 
                 	'typeoftext' => 'html'
                 )
             )

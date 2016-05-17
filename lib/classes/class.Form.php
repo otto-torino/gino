@@ -314,6 +314,7 @@ class Form {
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form
      *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
+     *   - @b view_info (boolean): visualizzazione delle informazioni (default true)
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
      *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma; require validation true
      *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
@@ -323,6 +324,7 @@ class Form {
 
         $form_id = gOpt('form_id', $options, null);
         $validation = gOpt('validation', $options, null);
+        $view_info = gOpt('view_info', $options, true);
         
         if($form_id) {
         	$this->_form_id = $form_id;
@@ -347,7 +349,7 @@ class Form {
         }
         $buffer .= ">\n";
 
-        if($list_required) {
+        if($list_required && $view_info) {
             $buffer .= "<p class=\"form-info\">"._("I campi in grassetto sono obbligatori.")."</p>";
         }
 
@@ -569,7 +571,7 @@ class Form {
      * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
      * @param array $opt array associativo di opzioni
      *   - @b fields (array): campi da mostrare nel form
-     *   - @b options_form (array): opzioni del form e del layout
+     *   - @b options_form (array): opzioni del form e del layout (vedere anche makeInputForm())
      *     - @b allow_insertion (boolean)
      *     - @b edit_deny (array)
      *     - @b edit_allow (array)
@@ -685,6 +687,7 @@ class Form {
      *   // layout
      *   - @b only_inputs (boolean): mostra soltanto gli input dei campi (default false)
      *   - @b show_save_and_continue (boolean): mostra il submit "save and continue" (default true)
+     *   - @b view_info (boolean): visualizzazione delle informazioni (default true)
      *   // tag form
      *   - @b f_action (string): (default '')
      *   - @b f_upload (boolean): (di default viene impostato automaticamente)
@@ -716,6 +719,7 @@ class Form {
     	// - layout
     	$only_inputs = gOpt('only_inputs', $options, false);
     	$show_save_and_continue = gOpt('show_save_and_continue', $options, true);
+    	$view_info = gOpt('view_info', $options, true);
     	
     	// - tag form ($f_upload e $f_required vengono definite più avanti)
     	$f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
@@ -794,6 +798,7 @@ class Form {
     	if(!$only_inputs) {
     		$buffer .= $this->open($f_action, $f_upload, $f_required,
     			array(
+    				'view_info' => $view_info, 
     				'func_confirm'=>$f_func_confirm,
     				'text_confirm'=>$f_text_confirm,
     				'generateToken'=>$f_generateToken
