@@ -3,7 +3,7 @@
  * @file plugin.mysql.php
  * @brief Contiene la classe mysql
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database MySQL
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -543,6 +543,7 @@ class mysql implements \Gino\DbManager {
 				$d[1] .= ";";
 				$SQL[] = str_replace("\n", "", $d[1]);
 				$table_query = mysql_query("SELECT * FROM `$table`");
+				// Number fields
 				$num_fields = mysql_num_fields($table_query);
 				while ($fetch_row = mysql_fetch_array($table_query)) {
 					$insert_sql .= "INSERT INTO $table VALUES (";

@@ -3,7 +3,7 @@
  * @file plugin.pdo_mysql.php
  * @brief Contiene la classe pdo_mysql
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ namespace Gino\Plugin;
 /**
  * @brief Driver specifico per la connessione a un database MYSQL attraverso la libreria PDO
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -57,7 +57,7 @@ class pdo_mysql extends pdo {
 		
 		return array(
 			\PDO::ATTR_EMULATE_PREPARES => false,
-			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, 
 			// \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'")
 		);
 	}
@@ -216,7 +216,7 @@ class pdo_mysql extends pdo {
 				
 				$table_query = $this->queryResults("SELECT * FROM `$table`");
 				
-				$num_fields = $this->getNumberRows();
+				$num_fields = $this->getNumberCols();
 				while ($fetch_row = $this->fetch($table_query, array('mode'=>'NUM'))) {
 					$insert_sql .= "INSERT INTO $table VALUES (";
 					for ($n=1; $n<=$num_fields; $n++) {

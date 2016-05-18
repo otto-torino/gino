@@ -3,7 +3,7 @@
  * @file plugin.pdo_sqlsrv.php
  * @brief Contiene la classe pdo_sqlsrv
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\SqlParse;
 /**
  * @brief Driver specifico per la connessione a un database SQL Server attraverso la libreria PDO
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -219,7 +219,7 @@ class pdo_sqlsrv extends pdo {
 				
 				$table_query = $this->queryResults("SELECT * FROM $table");
 				
-				$num_fields = $this->getNumberRows();
+				$num_fields = $this->getNumberCols();
 				while ($fetch_row = $this->fetch($table_query, array('mode'=>'NUM'))) {
 					$insert_sql .= "INSERT INTO $table VALUES (";
 					for ($n=1; $n<=$num_fields; $n++) {
