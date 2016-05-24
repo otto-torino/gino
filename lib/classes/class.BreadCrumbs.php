@@ -10,7 +10,7 @@
 namespace Gino;
 
 /**
- * @brief Briciole di pane
+ * @brief Gestione di generiche briciole di pane
  *
  * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
