@@ -8333,6 +8333,11 @@ div.abiWinOverlay {
   height: 400px;
   overflow: auto;
 }
+/* Breadcrumbs */
+#breadcrumbs div.inline {
+  float: left;
+  padding: 4px;
+}
 form {
   margin: 10px 0;
 }
