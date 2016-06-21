@@ -304,6 +304,7 @@ namespace Gino;
     *   - @b where: where clause
     *   - @b order: ordinamento
     *   - @b limit: limite risultati
+    *   - @b debug: stampa la query
     * @return array di oggeti ricavati
     */
     public static function objects($controller = null, $options = array()) {
@@ -311,10 +312,11 @@ namespace Gino;
         $where = isset($options['where']) ? $options['where'] : null;
         $order = isset($options['order']) ? $options['order'] : null;
         $limit = isset($options['limit']) ? $options['limit'] : null;
+        $debug = isset($options['debug']) ? $options['debug'] : false;
 
         $res = array();
         $db = Db::instance();
-        $rows = $db->select('id', static::$table, $where, array('order'=>$order, 'limit'=>$limit, 'debug' => false));
+        $rows = $db->select('id', static::$table, $where, array('order'=>$order, 'limit'=>$limit, 'debug' => $debug));
         if($rows and count($rows)) {
             foreach($rows as $row) {
                 $res[] = $controller ? new static($row['id'], $controller) : new static($row['id']);
@@ -562,6 +564,14 @@ namespace Gino;
         foreach($this->_structure as $field) {
             
         	$build = $this->build($field);
+        	
+        	if(method_exists($build, 'delete')) {
+        		$result = $build->delete();
+        		if($result !== TRUE) {
+        			$class_type = preg_replace("#Build$#", '', get_name_class($build));
+        			return array('error' => sprintf(_("Si è verificato un errore nel processo di eliminazione di elementi correlati al campo '%s' (%s)."), $build->getName(), $class_type));
+        		}
+        	}
         	
         	if(method_exists($build, 'delete')) {
                 $result = $build->delete();

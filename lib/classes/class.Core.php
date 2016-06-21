@@ -3,7 +3,7 @@
  * @file class.Core.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Core
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\ResponseNotFound;
 /**
  * @brief Gestisce una Gino.Http.Request ed invia una Gino.Http.Response adeguata
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -41,7 +41,8 @@ class Core {
             '\Gino\EventDispatcher',
             '\Gino\GImage',
             '\Gino\GTag',
-            '\Gino\Document'
+            '\Gino\Document',
+        	'\Gino\BreadCrumbs',
         ));
 
         Loader::import('class/exceptions', array(
@@ -137,6 +138,7 @@ class Core {
         
         Loader::import('class/input', array(
         	'\Gino\Input',
+        	'\Gino\TagInput',
         ));
 
         // gettext

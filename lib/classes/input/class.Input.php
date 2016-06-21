@@ -520,7 +520,7 @@ class Input {
     	$registry = Registry::instance();
     
     	$registry->addCustomJs(SITE_WWW.'/ckeditor/ckeditor.js', array('compress'=>false, 'minify'=>false));
-    
+    	
     	// Replace the textarea id $name
     	$buffer = "<script>
     	CKEDITOR.replace('$name', {

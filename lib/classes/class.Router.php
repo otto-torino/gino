@@ -3,7 +3,7 @@
  * @file class.Router.php
  * @brief Contiene la definizione ed implementazione della class Gino.Router
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -21,7 +21,7 @@ use \Gino\App\Module\ModuleInstance;
 /**
  * @brief Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -110,7 +110,7 @@ class Router extends Singleton {
         if($tot > 2) {
             // numero dispari di path, il terzo è un id
             if($tot % 2 !== 0) {
-                $this->_request->GET['id'] = $paths[2];
+                $this->_request->GET['id'] = urldecode($paths[2]);
                 // e lo rimuovo
                 unset($paths[2]);
                 // e rimetto a posto le chiavi
@@ -119,7 +119,7 @@ class Router extends Singleton {
 
             // devo ricontare i paths
             for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
-                $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? $paths[$i + 1] : '';
+                $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? urldecode($paths[$i + 1]) : '';
             }
         }
 
@@ -175,7 +175,7 @@ class Router extends Singleton {
                 $class_name = $module_app->className();
                 $module_instance = new $class();
             }
-            elseif(class_exists($module->classNameNs())) {
+            elseif(is_object($module) && class_exists($module->classNameNs())) {
                 $mdl_id = $module->id;
                 $class = $module->classNameNs();
                 $class_name = $module->className();

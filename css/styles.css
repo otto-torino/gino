@@ -8032,6 +8032,14 @@ td.visible-print {
   color: #fc2e69;
   cursor: pointer;
 }
+/* tag links */
+.tags a:link,
+.tags a:hover,
+.tags a:visited {
+  padding: 4px 6px;
+  background-color: #e6e6e6;
+  margin: 0px 4px;
+}
 /* icons */
 /* sections */
 section {
@@ -8332,6 +8340,11 @@ div.abiWinOverlay {
 .debug.active {
   height: 400px;
   overflow: auto;
+}
+/* Breadcrumbs */
+#breadcrumbs div.inline {
+  float: left;
+  padding: 4px;
 }
 form {
   margin: 10px 0;
