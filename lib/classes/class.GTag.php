@@ -223,6 +223,53 @@ class GTag {
 
         return $res;
     }
+    
+    /**
+     * @brief Elenco dei tag associati a un oggetto Gino.Model
+     * @decription I tag sono linkati per poter effettuare la ricerca sui singoli tag; mostrare l'elenco dei tag in un elemento html con classe css @a tags.
+     * 
+     * @param \Gino\Controller $controller
+     * @param string $tags elenco dei tag di un oggetto Gino.Model (@see Gino.TagField)
+     * @param string $interface nome del metodo del link associato al tag (default archive)
+     * @return string
+     */
+    public static function viewTags($controller, $tags, $interface=null) {
+    	
+    	$buffer = '';
+    	
+    	if($tags)
+    	{
+    		if(!$interface) {
+    			$interface = 'archive';
+    		}
+    		$cleaned_tags = array_map('trim', explode(',', $tags));
+    
+    		foreach($cleaned_tags AS $tag)
+    		{
+    			if($tag) {
+    				$link = $controller->link($controller->getInstanceName(), $interface, array('tag' => $tag));
+    				$buffer .= "<a href=\"".$link."\">$tag</a>";
+    			}
+    		}
+    	}
+    	
+    	return $buffer;
+    }
+    
+    /**
+     * @brief Condizione in una select query per trovare i record associati a un determinato tag
+     * 
+     * @param \Gino\Controller $controller
+     * @param string $tag valore del tag da ricercare
+     * @return string
+     */
+    public static function whereCondition($controller, $tag) {
+    	
+    	return "id IN (SELECT sys_tag_taggeditem.content_id FROM sys_tag_taggeditem, sys_tag
+    	WHERE sys_tag.tag='$tag' AND sys_tag_taggeditem.tag_id=sys_tag.id
+    	AND sys_tag_taggeditem.content_controller_class='".$controller->getClassName()."'
+		AND sys_tag_taggeditem.content_controller_instance='".$controller->getInstance()."')";
+    }
 
     /**
      * Elimina le associazioni dei tag ai contenuti

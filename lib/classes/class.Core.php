@@ -138,6 +138,7 @@ class Core {
         
         Loader::import('class/input', array(
         	'\Gino\Input',
+        	'\Gino\TagInput',
         ));
 
         // gettext

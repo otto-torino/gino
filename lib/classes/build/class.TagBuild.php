@@ -3,7 +3,7 @@
  * @file class.TagBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.TagBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Gestisce i campi per inserimento tag
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -42,42 +42,8 @@ class TagBuild extends Build {
      * @see Gino.Build::formElement()
      */
     public function formElement($mform, $options=array()) {
-        // moocomplete
-        $registry = registry::instance();
-        $registry->addJs(SITE_JS.'/MooComplete.js');
-        $registry->addCss(CSS_WWW.'/MooComplete.css');
-
-        // all tags
-        $tags = GTag::getAllTags();
-        $js_tags_list = "['".implode("','", $tags)."']";
         
-        $text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar($this->tagCloud())."'}); win.display();\"></span>";
-        
-        $field = Input::input_label($this->_name, 'text', $this->_value, $this->_label, array('id' => $this->_name, 'text_add' => $text_add));
-        
-        $field .= "<script>";
-        // moocomplete script
-        $field .= "window.addEvent('load', function() {
-            var tag_input = new MooComplete('".$this->_name."', {
-                list: $js_tags_list, // elements to use to suggest.
-                mode: 'tag', // suggestion mode (tag | text)
-                size: 8 // number of elements to suggest
-            });
-        });\n";
-        // clound functionality
-        $field .= "var addTag = function(el) {
-            var tag = el.get('text');
-            var field = $('".$this->_name."');
-            if(field.value.substr(field.value.length - 1) == ',' || field.value == '') {
-                field.value = field.value + tag;
-            }
-            else {
-                field.value = field.value + ',' + tag;
-            }
-        }";
-        $field .= "</script>";
-
-        return $field;
+    	return TagInput::input($this->_name, $this->_value, $this->_label);
     }
 
     /**
@@ -110,9 +76,9 @@ class TagBuild extends Build {
      * @brief Tag cloud
      * @return tag cloud
      */
-    public function tagCloud() {
+    public static function tagCloud() {
         
-    	$db = db::instance();
+    	$db = Db::instance();
         $histogram = GTag::getTagsHistogram();
 
         $buffer = '<p>';

@@ -17,15 +17,19 @@
 <? //@cond no-doxygen ?>
 <? if($items && count($items)): ?>
 	<section id="breadcrumbs">
-		<? foreach($items as $item): ?>
+		<? for($i=0, $end=count($items); $i<$end; $i++): ?>
 			<div class="inline">
-			<? if(array_key_exists('link', $item) and $item['link']): ?>
-				<a href="<?= $item['link'] ?>"><?= $item['label'] ?></a>
+			<? if(array_key_exists('link', $items[$i]) and $items[$i]['link']): ?>
+				<a href="<?= $items[$i]['link'] ?>"><?= $items[$i]['label'] ?></a>
 			<? else: ?>
-				<?= $item['label'] ?>
+				<?= $items[$i]['label'] ?>
+			<? endif ?>
+			
+			<? if($i<$end-1): ?>
+				>
 			<? endif ?>
 			</div>
-		<? endforeach ?>
+		<? endfor ?>
 		<div class="null"></div>
 	</section>
 <? endif ?>

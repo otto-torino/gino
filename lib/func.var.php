@@ -627,14 +627,23 @@ function slimboxReplace($string, $id) {
 
     $rel = "lightbox-$id";
 
-    $pattern = "/(<img)[^(\/>)]+(class=\"lightbox\"){1}[^(\/>)]+(src=\")([^\"]+)[^(\/>)]+\/>/i";
+    $pattern = "/(<img)[^(\/>)]+(class=\"[\d\w\s\-]*lightbox[\d\w\s\-]*\"){1}[^(\/>)]+(src=\")([^\"]+)[^(\/>)]+\/>/i";
     $replacement = "<a rel=\"".$rel."\" href=\"$4\" >$0</a>";
 
-    $pattern2 = "/(<img)[^(\/>)]+(src=\")([^\"]+)[^(\/>)]+(class=\"lightbox\"){1}[^(\/>)]+\/>/i";
+    $pattern2 = "/(<img)[^(\/>)]+(src=\")(^\"]+)[^(\/>)]+(class=\"[\d\w\s\-]*lightbox[\d\w\s\-]*\"){1}[^(\/>)]+\/>/i";
     $replacement2 = "<a rel=\"".$rel."\" href=\"$3\" >$0</a>";
 
-    $string = preg_replace($pattern, $replacement, $string);
-    $string = preg_replace($pattern2, $replacement2, $string);
+    $string = preg_replace_callback($pattern, function ($matches) use ($rel) {
+    	$dirname = dirname($matches[4]);
+    	$filename = urlencode(basename($matches[4]));
+    	return "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\" >".$matches[0]."</a>";
+    }, $string);
+    
+    $string = preg_replace_callback($pattern2, function ($matches) use ($rel) {
+    	$dirname = dirname($matches[3]);
+    	$filename = urlencode(basename($matches[3]));
+    	return "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\" >".$matches[0]."</a>";
+    }, $string);
 
     return $string;
 }
@@ -655,7 +664,7 @@ function htmlCharsText($string)
     $string = str_replace ('&', '&amp;', $string);
     $string = str_replace ('\'', '&#039;', $string);
     $string = stripslashes($string);
-    $string = nl2br($string);	
+    $string = nl2br($string);
 
     return $string;
 }
