@@ -289,6 +289,9 @@ class Options {
                 elseif($f->type == 'date') {
                     ${$f->name} = clean_date($request->POST[$f->name]);
                 }
+                elseif($f->type == 'text') {
+                	${$f->name} = clean_html($request->POST[$f->name]);
+                }
                 else {
                 	${$f->name} = clean_text($request->POST[$f->name]);
                 }

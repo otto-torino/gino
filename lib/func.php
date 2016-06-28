@@ -3,7 +3,7 @@
  * @file func.php
  * @brief Racchiude funzioni generali utilizzate da gino
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -844,11 +844,21 @@ function listProv() {
  */
 function share($site, $url, $title=null, $description=null) {
 
-    $buffer = '';
+$buffer = '';
 
     if($site=='facebook') {
-        $buffer = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";
-        //$buffer = "<iframe src=\"http://www.facebook.com/plugins/like.php?href=".urlencode($url)."&amp;layout=standard&amp;show_faces=true&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=80\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:80px;\" allowTransparency=\"true\"></iframe>";
+        $buffer = "
+<div id=\"fb-root\"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = \"//connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v2.6\";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>";
+		$buffer .= "<div class=\"fb-share-button\" 
+		data-href=\"$url\" 
+		data-layout=\"button_count\"></div>";
     }
     elseif($site=='twitter') {
         $buffer = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
@@ -916,7 +926,20 @@ function shareAll($social, $url, $title=null, $description=null) {
     else {
         foreach($social as $s) {
             if(strpos($s, 'facebook') !== FALSE) {
-                $items[] = "<a name=\"fb_share\" type=\"button_count\" share_url=\"$url\" href=\"http://www.facebook.com/sharer.php\">Share</a><script src=\"http://static.ak.fbcdn.net/connect.php/js/FB.Share\" type=\"text/javascript\"></script>";
+                $buffer = "
+<div id=\"fb-root\"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = \"//connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v2.6\";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>";
+            	$buffer .= "<div class=\"fb-share-button\" 
+            	data-href=\"$url\" 
+            	data-layout=\"button_count\"></div>";
+            	
+            	$items[] = $buffer;
             }
             elseif(strpos($s, 'twitter') !== FALSE) {
                 $items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
