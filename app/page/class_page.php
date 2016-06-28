@@ -334,7 +334,7 @@ class page extends \Gino\Controller {
         $code_exp .= "</ul>";
         $code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili:<br />");
         $code_exp .= "<ul>";
-        $code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio del post alla proprietà')."</li>";
+        $code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>img|class:name_class</span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>img|size:wxh</span></b>: "._('ridimensiona l\'immagine a larghezza (w) e altezza (h) dati')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
@@ -346,8 +346,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Indirizzo pagina
-     *
-     * Viene utilizzato per le operazione interne a gino (ad es. menu e layout)
+     * @description Viene utilizzato per le operazione interne a gino (ad es. menu e layout)
      *
      * @param integer $id valore ID della pagina
      * @param boolean $box se TRUE restituisce l'indirizzo per una pagina inserita nel template del layout
@@ -832,10 +831,9 @@ class page extends \Gino\Controller {
                 return '';
             }
             
-            $request = Request::instance();
             $pre_filter = \Gino\shareAll(
             	array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), 
-            	$request->root_absolute_url.$this->link($this->_instance_name, 'view', array('id'=>$obj->slug), '', array('abs'=>true)), 
+            	$this->link($this->_instance_name, 'view', array('id'=>$obj->slug), '', array('abs'=>true)), 
             	\Gino\htmlChars($obj->ml('title')));
         }
         elseif($property == 'comments') {
