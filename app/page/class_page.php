@@ -483,7 +483,7 @@ class page extends \Gino\Controller {
         $view->assign('wrapper_id', 'showcase_items_'.$this->_instance_name);
         $view->assign('ctrl_begin', 'sym_'.$this->_instance.'_');
         $view->assign('title', $this->_showcase_title);
-        $view->assign('feed', "<a href=\"".$this->_plink->aLink($this->_instance_name, 'feedRSS')."\">".\Gino\pub::icon('feed')."</a>");
+        $view->assign('feed', "<a href=\"".$this->link($this->_instance_name, 'feedRSS')."\">".\Gino\pub::icon('feed')."</a>");
         $view->assign('items', $items);
         $view->assign('ctrls', $ctrls);
         $view->assign('options', $options);
@@ -649,7 +649,7 @@ class page extends \Gino\Controller {
             $buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
         }
 
-        $buffer .= $myform->open($this->_plink->aLink($this->_instance_name, 'actionComment'), false, 'author,email', array('form_id'=>'form_comment'));
+        $buffer .= $myform->open($this->link($this->_instance_name, 'actionComment'), false, 'author,email', array('form_id'=>'form_comment'));
         $buffer .= \Gino\Input::hidden('entry', $entry->id);
         $buffer .= \Gino\Input::hidden('form_reply', 0, array('id'=>'form_reply'));
         $buffer .= \Gino\Input::input_label('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
@@ -687,11 +687,11 @@ class page extends \Gino\Controller {
         $link_error = $this->link('page', 'view', array('id' => $entry->slug)).'#comments';
 
         if($req_error > 0) { 
-            return error::errorMessage(array('error'=>1), $link_error);
+            return \Gino\Error::errorMessage(array('error'=>1), $link_error);
         }
 
         if(!$myform->checkCaptcha()) {
-            return error::errorMessage(array('error'=>_('Il codice inserito non è corretto')), $link_error);
+            return \Gino\Error::errorMessage(array('error'=>_('Il codice inserito non è corretto')), $link_error);
         }
 
         $published = $this->_comment_moderation ? 0 : 1;
@@ -719,7 +719,7 @@ class page extends \Gino\Controller {
             $user_ids = \Gino\App\Auth\User::getUsersFromPermissions('can_publish', $this);
 
             foreach($user_ids as $uid) {
-                $email = $this->_db->getFieldFromId('user_app', 'email', 'user_id', $uid);
+                $email = $this->_db->getFieldFromId(\Gino\App\Auth\User::$table, 'email', 'id', $uid);
                 if($email) {
                     $subject = sprintf(_("Nuovo commento alla pagina \"%s\" in attesa di approvazione"), $entry->title);
                     $object = sprintf("E' stato inserito un nuovo commento in fase di approvazione da %s il %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $comment->author, $comment->datetime, $link);
@@ -800,8 +800,8 @@ class page extends \Gino\Controller {
         }
         elseif($property == 'author_img') {
             $concat = $this->_db->concat(array("firstname", "' '", "lastname"));
-            $user_image = $this->_db->getFieldFromId(TBL_USER, 'photo', 'user_id', $obj->author);
-            $user_name = $this->_db->getFieldFromId(TBL_USER, $concat, 'user_id', $obj->author);
+            $user_image = $this->_db->getFieldFromId(TBL_USER, 'photo', 'id', $obj->author);
+            $user_name = $this->_db->getFieldFromId(TBL_USER, $concat, 'id', $obj->author);
             if(!$user_image) {
                 return '';
             }
@@ -821,7 +821,7 @@ class page extends \Gino\Controller {
         }
         elseif($property == 'author') {
             $concat = $this->_db->concat(array("firstname", "' '", "lastname"));
-            $pre_filter = $this->_db->getFieldFromId(TBL_USER, $concat, 'user_id', $obj->author);
+            $pre_filter = $this->_db->getFieldFromId(TBL_USER, $concat, 'id', $obj->author);
         }
         elseif($property == 'tags') {
             $pre_filter = $obj->tags;
@@ -1039,12 +1039,14 @@ class page extends \Gino\Controller {
             	'tpl_code'=>array(
                     'cols' => 40,
                     'rows' => 10, 
-                	'typeoftext' => 'html'
+                	'typeoftext' => 'html',
+                    'trnsl'=>false
                 ),
                 'box_tpl_code'=>array(
                     'cols' => 40,
                     'rows' => 10, 
-                	'typeoftext' => 'html'
+                	'typeoftext' => 'html',
+                    'trnsl'=>false
                 )
             )
         );

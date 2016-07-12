@@ -3,7 +3,7 @@
  * @file class_searchSite.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SearchSite.searchSite
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ use \Gino\App\SysClass\ModuleApp;
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
  * 
- * @copyright 2005 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -33,6 +33,7 @@ class searchSite extends \Gino\Controller {
     private $_options,
             $_sys_mdl,
             $_inst_mdl,
+            $_view_choices,
             $_title;
 
     /**
@@ -47,22 +48,29 @@ class searchSite extends \Gino\Controller {
         $this->_title = _("Ricerca nel sito");
         $this->_sys_mdl = $this->setOption('sys_mdl', '');
         $this->_inst_mdl = $this->setOption('inst_mdl', '');
+        $this->_view_choices = $this->setOption('view_choices', 0);
 
         $this->_options = Loader::load('Options', array($this));
         $this->_optionsLabels = array(
-            "sys_mdl"=>array(
-                "label"=>array(
+            "sys_mdl" => array(
+                "label" => array(
                     _("Moduli di sistema"),
-                    _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")
+                    _("Inserire i valori ID dei moduli che si vogliono includere nella ricerca separati da virgole")
                 ),
-                "required"=>FALSE
+                "required" => FALSE, 
+            	'trnsl' => false
             ),
             "inst_mdl"=>array(
-                "label"=>array(
+                "label" => array(
                     _("Moduli istanziabili"),
-                    _("Inserire gli ID dei moduli che si vogliono includere nella ricerca separati da virgole")
+                    _("Inserire i valori ID dei moduli che si vogliono includere nella ricerca separati da virgole")
                 ),
-                "required"=>FALSE
+                "required" => FALSE, 
+            	'trnsl' => false
+            ),
+            "view_choices" => array(
+                "label" => _("Visualizzare la scelta di ricerca sui singoli moduli"),
+                "required" => true, 
             )
         );
         $this->_view_dir = dirname(__FILE__).OS.'views';
@@ -162,6 +170,9 @@ class searchSite extends \Gino\Controller {
         $registry->addJs($this->_class_www."/searchSite.js");
 
         $choices = !!($this->_sys_mdl || $this->_inst_mdl);
+        if(!$this->_view_choices) {
+        	$choices = false;
+        }
         $check_options = $this->checkOptions();
 
         $view = new View($this->_view_dir, 'form');
@@ -187,19 +198,19 @@ class searchSite extends \Gino\Controller {
         $i=1;
         if($this->_sys_mdl)
         {
-        foreach(explode(",", $this->_sys_mdl) as $smid) {
-            $label = $this->_db->getFieldFromId(TBL_MODULE_APP, 'label', 'id', $smid);
-            $buffer .= "<label for=\"sysmdl_$smid\"><input id=\"sysmdl_$smid\" type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".\Gino\htmlChars($label)."</label>";
-            if($i++%3==0) $buffer .= "<br />";
-        }
+        	foreach(explode(",", $this->_sys_mdl) as $smid) {
+            	$label = $this->_db->getFieldFromId(TBL_MODULE_APP, 'label', 'id', $smid);
+            	$buffer .= "<label for=\"sysmdl_$smid\"><input id=\"sysmdl_$smid\" type=\"checkbox\" name=\"sysmdl[]\" value=\"$smid\"> ".\Gino\htmlChars($label)."</label>";
+            	if($i++%3==0) $buffer .= "<br />";
+        	}
         }
         if($this->_inst_mdl)
         {
-        foreach(explode(",", $this->_inst_mdl) as $mid) {
-            $label = $this->_db->getFieldFromId(TBL_MODULE, 'label', 'id', $mid);
-            $buffer .= "<label for=\"mdl_$mid\"><input id=\"mdl_$mid\" type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".\Gino\htmlChars($label)."</label>";
-            if($i++%3==0) $buffer .= "<br />";
-        }
+        	foreach(explode(",", $this->_inst_mdl) as $mid) {
+           		$label = $this->_db->getFieldFromId(TBL_MODULE, 'label', 'id', $mid);
+            	$buffer .= "<label for=\"mdl_$mid\"><input id=\"mdl_$mid\" type=\"checkbox\" name=\"instmdl[]\" value=\"$mid\"> ".\Gino\htmlChars($label)."</label>";
+            	if($i++%3==0) $buffer .= "<br />";
+        	}
         }
         $buffer .= "</div>";
         $buffer .= "</div>";
@@ -231,32 +242,40 @@ class searchSite extends \Gino\Controller {
         $opt = !!(count($sysmdl) or count($instmdl));
         $results = array();
         $buffer = '';
-
+        
         foreach(explode(",", $this->_sys_mdl) as $smdlid) {
             if(!$opt || in_array($smdlid, $sysmdl)) {
-                $module_app = new ModuleApp($smdlid);
-                $class = $module_app->classNameNs();
-                if(method_exists($class, "searchSite")) {
-                    $obj = new $class();
-                    $data = $obj->searchSite();
-                    $searchObj = new \Gino\search($data['table']);
-                    foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$class] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-                }
+                
+        		if($smdlid)
+        		{
+        			$module_app = new ModuleApp($smdlid);
+                	$class = $module_app->classNameNs();
+                	if(method_exists($class, "searchSite")) {
+                		$obj = new $class();
+                    	$data = $obj->searchSite();
+                    	$searchObj = new \Gino\Search($data['table']);
+                    	foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+                    	$results[$class] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                	}
+        		}
             }
         }
         foreach(explode(",", $this->_inst_mdl) as $mdlid) {
             if(!$opt || in_array($mdlid, $instmdl)) {
-                $module = new \Gino\App\Module\ModuleInstance($mdlid);
-                $instancename = $module->name;
-                $class = $module->classNameNs();
-                if(method_exists($class, "searchSite")) {
-                    $obj = new $class($mdlid);
-                    $data = $obj->searchSite();
-                    $searchObj = new \Gino\search($data['table']);
-                    foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    $results[$class."||".$mdlid] = $searchObj->getSearchResults(\Gino\db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-                }
+                
+            	if($mdlid)
+            	{
+            		$module = new \Gino\App\Module\ModuleInstance($mdlid);
+                	$instancename = $module->name;
+                	$class = $module->classNameNs();
+                	if(method_exists($class, "searchSite")) {
+                    	$obj = new $class($mdlid);
+                   		$data = $obj->searchSite();
+                    	$searchObj = new \Gino\Search($data['table']);
+                    	foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+                    	$results[$class."||".$mdlid] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+                	}
+            	}
             }
         }
 
@@ -311,7 +330,7 @@ class searchSite extends \Gino\Controller {
      */
     public function info() {
 
-        $buffer = "<p>"._("Il modulo mette a disposizione un'interfaccia di ricerca nel sito.")."</p>";
+        $buffer = "<p>"._("Il modulo mette a disposizione una interfaccia di ricerca nel sito.")."</p>";
         $buffer .= "<p>"._("Nelle <b>Opzioni</b> è possibile indicare i valori ID dei moduli (di sistema e non) che si vogliono includere nella ricerca.")."</p>";
         $buffer .= "<p>"._("Per poter funzionare occorre")."</p>";
         $buffer .= "<ul>";

@@ -186,7 +186,7 @@ class PageEntry extends \Gino\Model {
         
         $columns['users'] = new \Gino\MulticheckField(array(
         	'name' => 'users',
-        	'label' => _("Utenti che possono visualizzare la pagina quando è privata"),
+        	'label' => _("Utenti che possono visualizzare la pagina"),
         	'max_lenght' => 255,
         	'refmodel' => '\Gino\App\Auth\User',
         	'refmodel_where' => "active='1'",

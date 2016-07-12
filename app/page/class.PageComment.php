@@ -3,7 +3,7 @@
  * @file class.PageComment.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageComment
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,13 +13,14 @@ namespace Gino\App\Page;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un commento ad una pagina
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 class PageComment extends \Gino\Model {
 
     public static $table = 'page_comment';
+    public static $table_users = TBL_USER;
     public static $columns;
 
     /**
@@ -255,8 +256,8 @@ class PageComment extends \Gino\Model {
         if($this->_controller->commentNotification()) {
 
             $concat = $db->concat(array("firstname", "' '", "lastname"));
-            $author_email = $db->getFieldFromId('user_app', 'email', 'user_id', $entry->author);
-            $author_name = $db->getFieldFromId('user_app', $concat, 'user_id', $entry->author);
+            $author_email = $db->getFieldFromId(self::$table_users, 'email', 'id', $entry->author);
+            $author_name = $db->getFieldFromId(self::$table_users, $concat, 'id', $entry->author);
             if($author_email) {
                 $subject = sprintf(_("Nuovo commento al post \"%s\""), $entry->title);
                 $object = sprintf("%s è stato inserito un nuovo commento da %s, clicca su link seguente (o copia ed incolla nella barra degli indirizzi) per visualizzarlo\r\n%s", $author_name, $this->author, $link);
