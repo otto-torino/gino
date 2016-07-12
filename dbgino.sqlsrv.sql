@@ -1027,6 +1027,8 @@ CREATE TABLE search_site_opt (
   instance int NOT NULL,
   sys_mdl nvarchar(256) NOT NULL,
   inst_mdl nvarchar(256) NOT NULL,
+  view_choices tinyint NOT NULL 
+	CONSTRAINT DF_search_site_opt_view_choices DEFAULT '0',
   CONSTRAINT PK_search_site_opt PRIMARY KEY (id)
 )
 

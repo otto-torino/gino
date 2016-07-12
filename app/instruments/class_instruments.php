@@ -3,7 +3,7 @@
  * @file class_instruments.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Instruments.instruments
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ use \Gino\App\Layout\layout;
  *   - associare nel metodo viewItem() il valore del campo id dello strumento con un suo metodo personalizzato (ad es. itemNew)
  *   - creare il metodo personalizzato (ad es. itemNew)
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -91,10 +91,14 @@ class instruments extends \Gino\Controller {
         
         $GINO = "<p class=\"backoffice-info\">"._('Elenco di tutte le pagine presenti e di tutti gli output dei moduli, con relativi url e permessi di visualizzazione. Quelle elencate qui non sono le uniche viste disponibili dei moduli, ma quelle che non necessitano di parametri e sono quindi includibili in ogni layout.')."</p>";
 
+        $link = $this->link($this->_instance_name, 'manageInstruments');
+        
+        $GINO .= "<p class=\"right\"><a href=\"".$link."#pages\">"._("pagine")."</a> | <a href=\"".$link."#instances\">"._("istanze di moduli")."</a> | <a href=\"".$link."#modules\">"._("moduli di sistema")."</a></p>";
+        
         $rows = $this->_db->select('id', \Gino\App\Page\PageEntry::$table, "published='1'", array('order' => 'title'));
         if($rows and count($rows))
         {
-            $GINO .= "<h2>"._("Pagine")."</h2>";
+            $GINO .= "<a name=\"pages\"></a><h2>"._("Pagine")."</h2>";
 
             $view_table = new View(null, 'table');
             $view_table->assign('heads', array(
@@ -124,7 +128,7 @@ class instruments extends \Gino\Controller {
         $modules = \Gino\App\Module\ModuleInstance::objects(null, array('order' => 'label'));
         
         if(count($modules)) {
-            $GINO .= "<h2>"._("Istanze di moduli")."</h2>";
+            $GINO .= "<a name=\"instances\"></a><h2>"._("Istanze di moduli")."</h2>";
 
             $view_table = new \Gino\View(null, 'table');
             $view_table->assign('heads', array(
@@ -164,7 +168,7 @@ class instruments extends \Gino\Controller {
         $modules = \Gino\App\SysClass\ModuleApp::objects(null, array('where' => "instantiable='0'", 'order' => 'label'));
         
         if(count($modules)) {
-        	$GINO .= "<h2>"._("Moduli di sistema")."</h2>";
+        	$GINO .= "<a name=\"modules\"></a><h2>"._("Moduli di sistema")."</h2>";
         
         	$view_table = new \Gino\View(null, 'table');
         	$view_table->assign('heads', array(
