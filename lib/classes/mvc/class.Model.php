@@ -495,7 +495,7 @@ namespace Gino;
     }
 
     /**
-     * @brief Salvataggio dei ManyToMany
+     * @brief Salvataggio dei campi ManyToMany
      * 
      * @param array $m2m campi m2m del modello (field_name => (array) join_table_id_values)
      * @return true
@@ -509,17 +509,20 @@ namespace Gino;
     		
     		$field_obj = $columns[$pName];
     		
-    		if(is_a($field_obj, '\Gino\ManyToManyField') && is_array($pValue)) {
+    		if(is_a($field_obj, '\Gino\ManyToManyField')) {
     			
     			$build = $this->build($field_obj);
-    			
     			$this->_db->delete($build->getJoinTable(), $build->getJoinTableId()."='".$this->id."'");
-    			foreach($pValue as $fid) {
-    				$this->_db->insert(array(
-    						$build->getJoinTableId() => $this->id,
-    						$build->getJoinTableM2mId() => $fid
-    					), $build->getJoinTable()
-    				);
+    			
+    			if(is_array($pValue))
+    			{
+    				foreach($pValue as $fid) {
+    					$this->_db->insert(array(
+    							$build->getJoinTableId() => $this->id,
+    							$build->getJoinTableM2mId() => $fid
+    						), $build->getJoinTable()
+    					);
+    				}
     			}
     		}
     	}

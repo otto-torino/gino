@@ -316,7 +316,7 @@ class page extends \Gino\Controller {
      */
     public static function explanationTemplate() {
 
-        $code_exp = _("Le proprietà della pagina devono essere inserite all'interno di doppie parentesi {{ proprietà }}. Proprietà disponibili:<br/>");
+        $code_exp = _("Le proprietà della pagina devono essere inserite all'interno di doppie parentesi graffe {{ proprietà }}. Proprietà disponibili").":<br/>";
         $code_exp .= "<ul>";
         $code_exp .= "<li><b>img</b>: "._('immagine')."</li>";
         $code_exp .= "<li><b>title</b>: "._('titolo')."</li>";
@@ -332,13 +332,23 @@ class page extends \Gino\Controller {
         $code_exp .= "<li><b>comments</b>: "._('numero di commenti con link')."</li>";
         $code_exp .= "<li><b>related_contents</b>: "._('lista di contenuti correlati con link')."</li>";
         $code_exp .= "</ul>";
-        $code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili:<br />");
+        $code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili").":<br />";
         $code_exp .= "<ul>";
         $code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>img|class:name_class</span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>img|size:wxh</span></b>: "._('ridimensiona l\'immagine a larghezza (w) e altezza (h) dati')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|title:&quot;html_title&quot;</span></b>: "._('Aggiunge il titolo fornito alla lista dei contenuti correlati')."</li>";
+        $code_exp .= "</ul>";
+        $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni").":<br />";
+        $code_exp .= "<ul>";
+        if(self::checkValidApplication('gmaps')) {
+        	$code_exp .= "<li><b>map|gid:<i>map_id</i></b>: "._("mostra la mappa indicata")."</li>";
+        }
+        if(self::checkValidApplication('gallery')) {
+        	$code_exp .= "<li><b>show_gallery|gid:<i>gallery_id</i></b>: "._("mostra alcune immagini appartenenti alla galleria indicata")."</li>";
+        	$code_exp .= "<li><b>link_gallery|gid:<i>gallery_id</i></b>: "._("mostra il collegamento alla galleria immagini indicata")."</li>";
+        }
         $code_exp .= "</ul>";
 
         return $code_exp;
@@ -737,12 +747,12 @@ class page extends \Gino\Controller {
      * @param \Gino\App\Page\PageEntry $page_entry istanza di Gino.App.Page.PageEntry
      * @return lista contenuti correlati
      */
-    public function relatedContentsList($page_entry)
-    {
+    public function relatedContentsList($page_entry) {
+    	
         $related_contents = \Gino\GTag::getRelatedContents($this->getClassName(), 'PageEntry', $page_entry->id);
         if(count($related_contents)) {
-            $view = new \Gino\View(null, 'related_contents_list');
-            return $view->render(array('related_contents' => $related_contents));
+        	$view = new \Gino\View(null, 'related_contents_list');
+        	return $view->render(array('related_contents' => $related_contents));
         }
         else return '';
     }
@@ -846,6 +856,10 @@ class page extends \Gino\Controller {
         elseif($property == 'related_contents') {
             $pre_filter = $this->relatedContentsList($obj);
         }
+        // applications
+        elseif($property == 'map' || $property == 'show_gallery' || $property == 'link_gallery') {
+        	$pre_filter = $property;
+        }
         else {
             return '';
         }
@@ -856,6 +870,31 @@ class page extends \Gino\Controller {
 
         if($filter == 'link') {
             return "<a href=\"".$this->link('page', 'view', array('id' => $obj->slug))."\">".$pre_filter."</a>";
+        }
+        // applications
+        elseif(preg_match("#gid:(\d+)#", $filter, $matches)) {
+        	if($pre_filter == 'show_gallery' && self::checkValidApplication('gallery')) {
+        		$buffer = "<div class=\"show-gallery\">";
+        		$buffer .= \Gino\App\Gallery\gallery::showGalleryImages($matches[1]);
+        		$buffer .= "</div>";
+        		return $buffer;
+        	}
+        	elseif($pre_filter == 'link_gallery' && self::checkValidApplication('gallery')) {
+        		$buffer = "<div class=\"link-gallery\">";
+        		$buffer .= "<a href=\"".\Gino\App\Gallery\gallery::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
+        		$buffer .= "</div>";
+        		return $buffer;
+        	}
+        	elseif($pre_filter == 'map' && self::checkValidApplication('gmaps')) {
+        		$id = $matches[1];
+        		
+        		$map_instance = \Gino\App\Gmaps\gmaps::getInstanceValue($id);
+        		$map = new \Gino\App\Gmaps\gmaps($map_instance);
+        		return $map->showMap($id);
+        	}
+        	else {
+        		return null;
+        	}
         }
         elseif(preg_match("#chars:(\d+)#", $filter, $matches)) {
             return \Gino\cutHtmlText($pre_filter, $matches[1], '...', false, false, true, array('endingPosition'=>'in'));
@@ -887,6 +926,36 @@ class page extends \Gino\Controller {
         else {
             return $pre_filter;
         }
+    }
+    
+    /**
+     * @brief Verifica se una applicazione è presente in gino e se è valida
+     *
+     * @param string $app_name nome dell'applicazione (valore del campo @a name della tabella sys_module_app)
+     * @return boolean
+     */
+    public static function checkValidApplication($app_name) {
+    	
+    	$db = \Gino\Db::instance();
+    	
+    	$rows = $db->select("id, instantiable", TBL_MODULE_APP, "name='$app_name' AND active='1'");
+    	if($rows && count($rows))
+    	{
+    		if($rows[0]['instantiable'] == 1) {
+    			
+    			$modules = $db->select("id, name", TBL_MODULE, "module_app='".$rows[0]['id']."' AND active='1'");
+    			if($modules && count($modules)) {
+    				return true;
+    			}
+    			else {
+    				return false;
+    			}
+    		}
+    		else {
+    			return true;
+    		}
+    	}
+    	return false;
     }
 
     /**
