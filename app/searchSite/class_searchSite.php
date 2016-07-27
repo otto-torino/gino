@@ -233,86 +233,23 @@ class searchSite extends \Gino\Controller {
 
         $keywords = \htmlspecialchars(\Gino\cleanVar($request->POST, 'search_site', 'string', ''));
         $keywords = \Gino\cutHtmlText($keywords, 500, '', true, false, true);
-        $sysmdl = \Gino\cleanVar($request->POST, 'sysmdl', 'array');
-        $instmdl = \Gino\cleanVar($request->POST, 'instmdl', 'array');
-
-        if(is_null($sysmdl)) $sysmdl = array();
-        if(is_null($instmdl)) $instmdl = array();
-
-        $opt = !!(count($sysmdl) or count($instmdl));
-        $results = array();
-        $buffer = '';
         
-        foreach(explode(",", $this->_sys_mdl) as $smdlid) {
-            if(!$opt || in_array($smdlid, $sysmdl)) {
-                
-        		if($smdlid)
-        		{
-        			$module_app = new ModuleApp($smdlid);
-                	$class = $module_app->classNameNs();
-                	if(method_exists($class, "searchSite")) {
-                		$obj = new $class();
-                    	$data = $obj->searchSite();
-                    	$searchObj = new \Gino\Search($data['table']);
-                    	foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    	$results[$class] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-                	}
-        		}
-            }
+        if($keywords) {
+        	$results = $this->search($keywords, $request);
+        	
+        	$title = _("Ricerca")." \"$keywords\"";
+        	$buffer = $results['results'];
+        	$tot_results = $results['tot_results'];
+        	
+        	$name_result = $tot_results == 1 ? _("risultato") : _("risultati");
+        	$results_num = "<span class=\"search-result-tot\">".$tot_results." ".$name_result."</span>";
         }
-        foreach(explode(",", $this->_inst_mdl) as $mdlid) {
-            if(!$opt || in_array($mdlid, $instmdl)) {
-                
-            	if($mdlid)
-            	{
-            		$module = new \Gino\App\Module\ModuleInstance($mdlid);
-                	$instancename = $module->name;
-                	$class = $module->classNameNs();
-                	if(method_exists($class, "searchSite")) {
-                    	$obj = new $class($mdlid);
-                   		$data = $obj->searchSite();
-                    	$searchObj = new \Gino\Search($data['table']);
-                    	foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
-                    	$results[$class."||".$mdlid] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
-                	}
-            	}
-            }
+        else {
+        	$title = _("Ricerca");
+        	$buffer = "<p class=\"message\">"._("Inserire una chiave di ricerca")."</p>";
+        	$results_num = null;
         }
-
-        $order_results = array();
-        $final_results = array();
-
-        if(count($results) > 0)
-        {
-            $i = 0;
-            foreach($results as $classname=>$res) {
-                foreach($res as $k=>$v) {
-                    $order_results[$i] = $v['relevance']*1000 + round($v['occurrences']);
-                    $final_results[$i] = array_merge(array("class"=>$classname), $v);    
-                    $i++;
-                }
-            }
-
-            arsort($order_results);
-        }
-        $tot_results = count($final_results);
-
-        $title = _("Ricerca")." \"$keywords\"";
-        $name_result = $tot_results == 1 ? _("risultato") : _("risultati");
-        $results_num = "<span class=\"search-result-tot\">".$tot_results." ".$name_result."</span>";
-
-        if($tot_results) {
-            $buffer .= "<dl class=\"search-results\">";
-            foreach($order_results as $k=>$point) {
-                $fr = $final_results[$k];
-                if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
-                else $obj = new $fr['class']();
-                $buffer .= $obj->searchSiteResult($fr);
-            }
-            $buffer .= "</dl>";
-        }
-        else $buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
-
+        
         $view = new View($this->_view_dir, 'results');
         $dict = array(
             'title' => $title,
@@ -322,6 +259,96 @@ class searchSite extends \Gino\Controller {
 
         $document = new \Gino\Document($view->render($dict));
         return $document();
+    }
+    
+    /**
+     * @brief Effettua la ricerca
+     * 
+     * @param mixed $keywords
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return array('tot_results' => integer, 'results' => string)
+     */
+    private function search($keywords, $request) {
+    	
+    	$sysmdl = \Gino\cleanVar($request->POST, 'sysmdl', 'array');
+    	$instmdl = \Gino\cleanVar($request->POST, 'instmdl', 'array');
+    	
+    	if(is_null($sysmdl)) $sysmdl = array();
+    	if(is_null($instmdl)) $instmdl = array();
+    	
+    	$opt = !!(count($sysmdl) or count($instmdl));
+    	$results = array();
+    	$buffer = '';
+    	
+    	foreach(explode(",", $this->_sys_mdl) as $smdlid) {
+    		if(!$opt || in_array($smdlid, $sysmdl)) {
+    			
+    			if($smdlid)
+    			{
+    				$module_app = new ModuleApp($smdlid);
+    				$class = $module_app->classNameNs();
+    				if(method_exists($class, "searchSite")) {
+    					$obj = new $class();
+    					$data = $obj->searchSite();
+    					$searchObj = new \Gino\Search($data['table']);
+    					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+    					$results[$class] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+    				}
+    			}
+    		}
+    	}
+    	foreach(explode(",", $this->_inst_mdl) as $mdlid) {
+    		if(!$opt || in_array($mdlid, $instmdl)) {
+    			
+    			if($mdlid)
+    			{
+    				$module = new \Gino\App\Module\ModuleInstance($mdlid);
+    				$instancename = $module->name;
+    				$class = $module->classNameNs();
+    				if(method_exists($class, "searchSite")) {
+    					$obj = new $class($mdlid);
+    					$data = $obj->searchSite();
+    					$searchObj = new \Gino\Search($data['table']);
+    					foreach($data['weight_clauses'] as $k=>$v) $data['weight_clauses'][$k]['value'] = $keywords;
+    					$results[$class."||".$mdlid] = $searchObj->getSearchResults(\Gino\Db::instance(), $data['selected_fields'], $data['required_clauses'], $data['weight_clauses']);
+    				}
+    			}
+    		}
+    	}
+    	
+    	$order_results = array();
+    	$final_results = array();
+    	
+    	if(count($results) > 0)
+    	{
+    		$i = 0;
+    		foreach($results as $classname=>$res) {
+    			foreach($res as $k=>$v) {
+    				$order_results[$i] = $v['relevance']*1000 + round($v['occurrences']);
+    				$final_results[$i] = array_merge(array("class"=>$classname), $v);
+    				$i++;
+    			}
+    		}
+    		
+    		arsort($order_results);
+    	}
+    	$tot_results = count($final_results);
+    	
+    	if($tot_results) {
+    		$buffer .= "<dl class=\"search-results\">";
+    		foreach($order_results as $k=>$point) {
+    			$fr = $final_results[$k];
+    			if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
+    			else $obj = new $fr['class']();
+    			$buffer .= $obj->searchSiteResult($fr);
+    		}
+    		$buffer .= "</dl>";
+    	}
+    	else {
+    		$buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";
+    	}
+    	
+    	return array('tot_results' => $tot_results, 'results' => $buffer);
     }
 
     /**

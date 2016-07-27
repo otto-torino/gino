@@ -2,10 +2,9 @@ window.addEvent('domready', function() {
 
     var field = $('search_site');
 
-    if(typeof $('search_site_check') != 'undefined') {
+    if($('search_site_check')) {	// (typeof $('search_site_check') != 'undefined')
         $('search_site_check').addEvent('click', viewCheckOptions.bind($('search_site_check')));
     }
-
 })
 
 function viewCheckOptions(height_or, width_or) {
