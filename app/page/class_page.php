@@ -567,6 +567,7 @@ class page extends \Gino\Controller {
         $registry->addJs($this->_class_www."/prettify.js");
         $registry->addCss($this->_class_www."/page.css");
         $registry->addJs($this->_class_www."/page.js");
+        $registry->addCss(CSS_WWW."/responsive-table.css");
 
         $slug = \Gino\cleanVar($request->GET, 'id', 'string');
 
