@@ -565,7 +565,8 @@ class AdminTable {
                 if($this->permission($options_view, $field_name))
                 {
                     if(is_array($field_obj)) {
-                        $record_value = $record_model->$field_obj['member']();
+                        $member = $field_obj['member'];
+                    	$record_value = $record_model->$member();
                     }
                     else {
                         $record_value = $record_model->shows($field_obj);

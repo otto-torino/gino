@@ -114,18 +114,28 @@ class Skin extends Model {
              * Variabile di sessione -> urls -> rexp
              */
             foreach($rows as $row) {
+            	
                 $session_array = explode("=", trim($row['session']));
                 if(count($session_array) == 2) {
-                    if(isset($session->$session_array[0]) && $session->$session_array[0] == $session_array[1]) {
-                        $urls = explode(",", $row['urls']);
-                        // url esatto nella forma abbellita o espansa
-                        foreach($urls as $url)
-                        {
-                            if($url == $request->url or $url == $request->path) {
-                                if($row['auth'] == '' or ($request->user->id and $row['auth']=='yes') or (!$request->user->id and $row['auth'] == 'no'))
-                                    return new Skin($row['id']);
-                            }
-                        }
+                	
+                	$param_session = $session_array[0];
+                	$value_session = $session_array[1];
+                	
+                	if(isset($session->$param_session) && $session->$param_session == $value_session) {
+                        
+                    	if(!empty($row['urls']))
+                    	{
+                    		$urls = explode(",", $row['urls']);
+                        	
+                        	// url esatto nella forma abbellita o espansa
+                        	foreach($urls as $url)
+                        	{
+                            	if($url == $request->url or $url == $request->path) {
+                                	if($row['auth'] == '' or ($request->user->id and $row['auth']=='yes') or (!$request->user->id and $row['auth'] == 'no'))
+                                    	return new Skin($row['id']);
+                            	}
+                        	}
+                    	}
 
                         if(!empty($row['rexp']))
                         {
@@ -137,6 +147,7 @@ class Skin extends Model {
                         }
                     }
                 }
+                
             }
 
             /**
@@ -144,7 +155,8 @@ class Skin extends Model {
              */
             foreach($rows as $row) {
 
-                if(!$row['session']) {
+                if(!$row['session'] && $row['urls']) {
+                	
                     $urls = explode(",", $row['urls']);
                     foreach($urls as $url) 
                     {
@@ -258,9 +270,9 @@ class Skin extends Model {
         $buffer .= \Gino\Input::hidden('id', $this->id);
         
         $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), _("esempi").":<br />mobile=1"), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), _("esempi").":<br />#\?evt\[news-(.*)\]#<br />#^news/(.*)#"), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), _("Indicare uno o più indirizzi separati da virgole; esempi").":<br />index.php?evt[news-viewList]<br />news/viewList"), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:<br /> %s"), "mobile=1")), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:<br />%s"), "#\?evt\[news-(.*)\]#<br />#^news/(.*)#")), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:<br />%s"), "index.php?evt[news-viewList]<br />news/viewList")), array("size"=>40, "maxlength"=>200));
         $css_list = array();
         
         foreach(Css::getAll() as $css) {

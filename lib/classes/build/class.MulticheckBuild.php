@@ -135,7 +135,7 @@ class MulticheckBuild extends Build {
      * 
      * @param array $value
      */
-    public function filterWhereClause($value) {
+    public function filterWhereClause($value, $options=array()) {
 
         $parts = array();
         foreach($value as $v) {

@@ -1436,19 +1436,16 @@ class auth extends \Gino\Controller {
     private function manageGroup() {
 
         $info = _("Elenco dei gruppi del sistema.");
-        $link_button = $this->_home."?evt[".$this->_class_name."-manageAuth]&block=group";
 
         $opts = array(
             'list_display' => array('id', 'name', 'description'),
             'list_description' => $info, 
             'add_buttons' => array(
-                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$link_button."&op=jgp", 'param_id'=>'ref')
+                array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=group&op=jgp'), 'param_id'=>'ref'),
             )
         );
 
-        $admin_table = Loader::load('AdminTable', array(
-            $this
-        ));
+        $admin_table = Loader::load('AdminTable', array($this));
 
         return $admin_table->backoffice('Group', $opts);
     }
@@ -1643,10 +1640,14 @@ class auth extends \Gino\Controller {
      */
     public function actionJoinGroupPermission(\Gino\Http\Request $request) {
 
-        $this->requirePerm('can_admin');
-
-        $id = \Gino\cleanVar($request->POST, 'id', 'integer', '');
-        if(!$id) return null;
+        
+    	$this->requirePerm('can_admin');
+    	
+    	$id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+    	
+    	if(!$id) {
+    		throw new \Gino\Exception\Exception404();
+    	}
 
         $perm = array_key_exists('perm', $request->POST) ? $request->POST['perm'] : array();
 

@@ -1098,6 +1098,7 @@ class Input {
      *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri (default false)
      *   - @b helptext (array)
      *   - @b add_related (array): array(title=>string, id=>int, url=>string)
+     *   - @b disabled (boolean): disabilita la selezione dell'input
      * @return widget html
      */
     public static function select($name, $selected, $data, $options=array()) {
@@ -1116,22 +1117,24 @@ class Input {
     	$cutWords = gOpt('cutWords', $options, false);
     	$helptext = gOpt('helptext', $options, null);
     	$add_related = gOpt('add_related', $options, null);
+    	$disabled = gOpt('disabled', $options, false);
     	
-    	$GFORM = "<select name=\"$name\" ";
-    	$GFORM .= $id ? "id=\"$id\" ":"";
-    	$GFORM .= $required ? "required ":"";
-    	$GFORM .= $classField ? "class=\"$classField\" ":"";
-    	$GFORM .= $size ? "size=\"$size\" ":"";
-    	$GFORM .= $multiple ? "multiple=\"multiple\" ":"";
-    	$GFORM .= $js ? $js." ":"";
-    	$GFORM .= $other ? $other." ":"";
-    	$GFORM .= ">\n";
+    	$buffer = "<select name=\"$name\" ";
+    	$buffer .= $id ? "id=\"$id\" " : "";
+    	$buffer .= $required ? "required " : "";
+    	$buffer .= $disabled ? "disabled " : '';
+    	$buffer .= $classField ? "class=\"$classField\" " : "";
+    	$buffer .= $size ? "size=\"$size\" " : "";
+    	$buffer .= $multiple ? "multiple=\"multiple\" " : "";
+    	$buffer .= $js ? $js." " : "";
+    	$buffer .= $other ? $other." " : "";
+    	$buffer .= ">\n";
     
     	if(!$noFirst) {
-    		$GFORM .= "<option value=\"\"></option>\n";
+    		$buffer .= "<option value=\"\"></option>\n";
     	}
     	elseif($firstVoice) {
-    		$GFORM .= "<option value=\"".$firstValue."\">".$firstVoice."</option>";
+    		$buffer .= "<option value=\"".$firstValue."\">".$firstVoice."</option>";
     	}
     
     	if(is_array($data)) {
@@ -1142,7 +1145,7 @@ class Input {
     				}
     				$value = htmlChars($value);
     
-    				$GFORM .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
+    				$buffer .= "<option value=\"$key\" ".($key==$selected?"selected=\"selected\"":"").">".$value."</option>\n";
     			}
     		}
     	}
@@ -1164,26 +1167,26 @@ class Input {
     				else {
     					$value = $val2;
     				}
-    				$GFORM .= "<option value=\"".htmlInput($val1)."\" ".($val1==$selected?"selected=\"selected\"":"").">".htmlChars($value)."</option>\n";
+    				$buffer .= "<option value=\"".htmlInput($val1)."\" ".($val1==$selected?"selected=\"selected\"":"").">".htmlChars($value)."</option>\n";
     			}
     		}
     	}
     
-    	$GFORM .= "</select>\n";
+    	$buffer .= "</select>\n";
     
     	if(is_array($helptext) && count($helptext)) {
     		$title = $helptext['title'];
     		$text = $helptext['text'];
-    		$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    		$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
     	}
     
     	if(is_array($add_related) && count($add_related)) {
     		$title = $add_related['title'];
     		$id = $add_related['id'];
     		$url = $add_related['url'];
-    		$GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
+    		$buffer .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
     	}
     
-    	return $GFORM;
+    	return $buffer;
     }
 }

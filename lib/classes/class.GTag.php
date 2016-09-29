@@ -133,11 +133,11 @@ class GTag {
         		AND NOT (content_controller_class='".$content_controller_class."' AND content_class='".$content_class."' AND content_id='".$content_id."')";
         
         $rows = $db->select(
-        	'*, COUNT(content_id) AS freq', 
+        	'content_controller_class, content_controller_instance, content_class, COUNT(content_id) AS freq', 
         	self::$_table_tag_taggeditem, 
         	$where, 
         	array(
-        		'group_by' => 'content_controller_class, content_class, content_id', 
+        		'group_by' => 'content_controller_class, content_controller_instance, content_class, content_id', 
         		'order' => 'content_controller_class, content_class, freq DESC, content_id DESC'
         ));
         if($rows and count($rows)) {
