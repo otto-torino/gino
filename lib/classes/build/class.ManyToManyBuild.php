@@ -191,12 +191,17 @@ class ManyToManyBuild extends Build {
      */
     public function filterWhereClause($value, $options=array()) {
 
-        $parts = array();
+    	$parts = array();
         foreach($value as $v) {
-            $parts[] = $this->_table.".".$this->_name." REGEXP '[[:<:]]".$v."[[:>:]]'";
+        	$parts[] = $this->_join_table_m2m_id."='$v'";
         }
-
-        return "(".implode(' OR ', $parts).")";
+        
+        if(count($parts)) {
+        	return "id IN (SELECT ".$this->_join_table_id." FROM ".$this->_join_table." WHERE ".implode(' OR ', $parts).")";
+        }
+        else {
+        	return null;
+        }
     }
     
     /**
