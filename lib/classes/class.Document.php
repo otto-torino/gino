@@ -183,7 +183,7 @@ class Document {
 
         // js
         $scripts = array(
-            SITE_JS."/mootools-1.4.0-yc.js",
+            SITE_JS."/MooTools-More-1.6.0-compressed.js",
             SITE_JS."/modernizr.js",
             SITE_JS."/gino-min.js",
         );
