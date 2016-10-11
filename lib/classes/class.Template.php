@@ -609,19 +609,19 @@ class Template extends Model {
         }
         else $template = $this->createTemplate($blocks_number);    // ricostruzione del template
 
-        $buffer = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
-        $buffer .= "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n";
+        $buffer = "<!DOCTYPE html>";
+        $buffer .= "<html lang=\"".LANG."\">";
         $buffer .= "<head>\n";
-        $buffer .= "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n";
-        $buffer .= "<title>Template</title>\n";
+        $buffer .= "<meta charset=\"utf-8\" />";
         $buffer .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
+        $buffer .= "<title>Template</title>\n";
 
         $buffer .= "<link rel=\"stylesheet\" href=\"".CSS_WWW."/styles.css\" type=\"text/css\" />\n";
         $buffer .= "<link rel=\"stylesheet\" href=\"".SITE_APP.OS."layout".OS."layout.css\" type=\"text/css\" />\n";
         if($css->id)
             $buffer .= "<link rel=\"stylesheet\" href=\"".CSS_WWW."/$css->filename\" type=\"text/css\" />\n";
 
-        $buffer .= "<script type=\"text/javascript\" src=\"".SITE_JS."/mootools-1.4.0-yc.js\"></script>\n";
+        $buffer .= "<script type=\"text/javascript\" src=\"".SITE_JS."/MooTools-More-1.6.0-compressed.js\"></script>\n";
         $buffer .= "<script type=\"text/javascript\" src=\"".SITE_JS."/gino-min.js\"></script>\n";
         $buffer .= "<script type=\"text/javascript\" src=\"".SITE_APP."/layout/layout.js\"></script>\n";
         $buffer .= "</head>\n";

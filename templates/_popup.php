@@ -17,7 +17,7 @@
     <?=  $registry->variables('js') ?>
     <?= \Gino\Document::errorMessages() ?>
     <link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
-    <link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
     <!-- Gino onload function -->
     <?= \Gino\Javascript::vendor() ?> 
     <?= \Gino\Javascript::onLoadFunction() ?>  

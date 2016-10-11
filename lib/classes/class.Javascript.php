@@ -3,7 +3,7 @@
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Javascript
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Contiene i metodi per includere alcuni javascript
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,6 +26,57 @@ class Javascript {
 
         $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/abiMap.js\"></script>\n";
         return $buffer;
+    }
+    
+    /**
+     * @brief Script per la conversione di un indirizzo in longitudine/latitudine
+     * @param array $options
+     *   - @b button_id (string): valore id del bottone (default map_coord)
+     *   - @b map_id (string): valore id della mappa (default map_address)
+     * @return string
+     */
+    public static function scriptConvertAddress($options=array()) {
+    	
+    	$button_id = gOpt('button_id', $options, 'map_coord');
+    	$map_id = gOpt('map_id', $options, 'map_address');
+    	
+    	$buffer = self::abiMapLib();
+    	$buffer .= "<script type=\"text/javascript\">";
+    	$buffer .= "function convert() {
+			var addressConverter = new AddressToPointConverter('".$button_id."', 'lat', 'lng', $('".$map_id."').value, {'canvasPosition':'over'});
+        	addressConverter.showMap();
+        }\n";
+    	$buffer .= "</script>";
+    	
+    	return $buffer;
+    }
+    
+    /**
+     * @brief Input localizzazione
+     * @param array $options
+     *   - @b button_id (string): valore id del bottone (default map_coord)
+     *   - @b map_id (string): valore id della mappa (default map_address)
+     *   - @b map_key (string): Google Map Key
+     *   - @b label (string|array): label dell'input form
+     * @return string
+     */
+    public static function inputConvertAddress($options=array()) {
+    	
+    	$button_id = gOpt('button_id', $options, 'map_coord');
+    	$map_id = gOpt('map_id', $options, 'map_address');
+    	$map_key = gOpt('map_key', $options, GOOGLE_MAPS_KEY);
+    	$label = gOpt('label', $options, array(_("Indirizzo localizzazione"), _("es: torino, piazza castello<br />utilizzare 'converti' per calcolare latitudine e longitudine")));
+    	
+    	$gmk = $map_key ? "key=".$map_key."&" : '';
+    	
+    	$onclick = "onclick=\"Asset.javascript('https://maps.google.com/maps/api/js?".$gmk."sensor=true&callback=convert')\"";
+    	
+    	$convert_button = \Gino\Input::input($button_id, 'button', _("converti"), array("id" => $button_id, "classField" => "generic", "js" => $onclick));
+    	
+    	$input = \Gino\Input::input_label($map_id, 'text', '', $label,
+    		array("size" => 40, "maxlength" => 200, "id" => $map_id, "text_add" => "<p>".$convert_button."</p>"));
+    	
+    	return $input;
     }
 
     /**
@@ -133,7 +184,7 @@ class Javascript {
     private static function sharethis($key) {
 
         $buffer = "<script type=\"text/javascript\">var switchTo5x=true;</script>\n";
-        $buffer .= "<script type=\"text/javascript\" src=\"http://w.sharethis.com/button/buttons.js\"></script>\n";
+        $buffer .= "<script type=\"text/javascript\" src=\"https://ws.sharethis.com/button/buttons.js\"></script>\n";
         $buffer .= "<script type=\"text/javascript\">stLight.options({publisher: \"".$key."\", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>\n";
 
         return $buffer;

@@ -19,6 +19,19 @@ include(LIB_DIR.OS.'func.file.php');
 include(LIB_DIR.OS.'func.browser.php');
 
 /**
+ * @brief Verifica se la connessione è sicura (https)
+ * @return boolean
+ */
+function isSecure() {
+	if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+/**
  * @brief Ricava il percorso relativo a partire da un percorso assoluto
  * @param string $abspath percorso assoluto
  * @return percorso relativo

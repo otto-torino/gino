@@ -192,7 +192,7 @@ class Document {
             $scripts[] = SITE_JS."/respond.js";
         }
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-            $this->_registry->addCustomJs("http://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
+            $this->_registry->addCustomJs("https://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
         }
 
         $this->_registry->js = array_merge($scripts, $this->_registry->js);
@@ -278,7 +278,7 @@ class Document {
         $headline .= javascript::onLoadFunction($skin);
 
         $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
-        $headline .= "<link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
+        $headline .= "<link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
 
         if($this->_registry->sysconf->google_analytics) $headline .= $this->google_analytics();
         $headline .= "</head>\n";
