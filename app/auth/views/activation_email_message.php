@@ -15,5 +15,5 @@
 <? $registry = \Gino\Registry::instance(); ?>
 <?= sprintf(_("Buongiorno %s %s,\nla registrazione è stata confermata, la tua utenza è stata attivata, puoi loggarti al sistema dal seguente url:\n %s\n\n"), $user->firstname, $user->lastname, $login_url) ?>
 <?= sprintf(_('Ti ricordiamo il nome utente da te scelto: %s.'), $user->username) . "\n" ?>
-<?= sprintf(_("La tua pagina profilo è disponibile una volta loggato al segunte indirizzo:\n%s"), $profile_url) ?>
+<?= sprintf(_("La tua pagina profilo è disponibile una volta loggato al seguente indirizzo:\n%s"), $profile_url) ?>
 <? // @endcond ?>
