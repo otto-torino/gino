@@ -898,7 +898,7 @@ namespace Gino;
      * @param object $controller
      * @return array
      */
-    protected static function properties($model, $controller=null) {
+    protected static function properties($model, $controller) {
     	
     	return array();
     }

@@ -29,15 +29,35 @@ class Document {
             $_request,
             $_url_content;
 
+	/**
+	 * @brief Elenco delle istanze dei contenuti
+	 * @var array
+	 *   - array(string [classname _ moduleid] => object [new classname(moduleid)])
+	 *   - array(page => new page)
+	 */
+	private $_instances;
+	
+	/**
+	 * @brief Elenco dei contenuti
+	 * @var array
+	 *   - array(string [moduletype - moduleid - methodname - methodparam] => string [output])
+	 *   - array(string [page - moduleid] => object [page->box(moduleid)])
+	 */
+	private $_outputs;
+	
     /**
      * @brief Costruttore
      * @param string $url_content contenuto fornito dal metodo chiamato via url
      * @return istanza di Gino.Document
      */
     function __construct($url_content) {
+    	
         $this->_registry = Registry::instance();
         $this->_request = $this->_registry->request;
         $this->_url_content = $url_content;
+        
+        $this->_outputs = array();
+        $this->_instances = array();
 
         Loader::import('sysClass', 'ModuleApp');
         Loader::import('module', 'ModuleInstance');
@@ -163,7 +183,7 @@ class Document {
 
         // js
         $scripts = array(
-            SITE_JS."/mootools-1.4.0-yc.js",
+            SITE_JS."/MooTools-More-1.6.0-compressed.js",
             SITE_JS."/modernizr.js",
             SITE_JS."/gino-min.js",
         );
@@ -172,7 +192,7 @@ class Document {
             $scripts[] = SITE_JS."/respond.js";
         }
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-            $this->_registry->addCustomJs("http://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
+            $this->_registry->addCustomJs("https://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
         }
 
         $this->_registry->js = array_merge($scripts, $this->_registry->js);
@@ -184,10 +204,13 @@ class Document {
      * @return contenuto corrispondente
      */
     private function parseModules($m) {
+    	
         $mdlMarker = $m[0];
-        preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
-        $mdlType = (!empty($matches[1]))? $matches[1]:null;
-        $mdlId = (!empty($matches[2]))? $matches[2]:null;
+        preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))(\s*param=([0-9]+))?#", $mdlMarker, $matches);
+        
+        $mdlType = (!empty($matches[1])) ? $matches[1]:null;
+        $mdlId = (!empty($matches[2])) ? $matches[2]:null;
+        $mdlParam = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
 
         if($mdlType=='page') {
             $mdlContent = $this->modPage($mdlId);
@@ -195,14 +218,18 @@ class Document {
         elseif(($mdlType=='class' or $mdlType=='sysclass') and isset($matches[4])) {
             $mdlFunc = $matches[4];
             try {
-                $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
+                $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType, $mdlParam);
             }
             catch(Exception $e) {
-                    Logger::manageException($e);
+            	Logger::manageException($e);
             }
         }
-        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
-        else return $matches[0];
+        elseif($mdlType==null && $mdlId==null) {
+        	$mdlContent = $this->_url_content;
+        }
+        else {
+        	return $matches[0];
+        }
 
         return $mdlContent;
     }
@@ -251,7 +278,7 @@ class Document {
         $headline .= javascript::onLoadFunction($skin);
 
         $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
-        $headline .= "<link href='http://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
+        $headline .= "<link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
 
         if($this->_registry->sysconf->google_analytics) $headline .= $this->google_analytics();
         $headline .= "</head>\n";
@@ -302,7 +329,7 @@ class Document {
 
     /**
      * @brief Gestisce il tipo di elemento da richiamare
-     
+     *
      * @see modPage()
      * @see modClass()
      * @see modUrl()
@@ -312,6 +339,7 @@ class Document {
     private function renderModule($mdlMarker) {
 
         preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
+        
         $mdlType = (!empty($matches[1]))? $matches[1]:null;
         $mdlId = (!empty($matches[2]))? $matches[2]:null;
 
@@ -336,7 +364,7 @@ class Document {
     }
 
     /**
-     * @brief Contenuto modulo di tipo pagina
+     * @brief Contenuto dei moduli di tipo pagina
      *
      * @see Gino.App.Page.page::box()
      * @param int $mdlId valore ID della pagina
@@ -360,18 +388,27 @@ class Document {
     }
 
     /**
-     * @brief Contenuto modulo di tipo classe
+     * @brief Contenuto dei moduli di tipo classe
+     * 
      * @param int $mdlId id istanza/classe
      * @param string $mdlFunc metodo
      * @param string $mdlType tipo modulo (sysclass|class)
+     * @param string|int $mdlParam valore del parametro da passare al metodo da richiamare
      * @return contenuto
      */
-    private function modClass($mdlId, $mdlFunc, $mdlType){
+    private function modClass($mdlId, $mdlFunc, $mdlType, $mdlParam=null){
 
         $db = Db::instance();
 
-        if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc])) {
-            return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc];
+        if($mdlParam) {
+        	$paramKey = '-'.$mdlParam;
+        }
+        else {
+        	$paramKey = '';
+        }
+        
+        if(isset($this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc.$paramKey])) {
+            return $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc.$paramKey];
         }
 
         $obj = $mdlType=='sysclass' ? new ModuleApp($mdlId) : new ModuleInstance($mdlId);
@@ -384,8 +421,10 @@ class Document {
         }
 
         $classObj = $this->_instances[$class_name."_".$mdlId];
+        
+        // Permessi
         $ofs = call_user_func(array($classObj, 'outputFunctions'));
-        $ofp = isset($ofs[$mdlFunc]['permissions'])? $ofs[$mdlFunc]['permissions']:array();
+        $ofp = isset($ofs[$mdlFunc]['permissions']) ? $ofs[$mdlFunc]['permissions'] : array();
 
         if($mdlType=='sysclass') {
 
@@ -393,7 +432,13 @@ class Document {
             if(!$this->checkOutputFunctionPermissions($ofp, $module_app->name, 0)) {
                 return '';
             }
-            $buffer = $classObj->$mdlFunc();
+        	
+        	if($mdlParam) {
+        		$buffer = $classObj->$mdlFunc($mdlParam);
+        	}
+        	else {
+        		$buffer = $classObj->$mdlFunc();
+        	}
         }
         elseif($mdlType=='class') {
 
@@ -403,10 +448,15 @@ class Document {
                 return '';
             }
 
-            $buffer = $classObj->$mdlFunc();
+            if($mdlParam) {
+            	$buffer = $classObj->$mdlFunc($mdlParam);
+            }
+            else {
+            	$buffer = $classObj->$mdlFunc();
+            }
         }
 
-        $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc] = $buffer;
+        $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc.$paramKey] = $buffer;
 
         return $buffer;
     }
@@ -460,17 +510,6 @@ class Document {
 
         $code = $this->_registry->sysconf->google_analytics;
         $buffer = "<script type=\"text/javascript\">";
-        /*
-        $buffer .= "var _gaq = _gaq || [];";
-        $buffer .= "_gaq.push(['_setAccount', '".$code."']);";
-        //$buffer .= "_gaq.push(['_gat._anonymizeIp']);";
-        $buffer .= "_gaq.push(['_trackPageview']);";
-        $buffer .= "(function() {
-        	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();";
-        */
         
         $buffer .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

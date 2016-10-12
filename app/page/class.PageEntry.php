@@ -159,21 +159,25 @@ class PageEntry extends \Gino\Model {
         	'name'=>'enable_comments',
         	'label'=>_('Abilita commenti'),
         	'required'=>true,
+        	'default' => 0
         ));
 		$columns['published'] = new \Gino\BooleanField(array(
             'name'=>'published',
             'label'=>_('Pubblicato'),
             'required'=>true,
+        	'default' => 0
         ));
 		$columns['social'] = new \Gino\BooleanField(array(
             'name'=>'social',
             'label'=>_('Condivisioni social'),
             'required'=>true,
+        	'default' => 0
         ));
         $columns['private'] = new \Gino\BooleanField(array(
         	'name'=>'private',
         	'label'=>array(_("Privata"), _("pagina visualizzabile da utenti con il relativo permesso")),
         	'required'=>true,
+        	'default' => 0
         ));
         /*
         $ids = \Gino\App\Auth\User::getUsersWithDefinedPermissions(array('can_view_private'), $controller);

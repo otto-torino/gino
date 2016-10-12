@@ -172,7 +172,7 @@ class ManyToManyThroughBuild extends Build {
     /**
      * @see Gino.Build::filterWhereClause()
      */
-    public function filterWhereClause($value) {
+    public function filterWhereClause($value, $options=array()) {
         
     	return null;
     }

@@ -62,7 +62,7 @@ class User extends \Gino\Model {
 	/**
      * @see Gino.Model::properties()
      */
-     protected static function properties($model) {
+     protected static function properties($model, $controller) {
 		
      	$controller = new auth();
      	

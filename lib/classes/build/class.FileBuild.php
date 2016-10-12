@@ -417,7 +417,7 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::filterWhereClause()
      */
-    public function filterWhereClause($value) {
+    public function filterWhereClause($value, $options=array()) {
     
     	return $this->_table.".".$this->_name." LIKE '%".$value."%'";
     }
@@ -425,7 +425,7 @@ class FileBuild extends Build {
     /**
      * @see Gino.Build::cleanFilter()
      */
-    public function cleanFilter($options)
+    public function cleanFilter($request_value, $options)
     {
     	$request = \Gino\Http\Request::instance();
     	$escape = gOpt('escape', $options, TRUE);

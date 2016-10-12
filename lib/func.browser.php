@@ -81,25 +81,27 @@ function get_browser_info($arg='',$agent='')
         }
     }
 
-    $known = array('version',strtolower($name), 'other');
+    // version
+    $version = null;
+    $known = array('version', strtolower($name), 'other');
     $pattern = '#(?<browser>' . join('|', $known) .')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
-    if (preg_match_all($pattern,$agent, $matches))
+    if (preg_match_all($pattern, $agent, $matches))
     {
         if (count($matches['browser'])>0)
         {
             if (strripos($agent,"version") < strripos($agent,strtolower($name)) ){
-                    $version= $matches['version'][0];
+            	$version= $matches['version'][0];
             }
             else {
-                    $version= $matches['version'][1];
+            	$version= $matches['version'][1];
             }
         }
         else {
-                $version=0;
+        	$version=0;
         }
-        if ($version==null || $version=="") { $version="?"; }
-        $version = (int) round($version);
     }
+    if ($version==null || $version=="") { $version="?"; }
+    $version = (int) round($version);
 
     // platform
     $platform = '';
@@ -113,16 +115,16 @@ function get_browser_info($arg='',$agent='')
     // browser info
     $browser['agent']=$agent;
     if($name=='trident') {
-            $browser['name']='Internet Explorer';
-            $browser['version']='11';
+    	$browser['name']='Internet Explorer';
+    	$browser['version']='11';
     }
     elseif(empty($name)) {
-            $browser['name']='Unknown';
-            $browser['version']=0;        
+    	$browser['name']='Unknown';
+    	$browser['version']=0;        
     }
     else {
-            $browser['name']=$name;
-            $browser['version']=$version;
+    	$browser['name']=$name;
+    	$browser['version']=$version;
     }
     $browser['is_bot']=$is_bot;
     $browser['platform']=$platform;

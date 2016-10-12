@@ -48,7 +48,7 @@ class PageComment extends \Gino\Model {
         return (string) $this->id ? $this->datetime.'-'.$this->author : '';
     }
     
-    protected static function properties($model) {
+    protected static function properties($model, $controller) {
     	
     	$items = array();
     	
@@ -203,7 +203,7 @@ class PageComment extends \Gino\Model {
      * @see Gino.Model::save()
      * @return boolean
      */
-    public function save() {
+    public function save($options=array()) {
 
         $db_object = new PageComment($this->_p['id']);
 
@@ -214,7 +214,7 @@ class PageComment extends \Gino\Model {
             $notify = FALSE;
         }
 
-        $result = parent::save();
+        $result = parent::save($options);
 
         if($notify) {
             $this->notifyComment();
