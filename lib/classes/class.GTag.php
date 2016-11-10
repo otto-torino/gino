@@ -133,7 +133,7 @@ class GTag {
         		AND NOT (content_controller_class='".$content_controller_class."' AND content_class='".$content_class."' AND content_id='".$content_id."')";
         
         $rows = $db->select(
-        	'content_controller_class, content_controller_instance, content_class, COUNT(content_id) AS freq', 
+        	'content_controller_class, content_controller_instance, content_class, content_id, COUNT(content_id) AS freq', 
         	self::$_table_tag_taggeditem, 
         	$where, 
         	array(
@@ -158,14 +158,17 @@ class GTag {
                         $class = get_model_app_name_class_ns($controller_name, $content_class);
                         $controller_class = get_app_name_class_ns($controller_name);
                         $object = new $class($content_id, new $controller_class($controller_instance));
-                        if(method_exists($object, 'gtagOutput')) {
-                            $res[$module->label][] = $object->gtagOutput();
-                        }
-                        elseif(method_exists($object, 'getUrl')) {
-                            $res[$module->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
-                        }
-                        else {
-                            $res[$module->label][] = (string) $object;
+                        if($object->id)
+                        {
+                        	if(method_exists($object, 'gtagOutput')) {
+                            	$res[$module->label][] = $object->gtagOutput();
+                        	}
+                        	elseif(method_exists($object, 'getUrl')) {
+                            	$res[$module->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
+                        	}
+                        	else {
+                            	$res[$module->label][] = (string) $object;
+                        	}
                         }
                     }
                 }
@@ -177,14 +180,17 @@ class GTag {
                         }
                         $class = get_model_app_name_class_ns($controller_name, $content_class);
                         $object = new $class($content_id);
-                        if(method_exists($object, 'gtagOutput')) {
-                            $res[$module_app->label][] = $object->gtagOutput();
-                        }
-                        elseif(method_exists($object, 'getUrl')) {
-                            $res[$module_app->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
-                        }
-                        else {
-                            $res[$module_app->label][] = (string) $object;
+                        if($object->id)
+                        {
+                        	if(method_exists($object, 'gtagOutput')) {
+                            	$res[$module_app->label][] = $object->gtagOutput();
+                        	}
+                        	elseif(method_exists($object, 'getUrl')) {
+                            	$res[$module_app->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
+                        	}
+                        	else {
+                            	$res[$module_app->label][] = (string) $object;
+                        	}
                         }
                     }
                 }

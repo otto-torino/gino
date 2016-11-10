@@ -843,7 +843,7 @@ class page extends \Gino\Controller {
             }
             
             $pre_filter = \Gino\shareAll(
-            	array('facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'pinterest_large', 'evernote_large', 'email_large'), 
+            	array('facebook', 'twitter', 'linkedin', 'google_plus', 'pinterest', 'evernote', 'email'), 
             	$this->link($this->_instance_name, 'view', array('id'=>$obj->slug), '', array('abs'=>true)), 
             	\Gino\htmlChars($obj->ml('title')));
         }
