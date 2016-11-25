@@ -887,9 +887,12 @@ $buffer = '';
 }
 
 /**
- * @brief Codice condivisione social network con integrazione sharethis
+ * @brief Codice condivisione social network con integrazione sharethis e AddToAny
+ * @description Se nelle impostazioni è stato inserito il codice ShareThis, le condivisioni vengono gestite da quest'ultimo
  *
- * @param array $social elenco delle tipologie di condivisione (facebook, twitter, linkedin, googleplus, digg); col valore @a all vengono mostrate tutte le condivisioni
+ * @param mixed $social
+ *   - string, valore identificativo di raggruppamenti di condivisioni (all, st_all, st_all_large)
+ *   - array, elenco delle tipologie di condivisione (facebook, twitter, linkedin, googleplus, digg)
  * @param string $url indirizzo da condividere
  * @param string $title titolo della condivisione
  * @param string $description descrizione
@@ -897,81 +900,105 @@ $buffer = '';
  */
 function shareAll($social, $url, $title=null, $description=null) {
 
-    $registry = registry::instance();
-
-    $all = array("facebook", "twitter", "linkedin", "digg", "googleplus");
-    $st_all = array('sharethis', 'facebook', 'twitter', 'linkedin', 'googleplus', 'reddit', 'pinterest', 'tumblr', 'digg', 'delicious', 'evernote', 'google_reader', 'email');
-    //$st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'linkedin_large', 'googleplus_large', 'reddit_large', 'pinterest_large', 'tumblr_large', 'digg_large', 'delicious_large', 'evernote_large', 'google_reader_large', 'email_large');
-    $st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'googleplus_large', 'pinterest_large', 'email_large');
-    $display_text = array(
-        'sharethis' => 'ShareThis', 
-        'facebook' => 'Facebook',
-        'twitter' => 'Twitter',
-        'linkedin' => 'LinkedIn', 
-        'googleplus' => 'Google +', 
-        'reddit' => 'Reddit', 
-        'pinterest' => 'Pinterest', 
-        'tumblr' => 'Tumblr', 
-        'digg' => 'Digg', 
-        'delicious' => 'Delicious', 
-        'evernote' => 'Evernote', 
-        'google_reader' => 'Google Reader', 
-        'email' => 'Email'
-    );
-
-    if($social==="all") {
-        $social = $all;
-    }
-    else if($social==="st_all") {
-        $social = $st_all;
-    }
-    else if($social==="st_all_large") {
-        $social = $st_all_large;
-    }
-
-    $items = array();
-
-    if($registry->sysconf->sharethis_public_key) {
-        foreach($social as $s) {
-            $items[] = "<span class=\"st_".$s."\" displayText=\"".$display_text[preg_replace('#_large#', '', $s)]."\"></span>";
-        }
-    }
-    else {
-        foreach($social as $s) {
-            if(strpos($s, 'facebook') !== FALSE) {
-                $buffer = "
-<div id=\"fb-root\"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = \"//connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v2.6\";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>";
-            	$buffer .= "<div class=\"fb-share-button\" 
-            	data-href=\"$url\" 
-            	data-layout=\"button_count\"></div>";
-            	
-            	$items[] = $buffer;
-            }
-            elseif(strpos($s, 'twitter') !== FALSE) {
-                $items[] = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
-            }
-            elseif(strpos($s, 'linkedin') !== FALSE) {
-                $items[] = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode($registry->sysconf->head_title)."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
-            }
-            elseif(strpos($s, 'googleplus') !== FALSE) {
-                $items[] = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";
-            }
-            elseif(strpos($s, 'digg') !== FALSE) {
-                $items[] = "<a href=\"http://digg.com/submit?phase=2&amp;url=".$url."&amp;title=".$title."\"><img src=\"".SITE_IMG."/share_digg.png\" alt=\"Share on LinkedIn\"></a>";
-            }
-        }
-    }
-
-    $buffer = implode(" ", $items);
-
-    return "<div class=\"share\">".$buffer."</div>";
+    // for compatibility with sharethis
+	$registry = registry::instance();
+	if($registry->sysconf->sharethis_public_key) {
+		
+		$all = array("facebook", "twitter", "linkedin", "digg", "googleplus");
+		$st_all = array('sharethis', 'facebook', 'twitter', 'linkedin', 'googleplus', 'reddit', 'pinterest', 'tumblr', 'digg', 'delicious', 'evernote', 'google_reader', 'email');
+		$st_all_large = array('sharethis_large', 'facebook_large', 'twitter_large', 'googleplus_large', 'pinterest_large', 'email_large');
+		$display_text = array(
+			'sharethis' => 'ShareThis',
+			'facebook' => 'Facebook',
+			'twitter' => 'Twitter',
+			'linkedin' => 'LinkedIn',
+			'googleplus' => 'Google +',
+			'reddit' => 'Reddit',
+			'pinterest' => 'Pinterest',
+			'tumblr' => 'Tumblr',
+			'digg' => 'Digg',
+			'delicious' => 'Delicious',
+			'evernote' => 'Evernote',
+			'google_reader' => 'Google Reader',
+			'email' => 'Email'
+		);
+		
+		if($social==="all") {
+			$social = $all;
+		}
+		else if($social==="st_all") {
+			$social = $st_all;
+		}
+		else if($social==="st_all_large") {
+			$social = $st_all_large;
+		}
+		
+		$items = array();
+		
+		foreach($social as $s) {
+			
+			if($s == 'google_plus') {
+				$s = 'googleplus';
+			}
+			$items[] = "<span class=\"st_".$s."\" displayText=\"".$display_text[preg_replace('#_large#', '', $s)]."\"></span>";
+		}
+		
+		$buffer = implode(" ", $items);
+		
+		return "<div class=\"share\">".$buffer."</div>";
+	}
+	// end compatibility
+	
+	// addtoany
+	$a_social = array();
+	$all_social = array('facebook', 'twitter', 'google_plus', 'linkedin', 'reddit', 'tumblr', 'pinterest', 'delicious', 'digg', 'evernote', 'email', 'whatsapp');
+	
+	if(is_string($social)) {
+		if($social == 'core') {
+			$a_social = array("facebook", "twitter", "linkedin", "digg", "google_plus", 'whatsapp');
+		}
+		elseif($social == 'all' or $social == 'st_all' or $social == 'st_all_large') {
+			$a_social = $all_social;
+		}
+	}
+	elseif(is_array($social)) {
+		
+		if(count($social)) {
+			$a_social = $social;
+		}
+		else {
+			$a_social = $all_social;
+		}
+	}
+	else {
+		$a_social = $all_social;
+	}
+	
+	if($title) {
+		$title = urlencode($title);
+	}
+	else {
+		$title = '';
+	}
+	
+	$buffer = "
+	<div class=\"a2a_kit a2a_kit_size_32 a2a_default_style\">
+	<a class=\"a2a_dd\" href=\"https://www.addtoany.com/share?linkurl=$url&amp;linkname=$title\"></a>";
+	
+	foreach ($a_social AS $s) {
+		$buffer .= "<a class=\"a2a_button_".$s."\"></a>";
+	}
+	
+	$buffer .= "
+	</div>
+	<script>
+	var a2a_config = a2a_config || {};
+	a2a_config.linkurl = \"$url\";
+	a2a_config.locale = \"it\";
+	</script>
+	<script async src=\"https://static.addtoany.com/menu/page.js\"></script>";
+	
+	return $buffer;
 }
 
 /**
