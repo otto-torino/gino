@@ -63,6 +63,12 @@ class Form {
 	private $_form_id;
 	
 	/**
+	 * @brief Classe del tag form
+	 * @var string
+	 */
+	private $_form_class;
+	
+	/**
 	 * @brief Metodo di passaggio dei dati del form
 	 * @var array $_method
 	 */
@@ -120,9 +126,10 @@ class Form {
     	$form_id = gOpt('form_id', $options, null);
     	$verify_token = gOpt('verifyToken', $options, false);
     	
-    	// Default settings
-    	$this->_form_id = $form_id;
+    	// Set values
+    	$this->setFormId($form_id);
     	$this->_hidden = null;
+    	$this->setFormClass(null);
     	$this->setMethod('POST');
     	$this->setValidation(true);
     	
@@ -172,6 +179,16 @@ class Form {
     public function setValidation($validation){
 
         $this->_validation = (bool) $validation;
+    }
+    
+    private function setFormId($form_id) {
+    	 
+    	$this->_form_id = $form_id;
+    }
+    
+    private function setFormClass($form_class) {
+    	
+    	$this->_form_class = $form_class;
     }
     
     private function setDefaultFormId($model) {
@@ -313,6 +330,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form
+     *   - @b form_class (string): nome della classe del tag form
      *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
      *   - @b view_info (boolean): visualizzazione delle informazioni (default true)
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
@@ -322,28 +340,35 @@ class Form {
      */
     public function open($action, $upload, $list_required, $options=array()) {
 
-        $form_id = gOpt('form_id', $options, null);
+    	// opzioni disponibili richiamando direttamente questo metodo;
+    	// passando dalla classe ModelForm (AdminTable) queste opzioni vengono definite in render() e makeInputForm()
+    	$form_id = gOpt('form_id', $options, null);
+    	$form_class = gOpt('form_class', $options, null);
         $validation = gOpt('validation', $options, null);
         $view_info = gOpt('view_info', $options, true);
         
         if($form_id) {
         	$this->_form_id = $form_id;
         }
+        if($form_class) {
+        	$this->setFormClass($form_class);
+        }
         if(is_bool($validation)) {
         	$this->setValidation($validation);
         }
     	
-    	$buffer = '';
-
-        $confirm = '';
+    	$confirm = '';
         if(isset($options['func_confirm']) && $options['func_confirm']) {
         	$confirm = " && ".$options['func_confirm'];
         }
         if(isset($options['text_confirm']) && $options['text_confirm']) {
         	$confirm = " && confirmSubmit('".$options['text_confirm']."')";
         }
-
-        $buffer .= "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_form_id."\" name=\"".$this->_form_id."\" action=\"$action\" method=\"$this->_method\"";
+        
+        $buffer = "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_form_id."\" name=\"".$this->_form_id."\" action=\"$action\" method=\"$this->_method\"";
+        if($this->_form_class) {
+        	$buffer .= " class=\"$this->_form_class\"";
+        }
         if($this->_validation) {
         	$buffer .= " onsubmit=\"return (gino.validateForm($(this))".$confirm.")\"";
         }
@@ -571,18 +596,22 @@ class Form {
      * @param \Gino\Model $model_obj istanza di Gino.Model da inserire/modificare
      * @param array $opt array associativo di opzioni
      *   - @b fields (array): campi da mostrare nel form
-     *   - @b options_form (array): opzioni del form e del layout (vedere anche makeInputForm())
-     *     - @b allow_insertion (boolean)
-     *     - @b edit_deny (array)
-     *     - @b edit_allow (array)
-     *     - @b form_id (mixed): valore id del tag form
-     *     - @b session_value (string)
-     *     - @b method (string): metodo del form (get/post/request); default post
-     *     - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
-     *     - @b view_folder (string): percorso al file della vista
-     *     - @b view_title (boolean): per visualizzare l'intestazione del form (default true)
-     *     - @b form_title (string): intestazione personalizzata del form
-     *     - @b form_description (string): testo che compare tra il titolo ed il form
+     *   - @b options_form (array): opzioni del tag form e del layout
+     *     - @b opzioni sulle operazioni permesse
+     *       - @b allow_insertion (boolean)
+     *       - @b edit_deny (array)
+     *       - @b edit_allow (array)
+     *     - @b opzioni del tag form (altre opzioni vengono gestite nei metodi makeInputForm() e open())
+     *       - @b form_id (string): valore id del tag form
+     *       - @b form_class (string): nome della classe del tag form
+     *       - @b session_value (string)
+     *       - @b method (string): metodo del form (get/post/request); default post
+     *       - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
+     *     - @b opzioni del layout
+     *       - @b view_folder (string): percorso al file della vista
+     *       - @b view_title (boolean): per visualizzare l'intestazione del form (default true)
+     *       - @b form_title (string): intestazione personalizzata del form
+     *       - @b form_description (string): testo che compare tra il titolo ed il form
      *   - @b options_field (array): opzioni dei campi
      * @return Gino.Http.Redirect se viene richiesta una action o si verifica un errore, form html altrimenti
      */
@@ -599,11 +628,16 @@ class Form {
     	$edit_deny = gOpt('edit_deny', $options_form, array());
     	$edit_allow = gOpt('edit_allow', $options_form, array());
     	
-    	$this->_form_id = gOpt('form_id', $options_form, null);
-    	$this->_session_value = gOpt('session_value', $options_form, null);
+    	$form_id = gOpt('form_id', $options_form, null);
+    	$form_class = gOpt('form_class', $options_form, null);
     	$method = gOpt('method', $options_form, null);
     	$validation = gOpt('validation', $options_form, true);
+    	$this->_session_value = gOpt('session_value', $options_form, null);
     	
+    	if($form_id) {
+    		$this->setFormId($form_id);
+    	}
+    	$this->setFormClass($form_class);
     	$this->setMethod($method);
     	$this->setValidation($validation);
     	
@@ -618,7 +652,7 @@ class Form {
     	
     	// Default settings
     	if(!$this->_form_id) {
-    		$this->_form_id = $this->setDefaultFormId($model_obj);
+    		$this->setFormId($this->setDefaultFormId($model_obj));
     	}
     	if(!$this->_session_value) {
     		$this->_session_value = $this->setDefaultSession($model_obj);
@@ -721,7 +755,7 @@ class Form {
     	$show_save_and_continue = gOpt('show_save_and_continue', $options, true);
     	$view_info = gOpt('view_info', $options, true);
     	
-    	// - tag form ($f_upload e $f_required vengono definite più avanti)
+    	// - opzioni del tag form ($f_upload e $f_required vengono definite più avanti)
     	$f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
     	$f_func_confirm = array_key_exists('f_func_confirm', $options) ? $options['f_func_confirm'] : '';
     	$f_text_confirm = array_key_exists('f_text_confirm', $options) ? $options['f_text_confirm'] : '';
@@ -749,7 +783,7 @@ class Form {
     				}
     			}
     		}
-    
+    		
     		if($this->permission($options, $field) && (
     			($removeFields && !in_array($field, $removeFields)) ||
     			($viewFields && in_array($field, $viewFields)) ||
@@ -799,9 +833,9 @@ class Form {
     		$buffer .= $this->open($f_action, $f_upload, $f_required,
     			array(
     				'view_info' => $view_info, 
-    				'func_confirm'=>$f_func_confirm,
-    				'text_confirm'=>$f_text_confirm,
-    				'generateToken'=>$f_generateToken
+    				'func_confirm' => $f_func_confirm,
+    				'text_confirm' => $f_text_confirm,
+    				'generateToken' => $f_generateToken
     			)
     		);
     		$buffer .= Input::hidden('_popup', $popup);

@@ -36,7 +36,7 @@ class TagInput extends Input {
 		
 		// all tags
 		$tags = GTag::getAllTags();
-		$js_tags_list = "['".implode("','", $tags)."']";
+		$js_tags_list = "['".implode("','", jsVar($tags))."']";
 		
 		$text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); win.display();\"></span>";
 		

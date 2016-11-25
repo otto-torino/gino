@@ -1,0 +1,189 @@
+/* =============================================================================
+   Primary styles
+   Author: Dimitar Christoff
+   ========================================================================== */
+
+.none {
+    display: none;
+}
+
+.modal {
+    z-index: 1000000;
+    /* custom */
+    display: table;
+}
+
+.overlay {
+    background-repeat: repeat;
+    background-scroll: scroll;
+    background-position: 0 0;
+    background-color: rgb(241,210,194);
+    background-image: -moz-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%, rgba(241,210,194,1) 100%);
+    background-image: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,255,255,0.56)), color-stop(100%,rgba(241,210,194,1)));
+    background-image: -webkit-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(241,210,194,1) 100%);
+    background-image: -o-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(241,210,194,1) 100%);
+    background-image: -ms-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(241,210,194,1) 100%);
+    background-image: radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(241,210,194,1) 100%);
+}
+
+.modal-box {
+    min-width: 250px;
+    width: 70%;
+    max-width: 750px;
+    border: 1px solid;
+    border-color: #afafaf #a0a0a0 #909090;
+    border-radius: 6px;
+    margin-top: 30px;
+    opacity: 0;
+    left: 100%;
+    visibility: hidden;
+    text-align: left;
+    border-collapse:separate;
+}
+
+.autoWidth {
+    width: auto;
+    max-width: none;
+    display: inline-block;
+}
+
+.modal-box-initial {
+    margin-top: 30px !important
+}
+
+.modal-visible {
+    opacity: 1 !important;
+    margin-top: 0 !important;
+}
+
+span.modal-close {
+    position: absolute;
+    z-index: 1000001;
+    right: 6px;
+    top: 6px;
+    background: url(../img/gtk-close.png) no-repeat right center;
+    height: 20px;
+    padding-right: 30px;
+    padding-top: 4px;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+}
+.simple-modal .modal-box {
+    overflow: auto;
+}
+
+
+.modal-content {
+    background:  #fff;
+    /* custom */
+    box-shadow: none;
+    border-radius: 0;
+    border: 0;
+}
+    .modal-header, .modal-footer {
+        background-color: #fff;
+        text-align: left;
+        padding: 10px;
+        text-shadow: 0 1px 0 #fff;
+    }
+
+        .modal-header {
+            border-radius: 6px 6px 0 0;
+            /*height: 23px;*/
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 1px rgba(255,255,255,.8);
+            border-bottom: 1px solid #fff;
+            background: #fff
+        }
+
+        .modal-header:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal-footer {
+            border-radius: 0 0 6px 6px;
+            background-color: #f5f5f5;
+            min-height: 2px;
+            border-top: 1px solid #fff;
+            /* custom */
+            margin-top: 0px;
+        }
+
+    .modal-body {
+        background: #fff;
+        padding: 6px;
+        border-bottom: 1px solid #F5F5F5;
+        border-top: 1px solid #F5F5F5;
+    }
+
+
+    .simple-modal .modal-box {
+        overflow: auto;
+    }
+
+    .simple-modal .modal-content {
+        max-height: none !important;
+    }
+
+    .simple-modal .modal-body {
+        overflow: hidden;
+    }
+
+.modal p {
+    margin:  0;
+    margin-bottom: 12px;
+}
+
+
+.boxShadow {
+    -moz-box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+    -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+    -ms-box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+    box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+    -o-box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+}
+
+.modal-footer button {
+    background-color: #444;
+    border: 1px solid transparent;
+    padding: 4px 4px 4px 4px;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #ccc;
+    -ms-border-radius: 3px 3px 3px 3px;
+    -o-border-radius: 3px 3px 3px 3px;
+    -moz-border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,.8);
+    _cursor: hand;
+    cursor: pointer;
+}
+
+.modal-footer button:hover {
+    background: #000;
+    color: #fff;
+    -moz-box-shadow: inset 0px 0px 5px rgba(255,255,255,.5);
+    -webkit-box-shadow: inset 0px 0px 10px rgba(0,0,0,.5);
+    -ms-box-shadow: inset 0px 0px 10px #555;
+    -o-box-shadow: inset 0px 0px 10px rgba(0,0,0,.5);
+    box-shadow: inset 0px 0px 2px rgba(255,255,255,.7);
+}
+
+.transition {
+    -webkit-transition: all 0.4s ease-out 0s;
+    -moz-transition: all 0.4s ease-out 0s;
+    -ms-transition: all 0.4s ease-out 0s;
+    -o-transition: all 0.4s ease-out 0s;
+    transition: all 0.4s ease-out 0s;
+}
+
+
+/* Contain floats: nicolasgallagher.com/micro-clearfix-hack/ */
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }

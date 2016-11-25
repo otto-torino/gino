@@ -183,9 +183,10 @@ class Document {
 
         // js
         $scripts = array(
-            SITE_JS."/MooTools-More-1.6.0-compressed.js",
-            SITE_JS."/modernizr.js",
-            SITE_JS."/gino-min.js",
+        	SITE_JS."/MooTools-More-1.6.0-compressed.js",
+        	SITE_JS."/modernizr.js",
+        	SITE_JS."/gino-min.js",
+        	SITE_JS."/Modal.js",
         );
         $browser = get_browser_info();
         if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
