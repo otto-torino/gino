@@ -640,6 +640,7 @@ class page extends \Gino\Controller {
         $view->assign('form_comment', $form_comment);
         $view->assign('comments', $comments);
         $view->assign('url', $this->link($this->_instance_name, 'view', array('id'=>$item->slug)));
+        $view->assign('related_contents_list', $this->relatedContentsList($item));
 
         $document = new \Gino\Document($view->render());
         return $document();

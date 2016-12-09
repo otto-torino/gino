@@ -203,6 +203,7 @@ class AdminTable {
             
         	$mform = new $this->_model_form($model_obj);
         	
+        	$options_form['view_section_file'] = 'admin_table_form';
         	$options_form['allow_insertion'] = $this->_allow_insertion;
         	$options_form['edit_deny'] = $this->_edit_deny;
         	$options_form['edit_allow'] = $this->_edit_allow;
