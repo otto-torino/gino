@@ -154,7 +154,6 @@ class Locale extends Singleton {
     
     /**
      * @brief Setta la lingua del client
-     * @description Quando viene richiesto un cambio di lingua viene effettuato un refresh della pagina per poter reimpostare le librerie gettext
      *
      * @return TRUE
      */
@@ -168,11 +167,6 @@ class Locale extends Singleton {
     	self::setLanguage();
     	
     	$registry->trd = new translation($session->lng, $session->lngDft);
-    	
-    	if($session->lng != $init_language) {
-    		\header('Location: '.$_SERVER['REQUEST_URI']);
-    		exit();
-    	}
     	
     	return TRUE;
     }

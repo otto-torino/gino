@@ -142,12 +142,12 @@ class Core {
         	'\Gino\TagInput',
         ));
 
-        // gettext
-        Locale::initGettext();
         // registro di sistema
         $this->initRegistry();
         // locale, setta l'oggetto trd per le traduzioni nel registro
         Locale::init();
+        // gettext
+        Locale::initGettext();
         // mobile
         if(!!$this->_registry->sysconf->mobile) {
             $this->initMobile();
