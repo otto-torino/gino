@@ -49,6 +49,7 @@ class Core {
             '\Gino\Exception\Exception404',
             '\Gino\Exception\Exception403',
             '\Gino\Exception\Exception500',
+        	'\Gino\Exception\ValidationError',
         ));
 
         Loader::import('class/http', array(

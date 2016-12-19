@@ -859,7 +859,7 @@ namespace Gino;
     }
     
     /**
-     * @brief Racchiude tutte le proprietà di un mdello
+     * @brief Racchiude tutte le proprietà di un modello
      * @description Recupera le proprietà del campo dipendenti dai valori del record e imposta le opzioni: model, field_object, value, table. 
      * 
      * @param object $field_obj oggetto della classe del tipo di campo

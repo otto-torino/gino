@@ -3,7 +3,7 @@
  * @file class.DirectoryBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.DirectoryBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Gestisce i campi di tipo DIRECTORY
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -155,20 +155,23 @@ class DirectoryBuild extends Build {
         {
             if(!$this->_model->id)
             {
-                if(!mkdir($this->_path.$value))
-                	return array('error'=>32);
+                if(!mkdir($this->_path.$value)) {
+                	throw new \Gino\Exception\ValidationError(Error::codeMessages(32));
+                }
             }
             else
             {
                 if(!$existing_dir)
                 {
-                    if(!mkdir($this->_path.$value))
-                        return array('error'=>32);
+                    if(!mkdir($this->_path.$value)) {
+                        throw new \Gino\Exception\ValdationError(Error::codeMessages(32));
+                    }
                 }
                 else
                 {
-                    if(!rename($this->_path.$existing_dir, $this->_path.$value))
-                        return array('error'=>32);
+                    if(!rename($this->_path.$existing_dir, $this->_path.$value)) {
+                        throw new \Gino\Exception\ValidationError(Error::codeMessages(32));
+                    }
                 }
             }
 

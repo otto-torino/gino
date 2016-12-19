@@ -3,7 +3,7 @@
  * @file class.FileBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.FileBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ loader::import('class/build', '\Gino\Build');
 /**
  * @brief Campo di tipo FILE
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -497,11 +497,11 @@ class FileBuild extends Build {
     		$filename_tmp = $request->FILES[$this->_name]['tmp_name'];
     		
     		if(!$filename_size) {
-    			throw new \Exception(_("Empty filename"));
+    			throw new \Gino\Exception\ValidationError(_("Empty filename"));
     		}
     		
     		if($this->_max_file_size && $filename_size > $this->_max_file_size) {
-    			throw new \Exception($code_messages[33]);
+    			throw new \Gino\Exception\ValidationError($code_messages[33]);
     		}
     		
     		$finfo = finfo_open(FILEINFO_MIME_TYPE);

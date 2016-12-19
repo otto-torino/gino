@@ -335,7 +335,7 @@ function clean_email($value, $options=array()) {
 
 	$value = clean_text($value, $options);
 	
-	if(is_null($value))
+	if(is_null($value) or $value == '')
 	{
 		return null;
 	}
@@ -350,7 +350,7 @@ function clean_email($value, $options=array()) {
 		$value = \filter_var($value, FILTER_VALIDATE_EMAIL);
 		
 		if($value === false) {
-			throw new \Exception(_("Formato dell'email non valido"));
+			throw new \Gino\Exception\ValidationError(_("Formato dell'email non valido"));
 		}
 		else {
 			return $value;

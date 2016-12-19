@@ -17,18 +17,16 @@ body {
 }
 
 /* Video */
-.video-responsive {
+.video-wrapper {
 	position: relative;
-	padding-bottom: 56.25%;
-	padding-top: 60px; overflow: hidden;
+	padding-bottom: 56.25%; /* 16:9 */
+	padding-top: 25px;
+ 	height: 0;
 }
-
-.video-responsive iframe,
-.video-responsive object,
-.video-responsive embed {
+.video-wrapper iframe {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
+	width: 100% !important;
+	height: 100% !important;
 }
