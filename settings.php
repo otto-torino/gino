@@ -3,15 +3,12 @@
  * @file settings.php
  * @brief Definizione dei percorsi dell'applicazione
  *
- * @copyright 2005-20014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-20017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 namespace Gino;
-
-// Include il file di configurazione dell'applicazione
-include('configuration.php');
 
 /** Separatore di directory definito dal sistema operativo */
 define('OS', DIRECTORY_SEPARATOR);
@@ -100,3 +97,6 @@ define('MODEL_CLASS_PREFIX', 'class.');
 
 /** Prefisso classi non interne a moduli */
 define('CORE_CLASS_PREFIX', 'class.');
+
+// Include il file di configurazione dell'applicazione
+include('configuration.php');

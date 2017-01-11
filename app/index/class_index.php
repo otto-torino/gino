@@ -3,7 +3,7 @@
  * @file class_index.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Index.index
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ use \Gino\Loader;
 /**
  * @brief Classe di tipo Gino.Controller del modulo che gestisce la home amministrativa
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -37,16 +37,54 @@ class index extends \Gino\Controller{
     }
 
     /**
-     * @brief Elenco dei metodi che possono essere richiamati dal menu
-     * @return array di metodi pubblici
+     * @brief Definizione dei metodi pubblici che forniscono un output per il front-end
+     *
+     * Questo metodo viene letto dal motore di generazione dei layout (prende i metodi non presenti nel file ini) e dal motore di generazione di
+     * voci di menu (presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
+     *
+     * @return array associativo metodi pubblici metodo => array('label' => label, 'permissions' => permissions)
      */
     public static function outputFunctions() {
 
         $list = array(
-            "admin_page" => array("label"=>_("Home page amministrazione"), "permissions"=>array('core.is_staff'))
+            "admin_page" => array("label" => _("Home page amministrazione"), "permissions"=>array('core.is_staff')),
+        	'sidenav' => array("label" => _("Menu amministrativo laterale"), "permissions"=>array('core.is_staff')),
         );
 
         return $list;
+    }
+    
+    /**
+     * @brief Barra laterale con l'elenco delle applicazioni
+     * @return NULL|string
+     */
+    public function sidenav() {
+    	
+    	$request = \Gino\Http\Request::instance();
+    	
+    	if(!$request->user->hasPerm('core', 'is_staff')) {
+    		return null;
+    	}
+    	
+    	$registry = \Gino\registry::instance();
+    	$registry->addCss($this->_class_www."/index.css");
+    	
+    	$sysMdls = $this->sysModulesManageArray($request);
+    	$mdls = $this->modulesManageArray($request);
+    	
+    	$view = new View();
+    	
+    	$view = new view($this->_view_dir, 'sidenav');
+    	$dict = array(
+    		'sysmdls' => $sysMdls,
+    		'mdls' => $mdls,
+    		'ctrl' => $this,
+    		'fas' => unserialize(INSTALLED_APPS),
+    		'hide' => unserialize(HIDDEN_APPS),
+    		'openclose' => OPEN_CLOSE_SIDENAV
+    	);
+    	
+    	return $view->render($dict);
     }
 
     /**
@@ -61,48 +99,21 @@ class index extends \Gino\Controller{
             return new \Gino\Http\Redirect($this->link('auth', 'login'));
         }
 
-        $buffer = '';
         $sysMdls = $this->sysModulesManageArray($request);
         $mdls = $this->modulesManageArray($request);
-        if(count($sysMdls)) {
-            $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
-            foreach($sysMdls as $sm) {
-                $GINO .= "<tr>";
-                $GINO .= "<th><a href=\"".$this->link($sm['name'], 'manage'.ucfirst($sm['name']))."\">".\Gino\htmlChars($sm['label'])."</a></th>";
-                $GINO .= "<td class=\"mdlDescription\">".\Gino\htmlChars($sm['description'])."</td>";
-                $GINO .= "</tr>";
-            }
-            $GINO .= "</table>\n";
 
-            $view = new \Gino\View();
-            $view->setViewTpl('section');
-            $view->assign('class', 'admin');
-            $view->assign('title', _("Amministrazione sistema"));
-            $view->assign('content', $GINO);
+        $view = new View();
 
-            $buffer .= $view->render();
-        }
-        if(count($mdls)) {
-            $GINO = "<table class=\"table table-striped table-hover table-bordered\">";
-            foreach($mdls as $m) {
-                $GINO .= "<tr>";
-                $GINO .= "<th><a href=\"".$this->link($m['name'], 'manageDoc')."\">".\Gino\htmlChars($m['label'])."</a></th>";
-                $GINO .= "<td>".\Gino\htmlChars($m['description'])."</td>";
-                $GINO .= "</tr>";
-            }
-            $GINO .= "</table>\n";
+        $view = new view($this->_view_dir, 'admin_page');
+        $dict = array(
+            'sysmdls' => $sysMdls,
+            'mdls' => $mdls,
+            'ctrl' => $this,
+            'fas' => unserialize(INSTALLED_APPS),
+            'hide' => unserialize(HIDDEN_APPS)
+        );
 
-            $view = new View();
-            $view->setViewTpl('section');
-            $view->assign('class', 'admin');
-            $view->assign('title', _("Amministrazione moduli istanziabili"));
-            $view->assign('content', $GINO);
-
-            $buffer .= $view->render();
-
-        }
-
-        $document = new Document($buffer);
+        $document = new \Gino\Document($view->render($dict));
         return $document();
     }
 

@@ -3,7 +3,7 @@
  * @file class_statistics.php
  * @brief Contiene la definizione ed implementazione della classe statistics
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,9 +22,9 @@ use \Gino\Http\Response;
 require_once('class.LogAccess.php');
 
 /**
- * @brief Statistiche degli accessi all'area privata
+ * @brief Gestisce le statistiche del sito: accessi all'area privata e informazioni google analytics
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -53,7 +53,7 @@ class statistics extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Analytics'));
         $link_log_access = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=log_access'), _('Accessi area privata'));
         $sel_link = $link_dft;
 
@@ -62,7 +62,7 @@ class statistics extends \Gino\Controller {
             $sel_link = $link_log_access;
         }
         else {
-            $backend = $this->info();
+            $backend = $this->analytics();
         }
 
         if(is_a($backend, '\Gino\Http\Response')) {
@@ -128,28 +128,48 @@ class statistics extends \Gino\Controller {
     }
 
     /**
-     * @brief Pagina di informazioni
-     * @return html, informazioni
+     * @brief Pagina di informazioni Google Analytics
+     * 
+     * @see https://github.com/google/google-api-php-client
+     * @return html
      */
-    private function info(){
+    private function analytics(){
+
+    	if(!is_file(GOOGLE_ANALYTICS_AUTH_CONFIG)) {
+    		$buffer = "<p>"._("Per attivare la visualizzazione di alcune statistiche di Google Analytics occorre impostare un account Google Analytics e salvare il file di configurazione.")."</p>";
+    		$buffer .= "<p>"._("Successivamente inpostare i valori delle apposite costanti nel file configuration.php.")."</p>";
+    		return $buffer;
+    	}
+    	
+    	require_once(LIB_DIR.'/google-api-php-client/vendor/autoload.php');
+    	
+        $client = new \Google_Client();
+        $client->setAuthConfig(GOOGLE_ANALYTICS_AUTH_CONFIG);
+        $client->setApplicationName(GOOGLE_ANALYTICS_NAME);
+        $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
+        $client->refreshTokenWithAssertion();
+        $token_data = $client->getAccessToken();
+
+        /*
+        if ($client->getAccessToken()) {
+          $token_data = $client->verifyIdToken();
+          var_dump($token_data);
+        }
+        */
 
         $log_access = $this->_registry->sysconf->log_access;
 
-        $GINO = '';
+        $alert = '';
         if(!$log_access) {
-            $GINO .= "<p class=\"lead\">".sprintf(_("Attenzione, attualmente il log degli accessi è disattivato. Per attivarlo modificare il settaggio dalle %sImpostazioni di sistema%s."), "<a href=\"".$this->_home."?evt[sysconf-manageSysconf]\">", "</a>")."</p>\n";
+            $alert .= "<p class=\"lead\">".sprintf(_("Attenzione, attualmente il log degli accessi è disattivato. Per attivarlo modificare il settaggio dalle %sImpostazioni di sistema%s."), "<a href=\"".$this->_home."?evt[sysconf-manageSysconf]\">", "</a>")."</p>\n";
         }
 
-        $GINO .= "<dl>";
-        $GINO .= "<dt>"._("Accessi area privata")."</dt>";
-        $GINO .= "<dd>"._("Resoconto degli accessi al sistema (sito principale e sito secondario) da parte degli utenti registrati, con numero totale di accessi, data e ora dell'ultimo accesso effettuato.")."</dd>";
-        $GINO .= "</dl>\n";
-
-        $view = new View(null, 'section');
+        $view = new View($this->_view_dir, 'analytics');
         $dict = array(
-            'title' => _('Informazioni'),
-            'class' => 'admin',
-            'content' => $GINO
+            'title' => _('Analytics'),
+            'alert' => $alert,
+            'token' => $token_data['access_token'],
+            'view_id' => GOOGLE_ANALYTICS_ID
         );
 
         return $view->render($dict);

@@ -3,19 +3,19 @@
  * @file class.Loader.php
  * @brief Contiene la definizione e l'implementazione della classe Gino.Loader ed il metodo magic __autoload.
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 namespace {
     /**
-     * @function __autoload
+     * @function dft_autoload
      * @brief Carica in maniera automatica le classi di tipo Gino.Controller
      * @param string $class nome classe con o senza namespace
      * @return void
      */
-    function __autoload($class) {
+    function dft_autoload($class) {
 
     	// Model
     	if(preg_match("#\\\#", $class))
@@ -49,8 +49,9 @@ namespace {
             }
         }
     }
-}
 
+	spl_autoload_register('dft_autoload');
+}
 
 namespace Gino {
 
