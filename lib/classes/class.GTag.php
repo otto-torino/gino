@@ -253,7 +253,7 @@ class GTag {
     		foreach($cleaned_tags AS $tag)
     		{
     			if($tag) {
-    				$link = $controller->link($controller->getInstanceName(), $interface, array('tag' => $tag));
+    				$link = $controller->link($controller->getInstanceName(), $interface, array('tag' => urlencode($tag)));
     				$buffer .= "<a href=\"".$link."\">$tag</a>";
     			}
     		}

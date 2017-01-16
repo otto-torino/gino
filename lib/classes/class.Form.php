@@ -110,6 +110,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form; occorre definirla nel caso di action form e di verifca del token
+     *   - @b form_class (string): classe del tag form
      *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
      * @throws Exception se viene rilevato un attacco CSRF
      * @return istanza di Gino.Form
@@ -124,14 +125,15 @@ class Form {
     	
     	// Options
     	$form_id = gOpt('form_id', $options, null);
+    	$form_class = gOpt('form_class', $options, null);
     	$verify_token = gOpt('verifyToken', $options, false);
     	
     	// Set values
     	$this->setFormId($form_id);
-    	$this->_hidden = null;
-    	$this->setFormClass(null);
+    	$this->setFormClass($form_class);
     	$this->setMethod('POST');
     	$this->setValidation(true);
+    	$this->_hidden = null;
     	
     	if($verify_token) {
     		if(!$this->verifyFormToken($form_id)) {
@@ -156,7 +158,7 @@ class Form {
      * @param string $method metodo di passaggio dei dati del form (metodi validi: post, get, request)
      * @return void
      */
-    public function setMethod($method){
+    public function setMethod($method) {
 
     	$valid = array('POST', 'GET', 'REQUEST');
     	$method = strtoupper($method);
@@ -176,19 +178,19 @@ class Form {
      * @param bool $validation indica se eseguire o meno la validazione del form (attiva la chiamata javascript validateForm())
      * @return void
      */
-    public function setValidation($validation){
+    public function setValidation($validation) {
 
         $this->_validation = (bool) $validation;
     }
     
-    private function setFormId($form_id) {
+    public function setFormId($form_id) {
     	 
-    	$this->_form_id = $form_id;
+    	$this->_form_id = (string) $form_id;
     }
     
-    private function setFormClass($form_class) {
+    public function setFormClass($form_class) {
     	
-    	$this->_form_class = $form_class;
+    	$this->_form_class = (string) $form_class;
     }
     
     private function setDefaultFormId($model) {
@@ -332,7 +334,7 @@ class Form {
      *   - @b form_id (string): valore id del tag form
      *   - @b form_class (string): nome della classe del tag form
      *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
-     *   - @b view_info (boolean): visualizzazione delle informazioni (default true)
+     *   - @b view_info (boolean): visualizzazione delle informazioni (default @a true)
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
      *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma; require validation true
      *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
@@ -348,7 +350,7 @@ class Form {
         $view_info = gOpt('view_info', $options, true);
         
         if($form_id) {
-        	$this->_form_id = $form_id;
+        	$this->setFormId($form_id);
         }
         if($form_class) {
         	$this->setFormClass($form_class);
@@ -601,15 +603,18 @@ class Form {
      *       - @b allow_insertion (boolean)
      *       - @b edit_deny (array)
      *       - @b edit_allow (array)
-     *     - @b opzioni del tag form (altre opzioni vengono gestite nei metodi makeInputForm() e open())
+     *     - @b opzioni del tag form (altre opzioni vengono gestite nei metodi self::makeInputForm() e self::open())
      *       - @b form_id (string): valore id del tag form
      *       - @b form_class (string): nome della classe del tag form
      *       - @b session_value (string)
      *       - @b method (string): metodo del form (get/post/request); default post
      *       - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
      *     - @b opzioni del layout
-     *       - @b view_folder (string): percorso al file della vista
-     *       - @b view_title (boolean): per visualizzare l'intestazione del form (default true)
+     *       - @b view_folder_section (string): directory del file della vista del contenitore
+     *       - @b view_file_section (string): nome del file della vista del contenitore del form (default @a section_form)
+     *       - @b view_folder_form (string): directory del file della vista del form; @see makeInputForm()
+     *       - @b view_file_form (string): nome del file della vista del form (default @a form); @see makeInputForm()
+     *       - @b view_title (boolean): per visualizzare l'intestazione del form (default @a true)
      *       - @b form_title (string): intestazione personalizzata del form
      *       - @b form_description (string): testo che compare tra il titolo ed il form
      *   - @b options_field (array): opzioni dei campi
@@ -642,12 +647,11 @@ class Form {
     	$this->setValidation($validation);
     	
     	// 2. opzioni del layout
-    	$view_folder = gOpt('view_folder', $options_form, null);
-    	$view_title = gOpt('view_title', $options_form, true);
+    	$view_folder_section = gOpt('view_folder_section', $options_form, null);
+    	$view_file_section = gOpt('view_file_section', $options_form, 'section_form');
+    	$show_title = gOpt('view_title', $options_form, true);
     	$form_title = gOpt('form_title', $options_form, null);
     	$form_description = gOpt('form_description', $options_form, null);
-    	
-    	$view = new View($view_folder);
     	// end
     	
     	// Default settings
@@ -659,7 +663,7 @@ class Form {
     	}
     	// end
     	
-    	if($view_title)
+    	if($show_title)
     	{
     		if($form_title)
     		{
@@ -692,7 +696,9 @@ class Form {
     	
     	$form = $this->makeInputForm($model_obj, $fields, $options_form, $options_field);
     	
-    	$view->setViewTpl('admin_table_form');
+    	$view = new View($view_folder_section);
+    	
+    	$view->setViewTpl($view_file_section);
     	$view->assign('title', $title);
     	$view->assign('form_description', $form_description);
     	$view->assign('form', $form);
@@ -719,9 +725,13 @@ class Form {
      *       array('next_field_name' => array('name' => 'name_item_add', 'field' => 'content_item_add'))
      *       @endcode
      *   // layout
-     *   - @b only_inputs (boolean): mostra soltanto gli input dei campi (default false)
-     *   - @b show_save_and_continue (boolean): mostra il submit "save and continue" (default true)
-     *   - @b view_info (boolean): visualizzazione delle informazioni (default true)
+     *   - @b view_folder_form (string): directory del file della vista
+     *   - @b view_file_form (string): nome del file della vista del form (default @a form)
+     *   - @b fieldsets (array): raggruppamenti dei campi in fieldset
+     *   - @b ordering (array): elenco ordinato degli input da mostrare
+     *   - @b only_inputs (boolean): mostra soltanto gli input dei campi (default @a false)
+     *   - @b show_save_and_continue (boolean): mostra il submit "save and continue" (default @a true)
+     *   - @b view_info (boolean): visualizzazione delle informazioni (default @a true); @see self::open()
      *   // tag form
      *   - @b f_action (string): (default '')
      *   - @b f_upload (boolean): (di default viene impostato automaticamente)
@@ -751,9 +761,11 @@ class Form {
     	$addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
     	
     	// - layout
+    	$view_folder_form = gOpt('view_folder_form', $options, null);
+    	$view_file_form = gOpt('view_file_form', $options, 'form');
     	$only_inputs = gOpt('only_inputs', $options, false);
     	$show_save_and_continue = gOpt('show_save_and_continue', $options, true);
-    	$view_info = gOpt('view_info', $options, true);
+    	$show_info = gOpt('view_info', $options, true);
     	
     	// - opzioni del tag form ($f_upload e $f_required vengono definite più avanti)
     	$f_action = array_key_exists('f_action', $options) ? $options['f_action'] : '';
@@ -827,20 +839,25 @@ class Form {
     	$f_required = array_key_exists('f_required', $options) ? $options['f_required'] : $form_required;
     	// /Options
     	
-    	$buffer = '';
-    
+    	// Declarations
+    	$open_form = null;
+    	$a_hidden_inputs = array();
+    	$a_inputs = array();
+    	$submit = null;
+    	
     	if(!$only_inputs) {
-    		$buffer .= $this->open($f_action, $f_upload, $f_required,
+    		
+    		$open_form = $this->open($f_action, $f_upload, $f_required,
     			array(
-    				'view_info' => $view_info, 
+    				'view_info' => $show_info,
     				'func_confirm' => $f_func_confirm,
     				'text_confirm' => $f_text_confirm,
     				'generateToken' => $f_generateToken
     			)
     		);
-    		$buffer .= Input::hidden('_popup', $popup);
+    		$a_hidden_inputs[] = Input::hidden('_popup', $popup);
     	}
-    
+    	
     	if(sizeof($this->_hidden) > 0)
     	{
     		foreach($this->_hidden AS $key=>$value)
@@ -849,43 +866,53 @@ class Form {
     			{
     				$h_value = array_key_exists('value', $options) ? $options['value'] : '';
     				$h_id = array_key_exists('id', $options) ? $options['id'] : '';
-    				$buffer .= Input::hidden($key, $h_value, array('id'=>$h_id));
+    				$a_hidden_inputs[] = Input::hidden($key, $h_value, array('id'=>$h_id));
     			}
-    			else $buffer .= Input::hidden($key, $value);
+    			else {
+    				$a_hidden_inputs[] = Input::hidden($key, $value);
+    			}
     		}
     	}
-    
+    	
     	$form_content = '';
-    
+    	
     	if(isset($options['fieldsets'])) {
     		foreach($options['fieldsets'] as $legend => $fields) {
-    			$form_content .= "<fieldset>\n";
-    			$form_content .= "<legend>$legend</legend>\n";
+    			
+    			$a_fields = array();
+    			
     			foreach($fields as $field) {
     				if(isset($structure[$field])) {
-    					$form_content .= $structure[$field];
+    					$a_fields[] = $structure[$field];
     				}
     			}
-    			$form_content .= "</fieldset>";
+    			
+    			$a_inputs[] = array('fieldset' => true, 'legend' => $legend, 'fields' => $a_fields);
     		}
     	}
     	elseif(isset($options['ordering'])) {
     		foreach($options['ordering'] as $field) {
-    			$form_content .= $structure[$field];
+    			$a_inputs[] = $structure[$field];
     		}
     	}
     	else {
-    		$form_content = implode('', $structure);
+    		$a_inputs = $structure;
     	}
-    
-    	$buffer .= $form_content;
-    
+    	
     	if(!$only_inputs) {
     		$save_and_continue = Input::input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-    		$buffer .= Input::input_label($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
-    		$buffer .= $this->close();
+    		$submit = Input::input_label($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
     	}
-    
-    	return $buffer;
+    	
+    	$view = new View($view_folder_form);
+    	
+    	$view->setViewTpl($view_file_form);
+    	
+    	$view->assign('open', $open_form);
+    	$view->assign('hidden_inputs', $a_hidden_inputs);
+    	$view->assign('inputs', $a_inputs);
+    	$view->assign('submit', $submit);
+    	
+    	return $view->render();
     }
 }

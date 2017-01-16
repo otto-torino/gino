@@ -3,7 +3,7 @@
  * @file class.MenuVoice.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.MenuVoice
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\View;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una voce di menu
  * 
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -227,7 +227,24 @@ class MenuVoice extends \Gino\Model {
         $result_link = null;
         $result = null;
 
-        $rows = $db->select('id, url', self::$tbl_voices, "url='".(substr($request->path, 0, 1) == '/' ? substr($request->path, 1) : $request->path)."' AND instance='".$instance."'");
+        // @TODO not HC
+        if($request->path == '' || $request->path == '/' || $request->path == 'index.php') {
+            return 52;
+        }
+        
+    	$url = urldecode($request->path);
+        $url = addslashes($url);
+        
+        if(substr($url, 0, 1) == '/') {
+        	$url1 = substr($url, 1);
+        	$url2 = $url1;
+        }
+        else {
+        	$url1 = $url;
+        	$url2 = $url1."#";
+        }
+        $where = "(url='".$url1."' OR url='".$url2."') AND instance='".$instance."'";
+        $rows = $db->select('id, url', self::$tbl_voices, $where);
         if($rows and count($rows)) {
           return $rows[0]['id'];
         }

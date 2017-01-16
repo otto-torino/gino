@@ -43,8 +43,12 @@
         </div><!-- /.navbar-collapse -->
       </div>
     </nav>
+    
+	<!-- sidenav -->
+	{module sysclassid=12 func=sidenav}
+    
 	<div class="container">
-      {module id=0}
-  </div>
+		{module id=0}
+	</div>
   </body>
 </html>

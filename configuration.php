@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -135,13 +135,52 @@ define('SESSION_NAME', 'GINO_SESSID');
 // Other
 
 /**
- * Google Maps Key
+ * Dimensione massima dei file per l'upload (2Mb => 2*1024*1024)
+ */
+define('MAX_FILE_SIZE', 5242880);
+
+/**
+ * @brief Definitions for the administrative area
+ * @see Gino.App.Index.index
+ */
+
+/* elenco delle applicazioni installate nel formato [app_name|instance_name] => icon_name */
+define('INSTALLED_APPS', serialize(array(
+	'sysconf' => 'cogs',
+	'language' => 'language',
+	'statistics' => 'pie-chart',
+	'layout' => 'th',
+	'graphics' => 'picture-o',
+	'attachment' => 'file',
+	'page' => 'file-text-o',
+	'searchSite' => 'search',
+	'instruments' => 'wrench',
+	'auth' => 'user',
+	'mainMenu' => 'bars',
+	'menu_admin' => 'bars',
+	'module' => 'puzzle-piece',
+	'sysClass' => 'cubes',
+)));
+
+/* elenco delle applicazioni da non visualizzare */
+define('HIDDEN_APPS', serialize(array('graphics', 'topbar', 'topbaradmin', 'menu_admin', )));
+
+/* gestione della barra laterale delle applicazioni in modalità apri/chiudi */
+define('OPEN_CLOSE_SIDENAV', false);
+
+/**
+ * @brief Google Maps Key
  */
 define('GOOGLE_MAPS_KEY', null);
 
 /**
- * Dimensione massima dei file per l'upload (2Mb => 2*1024*1024)
+ * @brief Google Analytics
+ * @see Gino.App.Statistics.statistics
  */
-define('MAX_FILE_SIZE', 5242880);
+
+/* path to json file, usually: APP_DIR.OS.'statistics'.OS.'file.json' */
+define('GOOGLE_ANALYTICS_AUTH_CONFIG', null);
+define('GOOGLE_ANALYTICS_ID', '');
+define('GOOGLE_ANALYTICS_NAME', null);
 
 ?>

@@ -209,7 +209,11 @@ class ModelForm extends Form {
     				$build = $this->_model->build($object);
     				$opt_element['model_id'] = $this->_model->id;
     				
-    				$value = $build->clean($retrieve_value, $opt_element);
+    				try {
+    					$value = $build->clean($retrieve_value, $opt_element);
+    				} catch (\Gino\Exception\ValidationError $e) {
+    					return array('error' => $e->getMessage());
+    				}
     				
     				// imposta il valore; @see Gino.Model::__set()
     				$this->_model->{$field} = $value;

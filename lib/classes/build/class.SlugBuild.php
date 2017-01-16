@@ -3,7 +3,7 @@
  * @file class.SlugBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.SlugBuild
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,7 +15,7 @@ Loader::import('class/build', '\Gino\Build');
 /**
  * @brief Getisce i campi di tipo SLUG (CHAR, VARCHAR)
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -90,7 +90,7 @@ class SlugBuild extends Build {
     	
     		$res = $db->select('id', $this->_table, $where);
     		if($res && count($res)) {
-    			throw new \Exception(_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));
+    			throw new \Gino\Exception\ValidationError(_("Il nome scelto per lo slug è già stato utilizzato.<br />Cambiare nome per proseguire col salvataggio."));
     		}
     		else {
     			return $value;
