@@ -752,6 +752,24 @@ function jsVar($string, $newline=false)
 }
 
 /**
+ * @brief Testo visualizzato in html dal javascript
+ *
+ * @param string $string
+ * @return string
+ */
+function jsHtml($string)
+{
+	$string = str_replace("\n",'',$string);
+	$string = str_replace("\r",'',$string);
+	$string = str_replace("\t",'',$string);
+
+	$string = str_replace("&#039;",'\'',$string);
+	$string = str_replace("\"","\'",$string);
+
+	return $string;
+}
+
+/**
  * @brief Escape testo che deve essere racchiuso in attributi html
  *
  * @param string $string

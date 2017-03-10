@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -39,7 +39,7 @@ require_once('class.ModelFormUser.php');
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
  * 
- * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -1435,11 +1435,9 @@ class auth extends \Gino\Controller {
      */
     private function manageGroup() {
 
-        $info = _("Elenco dei gruppi del sistema.");
-
-        $opts = array(
-            'list_display' => array('id', 'name', 'description'),
-            'list_description' => $info, 
+    	$opts = array(
+            'list_display' => array('id', 'name', 'description', array('member' => 'printPermissions', 'label' => _("Permessi associati"))),
+            'list_description' => _("Elenco dei gruppi del sistema."), 
             'add_buttons' => array(
                 array('label'=>\Gino\icon('permission', array('scale' => 1)), 'link'=>$this->linkAdmin(array(), 'block=group&op=jgp'), 'param_id'=>'ref'),
             )
@@ -1447,7 +1445,7 @@ class auth extends \Gino\Controller {
 
         $admin_table = Loader::load('AdminTable', array($this));
 
-        return $admin_table->backoffice('Group', $opts);
+        return $admin_table->backoffice('Group', $opts, array());
     }
 
     /**

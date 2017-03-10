@@ -82,6 +82,7 @@ class Build {
      */
     function __construct($options) {
 
+    	// from Gino.Field::getProperties()
     	$this->_name = $options['name'];
     	$this->_label = $options['label'];
     	$this->_default = $options['default'];
@@ -94,10 +95,10 @@ class Build {
     	$this->_int_digits = $options['int_digits'];
     	$this->_decimal_digits = $options['decimal_digits'];
     	
+    	// from Gino.Model::getProperties()
     	$this->_model = $options['model'];
     	$this->_field_object = $options['field_object'];
     	$this->_table = $options['table'];
-    	$this->_view_input = true;
     	
     	if(array_key_exists('value', $options)) {
     		$this->_value = $options['value'];
@@ -107,6 +108,9 @@ class Build {
     		$this->_value = $value;
     		$options['value'] = $value;
     	}
+    	
+    	// other
+    	$this->_view_input = true;
     	
     	$this->_options = $options;
     }
@@ -139,7 +143,7 @@ class Build {
     }
     
     /**
-     * @brief Indica se il campo può essere utilizzato come ordinamento nella lista della sezione amministrativa
+     * @brief Definisce se il campo ammette l'ordinamento degli elementi negli elenchi amministrativi
      * @return TRUE se puo' essere utilizzato per l'ordinamento, FALSE altrimenti
      */
     public function canBeOrdered() {

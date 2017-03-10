@@ -36,30 +36,49 @@ function searchNameFile($dir){
  * @brief Forza il download di un file
  *
  * @param string $full_path percorso del file
+ * @param array $options array associativo di opzioni
+ *   - @b pdf_inline (boolean): file pdf gestito inline (default false)
  * @return stream del file o FALSE se il file non si apre in lettura
  */
-function download($full_path)
+function download($full_path, $options=array())
 {
-    if($fp = fopen($full_path, "r"))
-    {
-        $fsize = filesize($full_path);
-        $path_parts = pathinfo($full_path);
+	$pdf_inline = gOpt('pdf_inline', $options, false);
 
-        $response = Loader::load('http/ResponseFile', array($full_path, 'application/download', $path_parts["basename"]), '\Gino\Http\\');
-        $response->setDispositionType('Attachment');
-        $response->setHeaders(array(
-            'Pragma' => 'public',
-            'Expires' => '0',
-            'Content-Description' => 'File Transfer',
-            'Content-length' => $fsize,
-            'Cache-control' => 'private'
-        ));
-    }
-    else {
-        $response = Loader::load('http/ResponseNotFound', array(), '\Gino\Http\\');
-    }
+	if($fp = fopen($full_path, "r"))
+	{
+		$fsize = filesize($full_path);
+		$path_parts = pathinfo($full_path);
 
-    return $response;
+		$response = Loader::load('http/ResponseFile', array($full_path, "application/download", $path_parts["basename"]), '\Gino\Http\\');
+
+		if($pdf_inline && verifyExtension($path_parts["basename"], array('pdf'))) {
+			$response->setContentType("application/pdf");
+			$response->setDispositionType('inline');
+			$response->setHeaders(array(
+				'Pragma' => 'public',
+				'Expires' => '0',
+				'Content-Transfer-Encoding' => 'base64',
+				'Content-Description' => 'PDF File',
+				'Content-length' => $fsize,
+				'Cache-control' => 'public, must-revalidate, max-age=0'
+			));
+		}
+		else {
+			$response->setDispositionType('Attachment');
+			$response->setHeaders(array(
+				'Pragma' => 'public',
+				'Expires' => '0',
+				'Content-Description' => 'File Transfer',
+				'Content-length' => $fsize,
+				'Cache-control' => 'private'
+			));
+		}
+	}
+	else {
+		$response = Loader::load('http/ResponseNotFound', array(), '\Gino\Http\\');
+	}
+
+	return $response;
 }
 
 /**
@@ -154,7 +173,7 @@ function extensionFile($filename){
  */
 function verifyExtension($filename, $extensions){
 
-    $ext = $this->extensionFile($filename);
+    $ext = extensionFile($filename);
 
     if(sizeof($extensions) > 0 AND !empty($ext))
     {

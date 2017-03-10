@@ -3,7 +3,7 @@
  * @file class.AdminTable.php
  * @brief Contiene la definizione ed implementazione della classe Gino.AdminTable
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -56,7 +56,7 @@ namespace Gino;
  * dove @a group (mixed) indica il o i gruppi autorizzati a una determinata funzione/campo. \n
  * La chiave @a view contiene il permesso di accedere alla singola funzionalità (view, edit, delete), e per il momento non viene utilizzata. \n
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -389,6 +389,7 @@ class AdminTable {
      *     - @b view_export (boolean): attiva il collegamento per l'esportazione dei record (default false)
      *     - @b name_export (string): nome del file di esportazione
      *     - @b export (integer): valore che indica la richiesta del file di esportazione (il parametro viene passato dal metodo backOffice)
+     *     - @b deny_ordered (boolean): disabilita l'ordinamento dei record negli elenchi (default false)
      * @return lista record paginata e ordinabile
      * 
      * ##Descrizione
@@ -416,6 +417,7 @@ class AdminTable {
         $view_export = gOpt('view_export', $options_view, false);
         $name_export = gOpt('name_export', $options_view, 'export_items.csv');
         $export = gOpt('export', $options_view, false);
+        $deny_ordered = gOpt('deny_ordered', $options_view, false);
 
         // fields to be shown
         $fields_loop = array();
@@ -465,7 +467,7 @@ class AdminTable {
         }
 
         //prepare query
-        $query_selection = $db->distinct($model_table.".id");
+        $query_selection = $model_table.".id";	// 2017-03-09: $db->distinct($model_table.".id")
         $query_table = array($model_table);
         
         if(is_array($this->_edit_allow) && count($this->_edit_allow)) {
@@ -511,12 +513,17 @@ class AdminTable {
                 }
                 $export_header[] = $label;
                 
-                if(is_object($field_obj)) {
-                	$build_obj = $model->build($field_obj);
-                	$can_be_ordered = $build_obj->canBeOrdered();
+                if($deny_ordered) {
+                	$can_be_ordered = false;
                 }
                 else {
-                	$can_be_ordered = false;
+                	if(is_object($field_obj)) {
+                		$build_obj = $model->build($field_obj);
+                		$can_be_ordered = $build_obj->canBeOrdered();
+                	}
+                	else {
+                		$can_be_ordered = false;
+                	}
                 }
 
                 if(!is_array($field_obj) and $can_be_ordered) {

@@ -335,11 +335,13 @@ class page extends \Gino\Controller {
         $code_exp .= _("Inoltre si possono eseguire dei filtri o aggiungere link facendo seguire il nome della proprietà dai caratteri '|filtro'. Disponibili").":<br />";
         $code_exp .= "<ul>";
         $code_exp .= "<li><b><span style='text-style: normal'>|link</span></b>: "._('aggiunge il link che porta al dettaglio')."</li>";
-        $code_exp .= "<li><b><span style='text-style: normal'>img|class:name_class</span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
-        $code_exp .= "<li><b><span style='text-style: normal'>img|size:wxh</span></b>: "._('ridimensiona l\'immagine a larghezza (w) e altezza (h) dati')."</li>";
+        $code_exp .= "<li><b><span style='text-style: normal'>img|class:<i>name_class</i></span></b>: "._('aggiunge la classe name_class all\'immagine')."</li>";
+        $code_exp .= "<li><b><span style='text-style: normal'>img|size:<i>w</i>x<i>h</i></span></b>: "._('ridimensiona l\'immagine a larghezza (w) e altezza (h) dati')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|title:&quot;html_title&quot;</span></b>: "._('Aggiunge il titolo fornito alla lista dei contenuti correlati')."</li>";
         $code_exp .= "</ul>";
+        $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni").":<br />";
+        $code_exp .= "<ul>";
         $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni").":<br />";
         $code_exp .= "<ul>";
         if(self::checkValidApplication('gmaps')) {
@@ -805,9 +807,10 @@ class page extends \Gino\Controller {
             if(!$obj->image) {
                 return '';
             }
-            $image = "<img src=\"".$obj->imgPath($this)."\" alt=\"img: ".\Gino\jsVar($obj->ml('title'))."\" />";
-            if($obj->url_image)
-                $image = "<a href=\"".$obj->url_image."\">$image</a>";
+            $image = "<img class=\"img-responsive\" src=\"".$obj->imgPath($this)."\" alt=\"img: ".\Gino\jsVar($obj->ml('title'))."\" />";
+            if($obj->url_image) {
+            	$image = "<a href=\"".$obj->url_image."\">$image</a>";
+            }
             $pre_filter = $image;
         }
         elseif($property == 'author_img') {
@@ -827,6 +830,14 @@ class page extends \Gino\Controller {
         }
         elseif($property == 'text' || $property == 'title') {
             $pre_filter = \Gino\htmlChars($obj->ml($property));
+            /*
+            if($property == 'text') {
+            	// Activate lightbox in the view "view"
+            	$pre_filter = \Gino\htmlChars($obj->ml($property), 'pageLbox');
+            }
+            else {
+            	$pre_filter = \Gino\htmlChars($obj->ml($property));
+            }*/
         }
         elseif($property == 'read') {
             $pre_filter = $obj->read;
