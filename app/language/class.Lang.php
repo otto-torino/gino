@@ -69,38 +69,40 @@ class Lang extends \Gino\Model {
     	$columns['label'] = new \Gino\CharField(array(
     		'name'=>'label',
     		'label' => _('etichetta'),
-    		'required'=>true,
-    		'max_lenght'=>10,
+    		'required' => true,
+    		'max_lenght' => 10,
     		'trnsl' => false
     	));
     	$columns['language'] = new \Gino\CharField(array(
-    		'name'=>'language',
+    		'name' => 'language',
     		'label' =>  _('lingua'),
-    		'required'=>true,
-    		'max_lenght'=>50,
+    		'required' => true,
+    		'max_lenght' => 50,
     		'trnsl' => false
     	));
     	$columns['language_code'] = new \Gino\EnumField(array(
-    		'name'=>'language_code',
+    		'name' => 'language_code',
     		'label' => _('codice lingua'),
-    		'widget'=>'select',
-    		'required'=>true,
-    		'max_lenght'=>5,
-    		'choice'=>self::languageCodes(),
+    		'widget' => 'select',
+    		'required' => true,
+    		'max_lenght' => 5,
+    		'choice' => self::languageCodes(),
+    		'value_type' => 'string',
     	));
     	$columns['country_code'] = new \Gino\EnumField(array(
-    		'name'=>'country_code',
+    		'name' => 'country_code',
     		'label' => _('codice stato'),
-    		'widget'=>'select',
-    		'required'=>true,
-    		'max_lenght'=>5,
-    		'choice'=>self::countryCodes(),
+    		'widget' => 'select',
+    		'required' => true,
+    		'max_lenght' => 5,
+    		'choice' => self::countryCodes(),
+    		'value_type' => 'string',
     	));
     	$columns['active'] = new \Gino\BooleanField(array(
-            'name'=>'active',
+            'name' => 'active',
     		'label' => _('attiva'),
-            'required'=>true,
-            'default'=>0,
+            'required' => true,
+            'default' => 0,
         ));
     	return $columns;
     }

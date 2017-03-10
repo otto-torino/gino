@@ -3,7 +3,7 @@
  * @file class.Permission.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.Permission.
  * 
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un permesso
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  * 
@@ -210,6 +210,49 @@ class Permission extends \Gino\Model {
         }
 
         return $res;
+    }
+    
+    /**
+     * @brief Dati di iferimento di un permesso
+     * @param integer $id valore id del permesso
+     * @param integer $instance valore id dell'istanza
+     * @return string|NULL
+     */
+    public static function getDataPermission($id, $instance) {
+    	
+    	$perm = new Permission($id);
+    	
+    	$module_app = \Gino\App\SysClass\ModuleApp::getFromName($perm->class);
+    	if($perm->class === 'core' or !$module_app->instantiable) {
+    		if($perm->class === 'core' or $module_app->active)
+    		{
+    			if($perm->class === 'core')
+    			{
+    				$mod_name = 'core';
+    				$mod_label = '';
+    			}
+    			else
+    			{
+    				$mod_name = $module_app->name;
+    				$mod_label = $module_app->label;
+    			}
+    			
+    			return $perm->label." - ".$mod_name." (".$mod_label.")";
+    		}
+    	}
+    	else
+    	{
+    		$modules = \Gino\App\Module\ModuleInstance::getFromModuleApp($module_app->id);
+    	
+    		foreach($modules as $module)
+    		{
+    			if($module->active)
+    			{
+    				return $perm->label." - ".$module->name." (".$module->label.")";
+    			}
+    		}
+    	}
+    	return null;
     }
 
     /**

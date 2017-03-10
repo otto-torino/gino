@@ -3,7 +3,7 @@
  * @file class.Group.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.Group.
  * 
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un gruppo di utenti
  *
- * @copyright 2013-2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -51,20 +51,20 @@ class Group extends \Gino\Model {
     public static function columns() {
     	 
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name'=>'id',
+    		'primary_key'=>true,
+    		'auto_increment'=>true,
     	));
     	$columns['name'] = new \Gino\CharField(array(
-    			'name'=>'name',
-    			'label' => _("Nome"),
-    			'required'=>true,
-    			'max_lenght'=>128,
+    		'name'=>'name',
+    		'label' => _("Nome"),
+    		'required'=>true,
+    		'max_lenght'=>128,
     	));
     	$columns['description'] = new \Gino\TextField(array(
-    			'name'=>'description',
-    			'label' => _("Descrizione"),
-    			'required'=>false
+    		'name'=>'description',
+    		'label' => _("Descrizione"),
+    		'required'=>false
     	));
     
     	return $columns;
@@ -137,6 +137,26 @@ class Group extends \Gino\Model {
             }
         }
         return $items;
+    }
+    
+    /**
+     * @brief Elenco dei permessi associati al gruppo
+     * @return string
+     */
+    public function printPermissions() {
+    	
+    	$buffer = '';
+    	
+    	$records = $this->_db->select('instance, perm_id', self::$table_group_perm, "group_id='".$this->id."'");
+    	if($records && count($records))
+    	{
+    		foreach($records AS $r)
+    		{
+    			$perm = Permission::getDataPermission($r['perm_id'], $r['instance']);
+    			$buffer .= $perm."<br />";
+    		}
+    	}
+    	return $buffer;
     }
 }
 

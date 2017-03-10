@@ -1095,7 +1095,9 @@ class Input {
      *   - @b firstVoice (string): testo del primo elemento
      *   - @b firstValue (mixed): valore del primo elemento
      *   - @b maxChars (integer): numero massimo di caratteri del testo
-     *   - @b cutWords (boolean): taglia l'ultima parola se la stringa supera il numero massimo di caratteri (default false)
+     *   - @b cutWords (boolean): gestisce come troncare la stringa quando questa è superiore al numero di caratteri impostato (@a maxChars)
+     *     - false (default), visualizza la stringa fino alla parola precedente a quella che ricade nel numero massimo di caratteri impostato
+     *     - true, mostra la stringa fino al numero massimo di caratteri
      *   - @b helptext (array)
      *   - @b add_related (array): array(title=>string, id=>int, url=>string)
      *   - @b disabled (boolean): disabilita la selezione dell'input
