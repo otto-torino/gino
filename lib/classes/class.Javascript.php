@@ -3,7 +3,7 @@
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Javascript
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Contiene i metodi per includere alcuni javascript
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -77,16 +77,6 @@ class Javascript {
     		array("size" => 40, "maxlength" => 200, "id" => $map_id, "text_add" => "<p>".$convert_button."</p>"));
     	
     	return $input;
-    }
-
-    /**
-     * @brief Include il file javascript con la libreria slimbox
-     * @return codice html
-     */
-    public static function slimboxLib() {
-
-        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/slimbox.js\"></script>\n";
-        return $buffer;
     }
 
     /**
