@@ -1390,11 +1390,10 @@ class auth extends \Gino\Controller {
             ));
 
             if($action_result === true) {
-                return new Redirect($this->_registry->router->link($this->_class_name, 'manageAuth')
-                );
+                return new Redirect($this->_registry->router->link($this->_class_name, 'manageAuth'));
             }
             else {
-                return Error::errorMessage($action_result, $this->_registry->router->link($this->_class_name, 'manageAuth', "block=password&ref=$user_id"));
+                return Error::errorMessage($action_result, $this->_registry->router->link($this->_class_name, 'manageAuth', array(), "block=password&ref=$user_id"));
             }
         }
 

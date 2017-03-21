@@ -144,18 +144,17 @@ class Javascript {
 
         $buffer .= "function createScriptElement(src) {\n
                 var element = document.createElement(\"script\");\n
-                     element.src = src;\n
-                    document.body.appendChild(element);\n
+        		element.src = src;\n
+        		document.body.appendChild(element);\n
             }\n";
         $buffer .= "function onLoadFunction() {\n
-                createScriptElement('".SITE_JS."/slimbox.js');
                 parseFunctions();\n";
         $buffer .= "}\n";
         $buffer .= "if (window.addEventListener)\n
-                 window.addEventListener(\"load\", onLoadFunction, false);\n
-                 else if (window.attachEvent)\n
-                window.attachEvent(\"onload\", onLoadFunction);\n
-                 else window.onload = onLoadFunction;\n";
+        		window.addEventListener(\"load\", onLoadFunction, false);\n
+        		else if (window.attachEvent)\n
+        		window.attachEvent(\"onload\", onLoadFunction);\n
+        		else window.onload = onLoadFunction;\n";
 
         $buffer .= "</script>\n";
 

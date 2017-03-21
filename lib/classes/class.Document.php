@@ -171,7 +171,6 @@ class Document {
         $stylesheets = array(
             CSS_WWW."/styles.css",
             CSS_WWW."/datepicker_jqui.css",
-            CSS_WWW."/slimbox.css",
         );
 
         if($skin->css) {
