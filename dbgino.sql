@@ -257,7 +257,7 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
   `text` text,
   `photo` varchar(50) DEFAULT NULL,
   `publication` tinyint(1) NOT NULL DEFAULT '0',
-  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date` datetime NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `ldap` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)

@@ -229,7 +229,7 @@ CREATE TABLE auth_user (
   text text,
   photo nvarchar(50) DEFAULT NULL,
   publication tinyint NOT NULL DEFAULT '0',
-  date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  date datetime NOT NULL,
   active tinyint NOT NULL DEFAULT '0',
   ldap tinyint NOT NULL DEFAULT '0',
   CONSTRAINT PK_auth_user PRIMARY KEY (id)
