@@ -449,7 +449,7 @@ CREATE TABLE nation (
   it_IT nvarchar(100) NOT NULL,
   en_US nvarchar(100) NOT NULL,
   fr_FR nvarchar(100) NOT NULL,
-  onu date NOT NULL,
+  onu date NULL,
   CONSTRAINT PK_nation PRIMARY KEY (id)
 )
 
@@ -647,7 +647,8 @@ INSERT INTO nation (id, it_IT, en_US, fr_FR, onu) VALUES
 (189, 'Viet Nam', 'Viet Nam', 'Viet Nam', '1977-09-20'),
 (190, 'Yemen', 'Yemen', 'Yémen', '1947-09-30'),
 (191, 'Zambia', 'Zambia', 'Zambie', '1964-12-01'),
-(192, 'Zimbabwe', 'Zimbabwe', 'Zimbabwe', '1980-08-25');
+(192, 'Zimbabwe', 'Zimbabwe', 'Zimbabwe', '1980-08-25'),
+(193, 'Repubblica di Cina (Taiwan)', 'Republic of China (Taiwan)', 'République de Chine (Taiwan)', NULL);
 
 SET IDENTITY_INSERT nation OFF
 
