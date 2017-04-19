@@ -271,7 +271,7 @@ class attachment extends \Gino\Controller {
                     </tr>";
         foreach($items as $item) {
             if($item->type() == 'img') {
-                $drag_view = "<img src=\"".$item->path('view')."\" />";
+                $drag_view = "<img src=\"".$item->path('view')."\" class=\"img-responsive\" />";
                 $icon = "<img src=\"".$this->_class_img."/mark_IMG.jpg\" alt=\"".$item->file."\" title=\"".$item->file."\" />";
                 $drag_download = "<a href=\"".$item->path('download')."\">".$icon."</a>" . " " . "<a href=\"".$item->path('download')."\">".\Gino\htmlChars($item->file)."</a>";
             }

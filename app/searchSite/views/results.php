@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\SearchSite;
 /**
  * @file results.php
  * @brief Template risultati ricerca nel sito
@@ -9,7 +10,6 @@
  * - $content: html, risultati
  */
 ?>
-<? namespace Gino\App\SearchSite; ?>
 <? //@cond no-doxygen ?>
 <section class="search-results">
     <header>

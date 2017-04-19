@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Auth;
 /**
  * @file registration_email_message.php
  * @brief Template corpo della mail inviata a seguito di registrazione
@@ -9,7 +10,6 @@
  * - $confirmation_url: string, URL per conferma indirizzo email
  */
 ?>
-<? namespace Gino\App\Auth; ?>
 <? //@cond no-doxygen ?>
 <? $registry = \Gino\Registry::instance() ?>
 <?= sprintf(_("Buongiorno %s, grazie per esserti registrato su %s.\nPer confermare il tuo indirizzo email devi seguire il link qui sotto:\n%s"),

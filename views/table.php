@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
  * @file table.php
  * @brief Template utilizzato per visualizzare le tabelle
@@ -30,7 +31,6 @@
  *
  */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <? if(isset($form_start)) echo $form_start; ?>
 <table class="<?= $class ?>"<?= isset($id) ? " id=\"".$id."\"" : '' ?>>

@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file paginator_navigator.php
 * @brief Template dei controller per la navigazione delle pagine, paginazione
@@ -16,7 +17,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <ul class="pagination">
 <?php if($prev): ?>

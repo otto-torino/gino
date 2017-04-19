@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Auth;
 /**
  * @file confirmation_result.php
  * @brief Template risultato conferma registrazione
@@ -9,7 +10,6 @@
  * - $mail_sent: bool, invio mail con attivazione automatica riuscito
  */
 ?>
-<? namespace Gino\App\Auth; ?>
 <? //@cond no-doxygen ?>
 <? $registry = \Gino\Registry::instance(); ?>
 <section>

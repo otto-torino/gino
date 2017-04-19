@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file admin_table_form.php
 * @brief Template della pagina di inserimento/modifica record in area amministrativa
@@ -12,7 +13,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section>
 <?php if($title): ?>

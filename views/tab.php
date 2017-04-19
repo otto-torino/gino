@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file tab.php
 * @brief Template che stampa una tab html
@@ -17,7 +18,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <? if(!isset($link_position)) $link_position = 'right'; ?>
 <section class="tab-container" id="<?= isset($id) ? 'tab-'.$id : '' ?>">

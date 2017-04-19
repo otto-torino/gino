@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file section_form.php
 * @brief Template del contenitore di un form
@@ -12,7 +13,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section>
 <?php if($title): ?>

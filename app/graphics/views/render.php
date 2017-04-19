@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Graphics;
 /**
  * @file render.php
  * @brief Template per stampa header/footer
@@ -12,7 +13,6 @@
  * - code (string): codice html
  */
 ?>
-<? namespace Gino\App\Graphics; ?>
 <? //@cond no-doxygen ?>
 <div id="<?= $id ?>">
     <?= $content ?>

@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file 403.php
 * @brief Template della pagina 403, Forbidden
@@ -12,7 +13,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section>
 <h1><?= $title ?></h1>

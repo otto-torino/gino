@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\SearchSite;
 /**
  * @file form.php
  * @brief Template form di ricerca nel sito
@@ -13,7 +14,6 @@
  * E naturalmente deve essere stampata la variabile $check_options.
  */
 ?>
-<? namespace Gino\App\SearchSite; ?>
 <? //@cond no-doxygen ?>
 <form method="post" class="navbar-form navbar-left searchsite-form" action="<?php echo $form_action ?>" role="search">
     <?php if($choices): ?>

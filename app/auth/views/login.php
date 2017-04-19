@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Auth;
 /**
  * @file login.php
  * @brief Template form di login
@@ -8,7 +9,6 @@
  * - $form: html, form di login
  */
 ?>
-<? namespace Gino\App\Auth; ?>
 <? //@cond no-doxygen ?>
 <section class="auth-login">
   <h1><?= $title ?></h1>
