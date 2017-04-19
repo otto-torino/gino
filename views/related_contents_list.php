@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file related_contents_list.php
 * @brief Template che stampa la lista di contenuti correlati
@@ -13,7 +14,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <ul class="related_contents">
     <? foreach($related_contents as $content_type => $links): ?>

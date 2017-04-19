@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file admin_table_list.php
 * @brief Template della lista record in area amministrativa
@@ -21,7 +22,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section class="admin">
   <header>

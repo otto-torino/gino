@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Menu;
 /**
  * @file render.php
  * @brief Template visualizzazione menu
@@ -21,7 +22,6 @@
  * @authors abidibo abidibo@gmail.com
  */
 ?>
-<? namespace Gino\App\Menu; ?>
 <? //@cond no-doxygen ?>
 <?php
 if(!function_exists('\Gino\App\Menu\printVoice')) {

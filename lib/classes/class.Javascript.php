@@ -3,7 +3,7 @@
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Javascript
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Contiene i metodi per includere alcuni javascript
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -80,16 +80,6 @@ class Javascript {
     }
 
     /**
-     * @brief Include il file javascript con la libreria slimbox
-     * @return codice html
-     */
-    public static function slimboxLib() {
-
-        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/slimbox.js\"></script>\n";
-        return $buffer;
-    }
-
-    /**
      * @brief Funzioni javascript caricate all'interno della sezione HEAD dell'html
      * @param \Gino\Skin $skinObj istanza di Gino.Skin associata alla pagina
      * @return codice html
@@ -144,18 +134,17 @@ class Javascript {
 
         $buffer .= "function createScriptElement(src) {\n
                 var element = document.createElement(\"script\");\n
-                     element.src = src;\n
-                    document.body.appendChild(element);\n
+        		element.src = src;\n
+        		document.body.appendChild(element);\n
             }\n";
         $buffer .= "function onLoadFunction() {\n
-                createScriptElement('".SITE_JS."/slimbox.js');
                 parseFunctions();\n";
         $buffer .= "}\n";
         $buffer .= "if (window.addEventListener)\n
-                 window.addEventListener(\"load\", onLoadFunction, false);\n
-                 else if (window.attachEvent)\n
-                window.attachEvent(\"onload\", onLoadFunction);\n
-                 else window.onload = onLoadFunction;\n";
+        		window.addEventListener(\"load\", onLoadFunction, false);\n
+        		else if (window.attachEvent)\n
+        		window.attachEvent(\"onload\", onLoadFunction);\n
+        		else window.onload = onLoadFunction;\n";
 
         $buffer .= "</script>\n";
 

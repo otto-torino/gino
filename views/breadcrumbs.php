@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file breadcrumbs.php
 * @brief Template per la vista delle briciole di pane
@@ -13,7 +14,6 @@
 * @author abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <? if($items && count($items)): ?>
 	<section id="breadcrumbs">

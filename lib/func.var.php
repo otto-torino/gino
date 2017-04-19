@@ -624,28 +624,46 @@ function codeParser($string, $id='') {
  * @return testo modificato
  */
 function slimboxReplace($string, $id) {
-
+    
+    if(preg_match("/title=\"([\d\w\s\-]*)\"/i", $string, $matches)) {
+    	$title = $matches[1];
+    	//$string = preg_replace("/ title=\"[\d\w\s\-]*\"/i", '', $string);
+    }
+    else {
+    	$title = null;
+    }
+    
     $rel = "lightbox-$id";
-
+    
     $pattern = "/(<img)[^(\/>)]+(class=\"[\d\w\s\-]*lightbox[\d\w\s\-]*\"){1}[^(\/>)]+(src=\")([^\"]+)[^(\/>)]+\/>/i";
     $replacement = "<a rel=\"".$rel."\" href=\"$4\" >$0</a>";
-
+    
     $pattern2 = "/(<img)[^(\/>)]+(src=\")(^\"]+)[^(\/>)]+(class=\"[\d\w\s\-]*lightbox[\d\w\s\-]*\"){1}[^(\/>)]+\/>/i";
     $replacement2 = "<a rel=\"".$rel."\" href=\"$3\" >$0</a>";
-
-    $string = preg_replace_callback($pattern, function ($matches) use ($rel) {
+    
+    $string = preg_replace_callback($pattern, function ($matches) use ($rel, $title) {
     	$dirname = dirname($matches[4]);
     	$filename = urlencode(basename($matches[4]));
-    	return "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\" >".$matches[0]."</a>";
+    	$code = "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\"";
+    	if($title) {
+    		$code .=  " title=\"$title\"";
+    	}
+    	$code .= ">".$matches[0]."</a>";
+    	return $code;
     }, $string);
     
-    $string = preg_replace_callback($pattern2, function ($matches) use ($rel) {
+    $string = preg_replace_callback($pattern2, function ($matches) use ($rel, $title) {
     	$dirname = dirname($matches[3]);
     	$filename = urlencode(basename($matches[3]));
-    	return "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\" >".$matches[0]."</a>";
+    	$code = "<a rel=\"".$rel."\" href=\"".$dirname.'/'.$filename."\"";
+    	if($title) {
+    		$code .=  " title=\"$title\"";
+    	}
+    	$code .= ">".$matches[0]."</a>";
+    	return $code;
     }, $string);
-
-    return $string;
+    
+	return $string;
 }
 
 /**

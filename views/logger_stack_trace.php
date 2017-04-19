@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file logger_stack_trace.php
 * @brief Template che stampa lo stack trace di una Exception.
@@ -16,7 +17,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <! DOCTYPE html>
 <html>

@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file form.php
 * @brief Template del form di inserimento/modifica record in area amministrativa
@@ -14,7 +15,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 
 <!-- open form -->

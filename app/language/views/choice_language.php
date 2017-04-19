@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file choice_language.php
 * @brief Template della vista scelta lingua
@@ -21,7 +22,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section class="language-choice">
     <h1 class="hidden"><?= _('Scelta lingua') ?></h1>

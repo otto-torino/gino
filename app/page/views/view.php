@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Page;
 /**
  * @file view.php
  * @ingroup page
@@ -19,7 +20,6 @@
  * @authors abidibo abidibo@gmail.com
  */
 ?>
-<? namespace Gino\App\Page; ?>
 <? //@cond no-doxygen ?>
 <section id="<?= $section_id ?>">
 	<? if($last_edit_date): ?>

@@ -3,7 +3,7 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -33,7 +33,7 @@ namespace Gino;
  * Le tabelle devono essere coerenti con la definizione del modello per cui, ad esempio, i campi obbligatori devono essere 'not null' e gli eventuali valori di default 
  * devono essere indicati anche nel campo della tabella.
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -332,19 +332,24 @@ namespace Gino;
      * @param mixed $controller istanza del controller.
      * @return oggetto che matcha lo slug dato
      */
-    public static function getFromSlug($slug, $controller = null)
-    {
-        $db = Db::instance();
-        $rows = $db->select('id', static::$table, "slug='".$slug."'");
-        if($rows and count($rows)) {
-            if($controller) {
-                return new static($rows[0]['id'], $controller);
-            }
-            else {
-                return new static($rows[0]['id']);
-            }
-        }
-        return null;
+    public static function getFromSlug($slug, $controller = null) {
+    	
+    	$db = Db::instance();
+    
+    	$where = array("slug='".$slug."'");
+    	if($controller && $controller->getInstance()) {
+    		$where[] = "instance='".$controller->getInstance()."'";
+    	}
+    	$rows = $db->select('id', static::$table, implode(" AND ", $where));
+    	if($rows and count($rows)) {
+    		if($controller) {
+    			return new static($rows[0]['id'], $controller);
+    		}
+    		else {
+    			return new static($rows[0]['id']);
+    		}
+    	}
+    	return null;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Auth;
 /**
  * @file activation_email_object.php
  * @brief Template oggetto mail inviata a seguito di conferma indirizzo email
@@ -12,7 +13,6 @@
  * - $form_password: html, form di modifica password
  */
 ?>
-<? namespace Gino\App\Auth; ?>
 <? //@cond no-doxygen ?>
 <section>
     <h1><?= (string) $user ?></h1>

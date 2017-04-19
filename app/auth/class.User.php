@@ -3,7 +3,7 @@
  * @file class.User.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.User.
  * 
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un utente
  *
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -158,7 +158,7 @@ class User extends \Gino\Model {
      	$lang_nation = self::getLanguageNation();
      	$rows = $db->select('id, '.$lang_nation, TBL_NATION, null, array('order' => $lang_nation.' ASC'));
      	foreach($rows as $row) {
-     		$nations[$row['id']] = \Gino\htmlChars($row[$lang_nation]);
+     		$nations[$row['id']] = \Gino\htmlInput($row[$lang_nation]);
      	}
      	
      	$columns['nation'] = new \Gino\EnumField(array(

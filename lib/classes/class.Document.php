@@ -3,7 +3,7 @@
  * @file class.Document.php
  * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ use \Gino\App\Page\page;
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -171,7 +171,6 @@ class Document {
         $stylesheets = array(
             CSS_WWW."/styles.css",
             CSS_WWW."/datepicker_jqui.css",
-            CSS_WWW."/slimbox.css",
         );
 
         if($skin->css) {

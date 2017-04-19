@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file paginator_pagination.php
 * @brief Template completo paginazione, include navigazione pagine e sommario
@@ -14,7 +15,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
  <?php if($gotopage): ?>
 	<div class="paginator">

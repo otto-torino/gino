@@ -1,4 +1,5 @@
 <?php
+namespace Gino\App\Page;
 /**
  * @file box.php
  * @brief Template per la vista delle pagine inserite nel template
@@ -12,7 +13,6 @@
  * @authors abidibo abidibo@gmail.com
  */
 ?>
-<? namespace Gino\App\Page; ?>
 <? //@cond no-doxygen ?>
 <section id="<?= $section_id ?>">
     <?= $tpl ?>

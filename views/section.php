@@ -1,4 +1,5 @@
 <?php
+namespace Gino;
 /**
 * @file section.php
 * @brief Template di una section
@@ -19,7 +20,6 @@
 * @authors abidibo abidibo@gmail.com
 */
 ?>
-<? namespace Gino; ?>
 <? //@cond no-doxygen ?>
 <section class="<?= isset($class) ? $class : '' ?>" id="<?= isset($id) ? $id : '' ?>">
   <? if(isset($pre_header) or isset($header_links) or isset($post_header)): ?>
