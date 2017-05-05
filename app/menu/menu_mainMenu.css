@@ -1,16 +1,63 @@
-/* fron-end */
+/* Front-end */
+
+/*
+div id="menu-main-container"
+	ul class="menu-main nav navbar-nav navbar-left"
+		li class="active"					[voce 1° livello attiva]
+		li class=""							[voce 1° livello non attiva]
+		li class="dropdown [active|open]"	[voce 1° livello con submenu]
+											[open -> dislayed when you click on the voice with submenu]
+			<div class="voice">
+				<a class="voice-without-link">...</a>
+				<span class="dropdown-toggle caret" data-toggle="dropdown"></span>
+			</div>
+			ul class="dropdown-menu"
+				li class=""
+				li class=""
+*/
+
+/* Main container */
+#menu-main-container {
+	margin-bottom: 2px;
+	float: left;
+}
+#menu-main-container a:link, 
+#menu-main-container a:visited {
+	color: #fff;
+}
+#menu-main-container a:hover {
+	color: #519bf4;
+}
+#menu-main-container a.voice-without-link {
+	color: #fff;
+	cursor: pointer;
+}
+
+/* First level */
 .menu-main {
-	/* text-transform: uppercase; */
-	font-size: 22px;
-	margin-top: 10px;
+	font-size: 18px;
+}
+.menu-main ul {
+	background: #013891;
 }
 .menu-main li {
 	list-style-type: none;
+	border-right: 0;
+	background-color: none;
+}
+.menu-main > .active > a:link, 
+.menu-main > .active > a:visited {
+	color: #519bf4 !important;
 }
 
+@media screen and (max-width: 767px) {
+	.menu-main li {
+		border-right: none;
+	}
+}
 @media (min-width: 768px) {
 	.menu-main ul {
-		background: #fff;
+		background: #013891;
 		border-radius: 5px;
 		position: absolute;
 		display: none;
@@ -25,13 +72,118 @@
 		float: none;
 	}
 }
-.menu-main .selected {
-	background: #fff;
-	border-radius: 5px;
+
+/* First level voice with submenu */
+.nav .open > a, 
+.nav .open > a:hover, 
+.nav .open > a:focus {
+	
+}
+
+a.dropdown-toggle:hover {
+	background-color: #fff;
+}
+/* For linkable menu voices with submenu */
+.nav > li > .voice {
+	position: relative;
+	display: block;
+	padding: 12px 15px;	/* in abbinamento col valore font-size di menu-main */
+}
+.nav > li > .voice a:hover {
+	text-decoration: none;
+}
+
+/* Overwrite base style */
+.navbar-default .navbar-nav > .open > a, 
+.navbar-default .navbar-nav > .open > a:hover, 
+.navbar-default .navbar-nav > .open > a:focus {
+	
+}
+.navbar-default .navbar-nav > .active > a, 
+.navbar-default .navbar-nav > .active > a:hover, 
+.navbar-default .navbar-nav > .active > a:focus {
+    color: #000 !important;
+}
+.navbar-default .navbar-nav > .dropdown > a .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+.navbar-default .navbar-nav > .dropdown > a:hover .caret, 
+.navbar-default .navbar-nav > .dropdown > a:focus .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+
+/* Second level (dropdown-menu) */
+#menu-main-container .dropdown-menu {
+	background-color: rgba(0, 0, 0, 0.7);	/* background transparent */
+	color: #fff;
+}
+#menu-main-container .dropdown-menu a:link, 
+#menu-main-container .dropdown-menu a:visited {
+	color: #fff;
+}
+#menu-main-container .dropdown-menu a:hover {
+	color: #000 !important;
+}
+/* overwrite style */
+#menu-main-container .dropdown-menu > .active > a, 
+#menu-main-container .dropdown-menu > .active > a:hover, 
+#menu-main-container .dropdown-menu > .active > a:focus {
+    background-color: transparent !important;
+    color: #519bf4 !important;
+}
+
+@media screen and (max-width: 767px) {
+	#menu-main-container .dropdown-menu a:hover {
+		color: #519bf4 !important;
+	}
+	#menu-main-container .dropdown-menu > .active > a, 
+	#menu-main-container .dropdown-menu > .active > a:hover, 
+	#menu-main-container .dropdown-menu > .active > a:focus {
+    	color: #519bf4 !important;
+	}
+}
+
+/* caret */
+.nav .caret {
+    border-bottom-color: #fff;
+    border-top-color: #fff;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-top: 8px solid #fff;
+	border-right: 8px solid transparent;
+	border-left: 8px solid transparent;
+	border-bottom: 0 dotted;
+}
+@media all and (min-width: 768px) {
+	.nav .caret {
+    	border-bottom-color: #fff;
+    	border-top-color: #fff;
+    	position: relative;
+    	top: auto;
+    	right: auto;
+    	border-top: 4px solid #fff;
+		border-right: 4px solid transparent;
+		border-left: 4px solid transparent;
+		border-bottom: 0 dotted;
+	}
+}
+
+.nav a:hover .caret {
+    border-bottom-color: #fff;
+    border-top-color: #fff;
+}
+.nav .open > a .caret, 
+.nav .open > a:hover .caret, 
+.nav .open > a:focus .caret {
+    border-bottom-color: #fff;
+    border-top-color: #fff;
 }
 
 
-/* back office */
+/* Back Office */
 .sortHandler {
 	cursor:move;
 	float:left;
