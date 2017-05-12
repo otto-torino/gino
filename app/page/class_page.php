@@ -894,7 +894,7 @@ class page extends \Gino\Controller {
         	}
         	elseif($pre_filter == 'link_gallery' && self::checkValidApplication('gallery')) {
         		$buffer = "<div class=\"link-gallery\">";
-        		$buffer .= "<a href=\"".\Gino\App\Gallery\gallery::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
+        		$buffer .= "<a class=\"btn btn-primary\" href=\"".\Gino\App\Gallery\gallery::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
         		$buffer .= "</div>";
         		return $buffer;
         	}

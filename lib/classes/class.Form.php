@@ -3,7 +3,7 @@
  * @file class.Form.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Form
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use \Gino\App\Language\language;
  *
  * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -48,6 +48,13 @@ use \Gino\App\Language\language;
  * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
  * - @b s_name, il nome del submit è 'submit'
  * - @b s_value, il valore del submit è 'salva'
+ * 
+ * ##CAPTCHA
+ * Sono previsti due meccanismi di controllo captcha: \n
+ * - con le librerie reCAPTCHA di google
+ * - con la classe captcha di gino
+ * 
+ * Le librerie reCAPTCHA vengono attivate automaticamente se sono state inserite la "site key" e la "secret key" reCaptcha nelle 'Impostazioni di sistema'.
  * 
  */
 class Form {
@@ -420,7 +427,7 @@ class Form {
      * @brief Widget Captcha
      *
      * Sono previsti due controlli captcha: \n
-     * 1. con le librerie reCAPTCHA (attivo automaticamente se sono state inserite le chiavi pubbliche e private reCaptcha nelle 'Impostazioni di sistema')
+     * 1. con le librerie reCAPTCHA (attivo automaticamente se sono state inserite la site key e la secret key reCaptcha nelle 'Impostazioni di sistema')
      * 2. con la classe captcha di gino
      *
      * @see self::reCaptcha()
@@ -433,11 +440,11 @@ class Form {
      */
     public function captcha($options=null) {
 
-        $public_key = $this->_registry->sysconf->captcha_public;
-        $private_key = $this->_registry->sysconf->captcha_private;
+        $site_key = $this->_registry->sysconf->captcha_public;
+        $secret_key = $this->_registry->sysconf->captcha_private;
 
-        if($public_key && $private_key) {
-        	return $this->reCaptcha($public_key, $options);
+        if($site_key && $secret_key) {
+        	return $this->reCaptcha($site_key, $options);
         }
         else {
         	return $this->defaultCaptcha($options);
@@ -445,38 +452,41 @@ class Form {
      }
 
     /**
-     * @brief Captcha widget attraverso la libreria RECAPTCHA
+     * @brief Captcha widget attraverso la libreria reCAPTCHA
      * @description Nelle Impostazioni di sistema devono essere state inserite le chiavi pubbliche e private reCaptcha
      * 
-     * @param string $public_key
+     * @param string $site_key
      * @param array $options
      *   array associativo di opzioni
      *   - @b text_add (string)
+     *   - @b form_row (boolean)
      * @return widget captcha
      */
-    private function reCaptcha($public_key, $options=null) {
+    private function reCaptcha($site_key, $options=null) {
 
         $text_add = gOpt('text_add', $options, null);
+        $form_row = gOpt('form_row', $options, false);
         
-        $buffer = Input::label('captcha_input', _("Inserisci il codice di controllo"), true)."\n";
-        $buffer .= "<div id=\"".$this->_form_id."_recaptcha\"></div>";
-        $buffer .= "<script>
-            function createCaptcha() {
-                if(\$chk($('".$this->_form_id."_recaptcha'))) {
-                    Recaptcha.create('$public_key', '".$this->_form_id."_recaptcha', {theme: 'red', callback: Recaptcha.focus_response_field});
-                    clearInterval(window.captcha_int);
-                }
-            }
-            window.captcha_int = setInterval(createCaptcha, 50);
-        </script>";
-        if($text_add) {
-        	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
-        }
+        $buffer = '';
+        
+		$captcha = "<div class=\"g-recaptcha\" data-sitekey=\"$site_key\"></div>";
+		
+		if($form_row) {
+			$buffer .= Input::noinput('', $captcha);
+		}
+		else {
+			$buffer .= $captcha;
+			
+			if($text_add) {
+				$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+			}
+		}
+        
         return $buffer;
     }
 
     /**
-     * @brief Captcha widget attraverso la libreria di gino
+     * @brief Captcha widget attraverso la libreria Gino.Captcha
      *
      * @see Gino.Captcha::render()
      * @param array $options
@@ -503,37 +513,50 @@ class Form {
      * @brief Verifica del captcha
      * 
      * @see self::checkReCaptcha()
-     * @see self checkDefaultCaptcha()
-     * @return risultato verifica, bool
+     * @see self::checkDefaultCaptcha()
+     * @return result, bool or string
      */
-    public function checkCaptcha() {
+    public function checkCaptcha($request) {
 
-        $public_key = $this->_registry->sysconf->captcha_public;
-        $private_key = $this->_registry->sysconf->captcha_private;
+        $site_key = $this->_registry->sysconf->captcha_public;
+        $secret_key = $this->_registry->sysconf->captcha_private;
 
-        if($public_key && $private_key) return $this->checkReCaptcha($public_key, $private_key);
-        else return $this->checkDefaultCaptcha();
+        if($site_key && $secret_key) {
+        	return $this->checkReCaptcha($request, $secret_key);
+        }
+        else {
+        	return $this->checkDefaultCaptcha();
+        }
     }
 
     /**
-     * @brief Verifica captcha utilizzando la libreria RECAPTCHA
-     *
-     * @param string $public_key
-     * @param string $private_key
-     * @return risultato verifica, bool
+     * @brief Verifica captcha utilizzando la libreria reCAPTCHA
+     * @description Send a POST request to ensure the token is valid.
+     * 
+     * @param object $request
+     * @param string $secret_key
+     * @return result, bool or string
      */
-    private function checkReCaptcha($public_key, $private_key) {
+	private function checkReCaptcha($request, $secret_key) {
 
-        require_once(LIB_DIR.OS.'recaptchalib.php');
-        $private_key = pub::getConf("captcha_private");
-        $resp = recaptcha_check_answer($private_key, $_SERVER["REMOTE_ADDR"], $this->_requestVar["recaptcha_challenge_field"], $this->_requestVar["recaptcha_response_field"]);
-
-        $captcha = cleanVar($this->_requestVar, 'captcha_input', 'string', '');
-        return $resp->is_valid ? TRUE : FALSE;
+    	if(isset($request->POST['g-recaptcha-response']) && !empty($request->POST['g-recaptcha-response'])) {
+    		//get verify response data
+    		$verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret_key.'&response='.$request->POST['g-recaptcha-response']);
+    		$responseData = json_decode($verifyResponse);
+    		if($responseData->success) {
+    			return true;
+    		}
+    		else {
+    			return _('Robot verification failed, please try again.');
+    		}
+    	}
+    	else {
+    		return _('Please click on the reCAPTCHA box.');
+    	}
     }
 
     /**
-     * @brief Verifica captcha utilizzando la libreria di gino
+     * @brief Verifica captcha utilizzando la libreria Gino.Captcha
      *
      * @see Gino.Captcha::check()
      * @return risultato della verifica, bool
@@ -586,7 +609,7 @@ class Form {
             $buffer .= "</div>";
         }
 
-         return $buffer;
+        return $buffer;
     }
     
     /**

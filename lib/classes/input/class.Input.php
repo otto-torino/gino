@@ -3,7 +3,7 @@
  * @file class.Input.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Input
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Input form
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -682,11 +682,23 @@ class Input {
     	}
     
     	if(!empty($value)) {
-    		$value_link = ($preview && $previewSrc)
-    		? (self::isImage($previewSrc)
-    			? sprintf('<span onclick="Slimbox.open(\'%s\')" class="link">%s</span>', $previewSrc, $value)
-    			: sprintf('<a target="_blank" href="%s">%s</a>', $previewSrc, $value))
-    			: $value;
+    		
+    		if($preview && $previewSrc) {
+    			if(self::isImage($previewSrc)) {
+    				$value_link = "<a href=\"$previewSrc\" 
+    				class=\"modal-overlay\" 
+    				data-title=\""._("Anteprima immagine")."\" 
+    				data-class=\"autoWidth\" 
+    				data-buttons=\"[{className:'right modal-close','text':'Close'}]\" 
+    				data-esc-close=\"true\">$value</a>";
+    			}
+    			else {
+    				$value_link = sprintf('<a target="_blank" href="%s">%s</a>', $previewSrc, $value);
+    			}
+    		}
+    		else {
+    			$value_link = $value;
+    		}
     		
     		// Ridefinizione dell'opzione required
     		$options['required'] = FALSE;
@@ -725,7 +737,7 @@ class Input {
     
     	$info = pathinfo($path);
     
-    	return in_array($info['extension'], array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif'));
+    	return in_array(strtolower($info['extension']), array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif'));
     }
     
     /**
