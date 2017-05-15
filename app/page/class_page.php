@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -85,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -152,6 +152,18 @@ class page extends \Gino\Controller {
     private $_tbl_opt;
 
     /**
+     * @brief Elenco delle applicazioni che è teoricamente possibile utilizzare nel template della pagina
+     * @var array
+     */
+    private $_applications;
+    
+    /**
+     * @brief Elenco delle applicazioni che è possibile utilizzare nel template della pagina
+     * @var array
+     */
+    private $_valid_applications;
+
+    /**
      * @brief Costruttore
      * @return istanza di Gino.App.Page.page
      */
@@ -160,110 +172,148 @@ class page extends \Gino\Controller {
         parent::__construct();
 
         $this->_tbl_opt = 'page_opt';
-
-        $showcase_tpl_code = "";
-        $entry_tpl_code = "";
-        $box_tpl_code = "";
-        $newsletter_tpl_code = "";
-
-        $this->_optionsValue = array(
-            'showcase_title' => _("In evidenza"),
-            'showcase_number' => 3,
-            'showcase_auto_start' => 1,
-            'showcase_auto_interval' => 5000,
-            'showcase_tpl_code' => $showcase_tpl_code,
-            'showcase_auto_interval' => 5000,
-            'entry_tpl_code' => $entry_tpl_code, 
-            'box_tpl_code' => $box_tpl_code, 
-            'comment_moderation' => 0,
-            'comment_notification' => 1,
-            'newsletter_entries_number' => 5,
-            'newsletter_tpl_code' => $newsletter_tpl_code,
-        );
-
-        $this->_showcase_title = \Gino\htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
-        $this->_showcase_number = $this->setOption('showcase_number', array('value'=>$this->_optionsValue['showcase_number']));
-        $this->_showcase_auto_start = $this->setOption('showcase_auto_start', array('value'=>$this->_optionsValue['showcase_auto_start']));
-        $this->_showcase_auto_interval = $this->setOption('showcase_auto_interval', array('value'=>$this->_optionsValue['showcase_auto_interval']));
-        $this->_showcase_tpl_code = $this->setOption('showcase_tpl_code', array('value'=>$this->_optionsValue['showcase_tpl_code'], 'translation'=>true));
-        $this->_entry_tpl_code = $this->setOption('entry_tpl_code', array('value'=>$this->_optionsValue['entry_tpl_code'], 'translation'=>true));
-        $this->_box_tpl_code = $this->setOption('box_tpl_code', array('value'=>$this->_optionsValue['box_tpl_code'], 'translation'=>true));
-        $this->_comment_moderation = $this->setOption('comment_moderation', array('value'=>$this->_optionsValue['comment_moderation']));
-        $this->_comment_notification = $this->setOption('comment_notification', array('value'=>$this->_optionsValue['comment_notification']));
-        $this->_newsletter_entries_number = $this->setOption('newsletter_entries_number', array('value'=>$this->_optionsValue['newsletter_entries_number']));
-        $this->_newsletter_tpl_code = $this->setOption('newsletter_tpl_code', array('value'=>$this->_optionsValue['newsletter_tpl_code'], 'translation'=>true));
-
-        $res_newsletter = $this->_db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', 'newsletter');
-        if($res_newsletter) {
-            $newsletter_module = TRUE;
-        }
-        else {
-            $newsletter_module = FALSE;
-        }
-
-        $this->_options = \Gino\Loader::load('Options', array($this));
-        $this->_optionsLabels = array(
-            "showcase_title"=>array(
-                'label'=>_("Titolo vetrina pagine più lette"),
-                'value'=>$this->_optionsValue['showcase_title']
-            ),
-            "showcase_number"=>array(
-                'label'=>_("Numero elementi in vetrina"),
-                'value'=>$this->_optionsValue['showcase_number'],
-                'section'=>true,
-                'section_title'=>_('Opzioni vista vetrina pagine più lette'),
-                'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
-            ),
-            "showcase_auto_start"=>array(
-                'label'=>_("Avvio automatico animazione"),
-                'value'=>$this->_optionsValue['showcase_auto_start'],
-            ),
-            "showcase_auto_interval"=>array(
-                'label'=>_("Intervallo animazione automatica (ms)"),
-                'value'=>$this->_optionsValue['showcase_auto_interval'],
-            ),
-            "showcase_tpl_code"=>array(
-                'label'=>array(_("Template singolo elemento vista vetrina"), self::explanationTemplate()),
-                'value'=>$this->_optionsValue['showcase_tpl_code'],
-            ),
-            "entry_tpl_code"=>array(
-                'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-                'value'=>$this->_optionsValue['entry_tpl_code'],
-                'section'=>true,
-                'section_title'=>_('Opzioni vista pagina'),
-                'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
-            ),
-            "box_tpl_code"=>array(
-                'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-                'value'=>$this->_optionsValue['box_tpl_code'],
-                'section'=>true,
-                'section_title'=>_('Opzioni vista pagina inserita nel template'),
-                'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
-            ),
-            "comment_moderation"=>array(
-                'label'=>array(_("Moderazione commenti"), _('In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei \'pubblicatori\'. Tali utenti saranno notificati della presenza di un nuovo commento con una email')),
-                'value'=>$this->_optionsValue['comment_moderation'],
-                'section'=>true,
-                'section_title'=>_('Opzioni commenti')
-            ),
-            "comment_notification"=>array(
-                'label'=>array(_("Notifica commenti"), _('In tal caso l\'autore della pagina riceverà una email per ogni commento pubblicato')),
-                'value'=>$this->_optionsValue['comment_notification'],
-            ),
-            "newsletter_entries_number"=>array(
-                'label'=>_('Numero di elementi presentati nel modulo newsletter'),
-                'value'=>$this->_optionsValue['newsletter_entries_number'],
-                'section'=>true,
-                'section_title'=>_('Opzioni newsletter'),
-                'section_description'=> $newsletter_module
-                    ? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
-                    : "<p>"._('Il modulo newsletter non è installato')."</p>",
-            ),
-            "newsletter_tpl_code"=>array(
-                'label'=>array(_("Template pagina in inserimento newsletter"), self::explanationTemplate()), 
-                'value'=>$this->_optionsValue['newsletter_tpl_code'],
-            ),
-        );
+        
+        $this->setAppOptions();
+		
+		$this->_applications = array('gallery', 'gmaps');
+		$this->_valid_applications = null;
+    }
+    
+    private function setAppOptions() {
+    	
+    	$showcase_tpl_code = "";
+    	$entry_tpl_code = "";
+    	$box_tpl_code = "";
+    	$newsletter_tpl_code = "";
+    	
+    	$this->_optionsValue = array(
+    		'showcase_title' => _("In evidenza"),
+    		'showcase_number' => 3,
+    		'showcase_auto_start' => 1,
+    		'showcase_auto_interval' => 5000,
+    		'showcase_tpl_code' => $showcase_tpl_code,
+    		'showcase_auto_interval' => 5000,
+    		'entry_tpl_code' => $entry_tpl_code,
+    		'box_tpl_code' => $box_tpl_code,
+    		'comment_moderation' => 0,
+    		'comment_notification' => 1,
+    		'newsletter_entries_number' => 5,
+    		'newsletter_tpl_code' => $newsletter_tpl_code,
+    	);
+    	
+    	if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
+    		
+    		$this->_showcase_title = \Gino\htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
+    		$this->_showcase_number = $this->setOption('showcase_number', array('value'=>$this->_optionsValue['showcase_number']));
+    		$this->_showcase_auto_start = $this->setOption('showcase_auto_start', array('value'=>$this->_optionsValue['showcase_auto_start']));
+    		$this->_showcase_auto_interval = $this->setOption('showcase_auto_interval', array('value'=>$this->_optionsValue['showcase_auto_interval']));
+    		$this->_showcase_tpl_code = $this->setOption('showcase_tpl_code', array('value'=>$this->_optionsValue['showcase_tpl_code'], 'translation'=>true));
+    		$this->_entry_tpl_code = $this->setOption('entry_tpl_code', array('value'=>$this->_optionsValue['entry_tpl_code'], 'translation'=>true));
+    		$this->_box_tpl_code = $this->setOption('box_tpl_code', array('value'=>$this->_optionsValue['box_tpl_code'], 'translation'=>true));
+    		$this->_comment_moderation = $this->setOption('comment_moderation', array('value'=>$this->_optionsValue['comment_moderation']));
+    		$this->_comment_notification = $this->setOption('comment_notification', array('value'=>$this->_optionsValue['comment_notification']));
+    		$this->_newsletter_entries_number = $this->setOption('newsletter_entries_number', array('value'=>$this->_optionsValue['newsletter_entries_number']));
+    		$this->_newsletter_tpl_code = $this->setOption('newsletter_tpl_code', array('value'=>$this->_optionsValue['newsletter_tpl_code'], 'translation'=>true));
+    
+    		$this->_registry->apps->{$this->_instance_name} = array(
+    			'showcase_title' => $this->_showcase_title,
+    			'showcase_number' => $this->_showcase_number,
+    			'showcase_auto_start' => $this->_showcase_auto_start,
+    			'showcase_auto_interval' => $this->_showcase_auto_interval,
+    			'showcase_tpl_code' => $this->_showcase_tpl_code,
+    			'entry_tpl_code' => $this->_entry_tpl_code,
+    			'box_tpl_code' => $this->_box_tpl_code,
+    			'comment_moderation' => $this->_comment_moderation,
+    			'comment_notification' => $this->_comment_notification,
+    			'newsletter_entries_number' => $this->_newsletter_entries_number,
+    			'newsletter_tpl_code' => $this->_newsletter_tpl_code,
+    		);
+    	}
+    	else {
+    		$this->_showcase_title = $this->_registry->apps->{$this->_instance_name}['showcase_title'];
+    		$this->_showcase_number = $this->_registry->apps->{$this->_instance_name}['showcase_number'];
+    		$this->_showcase_auto_start = $this->_registry->apps->{$this->_instance_name}['showcase_auto_start'];
+    		$this->_showcase_auto_interval = $this->_registry->apps->{$this->_instance_name}['showcase_auto_interval'];
+    		$this->_showcase_tpl_code = $this->_registry->apps->{$this->_instance_name}['showcase_tpl_code'];
+    		$this->_entry_tpl_code = $this->_registry->apps->{$this->_instance_name}['entry_tpl_code'];
+    		$this->_box_tpl_code = $this->_registry->apps->{$this->_instance_name}['box_tpl_code'];
+    		$this->_comment_moderation = $this->_registry->apps->{$this->_instance_name}['comment_moderation'];
+    		$this->_comment_notification = $this->_registry->apps->{$this->_instance_name}['comment_notification'];
+    		$this->_newsletter_entries_number = $this->_registry->apps->{$this->_instance_name}['newsletter_entries_number'];
+    		$this->_newsletter_tpl_code = $this->_registry->apps->{$this->_instance_name}['newsletter_tpl_code'];
+    	}
+    	
+    	$res_newsletter = $this->_db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', 'newsletter');
+    	if($res_newsletter) {
+    		$newsletter_module = TRUE;
+    	}
+    	else {
+    		$newsletter_module = FALSE;
+    	}
+    	
+    	$this->_options = \Gino\Loader::load('Options', array($this));
+    	$this->_optionsLabels = array(
+    		"showcase_title"=>array(
+    			'label'=>_("Titolo vetrina pagine più lette"),
+    			'value'=>$this->_optionsValue['showcase_title']
+    		),
+    		"showcase_number"=>array(
+    			'label'=>_("Numero elementi in vetrina"),
+    			'value'=>$this->_optionsValue['showcase_number'],
+    			'section'=>true,
+    			'section_title'=>_('Opzioni vista vetrina pagine più lette'),
+    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    		),
+    		"showcase_auto_start"=>array(
+    			'label'=>_("Avvio automatico animazione"),
+    			'value'=>$this->_optionsValue['showcase_auto_start'],
+    		),
+    		"showcase_auto_interval"=>array(
+    			'label'=>_("Intervallo animazione automatica (ms)"),
+    			'value'=>$this->_optionsValue['showcase_auto_interval'],
+    		),
+    		"showcase_tpl_code"=>array(
+    			'label'=>array(_("Template singolo elemento vista vetrina"), self::explanationTemplate()),
+    			'value'=>$this->_optionsValue['showcase_tpl_code'],
+    		),
+    		"entry_tpl_code"=>array(
+    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
+    			'value'=>$this->_optionsValue['entry_tpl_code'],
+    			'section'=>true,
+    			'section_title'=>_('Opzioni vista pagina'),
+    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    		),
+    		"box_tpl_code"=>array(
+    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
+    			'value'=>$this->_optionsValue['box_tpl_code'],
+    			'section'=>true,
+    			'section_title'=>_('Opzioni vista pagina inserita nel template'),
+    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    		),
+    		"comment_moderation"=>array(
+    			'label'=>array(_("Moderazione commenti"), _('In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei \'pubblicatori\'. Tali utenti saranno notificati della presenza di un nuovo commento con una email')),
+    			'value'=>$this->_optionsValue['comment_moderation'],
+    			'section'=>true,
+    				'section_title'=>_('Opzioni commenti')
+    		),
+    		"comment_notification"=>array(
+    			'label'=>array(_("Notifica commenti"), _('In tal caso l\'autore della pagina riceverà una email per ogni commento pubblicato')),
+    			'value'=>$this->_optionsValue['comment_notification'],
+    		),
+    		"newsletter_entries_number"=>array(
+    			'label'=>_('Numero di elementi presentati nel modulo newsletter'),
+    			'value'=>$this->_optionsValue['newsletter_entries_number'],
+    			'section'=>true,
+    			'section_title'=>_('Opzioni newsletter'),
+    			'section_description'=> $newsletter_module
+    			? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
+    			: "<p>"._('Il modulo newsletter non è installato')."</p>",
+    		),
+    		"newsletter_tpl_code"=>array(
+    			'label'=>array(_("Template pagina in inserimento newsletter"), self::explanationTemplate()),
+    			'value'=>$this->_optionsValue['newsletter_tpl_code'],
+    		),
+    	);
     }
 
     /**
@@ -340,17 +390,11 @@ class page extends \Gino\Controller {
         $code_exp .= "<li><b><span style='text-style: normal'>|chars:n</span></b>: "._('mostra solo n caratteri della proprietà')."</li>";
         $code_exp .= "<li><b><span style='text-style: normal'>|title:&quot;html_title&quot;</span></b>: "._('Aggiunge il titolo fornito alla lista dei contenuti correlati')."</li>";
         $code_exp .= "</ul>";
-        $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni").":<br />";
+        $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni (se installate)").":<br />";
         $code_exp .= "<ul>";
-        $code_exp .= _("Ulteriori proprietà disponibili relative ad altre applicazioni").":<br />";
-        $code_exp .= "<ul>";
-        if(self::checkValidApplication('gmaps')) {
-        	$code_exp .= "<li><b>map|gid:<i>map_id</i></b>: "._("mostra la mappa indicata")."</li>";
-        }
-        if(self::checkValidApplication('gallery')) {
-        	$code_exp .= "<li><b>show_gallery|gid:<i>gallery_id</i></b>: "._("mostra alcune immagini appartenenti alla galleria indicata")."</li>";
-        	$code_exp .= "<li><b>link_gallery|gid:<i>gallery_id</i></b>: "._("mostra il collegamento alla galleria immagini indicata")."</li>";
-        }
+        $code_exp .= "<li><b>map|gid:<i>map_id</i></b>: "._("mostra la mappa indicata")."</li>";
+        $code_exp .= "<li><b>show_gallery|gid:<i>gallery_id</i></b>: "._("mostra alcune immagini appartenenti alla galleria indicata")."</li>";
+        $code_exp .= "<li><b>link_gallery|gid:<i>gallery_id</i></b>: "._("mostra il collegamento alla galleria immagini indicata")."</li>";
         $code_exp .= "</ul>";
 
         return $code_exp;
@@ -886,19 +930,19 @@ class page extends \Gino\Controller {
         }
         // applications
         elseif(preg_match("#gid:(\d+)#", $filter, $matches)) {
-        	if($pre_filter == 'show_gallery' && self::checkValidApplication('gallery')) {
+        	if($pre_filter == 'show_gallery' && $this->checkValidApplication('gallery')) {
         		$buffer = "<div class=\"show-gallery\">";
         		$buffer .= \Gino\App\Gallery\gallery::showGalleryImages($matches[1]);
         		$buffer .= "</div>";
         		return $buffer;
         	}
-        	elseif($pre_filter == 'link_gallery' && self::checkValidApplication('gallery')) {
+        	elseif($pre_filter == 'link_gallery' && $this->checkValidApplication('gallery')) {
         		$buffer = "<div class=\"link-gallery\">";
         		$buffer .= "<a class=\"btn btn-primary\" href=\"".\Gino\App\Gallery\gallery::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
         		$buffer .= "</div>";
         		return $buffer;
         	}
-        	elseif($pre_filter == 'map' && self::checkValidApplication('gmaps')) {
+        	elseif($pre_filter == 'map' && $this->checkValidApplication('gmaps')) {
         		$id = $matches[1];
         		
         		$map_instance = \Gino\App\Gmaps\gmaps::getInstanceValue($id);
@@ -947,28 +991,37 @@ class page extends \Gino\Controller {
      * @param string $app_name nome dell'applicazione (valore del campo @a name della tabella sys_module_app)
      * @return boolean
      */
-    public static function checkValidApplication($app_name) {
-    	
-    	$db = \Gino\Db::instance();
-    	
-    	$rows = $db->select("id, instantiable", TBL_MODULE_APP, "name='$app_name' AND active='1'");
-    	if($rows && count($rows))
-    	{
-    		if($rows[0]['instantiable'] == 1) {
-    			
-    			$modules = $db->select("id, name", TBL_MODULE, "module_app='".$rows[0]['id']."' AND active='1'");
-    			if($modules && count($modules)) {
-    				return true;
-    			}
-    			else {
-    				return false;
-    			}
-    		}
-    		else {
-    			return true;
-    		}
-    	}
-    	return false;
+	public function checkValidApplication($app_name) {
+		
+		if(is_null($this->_valid_applications)) {
+		
+			$list = array();
+			if(count($this->_applications)) {
+				foreach($this->_applications as $app) {
+					$rows = $this->_db->select("id, instantiable", TBL_MODULE_APP, "name='$app' AND active='1'");
+					if($rows && count($rows))
+					{
+						if($rows[0]['instantiable'] == 1) {
+							$modules = $this->_db->select("id, name", TBL_MODULE, "module_app='".$rows[0]['id']."' AND active='1'");
+							if($modules && count($modules)) {
+								$list[] = $app;
+							}
+						}
+						else {
+							$list[] = $app;
+						}
+					}
+				}
+			}
+			$this->_valid_applications = $list;
+		}
+		
+		if(in_array($app_name, $this->_valid_applications)) {
+			return true;
+		}
+		else {
+			return false;
+		}
     }
 
     /**

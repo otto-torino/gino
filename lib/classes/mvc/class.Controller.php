@@ -3,7 +3,7 @@
  * @file class.Controller.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -37,6 +37,12 @@ abstract class Controller {
               $_view_dir,
               $_home;
 
+	/**
+	 * @brief Valore del campo tbl_name della tabella TBL_MODULE_APP
+	 * @var string
+	 */
+	private $_tbl_name;
+	
     /**
      * @brief Inizializza il controller
      * @param int $instance_id id modulo, se diverso da zero il modulo è un'istanza di una classe, altrimenti è la classe di sistema
@@ -59,6 +65,7 @@ abstract class Controller {
 
         $this->_class_name = get_name_class($this);
         $this->setInstanceProperties($instance_id);
+        $this->_tbl_name = null;
 
         $this->_locale = locale::instance_to_class($this->_class_name);
 
@@ -203,33 +210,35 @@ abstract class Controller {
      *   - (boolean): indica se è prevista la traduzione (compatibilità con precedenti versioni di gino)
      * @return mixed
      */
-    protected function setOption($option, $options = FALSE) {
-
-        $tbl_name = $this->_db->getFieldFromId(TBL_MODULE_APP, 'tbl_name', 'name', $this->_class_name);
-        $tbl_name = $tbl_name."_opt";
-
-        $records = $this->_db->select("id, $option", $tbl_name, "instance='".$this->_instance."'");
-        if($records and count($records))
-        {
-            foreach($records AS $r)
-            {
-                if(is_bool($options)) $trsl = $options; // for compatibility with old version
-                elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
-                else $trsl = FALSE;
-
-                if($trsl && $this->_registry->sysconf->multi_language)
-                    $value = $this->_trd->selectTXT($tbl_name, $option, $r['id']);
-                else
-                    $value = $r[$option];
-            }
-        }
-        else
-        {
-            if(is_array($options) AND $options['value']) $value = $options['value'];
-            else $value = null;
-        }
-
-        return $value;
+	protected function setOption($option, $options = FALSE) {
+		
+		if(is_null($this->_tbl_name)) {
+			$tbl_name = $this->_db->getFieldFromId(TBL_MODULE_APP, 'tbl_name', 'name', $this->_class_name);
+			$this->_tbl_name = $tbl_name."_opt";
+		}
+		
+		$records = $this->_db->select("id, $option", $this->_tbl_name, "instance='".$this->_instance."'");
+		if($records and count($records))
+		{
+			foreach($records AS $r)
+			{
+				if(is_bool($options)) $trsl = $options; // for compatibility with old version
+				elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
+				else $trsl = FALSE;
+		
+				if($trsl && $this->_registry->sysconf->multi_language)
+					$value = $this->_trd->selectTXT($this->_tbl_name, $option, $r['id']);
+					else
+						$value = $r[$option];
+			}
+		}
+		else
+		{
+			if(is_array($options) AND $options['value']) $value = $options['value'];
+			else $value = null;
+		}
+		
+		return $value;
     }
 
     /**
