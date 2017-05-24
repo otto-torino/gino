@@ -192,7 +192,7 @@ class Document {
             $scripts[] = SITE_JS."/respond.js";
         }
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-            $this->_registry->addCustomJs("https://www.google.com/recaptcha/api/js/recaptcha_ajax.js", array('compress'=>false, 'minify'=>false));
+        	$this->_registry->addCustomJs("https://www.google.com/recaptcha/api.js", array('compress'=>false, 'minify'=>false));
         }
 
         $this->_registry->js = array_merge($scripts, $this->_registry->js);

@@ -1,12 +1,10 @@
-/* fron-end */
+/* front-end */
 img.ico_more_menu {
 	margin-bottom:3px;
-#	margin-bottom:2px;
 	margin-left:5px;
 }
 section#pathmenu img.ico_more {
 	margin-bottom:3px;
-#	margin-bottom:2px;
 	margin-left:5px;
 }
 
@@ -39,6 +37,3 @@ table.menuInfo tr td {
 table.menuInfo tr td:first-child {
 	background-color: #eee;
 }
-
-
-

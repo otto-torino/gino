@@ -3,7 +3,7 @@
  * @file class.Core.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Core
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\ResponseNotFound;
 /**
  * @brief Gestisce una Gino.Http.Request ed invia una Gino.Http.Response adeguata
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -43,6 +43,7 @@ class Core {
             '\Gino\GTag',
             '\Gino\Document',
         	'\Gino\BreadCrumbs',
+        	'\Gino\Apps',
         ));
 
         Loader::import('class/exceptions', array(
@@ -166,6 +167,7 @@ class Core {
         // core
         $this->_registry->access = Loader::load('Access');
         $this->_registry->db = Loader::singleton('\Gino\Db');
+        $this->_registry->apps = Loader::singleton('\Gino\Apps');
         $this->_registry->sysconf = new \Gino\App\Sysconf\Conf(1);
 
         // layout

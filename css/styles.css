@@ -8828,14 +8828,50 @@ input[type=button]:hover {
 }
 .navbar-language {
   float: left;
-  margin-top: 25px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 15px;
 }
 @media (max-width: 768px) {
   .navbar-language {
-    float: none;
-    clear: both;
+    display: none;
     margin-top: 0px;
   }
+}
+.rheader-main {
+  clear: both;
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 0 20px;
+}
+/* Right block*/
+.rheader-nav {
+  float: right;
+}
+.rheader-login {
+  float: left;
+  margin-top: 15px;
+}
+.rheader-login a {
+  color: #fff;
+  text-decoration: none;
+  padding: 0px 4px;
+}
+@media (max-width: 768px) {
+  .rheader-nav {
+    float: none;
+  }
+  .rheader-login {
+    display: none;
+  }
+}
+/* Left block */
+.rheader-logo {
+  float: left;
+  margin-top: 2px;
+}
+.rheader-logo .navbar-brand {
+  padding: 0;
 }
 #phpModuleView_topbar {
   padding: 0;
@@ -8890,7 +8926,7 @@ input[type=button]:hover {
   src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype');
 }
 body {
-  margin-top: 90px;
+  margin-top: 60px;
 }
 .bg-white {
   background-color: #fff;
@@ -9085,6 +9121,7 @@ body > footer .signature {
 .modal-visible {
   opacity: 1 !important;
   margin-top: 0 !important;
+  visibility: visible !important;
 }
 span.modal-close {
   position: absolute;
@@ -9207,4 +9244,10 @@ span.modal-close {
 }
 .clearfix {
   zoom: 1;
+}
+/* ================================
+   Customize the file modal.less
+   ============================= */
+.autoWidth img {
+  max-width: 400px;
 }

@@ -19,6 +19,10 @@ loader::import('class/fields', array('\Gino\Field', '\Gino\FileField'));
  * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ##CREAZIONE THUMBNAIL
+ * Il thumbnail dell'immagine viene generato automaticamente se è abilitata l'opzione @a resize (default true), e se al contempo 
+ * l'opzione @a thumb è pari a true (default) e l'opzione @a prefix_thumb non è nulla (default thumb_).
  */
 class ImageField extends FileField {
 

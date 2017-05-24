@@ -3,7 +3,7 @@
  * @file plugin.pdo.php
  * @brief Contiene la classe pdo
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -301,19 +301,39 @@ class pdo implements \Gino\DbManager {
 	public function getInfoQuery() {
  		
  		if($this->_show_stats) {
- 			$query_cache = $this->_query_cache ? 'On' : 'Off';
- 			$buffer = "<p>Query cache: ".$query_cache."</p>";
- 			$buffer .= "<p>Number of db queries: ".$this->_cnt."</p>";
+			$query_cache = $this->_query_cache ? 'On' : 'Off';
+			$buffer = "<p>Query cache: ".$query_cache."</p>";
+			$buffer .= "<p>Number of db queries: ".$this->_cnt."</p>";
 			$buffer .= "<p>Time of db queries: ".$this->_time_queries." seconds</p>";
 			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
 			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Execution time (ms)</th></tr>";
+			$list = array();
 			foreach($this->_info_queries as $q) {
+		
+				if(!array_key_exists($q[0], $list)) {
+					$list[$q[0]] = 1;
+				}
+				else {
+					$list[$q[0]] += 1;
+				}
 				$buffer .= "<tr>";
 				$buffer .= "<td>".$q[0]."</td>";
 				$buffer .= "<td>".$q[1]."</td>";
 				$buffer .= "</tr>";
 			}
 			$buffer .= "</table>";
+				
+			arsort($list);
+			$buffer .= "<table class=\"table table-bordered table-striped table-hover\">";
+			$buffer .= "<tr><th>Query</th><th class=\"nowrap\">Numbers</th></tr>";
+			foreach ($list as $key => $value) {
+				$buffer .= "<tr>";
+				$buffer .= "<td>".$key."</td>";
+				$buffer .= "<td>".$value."</td>";
+				$buffer .= "</tr>";
+			}
+			$buffer .= "</table>";
+				
 			return $buffer;
 		}
 		else return null;
