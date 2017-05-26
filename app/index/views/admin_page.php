@@ -3,7 +3,7 @@
     <div class="col-md-6">
         <!-- <h2>Moduli di sistema</h2> -->
         <div class="row">
-            <? $i=0; ?>
+            <? $i=0; $hide_list=array(); ?>
             <? foreach($sysmdls as $sm): ?>
                 <? if(!in_array($sm['name'], $hide)): ?>
                     <div class="col-md-6">
@@ -22,6 +22,8 @@
                     <? if (++$i%2 == 0): ?>
                         <div class="clearfix"></div>
                     <? endif ?>
+                <? else: ?>
+                	<?php $hide_list[] = array('link' => $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])), 'label' => $sm['label']); ?>
                 <? endif ?>
             <? endforeach ?>
         </div>
@@ -48,9 +50,36 @@
                     <? if (++$i%2 == 0): ?>
                         <div class="clearfix"></div>
                     <? endif ?>
+                <? else: ?>
+                	<?php $hide_list[] = array('link' => $ctrl->link($m['name'], 'manageDoc'), 'label' => $m['label']); ?>
                 <? endif ?>
             <? endforeach ?>
         </div>
     </div>
 </div>
+
+<!-- Visualizzazione applicazioni nascoste -->
+<? if (count($hide_list) and $view_hidden_apps): ?>
+	<script type="application/javascript">
+function openHideList() {
+	var d = document.getElementById("hidelist").style.display;
+	
+	if(d == 'block') {
+		$('hidelist').setStyle('display', 'none');
+	}
+	else {
+		$('hidelist').setStyle('display', 'block');
+	}
+}
+	</script>
+
+	<div><span style="cursor: pointer;" onclick="openHideList()">+ <?= _("visualizza le applicazioni nascoste"); ?></span></div>
+	<div id="hidelist" style="display: none;">
+		<ul>
+		<? foreach($hide_list as $hl): ?>
+			<li><a href="<?= $hl['link'] ?>"><?= $hl['label'] ?></a></li>
+		<? endforeach ?>
+		</ul>
+	</div>
+<? endif ?>
 </section>

@@ -66,13 +66,10 @@ class index extends \Gino\Controller{
     		return null;
     	}
     	
-    	$registry = \Gino\registry::instance();
-    	$registry->addCss($this->_class_www."/index.css");
+    	$this->_registry->addCss($this->_class_www."/index.css");
     	
     	$sysMdls = $this->sysModulesManageArray($request);
     	$mdls = $this->modulesManageArray($request);
-    	
-    	$view = new View();
     	
     	$view = new view($this->_view_dir, 'sidenav');
     	$dict = array(
@@ -98,11 +95,11 @@ class index extends \Gino\Controller{
             $request->session->auth_redirect = $this->link($this->_class_name, 'admin_page');
             return new \Gino\Http\Redirect($this->link('auth', 'login'));
         }
+        
+        $this->_registry->addCss($this->_class_www."/index.css");
 
         $sysMdls = $this->sysModulesManageArray($request);
         $mdls = $this->modulesManageArray($request);
-
-        $view = new View();
 
         $view = new view($this->_view_dir, 'admin_page');
         $dict = array(
@@ -110,7 +107,8 @@ class index extends \Gino\Controller{
             'mdls' => $mdls,
             'ctrl' => $this,
             'fas' => unserialize(INSTALLED_APPS),
-            'hide' => unserialize(HIDDEN_APPS)
+            'hide' => unserialize(HIDDEN_APPS),
+        	'view_hidden_apps' => VIEW_HIDDEN_APPS,
         );
 
         $document = new \Gino\Document($view->render($dict));

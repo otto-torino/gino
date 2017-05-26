@@ -52,3 +52,11 @@
 		display: none;
 	}
 }
+
+/* Hidden apps */
+#hidelist {
+	margin-top: 4px;
+}
+#hidelist ul {
+	list-style-type: none;
+}
