@@ -176,7 +176,7 @@ abstract class Controller {
     /**
      * @brief Richiama il metodo ononimo di User passando in automatico classe e istanza
      * @see User:hasPerm
-     * @return void
+     * @return bool
      */
     public function userHasPerm($perm) {
         return $this->_registry->request->user->hasPerm($this->_class_name, $perm, $this->_instance);

@@ -1,3 +1,22 @@
+<?php
+/**
+ * @file admin_page.php
+ * @brief Template per la vista home page amministrazione
+ *
+ * Variabili disponibili:
+ * - **sysmdls**: array, elenco dei moduli di sistema
+ * - **mdls**: array, elenco dei moduli non di sistema
+ * - **ctrl**: object, controller
+ * - **fas**: array, elenco delle applicazioni installate
+ * - **hide**: array, elenco delle applicazioni da non mostrare
+ * - **view_hidden_apps**: bool, per visualizzare le applicazioni nascoste
+ *
+ * @version 1.0.0
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @authors Marco Guidotti guidottim@gmail.com
+ * @authors abidibo abidibo@gmail.com
+ */
+?>
 <section class="admin-home">
 <div class="row">
     <div class="col-md-6">
@@ -13,8 +32,12 @@
                             </div>
                             <div class="panel-body text-center">
                                 <p class="text-center">
-                                    <i class="fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
-                                </p>
+									<? if (array_key_exists($sm['name'], $fas)): ?>
+										<i class="fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
+									<? else: ?>
+										<?= _("impostare l'icona nel file configuration.php") ?>
+                    				<? endif ?>
+								</p>
                                 <div class="small"><?= \Gino\htmlchars($sm['description']) ?></div>
                             </div>
                         </div>
@@ -41,7 +64,11 @@
                             </div>
                             <div class="panel-body text-center">
                                 <p class="text-center">
-                                    <i class="fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
+                                	<? if (array_key_exists($m['name'], $fas)): ?>
+										<i class="fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
+									<? else: ?>
+										<?= _("impostare l'icona nel file configuration.php") ?>
+                    				<? endif ?>
                                 </p>
                                 <div class="small"><?= \Gino\htmlchars($m['description']) ?></div>
                             </div>

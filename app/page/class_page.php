@@ -63,9 +63,9 @@ require_once('class.PageComment.php');
  * - template per newsletter
  *
  * ##OUTPUT
- * - vetrina pagine (più lette)
- * - pagina
- * - feed RSS
+ * - showcase, vetrina pagine (più lette)
+ * - view, visualizzazione pagina
+ * - feeRSS, feed RSS
  *
  * ##DIRECTORY DEI CONTENUTI
  * ---------------
@@ -460,7 +460,7 @@ class page extends \Gino\Controller {
     }
 
     /**
-     * @brief Accesso alla visualizzazione delle pagine
+     * @brief Accesso alla visualizzazione di una pagina
      *
      * @param array options
      *   array associativo di opzioni
