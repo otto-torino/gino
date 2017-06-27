@@ -853,6 +853,9 @@ SET IDENTITY_INSERT page_entry OFF
 CREATE TABLE page_opt (
   id int IDENTITY(1, 1),
   instance int NOT NULL,
+  last_title nvarchar(200) NOT NULL, 
+  last_number tinyint NOT NULL, 
+  last_tpl_code text NOT NULL,
   showcase_title nvarchar(200) NOT NULL,
   showcase_number smallint NOT NULL,
   showcase_auto_start tinyint NOT NULL,
@@ -869,8 +872,13 @@ CREATE TABLE page_opt (
 
 SET IDENTITY_INSERT page_opt ON
 
-INSERT INTO page_opt (id, instance, showcase_title, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
-(1, 0, 'In evidenza', 3, 1, 5000, '<article>
+INSERT INTO page_opt (id, instance, last_title, last_number, last_tpl_code, showcase_title, showcase_number, showcase_auto_start, showcase_auto_interval, showcase_tpl_code, entry_tpl_code, box_tpl_code, comment_moderation, comment_notification, newsletter_entries_number, newsletter_tpl_code) VALUES
+(1, 0, 'Pagine recenti', 10, '<article>
+<h1>{{ title|link }}</h1>
+<p>{{ img|class:left }}</p>
+{{ text|chars:300 }}
+<div class=\"null\"></div>
+</article>', 'In evidenza', 3, 1, 5000, '<article>
 <h1>{{ title }}</h1>
 <p>{{ img|class:left }}</p>
 {{ text }}

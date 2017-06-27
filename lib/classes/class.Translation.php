@@ -58,7 +58,7 @@ class Translation {
      *
      * @param string $table nome della tabella del testo da tradurre
      * @param string $field nome del campo da tradurre
-     * @param mixed $reference valore del campo di rieferimento 
+     * @param mixed $reference valore del campo di riferimento 
      * @param string $id_name nome del campo di riferimento
      * @return traduzione
      */

@@ -13,7 +13,9 @@
 		<?=  $registry->variables('head_links') ?>
 		<!-- system css -->
 		<?=  $registry->variables('css') ?>
-		<!-- system js -->
+		<!-- core js -->
+		<?=  $registry->variables('core_js') ?>
+		<!-- apps js -->
 		<?=  $registry->variables('js') ?>
 		<?= \Gino\Document::errorMessages() ?>
 		<link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
@@ -25,44 +27,49 @@
 		<?= \Gino\Javascript::analytics() ?>
 	</head>
 	<body>
-		<header class="navbar-inverse navbar-fixed-top" role="navigation">
-			<div class="rheader-main">
-				<div class="rheader-logo" itemscope="itemscope" itemtype="http://schema.org/Organization">
-					<a href="#" itemprop="url" title="Otto" class="navbar-brand">
-					<img itemprop="logo" alt="Logo Otto" src="img/logo.png" style="width: 109px; height: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container-fluid main-header">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-gino-navbar-collapse" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#" itemprop="url" title="Otto" class="navbar-brand">
+						<img class="" itemprop="logo" alt="Logo Otto" src="img/logo.png" style="width: 109px; height: 50px;">
 					</a>
 				</div>
-				
-				<div class="rheader-nav">
-					<h1 class="hidden">Menu</h1>
-					<!-- Brand and toggle get grouped for better mobile display -->
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="menu-main-container">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-					</div>
-					
+
+				<div class="navbar-tools">
 					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse" id="menu-main-container">
+					<div class="collapse navbar-collapse" id="bs-gino-navbar-collapse" style="overflow: auto;">
+						<!-- Menu -->
 						{module classid=4 func=render}
-					</div>
-					<!-- /.navbar-collapse -->
+					</div><!-- /.navbar-collapse -->
 					
+					<!-- Choice language -->
 					<div class="navbar-language">
 						{module sysclassid=2 func=choiceLanguage}
 					</div>
 					
-					<?php  if(!$registry->session->user_id): ?>
-					<div class="rheader-login">
+					<!-- Search -->
+					<div class="navbar-search">
+						{module sysclassid=13 func=form}
+					</div>
+					
+					<!-- Link to login -->
+					<?php if(!$registry->session->user_id): ?>
+					<div class="navbar-login">
 						<a href="auth/login">Accedi</a>
 					</div>
 					<?php endif; ?>
-				</div>
-			</div>
-		</header>
+				 </div><!-- /.navbar-tools -->
+			</div><!-- /.container-fluid -->
+		</nav>
+		
 		<div class="container bg-white">
 			<div class="row">
 				<div class="col-md-6">
@@ -75,8 +82,9 @@
 				</div>
 			</div>
 		</div>
-		<footer>
-			
+		<footer class="text-center">
+			Otto Srl | <a href="page/view/privacy-cookie/">Privacy - Cookie</a> | <a href="admin">Area amministrativa</a>
+			<div class="credits"><a target="_blank" href="http://www.otto.to.it"><img style="margin-left: 20px; width: 30px;" src="img/otto_credits.jpg" /></a></div>
 		</footer>
 	</body>
 </html>

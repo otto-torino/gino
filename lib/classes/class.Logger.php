@@ -3,7 +3,7 @@
  * @file class.Logger.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Logger
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,10 +15,10 @@ namespace Gino;
  *
  * @description Gestisce un logger per errori e warning. Se la costante DEBUG definita in @ref configuration.php è settata a TRUE stampa a video errori e warning.
  *              Se DEBUG è impostata a FALSE invia una mail agli amministratori di sistema definiti dalla costante ADMIN in @ref configuration.php.
- *              L' email non viene inviata soltanto nel caso in cui l'errore sia di tipo 404.
+ *              L' email non viene inviata soltanto nel caso in cui la risposta HTTP sia di tipo 403 (Forbidden) e 404 (Not Found).
  *              Gestisce il comportamento a seguito del throw di una exception. La risposta si differenzia a seconda del valore della costante DEBUG.
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -55,7 +55,7 @@ class Logger {
 
     /**
      * @brief Invia lo stack trace di una exception agli amministratori del sistema se la costante DEBUG in @ref configuration.php è FALSE
-     *
+     * 
      * @param Exception $exception oggetto Exception
      * @return TRUE se la mail è stata correttamente spedita, FALSE altrimenti
      */
@@ -91,9 +91,9 @@ class Logger {
     /**
      * @brief Gestore di eccezioni
      *
-     * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS definiti
-     *              nel file @ref configuration.php e ritorna una Gino.Http.Response definita dalla classe Exception oppure 
-     *              una Gino.Http.ResponseServerError. L' email non viene inviata soltanto nel caso in cui l'errore sia di tipo 404.
+     * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS definiti nel file @ref configuration.php 
+     * 				e ritorna una Gino.Http.Response definita dalla classe Exception oppure una Gino.Http.ResponseServerError. 
+     *              L' email non viene inviata soltanto nel caso in cui la risposta HTTP sia di tipo 403 e 404.
      * @param \Exception $exception oggetto Exception
      * return void
      */
@@ -104,7 +104,7 @@ class Logger {
         	exit;
         }
         else {
-        	if(!preg_match("#Exception404#", get_class($exception))) {
+        	if(!preg_match("#Exception404#", get_class($exception)) and !preg_match("#Exception403#", get_class($exception))) {
         		self::exceptionReportAdmins($exception);
         	}
             

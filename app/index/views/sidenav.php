@@ -39,7 +39,11 @@ function closeSNav() {
 	<? foreach($sysmdls as $sm): ?>
 		<? if(!in_array($sm['name'], $hide)): ?>
 			<a href="<?= $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name']))?>" title="<?= $sm['label'] ?>">
+			<? if (array_key_exists($sm['name'], $fas)): ?>
 				<i class="fa fa-<?= $fas[$sm['name']] ?>"></i>
+			<? else: ?>
+				<i class="fa fa-question"></i>
+			<? endif ?>
 			</a>
 		<? endif ?>
 	<? endforeach ?>
@@ -47,7 +51,11 @@ function closeSNav() {
 	<? foreach($mdls as $m): ?>
 		<? if(!in_array($m['name'], $hide)): ?>
 			<a href="<?= $ctrl->link($m['name'], 'manageDoc')?>" title="<?= $m['label'] ?>">
+			<? if (array_key_exists($m['name'], $fas)): ?>
 				<i class="fa fa-<?= $fas[$m['name']] ?>"></i>
+			<? else: ?>
+				<i class="fa fa-question"></i>
+			<? endif ?>
 			</a>
 		<? endif ?>
 	<? endforeach ?>

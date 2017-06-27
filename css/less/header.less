@@ -1,42 +1,28 @@
 
-.rheader-main {
+.main-header {
 	clear: both;
 	margin: 0 auto;
 	max-width: 1160px;
 	padding: 0 20px;
 }
 
-/* Right block*/
-.rheader-nav {
+.navbar-brand > img {
+	position: relative;
+	top: -8px;
+}
+
+/* nav links, forms, and other content for toggling */
+.navbar-tools {
 	float: right;
-}
-.rheader-login {
-	float: left;
-	margin-top: 15px;
-}
-.rheader-login a {
-	color: #fff;
-	text-decoration: none;
-	padding: 0px 4px;
-}
-@media (max-width: @screen-sm-min) {
-	.rheader-nav {
+	font-size: 14px;
+	
+	@media(max-width: @screen-sm-min){
 		float: none;
 	}
-	.rheader-login {
-    	display: none;
-    }
- }
-
-/* Left block */
-.rheader-logo {
+}
+.navbar-tools > .navbar-collapse {
 	float: left;
-	margin-top: 2px;
 }
-.rheader-logo .navbar-brand {
-	padding: 0;
-}
-
 
 #phpModuleView_topbar {
 	padding: 0;

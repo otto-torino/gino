@@ -1,39 +1,5 @@
-/* fron-end */
-.menu-admin {
-  text-transform: uppercase;
-  font-size: 22px;
-  margin-top: 10px;
-}
+/* Front-end */
 
-/* back office */
-.sortHandler {
-	cursor:move;
-	float:left;
-	background-image: url('img/ico_sort.gif');
-	background-position: center center;
-	background-repeat: no-repeat;
-	width:20px;
-	height:20px;
-	margin-right:3px;
+.main-menu {
+	
 }
-
-table.menuInfo {
-	width:100%;
-	border-collapse: separate;
-	background-color:#0099cc;
-}
-table.menuInfo th {
-	color:#fff;
-}
-table.menuInfo tr {
-}
-table.menuInfo tr td {
-	background-color: #fff;
-	padding: 5px;
-}
-table.menuInfo tr td:first-child {
-	background-color: #eee;
-}
-
-
-

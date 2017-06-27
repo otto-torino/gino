@@ -1,3 +1,96 @@
+
+/* Detail page */
+#viewpage {
+	
+}
+
+/* Last pages */
+#lastpages {
+	
+}
+
+/* Showcase */
+#showcasepages {
+	
+}
+#showcasepages article h1 {
+    font-size: 26px;
+    margin-top: 0;
+}
+#showcasepages table {
+    margin: auto;
+}
+#showcasepages table td {
+    padding: 5px;
+}
+
+#page-showcase-wrapper {
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+#showcasepages .page-showcase-item {
+    background: #FFFFFF;
+    height: 100%;
+    padding: 10px;
+    position: absolute;
+    width: 100%;
+}
+#showcasepages .page-showcase-sym {
+    background: none repeat scroll 0 0 #ddf8ff;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 1px #828282 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    height: 20px;
+    overflow: hidden;
+    width: 20px;
+}
+#showcasepages .page-showcase-sym span {
+    background: none repeat scroll 0 0 #00122d;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 2px #000000 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    margin-left: -20px;
+    transition: all 100ms ease 0s;
+    width: 20px;
+}
+#showcasepages .page-showcase-sym.on span {
+    margin: 0 !important;
+}
+#showcasepages .page-showcase-sym.fwd span {
+    margin-left: 20px;
+}
+#showcasepages .page-showcase-sym.rwd span {
+    margin-left: -20px;
+}
+
+#showcasepages .caption {
+    background: none repeat scroll 0 0 #544848;
+    bottom: 0;
+    color: #FFFFFF;
+    opacity: 0.9;
+    padding: 5px 10px;
+    position: absolute;
+    width: 430px;
+}
+#showcasepages .caption h1 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 5px 0;
+}
+#showcasepages .caption a:link, #showcasepages .caption a:visited {
+    color: #DDFD04;
+}
+#showcasepages .caption p {
+    font-size: 0.9em;
+    line-height: 1.3em;
+    margin: 5px 0;
+}
+
+
+/* Show gallery into the page */
 .show-gallery {
 	
 }

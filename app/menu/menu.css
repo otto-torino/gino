@@ -1,39 +1,15 @@
-/* front-end */
-img.ico_more_menu {
-	margin-bottom:3px;
-	margin-left:5px;
-}
-section#pathmenu img.ico_more {
-	margin-bottom:3px;
-	margin-left:5px;
-}
+/* Front-end */
 
-/* back office */
-.sortHandler {
-	cursor:move;
-	float:left;
-	background-image: url('img/ico_sort.gif');
-	background-position: center center;
-	background-repeat: no-repeat;
-	width:20px;
-	height:20px;
-	margin-right:3px;
-}
+/*
+li class="active"					[voce 1° livello attiva]
+li class=""							[voce 1° livello non attiva]
+li class="dropdown [active|open]"	[voce 1° livello con submenu]
+									[open -> dislayed when you click on the voice with submenu]
+	-> A [dropdown-toggle has-submenu] + highlighted
+		-> UL [dropdown-menu sm-nowrap]
+			-> LI [dropdown] + open
+*/
 
-table.menuInfo {
-	width:100%;
-	border-collapse: separate;
-	background-color:#0099cc;
-}
-table.menuInfo th {
-	color:#fff;
-}
-table.menuInfo tr {
-}
-table.menuInfo tr td {
-	background-color: #fff;
-	padding: 5px;
-}
-table.menuInfo tr td:first-child {
-	background-color: #eee;
+.main-menu {
+	
 }
