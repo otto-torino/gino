@@ -20,7 +20,7 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 - ricerca full-text
 - installazione di pacchetti aggiuntivi con un click
 - integrazione bootstrap 3 (less) e font-awesome, possibilità di creare layout responsive
-- integrazione mootools > 1.4
+- integrazione mootools > 1.4 e jquery
 - gestione dispositivi mobile separata se necessario
 - moduli aggiuntivi disponibili sull'[account github di Otto](http://github.com/otto-torino)
 
@@ -61,6 +61,7 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 2017/03/10 | v 2.15.0 | Feature  
 2017/04/19 | v 2.15.1 | Hotfix  
 2017/05/24 | v 2.16.0 | Feature  
+2017/06/27 | v 2.17.0 | Feature  
 
 # Copyright
 Copyright © 2005-2017 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)
