@@ -1,4 +1,9 @@
 
+@claim-h1-color: #fff;
+@claim-p-color: #eee;
+@claim-btn-bkg: #cd3200;
+@claim-btn-color: #fff;
+
 // Import the fonts
 @font-face {
 	font-family: 'Roboto Slab';
@@ -9,7 +14,7 @@
 }
 
 body {
-	margin-top: 60px;
+	margin-top: 50px !important;
 }
 
 .bg-white {
@@ -29,4 +34,66 @@ body {
 	left: 0;
 	width: 100% !important;
 	height: 100% !important;
+}
+
+/* Claim */
+.section-claim {
+	background: transparent url('../graphics/bkg_head.jpg') no-repeat center center;
+	background-size: cover;
+	color: @claim-p-color;
+	// height: 100%;
+	position: relative;
+	border-bottom: 1px solid #fff;
+
+	h1 {
+		color: @claim-h1-color;
+		font-size: 35px;
+		
+		@media(min-width: @screen-sm){
+			font-size: 45px;
+		}
+
+		@media(min-width: @screen-md){
+			font-size: 48px;
+		}
+
+		@media(min-width: @screen-lg){
+			font-size: 50px;
+		}
+	}
+
+	img {
+		width: 280px;
+
+		@media(min-width: @screen-sm){
+			width: 320px;
+		}
+
+		@media(min-width: @screen-md){
+			width: 320px;
+		}
+
+		@media(min-width: @screen-lg){
+			width: 320px;
+		}
+	}
+
+	.btn-claim {
+		background: @claim-btn-bkg;
+		color: @claim-btn-color;
+		font-size: 20px;
+		margin-bottom: 60px;
+		margin-top: 10px;
+	}
+
+	.scrolltofirst {
+		bottom: 0;
+		left: 0;
+		position: absolute;
+		width: 100%;
+
+		i {
+			cursor: pointer;
+		}
+	}
 }

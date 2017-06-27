@@ -771,6 +771,9 @@ INSERT INTO `page_entry` (`id`, `category_id`, `author`, `creation_date`, `last_
 CREATE TABLE IF NOT EXISTS `page_opt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
+  `last_title` VARCHAR(200) NOT NULL, 
+  `last_number` TINYINT(2) NOT NULL, 
+  `last_tpl_code` TEXT NOT NULL,
   `showcase_title` varchar(200) NOT NULL,
   `showcase_number` smallint(3) NOT NULL,
   `showcase_auto_start` tinyint(1) NOT NULL,
@@ -789,8 +792,8 @@ CREATE TABLE IF NOT EXISTS `page_opt` (
 -- Dumping data for table `page_opt`
 --
 
-INSERT INTO `page_opt` (`id`, `instance`, `showcase_title`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
-(1, 0, 'In evidenza', 3, 1, 5000, '<article>\r\n<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, NULL);
+INSERT INTO `page_opt` (`id`, `instance`, `last_title`, `last_number`, `last_tpl_code`, `showcase_title`, `showcase_number`, `showcase_auto_start`, `showcase_auto_interval`, `showcase_tpl_code`, `entry_tpl_code`, `box_tpl_code`, `comment_moderation`, `comment_notification`, `newsletter_entries_number`, `newsletter_tpl_code`) VALUES
+(1, 0, 'Pagine recenti', 10, '<article>\r\n<h1>{{ title|link }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text|chars:300 }}\r\n<div class=\"null\"></div>\r\n</article>', 'In evidenza', 3, 1, 5000, '<article>\r\n<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>\r\n</article>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', '<h1>{{ title }}</h1>\r\n<p>{{ img|class:left }}</p>\r\n{{ text }}\r\n<div class="null"></div>', 0, 1, 5, NULL);
 
 -- --------------------------------------------------------
 

@@ -167,20 +167,24 @@ class Document {
         $this->_registry->keywords = $this->_registry->keywords ? $this->_registry->keywords : $this->_registry->sysconf->head_keywords;
         $this->_registry->favicon = $this->_registry->favicon ? $this->_registry->favicon : SITE_WWW."/favicon.ico";
 
-        // css
-        $stylesheets = array(
-            CSS_WWW."/styles.css",
-            CSS_WWW."/datepicker_jqui.css",
-        );
-
+        // Css
+        $stylesheets = array();
+        
+        // Bootstrap
+        $stylesheets[] = SITE_JS."/bootstrap/css/bootstrap.min.css";
+        
+        // Custom styles
+        $stylesheets[] = CSS_WWW."/styles.css";
+        $stylesheets[] = CSS_WWW."/datepicker_jqui.css";
+        
         if($skin->css) {
             $css = Loader::load('Css', array('layout', array('id'=>$skin->css)));
             $stylesheets[] = CSS_WWW."/".$css->filename;
         }
-
+        
         $this->_registry->css = array_merge($stylesheets, $this->_registry->css);
 
-        // js
+        // javascript core
         $scripts = array(
         	SITE_JS."/MooTools-More-1.6.0-compressed.js",
         	SITE_JS."/modernizr.js",
@@ -191,11 +195,18 @@ class Document {
         if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
             $scripts[] = SITE_JS."/respond.js";
         }
+        
+        $this->_registry->core_js = $scripts;
+        
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-        	$this->_registry->addCustomJs("https://www.google.com/recaptcha/api.js", array('compress'=>false, 'minify'=>false));
+        	$this->_registry->addCoreJs("https://www.google.com/recaptcha/api.js");
         }
-
-        $this->_registry->js = array_merge($scripts, $this->_registry->js);
+        
+        // jQuery and Bootstrap
+        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-2.2.4.min.js");
+        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
+        $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
+        $this->_registry->addCoreJs(SITE_JS."/bootstrap/js/bootstrap.min.js");
     }
 
     /**

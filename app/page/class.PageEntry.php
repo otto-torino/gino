@@ -3,7 +3,7 @@
  * @file class.PageEntry.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\GTag;
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -301,31 +301,31 @@ class PageEntry extends \Gino\Model {
     }
 
     /**
-     * @brief Definisce le condizioni di accesso a una pagina integrando le condizioni del WHERE
+     * @brief Definisce le condizioni di accesso alle pagine private
      *
-     * @param integer $access_user valore ID dell'utente
-     * @param boolean $access_private indica se l'utente appartiene al gruppo "utenti pagine private"
+     * @param integer $user_id valore ID dell'utente
+     * @param boolean $view_private indica se l'utente ha associato il permesso @a can_view_private
      * @return where clause
      */
-    private static function accessWhere($access_user, $access_private) {
+    private static function viewPrivatePages($user_id, $view_private) {
 
         $where = '';
 
-        if($access_user == 0)    // condizione di non autenticazione
+        if($user_id == 0)    // condizione di non autenticazione
         {
             $where = "(users IS NULL OR users='') AND private='0'";
         }
-        elseif($access_user && is_int($access_user))
+        elseif($user_id && is_int($user_id))
         {
             // condizione campo users non vuoto
-            $w1 = "users IS NOT NULL AND users!='' AND users REGEXP '[[:<:]]".$access_user."[[:>:]]'";
+            $w1 = "users IS NOT NULL AND users!='' AND users REGEXP '[[:<:]]".$user_id."[[:>:]]'";
 
             // condizione campo users vuoto, da abbinare all'accesso privato se impostato 
             $w2 = "users IS NULL OR users=''";
 
-            if(is_bool($access_private))
+            if(is_bool($view_private))
             {
-                if(!$access_private)
+                if(!$view_private)
                 {
                     $w3 = "private='0'";
 
@@ -338,8 +338,8 @@ class PageEntry extends \Gino\Model {
             }
             else $where = "(($w1) OR ($w2)";
         }
-        elseif(is_bool($access_private)) {
-            if(!$access_private) {
+        elseif(is_bool($view_private)) {
+            if(!$view_private) {
                 $where = "private='0'";
             }
         }
@@ -350,16 +350,16 @@ class PageEntry extends \Gino\Model {
     /**
      * @brief Restituisce oggetti di tipo @ref Gino.App.Page.PageEntry 
      * 
-     * @see accessWhere()
-     * @param object $controller istanza del controller 
      * @param array $options array associativo di opzioni
      *   - @b published (boolean)
      *   - @b tag (integer)
      *   - @b category (integer)
+     *   - @b user_id (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
+     *   - @b view_private (boolean): identifica se l'utente in sessione ha il permesso @a can_view_privat
+     *   - @b where (string): condizioni personalizzate
      *   - @b order (string)
      *   - @b limit (string)
-     *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
-     *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
+     *   - @b debug (boolean): default false
      * @return array di istanze di tipo Gino.App.Page.PageEntry
      */
     public static function get($options = null) {
@@ -369,40 +369,26 @@ class PageEntry extends \Gino\Model {
         $published = \Gino\gOpt('published', $options, true);
         $tag = \Gino\gOpt('tag', $options, null);
         $category = \Gino\gOpt('category', $options, null);
+        $user_id = \Gino\gOpt('user_id', $options, null);
+        $view_private = \Gino\gOpt('view_private', $options, null);
+        $where_opt = \Gino\gOpt('where', $options, null);
+        
         $order = \Gino\gOpt('order', $options, 'creation_date');
         $limit = \Gino\gOpt('limit', $options, null);
-        $where_opt = \Gino\gOpt('where', $options, null);
+        $debug = \Gino\gOpt('debug', $options, false);
 
-        $access_user = \Gino\gOpt('access_user', $options, null);
-        $access_private = \Gino\gOpt('access_private', $options, null);
-
-        $db = \Gino\db::instance();
-        $selection = 'id';
-        $table = self::$table;
-        $where_arr = array();
-        if($published) {
-            $where_arr[] = "published='1'";
-        }
-        if($category) {
-            $where_arr[] = "category_id='$category'";
-        }
-        if($tag) {
-            $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
-        }
-
-        $where = implode(' AND ', $where_arr);
-        if($where_opt) {
-            $where = implode(' AND ', array($where_opt));
-        }
-
-        $where_add = self::accessWhere($access_user, $access_private);
-
-        if($where && $where_add)
-            $where = $where." AND ".$where_add;
-        elseif(!$where && $where_add)
-            $where = $where_add;
-
-        $rows = $db->select($selection, $table, $where, array('order'=>$order, 'limit'=>$limit));
+        $db = \Gino\Db::instance();
+         
+        $where = self::setConditionWhere(array(
+        	'published' => $published,
+        	'category' => $category,
+        	'tag' => $tag,
+        	'user_id' => $user_id,
+        	'view_private' => $view_private,
+        	'custom' => $where_opt,
+        ));
+        
+        $rows = $db->select('id', self::$table, $where, array('order' => $order, 'limit' => $limit, 'debug' => $debug));
         if(count($rows)) {
             foreach($rows as $row) {
                 $res[] = new PageEntry($row['id']);
@@ -419,8 +405,8 @@ class PageEntry extends \Gino\Model {
      *   - @b published (boolean)
      *   - @b tag (integer)
      *   - @b category (integer)
-     *   - @b access_user (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
-     *   - @b access_private (boolean): identifica se l'utente in sessione appartiene al gruppo che può accedere alle pagine private
+     *   - @b user_id (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
+     *   - @b view_private (boolean): identifica se l'utente in sessione ha il permesso @a can_view_private
      * @return numero di pagine
      */
     public static function getCount($options = null) {
@@ -430,38 +416,80 @@ class PageEntry extends \Gino\Model {
         $published = \Gino\gOpt('published', $options, true);
         $tag = \Gino\gOpt('tag', $options, null);
         $category = \Gino\gOpt('category', $options, null);
+		$user_id = \Gino\gOpt('user_id', $options, null);
+        $view_private = \Gino\gOpt('view_private', $options, null);
 
-        $access_user = \Gino\gOpt('access_user', $options, null);
-        $access_private = \Gino\gOpt('access_private', $options, null);
+        $db = \Gino\Db::instance();
+        
+        $where = self::setConditionWhere(array(
+        	'published' => $published,
+        	'category' => $category,
+        	'tag' => $tag, 
+        	'user_id' => $user_id,
+        	'view_private' => $view_private,
+        ));
 
-        $db = \Gino\db::instance();
-        $selection = 'COUNT(id) AS tot';
-        $table = self::$table;
-        $where_arr = array();
-        if($published) {
-            $where_arr[] = "published='1'";
-        }
-        if($category) {
-            $where_arr[] = "category_id='$category'";
-        }
-        if($tag) {
-            $where_arr[] = "id IN (SELECT entry FROM ".self::$table_tag." WHERE tag='".$tag."')";
-        }
-
-        $where = implode(' AND ', $where_arr);
-        $where_add = self::accessWhere($access_user, $access_private);
-
-        if($where && $where_add)
-            $where = $where." AND ".$where_add;
-        elseif(!$where && $where_add)
-            $where = $where_add;
-
-        $rows = $db->select($selection, $table, $where);
+        $rows = $db->select('COUNT(id) AS tot', self::$table, $where);
         if($rows and count($rows)) {
             $res = $rows[0]['tot'];
         }
 
         return $res;
+    }
+    
+    /**
+     * @brief Imposta le condizioni di ricerca dei record
+     * 
+     * @param array $options array associativo di opzioni
+     *   - @b published (boolean)
+     *   - @b tag (integer)
+     *   - @b category (integer)
+     *   - @b text (string): fa riferimento ai campi title e text
+     *   - @b user_id (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
+     *   - @b view_private (boolean): identifica se l'utente in sessione ha il permesso @a can_view_private
+     *   - @b custom (string): condizioni personalizzate
+     * @return string
+     */
+    public static function setConditionWhere($options = null) {
+
+    	$published = \Gino\gOpt('published', $options, true);
+    	$tag = \Gino\gOpt('tag', $options, null);
+    	$category = \Gino\gOpt('category', $options, null);
+    	$text = \Gino\gOpt('text', $options, null);
+    	$user_id = \Gino\gOpt('user_id', $options, null);
+        $view_private = \Gino\gOpt('view_private', $options, null);
+        $custom = \Gino\gOpt('custom', $options, null);
+    	
+    	$controller = new page();
+    	$where = array();
+    	
+    	if($published) {
+    		$where[] = "published='1'";
+    	}
+    	if($category) {
+    		$where[] = "category_id='$category'";
+    	}
+    	if($tag) {
+    		$where[] = \Gino\GTag::whereCondition($controller, $tag);
+    	}
+    	if($text) {
+    		$where[] = "(title LIKE '%".$text."%' OR text LIKE '%".$text."%')";
+    	}
+    	
+    	if($custom) {
+    		$conditions = $custom;
+    	}
+    	else {
+    		$conditions = implode(' AND ', $where);
+    	}
+    	
+    	$condition_private = self::viewPrivatePages($user_id, $view_private);
+    	
+    	if($condition_private && $conditions) {
+    		$conditions = $conditions." AND ".$condition_private;
+    	}
+    	
+    	return $conditions;
     }
     
     /**

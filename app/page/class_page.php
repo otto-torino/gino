@@ -91,58 +91,73 @@ require_once('class.PageComment.php');
  */
 class page extends \Gino\Controller {
 
+	/**
+	 * @brief Titolo vista ultime news
+	 */
+	private $_last_title;
+	
+	/**
+	 * @brief Numero elementi nella vista ultime news
+	 */
+	private $_last_number;
+	
+	/**
+	 * @brief Template elemento in vista ultime news
+	 */
+	private $_last_tpl_code;
+	
     /**
-     * Titolo vista vetrina
+     * @brief Titolo vista vetrina
      */
     private $_showcase_title;
 
     /**
-     * Numero post in vetrina
+     * @brief Numero elementi in vetrina
      */
     private $_showcase_number;
 
     /**
-     * Template elemento in vista vetrina
+     * @brief Template elemento in vista vetrina
      */
     private $_showcase_tpl_code;
 
     /**
-     * Avvio automatico animazione vetrina
+     * @brief Avvio automatico animazione vetrina
      */
     private $_showcase_auto_start;
 
     /**
-     * Intervallo animazione automatica vetrina
+     * @brief Intervallo animazione automatica vetrina
      */
     private $_showcase_auto_interval;
 
     /**
-     * Template pagina
+     * @brief Template pagina
      */
     private $_entry_tpl_code;
 
     /**
-     * Template pagina inserita nel template
+     * @brief Template pagina inserita nel template
      */
     private $_box_tpl_code;
 
     /**
-     * Moderazione dei commenti
+     * @brief Moderazione dei commenti
      */
     private $_comment_moderation;
 
     /**
-     * Notifica commenti
+     * @brief Notifica commenti
      */
     private $_comment_notification;
 
     /**
-     * Numero di post proposti per la newsletter
+     * @brief Numero di elementi proposti per la newsletter
      */
     private $_newsletter_entries_number;
 
     /**
-     * Template elemento quando inserito in newsletter
+     * @brief Template elemento quando inserito in newsletter
      */
     private $_newsletter_tpl_code;
 
@@ -181,28 +196,29 @@ class page extends \Gino\Controller {
     
     private function setAppOptions() {
     	
-    	$showcase_tpl_code = "";
-    	$entry_tpl_code = "";
-    	$box_tpl_code = "";
-    	$newsletter_tpl_code = "";
-    	
     	$this->_optionsValue = array(
+    		'last_title' => _("Pagine recenti"),
+    		'last_number' => 10,
+    		'last_tpl_code' => '',
     		'showcase_title' => _("In evidenza"),
     		'showcase_number' => 3,
     		'showcase_auto_start' => 1,
     		'showcase_auto_interval' => 5000,
-    		'showcase_tpl_code' => $showcase_tpl_code,
+    		'showcase_tpl_code' => '',
     		'showcase_auto_interval' => 5000,
-    		'entry_tpl_code' => $entry_tpl_code,
-    		'box_tpl_code' => $box_tpl_code,
+    		'entry_tpl_code' => '',
+    		'box_tpl_code' => '',
     		'comment_moderation' => 0,
     		'comment_notification' => 1,
     		'newsletter_entries_number' => 5,
-    		'newsletter_tpl_code' => $newsletter_tpl_code,
+    		'newsletter_tpl_code' => '',
     	);
     	
     	if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
     		
+    		$this->_last_title = \Gino\htmlChars($this->setOption('last_title', array('value'=>$this->_optionsValue['last_title'], 'translation'=>true)));
+    		$this->_last_number = $this->setOption('last_number', array('value'=>$this->_optionsValue['last_number']));
+    		$this->_last_tpl_code = $this->setOption('last_tpl_code', array('value'=>$this->_optionsValue['last_tpl_code'], 'translation'=>true));
     		$this->_showcase_title = \Gino\htmlChars($this->setOption('showcase_title', array('value'=>$this->_optionsValue['showcase_title'], 'translation'=>true)));
     		$this->_showcase_number = $this->setOption('showcase_number', array('value'=>$this->_optionsValue['showcase_number']));
     		$this->_showcase_auto_start = $this->setOption('showcase_auto_start', array('value'=>$this->_optionsValue['showcase_auto_start']));
@@ -216,6 +232,9 @@ class page extends \Gino\Controller {
     		$this->_newsletter_tpl_code = $this->setOption('newsletter_tpl_code', array('value'=>$this->_optionsValue['newsletter_tpl_code'], 'translation'=>true));
     
     		$this->_registry->apps->{$this->_instance_name} = array(
+    			'last_title' => $this->_last_title,
+    			'last_number' => $this->_last_number,
+    			'last_tpl_code' => $this->_last_tpl_code,
     			'showcase_title' => $this->_showcase_title,
     			'showcase_number' => $this->_showcase_number,
     			'showcase_auto_start' => $this->_showcase_auto_start,
@@ -230,6 +249,9 @@ class page extends \Gino\Controller {
     		);
     	}
     	else {
+    		$this->_last_title = $this->_registry->apps->{$this->_instance_name}['last_title'];
+    		$this->_last_number = $this->_registry->apps->{$this->_instance_name}['last_number'];
+    		$this->_last_tpl_code = $this->_registry->apps->{$this->_instance_name}['last_tpl_code'];
     		$this->_showcase_title = $this->_registry->apps->{$this->_instance_name}['showcase_title'];
     		$this->_showcase_number = $this->_registry->apps->{$this->_instance_name}['showcase_number'];
     		$this->_showcase_auto_start = $this->_registry->apps->{$this->_instance_name}['showcase_auto_start'];
@@ -253,16 +275,31 @@ class page extends \Gino\Controller {
     	
     	$this->_options = \Gino\Loader::load('Options', array($this));
     	$this->_optionsLabels = array(
+    		"last_title"=>array(
+    			'label'=>_("Titolo visualizzazione ultime pagine"),
+    			'value'=>$this->_optionsValue['last_title'],
+    			'section'=>true,
+    			'section_title'=>_('Opzioni vista ultime pagine'),
+    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    		),
+    		"last_number"=>array(
+    			'label'=>_("Numero di elementi visualizzati"),
+    			'value'=>$this->_optionsValue['last_number'],
+    		),
+    		"last_tpl_code"=>array(
+    			'label'=>array(_("Template singolo elemento vista ultime pagine"), self::explanationTemplate()),
+    			'value'=>$this->_optionsValue['last_tpl_code'],
+    		),
     		"showcase_title"=>array(
     			'label'=>_("Titolo vetrina pagine più lette"),
-    			'value'=>$this->_optionsValue['showcase_title']
-    		),
-    		"showcase_number"=>array(
-    			'label'=>_("Numero elementi in vetrina"),
-    			'value'=>$this->_optionsValue['showcase_number'],
+    			'value'=>$this->_optionsValue['showcase_title'],
     			'section'=>true,
     			'section_title'=>_('Opzioni vista vetrina pagine più lette'),
-    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    		),
+    		"showcase_number"=>array(
+    			'label'=>_("Numero di elementi in vetrina"),
+    			'value'=>$this->_optionsValue['showcase_number'],
     		),
     		"showcase_auto_start"=>array(
     			'label'=>_("Avvio automatico animazione"),
@@ -281,23 +318,23 @@ class page extends \Gino\Controller {
     			'value'=>$this->_optionsValue['entry_tpl_code'],
     			'section'=>true,
     			'section_title'=>_('Opzioni vista pagina'),
-    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
     		),
     		"box_tpl_code"=>array(
     			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
     			'value'=>$this->_optionsValue['box_tpl_code'],
     			'section'=>true,
     			'section_title'=>_('Opzioni vista pagina inserita nel template'),
-    			'section_description'=>"<p>"._('Il template verrà utilizzato per ogni pagina ed inserito all\'interno di una section')."</p>"
+    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
     		),
     		"comment_moderation"=>array(
-    			'label'=>array(_("Moderazione commenti"), _('In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei \'pubblicatori\'. Tali utenti saranno notificati della presenza di un nuovo commento con una email')),
+    			'label'=>array(_("Moderazione commenti"), _("In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei 'pubblicatori'. Tali utenti saranno notificati della presenza di un nuovo commento con una email")),
     			'value'=>$this->_optionsValue['comment_moderation'],
     			'section'=>true,
     				'section_title'=>_('Opzioni commenti')
     		),
     		"comment_notification"=>array(
-    			'label'=>array(_("Notifica commenti"), _('In tal caso l\'autore della pagina riceverà una email per ogni commento pubblicato')),
+    			'label'=>array(_("Notifica commenti"), _("In tal caso l'autore della pagina riceverà una email per ogni commento pubblicato")),
     			'value'=>$this->_optionsValue['comment_notification'],
     		),
     		"newsletter_entries_number"=>array(
@@ -333,9 +370,10 @@ class page extends \Gino\Controller {
                 'page.css'
             ),
             'views' => array(
-                'box.php' => _('Template per l\'inserimento della pagine nel layout'),
+                'box.php' => _("Template per l'inserimento della pagine nel layout"),
                 'showcase.php' => _('Vetrina pagine'),
-                'view.php' => _('Dettaglio pagina')
+                'view.php' => _('Dettaglio pagina'),
+            	'last.php' => _("Pagine recenti")
             ),
             "folderStructure"=>array (
                 CONTENT_DIR.OS.'page'=> null
@@ -354,7 +392,8 @@ class page extends \Gino\Controller {
     public static function outputFunctions() {
 
         $list = array(
-            "showcase" => array("label"=>_("Vetrina (più letti)"), "permissions"=>''),
+            "showcase" => array("label"=>_("Vetrina (più letti)"), "permissions"=>array()),
+            "last" => array("label"=>_("Pagine recenti"), "permissions"=>array()),
         );
 
         return $list;
@@ -497,17 +536,24 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Front end vetrina pagine più lette
+     * @description Visualizzazione come slider
      * @return html
      */
     public function showcase() {
 
-        $registry = \Gino\registry::instance();
-        $registry->addCss($this->_class_www."/page.css");
-        $registry->addJs($this->_class_www."/page.js");
+        $this->_registry->addCss($this->_class_www."/page.css");
+        $this->_registry->addJs($this->_class_www."/page.js");
 
-        $options = array('published'=>true, 'order'=>'\'read\' DESC, creation_date DESC', 'limit'=>array(0, $this->_showcase_number));
+        $options = array(
+        	'published' => true, 
+        	'user_id' => isset($this->_registry->user->id) ? $this->_registry->user->id : 0,
+        	'view_private' => $this->userHasPerm('can_view_private'), 
+        	'order' => '\'read\' DESC, creation_date DESC', 
+        	'limit' => array(0, $this->_showcase_number),
+        	'debug' => false
+        );
 
-        $entries = pageEntry::get($this, $options);
+        $entries = PageEntry::get($options);
 
         preg_match_all("#{{[^}]+}}#", $this->_showcase_tpl_code, $matches);
         $items = array();
@@ -517,32 +563,29 @@ class page extends \Gino\Controller {
         $tot = count($entries);
         foreach($entries as $entry) {
             $indexes[] = $i;
-            $buffer = "<div class='showcase_item' style='display: block;z-index:".($tot-$i)."' id=\"entry_$i\">";
+            $buffer = "<div class='page-showcase-item' style='display: block;z-index:".($tot-$i)."' id=\"entry_$i\">";
             $buffer .= $this->parseTemplate($entry, $this->_showcase_tpl_code, $matches);
             $buffer .= "</div>";
             $items[] = $buffer;
 
             $onclick = "pageslider.set($i)";
-            $ctrls[] = "<div id=\"sym_".$this->_instance.'_'.$i."\" class=\"scase_sym\" onclick=\"$onclick\"><span></span></div>";
+            $ctrls[] = "<div id=\"sym_page_".$i."\" class=\"page-showcase-sym\" onclick=\"$onclick\"><span></span></div>";
             $i++;
         }
-
-        $options = '{}';
+        
+        $slider_options = '{}';
         if($this->_showcase_auto_start) {
-            $options = "{auto_start: true, auto_interval: ".$this->_showcase_auto_interval."}";
+            $slider_options = "{auto_start: true, auto_interval: ".$this->_showcase_auto_interval."}";
         }
 
         $view = new \Gino\View($this->_view_dir);
 
         $view->setViewTpl('showcase');
-        $view->assign('section_id', 'showcase_'.$this->_instance_name);
-        $view->assign('wrapper_id', 'showcase_items_'.$this->_instance_name);
-        $view->assign('ctrl_begin', 'sym_'.$this->_instance.'_');
         $view->assign('title', $this->_showcase_title);
-        $view->assign('feed', "<a href=\"".$this->link($this->_instance_name, 'feedRSS')."\">".\Gino\pub::icon('feed')."</a>");
+        $view->assign('feed_url', $this->link($this->_instance_name, 'feedRSS'));
         $view->assign('items', $items);
         $view->assign('ctrls', $ctrls);
-        $view->assign('options', $options);
+        $view->assign('options', $slider_options);
 
         return $view->render();
     }
@@ -678,7 +721,6 @@ class page extends \Gino\Controller {
         $view = new \Gino\View($this->_view_dir);
 
         $view->setViewTpl('view');
-        $view->assign('section_id', 'view_'.$this->_instance_name);
         $view->assign('page', $item);
         $view->assign('tpl', $tpl);
         $view->assign('last_edit_date', $last_edit_date);
@@ -690,6 +732,44 @@ class page extends \Gino\Controller {
 
         $document = new \Gino\Document($view->render());
         return $document();
+    }
+    
+    /**
+     * @brief Front end elenco ultime pagine pubblicate
+     *
+     * @access public
+     * @return string
+     */
+    public function last() {
+    	
+    	$this->_registry->addCss($this->_class_www."/page.css");
+    	$this->_registry->title = $this->_registry->sysconf->head_title . ' | '._("Pagine recenti");
+    	
+    	$options = array(
+    		'published' => true,
+    		'user_id' => isset($this->_registry->user->id) ? $this->_registry->user->id : 0,
+    		'view_private' => $this->userHasPerm('can_view_private'),
+    		'order' => 'creation_date DESC',
+    		'limit' => array(0, $this->_last_number)
+    	);
+    	
+    	$entries = PageEntry::get($options);
+    	
+    	preg_match_all("#{{[^}]+}}#", $this->_last_tpl_code, $matches);
+    	$items = array();
+    	foreach($entries as $entry) {
+    		$items[] = $this->parseTemplate($entry, $this->_last_tpl_code, $matches);
+    	}
+    	
+    	$view = new \Gino\View($this->_view_dir);
+    	
+    	$view->setViewTpl('last');
+    	$view->assign('title', $this->_last_title);
+    	$view->assign('items', $items);
+    	$view->assign('feed_url', $this->link($this->_instance_name, 'feedRSS'));
+    	
+    	$document = new \Gino\Document($view->render());
+    	return $document();
     }
 
     /**

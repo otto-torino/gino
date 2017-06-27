@@ -6,7 +6,6 @@ namespace Gino\App\Page;
  * @brief Template per la vista delle pagine
  *
  * Variabili disponibili:
- * - **section_id**: attributo id del tag section
  * - **page**: oggetto pageEntry
  * - **tpl**: template del post deciso da opzioni
  * - **enable_comments**: abilitazione commenti
@@ -15,13 +14,13 @@ namespace Gino\App\Page;
  * - **url**: string
  * - **related_contents_list**: string
  *
- * @copyright 2012-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2012-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 ?>
 <? //@cond no-doxygen ?>
-<section id="<?= $section_id ?>">
+<section id="viewpage">
 	<? if($last_edit_date): ?>
     	<p style="text-align: right; margin-top: 10px; font-size: 14px;"><?= _("ultimo aggiornamento") ?>: <?= $last_edit_date ?></p>
     <? endif ?>

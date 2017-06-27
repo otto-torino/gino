@@ -8826,52 +8826,73 @@ input[type=button]:hover {
 #filter_form_layer h2 {
   margin-top: 0;
 }
+/* login */
+.navbar-login {
+  float: left;
+  margin-top: 15px;
+}
+.navbar-login a {
+  color: #9d9d9d;
+  text-decoration: none;
+  padding: 0px 4px;
+}
+.navbar-login a:hover,
+.navbar-login a:focus {
+  text-decoration: none;
+  color: #fff;
+}
+/* language */
 .navbar-language {
   float: left;
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 15px;
 }
+/* search */
+.navbar-search {
+  float: left;
+  position: relative;
+  color: #fff;
+  margin-left: 10;
+  margin-right: 10px;
+  margin-top: 15px;
+}
 @media (max-width: 768px) {
+  .navbar-login {
+    display: none;
+  }
   .navbar-language {
     display: none;
     margin-top: 0px;
   }
+  .navbar-search {
+    position: absolute;
+    top: 2px;
+    left: 160px;
+  }
 }
-.rheader-main {
+.main-header {
   clear: both;
   margin: 0 auto;
   max-width: 1160px;
   padding: 0 20px;
 }
-/* Right block*/
-.rheader-nav {
+.navbar-brand > img {
+  position: relative;
+  top: -8px;
+}
+/* nav links, forms, and other content for toggling */
+.navbar-tools {
   float: right;
-}
-.rheader-login {
-  float: left;
-  margin-top: 15px;
-}
-.rheader-login a {
-  color: #fff;
-  text-decoration: none;
-  padding: 0px 4px;
+  font-size: 14px;
 }
 @media (max-width: 768px) {
-  .rheader-nav {
+  .navbar-tools {
     float: none;
   }
-  .rheader-login {
-    display: none;
-  }
 }
-/* Left block */
-.rheader-logo {
+.navbar-tools > .navbar-collapse {
   float: left;
-  margin-top: 2px;
-}
-.rheader-logo .navbar-brand {
-  padding: 0;
 }
 #phpModuleView_topbar {
   padding: 0;
@@ -8926,7 +8947,7 @@ input[type=button]:hover {
   src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype');
 }
 body {
-  margin-top: 60px;
+  margin-top: 50px !important;
 }
 .bg-white {
   background-color: #fff;
@@ -8946,9 +8967,78 @@ body {
   width: 100% !important;
   height: 100% !important;
 }
+/* Claim */
+.section-claim {
+  background: transparent url('../graphics/bkg_head.jpg') no-repeat center center;
+  background-size: cover;
+  color: #eee;
+  position: relative;
+  border-bottom: 1px solid #fff;
+}
+.section-claim h1 {
+  color: #fff;
+  font-size: 35px;
+}
+@media (min-width: 768px) {
+  .section-claim h1 {
+    font-size: 45px;
+  }
+}
+@media (min-width: 992px) {
+  .section-claim h1 {
+    font-size: 48px;
+  }
+}
+@media (min-width: 1200px) {
+  .section-claim h1 {
+    font-size: 50px;
+  }
+}
+.section-claim img {
+  width: 280px;
+}
+@media (min-width: 768px) {
+  .section-claim img {
+    width: 320px;
+  }
+}
+@media (min-width: 992px) {
+  .section-claim img {
+    width: 320px;
+  }
+}
+@media (min-width: 1200px) {
+  .section-claim img {
+    width: 320px;
+  }
+}
+.section-claim .btn-claim {
+  background: #cd3200;
+  color: #fff;
+  font-size: 20px;
+  margin-bottom: 60px;
+  margin-top: 10px;
+}
+.section-claim .scrolltofirst {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+.section-claim .scrolltofirst i {
+  cursor: pointer;
+}
 body > footer {
   background: #2e2f2d;
   position: relative;
+  padding: 4px 0px;
+  color: #999999;
+  font-size: 14px;
+}
+body > footer a,
+body > footer a:hover,
+body > footer a:focus {
+  color: #999999;
 }
 body > footer .sitemap {
   margin-left: -15px;

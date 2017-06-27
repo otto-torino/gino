@@ -3,7 +3,7 @@
  * @file class_searchSite.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SearchSite.searchSite
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ use \Gino\App\SysClass\ModuleApp;
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -193,7 +193,7 @@ class searchSite extends \Gino\Controller {
 
         $buffer = "<div id=\"search_site_check_options\">";
         $buffer .= "<div>";
-        $buffer .= "<p class=\"lead\"><strong>"._("Ricerca solo in")."</strong></p>";
+        $buffer .= "<p class=\"heading\">"._("Ricerca solo in")."</p>";
 
         $i=1;
         if($this->_sys_mdl)

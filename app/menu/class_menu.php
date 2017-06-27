@@ -3,7 +3,7 @@
  * @file class_menu.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.menu
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,10 +25,14 @@ require_once('class.MenuVoice.php');
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei menu
- *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @version 1.0.0
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ##DESCRIZIONE
+ * Il menu utilizza il plugin jQuery SmartMenus (@see https://www.smartmenus.org/).
  */
 class menu extends \Gino\Controller {
 
@@ -66,31 +70,63 @@ class menu extends \Gino\Controller {
 
         $this->_tbl_opt = "sys_menu_opt";
 
-        // Options
-        $this->_optionsValue = array(
-        	'title' => _("Menu"),
+        $this->_ico_more = " / ";
+        $this->_view_dir = dirname(__FILE__).OS.'views';
+        
+        $this->setAppOptions();
+	}
+    
+	private function setAppOptions() {
+		
+		$this->_optionsValue = array(
+			'title' => _("Menu"),
         	'cache' => 0,
         	'view_admin_voice' => 0,
         	'view_logout_voice' => 0
-        );
-        
-        $this->_title = \Gino\htmlChars($this->setOption('title', array('value'=>$this->_optionsValue['title'], 'translation'=>true)));
-        $this->_cache = $this->setOption('cache', array('value'=>$this->_optionsValue['cache']));
-        $this->_view_admin_voice = (bool) $this->setOption('view_admin_voice', array('value'=>$this->_optionsValue['view_admin_voice']));
-        $this->_view_logout_voice = (bool) $this->setOption('view_logout_voice', array('value'=>$this->_optionsValue['view_logout_voice']));
-
-        $this->_options = \Gino\Loader::load('Options', array($this));
-        $this->_optionsLabels = array(
-        	"title" => _("Titolo"),
-        	"cache" => array("label"=>array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")), "required"=>false), 
-        	'view_admin_voice' => _("Visualizzazione della voce di menu che rimanda all'area amministrativa"), 
-        	'view_logout_voice' => _("Visualizzazione del logout"),
-        );
-
-        $this->_ico_more = " / ";
-
-        $this->_view_dir = dirname(__FILE__).OS.'views';
-    }
+		);
+		
+		if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
+		
+			$this->_title = \Gino\htmlChars($this->setOption('title', array('value'=>$this->_optionsValue['title'], 'translation'=>true)));
+			$this->_cache = $this->setOption('cache', array('value'=>$this->_optionsValue['cache']));
+			$this->_view_admin_voice = (bool) $this->setOption('view_admin_voice', array('value'=>$this->_optionsValue['view_admin_voice']));
+			$this->_view_logout_voice = (bool) $this->setOption('view_logout_voice', array('value'=>$this->_optionsValue['view_logout_voice']));
+			
+			$this->_registry->apps->{$this->_instance_name} = array(
+				'title' => $this->_title,
+				'cache' => $this->_cache,
+				'view_admin_voice' => $this->_view_admin_voice,
+				'view_logout_voice' => $this->_view_logout_voice,
+			);
+		}
+		else {
+			$this->_title = $this->_registry->apps->{$this->_instance_name}['title'];
+			$this->_cache = $this->_registry->apps->{$this->_instance_name}['cache'];
+			$this->_view_admin_voice = $this->_registry->apps->{$this->_instance_name}['view_admin_voice'];
+			$this->_view_logout_voice = $this->_registry->apps->{$this->_instance_name}['view_logout_voice'];
+		}
+		
+		$this->_options = \Gino\Loader::load('Options', array($this));
+		$this->_optionsLabels = array(
+			"title" => array(
+				'label' => _("Titolo"),
+				'value' => $this->_optionsValue['title'],
+			),
+			"cache" => array(
+				'label' => array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non si è sicuri del significato lasciare vuoto o settare a 0")),
+				'value' => $this->_optionsValue['cache'],
+				'required' => false
+			),
+			"view_admin_voice" => array(
+				'label' => _("Visualizzazione della voce di menu che rimanda all'area amministrativa"),
+				'value' => $this->_optionsValue['view_admin_voice']
+			),
+			"view_logout_voice" => array(
+				'label' => _("Visualizzazione del logout"),
+				'value'=>$this->_optionsValue['view_logout_voice'],
+			),
+		);
+	}
 
     /**
      * @brief Restituisce alcune proprietà della classe
@@ -98,8 +134,9 @@ class menu extends \Gino\Controller {
      */
     public static function getClassElements() {
 
-        return array("tables"=>array('sys_menu_voices', 'sys_menu_opt'),
-            "css"=>array('menu.css'),
+        return array(
+        	"tables" => array('sys_menu_voices', 'sys_menu_opt'),
+            "css" => array('menu.css'),
             'views' => array(
                 'render.php' => _('Stampa il menu')
             )
@@ -169,14 +206,18 @@ class menu extends \Gino\Controller {
 
         $session = \Gino\Session::instance();
         $sel_voice = MenuVoice::getSelectedVoice($this->_instance);
+        
+        $this->_registry->addCustomJs($this->_class_www.'/smartmenus/jquery.smartmenus.min.js', array('compress'=>false, 'minify'=>false));
+        $this->_registry->addCustomJs($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.min.js", array('compress'=>false, 'minify'=>false));
+        $this->_registry->addCss($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.css");
+        
         $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
-
+        
         $cache = new \Gino\OutputCache($buffer, $this->_cache ? true : false);
         if($cache->start($this->_instance_name, "view".$sel_voice.$session->lng, $this->_cache)) {
 
+        	$request = \Gino\Http\Request::instance();
             $tree = $this->getTree();
-            
-            $request = \Gino\Http\Request::instance();
             
             if($this->_view_admin_voice && $request->user->hasPerm('core', 'is_staff')) {
             	$admin_voice = "index/admin_page";
@@ -194,8 +235,6 @@ class menu extends \Gino\Controller {
             $view = new View($this->_view_dir);
             $view->setViewTpl('render_'.$this->_instance_name);
             $dict = array(
-                'instance_name' => $this->_instance_name,
-                'title' => $this->_title,
                 'selected' => $sel_voice,
                 'tree' => $tree,
             	'admin_voice' => $admin_voice,
@@ -397,7 +436,7 @@ class menu extends \Gino\Controller {
                 $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "id={$voice->id}"), \Gino\icon('modify'));
                 $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='".$this->linkAdmin(array(), "id={$voice->id}&action=delete")."'\">".\Gino\icon('delete')."</a>";
                 $link_subvoice = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "id={$voice->id}&action=insert&parent={$voice->id}"), \Gino\icon('insert', array('text' => _("nuova sottovoce"))));
-                $handle = $sort ? "<span class=\"link sort_handler\">".\Gino\icon('sort')."</span> ":"";
+                $handle = $sort ? "<span class=\"link sort_handler\">".\Gino\icon('sort')."</span> " : "";
                 $links = $sort ? array($handle) : array();
                 $links[] = $link_subvoice;
                 $links[] = $link_modify;
@@ -429,8 +468,9 @@ class menu extends \Gino\Controller {
         foreach($items as $item) {
             $voice = new menuVoice($item);
             $voice->order_list = $i;
-            if(!$voice->save()) $res = false;
-
+            if(!$voice->save(array('only_update' => 'order_list'))) {
+            	$res = false;
+            }
             $i++;
         }
 
@@ -478,8 +518,9 @@ class menu extends \Gino\Controller {
 
         $link_error = $this->linkAdmin(array(), $link_params);
 
-        if($req_error > 0)
-            return Error::errorMessage(array('error'=>1), $link_error);
+        if($req_error > 0) {
+        	return Error::errorMessage(array('error'=>1), $link_error);
+        }
 
         $menu_voice = new MenuVoice($id);
 
@@ -566,27 +607,30 @@ class menu extends \Gino\Controller {
     private function jsSortLib() {
 
         $GINO = "<script type=\"text/javascript\">\n";
-        $GINO .= "function menuMessage(response) { alert(response)}";
-        $GINO .= "window.addEvent('load', function() { 
-                    $$('ul[id^=sortContainer]').each(function(ul) {
-                        var menuSortables = new Sortables(ul, {
-                            constrain: false,
-                            handle: '.sort_handler',
-                            clone: false,
-                            revert: { duration: 500, transition: 'elastic:out' },
-                            onComplete: function() {
-                                var order = this.serialize(1, function(element, index) {
-                                    return element.getProperty('id').replace('id', '');
-                                }).join(',');
-                                gino.ajaxRequest('post', '$this->_home?evt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':menuMessage});
-                            }
-                        });
-                    })
-                })";
+        $GINO .= "function menuMessage(response) { alert(response) }";
+        $GINO .= "
+        (function() {
+        	window.addEvent('load', function() { 
+				$$('ul[id^=sortContainer]').each(function(ul) {
+					var menuSortables = new Sortables(ul, {
+						constrain: false,
+						handle: '.sort_handler',
+						clone: false,
+						revert: { duration: 500, transition: 'elastic:out' },
+						onComplete: function() {
+							var order = this.serialize(1, function(element, index) {
+								return element.getProperty('id').replace('id', '');
+							}).join(',');
+							gino.ajaxRequest('post', '$this->_home?evt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':menuMessage});
+						}
+					});
+				})
+    		});
+		})()";
         $GINO .= "</script>";
         return $GINO;
     }
-
+    
     /**
      * @brief Libreria javascript per la ricerca dei moduli
      * 

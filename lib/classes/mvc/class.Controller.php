@@ -222,20 +222,32 @@ abstract class Controller {
 		{
 			foreach($records AS $r)
 			{
-				if(is_bool($options)) $trsl = $options; // for compatibility with old version
-				elseif(is_array($options) AND array_key_exists('translation', $options)) $trsl = $options['translation'];
-				else $trsl = FALSE;
+				if(is_bool($options)) {
+					$trsl = $options; // for compatibility with old versions
+				}
+				elseif(is_array($options) AND array_key_exists('translation', $options)) {
+					$trsl = $options['translation'];
+				}
+				else {
+					$trsl = FALSE;
+				}
 		
-				if($trsl && $this->_registry->sysconf->multi_language)
+				if($trsl && $this->_registry->sysconf->multi_language) {
 					$value = $this->_trd->selectTXT($this->_tbl_name, $option, $r['id']);
-					else
-						$value = $r[$option];
+				}
+				else {
+					$value = $r[$option];
+				}
 			}
 		}
 		else
 		{
-			if(is_array($options) AND $options['value']) $value = $options['value'];
-			else $value = null;
+			if(is_array($options) AND array_key_exists('value', $options)) {
+				$value = $options['value'];
+			}
+			else {
+				$value = null;
+			}
 		}
 		
 		return $value;
