@@ -8826,6 +8826,12 @@ input[type=button]:hover {
 #filter_form_layer h2 {
   margin-top: 0;
 }
+/* menu */
+@media (max-width: 768px) {
+  .navbar-collapse {
+    width: 100%;
+  }
+}
 /* login */
 .navbar-login {
   float: left;
@@ -8871,7 +8877,8 @@ input[type=button]:hover {
     left: 160px;
   }
 }
-.main-header {
+.main-header,
+.admin-header {
   clear: both;
   margin: 0 auto;
   max-width: 1160px;

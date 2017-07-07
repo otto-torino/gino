@@ -277,7 +277,12 @@ class Google_Service_SQLAdmin extends Google_Service
             'list' => array(
               'path' => 'flags',
               'httpMethod' => 'GET',
-              'parameters' => array(),
+              'parameters' => array(
+                'databaseVersion' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),
           )
         )
@@ -397,6 +402,10 @@ class Google_Service_SQLAdmin extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -498,6 +507,21 @@ class Google_Service_SQLAdmin extends Google_Service
               ),
             ),'stopReplica' => array(
               'path' => 'projects/{project}/instances/{instance}/stopReplica',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instance' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'truncateLog' => array(
+              'path' => 'projects/{project}/instances/{instance}/truncateLog',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'project' => array(

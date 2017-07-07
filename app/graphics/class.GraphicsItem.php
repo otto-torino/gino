@@ -3,7 +3,7 @@
  * @file class.GraphicsItem.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Graphics.GraphicsItem
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,7 +13,7 @@ namespace Gino\App\Graphics;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un header/footer
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -34,7 +34,6 @@ class GraphicsItem extends \Gino\Model {
 
         $this->_tbl_data = self::$table;
         parent::__construct($id);
-
     }
 
     /**
@@ -71,29 +70,42 @@ class GraphicsItem extends \Gino\Model {
     		'max_lenght'=>100,
     	));
 		$columns['type'] = new \Gino\EnumField(array(
-    		'name'=>'type',
-    		'label'=> array(_('Tipo'), _('scegliere se mostrare l\'immagine caricata o includere il codice html')),
-    		'widget'=>'select',
-    		'required'=>true,
-    		'choice'=>array(1 => _('immagine'), 2 => _('codice')),
+    		'name' => 'type',
+    		'label' => array(_('Tipo'), _('scegliere se mostrare l\'immagine caricata o includere il codice html')),
+    		'widget' => 'select',
+    		'required' => true,
+    		'choice' => array(1 => _('immagine'), 2 => _('codice')),
     	));
     	
     	$columns['image'] = new \Gino\ImageField(array(
-    		'name'=>'image',
-    		'label'=>_('Immagine'),
-    		'max_lenght'=>100,
-    		'extensions'=>self::$_extension_img,
-    		'resize'=>FALSE,
-    		'preview'=>TRUE,
-    		'path'=>GRAPHICS_DIR
+    		'name' => 'image',
+    		'label' => _('Immagine'),
+    		'max_lenght' => 100,
+    		'extensions' => self::$_extension_img,
+    		'resize' => FALSE,
+    		'preview' => TRUE,
+    		'path' => GRAPHICS_DIR
     	));
     	$columns['html'] = new \Gino\TextField(array(
-    			'name'=>'html',
-    			'label' => _("Codice html"),
-    			'required'=>false
+    		'name' => 'html',
+    		'label' => _("Codice html"),
+    		'required' => false
     	));
     	
     	return $columns;
+    }
+    
+    public function getTypeName() {
+    	
+    	if($this->type == 1) {
+    		return _('immagine');
+    	}
+    	elseif($this->type == 2) {
+    		return _('codice');
+    	}
+    	else {
+    		return null;
+    	}
     }
 }
 

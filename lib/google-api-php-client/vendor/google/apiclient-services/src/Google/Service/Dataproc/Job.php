@@ -17,13 +17,14 @@
 
 class Google_Service_Dataproc_Job extends Google_Collection
 {
-  protected $collection_key = 'statusHistory';
+  protected $collection_key = 'yarnApplications';
   public $driverControlFilesUri;
   public $driverOutputResourceUri;
   protected $hadoopJobType = 'Google_Service_Dataproc_HadoopJob';
   protected $hadoopJobDataType = '';
   protected $hiveJobType = 'Google_Service_Dataproc_HiveJob';
   protected $hiveJobDataType = '';
+  public $labels;
   protected $pigJobType = 'Google_Service_Dataproc_PigJob';
   protected $pigJobDataType = '';
   protected $placementType = 'Google_Service_Dataproc_JobPlacement';
@@ -32,6 +33,8 @@ class Google_Service_Dataproc_Job extends Google_Collection
   protected $pysparkJobDataType = '';
   protected $referenceType = 'Google_Service_Dataproc_JobReference';
   protected $referenceDataType = '';
+  protected $schedulingType = 'Google_Service_Dataproc_JobScheduling';
+  protected $schedulingDataType = '';
   protected $sparkJobType = 'Google_Service_Dataproc_SparkJob';
   protected $sparkJobDataType = '';
   protected $sparkSqlJobType = 'Google_Service_Dataproc_SparkSqlJob';
@@ -40,6 +43,8 @@ class Google_Service_Dataproc_Job extends Google_Collection
   protected $statusDataType = '';
   protected $statusHistoryType = 'Google_Service_Dataproc_JobStatus';
   protected $statusHistoryDataType = 'array';
+  protected $yarnApplicationsType = 'Google_Service_Dataproc_YarnApplication';
+  protected $yarnApplicationsDataType = 'array';
 
   public function setDriverControlFilesUri($driverControlFilesUri)
   {
@@ -73,6 +78,14 @@ class Google_Service_Dataproc_Job extends Google_Collection
   {
     return $this->hiveJob;
   }
+  public function setLabels($labels)
+  {
+    $this->labels = $labels;
+  }
+  public function getLabels()
+  {
+    return $this->labels;
+  }
   public function setPigJob(Google_Service_Dataproc_PigJob $pigJob)
   {
     $this->pigJob = $pigJob;
@@ -105,6 +118,14 @@ class Google_Service_Dataproc_Job extends Google_Collection
   {
     return $this->reference;
   }
+  public function setScheduling(Google_Service_Dataproc_JobScheduling $scheduling)
+  {
+    $this->scheduling = $scheduling;
+  }
+  public function getScheduling()
+  {
+    return $this->scheduling;
+  }
   public function setSparkJob(Google_Service_Dataproc_SparkJob $sparkJob)
   {
     $this->sparkJob = $sparkJob;
@@ -136,5 +157,13 @@ class Google_Service_Dataproc_Job extends Google_Collection
   public function getStatusHistory()
   {
     return $this->statusHistory;
+  }
+  public function setYarnApplications($yarnApplications)
+  {
+    $this->yarnApplications = $yarnApplications;
+  }
+  public function getYarnApplications()
+  {
+    return $this->yarnApplications;
   }
 }

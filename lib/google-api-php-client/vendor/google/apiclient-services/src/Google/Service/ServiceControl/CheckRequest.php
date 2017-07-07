@@ -19,6 +19,9 @@ class Google_Service_ServiceControl_CheckRequest extends Google_Model
 {
   protected $operationType = 'Google_Service_ServiceControl_Operation';
   protected $operationDataType = '';
+  public $requestProjectSettings;
+  public $serviceConfigId;
+  public $skipActivationCheck;
 
   public function setOperation(Google_Service_ServiceControl_Operation $operation)
   {
@@ -27,5 +30,29 @@ class Google_Service_ServiceControl_CheckRequest extends Google_Model
   public function getOperation()
   {
     return $this->operation;
+  }
+  public function setRequestProjectSettings($requestProjectSettings)
+  {
+    $this->requestProjectSettings = $requestProjectSettings;
+  }
+  public function getRequestProjectSettings()
+  {
+    return $this->requestProjectSettings;
+  }
+  public function setServiceConfigId($serviceConfigId)
+  {
+    $this->serviceConfigId = $serviceConfigId;
+  }
+  public function getServiceConfigId()
+  {
+    return $this->serviceConfigId;
+  }
+  public function setSkipActivationCheck($skipActivationCheck)
+  {
+    $this->skipActivationCheck = $skipActivationCheck;
+  }
+  public function getSkipActivationCheck()
+  {
+    return $this->skipActivationCheck;
   }
 }

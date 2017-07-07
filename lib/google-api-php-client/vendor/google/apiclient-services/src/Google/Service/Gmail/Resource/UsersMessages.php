@@ -41,6 +41,20 @@ class Google_Service_Gmail_Resource_UsersMessages extends Google_Service_Resourc
     return $this->call('batchDelete', array($params));
   }
   /**
+   * Modifies the labels on the specified messages. (messages.batchModify)
+   *
+   * @param string $userId The user's email address. The special value me can be
+   * used to indicate the authenticated user.
+   * @param Google_Service_Gmail_BatchModifyMessagesRequest $postBody
+   * @param array $optParams Optional parameters.
+   */
+  public function batchModify($userId, Google_Service_Gmail_BatchModifyMessagesRequest $postBody, $optParams = array())
+  {
+    $params = array('userId' => $userId, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('batchModify', array($params));
+  }
+  /**
    * Immediately and permanently deletes the specified message. This operation
    * cannot be undone. Prefer messages.trash instead. (messages.delete)
    *
@@ -85,8 +99,8 @@ class Google_Service_Gmail_Resource_UsersMessages extends Google_Service_Resourc
    * @param array $optParams Optional parameters.
    *
    * @opt_param bool deleted Mark the email as permanently deleted (not TRASH) and
-   * only visible in Google Apps Vault to a Vault administrator. Only used for
-   * Google Apps for Work accounts.
+   * only visible in Google Vault to a Vault administrator. Only used for G Suite
+   * accounts.
    * @opt_param string internalDateSource Source for Gmail's internal date of the
    * message.
    * @opt_param bool neverMarkSpam Ignore the Gmail spam classifier decision and
@@ -112,8 +126,8 @@ class Google_Service_Gmail_Resource_UsersMessages extends Google_Service_Resourc
    * @param array $optParams Optional parameters.
    *
    * @opt_param bool deleted Mark the email as permanently deleted (not TRASH) and
-   * only visible in Google Apps Vault to a Vault administrator. Only used for
-   * Google Apps for Work accounts.
+   * only visible in Google Vault to a Vault administrator. Only used for G Suite
+   * accounts.
    * @opt_param string internalDateSource Source for Gmail's internal date of the
    * message.
    * @return Google_Service_Gmail_Message
@@ -140,7 +154,8 @@ class Google_Service_Gmail_Resource_UsersMessages extends Google_Service_Resourc
    * in the list.
    * @opt_param string q Only return messages matching the specified query.
    * Supports the same query format as the Gmail search box. For example,
-   * "from:someuser@example.com rfc822msgid: is:unread".
+   * "from:someuser@example.com rfc822msgid: is:unread". Parameter cannot be used
+   * when accessing the api using the gmail.metadata scope.
    * @return Google_Service_Gmail_ListMessagesResponse
    */
   public function listUsersMessages($userId, $optParams = array())

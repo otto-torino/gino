@@ -20,9 +20,12 @@ class Google_Service_Bigquery_TableListTables extends Google_Model
   public $friendlyName;
   public $id;
   public $kind;
+  public $labels;
   protected $tableReferenceType = 'Google_Service_Bigquery_TableReference';
   protected $tableReferenceDataType = '';
   public $type;
+  protected $viewType = 'Google_Service_Bigquery_TableListTablesView';
+  protected $viewDataType = '';
 
   public function setFriendlyName($friendlyName)
   {
@@ -48,6 +51,14 @@ class Google_Service_Bigquery_TableListTables extends Google_Model
   {
     return $this->kind;
   }
+  public function setLabels($labels)
+  {
+    $this->labels = $labels;
+  }
+  public function getLabels()
+  {
+    return $this->labels;
+  }
   public function setTableReference(Google_Service_Bigquery_TableReference $tableReference)
   {
     $this->tableReference = $tableReference;
@@ -63,5 +74,13 @@ class Google_Service_Bigquery_TableListTables extends Google_Model
   public function getType()
   {
     return $this->type;
+  }
+  public function setView(Google_Service_Bigquery_TableListTablesView $view)
+  {
+    $this->view = $view;
+  }
+  public function getView()
+  {
+    return $this->view;
   }
 }

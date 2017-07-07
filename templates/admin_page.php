@@ -27,7 +27,7 @@
 	<body>
 		<!-- top bar -->
 		<nav class="navbar-inverse navbar-fixed-top" role="navigation">
-			<div class="container-fluid main-header">
+			<div class="container-fluid admin-header">
 				<!-- Brand and toggle get grouped for better mobile display -->
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu-admin-container" aria-expanded="false">
