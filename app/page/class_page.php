@@ -1367,15 +1367,15 @@ class page extends \Gino\Controller {
 
         $obj = new pageEntry($results['id'], $this);
 
-        $buffer = "<dt><a href=\"".$this->link($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
+        $buffer = "<div class=\"search-title\"><span class=\"fa fa-file-text-o\"></span> <a href=\"".$this->link($this->_instance_name, 'view', array('id'=>$results['slug']))."\">";
         $buffer .= $results['title'] ? \Gino\htmlChars($results['title']) : \Gino\htmlChars($obj->ml('title'));
-        $buffer .= "</a> </dt>";
+        $buffer .= "</a> </div>";
 
         if($results['text']) {
-            $buffer .= "<dd class=\"search-text-result\">...".\Gino\htmlChars($results['text'])."...</dd>";
+            $buffer .= "<div class=\"search-text\">...".\Gino\htmlChars($results['text'])."...</div>";
         }
         else {
-            $buffer .= "<dd class=\"search-text-result\">".\Gino\htmlChars(\Gino\cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</dd>";
+            $buffer .= "<div class=\"search-text\">".\Gino\htmlChars(\Gino\cutHtmlText($obj->ml('text'), 120, '...', false, false, false, array('endingPosition'=>'in')))."</div>";
         }
 
         return $buffer;

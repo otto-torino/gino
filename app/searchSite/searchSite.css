@@ -1,4 +1,15 @@
 
+/* Results */
+.search-results .search-item {
+	margin: 10px 0px;
+}
+.search-results .search_text {
+	
+}
+.search-results .search_title {
+	
+}
+
 /* form di ricerca allineato a navbar-search */
 #fulltextsearch {
 	position: absolute;
