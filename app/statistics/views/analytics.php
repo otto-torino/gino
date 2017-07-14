@@ -46,15 +46,15 @@ namespace Gino\App\Statistics;
 	
 	<?= $filter ?>
 
-	<div class="row-fluid" style="margin: 20px 0;">
-		<div class="span6">
+	<div class="row" style="margin: 20px 0;">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Traffic</h1>
 				<h2>Sessions and Users, <?= $label ?></h2>
 				<div id="chart-1-container"></div>
 			</section>
 		</div>
-		<div class="span6">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Popular</h1>
 				<h2>Page views, <?= $label ?></h2>
@@ -63,14 +63,14 @@ namespace Gino\App\Statistics;
 		</div>
 	</div>
 	<div class="row-fluid" style="margin: 20px 0;">
-		<div class="span6">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Top Browsers</h1>
 				<h2><?= ucfirst($label) ?></h2>
 				<div id="chart-3-container"></div>
 			</section>
 		</div>
-		<div class="span6">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Acquisition</h1>
 				<h2>Referral Traffic, <?= $label ?></h2>
@@ -79,14 +79,14 @@ namespace Gino\App\Statistics;
 		</div>
 	</div>
 	<div class="row-fluid" style="margin: 20px 0;">
-		<div class="span6">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Audience</h1>
 				<h2>Countries, <?= $label ?></h2>
 				<div id="chart-5-container"></div>
 			</section>
 		</div>
-		<div class="span6">
+		<div class="col-md-6">
 			<section class="panel">
 				<h1>Social</h1>
 				<h2>Interactions, <?= $label ?></h2>

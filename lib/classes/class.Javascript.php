@@ -167,7 +167,7 @@ class Javascript {
     }
 
     /**
-     * @brief Codice html inclusione libreriua sharethis (sharethis.com)
+     * @brief Codice html inclusione libreria sharethis (sharethis.com)
      * @return codice html
      */
     private static function sharethis($key) {
