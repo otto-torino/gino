@@ -932,6 +932,9 @@ function shareAll($social, $url, $title=null, $description=null) {
 		else if($social==="st_all_large") {
 			$social = $st_all_large;
 		}
+		else {
+			$social = array();
+		}
 		
 		$items = array();
 		

@@ -38,6 +38,7 @@ class Google_Service_CloudResourceManager extends Google_Service
   const CLOUD_PLATFORM_READ_ONLY =
       "https://www.googleapis.com/auth/cloud-platform.read-only";
 
+  public $liens;
   public $operations;
   public $organizations;
   public $projects;
@@ -55,6 +56,47 @@ class Google_Service_CloudResourceManager extends Google_Service
     $this->version = 'v1';
     $this->serviceName = 'cloudresourcemanager';
 
+    $this->liens = new Google_Service_CloudResourceManager_Resource_Liens(
+        $this,
+        $this->serviceName,
+        'liens',
+        array(
+          'methods' => array(
+            'create' => array(
+              'path' => 'v1/liens',
+              'httpMethod' => 'POST',
+              'parameters' => array(),
+            ),'delete' => array(
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'DELETE',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'v1/liens',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageSize' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+              ),
+            ),
+          )
+        )
+    );
     $this->operations = new Google_Service_CloudResourceManager_Resource_Operations(
         $this,
         $this->serviceName,
@@ -159,6 +201,16 @@ class Google_Service_CloudResourceManager extends Google_Service
                   'required' => true,
                 ),
               ),
+            ),'getAncestry' => array(
+              'path' => 'v1/projects/{projectId}:getAncestry',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'projectId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
             ),'getIamPolicy' => array(
               'path' => 'v1/projects/{resource}:getIamPolicy',
               'httpMethod' => 'POST',
@@ -173,6 +225,10 @@ class Google_Service_CloudResourceManager extends Google_Service
               'path' => 'v1/projects',
               'httpMethod' => 'GET',
               'parameters' => array(
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
                 'pageToken' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -180,10 +236,6 @@ class Google_Service_CloudResourceManager extends Google_Service
                 'pageSize' => array(
                   'location' => 'query',
                   'type' => 'integer',
-                ),
-                'filter' => array(
-                  'location' => 'query',
-                  'type' => 'string',
                 ),
               ),
             ),'setIamPolicy' => array(

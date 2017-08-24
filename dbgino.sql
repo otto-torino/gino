@@ -422,9 +422,9 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 (1, 'sys_conf', 'head_title', 'es_ES', 'ESP'),
 (1, 'sys_conf', 'head_title', 'fr_FR', 'FRENCH'),
 (4, 'sys_module', 'label', 'en_US', 'Main menu'),
-(10, 'sys_graphics', 'description', 'en_US', 'footer engli'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
+(10, 'sys_graphics', 'description', 'en_US', 'footer english'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english'),
 (4, 'language_opt', 'title', 'en_US', 'Languages'),
 (4, 'language_opt', 'title', 'es_ES', 'Idiomas'),
 (4, 'page_entry', 'title', 'en_US', 'Documentation'),
@@ -929,23 +929,15 @@ CREATE TABLE IF NOT EXISTS `sys_graphics` (
   `image` varchar(128) DEFAULT NULL,
   `html` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=11 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=3 ;
 
 --
 -- Dumping data for table `sys_graphics`
 --
 
 INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`) VALUES
-(1, 'header_public', 'Header pagine pubbliche', 1, 'header.jpg', ''),
-(2, 'header_private', 'Header pagine private', 2, '', '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="840" height="160" id="header" align="middle">\r\n	<param name="allowScriptAccess" value="sameDomain" />\r\n	<param name="allowFullScreen" value="false" />\r\n        <param name="wmode" value="transparent">\r\n	<param name="movie" value="_GRAPHICS_/header.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" /><embed src="_GRAPHICS_/header.swf" quality="high" bgcolor="#ffffff" width="840" height="160" wmode="transparent" name="header" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />\r\n	</object>'),
-(3, 'header_admin', 'Header amministrazione', 1, 'header_admin.jpg', 'HEADER'),
-(4, 'header_mobile', 'Header dispositivi mobili', 1, 'header_mobile.jpg', ''),
-(5, 'header_adhoc', 'Header ad hoc', 2, 'pf2.jpg', 'HEADER'),
-(6, 'footer_public', 'Footer index pubblica', 1, 'footer.jpg', ''),
-(7, 'footer_private', 'Footer index privata', 2, '', '<p>\r\nheader\r\n</p>'),
-(8, 'footer_admin', 'Footer amministrazione', 1, 'footer_admin.jpg', ''),
-(9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', ''),
-(10, 'footer_adhoc', 'Footer ad hoc', 1, '', 'FOOTER ADHOC');
+(1, 'header', 'Header', 2, '', ''),
+(2, 'footer', 'Footer', 2, '', '');
 
 -- --------------------------------------------------------
 

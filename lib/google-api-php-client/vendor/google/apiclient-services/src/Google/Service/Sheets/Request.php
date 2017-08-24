@@ -17,6 +17,8 @@
 
 class Google_Service_Sheets_Request extends Google_Model
 {
+  protected $addBandingType = 'Google_Service_Sheets_AddBandingRequest';
+  protected $addBandingDataType = '';
   protected $addChartType = 'Google_Service_Sheets_AddChartRequest';
   protected $addChartDataType = '';
   protected $addConditionalFormatRuleType = 'Google_Service_Sheets_AddConditionalFormatRuleRequest';
@@ -43,6 +45,8 @@ class Google_Service_Sheets_Request extends Google_Model
   protected $copyPasteDataType = '';
   protected $cutPasteType = 'Google_Service_Sheets_CutPasteRequest';
   protected $cutPasteDataType = '';
+  protected $deleteBandingType = 'Google_Service_Sheets_DeleteBandingRequest';
+  protected $deleteBandingDataType = '';
   protected $deleteConditionalFormatRuleType = 'Google_Service_Sheets_DeleteConditionalFormatRuleRequest';
   protected $deleteConditionalFormatRuleDataType = '';
   protected $deleteDimensionType = 'Google_Service_Sheets_DeleteDimensionRequest';
@@ -55,6 +59,8 @@ class Google_Service_Sheets_Request extends Google_Model
   protected $deleteNamedRangeDataType = '';
   protected $deleteProtectedRangeType = 'Google_Service_Sheets_DeleteProtectedRangeRequest';
   protected $deleteProtectedRangeDataType = '';
+  protected $deleteRangeType = 'Google_Service_Sheets_DeleteRangeRequest';
+  protected $deleteRangeDataType = '';
   protected $deleteSheetType = 'Google_Service_Sheets_DeleteSheetRequest';
   protected $deleteSheetDataType = '';
   protected $duplicateFilterViewType = 'Google_Service_Sheets_DuplicateFilterViewRequest';
@@ -65,6 +71,8 @@ class Google_Service_Sheets_Request extends Google_Model
   protected $findReplaceDataType = '';
   protected $insertDimensionType = 'Google_Service_Sheets_InsertDimensionRequest';
   protected $insertDimensionDataType = '';
+  protected $insertRangeType = 'Google_Service_Sheets_InsertRangeRequest';
+  protected $insertRangeDataType = '';
   protected $mergeCellsType = 'Google_Service_Sheets_MergeCellsRequest';
   protected $mergeCellsDataType = '';
   protected $moveDimensionType = 'Google_Service_Sheets_MoveDimensionRequest';
@@ -83,6 +91,8 @@ class Google_Service_Sheets_Request extends Google_Model
   protected $textToColumnsDataType = '';
   protected $unmergeCellsType = 'Google_Service_Sheets_UnmergeCellsRequest';
   protected $unmergeCellsDataType = '';
+  protected $updateBandingType = 'Google_Service_Sheets_UpdateBandingRequest';
+  protected $updateBandingDataType = '';
   protected $updateBordersType = 'Google_Service_Sheets_UpdateBordersRequest';
   protected $updateBordersDataType = '';
   protected $updateCellsType = 'Google_Service_Sheets_UpdateCellsRequest';
@@ -106,6 +116,14 @@ class Google_Service_Sheets_Request extends Google_Model
   protected $updateSpreadsheetPropertiesType = 'Google_Service_Sheets_UpdateSpreadsheetPropertiesRequest';
   protected $updateSpreadsheetPropertiesDataType = '';
 
+  public function setAddBanding(Google_Service_Sheets_AddBandingRequest $addBanding)
+  {
+    $this->addBanding = $addBanding;
+  }
+  public function getAddBanding()
+  {
+    return $this->addBanding;
+  }
   public function setAddChart(Google_Service_Sheets_AddChartRequest $addChart)
   {
     $this->addChart = $addChart;
@@ -210,6 +228,14 @@ class Google_Service_Sheets_Request extends Google_Model
   {
     return $this->cutPaste;
   }
+  public function setDeleteBanding(Google_Service_Sheets_DeleteBandingRequest $deleteBanding)
+  {
+    $this->deleteBanding = $deleteBanding;
+  }
+  public function getDeleteBanding()
+  {
+    return $this->deleteBanding;
+  }
   public function setDeleteConditionalFormatRule(Google_Service_Sheets_DeleteConditionalFormatRuleRequest $deleteConditionalFormatRule)
   {
     $this->deleteConditionalFormatRule = $deleteConditionalFormatRule;
@@ -258,6 +284,14 @@ class Google_Service_Sheets_Request extends Google_Model
   {
     return $this->deleteProtectedRange;
   }
+  public function setDeleteRange(Google_Service_Sheets_DeleteRangeRequest $deleteRange)
+  {
+    $this->deleteRange = $deleteRange;
+  }
+  public function getDeleteRange()
+  {
+    return $this->deleteRange;
+  }
   public function setDeleteSheet(Google_Service_Sheets_DeleteSheetRequest $deleteSheet)
   {
     $this->deleteSheet = $deleteSheet;
@@ -297,6 +331,14 @@ class Google_Service_Sheets_Request extends Google_Model
   public function getInsertDimension()
   {
     return $this->insertDimension;
+  }
+  public function setInsertRange(Google_Service_Sheets_InsertRangeRequest $insertRange)
+  {
+    $this->insertRange = $insertRange;
+  }
+  public function getInsertRange()
+  {
+    return $this->insertRange;
   }
   public function setMergeCells(Google_Service_Sheets_MergeCellsRequest $mergeCells)
   {
@@ -369,6 +411,14 @@ class Google_Service_Sheets_Request extends Google_Model
   public function getUnmergeCells()
   {
     return $this->unmergeCells;
+  }
+  public function setUpdateBanding(Google_Service_Sheets_UpdateBandingRequest $updateBanding)
+  {
+    $this->updateBanding = $updateBanding;
+  }
+  public function getUpdateBanding()
+  {
+    return $this->updateBanding;
   }
   public function setUpdateBorders(Google_Service_Sheets_UpdateBordersRequest $updateBorders)
   {

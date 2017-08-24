@@ -5,9 +5,9 @@ namespace Gino\App\SearchSite;
  * @brief Template risultati ricerca nel sito
  *
  * Le variabili a disposizione sono:
- * - $title: bool, titolo
- * - $results_num: int, numero risultati
- * - $content: html, risultati
+ * - **title**: bool, titolo
+ * - **results_num**: int, numero risultati
+ * - **content**: html, risultati
  */
 ?>
 <? //@cond no-doxygen ?>
@@ -21,6 +21,6 @@ namespace Gino\App\SearchSite;
         </div>
         <div class="clear"></div>
     </header>
-  <?= $content ?>
+	<?= $content ?>
 </section>
 <? // @endcond ?>

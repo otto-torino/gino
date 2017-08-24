@@ -335,14 +335,19 @@ class searchSite extends \Gino\Controller {
     	$tot_results = count($final_results);
     	
     	if($tot_results) {
-    		$buffer .= "<dl class=\"search-results\">";
     		foreach($order_results as $k=>$point) {
     			$fr = $final_results[$k];
-    			if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) $obj = new $matches[1]($matches[2]);
-    			else $obj = new $fr['class']();
+    			if(preg_match("#(.*?)\|\|(\d+)#", $fr['class'], $matches)) {
+    				$obj = new $matches[1]($matches[2]);
+    			}
+    			else {
+    				$obj = new $fr['class']();
+    			}
+    			
+    			$buffer .= "<div class=\"search-item\">";
     			$buffer .= $obj->searchSiteResult($fr);
+    			$buffer .= "</div>";
     		}
-    		$buffer .= "</dl>";
     	}
     	else {
     		$buffer .= "<p class=\"message\">"._("La ricerca non ha prodotto risultati")."</p>";

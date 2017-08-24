@@ -29,6 +29,8 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public $fileExtension;
   public $folderColorRgb;
   public $fullFileExtension;
+  public $hasAugmentedPermissions;
+  public $hasThumbnail;
   public $headRevisionId;
   public $iconLink;
   public $id;
@@ -40,6 +42,7 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   protected $lastModifyingUserDataType = '';
   public $md5Checksum;
   public $mimeType;
+  public $modifiedByMe;
   public $modifiedByMeTime;
   public $modifiedTime;
   public $name;
@@ -59,8 +62,13 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public $size;
   public $spaces;
   public $starred;
+  public $teamDriveId;
   public $thumbnailLink;
+  public $thumbnailVersion;
   public $trashed;
+  public $trashedTime;
+  protected $trashingUserType = 'Google_Service_Drive_User';
+  protected $trashingUserDataType = '';
   public $version;
   protected $videoMediaMetadataType = 'Google_Service_Drive_DriveFileVideoMediaMetadata';
   protected $videoMediaMetadataDataType = '';
@@ -143,6 +151,22 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   {
     return $this->fullFileExtension;
   }
+  public function setHasAugmentedPermissions($hasAugmentedPermissions)
+  {
+    $this->hasAugmentedPermissions = $hasAugmentedPermissions;
+  }
+  public function getHasAugmentedPermissions()
+  {
+    return $this->hasAugmentedPermissions;
+  }
+  public function setHasThumbnail($hasThumbnail)
+  {
+    $this->hasThumbnail = $hasThumbnail;
+  }
+  public function getHasThumbnail()
+  {
+    return $this->hasThumbnail;
+  }
   public function setHeadRevisionId($headRevisionId)
   {
     $this->headRevisionId = $headRevisionId;
@@ -214,6 +238,14 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public function getMimeType()
   {
     return $this->mimeType;
+  }
+  public function setModifiedByMe($modifiedByMe)
+  {
+    $this->modifiedByMe = $modifiedByMe;
+  }
+  public function getModifiedByMe()
+  {
+    return $this->modifiedByMe;
   }
   public function setModifiedByMeTime($modifiedByMeTime)
   {
@@ -343,6 +375,14 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   {
     return $this->starred;
   }
+  public function setTeamDriveId($teamDriveId)
+  {
+    $this->teamDriveId = $teamDriveId;
+  }
+  public function getTeamDriveId()
+  {
+    return $this->teamDriveId;
+  }
   public function setThumbnailLink($thumbnailLink)
   {
     $this->thumbnailLink = $thumbnailLink;
@@ -351,6 +391,14 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   {
     return $this->thumbnailLink;
   }
+  public function setThumbnailVersion($thumbnailVersion)
+  {
+    $this->thumbnailVersion = $thumbnailVersion;
+  }
+  public function getThumbnailVersion()
+  {
+    return $this->thumbnailVersion;
+  }
   public function setTrashed($trashed)
   {
     $this->trashed = $trashed;
@@ -358,6 +406,22 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public function getTrashed()
   {
     return $this->trashed;
+  }
+  public function setTrashedTime($trashedTime)
+  {
+    $this->trashedTime = $trashedTime;
+  }
+  public function getTrashedTime()
+  {
+    return $this->trashedTime;
+  }
+  public function setTrashingUser(Google_Service_Drive_User $trashingUser)
+  {
+    $this->trashingUser = $trashingUser;
+  }
+  public function getTrashingUser()
+  {
+    return $this->trashingUser;
   }
   public function setVersion($version)
   {

@@ -181,9 +181,22 @@ define('GOOGLE_MAPS_KEY', null);
  * @see Gino.App.Statistics.statistics
  */
 
-/* path to json file, usually: APP_DIR.OS.'statistics'.OS.'file.json' */
-define('GOOGLE_ANALYTICS_AUTH_CONFIG', null);
-define('GOOGLE_ANALYTICS_ID', '');
-define('GOOGLE_ANALYTICS_NAME', null);
+/**
+ * @brief Nome del file della chiave dell'account di servizio
+ * @var string
+ */
+define('GOOGLE_ANALYTICS_VIEW_FILE', null);
+
+/**
+ * @brief ID dell'account di servizio
+ * @var string
+ */
+define('GOOGLE_ANALYTICS_VIEW_ACCOUNT', null);
+
+/**
+ * @brief View ID di Google Analytics
+ * @var integer
+ */
+define('GOOGLE_ANALYTICS_VIEW_ID', null);
 
 ?>

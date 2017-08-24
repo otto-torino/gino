@@ -6,7 +6,7 @@
 </div>
 <div id="block_2" style="">
 <div id="nav_2_1_1" style="width:100%;">
-{module sysclassid=8 func=printHeaderPublic}
+{module sysclassid=8 func=printHeader}
 </div>
 <div class="null"></div>
 </div>
@@ -21,7 +21,7 @@
 </div>
 <div id="block_4" style="">
 <div id="nav_4_1_1" style="width:100%;">
-{module sysclassid=8 func=printFooterPublic}
+{module sysclassid=8 func=printFooter}
 </div>
 <div class="null"></div>
 </div>

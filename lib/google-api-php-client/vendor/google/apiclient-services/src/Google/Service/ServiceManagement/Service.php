@@ -18,8 +18,6 @@
 class Google_Service_ServiceManagement_Service extends Google_Collection
 {
   protected $collection_key = 'types';
-  protected $analyticsType = 'Google_Service_ServiceManagement_Analytics';
-  protected $analyticsDataType = '';
   protected $apisType = 'Google_Service_ServiceManagement_Api';
   protected $apisDataType = 'array';
   protected $authenticationType = 'Google_Service_ServiceManagement_Authentication';
@@ -39,6 +37,8 @@ class Google_Service_ServiceManagement_Service extends Google_Collection
   protected $endpointsDataType = 'array';
   protected $enumsType = 'Google_Service_ServiceManagement_Enum';
   protected $enumsDataType = 'array';
+  protected $experimentalType = 'Google_Service_ServiceManagement_Experimental';
+  protected $experimentalDataType = '';
   protected $httpType = 'Google_Service_ServiceManagement_Http';
   protected $httpDataType = '';
   public $id;
@@ -54,6 +54,8 @@ class Google_Service_ServiceManagement_Service extends Google_Collection
   protected $monitoringDataType = '';
   public $name;
   public $producerProjectId;
+  protected $sourceInfoType = 'Google_Service_ServiceManagement_SourceInfo';
+  protected $sourceInfoDataType = '';
   protected $systemParametersType = 'Google_Service_ServiceManagement_SystemParameters';
   protected $systemParametersDataType = '';
   protected $systemTypesType = 'Google_Service_ServiceManagement_Type';
@@ -66,14 +68,6 @@ class Google_Service_ServiceManagement_Service extends Google_Collection
   protected $visibilityType = 'Google_Service_ServiceManagement_Visibility';
   protected $visibilityDataType = '';
 
-  public function setAnalytics(Google_Service_ServiceManagement_Analytics $analytics)
-  {
-    $this->analytics = $analytics;
-  }
-  public function getAnalytics()
-  {
-    return $this->analytics;
-  }
   public function setApis($apis)
   {
     $this->apis = $apis;
@@ -154,6 +148,14 @@ class Google_Service_ServiceManagement_Service extends Google_Collection
   {
     return $this->enums;
   }
+  public function setExperimental(Google_Service_ServiceManagement_Experimental $experimental)
+  {
+    $this->experimental = $experimental;
+  }
+  public function getExperimental()
+  {
+    return $this->experimental;
+  }
   public function setHttp(Google_Service_ServiceManagement_Http $http)
   {
     $this->http = $http;
@@ -225,6 +227,14 @@ class Google_Service_ServiceManagement_Service extends Google_Collection
   public function getProducerProjectId()
   {
     return $this->producerProjectId;
+  }
+  public function setSourceInfo(Google_Service_ServiceManagement_SourceInfo $sourceInfo)
+  {
+    $this->sourceInfo = $sourceInfo;
+  }
+  public function getSourceInfo()
+  {
+    return $this->sourceInfo;
   }
   public function setSystemParameters(Google_Service_ServiceManagement_SystemParameters $systemParameters)
   {

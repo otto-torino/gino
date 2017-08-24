@@ -390,9 +390,9 @@ INSERT INTO language_translation (tbl_id_value, tbl, field, language, text) VALU
 (1, 'sys_conf', 'head_title', 'es_ES', 'ESP'),
 (1, 'sys_conf', 'head_title', 'fr_FR', 'FRENCH'),
 (4, 'sys_module', 'label', 'en_US', 'Main menu'),
-(10, 'sys_graphics', 'description', 'en_US', 'footer engli'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
+(10, 'sys_graphics', 'description', 'en_US', 'footer english'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english'),
+(10, 'sys_graphics', 'html', 'en_US', 'textarea english'),
 (4, 'language_opt', 'title', 'en_US', 'Languages'),
 (4, 'language_opt', 'title', 'es_ES', 'Idiomas'),
 (4, 'page_entry', 'title', 'en_US', 'Documentation'),
@@ -1115,22 +1115,8 @@ CREATE TABLE sys_graphics (
 SET IDENTITY_INSERT sys_graphics ON
 
 INSERT INTO sys_graphics (id, name, description, type, image, html) VALUES
-(1, 'header_public', 'Header pagine pubbliche', 1, 'header.jpg', NULL),
-(2, 'header_private', 'Header pagine private', 2, NULL, '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="840" height="160" id="header" align="middle">
-	<param name="allowScriptAccess" value="sameDomain" />
-	<param name="allowFullScreen" value="false" />
-	<param name="wmode" value="transparent">
-	<param name="movie" value="_GRAPHICS_/header.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />
-	<embed src="_GRAPHICS_/header.swf" quality="high" bgcolor="#ffffff" width="840" height="160" wmode="transparent" name="header" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />
-</object>'),
-(3, 'header_admin', 'Header amministrazione', 1, 'header_admin.jpg', 'HEADER'),
-(4, 'header_mobile', 'Header dispositivi mobili', 1, 'header_mobile.jpg', NULL),
-(5, 'header_adhoc', 'Header ad hoc', 2, 'pf2.jpg', 'HEADER'),
-(6, 'footer_public', 'Footer index pubblica', 1, 'footer.jpg', NULL),
-(7, 'footer_private', 'Footer index privata', 2, NULL, '<p>header</p>'),
-(8, 'footer_admin', 'Footer amministrazione', 1, 'footer_admin.jpg', NULL),
-(9, 'footer_mobile', 'Footer dispositivi mobili', 1, 'footer_mobile.jpg', NULL),
-(10, 'footer_adhoc', 'Footer ad hoc', 1, NULL, 'FOOTER ADHOC');
+(1, 'header', 'Header', 2, NULL, NULL),
+(2, 'footer', 'Footer', 2, NULL, NULL);
 
 SET IDENTITY_INSERT sys_graphics OFF
 

@@ -27,8 +27,9 @@ class LogAccess extends \Gino\Model {
      * @return istanza di Gino.App.Statistics.LogAccess
      */
     function __construct($id) {
-        $this->_tbl_data = TBL_LOG_ACCESS;
-        parent::__construct($id);
+    	
+    	$this->_tbl_data = TBL_LOG_ACCESS;
+    	parent::__construct($id);
     }
     
     /**
@@ -39,24 +40,24 @@ class LogAccess extends \Gino\Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    			'name'=>'id',
-    			'primary_key'=>true,
-    			'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
     	));
     	$columns['user_id'] = new \Gino\ForeignKeyField(array(
-    			'name'=>'user_id',
-    			'label'=>_("Utente"),
-    			'required'=>true,
-    			'foreign'=>'\Gino\App\Auth\User',
-    			'foreign_order'=>'lastname ASC, firstname ASC',
-    			'add_related' => false,
+    		'name' => 'user_id',
+    		'label' => _("Utente"),
+    		'required' => true,
+    		'foreign' => '\Gino\App\Auth\User',
+    		'foreign_order' => 'lastname ASC, firstname ASC',
+    		'add_related' => false,
     	));
     	$columns['date'] = new \Gino\DatetimeField(array(
-    			'name'=>'date',
-    			'label'=>_('Data'),
-    			'required'=>true,
-    			'auto_now'=>false,
-    			'auto_now_add'=>true,
+    		'name' => 'date',
+    		'label' => _('Data'),
+    		'required' => true,
+    		'auto_now' => false,
+    		'auto_now_add' => true,
     	));
     	
     	return $columns;
@@ -71,7 +72,6 @@ class LogAccess extends \Gino\Model {
 
         $db = \Gino\Db::instance();
         return $db->getNumRecords(self::$table, "user_id='$user_id'");
-
     }
 
     /**
@@ -90,9 +90,7 @@ class LogAccess extends \Gino\Model {
         }
 
         return $res;
-
     }
-
 }
 
 LogAccess::$columns=LogAccess::columns();
