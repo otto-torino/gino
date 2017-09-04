@@ -1,4 +1,5 @@
 
+@white: #fff;
 @claim-h1-color: #fff;
 @claim-p-color: #eee;
 @claim-btn-bkg: #cd3200;
@@ -37,7 +38,7 @@ body {
 }
 
 /* Claim */
-.section-claim {
+.section-1 {
 	background: transparent url('../graphics/bkg_head.jpg') no-repeat center center;
 	background-size: cover;
 	color: @claim-p-color;
@@ -97,3 +98,40 @@ body {
 		}
 	}
 }
+.section-2 {
+	
+}
+.section-3 {
+	background: transparent url('../graphics/bkg_contatti.jpg') no-repeat center center;
+	background-size: cover;
+	text-align: center;
+	color: #fff;
+
+	h1 {
+		color: #fff;
+	}
+
+	.img-responsive {
+		margin: auto;
+		margin-top: 20px;
+		max-width: 250px;
+	}
+
+	.scrolltotop {
+		.fa {
+			color: @white;
+			cursor: pointer;
+		}
+	}
+}
+.scroll {
+    position: fixed;
+    color: #e7e7e7;
+    cursor: pointer;
+    z-index: 100;
+}
+.scroll-to-top {
+    bottom: 20px;
+    right: 20px;
+}
+/* /Claim */
