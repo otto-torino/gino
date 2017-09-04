@@ -161,30 +161,33 @@ class Css extends Model {
      */
     public function formCssLayout() {
 
-    	$mform = \Gino\Loader::load('ModelForm', array(new Css('layout', array('id' => $this->id)), array(
-    		'options_form' => array(
-    			'session_value' => 'dataform',
-    			'form_id' => 'gform'
-    		),
-    		//'fields' => array()
-    	)));
-    	
-        $form = $mform->view(
-        	array(
-        		'show_save_and_continue' => false,
-        		'view_title' => true,
-        		'form_title' => $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile"),
-        		'f_action' => $this->_registry->router->link('layout', 'actionCss'), 
-        		's_value' => $this->id ? _("modifica") : _("inserisci"),
-        	),
-        	array(
-        		'label'=>array("size"=>40, "maxlength"=>200, "trnsl"=>true),
-        		'description' => array("cols"=>45, "rows"=>4, "trnsl"=>true),
-        		'filename' => array('extensions' => array("css"))
-        	)
+    	$gform = Loader::load('Form', array());
+        $gform->load('dataform');
+        
+        $title = $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile");
+        
+        $formaction = $this->_registry->router->link($this->_interface, 'actionCss');
+        
+        $buffer = $gform->open($formaction, true, 'label', array('form_id'=>'gform'));
+        $buffer .= \Gino\Input::hidden('id', $this->id);
+        
+        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
+        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>false));
+        $buffer .= \Gino\Input::input_file('filename', $this->filename, _("File"), array('extensions' => array("css")));
+        
+        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
+        
+        $buffer .= $gform->close();
+        
+        $view = new View();
+        $view->setViewTpl('section');
+        $dict = array(
+        	'title' => $title,
+        	'class' => 'admin',
+        	'content' => $buffer
         );
         
-        return $form;
+        return $view->render($dict);
     }
 
     /**
@@ -195,15 +198,53 @@ class Css extends Model {
      */
     public function actionCssLayout(\Gino\Http\Request $request) {
 
-        $mform = \Gino\Loader::load('ModelForm', array(new Css('layout', array('id' => $this->id)), array(
-    		'options_form' => array(
-    			'session_value' => 'dataform',
-    			'form_id' => 'css_layout'
-    		),
-    		//'fields' => array()
-    	)));
+    	$gform = Loader::load('Form', array());
+    	$gform->saveSession('dataform');
+    	$req_error = $gform->checkRequired();
     	
-    	$form = $mform->save();
+    	$action = ($this->id) ? 'modify' : 'insert';
+    	
+    	$link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=css&id=$this->id&action=$action");
+    	
+    	if($req_error > 0) {
+    		return Error::errorMessage(array('error'=>1), $link_error);
+    	}
+    	
+    	$request = \Gino\Http\Request::instance();
+    	
+    	$filename = $request->FILES['filename']['name'];
+    	
+    	if($filename) {
+    		$filename_size = $request->FILES['filename']['size'];
+    		$filename_tmp = $request->FILES['filename']['tmp_name'];
+    		
+    		if(!$filename_size) {
+    			throw new \Gino\Exception\ValidationError(_("Empty filename"));
+    		}
+    		/*
+    		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+    		$mime = finfo_file($finfo, $filename_tmp);
+    		finfo_close($finfo);
+    		*/
+    		if(!\Gino\extension($filename, 'css') ||
+    		preg_match('#%00#', $filename)) {
+    			throw new \Exception($code_messages[3]);
+    		}
+    		
+    		$upload = move_uploaded_file($filename_tmp, SITE_ROOT.OS.'css'.OS.$filename) ? TRUE : FALSE;
+    		if(!$upload) {
+    			throw new \Exception(_("Errore nel salvataggio del file"));
+    		}
+    		else {
+    			$this->filename = $filename;
+    		}
+    	}
+    	
+    	$this->label = cleanVar($request->POST, 'label', 'string', null);
+    	$this->description = cleanVar($request->POST, 'description', 'string', null);
+    	
+    	$this->save();
+    	
     	return new Redirect($this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'css')));
     }
 
