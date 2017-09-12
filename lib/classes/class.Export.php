@@ -3,7 +3,7 @@
  * @file class.Export.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Export
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,14 +12,14 @@ namespace Gino;
 /**
  * @brief Libreria per l'esportazione di tabelle o dati
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
  * ##UTILIZZO
- * L'utilizzo della libreria prevede l'inclusione del file
+ * L'utilizzo della libreria prevede l'inclusione del file lib/classes/class.Export.php
  * @code
- * require_once(CLASSES_DIR.OS.'class.export.php');
+ * require_once(CLASSES_DIR.OS.'class.Export.php');
  * @endcode
  *
  * ###ESEMPIO
@@ -30,9 +30,9 @@ namespace Gino;
  *  array('value4', 'value5', 'value6')
  * );
  *
- * $obj_export = new export();
+ * $obj_export = new Export();
  * $obj_export->setData($items);
- * $obj_export->exportData('export.csv', 'csv');
+ * return $obj_export->exportData('export.csv');
  * @endcode
  */
 class Export {
@@ -40,15 +40,78 @@ class Export {
     private $_s = ",";
 
     private $_table;
+    
+    /**
+     * @brief Indica se mostrare l'intestazione delle colonne
+     * @var boolean
+     */
     private $_head = TRUE;
+    
     private $_fields = '*';
     private $_rids = '*';
     private $_order;
-
-    private $_data;
+    
+    /**
+     * @brief Codice identificativo del tipo di file da esportare
+     * @var string
+     */
+    private $_filetype;
+    
+    /**
+     * @brief Codici identificativi dei tipi di file che è possibile esportare
+     * @var array
+     */
+    private static $filetype_values = array('csv');
+    
+    /**
+     * @brief Tipologia di output adottata
+     * @var string
+     */
+    private $_output;
+    
+    /**
+     * @brief Tipologie di output possibili
+     * @var array
+     */
+    private static $output_values = array('stream', 'file');
 
     /**
-     * @brief Imposta la proprietà @a _table
+     * @brief Dati da esportare
+     * @var array
+     */
+    private $_data;
+    
+    function __construct() {
+    	
+    	// default values
+    	$this->_filetype = 'csv';
+    	$this->_output = 'stream';
+    }
+    
+    /**
+     * @brief Imposta la tipologia di output
+     * @param string $value
+     */
+    public function setOutput($value) {
+    	
+    	if(is_string($value) && in_array($value, self::$output_values)) {
+    		$this->_output = $value;
+    	}
+    }
+    
+    /**
+     * @brief Imposta il tipo di file da esportare
+     * @param string $value
+     */
+    public function setFiletype($value) {
+    	 
+    	if(is_string($value) && in_array($value, self::$filetype_values)) {
+    		$this->_filetype = $value;
+    	}
+    }
+
+    /**
+     * @brief Imposta la proprietà @a $_table
      * @param string $table nome della tabella da esportare
      * @return void
      */
@@ -57,7 +120,7 @@ class Export {
     }
 
     /**
-     * @brief Imposta la proprietà @a _s
+     * @brief Imposta la proprietà @a $_s
      * @param string $s separatore dei campi, default ','
      * @return void
      */
@@ -66,7 +129,7 @@ class Export {
     }
 
     /**
-     * @brief Imposta la proprietà @a _fields
+     * @brief Imposta la proprietà @a $_fields
      * @param mixed $fields
      *   campi da esportare
      *   - @b *: tutti i campi
@@ -80,16 +143,19 @@ class Export {
     }
 
     /**
-     * @brief Imposta la proprietà @a _head
-     * @param boolean $head indica se mostrare o meno l'intestazione delle colonne
+     * @brief Imposta la proprietà @a $_head
+     * @param boolean $value
      * @return void
      */
-    public function setHead($head) {
-        $this->_head = $head;
+    public function setHead($value) {
+        
+    	if(is_bool($value)) {
+    		$this->_head = $value;
+    	}
     }
 
     /**
-     * @brief Imposta la proprietà @a _rids
+     * @brief Imposta la proprietà @a $_rids
      * @param mixed $rids
      *   id dei record da esportare:
      *   - @b *: tutti i record
@@ -102,7 +168,7 @@ class Export {
     }
 
     /**
-     * Imposta la proprietà @a _order
+     * Imposta la proprietà @a $_order
      * @param string $order il campo per l'ordinamento dei risultati
      * @return void
      */
@@ -111,44 +177,48 @@ class Export {
     }
 
     /**
-     * @brief Imposta la proprietà @a _data
-     * @param array $data dati da esportare (parametro competitivo a _table):
+     * @brief Imposta la proprietà @a $_data
+     * @param array $value dati da esportare (parametro competitivo a $_table):
      *   @code
-     *   array(0=>array("head1", "head2", "head3"), 
+     *   array(
+     *     0=>array("head1", "head2", "head3"), 
      *     1=>array("value1 record 1", "value 2 record 1", "value 3 record 1"), 
      *     2=>array("value1 record 2", "value 2 record 2", "value 3 record 2")
      *   )
      *   @endcode
      * @return void
      */
-    public function setData($data) {
-        $this->_data = $data;
+    public function setData($value) {
+        
+    	if(is_array($value)) {
+    		$this->_data = $value;
+    	}
     }
 
     /**
      * @brief Esporta il file
      * 
-     * Attualmente è prevista soltanto l'esportazione di file CSV
-     * 
      * @see self::exportCsv()
      * @param string $filename the name of the file written (the absolute path if the output is file)
-     * @param string $extension the file extension
-     * @param string $output (file|stream)
      * @return \Gino\Http\ResponseFile se il file viene inviato in output || TRUE se il file viene salvato su fs
      */
-    public function exportData($filename, $extension, $output='stream') {
+    public function exportData($filename) {
 
-        if($extension=='csv') return $this->exportCsv($filename, $output);
+        if($this->_filetype == 'csv') {
+        	return $this->exportCsv($filename);
+        }
+        else {
+        	return null;
+        }
     }
 
     /**
      * @brief Esporta un file csv
      * 
      * @param string $filename the name of the file written (the absolute path if the output is file)
-     * @param string $output (file|stream)
      * @return \Gino\Http\ResponseFile se il file viene inviato in output || TRUE se il file viene salvato su fs
      */
-    private function exportCsv($filename, $output) {
+    private function exportCsv($filename) {
 
         $data = $this->getData();
 
@@ -158,19 +228,21 @@ class Export {
             foreach($row as $v) $cell[] = enclosedField($v);
             $csv .= implode($this->_s, $cell)."\r\n";
         }
-
-        if($output=='stream') {
+        
+        if($this->_output == 'stream') {
             $response = Loader::load('http/ResponseFile', array($csv, 'plain/text', $filename, array('file_is_content' => TRUE)), '\Gino\Http\\');
             $response->setDispositionType('Attachment');
             $response->setHeaders(array(
                 'Pragma' => 'no-cache'
             ));
+            
             return $response;
         }
-        elseif($output=='file') {
+        elseif($this->_output == 'file') {
             $fo = fopen($filename, "w");
             fwrite($fo, $csv);
             fclose($fo);
+            
             return TRUE;
         }
     }
@@ -181,53 +253,12 @@ class Export {
      */
     private function getData() {
 
-        if($this->_data) return $this->_data;
-        if(!$this->_table) return array();
-
-        $data = array();
-        $head_fields = $this->getHeadFields();
-        if(count($head_fields) && $this->_head) $data[] = $head_fields;
-
-        if($this->_rids=='*') $where = '';
-        elseif(is_array($this->_rids) && count($this->_rids)) 
-            $where = "WHERE id='".implode("' OR id='", $this->_rids)."'";
-        elseif(is_string($this->_rids) && strlen($this->_rids)>0)    
-            $where = "WHERE id='".implode("' OR id='", explode(",",$this->_rids))."'";
-
-        $order = $this->_order ? " ORDER BY ".$this->_order:"";
-
-        $query_data = "SELECT ".implode(",", $head_fields)." FROM ".$this->_table." $where $order";
-        $res = mysql_query($query_data);
-        while($row = mysql_fetch_array($res, MYSQL_NUM)) 
-            $data[] = $row;
-
-        return $data;
-    }
-
-    /**
-     * @brief array di intestazioni delle colonne
-     * @return array intestazioni
-     */
-    private function getHeadFields() {
-
-        if($this->_head && is_string($this->_fields) && preg_match("#\*#", $this->_fields)) {
-            preg_match("#\* -\((.*)\)#", $this->_fields, $matches);
-            $excluded_fields = isset($matches[1]) ? explode(",",$matches[1]):array();
-            $head_fields = array();
-            $query = "SHOW COLUMNS FROM ".$this->_table;
-            $res = mysql_query($query);
-            while($row = mysql_fetch_assoc($res)) {
-                $results[] = $row;
-            }
-            mysql_free_result($res);
-            foreach($results as $r) 
-                if(!in_array($r['Field'], $excluded_fields)) $head_fields[] = $r['Field'];
-
+    	if($this->_data) {
+        	return $this->_data;
         }
-        elseif(is_string($this->_fields)) $head_fields = explode(",",$this->_fields);
-        elseif(is_array($this->_fields)) $head_fields = $this->_fields;
-
-        return $head_fields;
+        else {
+        	return null;
+        }
     }
 
     /**

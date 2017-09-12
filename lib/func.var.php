@@ -238,11 +238,10 @@ function clean_float($value) {
 		return null;
 	}
 	
-	//$larr = localeconv();
-	//$value = str_replace($larr['decimal_point'], '.', $value);
 	$value = str_replace(',', '.', $value);
-	
 	settype($value, 'float');
+	// settype can reconvert a dot in comma
+	$value = str_replace(',', '.', $value);
 
 	return $value;
 }

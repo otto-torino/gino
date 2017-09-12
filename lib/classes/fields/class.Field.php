@@ -138,6 +138,7 @@ class Field {
      *   - @b primary_key (boolean): campo chiave primaria
      *   - @b unique_key (boolean): campo chiave unica
      *   - @b required (boolean): valore indicatore del campo obbligatorio
+     *   - @b widget (string)
      *   - @b int_digits (integer): numero di cifre intere di un campo float
      *   - @b decimal_digits (integer): numero di cifre decimali di un campo float
      */
