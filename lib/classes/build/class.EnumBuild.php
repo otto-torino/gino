@@ -88,4 +88,26 @@ class EnumBuild extends Build {
     		return null;
     	}
     }
+    
+    /**
+     * @see Gino.Build::printValue()
+     * @return object
+     */
+    public function printValue() {
+    	
+    	if(is_null($this->_value)) {
+    		return null;
+    	}
+    	elseif(is_int($this->_value) or is_string($this->_value)) {
+    		if(array_key_exists($this->_value, $this->_choice)) {
+    			return $this->_choice[$this->_value];
+    		}
+    		else {
+    			return null;
+    		}
+    	}
+    	else {
+    		return null;
+    	}
+    }
 }

@@ -88,6 +88,7 @@ class Javascript {
 
         $buffer = "<script type=\"text/javascript\">\n";
 
+        // Mootools Cass: Tips
         $buffer .= "function updateTooltips() {
 
                 $$('*[class$=tooltipfull]').each(function(el) {

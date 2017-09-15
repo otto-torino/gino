@@ -108,16 +108,20 @@ class Document {
                 // Non si possono sostituire gli output già alla prima parserizzazione, e poi fare un eval del template perché altrimenti eventuali contenuti
                 // degli output potrebbero causare errori di interpretazione dell'eval, è sufficiente una stringa '<?' a far fallire l'eval.
                 // parse modules first time to update registry
-                $tpl_content = file_get_contents($template);
-                $regexp = "#{module(.*?)}#";
-                preg_replace_callback($regexp, array($this, 'parseModules'), $tpl_content);
-                $registry = $this->_registry;
-                ob_start();
-                include($template);
-                $tpl_content = ob_get_contents();
-                ob_clean();
-                // parse second time to replace codes
-                $cache->stop(preg_replace_callback($regexp, array($this, 'parseModules'), $tpl_content));
+            	
+            	$tpl_content = file_get_contents($template);
+            	$regexp = array("#{% block '(.*?)' %}#", "#{module(.*?)}#");
+            	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
+            	
+            	// for compatibility; instantiate the registry variable directly in the template file
+            	$registry = $this->_registry;
+            	
+            	ob_start();
+            	include($template);
+            	$tpl_content = ob_get_contents();
+            	ob_clean();
+            	// parse second time to replace codes
+            	$cache->stop(preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content));
             }
             else {
                 $tpl_content = file_get_contents($template);
@@ -134,6 +138,73 @@ class Document {
         return $buffer;
     }
 
+    /**
+     * @brief Parserizza un placeholder del template ritornando la pagina o istanza/metodo corrispondenti
+     * @param array $m placeholder
+     * @return contenuto corrispondente
+     * 
+     * La variabile $m assume valori simili ai seguenti:
+     * @code
+     * array (size=2)
+	 * 0 => string '{% block 'footer.php' %}' (length=24)
+	 * 1 => string 'footer.php' (length=10)
+	 * 
+	 * array (size=2)
+	 * 0 => string '{module classid=4 func=render}' (length=30)
+	 * 1 => string ' classid=4 func=render' (length=22)
+	 * @endcode
+     */
+    private function parseTpl($m) {
+    	
+    	$regex_marker = $m[0];
+    	$regex_result = $m[1];
+    	
+    	if(preg_match("#{% block '(.*?)' %}#", $regex_marker)) {
+    		
+    		$filename = TPL_DIR.OS.$regex_result;
+    		if(file_exists($filename) && is_file($filename)) {
+    			
+    			$content = file_get_contents($filename);
+    			
+    			ob_start();
+    			require $filename;
+    			return ob_get_clean();
+    		}
+    		else {
+    			return null;
+    		}
+    	}
+    	elseif(preg_match("#{module(.*?)}#", $regex_marker)) {
+    		
+    		preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))(\s*param=([0-9]+))?#", $regex_result, $matches);
+    		
+    		$mdlType = (!empty($matches[1])) ? $matches[1]:null;
+    		$mdlId = (!empty($matches[2])) ? $matches[2]:null;
+    		$mdlParam = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
+    		
+    		if($mdlType=='page') {
+    			$mdlContent = $this->modPage($mdlId);
+    		}
+    		elseif(($mdlType=='class' or $mdlType=='sysclass') and isset($matches[4])) {
+    			$mdlFunc = $matches[4];
+    			try {
+    				$mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType, $mdlParam);
+    			}
+    			catch(Exception $e) {
+    				Logger::manageException($e);
+    			}
+    		}
+    		elseif($mdlType==null && $mdlId==null) {
+    			$mdlContent = $this->_url_content;
+    		}
+    		else {
+    			return $matches[0];
+    		}
+    		
+    		return $mdlContent;
+    	}
+    }
+    
     /**
      * @brief Recupera la skin da utilizzare per generare il documento
      *
@@ -207,42 +278,6 @@ class Document {
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
         $this->_registry->addCoreJs(SITE_JS."/bootstrap/js/bootstrap.min.js");
-    }
-
-    /**
-     * @brief Parserizza un placeholder del template ritornando la pagina o istanza/metodo corrispondenti
-     * @param string $m placeholder
-     * @return contenuto corrispondente
-     */
-    private function parseModules($m) {
-    	
-        $mdlMarker = $m[0];
-        preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))(\s*param=([0-9]+))?#", $mdlMarker, $matches);
-        
-        $mdlType = (!empty($matches[1])) ? $matches[1]:null;
-        $mdlId = (!empty($matches[2])) ? $matches[2]:null;
-        $mdlParam = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
-
-        if($mdlType=='page') {
-            $mdlContent = $this->modPage($mdlId);
-        }
-        elseif(($mdlType=='class' or $mdlType=='sysclass') and isset($matches[4])) {
-            $mdlFunc = $matches[4];
-            try {
-                $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType, $mdlParam);
-            }
-            catch(Exception $e) {
-            	Logger::manageException($e);
-            }
-        }
-        elseif($mdlType==null && $mdlId==null) {
-        	$mdlContent = $this->_url_content;
-        }
-        else {
-        	return $matches[0];
-        }
-
-        return $mdlContent;
     }
 
     /**
