@@ -1,31 +1,6 @@
 <!DOCTYPE html>
 <html lang="<?= LANG ?>">
-	<head>
-		<meta charset="utf-8" />
-		<base href="<?= $registry->request->root_absolute_url ?>" />
-		<title><?= $registry->title ?></title>
-		<meta name="description" content="<?= $registry->description ?>" />
-		<meta name="keywords" content="<?= $registry->keywords ?>" />
-		<meta content="width=device-width, initial-scale=1.0" name="viewport">
-		<!-- other meta set from modules -->
-		<?=  $registry->variables('meta') ?>
-		<!-- other link tags set from modules -->
-		<?=  $registry->variables('head_links') ?>
-		<!-- system css -->
-		<?=  $registry->variables('css') ?>
-		<!-- core js -->
-		<?=  $registry->variables('core_js') ?>
-		<!-- apps js -->
-		<?=  $registry->variables('js') ?>
-		<?= \Gino\Document::errorMessages() ?>
-		<link rel="shortcut icon" href="<?= $this->_registry->favicon ?>" />
-		<link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />
-		<!-- Gino onload function -->
-		<?= \Gino\Javascript::vendor() ?>
-		<?= \Gino\Javascript::onLoadFunction() ?>
-		<!-- google analytics -->
-		<?= \Gino\Javascript::analytics() ?>
-	</head>
+	{% block 'head.php' %}
 	<body>
 		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container-fluid main-header">
@@ -56,9 +31,7 @@
 		<div class="container bg-white">
 			{module id=0}
 		</div>
-		<footer class="text-center">
-			Otto Srl | <a href="page/view/privacy-cookie/">Privacy - Cookie</a> | <a href="admin">Area amministrativa</a>
-			<div class="credits"><a target="_blank" href="http://www.otto.to.it"><img style="margin-left: 20px; width: 30px;" src="img/otto_credits.jpg" /></a></div>
-		</footer>
+		
+		{% block 'footer.php' %}
 	</body>
 </html>

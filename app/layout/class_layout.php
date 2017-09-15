@@ -3,7 +3,7 @@
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -49,7 +49,7 @@ use \Gino\App\Auth\Permission;
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -303,7 +303,7 @@ class layout extends \Gino\Controller {
                 $tbl_rows[] = array(
                     $skin->ml('label'),
                     $tpl->ml('label'),
-                    $css->label,
+                    $css->label ? $css->label." (".$css->filename.")" : null,
                     $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
                     $skin->cache ? _('si') : _('no'),
                     array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
