@@ -92,17 +92,17 @@ require_once('class.PageComment.php');
 class page extends \Gino\Controller {
 
 	/**
-	 * @brief Titolo vista ultime news
+	 * @brief Titolo vista pagine recenti
 	 */
 	private $_last_title;
 	
 	/**
-	 * @brief Numero elementi nella vista ultime news
+	 * @brief Numero elementi nella vista pagine recenti
 	 */
 	private $_last_number;
 	
 	/**
-	 * @brief Template elemento in vista ultime news
+	 * @brief Template elemento in vista pagine recenti
 	 */
 	private $_last_tpl_code;
 	

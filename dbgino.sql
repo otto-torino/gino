@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `auth_permission` (
   `description` text,
   `admin` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=21 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
 
 --
 -- Dumping data for table `auth_permission`
@@ -163,7 +163,8 @@ INSERT INTO `auth_permission` (`id`, `class`, `code`, `label`, `description`, `a
 (18, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (19, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (20, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
-(21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1);
+(21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(22, 'buildapp', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo di creazione applicazioni', 1);
 
 -- --------------------------------------------------------
 
@@ -308,6 +309,29 @@ CREATE TABLE IF NOT EXISTS `auth_user_perm` (
   `user_id` int(11) NOT NULL,
   `perm_id` smallint(6) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `buildapp_item`
+--
+
+CREATE TABLE `buildapp_item` (
+  `id` int(11) NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `label` varchar(200) NOT NULL,
+  `controller_name` varchar(50) NOT NULL,
+  `description` text NOT NULL,
+  `istantiable` tinyint(1) NOT NULL DEFAULT '0',
+  `model_name` varchar(50) NOT NULL,
+  `model_label` VARCHAR(100) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `buildapp_item`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `buildapp_item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 -- --------------------------------------------------------
 
@@ -1162,7 +1186,7 @@ CREATE TABLE IF NOT EXISTS `sys_module_app` (
   `removable` tinyint(1) NOT NULL,
   `class_version` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
 
 --
 -- Dumping data for table `sys_module_app`
@@ -1184,7 +1208,8 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `active`, `tbl_name`, `inst
 (14, 'phpModuleView', 'phpModuleView', 1, 'php_module', 1, 'Generatore di moduli contenenti codice php', 1, '1.0'),
 (15, 'Strumenti', 'instruments', 1, 'instruments', 0, 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 0, '1.0'),
 (16, 'Autenticazione', 'auth', 1, 'auth', 0, 'Modulo utenti, gruppi e permessi', 0, '1.0'),
-(17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0');
+(17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0'),
+(18, 'Creazione App', 'buildapp', 1, 'buildapp', 0, 'Genera una applicazione predefinita pronta per essere personalizzata e installata in gino', 0, '1.0.0');
 
 --
 -- Table structure for table `sys_tag`

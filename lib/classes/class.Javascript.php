@@ -146,7 +146,7 @@ class Javascript {
         		else if (window.attachEvent)\n
         		window.attachEvent(\"onload\", onLoadFunction);\n
         		else window.onload = onLoadFunction;\n";
-
+        
         $buffer .= "</script>\n";
 
         return $buffer;

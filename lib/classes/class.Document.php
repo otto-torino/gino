@@ -287,7 +287,7 @@ class Document {
     private function errorMessages() {
 
         $buffer = '';
-        $errorMsg = error::getErrorMessage();
+        $errorMsg = Error::getErrorMessage();
         if(!empty($errorMsg)) {
             $buffer .= "<script>window.addEvent('load', function() { new gino.layerWindow({title:'".jsVar(_('Errore!'))."', html: '".jsVar($errorMsg)."', 'width': 600}).display();});</script>";
         }
