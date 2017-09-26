@@ -280,7 +280,7 @@ class Router extends Singleton {
     /**
      * @brief Trasformazione di un path con aggiunta o rimozione di parametri dalla query string
      * @param array $add parametri da aggiungere nella forma parametro => valore
-     * @param array $remove parametri da riumuovere
+     * @param array $remove parametri da rimuovere
      * @return path trasformato
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {

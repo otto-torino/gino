@@ -1,0 +1,57 @@
+<?php
+namespace Gino\App\{{CONTROLLER_NS}};
+/**
+* @file archive.php
+* @brief Template per la vista archivio
+*
+* Variabili disponibili:
+* - **instance_name**: string, nome istanza modulo
+* - **controller**: object Gino.App.Events.events
+* - **items**: array, eventi @ref Gino.App.Events.Event
+* - **ctg**: mixed, categoria @ref Gino.App.Events.Category o null
+* - **search_form**: html, form di ricerca
+* - **open_form**: bool, TRUE se il form deve essere mostrato espanso perché compilato
+* - **pagination**: html, paginazione
+*
+* @version 0.1.0
+* @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @author Marco Guidotti guidottim@gmail.com
+* @author abidibo abidibo@gmail.com
+*/
+?>
+<? //@cond no-doxygen ?>
+<section id="archive-{{CONTROLLER}}-<?= $instance_name ?>">
+    <h1><?= _('Archivio') ?> <span class="fa fa-search link" style="margin-right: 10px;" onclick="if($('{{CONTROLLER}}_form_search').style.display == 'block') $('{{CONTROLLER}}_form_search').style.display = 'none'; else $('{{CONTROLLER}}_form_search').style.display = 'block';"></span></h1>
+    <div id="{{CONTROLLER}}_form_search" style="display: <?= $open_form ? 'block' : 'none'; ?>;">
+        <?= $search_form ?>
+    </div>
+    <? if(count($items)): ?>
+    
+		<div class="table-responsive-vertical">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th><?= _('Data') ?></th>
+                	<th><?= _('Nome') ?></th>
+                	<th><?= _('Categorie') ?></th>
+                	<th><?= _('Tag') ?></th>
+                </tr>
+			</thead>
+			<tbody>
+				<? foreach($items as $item): ?>
+					<tr>
+						<td><?= \Gino\dbDateToDate($item->date, '/') ?></td>
+						<td><a href="<?= $item->getUrl() ?>"><?= $item->ml('name') ?></a></td>
+						<td><?= \Gino\htmlChars(implode(', ', $item->getCategoriesName())) ?></td>
+						<td class="tags"><?= \Gino\GTag::viewTags($controller, $item->tags) ?></td>
+					</tr>
+				<? endforeach ?>
+			</tbody>
+		</table>
+		</div>
+		<?= $pagination ?>
+	<? else: ?>
+		<p><?= _('Non risultano record') ?></p>
+	<? endif ?>
+</section>
+<? // @endcond ?>

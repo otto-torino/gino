@@ -1172,8 +1172,8 @@ class AdminTable {
     
     		foreach ($c AS $field_name => $field_object) {
     			
-    			// rimuovere i campi ManyToManyField / ManyToManyThroughField dall'esportazione
-    			if(!is_a($field_object, '\Gino\ManyToManyField') and !is_a($field_object, '\Gino\ManyToManyThroughField')) {
+    			// rimuovere i campi ManyToManyThroughField dall'esportazione
+    			if(!is_a($field_object, '\Gino\ManyToManyThroughField')) {
     				$checkbox .= Input::checkbox('fields[]', $checked, $field_name, array()).' '.$field_object->getLabel()."<br />";
     			}
     		}
@@ -1241,11 +1241,13 @@ class AdminTable {
     private function getData($model, $fields, $where, $options_view) {
     	
     	$db = Db::instance();
+    	// Struttura dei campi del modello (fieldname=>object Field)
     	$model_structure = $model->getStructure();
     	$model_table = $model->getTable();
     	
     	// fields to be shown
     	$fields_loop = array();
+    	$fields_m2m = array();
     	if($fields) {
     		foreach($fields as $fname) {
     			if(is_array($fname)) {
@@ -1255,6 +1257,9 @@ class AdminTable {
     				);
     			}
     			else {
+    				if(is_a($model_structure[$fname], '\Gino\ManyToManyField')) {
+    					$fields_m2m[] = $fname;
+    				}
     				$fields_loop[$fname] = $model_structure[$fname];
     			}
     		}
@@ -1263,8 +1268,11 @@ class AdminTable {
     		$fields_loop = $model_structure;
     	}
     	
-    	$query_selection = implode(', ', $fields);
-    	if(!array_key_exists('id', $fields)) {
+    	// Removes m2m fields in the construction of query selection
+    	$fields_without_m2m = array_diff($fields, $fields_m2m);
+    	
+    	$query_selection = implode(', ', $fields_without_m2m);
+    	if(!array_key_exists('id', $fields_without_m2m)) {
     		$query_selection = 'id, '.$query_selection;
     	}
     	

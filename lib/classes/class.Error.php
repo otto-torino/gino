@@ -99,7 +99,7 @@ class Error {
             $buffer .= "<p><b>"._("Suggerimenti:")."</b></p>";
             $buffer .= $message['hint'];
         }
-        $session = session::instance();
+        $session = Session::instance();
         $session->GINOERRORMSG = $buffer;
 
         return new Redirect($link);
@@ -134,7 +134,7 @@ class Error {
      */
     public static function getErrorMessage() {
 
-        $session = session::instance();
+        $session = Session::instance();
 
         if(isset($session->GINOERRORMSG))
         {

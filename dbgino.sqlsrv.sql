@@ -149,7 +149,8 @@ INSERT INTO auth_permission (id, [class], code, label, description, [admin]) VAL
 (18, 'layout', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (19, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (20, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
-(21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1);
+(21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(22, 'buildapp', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo di creazione applicazioni', 1);
 
 SET IDENTITY_INSERT auth_permission OFF
 
@@ -229,7 +230,7 @@ CREATE TABLE auth_user (
   text text,
   photo nvarchar(50) DEFAULT NULL,
   publication tinyint NOT NULL DEFAULT '0',
-  date datetime NOT NULL,
+  [date] datetime NOT NULL,
   active tinyint NOT NULL DEFAULT '0',
   ldap tinyint NOT NULL DEFAULT '0',
   CONSTRAINT PK_auth_user PRIMARY KEY (id)
@@ -237,7 +238,7 @@ CREATE TABLE auth_user (
 
 SET IDENTITY_INSERT auth_user ON
 
-INSERT INTO auth_user (id, firstname, lastname, company, phone, fax, email, username, userpwd, is_admin, address, cap, city, nation, text, photo, publication, date, active, ldap) VALUES
+INSERT INTO auth_user (id, firstname, lastname, company, phone, fax, email, username, userpwd, is_admin, address, cap, city, nation, text, photo, publication, [date], active, ldap) VALUES
 (1, 'utente', 'amministratore', 'otto srl', '+39 011 8987553', NULL, 'support@otto.to.it', 'admin', '1844156d4166d94387f1a4ad031ca5fa', 1, 'piazza Gran Madre di Dio, 7', 10131, 'Torino', 83, NULL, NULL, 0, '2011-10-10 01:00:00', 1, 0);
 
 SET IDENTITY_INSERT auth_user OFF
@@ -279,6 +280,24 @@ CREATE TABLE auth_user_perm (
   instance int NOT NULL,
   user_id int NOT NULL,
   perm_id smallint NOT NULL
+)
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table buildapp_item
+--
+
+CREATE TABLE buildapp_item (
+  id int IDENTITY(1, 1),
+  creation_date datetime NOT NULL,
+  label nvarchar(200) NOT NULL,
+  controller_name nvarchar(50) NOT NULL,
+  description text NOT NULL,
+  istantiable tinyint NOT NULL DEFAULT '0',
+  model_name nvarchar(50) NOT NULL,
+  model_label nvarchar(100) NOT NULL,
+  CONSTRAINT PK_buildapp_item PRIMARY KEY (id)
 )
 
 -- --------------------------------------------------------
@@ -1365,7 +1384,8 @@ INSERT INTO sys_module_app (id, label, name, active, tbl_name, instantiable, des
 (14, 'phpModuleView', 'phpModuleView', 1, 'php_module', 1, 'Generatore di moduli contenenti codice php', 1, '1.0'),
 (15, 'Strumenti', 'instruments', 1, 'instruments', 0, 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 0, '1.0'),
 (16, 'Autenticazione', 'auth', 1, 'auth', 0, 'Modulo utenti, gruppi e permessi', 0, '1.0'),
-(17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0');
+(17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0'),
+(18, 'Creazione App', 'buildapp', 1, 'buildapp', 0, 'Genera una applicazione predefinita pronta per essere personalizzata e installata in gino', 0, '1.0.0');
 
 SET IDENTITY_INSERT sys_module_app OFF
 

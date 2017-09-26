@@ -150,6 +150,7 @@ define('INSTALLED_APPS', serialize(array(
 	'language' => 'language',
 	'statistics' => 'pie-chart',
 	'layout' => 'th',
+	'buildapp' => 'cube',
 	'graphics' => 'picture-o',
 	'attachment' => 'file',
 	'page' => 'file-text-o',

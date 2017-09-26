@@ -1,0 +1,411 @@
+<?php
+/**
+ * @file class.{{MODEL}}.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+ * @author marco guidotti <marco.guidotti@otto.to.it>
+ * @author abidibo <abidibo@gmail.com>
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ */
+
+namespace Gino\App\{{CONTROLLER_NS}};
+
+use \Gino\TagField;
+use \Gino\BooleanField;
+use \Gino\ManyToManyField;
+use \Gino\SlugField;
+use \Gino\Db;
+
+/**
+ * @brief Classe tipo Gino.Model che rappresenta un record.
+ *
+ * @version 0.1.0
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @author Marco Guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ */
+class {{MODEL}} extends \Gino\Model {
+	
+    public static $table = '{{TABLEKEY}}_{{MODELREFERENCE}}';
+    public static $table_ctgs = '{{TABLEKEY}}_{{MODELREFERENCE}}_category';
+    public static $columns;
+
+    /**
+     * @brief Costruttore
+     * @param int $id id del record
+     * @param object $controller
+     * @return istanza di Gino.App.{{CONTROLLER}}.{{MODEL}}
+     */
+    public function __construct($id, $controller) {
+    	
+        $this->_controller = $controller;
+        $this->_tbl_data = self::$table;
+
+        parent::__construct($id);
+
+        $this->_model_label = _("{{MODEL_LABEL}}");
+    }
+
+    /**
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return nome record
+     */
+	function __toString() {
+		return (string) $this->ml('name');
+	}
+	
+	/**
+	 * @see Gino.Model::properties()
+	 */
+	protected static function properties($model, $controller) {
+		 
+		$instance = $controller->getInstance();
+		
+		$property['tags'] = array(
+			'model_controller_instance' => $instance,
+		);
+		$property['categories'] = array(
+			'm2m_where' => 'instance=\''.$instance.'\'',
+			'm2m_controller' => $controller,
+			'add_related_url' => $controller->linkAdmin(array(), 'block=ctg&insert=1')
+		);
+		
+		return $property;
+	}
+	
+	/**
+	 * Struttura dei campi della tabella di un modello
+	 *
+	 * @return array
+	 */
+	public static function columns() {
+	
+		$columns['id'] = new \Gino\IntegerField(array(
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
+			'max_lenght'=>11,
+		));
+		$columns['instance'] = new \Gino\IntegerField(array(
+			'name'=>'instance',
+			'required'=>true,
+			'max_lenght'=>11,
+		));
+		$columns['insertion_date'] = new \Gino\DatetimeField(array(
+			'name' => 'insertion_date',
+			'label' => _('Data inserimento'),
+			'required' => true,
+			'auto_now' => FALSE,
+			'auto_now_add' => TRUE
+		));
+		$columns['last_edit_date'] = new \Gino\DatetimeField(array(
+			'name' => 'last_edit_date',
+			'label' => _('Ultima modifica'),
+			'required' => true,
+			'auto_now' => true,
+			'auto_now_add' => true,
+		));
+		$columns['date'] = new \Gino\DateField(array(
+			'name'=>'date',
+			'label'=>_("Data"),
+			'required'=>true,
+		));
+		$columns['name'] = new \Gino\CharField(array(
+			'name'=>'name',
+			'label'=>_("Nome"),
+			'required'=>true,
+			'max_lenght'=>200,
+		));
+		$columns['slug'] = new \Gino\SlugField(array(
+			'name' => 'slug',
+			'unique_key' => true,
+			'label' => array(_('Slug'), _('url parlante, viene calcolato automaticamente inserendo prima la data e poi il nome.')),
+			'required' => true,
+			'max_lenght' => 200,
+			'autofill' => array('date', 'name'),
+		));
+		$columns['description'] = new \Gino\TextField(array(
+			'name' => 'description',
+			'label' => _("Descrizione"),
+		));
+		$columns['tags'] = new \Gino\TagField(array(
+			'name' => 'tags',
+			'label' => array(_('Tag'), _("elenco separato da virgola")),
+			'max_lenght' => 255,
+			'model_controller_class' => '{{CONTROLLER}}',
+			'model_controller_instance' => null,
+		));
+		$columns['published'] = new \Gino\BooleanField(array(
+			'name' => 'published',
+			'label' => _('Pubblicata'),
+			'required' => true,
+			'default' => 0
+		));
+		$columns['categories'] = new \Gino\ManyToManyField(array(
+			'name' => 'categories',
+			'label' => _("Categorie"),
+			'm2m' => '\Gino\App\{{CONTROLLER_NS}}\Category',
+			'm2m_where' => null,
+			'm2m_controller' => null,
+			'join_table' => self::$table_ctgs,
+			'add_related' => TRUE,
+			'add_related_url' => null
+		));
+	
+		return $columns;
+	}
+	
+	/**
+     * @brief Restituisce oggetti di tipo @ref Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+     * 
+     * @param \Gino\App\{{CONTROLLER_NS}}\{{CONTROLLER}} $controller istanza del controller Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+     * @param array $options array associativo di opzioni
+     *   - @b published (boolean)
+     ]   - @b ctg (integer)
+     *   - @b tag (integer)
+     *   - @b where (string): condizioni personalizzate
+     *   - @b order (string)
+     *   - @b limit (string)
+     *   - @b debug (boolean): default false
+     * @return array di istanze di tipo Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+     */
+    public static function get($controller, $options = null) {
+
+        $res = array();
+
+        $published = \Gino\gOpt('published', $options, true);
+        $tag = \Gino\gOpt('tag', $options, null);
+        $category = \Gino\gOpt('ctg', $options, null);
+        $where_opt = \Gino\gOpt('where', $options, null);
+        
+        $order = \Gino\gOpt('order', $options, 'insertion_date');
+        $limit = \Gino\gOpt('limit', $options, null);
+        $debug = \Gino\gOpt('debug', $options, false);
+
+        $db = \Gino\Db::instance();
+        
+        $where = self::setConditionWhere($controller, array(
+        	'published' => $published,
+        	'ctg' => $category,
+        	'tag' => $tag,
+        	'custom' => $where_opt,
+        ));
+        
+        $rows = $db->select('id', self::$table, $where, array('order' => $order, 'limit' => $limit, 'debug' => $debug));
+        if(count($rows)) {
+            foreach($rows as $row) {
+                $res[] = new {{MODEL}}($row['id'], $controller);
+            }
+        }
+
+        return $res;
+    }
+	
+	/**
+	 * @brief Restituisce il numero di record che soddisfano le condizioni date
+	 *
+	 * @param \Gino\App\{{CONTROLLER_NS}}\{{CONTROLLER}} $controller istanza del controller Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+	 * @param array $options opzioni per la definizione delle condizioni della query (@see setConditionWhere())
+	 * @return integer
+	 */
+	public static function getCount($controller, $options = null) {
+	
+		$db = Db::instance();
+	
+		$where = self::setConditionWhere($controller, $options);
+		
+		return $db->getNumRecords(self::$table, $where);
+	}
+	
+	/**
+	 * @brief Imposta le condizioni di ricerca dei record
+	 * @param object $controller istanza del controller Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+	 * @param array $options array associativo di opzioni
+	 *   - @b published (boolean)
+	 *   - @b ctg (integer)
+	 *   - @b tag (string)
+	 *   - @b text (string): fa riferimento ai campi name e description
+	 *   - @b date_form (string)
+	 *   - @b date_to (string)
+	 *   - @b month (array): elementi del mese, nel formato array((int) month, (int) year)
+     *   - @b remove_id (array): elenco valori id da non selezionare
+	 *   - @b custom (string): condizioni personalizzate
+	 * @return string
+	 */
+	public static function setConditionWhere($controller, $options = null) {
+		
+		$published = \Gino\gOpt('published', $options, TRUE);
+		$ctg = \Gino\gOpt('ctg', $options, null);
+		$tag = \Gino\gOpt('tag', $options, null);
+		$text = \Gino\gOpt('text', $options, null);
+		$date_from = \Gino\gOpt('date_from', $options, null);
+		$date_to = \Gino\gOpt('date_to', $options, null);
+		$month_year = \Gino\gOpt('month', $options, null);
+		$remove_id = \Gino\gOpt('remove_id', $options, null);
+		$custom = \Gino\gOpt('custom', $options, null);
+		
+		$where = array("instance='".$controller->getInstance()."'");
+		
+		if($published) {
+			$where[] = "published='1'";
+		}
+		if($ctg) {
+			$where[] = "id IN (SELECT {{MODELREFERENCE}}_id FROM ".self::$table_ctgs." WHERE category_id='".$ctg."')";
+		}
+		if($tag) {
+			$where[] = \Gino\GTag::whereCondition($controller, $tag);
+		}
+		if($text) {
+			$where[] = "(name LIKE '%".$text."%' OR description LIKE '%".$text."%')";
+		}
+		if($date_from) {
+			$where[] = "date >= '".\Gino\dateToDbDate($date_from)."'";
+		}
+		if($date_to) {
+			$where[] = "date <= '".\Gino\dateToDbDate($date_to)."'";
+		}
+		if(is_array($month_year) && count($month_year) == 2) {
+			$month = $month_year[0];
+			$year = $month_year[1];
+			
+			$month = $month < 10 ? '0'.$month : $month;
+			$month_days = date('t', mktime(0, 0, 0, $month, 1, $year));
+			
+			$where[] = "date <= '".$year."-".$month."-".$month_days."' AND date >= '".$year."-".$month."-1'";
+		}
+		if(is_array($remove_id) && count($remove_id)) {
+    		$where[] = "id NOT IN (".implode(',', $remove_id).")";
+    	}
+		
+		if($custom) {
+    		$conditions = $custom;
+    	}
+    	else {
+    		$conditions = implode(' AND ', $where);
+    	}
+		
+		return $conditions;
+	}
+
+    /**
+     * @brief Url dettaglio record
+     * @return url
+     */
+    public function getUrl() {
+    	
+        return $this->_registry->router->link($this->_controller->getInstanceName(), 'detail', array('id' => $this->slug));
+    }
+    
+    /**
+     * @brief Collegamento alla modale
+     * @return tag a
+     */
+    public function getModalUrl() {
+    	 
+    	return "<a href=\"".$this->getAjaxUrl()."\" class=\"modal-overlay\" data-type=\"ajax\" data-esc-close=\"true\" data-overlay=\"false\" data-title=\""._("{{MODEL_LABEL}}")."\">";
+    }
+    
+    /**
+     * @brief Ritorna le proprietà del tag A relative al collegamento a una modale
+     * @description Da passare al javascript per costruire il tag
+     * @return array
+     */
+    public function modalUrlProperties() {
+    	 
+    	return array(
+    		'href' => $this->getAjaxUrl(),
+    		'prop_class' => 'modal-overlay',
+    		'prop_type' => 'ajax',
+    		'prop_esc_close' => 'true',
+    		'prop_overlay' => 'false',
+    		'prop_title' => _("{{MODEL_LABEL}}")
+    	);
+    }
+
+    /**
+     * @brief Url dettaglio record per chiamate ajax
+     * @return url
+     */
+    public function getAjaxUrl() {
+    	
+        return $this->_registry->router->link($this->_controller->getInstanceName(), 'detail', array('id' => $this->slug), "ajax=1");
+    }
+    
+    /**
+     * @brief Nome delle categorie associate a un record
+     * @return \Gino\App\{{CONTROLLER_NS}}\Category[]
+     */
+    public function getCategoriesName() {
+    	
+    	$items = array();
+    	if(count($this->categories)) {
+    		foreach ($this->categories AS $ctg_id) {
+    			$items[] = new Category($ctg_id, $this->_controller);
+    		}
+    	}
+    	return $items;
+    }
+
+    /**
+     * @brief Data nel formato 'domenica 5 febbraio 2014'
+     * @param \Datetime $date oggetto Datetime
+     * @return data
+     */
+    private function letterDate($date) {
+        $days = array(_('domenica'), _('lunedì'), _('martedì'), _('mercoledì'), _('giovedì'), _('venerdì'), _('sabato'));
+        $months = array(_('gennaio'), _('febbraio'), _('marzo'), _('aprile'), _('maggio'), _('giugno'), _('luglio'), _('agosto'), _('settembre'), _('ottobre'), _('novembre'), _('dicembre'));
+        return sprintf('%s <span>%d %s</span> %d', $days[$date->format('w')], $date->format('j'), $months[$date->format('n') - 1], $date->format('Y'));
+    }
+
+    /**
+     * @brief Data inizio in formato letterale
+     * @see self::letterDate
+     * @return data
+     */
+    public function beginLetterDate() {
+        return $this->letterDate(new \Datetime($this->date));
+    }
+
+    /**
+     * @brief Data fine in formato letterale
+     * @see self::letterDate
+     * @return data
+     */
+    public function endLetterDate() {
+        $end_date = new \Datetime($this->date);
+        $end_date->modify('+'.($this->duration - 1).'days');
+        return $this->letterDate($end_date);
+    }
+
+    /**
+     * @brief Data inizio in formato iso 8601
+     *
+     * @return data iso 8601
+     */
+    public function startDateIso() {
+        $datetime = new \Datetime($this->date);
+        return $datetime->format('c');
+    }
+
+    /**
+     * @brief Data fine in formato iso 8601
+     *
+     * @return data iso 8601
+     */
+    public function endDateIso() {
+        $end_date = new \Datetime($this->date);
+        $end_date->modify('+'.($this->duration - 1).'days');
+        return $end_date->format('c');
+    }
+    
+    /**
+     * @see Gino.Model::delete()
+     */
+    public function delete() {
+    	
+    	\Gino\GTag::deleteTaggedItem($this->_controller->getClassName(), $this->_controller->getInstance(), get_name_class($this), $this->id);
+    	
+    	return parent::delete();
+    }
+}
+
+{{MODEL}}::$columns={{MODEL}}::columns();
