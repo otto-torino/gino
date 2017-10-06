@@ -3,7 +3,7 @@
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Request;
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -27,6 +27,7 @@ use Gino\Http\Request;
  *   - @b section (boolean): segnala l'inizio di un blocco di opzioni
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
+ *   - @b editor (boolean): attiva ckEditor in un campo textarea (type text)
  * 
  * ##Informazioni sui campi
  * Le informazioni sui campi della tabella vengono recuperate dal metodo Gino.Db::fieldInformations(), e vengono caricate nei seguenti parametri: \n
@@ -35,6 +36,7 @@ use Gino\Http\Request;
  *     - @a char
  *     - @a text
  *     - @a int
+ *     - @a bool
  *     - @a date
  *   - @b length (integer): numero massimo di caratteri
  */
@@ -232,7 +234,21 @@ class Options {
                     $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "trnsl_id"=>$id));
                 }
                 elseif($f->type == 'text') {
-                    $GINO .= \Gino\Input::textarea_label($f->name, ${$f->name},  $field_label, array("cols"=>'50', "rows"=>4, "required"=>$field_required, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "trnsl_id"=>$id));
+                    
+                	$input_options = array(
+                		"cols" => '50',
+                		"rows" => 4,
+                		"required" => $field_required,
+                		"trnsl" => $field_trnsl,
+                		"trnsl_table" => $this->_tbl_options,
+                		"trnsl_id" => $id
+                	);
+                	if(is_array($field_option) AND array_key_exists('editor', $field_option)) {
+                		if(is_bool($field_option['editor']) and $field_option['editor']) {
+                			$input_options['ckeditor'] = true;
+                		}
+                	}
+                	$GINO .= \Gino\Input::textarea_label($f->name, ${$f->name},  $field_label, $input_options);
                 }
                 elseif($f->type == 'int' && $f->length>1) {
                     $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));

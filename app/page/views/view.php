@@ -20,7 +20,7 @@ namespace Gino\App\Page;
  */
 ?>
 <? //@cond no-doxygen ?>
-<section id="viewpage">
+<section id="page<?= $page->id ?>" class="viewpage">
 	<? if($last_edit_date): ?>
     	<p style="text-align: right; margin-top: 10px; font-size: 14px;"><?= _("ultimo aggiornamento") ?>: <?= $last_edit_date ?></p>
     <? endif ?>

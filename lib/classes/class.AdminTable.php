@@ -132,16 +132,16 @@ class AdminTable {
      *
      * @param \Gino\Controller $controller istanza di Gino.Controller che gestisce il backend
      * @param array $opts
-     *         array associativo di opzioni
-     *         - @b view_folder (string): percorso della directory contenente la vista da caricare
-     *         - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
-     *         - @b edit_allow (array): valori id dei record che posssono essere modificati da un utente
-     *         - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
-     *           - @a string, 'all' -> tutti
-     *           - @a array, elenco ID
-     *         - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
-     *           - @a string, 'all' -> tutti
-     *           - @a array, elenco ID
+     *   array associativo di opzioni
+     *   - @b view_folder (string): percorso della directory contenente la vista da caricare
+     *   - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
+     *   - @b edit_allow (array): valori id dei record che posssono essere modificati da un utente
+     *   - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
+     *     - @a string, 'all' -> tutti
+     *     - @a array, elenco ID
+     *   - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
+     *     - @a string, 'all' -> tutti
+     *     - @a array, elenco ID
      * @return istanza di Gino.AdminTable
      */
     function __construct($controller, $opts = array()) {
@@ -357,7 +357,8 @@ class AdminTable {
      * @param array $options_view
      *     array associativo di opzioni
      *     - @b filter_fields (array): campi sui quali applicare il filtro per la ricerca automatica
-     *     - @b filter_join (array): contiene le proprietà degli input form da associare ai campi ai quali viene applicato il filtro; i valori in arrivo da questi input concorrono alla definizione delle condizioni dei campi ai quali sono associati
+     *     - @b filter_join (array): contiene le proprietà degli input form da associare ai campi ai quali viene applicato il filtro; 
+     *       i valori in arrivo da questi input concorrono alla definizione delle condizioni dei campi ai quali sono associati
      *       - @a field (string): nome del campo di riferimento; l'input form viene posizionato dopo questo campo
      *       - @a name (string): nome dell'input
      *       - @a label (string): nome della label
@@ -365,18 +366,18 @@ class AdminTable {
      *       - @a default (string): valore di default
      *       - @a input (string): tipo di input form, valori validi: radio (default), select
      *       - @a where_clause (string): nome della chiave da passare alle opzioni del metodo addWhereClauses(); per i campi data: @a operator
-     *         inoltre contiene le opzioni da passare al metodo clean
+     *         inoltre contiene le opzioni da passare al metodo clean()
      *       - @a value_type (string): tipo di dato (default string)
      *       - @a method (array): default $this->_request->POST
      *       - @a escape (boolean): default true \n
      *         Esempio:
      *         @code
      *         array(
-     *             'field'=>'date_end', 
-     *             'label'=>'', 
-     *             'name'=>'op', 
-     *             'data'=>array(1=>'<=', 2=>'=', 3=>'>='), 
-     *             'where_clause'=>'operator'
+     *             'field' => 'date_end', 
+     *             'label' => '', 
+     *             'name' => 'op', 
+     *             'data' => array(1=>'<=', 2=>'=', 3=>'>='), 
+     *             'where_clause' => 'operator'
      *         )
      *         @endcode
      *     - @b filter_add (array): elenco dei filtri che vengono aggiunti nella ricerca automatica; 
@@ -394,25 +395,43 @@ class AdminTable {
      *       - @a method (array): default $this->_request->POST
      *       - @a escape (boolean): default true
      *     - @b list_display (array): nomi dei campi da mostrare nella lista (se vuoto mostra tutti); 
-     *         al posto del nome di un campo è possibile indicare un array con le seguenti chiavi
+     *       al posto del nome di un campo è possibile indicare un array con le seguenti chiavi
      *       - @a member (string): nome del metodo del modello da richiamare e il cui output verrà mostrato nelle righe della colonna
      *       - @a label (string): intestazione della colonna
+     *         Esempio:
+     *         @code
+     *         'list_display' => array('id', 'category', 'file', 'last_edit_date', 
+     *           array('label' => _('URL relativo'), 'member' => 'pathView'), 
+     *           array('label' => _('URL download'), 'member' => 'pathDownload'), 
+     *         ),
+               @endcode
      *     - @b list_remove (array): campi da non mostrare nella lista (default: instance)
      *     - @b items_for_page (integer): numero di record per pagina
+     *     - @b list_display_options (array): opzioni di visualizzazione dei campi, nel formato array([fieldname|membername] => array([options,]))
+     *         dove le chiavi dell'array sono i nomi dei campi o dei metodi da richiamare (@see list_display option and member key)
+     *         Esempio:
+     *         @code
+     *         'list_display_options' => array('file' => array('maxchars' => 30), 'pathView' => array('maxchars' => null))
+     *         @endcode
+     *         Le opzioni disponibili per i campi sono:
+     *         - @a maxchars (integer): numero massimo di caratteri da mostrare
      *     - @b list_title (string): titolo
      *     - @b list_description (string): descrizione sotto il titolo (informazioni aggiuntive)
      *     - @b list_where (array): condizioni della query che estrae i dati dell'elenco
      *     - @b link_fields (array): campi sui quali impostare un collegamento, nel formato nome_campo=>array('link'=>indirizzo, 'param_id'=>'ref')
      *       - @a link (string), indirizzo del collegamento
      *       - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
-     *         esempio: array('link_fields'=>array('codfisc'=>array('link'=>$this->_registry->router->link($this->_instance_name, 'view')))
+     *         Esempio:
+     *         @code
+     *         array('link_fields' => array('codfisc' => array('link' => $this->_registry->router->link($this->_instance_name, 'view')))
+     *         @endcode
      *     - @b add_params_url (array): parametri aggiuntivi da passare ai link delle operazioni sui record
      *     - @b add_buttons (array): bottoni aggiuntivi da anteporre a quelli di modifica ed eliminazione, nel formato array(array('label'=>\Gino\icon('group'), 'link'=>indirizzo, 'param_id'=>'ref'))
      *       - @a label (string), nome del bottone
      *       - @a link (string), indirizzo del collegamento
      *       - @a param_id (string), nome del parametro identificativo da aggiungere all'indirizzo (default: id[=valore_id])
      *     - @b deny_ordered (boolean): disabilita l'ordinamento dei record negli elenchi (default false)
-     *     Parametri per l'esportazione dei dati
+     *     // Parametri per l'esportazione dei dati
      *     - @b basic_export (boolean): attiva il collegamento per l'esportazione base dei dati (default false); vengono esportati soltanto i campi visualizzati nell'elenco
      *     - @b filename_export (string): nome del file di esportazione (default items-export.csv)
      *     - @b export (integer): parametro GET passato dal metodo @a backOffice per indicare la richiesta del file di esportazione
@@ -446,29 +465,31 @@ class AdminTable {
      */
     public function adminList($model, $options_view=array()) {
 
-        $db = Db::instance();
-        $model_structure = $model->getStructure();
-        $model_table = $model->getTable();
-        
-        // some options
-        $this->_filter_fields = gOpt('filter_fields', $options_view, array());
-        $this->_filter_join = gOpt('filter_join', $options_view, array());
-        $this->_filter_add = gOpt('filter_add', $options_view, array());
-        $this->_list_display = gOpt('list_display', $options_view, array());
-        $this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
-        $this->_ifp = gOpt('items_for_page', $options_view, 20);
-        $list_title = gOpt('list_title', $options_view, ucfirst($model->getModelLabel()));
-        $list_description = gOpt('list_description', $options_view, "<p>"._("Lista record registrati")."</p>");
-        $list_where = gOpt('list_where', $options_view, array());
-        $link_fields = gOpt('link_fields', $options_view, array());
-        $addParamsUrl = gOpt('add_params_url', $options_view, array());
-        $add_buttons = gOpt('add_buttons', $options_view, array());
+		$db = Db::instance();
+		$model_structure = $model->getStructure();
+		$model_table = $model->getTable();
+		
+		// some options
+		$this->_filter_fields = gOpt('filter_fields', $options_view, array());
+		$this->_filter_join = gOpt('filter_join', $options_view, array());
+		$this->_filter_add = gOpt('filter_add', $options_view, array());
+		$this->_list_display = gOpt('list_display', $options_view, array());
+		$this->_list_remove = gOpt('list_remove', $options_view, array('instance'));
+		$this->_ifp = gOpt('items_for_page', $options_view, 20);
+		
+		$list_display_options = gOpt('list_display_options', $options_view, array());
+		$list_title = gOpt('list_title', $options_view, ucfirst($model->getModelLabel()));
+		$list_description = gOpt('list_description', $options_view, "<p>"._("Lista record registrati")."</p>");
+		$list_where = gOpt('list_where', $options_view, array());
+		$link_fields = gOpt('link_fields', $options_view, array());
+		$addParamsUrl = gOpt('add_params_url', $options_view, array());
+		$add_buttons = gOpt('add_buttons', $options_view, array());
 		$deny_ordered = gOpt('deny_ordered', $options_view, false);
-        $basic_export = gOpt('basic_export', $options_view, false);
-        $filename_export = gOpt('filename_export', $options_view, 'items-export.csv');
-        $export = gOpt('export', $options_view, null);
-        $advanced_export = gOpt('advanced_export', $options_view, false);
-        
+		$basic_export = gOpt('basic_export', $options_view, false);
+		$filename_export = gOpt('filename_export', $options_view, 'items-export.csv');
+		$export = gOpt('export', $options_view, null);
+		$advanced_export = gOpt('advanced_export', $options_view, false);
+		
         // for @compatibility with older versions
         if(array_key_exists('view_export', $options_view) and is_bool($options_view['view_export'])) {
         	$basic_export = $options_view['view_export'];
@@ -521,7 +542,7 @@ class AdminTable {
             $query_where[] = "instance='".$this->_controller->getInstance()."'";
         }
 
-        //prepare query
+        // prepare query
         $query_selection = $model_table.".id";	// 2017-03-09: $db->distinct($model_table.".id")
         $query_table = array($model_table);
         
@@ -556,7 +577,7 @@ class AdminTable {
         $heads = array();
         $export_header = array();
 
-        foreach($fields_loop as $field_name=>$field_obj) {
+        foreach($fields_loop as $field_name => $field_obj) {
 
             if($this->permission($options_view, $field_name))
             {
@@ -619,7 +640,7 @@ class AdminTable {
         }
         $heads[] = array('text'=>'', 'class'=>'noborder nobkg');
 
-        // Data
+        // Records data
         $rows = array();
         foreach($records as $r) {
 
@@ -627,16 +648,49 @@ class AdminTable {
             
             $row = array();
             $export_row = array();
-            foreach($fields_loop as $field_name=>$field_obj) {
+            foreach($fields_loop as $field_name => $field_obj) {
 
                 if($this->permission($options_view, $field_name))
                 {
-                    if(is_array($field_obj)) {
+                    // Set list display options
+                	$opt_maxchars = 0;
+                	
+                	if(is_array($list_display_options) and count($list_display_options)) {
+                		if(array_key_exists($field_name, $list_display_options)) {
+                			
+                			$opt_field = $list_display_options[$field_name];
+                			if(array_key_exists('maxchars', $opt_field)) {
+                				$opt_maxchars = (int) $opt_field['maxchars'];
+                			}
+                		}
+                		elseif(
+                			is_array($field_obj) and 
+                			array_key_exists('member', $field_obj) and 
+                			array_key_exists($field_obj['member'], $list_display_options)) {
+                			
+                			$opt_field = $list_display_options[$field_obj['member']];
+                			if(array_key_exists('maxchars', $opt_field)) {
+                				$opt_maxchars = (int) $opt_field['maxchars'];
+                			}
+                		}
+                	}
+                	// /Set
+                	
+                	if(is_array($field_obj)) {
                         $member = $field_obj['member'];
                     	$record_value = $record_model->$member();
                     }
                     else {
-                        $record_value = $record_model->shows($field_obj);
+                        $record_value = $record_model->shows($field_obj);	// value provided by Gino.Build::printValue()
+                    }
+                    
+                    // shortens a string
+                    if($opt_maxchars > 0) {
+                    	
+                    	if(strlen($record_value) >= $opt_maxchars) {
+                    		$shorten = $this->shortenString($record_value, $opt_maxchars);
+                    		$record_value = "<span class=\"link\" title=\"$record_value\" onclick=\"alert('$record_value');\">$shorten</span>";
+                    	}
                     }
 
                     $export_row[] = $record_value;
@@ -774,9 +828,28 @@ class AdminTable {
         
         return $this->_view->render();
     }
+    
+    /**
+     * @brief Accorcia una stringa a un numero massimo di caratteri
+     * @param string $string stringa da accorciare
+     * @param integer $maxchars numero massimo di caratteri
+     * @return string
+     */
+    private function shortenString($string, $maxchars) {
+    	
+    	if(!$maxchars) {
+    		return $string;
+    	}
+    	
+    	$n_start = (int) $maxchars/2;
+    	$n_end = (int) $maxchars/4;
+    	$shorten = substr($string, 0, $n_start). " ... " . substr($string, -$n_end);
+    	
+    	return $shorten;
+    }
 
     /**
-     * @brief Setta le variabili di sessione usate per filtrare i record nella lista amministrativa
+     * @brief Imposta le variabili di sessione usate per filtrare i record nella lista amministrativa
      * 
      * @param \Gino\Model $model istanza di Gino.Model
      * @return void
