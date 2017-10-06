@@ -3,7 +3,7 @@
  * @file class_attachment.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.attachment
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ require_once('class.AttachmentCtg.php');
 /**
  * @brief Classe controller del modulo di gestione di archivi di file categorizzati
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -194,10 +194,15 @@ class attachment extends \Gino\Controller {
         $buffer = $admin_table->backOffice(
             'AttachmentItem',
             array(
-                'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date', array('label' => _('URL relativo'), 'member' => 'pathView'), array('label' => _('URL download'), 'member' => 'pathDownload'), array('label' => '', 'member' => 'previewAdminList')),
+                'list_display' => array('id', 'category', 'file', 'notes', 'last_edit_date', 
+                	array('label' => _('URL relativo'), 'member' => 'pathView'), 
+                	array('label' => _('URL download'), 'member' => 'pathDownload'), 
+                	array('label' => '', 'member' => 'previewAdminList')
+                ),
                 'list_title' => _("Elenco files"),
                 'list_description' => "<p>"._("Per inserire un link all'allegato utilizzare il valore della colonna \"URL relativo\", per farne effettuare il download utilizzare il valore della colonna \"URL download\"")."</p>",
-                'filter_fields' => array('category', 'file', 'notes')
+                'filter_fields' => array('category', 'file', 'notes'),
+            	'list_display_options' => array('file' => array('maxchars' => 30), 'pathView' => array('maxchars' => null))
             ),
             array(),
             array()
