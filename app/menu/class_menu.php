@@ -487,7 +487,7 @@ class menu extends \Gino\Controller {
      */
     private function formMenuVoice($voice, $parent) {
 
-        $buffer =  $voice->formVoice($this->_home."?evt[$this->_instance_name-actionMenuVoice]", $parent);
+        $buffer =  $voice->formVoice($this->link($this->_instance_name, 'actionMenuVoice'), $parent);
 
         $content = $this->searchModules();
         $buffer .= $content->getContent();
@@ -621,7 +621,7 @@ class menu extends \Gino\Controller {
 							var order = this.serialize(1, function(element, index) {
 								return element.getProperty('id').replace('id', '');
 							}).join(',');
-							gino.ajaxRequest('post', '$this->_home?evt[$this->_instance_name-actionUpdateOrder]', 'order='+order, null, {'callback':menuMessage});
+							gino.ajaxRequest('post', '".$this->link($this->_instance_name, 'actionUpdateOrder')."', 'order='+order, null, {'callback':menuMessage});
 						}
 					});
 				})

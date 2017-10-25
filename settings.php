@@ -3,7 +3,7 @@
  * @file settings.php
  * @brief Definizione dei percorsi dell'applicazione
  *
- * @copyright 2005-20017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,6 +12,13 @@ namespace Gino;
 
 /** Separatore di directory definito dal sistema operativo */
 define('OS', DIRECTORY_SEPARATOR);
+
+/**
+ * Carattere separatore di istanza e metodo negli indirizzi web
+ * Se si cambia questo carattere occorre modificare le stringhe dei campi @a rexp e @a urls della tabella sys_layout_skin 
+ * dove sia presente il carattere separatore.
+ */
+define('URL_SEPARATOR', '.');
 
 // Percorsi Assoluti
 

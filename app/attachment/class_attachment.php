@@ -220,10 +220,11 @@ class attachment extends \Gino\Controller {
 
         $ctgs = AttachmentCtg::getForSelect();
 
-        $onchange = "gino.ajaxRequest('post', '".$this->_home."?evt[".$this->_class_name."-editorAttachmentList]', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
+        $url = $this->link($this->_class_name, 'editorAttachmentList');
+        $onchange = "gino.ajaxRequest('post', '".$url."', 'ctg_id='+$(this).value, 'attachment_table', {'load': 'attachment_table'})";
         $buffer = "
             <p class=\"attachment-filter-ctg\">
-                <label for=\"attachment_ctg\">"._('Seleziona la categoria ')."</label>
+                <label for=\"attachment_ctg\">"._('Seleziona la categoria')." </label>
                 ".\Gino\Input::select('attachment_ctg', '', $ctgs, array(
                     'id' => 'attachment_ctg',
                     'js' => "onchange=\"$onchange\"",

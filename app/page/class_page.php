@@ -1208,7 +1208,7 @@ class page extends \Gino\Controller {
         }
 
         // Controllo unicità slug
-        $url = $this->_home."?evt[".$this->_instance_name."-checkSlug]";
+        $url = $this->link($this->_instance_name, 'checkSlug');
         $div_id = 'check_slug';
         $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";

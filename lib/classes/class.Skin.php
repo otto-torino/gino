@@ -3,7 +3,7 @@
  * @file class.Skin.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Skin
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\Http\Redirect;
  * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
  * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
  * @see Gino.App.Layout
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -271,8 +271,8 @@ class Skin extends Model {
         
         $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
         $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:<br /> %s"), "mobile=1")), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:<br />%s"), "#\?evt\[news-(.*)\]#<br />#^news/(.*)#")), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:<br />%s"), "index.php?evt[news-viewList]<br />news/viewList")), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:<br />%s"), $this->_registry->router->exampleUrl('regexp'))), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:<br />%s"), $this->_registry->router->exampleUrl('url'))), array("size"=>40, "maxlength"=>200));
         $css_list = array();
         
         foreach(Css::getAll() as $css) {

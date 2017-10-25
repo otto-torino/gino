@@ -3,7 +3,7 @@
  * @file class_sysClass.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SysClass.sysClass
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ require_once('class.ModuleApp.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei moduli di sistema
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -59,10 +59,10 @@ class sysClass extends \Gino\Controller {
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-        $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]\">"._("Informazioni")."</a>";
-        $link_list = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=list\">"._("Gestione moduli installati")."</a>";
-        $link_install = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=install\">"._("Installazione pacchetto")."</a>";
-        $link_minstall = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageSysClass]&block=minstall\">"._("Installazione manuale")."</a>";
+        $link_list = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=list'), _("Gestione moduli installati"));
+        $link_install = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=install'), _("Installazione pacchetto"));
+        $link_minstall = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=minstall'), _("Installazione manuale"));
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _("Informazioni"));
         $sel_link = $link_dft;
 
         if($block == 'list') {
@@ -137,8 +137,8 @@ class sysClass extends \Gino\Controller {
             $tbl_rows = array();
             foreach($modules_app as $module_app) {
 
-                $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=modify\">".\Gino\icon('modify', array('text'=>_("modifica/upgrade")))."</a>";
-                $link_delete = $module_app->removable ? "<a href=\"$this->_home?evt[$this->_class_name-manageSysClass]&block=list&id=".$module_app->id."&action=delete\">".\Gino\icon('delete', array('text'=>_("elimina")))."</a>" : "";
+                $link_modify = "<a href=\"".$this->link($this->_class_name, 'manageSysClass', array(), "block=list&id=".$module_app->id."&action=modify")."\">".\Gino\icon('modify', array('text'=>_("modifica/upgrade")))."</a>";
+                $link_delete = $module_app->removable ? "<a href=\"".$this->link($this->_class_name, 'manageSysClass', array(), "block=list&id=".$module_app->id."&action=delete")."\">".\Gino\icon('delete', array('text'=>_("elimina")))."</a>" : "";
 
                 $tbl_rows[] = array(
                     $module_app->id,
@@ -183,7 +183,7 @@ class sysClass extends \Gino\Controller {
         $GINO = "<p class=\"backoffice-info\">"._("Caricare il pacchetto del modulo. Se la procedura di installazione va a buon fine modificare il modulo appena inserito per personalizzarne l'etichetta ed eventualmente altri parametri.")."</p>\n";
 
         $required = 'archive';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionInsertSysClass]", true, $required);
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionInsertSysClass'), true, $required);
         $GINO .= \Gino\Input::input_file('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
         $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("installa"), '', array("classField"=>"submit"));
         $GINO .= $gform->close();
@@ -382,7 +382,7 @@ class sysClass extends \Gino\Controller {
         $GINO .= "</ul>";
         $GINO .= "</div>";
 
-       $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionManualSysClass]", false, 'label,name,tblname');
+       $GINO .= $gform->open($this->link($this->_class_name, 'actionManualSysClass'), false, 'label,name,tblname');
 
         $GINO .= \Gino\Input::select_label('instantiable', '3', array('1'=>_("istanziabile"), '0'=>_("non istanziabile")), _("Tipo di classe")); // 3 to have no one selected
 
@@ -470,7 +470,7 @@ class sysClass extends \Gino\Controller {
             throw new \Exception("ID non associato ad alcuna classe di sistema");
         }
 
-        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClass]", '', 'label');
+        $GINO = $gform->open($this->link($this->_class_name, 'actionEditSysClass'), '', 'label');
         $GINO .= \Gino\Input::hidden('id', $id);
         $GINO .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', $module_app->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, 
             "trnsl"=>true, "trnsl_table"=>TBL_MODULE_APP, "field"=>"label", "trnsl_id"=>$id));
@@ -510,7 +510,7 @@ class sysClass extends \Gino\Controller {
 
         $GINO = "<p class=\"lead\">"._("Attenzione! La disattivazione di alcuni moduli potrebbe causare malfunzionamenti nel sistema")."</p>";
 
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditSysClassActive]", '', '');
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionEditSysClassActive'), '', '');
         $GINO .= \Gino\Input::hidden('id', $id);
         $GINO .= \Gino\Input::input_label('submit_action', 'submit', $module_app->active ? _('disattiva') : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $GINO .= $gform->close();
@@ -549,7 +549,7 @@ class sysClass extends \Gino\Controller {
         $GINO .= "</div>";
 
         $required = 'archive';
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionUpgradeSysClass]", true, $required);
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionUpgradeSysClass'), true, $required);
         $GINO .= \Gino\Input::hidden('id', $id);
 
         $GINO .= \Gino\Input::input_file('archive', '', _("Archivio"), array("extensions"=>array(self::PACKAGE_EXTENSION), "del_check"=>false, "required"=>true));
@@ -626,7 +626,7 @@ class sysClass extends \Gino\Controller {
         }
 
         $module_class_name = $module_app->name;
-        $link_error = $this->_home."?evt[$this->_class_name-manageSysClass]&block=list&id=$id&action=modify";
+        $link_error = $this->link($this->_class_name, 'manageSysClass', array(), "block=list&id=$id&action=modify");
 
         $archive_name = $request->FILES['archive']['name'];
         $archive_tmp = $request->FILES['archive']['tmp_name'];
@@ -827,7 +827,7 @@ class sysClass extends \Gino\Controller {
         $gform = Loader::load('Form', array());
         $gform->load('dataform');
         
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveSysClass]", '', '');
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionRemoveSysClass'), '', '');
         $GINO .= \Gino\Input::hidden('id', $id);
         $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("disinstalla"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
         $GINO .= $gform->close();

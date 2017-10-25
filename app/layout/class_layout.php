@@ -986,7 +986,7 @@ class layout extends \Gino\Controller {
                     			$code = $method_code['code'];
                     			
                     			$row = array(
-                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '".$this->link($module->name, $func)."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
                     				$method_code['perm']
                     			);
                     			
@@ -1053,7 +1053,7 @@ class layout extends \Gino\Controller {
                     			$code = $method_code['code'];
                     			
                     			$row = array(
-                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$this->_home?evt[".$module_app->name."-$func]', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
+                    				"<span class=\"link\" onclick=\"gino.ajaxRequest('post', '".$this->link($module_app->name, $func)."', '', '".$fill_id."', {'script':true});closeAll('$nav_id', '$refillable_id', '".\Gino\htmlChars($module_app->label)." - ".\Gino\jsVar($data['label'])."', '$code')\";>{$data['label']}</span>",
                     				$method_code['perm']
                     			);
                     			
@@ -1154,7 +1154,7 @@ class layout extends \Gino\Controller {
         {
             $gform = \Gino\Loader::load('Form', array());	// array("tblLayout"=>false)
             $gform->load('dataform');
-            $buffer = $gform->open($this->_home."?evt[$this->_class_name-actionFiles]", '', '', array('form_id'=>'gform'));
+            $buffer = $gform->open($this->link($this->_class_name, 'actionFiles'), '', '', array('form_id'=>'gform'));
             $buffer .= \Gino\Input::hidden('fname', $filename);
             $buffer .= \Gino\Input::hidden('code', $code);
             $buffer .= \Gino\Input::hidden('action', $action);

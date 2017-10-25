@@ -61,7 +61,7 @@ class Css extends Model {
             $this->_css_list = $classElements['css'];
             $this->_instance_class = array_key_exists('instance', $classElements) ? $classElements['instance'] : true;
             $method = $this->_instance_class ? 'manageDoc' : 'manage'.ucfirst($this->_class);
-            $this->_mdlLink = HOME_FILE."?evt[{$this->_name}-{$method}]&block=css";
+            $this->_mdlLink = $this->_registry->router->link($this->_name, $method, array(), "block=css");
         }
         elseif($type=='layout') {
             $id = $params['id'];

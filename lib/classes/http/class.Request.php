@@ -3,7 +3,7 @@
  * @file class.Request.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Http.Request
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,12 +24,14 @@ use \Gino\Session;
  * Contiene tutte le informazioni importanti di una richiesta HTTP. La classe è un singleton quindi tutte le classi
  * che la utilizzano si scambiano la stessa istanza. Le proprietà sono pubbliche e aperte in lettura e scrittura.
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 class Request extends Singleton {
 
+	const EVT_NAME = 'evt';
+	
     public $GET,
            $POST,
            $REQUEST,
@@ -96,13 +98,13 @@ class Request extends Singleton {
      * @description Quando viene effettuato url rewriting da parte di Gino.Router
      *              viene chimato questo metodo per calcolare l'url non espanso
      *              utilizzando la proprietà GET che è stata opportunamente modificata.
-     *              L'url parte dalla site root senza / iniziale, es. index.php?evt[page-view]&id=test
+     *              L'url parte dalla site root senza / iniziale, es. index.php?evt[page.view]&id=test
      * @return void
      */
     public function updateUrl() {
 
         $params = implode('&', array_map(function($k, $v) {
-            if($k === 'evt') return 'evt[' . key($v) . ']';
+            if($k === self::EVT_NAME) return self::EVT_NAME.'[' . key($v) . ']';
             return $v !== '' ? sprintf('%s=%s', $k, $v) : $k;
         }, array_keys($this->GET), array_values($this->GET)));
 

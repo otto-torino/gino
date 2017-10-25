@@ -1105,7 +1105,7 @@ class auth extends \Gino\Controller {
         }
         else
         {
-            $url = $this->_home."?evt[".$this->_class_name."-checkUsername]";
+            $url = $this->link($this->_class_name, 'checkUsername');
             $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
             $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
             
@@ -1500,7 +1500,7 @@ class auth extends \Gino\Controller {
 
         $gform = \Gino\Loader::load('Form', array());
 
-        $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinUserPermission]';
+        $form_action = $this->link($this->_class_name, 'actionJoinUserPermission');
 
         $content = $gform->open($form_action, false, '', array('form_id'=>'j_userperm', 'validation'=>false));
         $content .= \Gino\Input::hidden('id', $obj_user->id);
@@ -1605,7 +1605,7 @@ class auth extends \Gino\Controller {
 
         $gform = \Gino\Loader::load('Form', array());
 
-        $form_action = $this->_home.'?evt['.$this->_class_name.'-actionJoinGroupPermission]';
+        $form_action = $this->link($this->_class_name, 'actionJoinGroupPermission');
 
         $content = $gform->open($form_action, false, '', array('form_id'=>'j_groupperm', 'validation'=>false));
         $content .= \Gino\Input::hidden('id', $obj_group->id);

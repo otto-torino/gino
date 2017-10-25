@@ -557,13 +557,15 @@ class Input {
      */
     private static function imagePreviewer() {
     
+    	$router = Router::instance();
+    	
     	$onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
             window.att_win = new gino.layerWindow({
             'title': '"._('Allegati')."',
             'width': 1000,
             'overlay': false,
             'maxHeight': 600,
-            'url': '".HOME_FILE."?evt[attachment-editorList]'
+            'url': '".$router->link('attachment', 'editorList')."'
             });
             window.att_win.display();
         }";
