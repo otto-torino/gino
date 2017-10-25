@@ -3,7 +3,7 @@
  * @file class_module.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.module
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,7 +25,7 @@ require_once('class.ModuleInstance.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -123,8 +123,8 @@ class module extends \Gino\Controller {
             );
             $tbl_rows = array();
             foreach($modules as $module) {
-                $link_modify = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=modify\">".\Gino\icon('modify')."</a>";
-                $link_delete = "<a href=\"$this->_home?evt[$this->_class_name-manageModule]&id=".$module->id."&action=delete\">".\Gino\icon('delete')."</a>";
+                $link_modify = "<a href=\"".$this->link($this->_class_name, 'manageModule', array(), "id=".$module->id."&action=modify")."\">".\Gino\icon('modify')."</a>";
+				$link_delete = "<a href=\"".$this->link($this->_class_name, 'manageModule', array(), "id=".$module->id."&action=delete")."\">".\Gino\icon('delete')."</a>";
                 $module_app = $module->moduleApp();
                 $tbl_rows[] = array(
                     $module->id,
@@ -170,7 +170,7 @@ class module extends \Gino\Controller {
 
         $GINO = "<p class=\"lead\">"._("Attenzione! L'eliminazione del modulo comporta l'eliminazione di tutti i dati!")."</p>\n";
 
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionRemoveModule]", '', '');
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionRemoveModule'), '', '');
         $GINO .= \Gino\Input::hidden('id', $module->id);
         $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
         $GINO .= $gform->close();
@@ -256,7 +256,7 @@ class module extends \Gino\Controller {
         $gform = \Gino\Loader::load('Form', array());
         $gform->load('dataform');
 
-        $GINO = $gform->open($this->_home."?evt[".$this->_class_name."-actionModule]", '', 'name,label');
+        $GINO = $gform->open($this->link($this->_class_name, 'actionModule'), '', 'name,label');
         $GINO .= \Gino\Input::hidden('id', $module->id);
         $GINO .= \Gino\Input::select_label('module_app', $gform->retvar('module_app', $module_app->id), \Gino\App\SysClass\ModuleApp::getSelectOptionsFromObjects($modules_app), _("Modulo"), array("required"=>true, 'other' => $module->id ? 'disabled' : ''));
         $GINO .= \Gino\Input::input_label('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
@@ -438,7 +438,7 @@ class module extends \Gino\Controller {
         $id = \Gino\cleanVar($request->POST, 'id', 'int');
         $module = new ModuleInstance($id);
 
-        $link_error = $this->_home."?evt[$this->_class_name-manageModule]&id=$id&action=modify";
+        $link_error = $this->link($this->_class_name, 'manageModule', array(), "id=$id&action=modify");
 
         $label = \Gino\cleanVar($request->POST, 'label', 'string', '');
         if(!$label) {
@@ -470,7 +470,7 @@ class module extends \Gino\Controller {
             $GINO .= "<p>"._('Prima di disattivare un modulo assicurarsi di aver rimosso ogni suo output da tutti i template.')."</p>";
         }
 
-        $GINO .= $gform->open($this->_home."?evt[".$this->_class_name."-actionEditModuleActive]", '', '');
+        $GINO .= $gform->open($this->link($this->_class_name, 'actionEditModuleActive'), '', '');
         $GINO .= \Gino\Input::hidden('id', $module->id);
         $GINO .= \Gino\Input::input_label('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
         $GINO .= $gform->close();

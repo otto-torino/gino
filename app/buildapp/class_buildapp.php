@@ -166,7 +166,7 @@ class buildapp extends \Gino\Controller {
     private function manageItem($request) {
 
         // Controllo validità del nome del controller
-        $url = $this->_home."?evt[".$this->_instance_name."-checkControllerName]";
+        $url = $this->link($this->_instance_name, 'checkControllerName');
         $div_id = 'check_name';
         
         $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&cname='+$('controller_name').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";

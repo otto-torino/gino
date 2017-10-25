@@ -3,7 +3,7 @@
  * @file class_language.php
  * @brief Contiene la classe definizione ed implementazione della classe Gino.App.Language.language
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,7 +23,7 @@ require_once('class.Lang.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione delle lingue disponibili per le traduzioni
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -113,9 +113,9 @@ class language extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-        $link_options = "<a href=\"".$this->_home."?evt[$this->_class_name-manageLanguage]&block=options\">"._("Opzioni")."</a>";
-        $link_dft = "<a href=\"".$this->_home."?evt[".$this->_class_name."-manageLanguage]\">"._("Gestione")."</a>";
-        $sel_link = $link_dft;
+		$link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
+		$link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Gestione'));
+		$sel_link = $link_dft;
 
         if($block=='options') {
             $backend = $this->manageOptions();

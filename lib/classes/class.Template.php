@@ -211,7 +211,7 @@ class Template extends Model {
         $buffer .= "<p>"._('Tutte le classi di gino sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di gino per maggiori informazioni.')."</p>";
         $buffer .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), "var w = new gino.layerWindow({
         'title': '"._('Moduli e pagine')."',
-        'url': '".$this->_home."?evt[".$this->_interface."-modulesCodeList]',
+        'url': '".$this->_registry->router->link($this->_interface, 'modulesCodeList')."',
         'width': 800,
         'height': 500,
         'overlay': false
@@ -351,8 +351,8 @@ class Template extends Model {
         $gform->load('dataform');
 
         $title = sprintf(_('Duplica template "%s"'), htmlChars($this->label));
-
-        $buffer = $gform->open($this->_home."?evt[".$this->_interface."-manageLayout]&block=template&action=copytpl", '', 'label,filename', array('form_id'=>'gform'));
+        
+        $buffer = $gform->open($this->_registry->router->link($this->_interface, 'manageLayout', array(), "block=template&action=copytpl"), '', 'label,filename', array('form_id'=>'gform'));
         $buffer .= \Gino\Input::hidden('ref', $this->id);
         $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
         $buffer .= \Gino\Input::input_label('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
@@ -390,7 +390,7 @@ class Template extends Model {
         else {
             for($i=1, $blocks_list=array(); $i<11; $i++) $blocks_list[$i] = $i;
 
-            $onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=mngblocks', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
+            $onchange = "onchange=\"gino.ajaxRequest('post', '".$this->_registry->router->link('layout', 'manageLayout', array(), "block=template&action=mngblocks")."', 'id=$this->id&blocks_number='+$(this).value, 'blocks_form', {'load':'blocks_form'});\"";
             $buffer = \Gino\Input::select_label('blocks_number', $gform->retvar('blocks_number', $this->_blocks_number), $blocks_list, array(_("Numero blocchi"), _("Selezionare il numero di blocchi che devono comporre il layout")), array("js"=>$onchange));
             $buffer .= "<div id=\"blocks_form\"></div>";
         }
@@ -425,7 +425,8 @@ class Template extends Model {
             {
                 $name_select = 'addblocks_'.$i;
                 $div_id = 'addblocks_form'.$i;
-                $onchange = "onchange=\"gino.ajaxRequest('post', '$this->_home?evt[layout-manageLayout]&block=template&action=addblocks', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
+                $url = $this->_registry->router->link('layout', 'manageLayout', array(), "block=template&action=addblocks");
+                $onchange = "onchange=\"gino.ajaxRequest('post', '$url', 'id=$this->id&ref=$i&$name_select='+$(this).value, '$div_id', {'load':'$div_id'});\"";
                 $test_add = \Gino\Input::select_label($name_select, '', array(1=>1, 2=>2), _('Numero blocchi da aggiungere'), array("js"=>$onchange));
                 $buffer .= $test_add;
 
@@ -536,7 +537,7 @@ class Template extends Model {
 
         $buffer = "<p class=\"backoffice-info\">"._("L'eliminazione di un template determina l'eliminazione del template dalle skin che lo contengono!")."</p>";
         
-        $buffer .= $gform->open($this->_home."?evt[".$this->_interface."-actionDelTemplate]", '', '', array('form_id'=>'gform'));
+        $buffer .= $gform->open($this->_registry->router->link($this->_interface, 'actionDelTemplate'), '', '', array('form_id'=>'gform'));
         $buffer .= \Gino\Input::hidden('id', $this->id);
         $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
         $buffer .= $gform->close();
@@ -861,7 +862,7 @@ class Template extends Model {
                     $mdlFunc = $m[4];
                     $output_functions = (method_exists($module->classNameNs(), 'outputFunctions')) ? call_user_func(array($module->classNameNs(), 'outputFunctions')):array();
                     $title .= " - ".$output_functions[$mdlFunc]['label'];
-                    $jsurl = $this->_home."?evt[".$module->name."-$mdlFunc]";
+                    $jsurl = $this->_registry->router->link($module->name, $mdlFunc);
                 }
                 elseif($mdlType=='class' || $mdlType=='sysclass') {
                     $module_app = new \Gino\App\SysClass\ModuleApp($mdlId);
@@ -870,7 +871,7 @@ class Template extends Model {
                     $mdlFunc = $m[4];
                     $output_functions = (method_exists($module_app->classNameNs(), 'outputFunctions'))? call_user_func(array($module_app->classNameNs(), 'outputFunctions')):array();
                     $title .= " - ".$output_functions[$mdlFunc]['label'];
-                    $jsurl = $this->_home."?evt[$classname-$mdlFunc]";
+                    $jsurl = $this->_registry->router->link($classname, $mdlFunc);
                 }
                 elseif($mdlType=='' && $mdlId == 0) {
                     $title = _("Modulo da url");

@@ -197,7 +197,7 @@ class Options {
         if($required) {
         	$required = substr($required, 0, strlen($required)-1);
         }
-        $GINO = $gform->open($this->_home."?evt[".$this->_instance_name."-$function]&block=options", false, $required, array('form_id'=>'gform'));
+        $GINO = $gform->open($registry->router->link($this->_instance_name, $function, array(), "block=options"), false, $required, array('form_id'=>'gform'));
         $GINO .= \Gino\Input::hidden('func', 'actionOptions');
         $GINO .= \Gino\Input::hidden('action', $action);
 

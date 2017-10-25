@@ -3,7 +3,7 @@
  * @file class.Router.php
  * @brief Contiene la definizione ed implementazione della class Gino.Router
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -20,21 +20,54 @@ use \Gino\App\Module\ModuleInstance;
 
 /**
  * @brief Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta
- *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
+ * 
+ * ##Definizione di alias route
+ * Nel file lib/route.php è possibile definire degli alias agli indirizzi delle risorse. 
+ * L'unica accortezza da adottare è quella di non utilizzare il carattere della costante URL_SEPARATOR nei nomi degli alias.
+ * 
+ * @code
+ * $route->setInstanceAlias('instancename', 'instancealias');
+ * $route->instancename = array(
+ *   'methodname' => 'methodalias'
+ * );
+ * @endcode
  */
 class Router extends Singleton {
 
-    const EVT_NAME = 'evt';
+	const EVT_NAME = 'evt';
 
-    private $_registry,
-            $_request,
-            $_url_class,
+	/**
+	 * @brief Oggetto Gino.Registry
+	 * @var object
+	 */
+	private $_registry;
+	
+	/**
+	 * @brief Oggetto Gino.Request
+	 * @var object
+	 */
+	private $_request;
+
+	private $_url_class,
             $_url_instance,
             $_url_method,
             $_controller_view; // callable
+    
+	/**
+	 * @brief Elenco degli output di una istanza
+	 * @var array nel formato array([instance_name] => array([method_name] => [method_alias]))
+	 */
+	private $_methods_alias;
+	
+	/**
+	 * @brief Elenco degli alias delle istanze
+	 * @var array nel formato array([instance_name] => [instance_alias])
+	 */
+	private $_instances_alias;
 
     /**
      * @brief Costruttore
@@ -46,6 +79,55 @@ class Router extends Singleton {
         $this->_registry = Registry::instance();
         $this->_request = $this->_registry->request;
         $this->urlRewrite();
+        
+        $this->_methods_alias = array();
+        $this->_instances_alias = array();
+    }
+    
+    /**
+     * @brief Imposta gli alias degli output di una istanza
+     * @description Non si può utilizzare il carattere della costante URL_SEPARATOR.
+     *
+     * Esempio
+     * @code
+     * $instance->foo = 'bar';
+     * @endcode
+     *
+     * @param string $name nome dell'istanza
+     * @param array $value nomi degli output nel formato array([true_name] => [alias_name])
+     * @return void
+     */
+    public function __set($name , $value) {
+    
+    	$this->_methods_alias[$name] = $value;
+    }
+    
+    /**
+     * @brief Ritorna gli alias degli output di una istanza
+     *
+     * Esempio
+     * @code
+     * echo $instance->foo;
+     * @endcode
+     *
+     * @param string $name nome dell'istanza
+     * @return array o null
+     */
+    public function __get($name) {
+    
+    	return isset($this->_methods_alias[$name]) ? $this->_methods_alias[$name] : null;
+    }
+    
+    /**
+     * @brief Imposta l'alias di una istanza
+     * @description Non si può utilizzare il carattere -
+     * 
+     * @param string $name nome dell'istanza
+     * @param string $value nome dell'alias
+     */
+    public function setInstanceAlias($name, $value) {
+    	
+    	$this->_instances_alias[$name] = $value;
     }
 
     /**
@@ -73,7 +155,6 @@ class Router extends Singleton {
             }
 
             $this->_request->REQUEST = array_merge($this->_request->POST, $this->_request->GET);
-
         }
 
         $this->_request->updateUrl();
@@ -94,17 +175,17 @@ class Router extends Singleton {
         if($tot === 1) {
             // admin porta alla home di amministrazione
             if($paths[0] === 'admin') {
-                $this->_request->GET['evt'] = array('index-admin_page' => '');
+                $this->_request->GET[self::EVT_NAME] = array(sprintf('index%sadmin_page', URL_SEPARATOR) => '');
             }
             // il path viene interpretato come <nome-istanza>/index
             elseif($paths[0] !== 'home') {
-                $this->_request->GET['evt'] = array(sprintf('%s-index', $paths[0]) => '');
+                $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%sindex', $paths[0], URL_SEPARATOR) => '');
             }
             return TRUE;
         }
 
         // esistono due o più path, i primi due sono nome istanza e metodo
-        $this->_request->GET['evt'] = array(sprintf('%s-%s', $paths[0], $paths[1]) => '');
+        $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
 
         // ulteriori path sono normali coppie chiave/valore da inserire nella proprietà GET
         if($tot > 2) {
@@ -124,7 +205,6 @@ class Router extends Singleton {
         }
 
         return TRUE;
-
     }
 
     /**
@@ -141,7 +221,7 @@ class Router extends Singleton {
     }
 
     /**
-     * @brief Setta le proprietà che contengono le informazioni della classe e metodo chiamati da url
+     * @brief Imposta le proprietà che contengono le informazioni della classe e metodo chiamati da url
      * @description Se i parametri ricavati dall'url tentano di chiamare una callable (classe + metodo) non chiamabile
      *              per qualunque motivo, viene generata una @ref Gino.Exception.Exception404
      * @return TRUE
@@ -158,8 +238,26 @@ class Router extends Singleton {
             $this->_controller_view = null;
         }
         else {
-            list($mdl, $method) = explode("-", $evt_key);
+            list($mdl, $method) = explode(URL_SEPARATOR, $evt_key);
 
+            // Search alias route
+            require_once LIB_DIR.OS.'route.php';
+            
+            $found_mdl = array_search($mdl, $this->_instances_alias);
+            if($found_mdl) {
+            	$mdl = $found_mdl;
+            }
+            
+            $mdl_route = $this->$mdl;	// call self::__get()
+            if($mdl_route) {
+            	
+            	$found_key = array_search($method, $mdl_route);
+            	if($found_key) {
+            		$method = $found_key;
+            	}
+            }
+            // /Search
+            
             Loader::import('module', 'ModuleInstance');
             Loader::import('sysClass', 'ModuleApp');
             $module_app = ModuleApp::getFromName($mdl);
@@ -270,7 +368,8 @@ class Router extends Singleton {
         }
 
         // url espansi
-        $url = sprintf('%s?evt[%s-%s]', $this->_request->META['SCRIPT_NAME'], $instance_name, $method);
+        $url = $this->_request->META['SCRIPT_NAME']."?".self::EVT_NAME."[".$instance_name.URL_SEPARATOR.$method."]";
+        
         if($tot_params) $query_string = implode('&', array_map(function($k, $v) { return sprintf('%s=%s', $k, $v); }, array_keys($params), array_values($params))) . ($query_string ? '&' . $query_string : '');
         if($query_string) $url .= '?' . $query_string;
 
@@ -308,4 +407,27 @@ class Router extends Singleton {
         return substr($url, 0, 1) === '/' ? substr($url, 1) : $url;
     }
 
+    /**
+     * @brief Visualizzazione di esempi di indirizzi url
+     * 
+     * @param string $view tipo di esempio da visualizzare; sono validi i seguenti valori:
+     *   - @a url
+     *   - @a regexp
+     * @return string|NULL
+     */
+    public function exampleUrl($view='url') {
+    	
+    	$e_regexp = "#\?".self::EVT_NAME."\[news".URL_SEPARATOR."(.*)\]#<br />#^news/(.*)#";
+    	$e_url = "index.php?".self::EVT_NAME."[news".URL_SEPARATOR."viewList]<br />news/viewList";
+    	
+    	if($view == 'url') {
+    		return $e_url;
+    	}
+    	elseif($view == 'regexp') {
+    		return $e_regexp;
+    	}
+    	else {
+    		return null;
+    	}
+    }
 }
