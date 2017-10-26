@@ -135,7 +135,8 @@ class AdminTable {
      *   array associativo di opzioni
      *   - @b view_folder (string): percorso della directory contenente la vista da caricare
      *   - @b allow_insertion (boolean): indica se permettere o meno l'inserimento di nuovi record
-     *   - @b edit_allow (array): valori id dei record che posssono essere modificati da un utente
+     *   - @b edit_allow (array): valori id dei record che posssono essere modificati da un utente; 
+     *     col valore null (default) non viene attivata la condizione specifica
      *   - @b edit_deny (mixed): indica quali sono gli ID dei record che non posssono essere modificati
      *     - @a string, 'all' -> tutti
      *     - @a array, elenco ID
@@ -159,7 +160,7 @@ class AdminTable {
         $this->_view = new view($view_folder);
 
         $this->_allow_insertion = gOpt('allow_insertion', $opts, true);
-        $this->_edit_allow = gOpt('edit_allow', $opts, array());
+        $this->_edit_allow = gOpt('edit_allow', $opts, null);
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
         
@@ -546,8 +547,14 @@ class AdminTable {
         $query_selection = $model_table.".id";	// 2017-03-09: $db->distinct($model_table.".id")
         $query_table = array($model_table);
         
-        if(is_array($this->_edit_allow) && count($this->_edit_allow)) {
-        	$query_where[] = "id IN (".implode(",", $this->_edit_allow).")";
+        if(is_array($this->_edit_allow)) {
+        	if(count($this->_edit_allow)) {
+        		$query_where[] = "id IN (".implode(",", $this->_edit_allow).")";
+        	}
+        	// see nothing
+        	else {
+        		$query_where[] = "id = 0";
+        	}
         }
         if(count($list_where)) {
             $query_where = array_merge($query_where, $list_where);
