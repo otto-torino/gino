@@ -623,9 +623,9 @@ class Form {
      *   - @b fields (array): campi da mostrare nel form
      *   - @b options_form (array): opzioni del tag form e del layout
      *     - @b opzioni sulle operazioni permesse
-     *       - @b allow_insertion (boolean)
+     *       - @b allow_insertion (boolean), default true
      *       - @b edit_deny (array)
-     *       - @b edit_allow (array)
+     *       - @b edit_allow (array), default null
      *     - @b opzioni del tag form (altre opzioni vengono gestite nei metodi self::makeInputForm() e self::open())
      *       - @b form_id (string): valore id del tag form
      *       - @b form_class (string): nome della classe del tag form
@@ -654,7 +654,7 @@ class Form {
     	// 1. opzioni del form
     	$allow_insertion = gOpt('allow_insertion', $options_form, true);
     	$edit_deny = gOpt('edit_deny', $options_form, array());
-    	$edit_allow = gOpt('edit_allow', $options_form, array());
+    	$edit_allow = gOpt('edit_allow', $options_form, null);
     	
     	$form_id = gOpt('form_id', $options_form, null);
     	$form_class = gOpt('form_class', $options_form, null);
@@ -697,10 +697,13 @@ class Form {
     			// edit
     			if($model_obj->id) {
     				// deny conditions
-    				if((is_array($edit_allow) && count($edit_allow) && !in_array($model_obj->id, $edit_allow)) || 
-    					($edit_deny == 'all' && ((is_array($edit_allow) && !count($edit_allow)) || !is_array($edit_allow))) || 
+    				if((is_array($edit_allow) && !in_array($model_obj->id, $edit_allow)) ||
+    					($edit_deny == 'all') ||
     					(is_array($edit_deny) && in_array($model_obj->id, $edit_deny))) {
     					throw new \Gino\Exception\Exception403();
+    				}
+    				elseif(!is_array($edit_allow) && !is_null($edit_allow)) {
+    					throw new \Gino\Exception\Exception500();
     				}
     				$title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
     			}
