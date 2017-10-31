@@ -92,7 +92,7 @@ class Registry extends Singleton {
     }
 
     /**
-     * @brief Ritorna il valore di una variabile
+     * @brief Ritorna il valore di una variabile o null se la variabile non è definita
      *
      * @example
      * @code
@@ -100,7 +100,7 @@ class Registry extends Singleton {
      * @endcode
      *
      * @param string $index nome della variabile
-     * @return valore variabile o null se non definita
+     * @return mixed|null
      */
     public function __get($index) {
         return isset($this->vars[$index]) ? $this->vars[$index] : null;
@@ -109,7 +109,7 @@ class Registry extends Singleton {
     /**
      * @brief Controlla se è stata definita una proprietà del registry
      *
-     * @param $prop nome della proprietà
+     * @param string $prop nome della proprietà
      * @return TRUE se è definita, FALSE altrimenti
      */
     public function propertyExists($prop)

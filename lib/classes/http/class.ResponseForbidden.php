@@ -3,7 +3,7 @@
  * @file class.ResponseForbidden.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Http.ResponseForbidden
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,7 +13,7 @@ namespace Gino\Http;
 /**
  * @brief Subclass di Gino.Http.Response per gestire risposte a seguito di errori 403
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -39,11 +39,10 @@ class ResponseForbidden extends Response {
      */
     protected function sendContent() {
 
-        $document = Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page403()));
+        $document = \Gino\Loader::load('Document', array(\Gino\App\Sysfunc\sysfunc::page403()));
 
         ob_start();
         echo $document->render();
         ob_end_flush();
     }
-
 }

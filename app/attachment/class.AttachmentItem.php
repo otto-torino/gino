@@ -3,17 +3,16 @@
  * @file class.AttachmentItem.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.AttachmentItem.
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 namespace Gino\App\Attachment;
 
-use Gino\Registry;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una singolo allegato
  *
- * @copyright 2013-2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -117,7 +116,7 @@ class AttachmentItem extends \Gino\Model {
      */
     public static function columns() {
     	
-    	$registry = Registry::instance();
+    	$registry = \Gino\Registry::instance();
     	
     	$columns['id'] = new \Gino\IntegerField(array(
     		'name'=>'id',

@@ -3,16 +3,19 @@
  * @file class.DirectoryBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.DirectoryBuild
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
+use Gino\Exception\ValidationError;
+use Gino\Http\Request;
+
 /**
  * @brief Gestisce i campi di tipo DIRECTORY
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -86,13 +89,12 @@ class DirectoryBuild extends Build {
      */
     private function defaultName($options){
 
-		$request = \Gino\Http\Request::instance();
 		if($this->_default_name)
 		{
 			$field = array_key_exists('field', $this->_default_name) ? $this->_default_name['field'] : 'id';
 			$maxlentgh = array_key_exists('maxlentgh', $this->_default_name) ? $this->_default_name['maxlentgh'] : 15;
 
-			$request = Request::instance();
+			$request = \Gino\Http\Request::instance();
 			$value = clean_text($request->method->$field, $options);
 
 			$name_dir = substr($value, 0, $maxlentgh);
@@ -164,7 +166,7 @@ class DirectoryBuild extends Build {
                 if(!$existing_dir)
                 {
                     if(!mkdir($this->_path.$value)) {
-                        throw new \Gino\Exception\ValdationError(Error::codeMessages(32));
+                        throw new \Gino\Exception\ValidationError(Error::codeMessages(32));
                     }
                 }
                 else

@@ -190,7 +190,7 @@ class Document {
     			try {
     				$mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType, $mdlParam);
     			}
-    			catch(Exception $e) {
+    			catch(\Exception $e) {
     				Logger::manageException($e);
     			}
     		}
@@ -397,7 +397,7 @@ class Document {
             try {
                 $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
             }
-            catch(Exception $e) {
+            catch(\Exception $e) {
                     Logger::manageException($e);
             }
         }

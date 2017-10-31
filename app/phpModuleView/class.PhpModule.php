@@ -9,6 +9,7 @@
  */
 namespace Gino\App\PhpModuleView;
 
+use \Gino\Error;
 use \Gino\Http\Redirect;
 
 /**
