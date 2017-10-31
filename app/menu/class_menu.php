@@ -16,6 +16,7 @@ namespace Gino\App\Menu;
 
 use \Gino\View;
 use \Gino\Document;
+use \Gino\Error;
 use \Gino\Http\Response;
 use \Gino\Http\Redirect;
 use \Gino\App\SysClass\ModuleApp;

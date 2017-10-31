@@ -55,20 +55,30 @@ class Skin extends Model {
     	));
     	$columns['label'] = new \Gino\CharField(array(
     		'name' => 'label',
+    	    'label' => _("Etichetta"),
     		'required' => true,
     		'max_lenght' => 200
     	));
     	$columns['session'] = new \Gino\CharField(array(
     		'name' => 'session',
+    	    'label' => _("Variabile di sessione"),
     		'max_lenght' => 128
     	));
     	$columns['rexp'] = new \Gino\CharField(array(
     		'name' => 'rexp',
+    	    'label' => _("Espressione regolare"),
     		'max_lenght' => 200
     	));
     	$columns['urls'] = new \Gino\CharField(array(
     		'name' => 'urls',
+    	    'label' => _("Indirizzi"),
     		'max_lenght' => 200
+    	));
+    	$columns['highest'] = new \Gino\BooleanField(array(
+    		'name' => 'highest',
+    		'label' => array(_("Priorità massima"), _("da utilizzare per bypassare le skin con variabile di sessione")),
+    		'required' => true,
+    		'default' => 0
     	));
     	$columns['template'] = new \Gino\CharField(array(
     		'name' => 'template',
@@ -87,7 +97,8 @@ class Skin extends Model {
     	$columns['auth'] = new \Gino\EnumField(array(
     		'name' => 'auth',
     		'required' => true,
-    		'choice' => array('yes', 'no', '')
+    		'choice' => array("" => _("si & no"), "yes" => _("si"), "no" => _("no")),
+    		'value_type' => 'string'
     	));
     	$columns['cache'] = new \Gino\IntegerField(array(
     		'name' => 'cache',
@@ -99,100 +110,134 @@ class Skin extends Model {
 
     /**
      * @brief Recupera la skin corrispondente all'url della request
-     *
+     * 
      * @param \Gino\Http\Request $request
      * @return skin trovata oppure FALSE
      */
     public static function getSkin(\Gino\Http\Request $request) {
+    
+    	$registry = Registry::instance();
+    	$session = $request->session;
+    	
+    	// Ricerca skin con impostazione highest
+    	$bs = array();
+    	$rows = $registry->db->select('id, session, rexp, urls, auth', self::$table, "highest='1'", array('order' => 'priority ASC'));
+    	if($rows && count($rows)) {
+    		
+    		foreach($rows as $row) {
+	    		if(!empty($row['urls'])) {
+	    			$value = self::skinValue($row, $request, 'urls');
+	    			if(!is_null($value)) {
+	    				return $value;
+	    			}
+	    		}
+	    		
+	    		if(!empty($row['rexp'])) {
+	    			$value = self::skinValue($row, $request, 'rexp');
+	    			if(!is_null($value)) {
+	    				return $value;
+	    			}
+	    		}
+    		}
+    	}
+    	
+    	$rows = $registry->db->select('id, session, rexp, urls, auth', self::$table, "highest='0'", array('order' => 'priority ASC'));
+    	if($rows and count($rows)) {
+    		
+    	    // Ricerca skin con valori di sessione (campo @a session)
+    	    foreach($rows as $row) {
+    			
+    			$session_array = explode("=", trim($row['session']));
+    			if(count($session_array) == 2) {
+    				
+    				$param_session = $session_array[0];
+    				$value_session = $session_array[1];
+    				
+    				if(isset($session->$param_session) && $session->$param_session == $value_session) {
+    
+    					if(!empty($row['urls'])) {
+    						$value = self::skinValue($row, $request, 'urls');
+    						if(!is_null($value)) {
+    							return $value;
+    						}
+    					}
+    
+    					if(!empty($row['rexp'])) {
+    						$value = self::skinValue($row, $request, 'rexp');
+    						if(!is_null($value)) {
+    							return $value;
+    						}
+    					}
+    				}
+    			}
+    		}
 
-        $registry = Registry::instance();
-        $session = $request->session;
+    		// Ricerca skin con valori nel campo @a urls
+    		foreach($rows as $row) {
+    
+    			if(!$row['session'] && !empty($row['urls'])) {
+    				$value = self::skinValue($row, $request, 'urls');
+    				if(!is_null($value)) {
+    					return $value;
+    				}
+    			}
+    		}
 
-        $rows = $registry->db->select('id, session, rexp, urls, auth', self::$table, null, array('order' => 'priority ASC'));
-        if($rows and count($rows)) {
-            /**
-             * Variabile di sessione -> urls -> rexp
-             */
-            foreach($rows as $row) {
-            	
-                $session_array = explode("=", trim($row['session']));
-                if(count($session_array) == 2) {
-                	
-                	$param_session = $session_array[0];
-                	$value_session = $session_array[1];
-                	
-                	if(isset($session->$param_session) && $session->$param_session == $value_session) {
-                        
-                    	if(!empty($row['urls']))
-                    	{
-                    		$urls = explode(",", $row['urls']);
-                        	
-                        	// url esatto nella forma abbellita o espansa
-                        	foreach($urls as $url)
-                        	{
-                            	if($url == $request->url or $url == $request->path) {
-                                	if($row['auth'] == '' or ($request->user->id and $row['auth']=='yes') or (!$request->user->id and $row['auth'] == 'no'))
-                                    	return new Skin($row['id']);
-                            	}
-                        	}
-                    	}
-
-                        if(!empty($row['rexp']))
-                        {
-                            if(preg_match($row['rexp'], $request->url) || preg_match($row['rexp'], $request->path))
-                            {
-                                if($row['auth'] == '' or ($request->user->id and $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
-                                    return new Skin($row['id']);
-                            }
-                        }
-                    }
-                }
-                
-            }
-
-            /**
-             * Urls
-             */
-            foreach($rows as $row) {
-
-                if(!$row['session'] && $row['urls']) {
-                	
-                    $urls = explode(",", $row['urls']);
-                    foreach($urls as $url) 
-                    {
-                        if($url == $request->url or $url == $request->path) { 
-                            if($row['auth'] == '' or ($request->user->id && $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
-                                return new Skin($row['id']);
-                        }
-                    }
-                }
-            }
-
-            /**
-             * Rexp
-             */
-            foreach($rows as $row) {
-
-                if(!$row['session'] && !empty($row['rexp']))
-                {
-                    if(preg_match($row['rexp'], $request->url) or preg_match($row['rexp'], $request->path))
-                    {
-                        if($row['auth'] == '' or ($request->user->id and $row['auth'] == 'yes') or (!$request->user->id and $row['auth'] == 'no'))
-                            return new Skin($row['id']);
-                    }
-                }
-            }
-            return FALSE;
-        }
-
-        return FALSE;
+    		// Ricerca skin con valori nel campo @a rexp
+    		foreach($rows as $row) {
+    
+    			if(!$row['session'] && !empty($row['rexp'])) {
+    				$value = self::skinValue($row, $request, 'rexp');
+    				if(!is_null($value)) {
+    					return $value;
+    				}
+    			}
+    		}
+    		return FALSE;
+    	}
+    
+    	return FALSE;
+    }
+    
+    /**
+     * @brief Ritorna una skin se verifica la corrispondenza con l'indirizzo richiesto
+     * 
+     * @param array $item alcuni valori di una skin (id|session|rexp|urls|auth)
+     * @param object $request oggetto Gino.Http.Request
+     * @param string $field nome di alcuni campi della tabella @a sys_layout_skin (urls|rexp)
+     * @return \Gino\Skin|NULL
+     */
+    private static function skinValue($item, $request, $field) {
+    	
+    	if($field == 'urls') {
+    		
+    		$urls = explode(",", $item['urls']);
+    		foreach($urls as $url)
+    		{
+    			// url esatto nella forma abbellita o espansa
+    			if($url == $request->url or $url == $request->path) {
+    				if($item['auth'] == '' or ($request->user->id && $item['auth'] == 'yes') or (!$request->user->id and $item['auth'] == 'no'))
+    					return new Skin($item['id']);
+    			}
+    		}
+    	}
+    	elseif($field == 'rexp') {
+    		
+    		if(preg_match($item['rexp'], $request->url) or preg_match($item['rexp'], $request->path))
+    		{
+    			if($item['auth'] == '' or ($request->user->id and $item['auth'] == 'yes') or (!$request->user->id and $item['auth'] == 'no'))
+    				return new Skin($item['id']);
+    		}
+    	}
+    	
+    	return null;
     }
 
     /**
      * @brief Elimina dalla tabella delle skin il riferimento a uno specifico file css
      *
      * @param integer $id valore ID del css associato alla skin
-     * @return risultato operazione, bool
+     * @return bool, update result
      */
     public static function removeCss($id) {
 
@@ -208,7 +253,7 @@ class Skin extends Model {
      * @brief Elimina dalla tabella delle skin il riferimento a uno specifico template
      *
      * @param integer $id valore ID del template associato alla skin
-     * @return risultato operazione, bool
+     * @return bool, update result
      */
     public static function removeTemplate($id) {
 
@@ -223,7 +268,7 @@ class Skin extends Model {
     /**
      * @brief Priorità di una nuova skin
      *
-     * @return priorità
+     * @return integer, priority value
      */
     public static function newSkinPriority() {
 
@@ -237,7 +282,7 @@ class Skin extends Model {
 
     /**
      * @brief Aumenta di 1 la priorità della skin e scala le altre
-     * @return risultato operazione, bool
+     * @return null
      */
     public function sortUp() {
 
@@ -245,15 +290,17 @@ class Skin extends Model {
         $before_skins = self::objects(null, array('where' => "priority<'".$priority."'", "order" => "priority DESC", "limit" => array(0, 1)));
         $before_skin = $before_skins[0];
         $this->priority = $before_skin->priority;
-        $this->save(array('only_update'=>'priority'));
+        $this->save(array('only_update' => 'priority'));
 
         $before_skin->priority = $priority;
         $before_skin->save(array('only_update'=>'priority'));
+        
+        return null;
     }
 
     /**
      * @brief Form per la creazione e la modifica di una skin
-     * @return codice html form
+     * @return string, html form
      */
     public function formSkin() {
 
@@ -270,9 +317,18 @@ class Skin extends Model {
         $buffer .= \Gino\Input::hidden('id', $this->id);
         
         $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:<br /> %s"), "mobile=1")), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:<br />%s"), $this->_registry->router->exampleUrl('regexp'))), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Urls"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:<br />%s"), $this->_registry->router->exampleUrl('url'))), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:%s%s"), "<br />", "mobile=1")), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:%s%s"), "<br />", $this->_registry->router->exampleUrl('regexp'))), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Indirizzi"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:%s%s"), "<br />", $this->_registry->router->exampleUrl('url'))), array("size"=>40, "maxlength"=>200));
+        $buffer .= \Gino\Input::radio_label(
+        	'highest', 
+        	$gform->retvar('highest', $this->highest), 
+        	array(1 => _("si"), 0 => _("no")),
+        	0,
+        	array(_("Priorità massima"), _("da utilizzare per bypassare le skin con variabile di sessione")), 
+        	array("required" => true)
+        );
+        
         $css_list = array();
         
         foreach(Css::getAll() as $css) {
@@ -285,7 +341,14 @@ class Skin extends Model {
             $tpl_list[$tpl->id] = htmlInput($tpl->label);
         }
         $buffer .= \Gino\Input::select_label('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
-        $buffer .= \Gino\Input::radio_label('auth', $gform->retvar('auth', $this->auth), array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), '', array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), array("required"=>true));
+        $buffer .= \Gino\Input::radio_label(
+            'auth', 
+            $gform->retvar('auth', $this->auth), 
+            array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), 
+            '', 
+            array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), 
+            array("required" => true)
+        );
         $buffer .= \Gino\Input::input_label('cache', 'text', $gform->retvar('cache', $this->cache), array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")), array("size"=>6, "maxlength"=>16, "pattern"=>"^\d*$"));
 
         $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
@@ -307,7 +370,7 @@ class Skin extends Model {
      * @brief Processa il form di inserimento e modifica di una skin
      * @see self::formSkin()
      * @param \Gino\Http\Request $request istanza di Gino.Request
-     * @return Gino.Http.Response
+     * @return Gino.Http.Redirect
      */
     public function actionSkin(\Gino\Http\Request $request) {
 
@@ -327,6 +390,7 @@ class Skin extends Model {
         $this->session = cleanVar($request->POST, 'session', 'string', null);
         $this->rexp = cleanVar($request->POST, 'rexp', 'string', null);
         $this->urls = cleanVar($request->POST, 'urls', 'string', null);
+        $this->highest = cleanVar($request->POST, 'highest', 'int', null);
         $this->template = cleanVar($request->POST, 'template', 'int', null);
         $this->css = cleanVar($request->POST, 'css', 'int', null);
         $this->auth = cleanVar($request->POST, 'auth', 'string', null);
@@ -344,7 +408,7 @@ class Skin extends Model {
     /**
      * @brief Form per l'eliminazione di una skin
      *
-     * @return codice html form
+     * @return string, html form
      */
     public function formDelSkin() {
 
@@ -365,9 +429,9 @@ class Skin extends Model {
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
-          'title' => $title,
-          'class' => 'admin',
-          'content' => $buffer
+            'title' => $title,
+            'class' => 'admin',
+            'content' => $buffer
         );
 
         return $view->render($dict);
@@ -377,7 +441,7 @@ class Skin extends Model {
      * @bief Processa il form di eliminazione di una skin
      * @see self::formDelSkin()
      * @param \Gino\Http\Request $request istanza di Gino.Request
-     * @return Gino.Http.Response
+     * @return Gino.Http.Redirect
      */
     public function actionDelSkin(\Gino\Http\Request $request) {
 
@@ -390,29 +454,53 @@ class Skin extends Model {
     /**
      * @brief Descrizione della procedura
      *
-     * @return informazioni, codice html
+     * @return string, html info
      */
     public static function layoutInfo() {
 
         $buffer = "<h2>"._("Skin")."</h2>\n";
-        $buffer .= "<p>"._("In questa sezione si definiscono le skin che comprendono un file css (opzionale) ed un template e che possono essere associate a")."</p>";
-        $buffer .= "<ul>
-        <li>"._("un url")."</li>
-        <li>"._("una serie di url")."</li>
-        <li>"._("una classe di url")."</li>
-        </ul>";
-        $buffer .= "<p>"._("Questi metodi possono essere abbinati o meno ad una variabile di sessione.")."</p>";
+        $buffer .= "<p>".sprintf(_("In questa sezione si definiscono le skin che richiamano uno specifico template 
+e che opzionalmente possono richiamare un file css.%s
+Ogni skin viene associata agli indirizzi specificati nei campi <i>Espressione regolare</i> e <i>Indirizzi</i>. 
+Inoltre la skin può essere abbinata o meno ad una variabile di sessione e può essere impostata con <i>Priorità massima</i>."), "<br />")."</p>";
+
         $buffer .= "<h3>"._("Funzionamento")."</h3>\n";
-        $buffer .= "<p>"._("La ricerca di una corrispondenza pagina richiesta/skin avviene in base a dei principi di priorità secondo i quali vengono controllati prima gli url/classi di url appartenenti a skin che hanno un valore di variabile di sessione; successivamente vengono controllati quelli appartenenti a skin che non hanno un valore di variabile di sessione.")."</p>";
-        $buffer .= "<p>"._("L'ordine di priorità delle skin è definito dall'ordine in cui compaiono nell'elenco a sinistra e modificabile per trascinamento.")."</p>";
-        $buffer .= "<p>"._("Nel campo <b>Variabile di sessione</b> che compare nel form di modifica o inserimento si può inserire il valore di una variabile di sessione nel formato \"nome_variabile=valore\", per il quale verranno applicate le regole di matching di url e classi.<br />Nel campo <b>Urls</b> si può inserire un indirizzo o più indirizzi separati da virgola ai quali associare la skin. Tali indirizzi hanno la <b>priorità</b> rispetto alle classi di url nel momento in cui viene cercata la skin da associare al documento richiesto.
-        <br />Le classi di url, definite mediante il campo <b>Espressione regolare</b>, nel formato PCRE permettono di fare il matching con tutti gli url che soddisfano l'espressione regolare inserita.")."</p>\n";
+        $buffer .= "<p>".sprintf(_("La ricerca di una corrispondenza tra la pagina richiesta e la skin avviene in base a dei principi 
+di priorità in base ai quali vengono controllati prima gli indirizzi appartenenti a skin con priorità massima e successivamente 
+quelli appartenenti a skin con una variabile di sessione.%s
+A seguire vengono controllati gli indirizzi delle skin senza priorità massima e senza variabile di sessione definiti 
+nel campo 'urls' e successivamente le classi di indirizzi definite nel campo 'rexp'."), "<br />")."</p>";
 
-        $buffer .= "<h3>"._("Regole di matching url/classi")."</h3>\n";
-        $buffer .= "<p>"._("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching tra la pagina richiesta e gli indirizzi associati alle skin.
-        <br />Se il matching non viene trovato, la ricerca continua utilizzando le espressioni regolari.")."</p>\n";
+        $buffer .= "<p>"._("Gli indirizzi definiti nel campo 'urls' hanno sempre la precedenza sulle classi di indirizzi 
+definite nel campo 'rexp', anche nel caso di skin con priorità massima e di skin con variabile di sessione. 
+Ad ogni condizione di confronto (priorità massima, variabile di sessione, indirizzi, classi di indirizzi) l'ultimo fattore 
+che dirime la priorità di precedenza di una skin è infine dato dal campo 'priority', identificato dall'ordine 
+nel quale le skin compaiono nell'elenco (in alto ci sono le skin con priorità maggiore).")."</p>";
 
-        $buffer .= "<p>"._("Nei campi 'Espressione regolare' e 'Urls' possono essere inseriti valori nel formato permalink o in quello nativo di gino.")."</p>";
+        $buffer .= "<h3>"._("Dettagli campi del form")."</h3>\n";
+        $buffer .= "<p>".sprintf(_("Nel campo <i>Variabile di sessione</i> si può inserire il valore di una variabile di sessione 
+nel formato 'sessionname=sessionvalue'. Nelle skin con variabile di sessione deve essere impostato anche il campo 
+<i>Indirizzi</i> (urls) o il campo <i>Espressione regolare</i> (rexp), ricordando che il primo predomina sul secondo.%s
+Nel caso in cui non si debba abbinare alla variabile di sessione un particolare indirizzo o espressione regolare, dandole quindi 
+una priorità su tutti gli indirizzi, è necessario impostare il campo rexp col valore <i>#.*#</i>."), "<br />")."</p>\n";
+
+        $buffer .= "<p>".sprintf(_("Nel campo <i>Indirizzi</i> si può inserire un indirizzo o più indirizzi separati da virgola 
+ai quali associare la skin. Tali indirizzi hanno la priorità rispetto alle classi di indirizzi nel momento in cui 
+viene cercata la skin da associare al documento richiesto.%s
+Le classi di indirizzi, definite mediante il campo <i>Espressione regolare</i> nel formato PCRE, permettono di fare il matching 
+con tutti gli indirizzi che soddisfano l'espressione regolare inserita."), "<br />")."</p>";
+        $buffer .= "<p>"._("Nei campi <i>Espressione regolare</i> e <i>Indirizzi</i> possono essere inseriti valori nel formato permalink 
+o in quello nativo di gino.")."</p>";
+
+        $buffer .= "<h3>"._("Sintesi regole di matching indirizzi/classi")."</h3>\n";
+        $buffer .= "<p>".sprintf(_("Quando viene richiesta una pagina (url) il sistema inizia a controllare il matching 
+tra la pagina richiesta e gli indirizzi associati alle skin a partire dalla skin col valore del campo priority 
+più basso (priorità maggiore) continuando a salire.%s
+Se la corrispondenza non viene trovata, la ricerca continua utilizzando le espressioni regolari associate alle skin, 
+sempre a partire dalla skin col valore del campo priority più basso."), "<br />")."</p>";
+        $buffer .= "<p>"._("L'ordine di priorità delle skin può essere aggirato utilizzando 
+il campo <i>Priorità massima</i> e il campo <i>Variabile di sessione</i>. Le skin con queste impostazioni vengono infatti 
+controllate prima delle altre.")."</p>";
 
         return $buffer;
     }

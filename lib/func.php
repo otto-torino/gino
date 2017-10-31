@@ -877,7 +877,9 @@ $buffer = '';
         $buffer = "<a href=\"http://twitter.com/home?status=Currentlyreading ".urlencode($url)."\" title=\""._("condividi su Twitter")."\"><img src=\"".SITE_IMG."/share_twitter.jpg\" alt=\"Share on Twitter\"></a>";
     }
     elseif($site=='linkedin') {
-        $buffer = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".urlencode(pub::variable('head_title'))."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
+        $registry = Registry::instance();
+        $head_title = !empty($registry->title) ? urlencode($registry->title) : '';
+        $buffer = "<a href=\"http://www.linkedin.com/shareArticle?mini=true&url=".urlencode($url)."&title=".urlencode($title)."&source=".$head_title."\"><img src=\"".SITE_IMG."/share_linkedin.jpg\" alt=\"Share on LinkedIn\"></a>";
     }
     elseif($s=='googleplus') {
         $buffer = "<g:plusone size=\"small\" width=\"90\"></g:plusone><script type=\"text/javascript\">(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s); })();</script>";

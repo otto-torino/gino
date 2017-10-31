@@ -68,7 +68,7 @@ class MobileDetect {
         if ($name == "is" . ucfirst($device)) {
             return $this->isDevice($device);
         } else {
-            throw new Exception("Metodo '$name' non definito");
+            throw new \Exception("Metodo '$name' non definito");
         }
     }
 

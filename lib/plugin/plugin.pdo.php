@@ -573,7 +573,7 @@ class pdo implements \Gino\DbManager {
 			$this->setConnection(true);
 			return true;
 		}
-		catch (PDOException $e) {
+		catch (\PDOException $e) {
 			throw new \Exception($e->getMessage());
 		}
 	}
