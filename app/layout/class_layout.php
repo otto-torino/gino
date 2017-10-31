@@ -270,7 +270,7 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Lista delle skin
-     * @return html, lista skin
+     * @return string, lista skin
      */
     private function skinList() {
 
@@ -287,6 +287,7 @@ class layout extends \Gino\Controller {
                 _('Etichetta'),
                 _('Template'),
                 _('Css'),
+            	_("Regole"),
                 _('Autenticazione'),
                 _('Cache'),
                 ''
@@ -300,10 +301,27 @@ class layout extends \Gino\Controller {
                 $link_sort = $i ? sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=sortup"), \Gino\icon('sort-up')) : '';
                 $tpl = new \Gino\Template($skin->template);
                 $css = new \Gino\Css('layout', array('id' => $skin->css));
+                
+                $settings = array();
+                if($skin->highest) {
+                	$settings[] = "<b>"._("maximum")."</b>";
+                }
+                if($skin->session) {
+                	$settings[] = _("sessione");
+                }
+                if($skin->urls) {
+                	$settings[] = _("url");
+                }
+                if($skin->rexp) {
+                	$settings[] = _("regexp");
+                }
+                $settings = implode("<br />", $settings);
+                
                 $tbl_rows[] = array(
                     $skin->ml('label'),
                     $tpl->ml('label'),
                     $css->label ? $css->label." (".$css->filename.")" : null,
+                	$settings,
                     $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
                     $skin->cache ? _('si') : _('no'),
                     array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
@@ -312,7 +330,11 @@ class layout extends \Gino\Controller {
             }
             $view_table->assign('class', 'table table-striped', 'table-hover');
             $view_table->assign('rows', $tbl_rows);
-            $buffer = "<p class=\"backoffice-info\">"._('Le skin sono elencate in ordine di priorità crescente. Per modificare le priorità agire sull\'icona a forma di freccia.')."</p>";
+            $buffer = "<p class=\"backoffice-info\">".sprintf(_("Le skin sono elencate in ordine di priorità decrescente. 
+Tuttavia, l'ordine visualizzato non tiene conto delle regole sulle sessioni e dell'opzione <i>Priorità massima</i> 
+che possono essere state impostate nelle skin e che sovrascrivono l'ordine visualizzato.%s
+La presenza di queste regole nelle skin può essere identificata nella colonna <i>Regole</i> dell'elenco.%s
+Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />", "<br />")."</p>";
             $buffer .= $view_table->render();
         }
         else {
@@ -333,7 +355,7 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Lista dei template
-     * @return html, lista template
+     * @return string, lista template
      */
     private function templateList() {
 
@@ -391,7 +413,7 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Lista dei css
-     * @return html, lista css
+     * @return string, lista css
      */
     private function cssList() {
 
@@ -466,7 +488,7 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Lista delle viste
-     * @return html, lista viste
+     * @return string, lista viste
      */
     private function viewList() {
 
@@ -523,18 +545,22 @@ class layout extends \Gino\Controller {
 
     /**
      * @brief Informazioni modulo
-     * @return html, informazioni
+     * @return string, informazioni
      */
     private function info() {
 
         \Gino\Loader::import('class', array('\Gino\Css', '\Gino\Template', '\Gino\Skin'));
 
-        $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout di una pagina o sezione del sito sono i seguenti:")."</p>";
+        $GINO = "<p>"._("In questa sezione è possibile gestire il layout del sito. Ad ogni request viene associata una skin, 
+la quale caricherà il template associato ed eventualmente un foglio di stile. I passi da seguire per personalizzare il layout 
+di una pagina o sezione del sito sono i seguenti").":</p>";
         $GINO .= "<ul>";
         $GINO .= "<li>"._("Creare ed uploadare un foglio di stile se necessario")."</li>";
         $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file .tpl) oppure un template libero (file .php)")."</li>";
-        $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. La skin viene poi associata alla pagina o alla sezione desiderata definendo url, espressioni regolari di url oppure variabili di sessione.")."</li>";
-        $GINO .= "<li>"._("Settare la priorità della skin spostandola in alto o in basso.")."</li>";
+        $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. 
+La skin viene poi associata alla pagina o alla sezione desiderata definendo indirizzi, espressioni regolari di indirizzi 
+oppure variabili di sessione.")."</li>";
+        $GINO .= "<li>"._("Impostare la priorità della skin spostandola in alto o in basso.")."</li>";
         $GINO .= "</ul>";
         $GINO .= \Gino\Css::layoutInfo();
         $GINO .= \Gino\Template::layoutInfo();

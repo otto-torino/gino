@@ -18,7 +18,7 @@ use \Gino\App\Page\page;
 
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
- *
+ * 
  * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -282,7 +282,7 @@ class Document {
 
     /**
      * @brief Codice javascript che mostra, se presente, l'errore in sessione
-     * @return codice javascript
+     * @return string, codice javascript
      */
     private function errorMessages() {
 
@@ -296,7 +296,7 @@ class Document {
 
     /**
      * @brief Headline per template non free
-     * @return headline
+     * @return string, headline
      */
     private function headLine($skin) {
 
@@ -310,8 +310,12 @@ class Document {
 
         $headline .= $this->_registry->variables('meta');
 
-        if(!empty($this->_registry->description)) $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
-        if(!empty($this->_registry->keywords)) $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
+        if(!empty($this->_registry->description)) {
+            $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
+        }
+        if(!empty($this->_registry->keywords)) {
+            $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
+        }
         if($this->_registry->sysconf->mobile && isset($this->_request->session->L_mobile)) {
             $headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
         }
@@ -326,7 +330,9 @@ class Document {
         $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
         $headline .= "<link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
 
-        if($this->_registry->sysconf->google_analytics) $headline .= $this->google_analytics();
+        if($this->_registry->sysconf->google_analytics) {
+            $headline .= $this->google_analytics();
+        }
         $headline .= "</head>\n";
         $headline .= "<body>\n";
 
@@ -416,14 +422,13 @@ class Document {
      * @param int $mdlId valore ID della pagina
      * @return contenuto pagina
      */
-    private function modPage($mdlId){
+    private function modPage($mdlId) {
 
         if(isset($this->_outputs['page-'.$mdlId])) {
             return $this->_outputs['page-'.$mdlId];
         }
 
-        if(!isset($this->_instances['page']) or !is_object($this->_instances['page'])) 
-        {
+        if(!isset($this->_instances['page']) or !is_object($this->_instances['page'])) {
             $this->_instances['page'] = new page();
         }
 
