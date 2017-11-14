@@ -3,7 +3,7 @@
  * @file func.php
  * @brief Racchiude funzioni generali utilizzate da gino
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -260,7 +260,7 @@ function timeToDbTime($time) {
  *
  * @param float $number numero
  * @param int $decimals numero di decimali
- * @return numero formattato
+ * @return string, numero formattato
  */
 function dbNumberToNumber($number, $decimals=2)
 {
@@ -274,7 +274,7 @@ function dbNumberToNumber($number, $decimals=2)
  * @brief Formatta un numero per il database (il separatore decimale è il punto)
  *
  * @param string $number numero
- * @return numero formattato
+ * @return int|float
  */
 function numberToDB($number)
 {
@@ -299,10 +299,10 @@ function isNumeric($variable)
 
 /**
  * @brief Calcola l'intervallo di tempo in secondi tra due valori datetime
- *
+ * 
  * @param string $firstTime datetime iniziale
  * @param string $lastTime datetime finale
- * @return intervallo di tempo
+ * @return int, intervallo di tempo
  */
 function timeDiff($firstTime, $lastTime){
 
@@ -692,7 +692,7 @@ function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_imag
  * @param integer $max_char numero massimo di caratteri
  * @param boolean $word_complete se vero, mantiene l'ultima parola completa (utile nei select)
  * @param boolean $file se vero, mostra l'estensione finale del file
- * @return stringa ridotta
+ * @return string, stringa ridotta
  */
 function cutString($string, $max_char, $word_complete=true, $file=false)
 {
@@ -1129,7 +1129,7 @@ function enabledZip(){
  *
  * @param string $string
  * @param string $crypt metodo di criptazione; default: proprietà @a _crypt (impostazioni di sistema) 
- * @return password criptata
+ * @return string, password criptata
  */
 function cryptMethod($string, $crypt){
 
@@ -1142,12 +1142,35 @@ function cryptMethod($string, $crypt){
 /**
  * @brief Testo della policy di una email
  *
- * @return policy
+ * @return string
  */
 function emailPolicy(){
 
     $GINO = "\n\n"._("Indirizzo web").": http://".$_SERVER['HTTP_HOST'].$this->_site_www."\n---------------------------------------------------------------\n"._("La presente email è stata inviata con procedura automatica. Si prega di non rispondere alla presente email.")."\n\n"._("Per problemi o segnalazioni potete scrivere a ").$this->_email_send;
     return $GINO;
+}
+
+/**
+ * @brief Indirizzo IP dell'utente
+ * @return string
+ */
+function getUserIP() {
+    
+    $client  = @$_SERVER['HTTP_CLIENT_IP'];
+    $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+    $remote  = $_SERVER['REMOTE_ADDR'];
+    
+    if(filter_var($client, FILTER_VALIDATE_IP)) {
+        $ip = $client;
+    }
+    elseif(filter_var($forward, FILTER_VALIDATE_IP)) {
+        $ip = $forward;
+    }
+    else {
+        $ip = $remote;
+    }
+    
+    return $ip;
 }
 
 /**
@@ -1230,7 +1253,7 @@ function obj_unserialize($instanceName){
  *   - @b view
  * @param string $text testo della proprietà @a title del tag IMG (sostituisce il testo di default)
  * @param string $tiptype col valore @a full si attiva il selettore @a icon_tooltipfull che richiama il javascript associato
- * @return codice html icona
+ * @return string, codice html icona
  */
 function icon($name, $options = array()){
 
