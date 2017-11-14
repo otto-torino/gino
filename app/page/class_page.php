@@ -1011,22 +1011,24 @@ class page extends \Gino\Controller {
         // applications
         elseif(preg_match("#gid:(\d+)#", $filter, $matches)) {
         	if($pre_filter == 'show_gallery' && $this->checkValidApplication('gallery')) {
-        		$buffer = "<div class=\"show-gallery\">";
-        		$buffer .= \Gino\App\Gallery\gallery::showGalleryImages($matches[1]);
+        	    $classname = "\Gino\App\Gallery\gallery";
+        	    $buffer = "<div class=\"show-gallery\">";
+        	    $buffer .= $classname::showGalleryImages($matches[1]);
         		$buffer .= "</div>";
         		return $buffer;
         	}
         	elseif($pre_filter == 'link_gallery' && $this->checkValidApplication('gallery')) {
-        		$buffer = "<div class=\"link-gallery\">";
-        		$buffer .= "<a class=\"btn btn-primary\" href=\"".\Gino\App\Gallery\gallery::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
+        	    $classname = "\Gino\App\Gallery\gallery";
+        	    $buffer = "<div class=\"link-gallery\">";
+        	    $buffer .= "<a class=\"btn btn-primary\" href=\"".$classname::getGalleryLink($matches[1])."\">"._("vai alla galleria completa")."</a>";
         		$buffer .= "</div>";
         		return $buffer;
         	}
         	elseif($pre_filter == 'map' && $this->checkValidApplication('gmaps')) {
         		$id = $matches[1];
-        		
-        		$map_instance = \Gino\App\Gmaps\gmaps::getInstanceValue($id);
-        		$map = new \Gino\App\Gmaps\gmaps($map_instance);
+        		$classname = "\Gino\App\Gmaps\gmaps";
+        		$map_instance = $classname::getInstanceValue($id);
+        		$map = new $classname($map_instance);
         		return $map->showMap($id);
         	}
         	else {

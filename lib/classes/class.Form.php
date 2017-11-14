@@ -55,7 +55,11 @@ use \Gino\App\Language\language;
  * - con la classe captcha di gino
  * 
  * Le librerie reCAPTCHA vengono attivate automaticamente se sono state inserite la "site key" e la "secret key" reCaptcha nelle 'Impostazioni di sistema'.
- * 
+ * Per utilizzare il servizio reCaptcha di Google occorre inoltre abilitare la funzione allow_url_fopen di PHP in quanto 
+ * viene chiamato un indirizzo esterno (https://www.google.com/recaptcha/api/siteverify). Nel file php.ini:
+ * @code
+ * allow_url_fopen = On
+ * @endcode
  */
 class Form {
 

@@ -372,7 +372,7 @@ namespace Gino;
      *     - string, nomi dei campi separati da virgola
      *     - array, elenco dei nomi dei campi
      *   - @b no_update (array): elenco dei campi da non impostare in una istruzione di update; di default vengono aggiunti i campi 'id', 'instance'
-     * @return il risultato dell'operazione o errori
+     * @return bool|\Exception
      */
     public function save($options=array()) {
 

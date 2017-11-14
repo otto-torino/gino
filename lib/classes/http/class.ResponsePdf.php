@@ -29,7 +29,7 @@ class ResponsePdf extends Response {
      */
     function __construct($content, array $kwargs = array()) {
 
-    	require_once(PLUGIN_DIR.OS.'plugin.mpdf.php');
+    	require_once PLUGIN_DIR.OS.'plugin.mpdf.php';
     	
     	\Gino\Plugin\plugin_mpdf::setPhpParams($kwargs);
     	$obj_pdf = new \Gino\Plugin\gino_mpdf();

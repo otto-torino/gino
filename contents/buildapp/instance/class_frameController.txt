@@ -171,7 +171,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      * Questo metodo viene letto dal motore di generazione dei layout (metodi non presenti nel file ini) e dal motore di generazione
      * di voci di menu (metodi presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
      * 
-     * @return lista metodi NOME_METODO => array('label' => LABEL, 'permissions' = PERMISSIONS)
+     * @return array, lista metodi NOME_METODO => array('label' => LABEL, 'permissions' = PERMISSIONS)
      */
     public static function outputFunctions() {
     	
@@ -244,7 +244,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
     /**
      * @brief Lista di contenuti correlati per tag
      * @param \Gino\App\{{CONTROLLER_NS}}\{{MODEL}} $item istanza di Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
-     * @return html, lista contenuti correlati
+     * @return string, lista contenuti correlati
      */
     public function relatedContentsList($item) {
     	

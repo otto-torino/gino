@@ -55,6 +55,10 @@ namespace Gino;
  * 
  * ####Registry::addCoreJs()
  * File javascript del core di gino. Vengono caricati prima degli altri file javascript.
+ * Con Debug True i file vengono caricati uno per uno nella versione originale, mentre con Debug False i file con opzione @a handle 
+ * pari a false vengono caricati uno per uno nella versione originale, mentre quelli con opzione @a handle pari a true 
+ * possono venire minificati e/o compressi in unico file (Compressor::mergeJs()) a seconda delle opzioni @a compress e @a minify. \n
+ * Il file che viene generato viene salvato nella directory cache/js, e viene soltanto recuperato se risulta già presente.
  * 
  * ####Registry::addJS()
  * Con Debug True i file vengono caricati uno per uno nella versione originale, mentre con Debug False i file vengono minificati e compressi in unico file (Compressor::mergeJs()). \n
@@ -124,7 +128,7 @@ class Registry extends Singleton {
      * @code
      * Registry->addCss(CSS_WWW."/file.css");
      * @endcode
-     *
+     * 
      * @param string $css percorso relativo al file css
      * @return void
      */
@@ -134,10 +138,10 @@ class Registry extends Singleton {
 
     /**
      * @brief Aggiunge un file javascript
-     *
+     * 
      * @example
      * @code
-     * Registry->addCss(SITE_JS."/file.js");
+     * Registry->addJs(SITE_JS."/file.js");
      * @endcode
      *
      * @param string $js percorso relativo al file javascript
@@ -153,7 +157,7 @@ class Registry extends Singleton {
      *
      * @example
      * @code
-     * Registry->addCustomCss(SITE_JS."/file.js", array(compress => bool, minify => bool));
+     * Registry->addCustomJs(SITE_JS."/file.js", array(compress => bool, minify => bool));
      * @endcode
      *
      * @param string $js percorso relativo al file javascript
@@ -174,7 +178,9 @@ class Registry extends Singleton {
     
     /**
      * @brief Aggiunge un file javascript nel core di gino
-     * @description Popola gli array $this->vars['core_js'] e $this->vars['handle_core_js']
+     * @description Popola gli array $this->vars['core_js'] e $this->vars['handle_core_js'].
+     *      I file vengono associati alla chiave @a handle_core_js se l'opzione @a handle è pari a true, 
+     *      altrimenti vengono associati alla chiave @a core_js.
      * 
      * @example
      * @code
@@ -275,59 +281,71 @@ class Registry extends Singleton {
         }
         elseif($var == 'core_js')
         {
-        	$custom_key = 'handle_core_js';
-        	
-        	$buffer = '';
+            $custom_key = 'handle_core_js';
+            
+            $buffer = '';
+            
             if(isset($this->vars[$var]) && sizeof($this->vars[$var]) > 0)
             {
                 if(DEBUG) {
                     foreach(array_unique($this->vars[$var]) as $link)
                     {
-                    	$buffer .= "<script type=\"text/javascript\" src=\"$link\"></script>\n";
+                        $buffer .= "<script type=\"text/javascript\" src=\"$link\"></script>\n";
                     }
                     
                     if(isset($this->vars[$custom_key]) && sizeof($this->vars[$custom_key]) > 0)
                     {
-                    	foreach($this->vars[$custom_key] as $key=>$array)
-                    	{
-                    		$link = base64_decode($key);
-                    		$buffer .= "<script type=\"text/javascript\" src=\"".$link."\"></script>\n";
-                    	}
+                        foreach($this->vars[$custom_key] as $key=>$array)
+                        {
+                            $link = base64_decode($key);
+                            $buffer .= "<script type=\"text/javascript\" src=\"".$link."\"></script>\n";
+                        }
                     }
                 }
                 else {
-                    $compressor = Loader::load('Compressor', array());
-                	$compressor->addJs(array_unique($this->vars[$var]));
-                	
-                	$buffer_custom = '';
-                	if(isset($this->vars[$custom_key]) && sizeof($this->vars[$custom_key]) > 0)
-                	{
-                		foreach($this->vars[$custom_key] as $key=>$array)
-                		{
-                			$link = base64_decode($key);
-                			if(array_key_exists('compress', $array) && $array['compress'])
-                			{
-                				$compressor->addJs($link);
-                			}
-                			else
-                			{
-                				if(array_key_exists('minify', $array) && $array['minify'])
-                				{
-                					$compressor_min = Loader::load('Compressor', array());
-                					$compressor_min->addJs($link);
-                					
-                					$link = $compressor_min->mergeJs(array('minify' => true));
-                				}
-                				$buffer_custom .= "<script type=\"text/javascript\" src=\"".$link."\"></script>\n";
-                			}
-                		}
-                	}
-                	
-                	$buffer .= "<script type=\"text/javascript\" src=\"".$compressor->mergeJs()."\"></script>";
-                	$buffer .= $buffer_custom;
+                    // core_js
+                    foreach(array_unique($this->vars[$var]) as $link)
+                    {
+                        $buffer .= "<script type=\"text/javascript\" src=\"".$link."\"></script>\n";
+                    }
+                    
+                    // handle_core_js
+                    $buffer_custom = '';
+                    
+                    if(isset($this->vars[$custom_key]) && sizeof($this->vars[$custom_key]) > 0)
+                    {
+                        $compressor = Loader::load('Compressor', array());
+                        $compression = false;
+                        
+                        foreach($this->vars[$custom_key] as $key => $array)
+                        {
+                            $link = base64_decode($key);
+                            if(array_key_exists('compress', $array) && $array['compress'])
+                            {
+                                $compressor->addJs($link);
+                                $compression = true;
+                            }
+                            else
+                            {
+                                if(array_key_exists('minify', $array) && $array['minify'])
+                                {
+                                    $compressor_min = Loader::load('Compressor', array());
+                                    $compressor_min->addJs($link);
+                                    
+                                    $link = $compressor_min->mergeJs(array('minify' => true));
+                                }
+                                $buffer_custom .= "<script type=\"text/javascript\" src=\"".$link."\"></script>\n";
+                            }
+                        }
+                        
+                        if($compression) {
+                            $buffer .= "<script type=\"text/javascript\" src=\"".$compressor->mergeJs()."\"></script>";
+                        }
+                    }
+                    $buffer .= $buffer_custom;
                 }
             }
-           
+            
             return $buffer;
         }
         elseif($var == 'js')
