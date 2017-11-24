@@ -12,7 +12,7 @@ namespace Gino;
 * - **system_variables_html**: html, dump delle variabili di sistema ($_SERVER, $_SESSION, $_REQUEST)
 *
 * @see Gino.Logger
-* @copyright 2015 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2015-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -49,7 +49,7 @@ namespace Gino;
                     <? if(isset($trace['args'])): ?>
                         <?php
                             ob_start();
-                            var_dump($trace['args']);
+                            //var_dump($trace['args']);
                             $result = ob_get_clean();
                             echo $result;
                         ?>

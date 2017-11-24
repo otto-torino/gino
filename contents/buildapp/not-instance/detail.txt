@@ -6,7 +6,7 @@ namespace Gino\App\{{CONTROLLER_NS}};
 *
 * Variabili disponibili:
 * - **controller**: object Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
-* - **item**: \Gino\App\{{CONTROLLER_NS}}\{{MODEL}} istanza evento Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+* - **item**: \Gino\App\{{CONTROLLER_NS}}\{{MODEL}} istanza del modello Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
 * - **related_contents_list**: html, lista di link a risorse correlate
 * - **breadcrumbs**: string
 * - **ajax**: bool

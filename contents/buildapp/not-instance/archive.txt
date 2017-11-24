@@ -5,9 +5,9 @@ namespace Gino\App\{{CONTROLLER_NS}};
 * @brief Template per la vista archivio
 *
 * Variabili disponibili:
-* - **controller**: object Gino.App.Events.events
-* - **items**: array, eventi @ref Gino.App.Events.Event
-* - **ctg**: mixed, categoria @ref Gino.App.Events.Category o null
+* - **controller**: object Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+* - **items**: array, eventi @ref Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+* - **ctg**: mixed, categoria @ref Gino.App.{{CONTROLLER_NS}}.Category o null
 * - **search_form**: html, form di ricerca
 * - **open_form**: bool, TRUE se il form deve essere mostrato espanso perché compilato
 * - **pagination**: html, paginazione

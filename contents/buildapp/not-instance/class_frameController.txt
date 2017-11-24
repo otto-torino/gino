@@ -157,7 +157,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
         }
 
         // Set Registry
-        $this->_registry->addCss($this->_class_www.'/{{CONTROLLER}}_'.$this->_instance_name.'.css');
+        $this->_registry->addCss($this->_class_www.'/{{CONTROLLER}}.css');
         
         $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.\Gino\htmlChars($item->ml('name'));
         $this->_registry->description = \Gino\cutHtmlText($item->ml('description'), 200, '...', true, false, true, '');
@@ -217,7 +217,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      */
     public function archive(\Gino\Http\Request $request) {
 
-    	$this->_registry->addCss($this->_class_www."/{{CONTROLLER}}_".$this->_instance_name.".css");
+    	$this->_registry->addCss($this->_class_www."/{{CONTROLLER}}.css");
     	$this->_registry->addCss(CSS_WWW."/responsive-table.css");
     	
     	// Direct link values
