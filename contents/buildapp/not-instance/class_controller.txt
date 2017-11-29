@@ -17,8 +17,8 @@ use \Gino\Loader;
 use \Gino\View;
 use \Gino\GTag;
 
-require_once('class.{{MODEL}}.php');
-require_once('class.Category.php');
+require_once 'class.{{MODEL}}.php';
+require_once 'class.Category.php';
 
 /**
  * @brief Classe di tipo Gino.Controller
@@ -94,7 +94,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe utili per la generazione di nuove istanze
-     * @return lista delle proprietà utilizzate (tabelle, css, viste, folders)
+     * @return array, lista delle proprietà utilizzate (tabelle, css, viste, folders)
      */
     public static function getClassElements() {
     	
@@ -498,7 +498,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      * @brief Definisce la presentazione del singolo item trovato a seguito di ricerca (modulo "Ricerca nel sito")
      *
      * @param array $results array associativo contenente i risultati della ricerca
-     * @return html, presentazione item tra i risultati della ricerca
+     * @return string, presentazione item tra i risultati della ricerca
      */
     public function searchSiteResult($results) {
 

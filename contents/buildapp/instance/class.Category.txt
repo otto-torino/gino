@@ -42,7 +42,7 @@ class Category extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome categoria
+     * @return string, nome categoria
      */
     function __toString() {
     	

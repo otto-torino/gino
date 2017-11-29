@@ -1,0 +1,58 @@
+<?php
+namespace Gino\App\{{CONTROLLER_NS}};
+/**
+* @file detail.php
+* @brief Template per la vista dettaglio record
+*
+* Variabili disponibili:
+* - **instance_name**: string, nome istanza modulo
+* - **controller**: object Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+* - **item**: \Gino\App\{{CONTROLLER_NS}}\{{MODEL}} istanza del modello Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+* - **related_contents_list**: html, lista di link a risorse correlate
+* - **breadcrumbs**: string
+* - **ajax**: bool
+*
+* @version 0.1.0
+* @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @author Marco Guidotti guidottim@gmail.com
+* @author abidibo abidibo@gmail.com
+*/
+?>
+<? //@cond no-doxygen ?>
+<!-- Breadcrumbs -->
+<? if($breadcrumbs): ?>
+	<?= $breadcrumbs ?>
+<? endif ?>
+
+<section id="detail-{{CONTROLLER}}-<?= $instance_name ?>" itemscope itemtype="http://schema.org/Event">
+    <div class='row'>
+    	<div class='col-md-12'>
+    		<h1 itemprop="name"><?= \Gino\htmlChars($item->ml('name')) ?></h1>
+        	<p class="time">
+        		<time itemprop="startDate" content="<?= $item->startDateIso() ?>"><?= \Gino\htmlChars($item->beginLetterDate()); ?></time>
+        	</p>
+        <? if($item->tags): ?>
+        	<p class="tags"><span class="fa fa-tag"></span> <?= \Gino\GTag::viewTags($controller, $item->tags) ?></p>
+        <? endif ?>
+        
+        <div itemprop="description"><?= \Gino\htmlChars($item->ml('description')) ?></div>
+        
+        <? if(count($item->{{M2MTFNAME}})): ?>
+			<ul class="{{M2MTFNAME}}">
+			<? foreach($item->{{M2MTFNAME}} as $mid): ?>
+				<? $m2mobj = new {{M2MTFMODELNAME}}($mid, $item->getController()); ?>
+				<li>
+					<?= \Gino\htmlCharsText($m2mobj->ml('name')) ?>
+				</li>
+			<? endforeach ?>
+			</ul>
+		<? endif ?>
+    
+        <? if($related_contents_list): ?>
+            <h2><?= _('Potrebbe interessarti anche...') ?></h2>
+            <?= $related_contents_list ?>
+        <? endif ?>
+        </div>
+	</div>
+</section>
+<? // @endcond ?>

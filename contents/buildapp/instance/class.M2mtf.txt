@@ -1,0 +1,184 @@
+<?php
+/**
+ * @file class.{{M2MTFMODELNAME}}.php
+ * @brief Contiene la definizione ed implementazione della classe Gino.App.{{CONTROLLER_NS}}.{{M2MTFMODELNAME}}
+ * @author marco guidotti <marco.guidotti@otto.to.it>
+ * @author abidibo <abidibo@gmail.com>
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ */
+namespace Gino\App\{{CONTROLLER_NS}};
+
+/**
+ * @brief Classe tipo Gino.Model
+ *
+ * @version 0.1.0
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @authors Marco Guidotti guidottim@gmail.com
+ * @authors abidibo abidibo@gmail.com
+ */
+class {{M2MTFMODELNAME}} extends \Gino\Model {
+	
+    public static $table = '{{TABLEKEY}}_{{MODELREFERENCE}}_{{M2MTFMODELREFERENCE}}';
+    public static $columns;
+    
+    protected static $_extension_img = array('jpg', 'jpeg', 'png');
+
+    /**
+     * @brief Costruttore
+     * @param int $id valore id
+     * @param object $controller
+     * @return istanza di Gino.App.{{CONTROLLER_NS}}.{{M2MTFMODELNAME}}
+     */
+    public function __construct($id, $controller) {
+    	
+        $this->_controller = $controller;
+        $this->_tbl_data = self::$table;
+
+        parent::__construct($id);
+
+        $this->_model_label = _("{{M2MTFMODELLABEL}}");
+    }
+
+    /**
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return string
+     */
+    function __toString() {
+    	
+        return (string) $this->ml('name');
+    }
+    
+    /**
+     * @see Gino.Model::properties()
+     */
+    protected static function properties($model, $controller) {
+    	 
+    	$base_path = $controller->getBaseAbsPath();
+    	$instance = $controller->getInstance();
+    	
+    	$property['{{MODELREFERENCE}}_id'] = array(
+    	    'foreign_controller' => $controller,
+    	    'foreign_where' => "instance='".$instance."'", 
+    	);
+    	$property['file'] = array(
+    		'path' => $base_path,
+    	);
+    	
+    	return $property;
+    }
+    
+    /**
+	 * Struttura dei campi della tabella di un modello
+	 *
+	 * @return array
+	 */
+	public static function columns() {
+	
+		$columns['id'] = new \Gino\IntegerField(array(
+			'name'=>'id',
+			'primary_key'=>true,
+			'auto_increment'=>true,
+			'max_lenght'=>11,
+		));
+		$columns['{{MODELREFERENCE}}_id'] = new \Gino\ForeignKeyField(array(
+            'name' => '{{MODELREFERENCE}}_id',
+            'label' => _("{{MODEL_LABEL}}"),
+            'required' => true,
+            'widget' => 'hidden',
+            'max_lenght' => 11,
+            'foreign' => '\Gino\App\{{CONTROLLER_NS}}\{{MODEL}}',
+            'foreign_controller' => null,
+            'foreign_where' => null,
+            'foreign_order' => 'name ASC',
+            'add_related' => false,
+        ));
+        $columns['name'] = new \Gino\CharField(array(
+        	'name' => 'name',
+        	'label' => _("Nome"),
+        	'required' => true,
+        	'max_lenght' => 255,
+        ));
+        $columns['description'] = new \Gino\TextField(array(
+        	'name' => 'description',
+        	'label' => _("Descrizione"),
+        	'required' => false
+        ));
+        $columns['file'] = new \Gino\ImageField(array(
+            'name' => 'file',
+        	'label' => _("File"),
+        	'required'=>true,
+            'max_lenght' => 255,
+            'extensions' => self::$_extension_img,
+            'resize' => false,
+            'path' => null,
+            'add_path' => null
+        ));
+		
+		return $columns;
+	}
+	
+	/**
+	 * @brief Restituisce una lista id=>name da utilizzare per un input select
+	 *
+	 * @param \Gino\App\{{CONTROLLER_NS}}\{{CONTROLLER}} $controller istanza del controller
+	 * @return array [id=>name]
+	 */
+	public static function getForSelect(\Gino\App\{{CONTROLLER_NS}}\{{CONTROLLER}} $controller) {
+	
+		$objs = self::objects($controller, array('where' => null, 'order' => 'name ASC'));
+		$res = array();
+		foreach($objs as $obj) {
+			$res[$obj->id] = \Gino\htmlInput($obj->name);
+		}
+		 
+		return $res;
+	}
+	
+	/**
+     * @brief Path relativo all'immagine
+     * @ return string
+     */
+    public function path() {
+
+        return $this->_controller->getBasePath().'/'.$this->file;
+    }
+
+    /**
+     * @brief Path relativo dell'immagine ridimensionata
+     * @description La thumbnail viene generata da @ref GImage delle dimensioni date
+     * 
+     * @param int $w larghezza thumbnail se creata al volo
+     * @param int $h altezza thumbnail se creata al volo
+     * @return string
+     */
+    public function thumbImagePath($w = 100, $h = 100) {
+        
+        $image = new \Gino\GImage(\Gino\absolutePath($this->path()));
+        $thumb = $image->thumb($w, $h);
+        return $thumb->getPath();
+    }
+
+    /**
+     * @brief Dimensioni immagine
+     * @return array ['width' => int WIDTH, 'height' => int HEIGHT]
+     */
+    public function getSize() {
+    	
+        list($width, $height, $type, $attr) = getimagesize(\Gino\absolutePath($this->path()));
+        return array('width' => $width, 'height' => $height);
+    }
+    
+    /**
+     * @brief Eliminazione record collegati a un modello esterno
+     *
+     * @param int $item_id valore id del record di riferimento
+     * @return boolean, risultato dell'operazione
+     */
+    public static function deleteFromItem($item_id) {
+        
+        $db = \Gino\Db::instance();
+        return $db->delete(self::$table, "{{MODELREFERENCE}}_id='".$item_id."'");
+    }
+}
+
+{{M2MTFMODELNAME}}::$columns={{M2MTFMODELNAME}}::columns();

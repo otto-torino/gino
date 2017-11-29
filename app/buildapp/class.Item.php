@@ -40,7 +40,7 @@ class Item extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return titolo
+     * @return string
      */
     function __toString() {
 
@@ -92,15 +92,37 @@ class Item extends \Gino\Model {
         ));
         $columns['model_name'] = new \Gino\CharField(array(
         	'name' => 'model_name',
-        	'label' => array(_("Nome del Modello"), _("La lettera iniziale deve essere maiuscola")),
+        	'label' => array(_("Nome del Modello"), _("Nome della classe; la lettera iniziale deve essere maiuscola (ad esempio: Item)")),
         	'required' => true,
         	'max_lenght' => 50,
         ));
         $columns['model_label'] = new \Gino\CharField(array(
         	'name' => 'model_label',
-        	'label' => _("Label del Modello (ad esempio: Item)"),
+        	'label' => _("Label del Modello"),
         	'required' => true,
         	'max_lenght' => 100,
+        ));
+        // NEW
+        $columns['m2mtf'] = new \Gino\BooleanField(array(
+            'name' => 'm2mtf',
+            'label' => _('Campo ManyToManyThrough'),
+            'required' => true,
+            'default' => 0
+        ));
+        $columns['m2mtf_name'] = new \Gino\CharField(array(
+            'name' => 'm2mtf_name',
+            'label' => _("Nome del campo ManytoManyThrough (ad esempio images)"),
+            'max_lenght' => 50,
+        ));
+        $columns['m2mtf_model_name'] = new \Gino\CharField(array(
+            'name' => 'm2mtf_model_name',
+            'label' => array(_("Nome del Modello agganciato al campo ManytoManyThrough (ad esempio Image)"), _("Nome della classe; la lettera iniziale deve essere maiuscola")),
+            'max_lenght' => 50,
+        ));
+        $columns['m2mtf_model_label'] = new \Gino\CharField(array(
+            'name' => 'm2mtf_model_label',
+            'label' => _("Label del Modello agganciato al campo ManytoManyThrough"),
+            'max_lenght' => 100,
         ));
 
         return $columns;
@@ -108,7 +130,7 @@ class Item extends \Gino\Model {
 
     /**
      * @brief Url relativo record
-     * @return url
+     * @return string
      */
     public function getUrl() {
 
@@ -154,7 +176,7 @@ class Item extends \Gino\Model {
      * @brief Restituisce il numero di oggetti Gino.App.BuidApp.Item selezionati 
      * 
      * @param array $options array associativo di opzioni
-     * @return numero record
+     * @return int, numero record
      */
     public static function getCount($options = null) {
 

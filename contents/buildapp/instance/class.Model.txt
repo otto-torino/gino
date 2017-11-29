@@ -47,7 +47,7 @@ class {{MODEL}} extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome record
+     * @return string
      */
 	function __toString() {
 		return (string) $this->ml('name');
@@ -323,7 +323,7 @@ class {{MODEL}} extends \Gino\Model {
 
     /**
      * @brief Url dettaglio record per chiamate ajax
-     * @return url
+     * @return string
      */
     public function getAjaxUrl() {
     	
@@ -348,7 +348,7 @@ class {{MODEL}} extends \Gino\Model {
     /**
      * @brief Data nel formato 'domenica 5 febbraio 2014'
      * @param \Datetime $date oggetto Datetime
-     * @return data
+     * @return string, data
      */
     private function letterDate($date) {
         $days = array(_('domenica'), _('lunedì'), _('martedì'), _('mercoledì'), _('giovedì'), _('venerdì'), _('sabato'));
@@ -359,7 +359,7 @@ class {{MODEL}} extends \Gino\Model {
     /**
      * @brief Data inizio in formato letterale
      * @see self::letterDate
-     * @return data
+     * @return string, data
      */
     public function beginLetterDate() {
         return $this->letterDate(new \Datetime($this->date));
@@ -368,7 +368,7 @@ class {{MODEL}} extends \Gino\Model {
     /**
      * @brief Data fine in formato letterale
      * @see self::letterDate
-     * @return data
+     * @return string, data
      */
     public function endLetterDate() {
         $end_date = new \Datetime($this->date);
@@ -379,7 +379,7 @@ class {{MODEL}} extends \Gino\Model {
     /**
      * @brief Data inizio in formato iso 8601
      *
-     * @return data iso 8601
+     * @return string, data iso 8601
      */
     public function startDateIso() {
         $datetime = new \Datetime($this->date);
@@ -389,7 +389,7 @@ class {{MODEL}} extends \Gino\Model {
     /**
      * @brief Data fine in formato iso 8601
      *
-     * @return data iso 8601
+     * @return string, data iso 8601
      */
     public function endDateIso() {
         $end_date = new \Datetime($this->date);
