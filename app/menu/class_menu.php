@@ -146,7 +146,7 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Eliminazione di una istanza
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function deleteInstance() {
 
@@ -201,7 +201,7 @@ class menu extends \Gino\Controller {
      * @brief Visualizzazione menu
      * 
      * @see Gino.App.Menu.MenuVoice::getSelectedVoice()
-     * @return html, menu
+     * @return string, menu
      */
     public function render() {
 
@@ -278,7 +278,7 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Briciole di pane
-     * @return html, briciole di pane
+     * @return string, briciole di pane
      */
     public function breadCrumbs() {
 
@@ -307,7 +307,7 @@ class menu extends \Gino\Controller {
     /**
      * @brief Percorso alla voce di menu selezionata
      * @see self::breadCrumbs()
-     * @return html
+     * @return string
      */
     private function pathToSelectedVoice() {
 
@@ -396,7 +396,7 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Lista voci di menu aria amministrativa
-     * @return html
+     * @return string
      */
     private function listMenu() {
 
@@ -422,7 +422,7 @@ class menu extends \Gino\Controller {
      *
      * @see jsSortLib()
      * @param integer $parent valore ID della voce di menu alla quale la voce corrente è collegata
-     * @return html
+     * @return string
      */
     private function renderMenuAdmin($parent=0) {
 
@@ -484,7 +484,7 @@ class menu extends \Gino\Controller {
      * @brief Form inserimento/modifica voce di menu
      * @param \Gino\App\Menu\MenuVoice istanza di Gino.App.Menu.MenuVoice
      * @param int $parent id voce parent
-     * @return html, form
+     * @return string, form
      */
     private function formMenuVoice($voice, $parent) {
 
@@ -603,7 +603,7 @@ class menu extends \Gino\Controller {
      *     - actionUpdateOrder()
      *
      * @see actionUpdateOrder()
-     * @return html, codice js
+     * @return string, codice js
      */
     private function jsSortLib() {
 
@@ -638,7 +638,7 @@ class menu extends \Gino\Controller {
      * Chiamate Ajax: \n
      *     - printItemsList()
      * 
-     * @return html, codice js
+     * @return string, codice js
      */
     private function jsSearchModulesLib() {
 
@@ -721,7 +721,7 @@ class menu extends \Gino\Controller {
      * 
      * @see Gino.App.Auth.Permission::getFromFullCode()
      * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
-     * @return html
+     * @return string
      */
     private function printItemsPage($pages){
 
@@ -776,12 +776,11 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Interfacce che le classi dei moduli mettono a disposizione del menu
-     * 
-     * Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
+     * @description Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
      * 
      * @see Gino.App.Auth.Permission::getFromFullCode()
      * @param array $array_search array di array con le chiavi id, name, label, role1
-     * @return html
+     * @return string
      */
     private function printItemsClass($modules_app, $modules){
 
@@ -891,7 +890,10 @@ class menu extends \Gino\Controller {
                             $perms_js = array();
                             if($permissions_code and count($permissions_code)) {
                                 foreach($permissions_code as $permission_code) {
-                                    $p = \Gino\App\Auth\Permission::getFromClassCode($class, $permission_code);
+                                    if(!preg_match('#\.#', $permission_code)) {
+                                        $permission_code = $class_name.'.'.$permission_code;
+                                    }
+                                    $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
                                     $permissions[] = $p->label;
                                     $perms_js[] = $p->id;
                                 }

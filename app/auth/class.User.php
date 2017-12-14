@@ -53,7 +53,7 @@ class User extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome e cognome
+     * @return string, nome e cognome
      */
     function __toString() {
         return (string) ($this->lastname.' '.$this->firstname);
@@ -249,7 +249,7 @@ class User extends \Gino\Model {
       *   - @b form_action (string): indirizzo del form action
       *   - @b rules (string): descrizione delle regole alle quali è sottoposta la password
       *   - @b maxlength (integer): numero massimo di caratteri
-      * @return html, form
+      * @return string, form
       */
      public function formPassword($options=array()) {
 
@@ -314,7 +314,7 @@ class User extends \Gino\Model {
       * @brief Imposta la password (dal form di inserimento utente)
       * 
       * @see generatePassword()
-      * @see pub::cryptMethod()
+      * @see \Gino\cryptMethod()
       * @param string $password
       * @param array $options
       *   array associativo di opzioni
@@ -407,7 +407,7 @@ class User extends \Gino\Model {
      * @param array $options
      *   array associativo di opzioni
      *   - @b aut_password_length (integer): numero di caratteri della password automatica
-     * @return password
+     * @return string, password
      */
     public static function generatePassword($options=array()){
 
@@ -680,7 +680,7 @@ class User extends \Gino\Model {
         }
         elseif(is_string($code))
         {
-            $res = $db->select('id', Permission::$table, "class='$class' AND code='$value'");
+            $res = $db->select('id', Permission::$table, "class='$class' AND code='$code'");
             if($res && count($res))
             {
                 $perm_id = $res[0]['id'];

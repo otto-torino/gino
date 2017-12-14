@@ -184,7 +184,7 @@ class AdminTable {
      * @param string $order_dir
      * @param string $table
      * @param string $name
-     * @return order clause
+     * @return string, order clause
      */
     private function adminListOrder($order_dir, $table, $name) {
     
@@ -203,7 +203,7 @@ class AdminTable {
      * @param array $options_view opzioni della vista (comprese le autorizzazioni a visualizzare singoli campi)
      * @param array $options_form opzioni del form (comprese le autorizzazioni a mostrare l'input di singoli campi e a salvarli)
      * @param array $options_field opzioni degli elementi nel form
-     * @return interfaccia di amministrazione
+     * @return mixed, interfaccia di amministrazione
      * 
      * GET params: \n
      * - insert, int
@@ -308,7 +308,7 @@ class AdminTable {
      *   array associativo di opzioni
      *   - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
      * @param array $options_field
-     * @return response or redirect
+     * @return \Gino\Http\Response or \Gino\Http\Redirect
      */
     public function action($model_form, $options_form, $options_field) {
     	
@@ -437,7 +437,7 @@ class AdminTable {
      *     - @b filename_export (string): nome del file di esportazione (default items-export.csv)
      *     - @b export (integer): parametro GET passato dal metodo @a backOffice per indicare la richiesta del file di esportazione
      *     - @b advanced_export (boolean): esportazione avanzata dei dati (default false)
-     * @return lista record paginata e ordinabile
+     * @return string, lista record paginata e ordinabile
      * 
      * ##Descrizione
      * Impostando nel costruttore l'opzione @a edit_allow vengono mostrati soltanto i record con i valori id indicati nell'opzione.
@@ -1146,7 +1146,7 @@ class AdminTable {
      *   - @a escape (boolean): default true
      * @param string $fname nome del campo della tabella al quale far seguire gli eventuali filtri aggiuntivi
      * @param string $class_name nome della classe
-     * @return elementi del form in html
+     * @return string, elementi del form in html
      */
     private function formFiltersAdd($filters, $fname, $class_name) {
 
@@ -1173,7 +1173,7 @@ class AdminTable {
                     }
                     elseif($ff_input == 'select')
                     {
-                        $form .= Input::select($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+                        $form .= Input::select_label($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
                     }
                     elseif($ff_input == 'date')
                     {
@@ -1194,7 +1194,7 @@ class AdminTable {
      *
      * @param array $add_params elenco parametri da aggiungere al path (Gino.Http.Request::path) (formato chiave=>valore)
      * @param array $remove_params elenco parametri da rimuovere dal path (Gino.Http.Request::path)
-     * @return url ricostruito
+     * @return string, url ricostruito
      */
     protected function editUrl($add_params = array(), $remove_params = array()) {
 
@@ -1209,7 +1209,7 @@ class AdminTable {
      *   - @b value_type (string)
      *   - @b method (array)
      *   - @b escape (boolean)
-     * @return valore ripulito
+     * @return mixed, valore ripulito
      */
     private function clean($name, $options=null) {
 
