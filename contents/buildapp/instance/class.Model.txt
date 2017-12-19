@@ -372,7 +372,6 @@ class {{MODEL}} extends \Gino\Model {
      */
     public function endLetterDate() {
         $end_date = new \Datetime($this->date);
-        $end_date->modify('+'.($this->duration - 1).'days');
         return $this->letterDate($end_date);
     }
 
@@ -393,7 +392,6 @@ class {{MODEL}} extends \Gino\Model {
      */
     public function endDateIso() {
         $end_date = new \Datetime($this->date);
-        $end_date->modify('+'.($this->duration - 1).'days');
         return $end_date->format('c');
     }
     

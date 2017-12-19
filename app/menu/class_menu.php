@@ -21,6 +21,7 @@ use \Gino\Http\Response;
 use \Gino\Http\Redirect;
 use \Gino\App\SysClass\ModuleApp;
 use \Gino\App\Module\ModuleInstance;
+use Gino\App\Page\PageEntry;
 
 require_once('class.MenuVoice.php');
 
@@ -146,7 +147,7 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Eliminazione di una istanza
-     * @return bool, risultato operazione
+     * @return boolean, risultato operazione
      */
     public function deleteInstance() {
 
@@ -719,13 +720,11 @@ class menu extends \Gino\Controller {
     /**
      * @brief Elenco pagine che è possibile collegare a una voce di menu
      * 
-     * @see Gino.App.Auth.Permission::getFromFullCode()
-     * @param array $array_search la chiave è il valore ID e il valore il titolo della pagina
+     * @see Gino.App.Layout.layout::infoPage()
+     * @param array $pages Gino.App.Page.PageEntry[]
      * @return string
      */
     private function printItemsPage($pages){
-
-        \Gino\Loader::import('auth', 'Permission');
 
         if(count($pages)) {
             $GINO = "<h3>"._("Pagine")."</h3>";
@@ -739,29 +738,11 @@ class menu extends \Gino\Controller {
             ));
             $tbl_rows = array();
             foreach($pages AS $page) {
-                $page_perm = '';
-                if($page->private) $page_perm .= _("pagina privata");
-                if($page->private && $page->users) $page_perm .= " / ";
-                if($page->users) $page_perm .= _("pagina limitata ad utenti selezionati");
-
-                $p = \Gino\App\Auth\Permission::getFromFullCode('page.can_view_private');
-
-                $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                    $('url').set('value', '".$page->getUrl()."');
-                    $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                    var private = $(this).get('data-private');
-                    if(private.toInt()) {
-                        $$('input[value=".$p->id.",0]').setProperty('checked', 'checked');
-                    }
-                    location.hash = 'top';
-                \" />\n";
-
-                $tbl_rows[] = array(
-                    \Gino\htmlChars($page->title),
-                    $page->getUrl(),
-                    $page_perm,
-                    $button
-                );
+                
+                $data = \Gino\App\Layout\layout::infoPage($page);
+                if(is_array($data) and count($data)) {
+                    $tbl_rows[] = $data;
+                }
             }
             $view_table->assign('rows', $tbl_rows);
             $GINO .= $view_table->render();
@@ -770,7 +751,6 @@ class menu extends \Gino\Controller {
             $GINO = '';
         }
 
-
         return $GINO;
     }
 
@@ -778,13 +758,12 @@ class menu extends \Gino\Controller {
      * @brief Interfacce che le classi dei moduli mettono a disposizione del menu
      * @description Si richiamano i metodi outputFunctions() delle classi dei moduli e dei moduli di sistema
      * 
-     * @see Gino.App.Auth.Permission::getFromFullCode()
-     * @param array $array_search array di array con le chiavi id, name, label, role1
+     * @see Gino.App.Layout.layout::infoModule()
+     * @param array $modules_app Gino.App.SysClass.ModuleApp[]
+     * @param array $modules Gino.App.Module.ModuleInstance[]
      * @return string
      */
     private function printItemsClass($modules_app, $modules){
-
-        \Gino\Loader::import('auth', 'Permission');
 
         $GINO = '';
 
@@ -800,62 +779,22 @@ class menu extends \Gino\Controller {
                 ''
             ));
             $tbl_rows = array();
-            $cnt = 0;
+            
             foreach($modules_app AS $module_app) {
 
-                $class = $module_app->classNameNs();
-                $class_name = $module_app->className();
-
-                if(method_exists($class, 'outputFunctions')) {
-                    $list = call_user_func(array($class, 'outputFunctions'));
-                    //@todo aggiungere controllo che sia nell'ini
-                    foreach($list as $func => $desc) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(isset($public_method)) {
-                            $cnt++;
-                            $permissions_code = $desc['permissions'];
-                            $description = $desc['label'];
-                            $permissions = array();
-                            $perms_js = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                	if(!preg_match('#\.#', $permission_code)) {
-                                		$permission_code = $class_name.'.'.$permission_code;
-                                	}
-                                    $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                    $perms_js[] = $p->id;
-                                }
-                            }
-
-                            $url = $this->_registry->router->link($class_name, $func);
-
-                            $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                                $('url').set('value', '".$url."');
-                                $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                                perms = $(this).get('data-perm');
-                                if(perms) {
-                                    perms.split(';').each(function(p) {
-                                        $$('input[value=' + p + ',0]').setProperty('checked', 'checked');
-                                    })
-                                }
-                                location.hash = 'top';
-                            \" />\n";
-
-                            $tbl_rows[] = array(
-                                \Gino\htmlChars($module_app->label),
-                                $description,
-                                $url,
-                                implode(', ', $permissions),
-                                $button
-                            );
-                        }
-                    }
+                $data = \Gino\App\Layout\layout::infoModule($module_app);
+                if(is_array($data) and count($data)) {
+                    $tbl_rows[] = $data;
                 }
             }
-            $view_table->assign('rows', $tbl_rows);
-            $GINO .= $cnt ? $view_table->render() : "<p>"._('Nessun risultato')."</p>";
+            
+            if(count($tbl_rows)) {
+                $view_table->assign('rows', $tbl_rows);
+                $GINO .= $view_table->render();
+            }
+            else {
+                $GINO .= "<p>"._('Nessun risultato')."</p>";
+            }
         }
 
         if(count($modules)) {
@@ -873,59 +812,19 @@ class menu extends \Gino\Controller {
             $cnt = 0;
             foreach($modules AS $module) {
 
-                $class = $module->classNameNs();
-                $class_name = $module->className();
-                $module_name = $module->name;
-
-                if(method_exists($class, 'outputFunctions')) {
-                    $list = call_user_func(array($class, 'outputFunctions'));
-                    foreach($list as $func => $desc) {
-                        $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
-                        $public_method = @$method_check['PUBLIC_METHODS'][$func];
-                        if(isset($public_method)) {
-                            $cnt++;
-                            $permissions_code = $desc['permissions'];
-                            $description = $desc['label'];
-                            $permissions = array();
-                            $perms_js = array();
-                            if($permissions_code and count($permissions_code)) {
-                                foreach($permissions_code as $permission_code) {
-                                    if(!preg_match('#\.#', $permission_code)) {
-                                        $permission_code = $class_name.'.'.$permission_code;
-                                    }
-                                    $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
-                                    $permissions[] = $p->label;
-                                    $perms_js[] = $p->id;
-                                }
-                            }
-
-                            $url = $this->_registry->router->link($module_name, $func);
-
-                            $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                            $('url').set('value', '".$url."');
-                            perms = $(this).get('data-perm');
-                            $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                            if(perms) {
-                                    perms.split(';').each(function(p) {
-                                            $$('input[value=' + p + ',".$module->id."]').setProperty('checked', 'checked');
-                                    })
-                            }
-                            location.hash = 'top';
-                            \" />\n";
-
-                            $tbl_rows[] = array(
-                                \Gino\htmlChars($module->label),
-                                $description,
-                                $url,
-                                implode(', ', $permissions),
-                                $button
-                            );
-                        }
-                    }
+                $data = \Gino\App\Layout\layout::infoModule($module);
+                if(is_array($data) and count($data)) {
+                    $tbl_rows[] = $data;
                 }
             }
-            $view_table->assign('rows', $tbl_rows);
-            $GINO .= $cnt ? $view_table->render() : "<p>"._('Nessun risultato')."</p>";
+            
+            if(count($tbl_rows)) {
+                $view_table->assign('rows', $tbl_rows);
+                $GINO .= $view_table->render();
+            }
+            else {
+                $GINO .= "<p>"._('Nessun risultato')."</p>";
+            }
         }
 
         return $GINO;

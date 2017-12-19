@@ -31,7 +31,6 @@ use \Gino\App\Auth\Permission;
  * @see Gino.Template
  * @see Gino.Skin
  *
- *
  * Fornisce le interfacce per la modifica dei file di frontend generali di gino: \n
  *   - file css presenti nella directory @a css
  *   - file delle viste presenti nella directory @a views
@@ -119,7 +118,7 @@ class layout extends \Gino\Controller {
     /**
      * @brief Interfaccia di amministrazione dei template
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
-     * @return Gino.Http.Response o html
+     * @return Gino.Http.Response or string
      */
     private function manageTemplate(\Gino\Http\Request $request) {
 
@@ -760,6 +759,127 @@ oppure variabili di sessione.")."</li>";
     	else {
     		return null;
     	}
+    }
+    
+    /**
+     * @brief Dati dei moduli per l'inserimento nelle voci di menu
+     * 
+     * @see Gino.App.Menu.menu::printItemsClass()
+     * @see Gino.App.Auth.Permission::getFromFullCode()
+     * @param object $module Gino.App.SysClass.ModuleApp or Gino.App.Module.ModuleInstance
+     * @return NULL|array
+     */
+    public static function infoModule($module) {
+        
+        \Gino\Loader::import('auth', 'Permission');
+        
+        $class = $module->classNameNs();
+        $class_name = $module->className();
+        $data = null;
+        
+        if(is_a($module, 'ModuleApp')) {
+            $instance_name = $class_name;
+            $instance = 0;
+        }
+        else {
+            $instance_name = $module->name;
+            $instance = $module->id;
+        }
+        
+        if(method_exists($class, 'outputFunctions')) {
+            $list = call_user_func(array($class, 'outputFunctions'));
+            //@todo aggiungere controllo che sia nell'ini
+            foreach($list as $func => $desc) {
+                $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
+                $public_method = @$method_check['PUBLIC_METHODS'][$func];
+                if(isset($public_method)) {
+                    
+                    $permissions_code = $desc['permissions'];
+                    $description = $desc['label'];
+                    $permissions = array();
+                    $perms_js = array();
+                    if($permissions_code and count($permissions_code)) {
+                        foreach($permissions_code as $permission_code) {
+                            if(!preg_match('#\.#', $permission_code)) {
+                                $permission_code = $class_name.'.'.$permission_code;
+                            }
+                            $p = \Gino\App\Auth\Permission::getFromFullCode($permission_code);
+                            $permissions[] = $p->label;
+                            $perms_js[] = $p->id;
+                        }
+                    }
+                    
+                    $registry = \Gino\Registry::instance();
+                    
+                    $url = $registry->router->link($instance_name, $func);
+                    
+                    $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
+                                $('url').set('value', '".$url."');
+                                $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
+                                perms = $(this).get('data-perm');
+                                if(perms) {
+                                    perms.split(';').each(function(p) {
+                                        $$('input[value=' + p + ',".$instance."]').setProperty('checked', 'checked');
+                                    })
+                                }
+                                location.hash = 'top';
+                            \" />\n";
+                    
+                    $data = array(
+                        \Gino\htmlChars($module->label),
+                        $description,
+                        $url,
+                        implode(', ', $permissions),
+                        $button
+                    );
+                }
+            }
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * @brief Dati delle pagine per l'inserimento nelle voci di menu
+     *
+     * @see Gino.App.Menu.menu::printItemsPage()
+     * @see Gino.App.Auth.Permission::getFromFullCode()
+     * @param object $module Gino.App.Page.PageEntry
+     * @return array
+     */
+    public static function infoPage($page) {
+        
+        \Gino\Loader::import('auth', 'Permission');
+        
+        $page_perm = '';
+        if($page->private) {
+            $page_perm .= _("pagina privata");
+        }
+        if($page->private && $page->users) {
+            $page_perm .= " / ";
+        }
+        if($page->users) {
+            $page_perm .= _("pagina limitata ad utenti selezionati");
+        }
+        
+        $p = \Gino\App\Auth\Permission::getFromFullCode('page.can_view_private');
+        
+        $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
+        $('url').set('value', '".$page->getUrl()."');
+        $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
+        var private = $(this).get('data-private');
+        if(private.toInt()) {
+            $$('input[value=".$p->id.",0]').setProperty('checked', 'checked');
+        }
+        location.hash = 'top';
+        \" />\n";
+        
+        return array(
+            \Gino\htmlChars($page->title),
+            $page->getUrl(),
+            $page_perm,
+            $button
+        );
     }
 
     /**

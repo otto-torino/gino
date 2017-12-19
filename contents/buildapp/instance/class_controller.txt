@@ -458,11 +458,6 @@ class {{CONTROLLER}} extends \Gino\Controller {
             $delete_deny = array();
         }
         
-        // dft duration
-        if(isset($request->POST['duration']) and !$request->POST['duration']) {
-            $request->POST['duration'] = 1;
-        }
-        
         $admin_table = Loader::load('AdminTable', array($this, array('delete_deny'=>$delete_deny)));
 
         $backend = $admin_table->backOffice(
