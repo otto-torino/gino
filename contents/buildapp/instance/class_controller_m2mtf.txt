@@ -17,8 +17,9 @@ use \Gino\Loader;
 use \Gino\View;
 use \Gino\GTag;
 
-require_once('class.{{MODEL}}.php');
-require_once('class.Category.php');
+require_once 'class.{{MODEL}}.php';
+require_once 'class.Category.php';
+require_once 'class.{{M2MTFMODELNAME}}.php';
 
 /**
  * @brief Classe di tipo Gino.Controller
@@ -52,12 +53,12 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @param int $mdlId id dell'istanza di tipo {{CONTROLLER}}
+     * @param int $instance_id valore id dell'istanza di tipo {{CONTROLLER}}
      * @return istanza di Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
      */
-    public function __construct($mdlId) {
+    public function __construct($instance_id) {
 
-        parent::__construct($mdlId);
+        parent::__construct($instance_id);
 
         $this->_tbl_opt = '{{TABLEKEY}}_opt';
         
@@ -95,7 +96,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe utili per la generazione di nuove istanze
-     * @return lista delle proprietà utilizzate per la creazione di istanze (tabelle, css, viste, folders)
+     * @return array, lista delle proprietà utilizzate per la creazione di istanze (tabelle, css, viste, folders)
      */
     public static function getClassElements() {
     	
@@ -104,6 +105,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
                 '{{TABLEKEY}}_{{MODELREFERENCE}}',
                 '{{TABLEKEY}}_{{MODELREFERENCE}}_category',
                 '{{TABLEKEY}}_category',
+                '{{TABLEKEY}}_{{MODELREFERENCE}}_{{M2MTFMODELREFERENCE}}',
                 '{{TABLEKEY}}_opt',
             ),
             "css"=>array(
@@ -458,11 +460,6 @@ class {{CONTROLLER}} extends \Gino\Controller {
             $delete_deny = array();
         }
         
-        // dft duration
-        if(isset($request->POST['duration']) and !$request->POST['duration']) {
-            $request->POST['duration'] = 1;
-        }
-        
         $admin_table = Loader::load('AdminTable', array($this, array('delete_deny'=>$delete_deny)));
 
         $backend = $admin_table->backOffice(
@@ -545,7 +542,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      * @brief Definisce la presentazione del singolo item trovato a seguito di ricerca (modulo "Ricerca nel sito")
      *
      * @param array $results array associativo contenente i risultati della ricerca
-     * @return html, presentazione item tra i risultati della ricerca
+     * @return string, presentazione item tra i risultati della ricerca
      */
     public function searchSiteResult($results) {
 

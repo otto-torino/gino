@@ -41,6 +41,7 @@ class ModelForm extends Form {
      * @param object $model
      * @param array $options
      *   array associativo di opzioni
+     *   - opzioni del costruttore della classe Gino.Form
      *   - @b fields (array): elenco dei campi da mostrare come input
      */
     function __construct($model, $options=array()){

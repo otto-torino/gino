@@ -36,6 +36,17 @@ namespace Gino\App\{{CONTROLLER_NS}};
         
         <div itemprop="description"><?= \Gino\htmlChars($item->ml('description')) ?></div>
         
+        <? if(count($item->{{M2MTFNAME}})): ?>
+			<ul class="{{M2MTFNAME}}">
+			<? foreach($item->{{M2MTFNAME}} as $mid): ?>
+				<? $m2mobj = new {{M2MTFMODELNAME}}($mid, $item->getController()); ?>
+				<li>
+					<?= \Gino\htmlCharsText($m2mobj->ml('name')) ?>
+				</li>
+			<? endforeach ?>
+			</ul>
+		<? endif ?>
+		
         <? if($related_contents_list): ?>
             <h2><?= _('Potrebbe interessarti anche...') ?></h2>
             <?= $related_contents_list ?>

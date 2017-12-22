@@ -297,6 +297,10 @@ CREATE TABLE buildapp_item (
   istantiable tinyint NOT NULL DEFAULT '0',
   model_name nvarchar(50) NOT NULL,
   model_label nvarchar(100) NOT NULL,
+  m2mtf tinyint NOT NULL DEFAULT '0',
+  m2mtf_name nvarchar(50) NULL,
+  m2mtf_model_name nvarchar(50) NULL,
+  m2mtf_model_label nvarchar(100) NULL,
   CONSTRAINT PK_buildapp_item PRIMARY KEY (id)
 )
 

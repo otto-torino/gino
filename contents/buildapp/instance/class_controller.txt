@@ -17,8 +17,8 @@ use \Gino\Loader;
 use \Gino\View;
 use \Gino\GTag;
 
-require_once('class.{{MODEL}}.php');
-require_once('class.Category.php');
+require_once 'class.{{MODEL}}.php';
+require_once 'class.Category.php';
 
 /**
  * @brief Classe di tipo Gino.Controller
@@ -52,11 +52,12 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
     /**
      * @brief Costruttore
+     * @param int $instance_id valore id dell'istanza di tipo {{CONTROLLER}}
      * @return istanza di Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
      */
-    public function __construct() {
+    public function __construct($instance_id) {
 
-        parent::__construct();
+        parent::__construct($instance_id);
 
         $this->_tbl_opt = '{{TABLEKEY}}_opt';
         
@@ -94,7 +95,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe utili per la generazione di nuove istanze
-     * @return lista delle proprietà utilizzate (tabelle, css, viste, folders)
+     * @return array, lista delle proprietà utilizzate per la creazione di istanze (tabelle, css, viste, folders)
      */
     public static function getClassElements() {
     	
@@ -118,6 +119,50 @@ class {{CONTROLLER}} extends \Gino\Controller {
                 )
             )
         );
+    }
+
+    /**
+     * @brief Metodo invocato quando viene eliminata una istanza
+     * Si esegue la cancellazione dei dati da db e l'eliminazione di file e directory 
+     * @return TRUE
+     */
+    public function deleteInstance() {
+    	
+        $this->requirePerm('can_admin');
+
+        /* eliminazione record */
+		{{MODEL}}::deleteInstance($this);
+		/* eliminazione categorie */
+        Category::deleteInstance($this);
+
+        /*
+         * delete record and translation from options table
+         */
+        $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
+        \Gino\Translation::deleteTranslations($this->_tbl_opt, $opt_id);
+        $result = $this->_db->delete($this->_tbl_opt, "instance=".$this->_instance);
+
+        /*
+         * delete css files
+         */
+        $classElements = $this->getClassElements();
+        foreach($classElements['css'] as $css) {
+            unlink(APP_DIR.OS.$this->_class_name.OS.\Gino\baseFileName($css)."_".$this->_instance_name.".css");
+        }
+
+        /* eliminazione views */
+        foreach($classElements['views'] as $k => $v) {
+            unlink($this->_view_dir.OS.\Gino\baseFileName($k)."_".$this->_instance_name.".php");
+        }
+
+        /*
+         * delete folder structure
+         */
+        foreach($classElements['folderStructure'] as $fld=>$fldStructure) {
+            \Gino\deleteFileDir($fld.OS.$this->_instance_name, TRUE);
+        }
+
+        return TRUE;
     }
 
     /**
@@ -164,7 +209,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
         $this->_registry->keywords = null;
         // /Registry
 
-        $view = new View($this->_view_dir, 'detail');
+        $view = new View($this->_view_dir, 'detail_'.$this->_instance_name);
         
         // Breadcrumbs
         if(class_exists('\Gino\BreadCrumbs', false)) {
@@ -180,7 +225,8 @@ class {{CONTROLLER}} extends \Gino\Controller {
         // /Breadcrumbs
 
         $dict = array(
-            'controller' => $this,
+            'instance_name' => $this->_instance_name,
+        	'controller' => $this,
             'item' => $item,
             'related_contents_list' => $this->relatedContentsList($item),
         	'breadcrumbs' => $bc,
@@ -312,9 +358,10 @@ class {{CONTROLLER}} extends \Gino\Controller {
         
         $items = {{MODEL}}::objects($this, array('where' => $where, 'limit' => $limit, 'order' => 'date DESC'));
 
-        $view = new View($this->_view_dir, 'archive');
+        $view = new View($this->_view_dir, 'archive_'.$this->_instance_name);
         $dict = array(
-            'controller' => $this,
+            'instance_name' => $this->_instance_name,
+        	'controller' => $this,
             'items' => $items,
         	'ctg' => $ctg,
             'pagination' => $paginator->pagination(),
@@ -331,7 +378,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Response
      */
-    public function manage{{METHODNAME}}(\Gino\Http\Request $request) {
+    public function manageDoc(\Gino\Http\Request $request) {
     	
         $this->requirePerm(array('can_admin'));
 
@@ -411,11 +458,6 @@ class {{CONTROLLER}} extends \Gino\Controller {
             $delete_deny = array();
         }
         
-        // dft duration
-        if(isset($request->POST['duration']) and !$request->POST['duration']) {
-            $request->POST['duration'] = 1;
-        }
-        
         $admin_table = Loader::load('AdminTable', array($this, array('delete_deny'=>$delete_deny)));
 
         $backend = $admin_table->backOffice(
@@ -464,9 +506,9 @@ class {{CONTROLLER}} extends \Gino\Controller {
     		array(),
     		array(
     			'description' => array(
-    				'widget' => 'editor',
-    				'notes' => FALSE,
-    				'img_preview' => FALSE,
+    				'widget'=>'editor',
+    				'notes'=>FALSE,
+    				'img_preview'=>FALSE,
     			)
     		)
     	);
@@ -498,7 +540,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
      * @brief Definisce la presentazione del singolo item trovato a seguito di ricerca (modulo "Ricerca nel sito")
      *
      * @param array $results array associativo contenente i risultati della ricerca
-     * @return html, presentazione item tra i risultati della ricerca
+     * @return string, presentazione item tra i risultati della ricerca
      */
     public function searchSiteResult($results) {
 

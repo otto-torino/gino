@@ -1,0 +1,514 @@
+<?php
+/**
+ * @file class_{{CONTROLLER}}.php
+ * @brief Contiene la definizione della classe Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @author marco guidotti
+ * @author abidibo
+ */
+
+/**
+ * @namespace Gino.App.{{CONTROLLER_NS}}
+ * @description Namespace dell'applicazione {{CONTROLLER_NS}}
+ */
+namespace Gino\App\{{CONTROLLER_NS}};
+
+use \Gino\Loader;
+use \Gino\View;
+use \Gino\GTag;
+
+require_once 'class.{{MODEL}}.php';
+require_once 'class.Category.php';
+require_once 'class.{{M2MTFMODELNAME}}.php';
+
+/**
+ * @brief Classe di tipo Gino.Controller
+ *
+ * @version 0.1.0
+ * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @author Marco Guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * ##CONFIGURATION
+ * In INSTALLED_APPS aggiungere:
+ * '{instance_name}' => 'code-fontawesome',	// @see http://fontawesome.io/icons/
+ * 
+ * ##OUTPUTS
+ * - @a archive: archivio (page)
+ * - @a detail: dettaglio (page)
+ * 
+ * ##PERMESSI
+ * L'applicazione prevede un livello di permesso: \n
+ * - can_admin: amministrazione completa del modulo
+ */
+class {{CONTROLLER}} extends \Gino\Controller {
+
+    /* options */
+    private $_items_for_page;
+
+    /**
+     * @brief Tabella di opzioni
+     */
+    private $_tbl_opt;
+
+    /**
+     * @brief Costruttore
+     * @return istanza di Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
+     */
+    public function __construct() {
+
+        parent::__construct();
+
+        $this->_tbl_opt = '{{TABLEKEY}}_opt';
+        
+        $this->setAppOptions();
+    }
+    
+    private function setAppOptions() {
+    
+    	$this->_optionsValue = array(
+    		'items_for_page' => 10,
+    	);
+    	
+    	if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
+    
+    		$this->_items_for_page = $this->setOption('items_for_page', array('value' => $this->_optionsValue['items_for_page']));
+    		
+    		$this->_registry->apps->{$this->_instance_name} = array(
+    			'items_for_page' => $this->_items_for_page,
+    		);
+    	}
+    	else {
+    		$this->_items_for_page = $this->_registry->apps->{$this->_instance_name}['items_for_page'];
+    	}
+    	
+    	$this->_options = \Gino\Loader::load('Options', array($this));
+    	$this->_optionsLabels = array(
+    		'items_for_page' => array(
+    			'label' => _('Numero di elementi per pagina'),
+    			'section' => true,
+    			'section_title' => _('Archivio'),
+    			'value' => $this->_items_for_page
+    		)
+    	);
+    }
+
+    /**
+     * @brief Restituisce alcune proprietà della classe utili per la generazione di nuove istanze
+     * @return array, lista delle proprietà utilizzate (tabelle, css, viste, folders)
+     */
+    public static function getClassElements() {
+    	
+        return array(
+            "tables"=>array(
+                '{{TABLEKEY}}_{{MODELREFERENCE}}',
+                '{{TABLEKEY}}_{{MODELREFERENCE}}_category',
+                '{{TABLEKEY}}_category',
+                '{{TABLEKEY}}_{{MODELREFERENCE}}_{{M2MTFMODELREFERENCE}}',
+                '{{TABLEKEY}}_opt',
+            ),
+            "css"=>array(
+                '{{CONTROLLER}}.css',
+            ),
+            "views" => array(
+                'archive.php' => _('Archivio'),
+                'detail.php' => _('Dettaglio'),
+            ),
+            "folderStructure"=>array (
+                CONTENT_DIR.OS.'{{CONTROLLER}}'=> array(
+                    
+                )
+            )
+        );
+    }
+
+    /**
+     * @brief Definizione dei metodi pubblici che forniscono un output per il front-end
+     * 
+     * Questo metodo viene letto dal motore di generazione dei layout (metodi non presenti nel file ini) e dal motore di generazione
+     * di voci di menu (metodi presenti nel file ini) per presentare una lista di output associati all'istanza di classe.
+     * 
+     * @return array, lista metodi NOME_METODO => array('label' => LABEL, 'permissions' = PERMISSIONS)
+     */
+    public static function outputFunctions() {
+    	
+        $list = array(
+            "archive" => array("label"=>_("Archivio"), "permissions"=>array()),
+        );
+
+        return $list;
+    }
+
+    /**
+     * @brief Vista dettaglio record
+     * @description Il metodo può essere chiamato con parametro GET ajax=1 per non stampare tutto il documento
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @throws Gino.Exception.Exception404 se il record non viene trovato
+     * @throws Gino.Exception.Exception403 se non si hanno i permessi per visualizzare il record
+     * @return Gino.Http.Response
+     */
+    public function detail(\Gino\Http\Request $request) {
+
+        $slug = \Gino\cleanVar($request->GET, 'id', 'string');
+        $item = {{MODEL}}::getFromSlug($slug, $this);
+
+        $ajax = \Gino\cleanVar($request->GET, 'ajax', 'int');
+
+        if(!$item->id) {
+            throw new \Gino\Exception\Exception404();
+        }
+
+        // Set Registry
+        $this->_registry->addCss($this->_class_www.'/{{CONTROLLER}}.css');
+        
+        $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.\Gino\htmlChars($item->ml('name'));
+        $this->_registry->description = \Gino\cutHtmlText($item->ml('description'), 200, '...', true, false, true, '');
+        $this->_registry->keywords = null;
+        // /Registry
+
+        $view = new View($this->_view_dir, 'detail');
+        
+        // Breadcrumbs
+        if(class_exists('\Gino\BreadCrumbs', false)) {
+        	$breadcrumbs = new \Gino\BreadCrumbs($this->_class_name);
+        	$breadcrumbs->setItems(array(
+        		array('label' => _("Elenco"), 'link' => $this->link($this->_instance_name, 'archive')),
+        		array('label' => $item->ml('name'), 'current' => true)
+        	));
+        	$bc = $breadcrumbs->render();
+        } else {
+        	$bc = null;
+        }
+        // /Breadcrumbs
+
+        $dict = array(
+            'controller' => $this,
+            'item' => $item,
+            'related_contents_list' => $this->relatedContentsList($item),
+        	'breadcrumbs' => $bc,
+        	'ajax' => (bool)$ajax
+        );
+
+        if($ajax) {
+            return new \Gino\Http\Response($view->render($dict));
+        }
+
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
+    }
+    
+    /**
+     * @brief Lista di contenuti correlati per tag
+     * @param \Gino\App\{{CONTROLLER_NS}}\{{MODEL}} $item istanza di Gino.App.{{CONTROLLER_NS}}.{{MODEL}}
+     * @return string, lista contenuti correlati
+     */
+    public function relatedContentsList($item) {
+    	
+        $related_contents = GTag::getRelatedContents($this->getClassName(), '{{MODEL}}', $item->id);
+        if(count($related_contents)) {
+            $view = new View(null, 'related_contents_list');
+            return $view->render(array('related_contents' => $related_contents));
+        }
+        else return '';
+    }
+
+    /**
+     * @brief Vista archivio record
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function archive(\Gino\Http\Request $request) {
+
+    	$this->_registry->addCss($this->_class_www."/{{CONTROLLER}}.css");
+    	$this->_registry->addCss(CSS_WWW."/responsive-table.css");
+    	
+    	// Direct link values
+    	$ctgslug = \Gino\cleanVar($request->GET, 'ctg', 'string');
+    	$tag = \Gino\cleanVar($request->GET, 'tag', 'string');
+    	$month = \Gino\cleanVar($request->GET, 'month', 'int');
+        $year = \Gino\cleanVar($request->GET, 'year', 'int');
+        
+        if($ctgslug) {
+        	$ctg = Category::getFromSlug($ctgslug, $this);
+        	$ctg_id = $ctg ? $ctg->id : 0;
+        }
+        else {
+        	$ctg = null;
+        	$ctg_id = 0;
+        }
+        
+        if($month and $year) {
+            $month_days = date('t', mktime(0, 0, 0, $month, 1, $year));
+            $date_from = "$year-".($month < 10 ? '0'.$month : $month).'-01';
+            $date_to = "$year-".($month < 10 ? '0'.$month : $month).'-'.$month_days;
+        }
+        else {
+            $date_from = null;
+            $date_to = null;
+        }
+        // /Direct
+        
+        $search_fields = array(
+        	'category' => array(
+        		'label' => _('Categoria'),
+        		'input' => 'select',
+        		'data' => Category::getForSelect($this),
+        		'type' => 'int',
+        		'options' => null
+        	),
+        	'tag' => array(
+        		'label' => _('Tag'),
+        		'input' => 'tag',
+        		'type' => 'string',
+        		'options' => null
+        	),
+        	'text' => array(
+        		'label' => _('Nome/Descrizione'),
+        		'input' => 'text',
+        		'type' => 'string',
+        		'options' => null
+        	),
+        	'date_from' => array(
+        		'label' => _('Da'),
+        		'input' => 'date',
+        		'type' => 'string',
+        		'options' => null
+        	),
+        	'date_to' => array(
+        		'label' => _('A'),
+        		'input' => 'date',
+        		'type' => 'string',
+        		'options' => null
+        	)
+        );
+        
+        $param_values = array(
+        	'category' => $ctg_id,
+        	'tag' => $tag,
+        	'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
+        	'date_to' => $date_to ? \Gino\dbDateToDate($date_to) : null,
+        );
+        
+        Loader::import('class', array('\Gino\SearchInterface'));
+        $obj_search = new \Gino\SearchInterface($search_fields, array(
+        		'identifier' => '{{CONTROLLER}}Search'.$this->_instance, 
+        		'param_values' => $param_values
+        ));
+        $obj_search->sessionSearch();
+        $search_values = $obj_search->getValues();
+        
+        $conditions = array(
+        	'published' => TRUE,
+        	'ctg' => array_key_exists('category', $search_values) ? $search_values['category'] : null,
+        	'tag' => $search_values['tag'],
+        	'text' => $search_values['text'],
+        	'date_from' => $search_values['date_from'],
+        	'date_to' => $search_values['date_to'],
+        );
+        
+        $items_number = {{MODEL}}::getCount($this, $conditions);
+
+        $paginator = Loader::load('Paginator', array($items_number, $this->_items_for_page));
+        $limit = $paginator->limitQuery();
+        $where = {{MODEL}}::setConditionWhere($this, $conditions);
+        
+        $items = {{MODEL}}::objects($this, array('where' => $where, 'limit' => $limit, 'order' => 'date DESC'));
+
+        $view = new View($this->_view_dir, 'archive');
+        $dict = array(
+            'controller' => $this,
+            'items' => $items,
+        	'ctg' => $ctg,
+            'pagination' => $paginator->pagination(),
+        	'search_form' => $obj_search->formSearch($this->link($this->_instance_name, 'archive'), 'form_search_{{CONTROLLER}}'),
+        	'open_form' => $obj_search->getOpenform(),
+        );
+
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * @brief Interfaccia amministrazione modulo
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function manage{{METHODNAME}}(\Gino\Http\Request $request) {
+    	
+        $this->requirePerm(array('can_admin'));
+
+        $block = \Gino\cleanVar($request->GET, 'block', 'string');
+
+        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
+        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
+        $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
+        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Elementi'));
+        $sel_link = $link_dft;
+
+        if($block == 'frontend' && $this->userHasPerm('can_admin')) {
+            $backend = $this->manageFrontend();
+            $sel_link = $link_frontend;
+        }
+        elseif($block=='options' && $this->userHasPerm('can_admin')) {
+            $backend = $this->manageOptions();
+            $sel_link = $link_options;
+        }
+        elseif($block=='ctg') {
+        	$backend = $this->manageCategory($request);
+        	$sel_link = $link_ctg;
+        }
+        else {
+            $backend = $this->manage{{MODEL}}($request);
+        }
+
+        if(is_a($backend, '\Gino\Http\Response')) {
+            return $backend;
+        }
+
+        // groups privileges
+        if($this->userHasPerm('can_admin')) {
+            $links_array = array($link_frontend, $link_options, $link_ctg, $link_dft);
+        }
+        else {
+            $links_array = array($link_ctg, $link_dft);
+        }
+
+        $view = new View(null, 'tab');
+        $dict = array(
+          'title' => _('Gestione record'),
+          'links' => $links_array,
+          'selected_link' => $sel_link,
+          'content' => $backend
+        );
+
+        $document = new \Gino\Document($view->render($dict));
+        return $document();
+    }
+
+    /**
+     * @brief Interfaccia di amministrazione del modello
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Redirect oppure html, interfaccia di back office
+     */
+    public function manage{{MODEL}}(\Gino\Http\Request $request) {
+    	
+        $edit = \Gino\cleanVar($request->GET, 'edit', 'int');
+        $insert = \Gino\cleanVar($request->GET, 'insert', 'int');
+
+        $buffer = '';
+        if($insert or $edit)
+        {
+            if(!$this->userHasPerm(array('can_admin'))) {
+            	$remove_fields = array('published');
+            	$delete_deny = 'all';
+            }
+            else {
+            	$remove_fields = array();
+            	$delete_deny = array();
+            }
+        }
+        else {
+            $add_cell = array();
+            $remove_fields = array();
+            $delete_deny = array();
+        }
+        
+        $admin_table = Loader::load('AdminTable', array($this, array('delete_deny'=>$delete_deny)));
+
+        $backend = $admin_table->backOffice(
+            '{{MODEL}}',
+            array(
+                'list_display' => array('id', 'name', 'date', 'categories', array('member'=>'getUrl', 'label'=>_('Url'))),
+                'list_title' => _("Elenco record"),
+            	'filter_fields' => array('name', 'categories')
+            ),
+            array(
+                'removeFields' => $remove_fields
+            ),
+            array(
+                'name' => array('size' => 40),
+            	'slug' => array('size' => 40),
+            	'date' => array(
+            		'id' => 'date'
+            	),
+            	'description' => array(
+                    'widget' => 'editor',
+                    'notes' => TRUE,
+                    'img_preview' => FALSE,
+                ),
+            )
+        );
+
+        return (is_a($backend, '\Gino\Http\Response')) ? $backend : $buffer.$backend;
+    }
+    
+    /**
+     * @brief Interfaccia di amministrazione Category
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
+     * @return Gino.Http.Response
+     */
+    public function manageCategory(\Gino\Http\Request $request) {
+    	
+    	$admin_table = Loader::load('AdminTable', array($this, array()));
+    
+    	$buffer = $admin_table->backOffice(
+    		'Category',
+    		array(
+    			'list_display' => array('id', 'name', 'slug'),
+    			'list_title'=>_("Elenco categorie"),
+    			'list_description'=>"<p>"._('Ciascun elemento inserito potrà essere associato ad una o più categorie qui definite.')."</p>",
+    		),
+    		array(),
+    		array(
+    			'description' => array(
+    				'widget' => 'editor',
+    				'notes' => FALSE,
+    				'img_preview' => FALSE,
+    			)
+    		)
+    	);
+    
+    	return $buffer;
+    }
+
+    /**
+     * @brief Metodo per la definizione di parametri da utilizzare per il modulo "Ricerca nel sito"
+     *
+     * Il modulo "Ricerca nel sito" di Gino base chiama questo metodo per ottenere informazioni riguardo alla tabella, campi, pesi etc...
+     * per effettuare la ricerca dei contenuti.
+     *
+     * @return array[string]mixed array associativo contenente i parametri per la ricerca
+     */
+    public function searchSite() {
+
+    	$clauses = array("instance" => $this->_instance, 'published' => 1);
+    	
+    	return array(
+            "table" => {{MODEL}}::$table,
+            "selected_fields" => array("id", "slug", "date", array("highlight"=>true, "field"=>"name"), array("highlight"=>true, "field"=>"description")), 
+            "required_clauses" => $clauses,
+    		"weight_clauses" => array("name"=>array("weight"=>3), "description"=>array("weight"=>1))
+        );
+    }
+
+    /**
+     * @brief Definisce la presentazione del singolo item trovato a seguito di ricerca (modulo "Ricerca nel sito")
+     *
+     * @param array $results array associativo contenente i risultati della ricerca
+     * @return string, presentazione item tra i risultati della ricerca
+     */
+    public function searchSiteResult($results) {
+
+        $obj = new {{MODEL}}($results['id'], $this);
+
+		$buffer = "<div class=\"search-title\"><span class=\"fa fa-calendar\"></span> ".\Gino\dbDatetimeToDate($results['date'], "/")." <a href=\"".$this->link($this->_instance_name, 'detail', array('id'=>$results['slug']))."\">";
+        $buffer .= $results['name'] ? \Gino\htmlChars($results['name']) : \Gino\htmlChars($obj->ml('name'));
+        $buffer .= "</a></div>";
+
+        if($results['description']) {
+        	$buffer .= "<div class=\"search-text\">...".\Gino\htmlChars($results['description'])."...</div>";
+        }
+
+        return $buffer;
+    }
+}

@@ -54,7 +54,7 @@ class buildapp extends \Gino\Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe
-     * @return lista delle proprietà utilizzate
+     * @return array, lista delle proprietà utilizzate
      */
     public static function getClassElements() {
 
@@ -97,7 +97,7 @@ class buildapp extends \Gino\Controller {
      * @param string $path tipo di percorso (default abs)
      *   - abs, assoluto
      *   - rel, relativo
-     * @return percorso
+     * @return string
      */
     public function getBasePath($path='abs'){
 

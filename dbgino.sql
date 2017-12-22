@@ -324,7 +324,11 @@ CREATE TABLE `buildapp_item` (
   `description` text NOT NULL,
   `istantiable` tinyint(1) NOT NULL DEFAULT '0',
   `model_name` varchar(50) NOT NULL,
-  `model_label` VARCHAR(100) NOT NULL
+  `model_label` VARCHAR(100) NOT NULL,
+  `m2mtf` TINYINT(1) NOT NULL,
+  `m2mtf_name` VARCHAR(50) NULL,
+  `m2mtf_model_name` VARCHAR(50) NULL,
+  `m2mtf_model_label` VARCHAR(100) NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 ALTER TABLE `buildapp_item`

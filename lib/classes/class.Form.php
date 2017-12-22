@@ -237,7 +237,7 @@ class Form {
     /**
      * @brief Genera un token per prevenire attacchi CSRF
      * @param string $form_id
-     * @return token
+     * @return string, token
      */
     private function generateFormToken($form_id) {
     	
@@ -249,7 +249,7 @@ class Form {
     /**
      * @brief Verifica il token per prevenire attacchi CSRF
      * @param string $form_id
-     * @return risultato verifica, bool
+     * @return bool, risultato verifica
      */
     private function verifyFormToken($form_id) {
         
@@ -266,19 +266,22 @@ class Form {
 
     /**
      * @brief Recupera i valori inseriti negli input form e salvati nella sessione del form
-     *
-     * @description Permette di mostrare i campi correttamente compilati a seguito di errore
+     * @description I valori vengono salvati per ripolare gli input quando si è verificato un errore.
+     * L'errore deve essere necessariamente gestito attraverso Gino.Error::errorMessage() in quanto 
+     * è questo metodo che crea la variabile di sessione GINOERRORMSG.
+     * 
+     * @code
+     * return \Gino\Error::errorMessage(array('error'=>1), $controller->link(instance, method, array[]));
+     * @endcode
      *
      * @param array $session_value nome della variabile di sessione nella quale sono salvati i valori degli input
      * @param boolean $clear distrugge la sessione
-     * @return global
+     * @return void
      */
     public function load($session_value, $clear = TRUE){
 
         $this->_session->form = array($this->_method => '');
         $form_data = array();
-		
-		//$this->session->form[$this->_method] = array();	// @todo implementare a partire dalla versione 5.4
 		
 		if(isset($this->_session->$session_value))
         {
@@ -294,7 +297,9 @@ class Form {
                 $this->_session->form = array($this->_method => $form_data);
             }
 
-            if($clear) unset($this->_session->$session_value);
+            if($clear) {
+                unset($this->_session->$session_value);
+            }
         }
     }
 
@@ -326,11 +331,52 @@ class Form {
      * @see Gino.Form::save()
      * @param string $name nome del campo
      * @param mixed $default valore di default
-     * @return valore campo
+     * @return mixed, valore campo
      */
     public function retvar($name, $default = '') {
         
     	return (is_null($this->_session->form) or !isset($this->_session->form[$this->_method][$name])) ? $default : $this->_session->form[$this->_method][$name];
+    }
+    
+    /**
+     * @brief Salva i valori degli input form in un array
+     *
+     * @param string $var nome della variabile di sessione del form (@see load())
+     * @return array(input_name => input_value)
+     */
+    public function setInputValues($sessionform) {
+        
+        $input_values = array();
+        if(isset($this->_session->$sessionform) and is_array($this->_session->$sessionform)) {
+            
+            foreach ($this->_session->$sessionform as $sessionvalue) {
+                
+                if(is_array($sessionvalue) and count($sessionvalue) == 1) {
+                    foreach ($sessionvalue as $key => $value) {
+                        $input_values[$key] = $value;
+                    }
+                }
+            }
+        }
+        return $input_values;
+    }
+    
+    /**
+     * @brief Recupera il valore di un input
+     *
+     * @param string $name nome dell'input
+     * @param array $values elenco dei valori degli input (@see setInputValues())
+     * @return mixed
+     */
+    public function getInputValue($name, $values) {
+        
+        if(is_array($values) and count($values) and array_key_exists($name, $values)) {
+            $input_value = $values[$name];
+        }
+        else {
+            $input_value = null;
+        }
+        return $input_value;
     }
 
     /**
