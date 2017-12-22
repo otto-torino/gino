@@ -8,7 +8,7 @@
  *   @link https://packagist.org/packages/mpdf/mpdf
  * mPDF is a PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support.
  * 
- * ##mpdf INSTALLATION
+ * ##INSTALLATION
  * ---------------
  * Official installation method is via composer and its packagist package mpdf/mpdf (@link https://packagist.org/packages/mpdf/mpdf).
  * @code
