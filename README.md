@@ -4,23 +4,26 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 
 # Caratteristiche
 - utilizzo di patterns di programmazione, MVC, Mediator, Factory Method, Singleton
+- design responsivo
+- utilizzo di Composer
 - gestione multilingua
 - gestione utenti e gruppi di utenti
 - gestione layout libero e a blocchi con interfaccia di manipolazione
-- gestione di layout legati a singoli url o gruppi di url attraverso espressioni regolari
+- gestione di layout legati a singoli indirizzi web o gruppi di indirizzi web attraverso espressioni regolari
 - gestione cache dei contenuti e delle query
 - modulo pagine
 - modulo allegati
 - modulo gestione header/footer
 - modulo lingue
 - modulo menu
-- modulo per la gestione di codice custom php
 - modulo statistiche di accesso
+- modulo per la generazione di applicazioni
+- possibilità di creare moduli come istanza di phpModuleView scrivendo codice PHP direttamente in un input form
 - gestione errori http 404, 403, 500
 - ricerca full-text
 - installazione di pacchetti aggiuntivi con un click
-- integrazione bootstrap 3 (less) e font-awesome, possibilità di creare layout responsive
-- integrazione mootools > 1.4 e jquery
+- integrazione Bootstrap 3 (less) e Font-awesome
+- integrazione Mootools > 1.6.0 e jQuery 2.2.4
 - gestione dispositivi mobile separata se necessario
 - moduli aggiuntivi disponibili sull'[account github di Otto](http://github.com/otto-torino)
 

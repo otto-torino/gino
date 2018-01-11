@@ -1,19 +1,21 @@
 <?php
 /**
- * @file class.Paginator_test.php
+ * @file class.PaginatorTest.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Test.PaginatorTest
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
-namespace Gino\Test;
+namespace Gino\PHPUnitTest;
+
+use PHPUnit\Framework\TestCase;
 
 use \Gino\Loader;
 use \Gino\Paginator;
 
-require_once('include.php');
+require_once 'include.php';
 
 Loader::import('class', '\Gino\Singleton');
 Loader::import('class', '\Gino\Db');
@@ -27,32 +29,32 @@ function setPage($page) {
 }
 
 /**
- * @brief Classe di tipo PHPUnit_Framework_TestCase per testare la classe Gino.Paginator
- *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @brief Classe di tipo PHPUnit.Framework.TestCase per testare la classe Gino.Paginator
+ * 
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class PaginatorTest extends \PHPUnit_Framework_TestCase {
+class PaginatorTest extends TestCase {
 
     /**
      * Test metodo getCurrentPage
      * Il metodo restituisce il numero di pagina corrente
      */
     public function test_getCurrentPage() {
-        // page 1
+        // pagina 1
         setPage(1);
         $paginator = new Paginator(100, 10);
         $page = $paginator->getCurrentPage();
         $this->assertEquals(1, $page, 'current page errata pagina 1');
 
-        // page negativa, deve dare 1
+        // numero di pagina negativo, deve dare 1
         setPage(-20);
         $paginator = new Paginator(100, 10);
         $page = $paginator->getCurrentPage();
         $this->assertEquals(1, $page, 'current page errata con pagina negativa');
 
-        // page maggiore, deve dare 10
+        // numero di pagina maggiore, deve dare 10
         setPage(20);
         $paginator = new Paginator(100, 10);
         $page = $paginator->getCurrentPage();
