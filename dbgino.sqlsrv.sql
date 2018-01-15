@@ -427,9 +427,14 @@ INSERT INTO language_translation (tbl_id_value, tbl, field, language, text) VALU
 
 <p><img alt="OSI approved license" src="contents/attachment/gino/OSI_logo.jpg" style="float:left; margin-left:10px; margin-right:10px" />It is a <strong>CMS</strong>, which stands for Content Management System, created specifically to facilitate its organization and publication of web content.</p>'),
 (3, 'page_entry', 'title', 'en_US', 'Implementations'),
-(3, 'page_entry', 'text', 'en_US', '<p><img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="float:left; margin-left:10px; margin-right:10px" />The gino functionality can be extended by using available additional modules. gino incorporates a simplified mechanism for loading and updating of these modules.</p>
+(3, 'page_entry', 'text', 'en_US', '<p><img alt="plugin" src="contents/attachment/gino/plugin.jpg" style="float:left; margin-left:10px; margin-right:10px" />The functionality of gino can be expanded using available <strong>additional modules</strong>, or by creating applications directly with the help of the application "Creation App" present in the administrative area.</p>
 
-<p>For a list of the modules refer to page on the <a href="http://gino.otto.to.it/" rel="external">official website of gino</a>.</p>'),
+<p>These modules are easily loaded and updated using the "System modules" application. For a list of available modules refer to the page on the <a href="http://gino.otto.to.it/" rel="external">official website of gino</a>.</p>
+
+<p>In addition, <a href="https://getcomposer.org/" target="_blank">Composer</a> is also used to manage some external libraries. Composer is a Dependency Manager for PHP, which is a tool for managing dependencies in PHP; in practice it allows to declare the libraries on which the project depends, managing them for us.</p>
+
+<p>To use Composer correctly it is recommended to refer to the gino <a href="https://github.com/otto-torino/gino/wiki" rel="external">wiki</a> and its official documentation; on the <a href="https://getcomposer.org/doc/00-intro.md" target="_blank">Getting Started</a> page of the project you will find all the information on the installation procedure.<br />
+It should also be noted that it is advisable to install only the necessary external packages with the Composer, as the space required may be important.</p>'),
 (3, 'sys_menu_voices', 'label', 'en_US', 'DOCUMENTATION'),
 (2, 'sys_menu_voices', 'label', 'en_US', 'Administration'),
 (2, 'sys_module_app', 'label', 'en_US', 'Languages'),
