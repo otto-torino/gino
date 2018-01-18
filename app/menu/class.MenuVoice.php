@@ -3,7 +3,7 @@
  * @file class.MenuVoice.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.MenuVoice
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\View;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una voce di menu
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -63,7 +63,7 @@ class MenuVoice extends \Gino\Model {
 
     /**
      * @brief Recupera la prima posizione disponibile per l'ordinamento
-     * @return numero posizione ordinamento
+     * @return integer, numero posizione ordinamento
      */
     public function initOrderList() {
 
@@ -78,7 +78,7 @@ class MenuVoice extends \Gino\Model {
 
     /**
      * @brief Query di aggiornamento della sequenza delle voci di menu
-     * @return risultato query, bool
+     * @return bool, risultato query
      */
     public function updateOrderList() {
 
@@ -147,11 +147,10 @@ class MenuVoice extends \Gino\Model {
         }
         \Gino\Loader::import('auth', 'Permission');
 
-        foreach(explode(';', $this->perms) as $p) {
-            $values = explode(',', $p);
-            $perm = new \Gino\App\Auth\Permission($values[0]);
-            $instance = $values[1];
-            if($request->user->hasPerm($perm->class, $perm->code, $instance)) {
+        foreach(explode(';', $this->perms) as $perm) {
+            
+            $permission = new \Gino\App\Auth\Permission($perm);
+            if($request->user->hasPerm($permission->class, $permission->code, $this->instance)) {
                 return TRUE;
             }
         }
@@ -164,7 +163,7 @@ class MenuVoice extends \Gino\Model {
      *
      * @param string $formaction indirizzo dell'azione
      * @param integer $parent valore ID della voce parent
-     * @return html, form
+     * @return string, form
      */
     public function formVoice($formaction, $parent) {
 
@@ -217,7 +216,7 @@ class MenuVoice extends \Gino\Model {
      * @brief Ricava la voce di menu corrispondente all'url corrente
      * 
      * @param integer $instance valore ID dell'istanza
-     * @return id voce selezionata o null
+     * @return integer|null, id voce selezionata
      */
     public static function getSelectedVoice($instance) {
 
