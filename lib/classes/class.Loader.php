@@ -76,6 +76,12 @@ namespace Gino {
          *              $classes devono essere specificate senza namespace.
          * @param string $app nome dell'app dei models oppure stringa 'class[/subdir]' per le classi di sistema
          * @param array|string $classes la classe o le classi da importare (comprensive di eventuale namespace)
+         * @return void
+         * 
+         * @example importare il file di una classe fondamentale per il funzionamento del sistema
+         * \Gino\Loader::import('class', '\Gino\AdminTable');
+         * @example importare un file presente in una sottodirectory di app
+         * \Gino\Loader::import('sysClass', 'ModuleApp');
          */
         public static function import($app, $classes) {
 
@@ -94,7 +100,7 @@ namespace Gino {
                 foreach($classes as $class) {
 
                     $class_name = get_name_class($class);
-                    require_once($dir.CORE_CLASS_PREFIX.$class_name.'.php');
+                    require_once $dir.CORE_CLASS_PREFIX.$class_name.'.php';
 
                     if(!class_exists($class, FALSE)) {
                         throw new \Exception(_("Unable to load the system class: %s"), $class);
@@ -105,7 +111,7 @@ namespace Gino {
             else {
                 $dir = APP_DIR.OS.$app.OS;
                 foreach($classes as $class_name) {
-                    require_once($dir.MODEL_CLASS_PREFIX.$class_name.'.php');
+                    require_once $dir.MODEL_CLASS_PREFIX.$class_name.'.php';
                     if(!class_exists(get_model_app_name_class_ns($app, $class_name), FALSE)) {
                         throw new \Exception(_("Unable to load the model class: %s"), $class_name);
                     }
@@ -121,6 +127,10 @@ namespace Gino {
          * @param array $args argomenti del costruttore
          * @param string $namespace nome del namespace (default Gino)
          * @return object
+         * 
+         * @example Loader::load('http/ResponseJson', array([...]), '\Gino\Http\\');
+         * @example \Gino\Loader::load('Options', array($this));
+         * @example Loader::load('Form', array());
          */
         public static function load($class, $args = array(), $namespace='\Gino\\') {
 
@@ -131,7 +141,7 @@ namespace Gino {
                 $dir = $dir.$subdir.OS;
                 $class = substr($class, strrpos($matches[0], '/') + 1);
             }
-            require_once($dir.CORE_CLASS_PREFIX.$class.'.php');
+            require_once $dir.CORE_CLASS_PREFIX.$class.'.php';
 
             $class = set_name_class($class, $namespace);
             if(!$class) return null;
@@ -158,7 +168,7 @@ namespace Gino {
             $class_name = get_name_class($class);
 
             $dir = CLASSES_DIR.OS;
-            require_once($dir.CORE_CLASS_PREFIX.$class_name.'.php');
+            require_once $dir.CORE_CLASS_PREFIX.$class_name.'.php';
             return $class::instance();
         }
     }
