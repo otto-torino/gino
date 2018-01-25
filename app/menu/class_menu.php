@@ -3,7 +3,7 @@
  * @file class_menu.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.menu
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -29,7 +29,7 @@ require_once('class.MenuVoice.php');
  * @brief Classe di tipo Gino.Controller per la gestione dei menu
  * 
  * @version 1.0.0
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -534,7 +534,7 @@ class menu extends \Gino\Controller {
 
         if(!$id) $menu_voice->initOrderList();
 
-        $perms = \Gino\cleanVar($request->POST, 'perm', 'array', null);
+        $perms = \Gino\cleanVar($request->POST, 'perm', 'array', '', ['datatype' => 'string']);
         $menu_voice->perms = count($perms) ? implode(';', $perms) : '';
 
         $menu_voice->save();
@@ -784,7 +784,9 @@ class menu extends \Gino\Controller {
 
                 $data = \Gino\App\Layout\layout::infoModule($module_app);
                 if(is_array($data) and count($data)) {
-                    $tbl_rows[] = $data;
+                    foreach ($data as $d) {
+                        $tbl_rows[] = $d;
+                    }
                 }
             }
             
@@ -814,7 +816,9 @@ class menu extends \Gino\Controller {
 
                 $data = \Gino\App\Layout\layout::infoModule($module);
                 if(is_array($data) and count($data)) {
-                    $tbl_rows[] = $data;
+                    foreach ($data as $d) {
+                        $tbl_rows[] = $d;
+                    }
                 }
             }
             

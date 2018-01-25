@@ -298,6 +298,22 @@ function isNumeric($variable)
 }
 
 /**
+ * @brief Date di inizio e di fine settimana del giorno indicato
+ * 
+ * @param string $day giorno della settimana nel formato [Y-m-d] o [d/m/Y]
+ * @return array [\DateTime start_date, \DateTime last_date]
+ */
+function daysOfTheWeek($day) {
+    
+    $day = dateToDbDate($day);
+    
+    $dateTime = new \DateTime($day);
+    $monday = clone $dateTime->modify(('Sunday' == $dateTime->format('l')) ? 'Monday last week' : 'Monday this week');
+    $sunday = clone $dateTime->modify('Sunday this week');
+    return [$monday, $sunday];
+}
+
+/**
  * @brief Calcola l'intervallo di tempo in secondi tra due valori datetime
  * 
  * @param string $firstTime datetime iniziale

@@ -1,35 +1,37 @@
 <?php
 /**
  * @file func_test.php
- * @brief Contiene la definizione ed implementazione della classe Gino.Test.FuncTest
+ * @brief Contiene la definizione ed implementazione della classe Gino.PHPUnitTest.FuncTest
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 
 /**
- * @namespace Gino.Test
- * @description Namespace che comprende gli UNIT TEST di classi e funzioni di gino
+ * @namespace Gino.PHPUnitTest
+ * @description Namespace che comprende gli Unit Test di classi e funzioni di gino
  */
-namespace Gino\Test;
+namespace Gino\PHPUnitTest;
 
-require_once('include.php');
+use PHPUnit\Framework\TestCase;
+
+require_once 'include.php';
 
 /**
- * @brief Classe di tipo PHPUnit_Framework_TestCase per testare il file @php func.php
+ * @brief Classe di tipo PHPUnit.Framework.TestCase per testare i file @a func.php, @a func.file.php, @a func.var.php
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-class FuncTest extends \PHPUnit_Framework_TestCase {
+class FuncTest extends TestCase {
 
     public function test_relativePath() {
         $abs_path = __FILE__;
         $rel_path = \Gino\relativePath($abs_path);
         // Assert
-        $this->assertEquals('/test/func_test.php', $rel_path, 'Il path relativo non viene ricavato correttamente');
+        $this->assertEquals('/tests/FuncTest.php', $rel_path, 'Il path relativo non viene ricavato correttamente');
     }
 
     public function test_absolutePath() {
@@ -50,8 +52,8 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
         $array = array('gino', 'key' => 5);
         $obj = \Gino\arrayToObject($array);
         $this->assertInstanceOf('stdClass', $obj, 'la funzione non ritorna un oggetto stdClass');
+        
         $this->assertObjectHasAttribute('key', $obj);
-        $this->assertObjectHasAttribute('0', $obj);
         $this->assertEquals(5, $obj->key);
     }
 
@@ -59,7 +61,7 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
         $dir = realpath(SITE_ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'page'.DIRECTORY_SEPARATOR.'views');
         $files = \Gino\searchNameFile($dir);
         sort($files);
-        $this->assertEquals(array('block.php', 'showcase.php', 'view.php'), $files);
+        $this->assertEquals(array('box.php', 'last.php', 'showcase.php', 'view.php'), $files);
     }
 
     public function test_extension() {
@@ -181,7 +183,6 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals('lorem...', \Gino\cutString($string, 7));
         $this->assertEquals('lorem i...', \Gino\cutString($string, 7, false));
-
     }
 
     public function test_baseFilename() {
@@ -189,7 +190,6 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
         $filename = "my.file.png";
 
         $this->assertEquals('my.file', \Gino\baseFileName($filename));
-
     }
 
     public function test_traslitterazione() {
@@ -197,6 +197,5 @@ class FuncTest extends \PHPUnit_Framework_TestCase {
         $string_number = 131506;
 
         $this->assertEquals('centotrentunomilacinquecentosei', \Gino\traslitterazione($string_number));
-
     }
 }

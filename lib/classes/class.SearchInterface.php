@@ -3,7 +3,7 @@
  * @file class.SearchInterface.php
  * @brief Contiene la definizione ed implementazione della classe Gino.SearchInterface
  * 
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Metodi per gestire le ricerche nelle interfacce utente
  *
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -20,17 +20,20 @@ namespace Gino;
  * 1. Creare nel modello due metodi statici per definire l'insieme dei campi dei form di ricerca e le condizioni di ricerca dei record.
  * 
  * L'elenco dei campi di ricerca da passare al costruttore è un array di elementi, nel quale le chiavi sono i nomi dei parametri di ricerca input form 
- * e i valori sono degli array che comprendono le opzioni necessarie per costruire gli input form. Il nome dell'input form viene creato unendo il valore 
- * dell'opzione @a before_input del costruttore e il nome del parametro. \n
+ * e i valori sono degli array che comprendono le opzioni necessarie per costruire gli input form. 
+ * Il nome dell'input form viene creato unendo il valore dell'opzione @a before_input del costruttore con il nome del parametro.
+ * 
  * Le opzioni valide per ogni tipo di campo di ricerca sono: \n
  *   - @a label (string), label dell'input
  *   - @a input (string), tipologie di input:
  *     - text (default), costruisce \Gino\Input::input_label
  *     - date, costruisce \Gino\Input::input_date
  *     - select, costruisce \Gino\Input::select_label
+ *     - radio, costruisce \Gino\Input::radio_label
  *     - tag, costruisce \Gino\TagInput::input
  *   - @a type (string), tipologia di dato (int, string)
- *   - @a data (array), valori dell'input select
+ *   - @a data (array), valori degli input select e radio
+ *   - @a default (mixed), default dell'input radio
  *   - @a options (array), opzioni degli input (sovrascrivono quelle di default)
  * 
  * Seguono due esempi dei metodi.
@@ -121,7 +124,8 @@ namespace Gino;
  * 
  * 2. Impostare i valori degli eventuali parametri passati attraverso un url
  * 
- * Il formato degli elementi dell'array è [field_name]=>[field_value], dove field_name deve corrispondere a una chiave dell'elenco dei campi di ricerca (proprietà $_fields).
+ * Il formato degli elementi dell'array è [field_name]=>[field_value], dove field_name deve corrispondere 
+ * a una chiave dell'elenco dei campi di ricerca (proprietà $_fields).
  * @code
  * $param_values = array(
  *   'category' => $ctg_id,
@@ -251,19 +255,19 @@ class SearchInterface {
     private $_registry, $_request, $_session;
 
     /**
-     * Elenco dei campi di ricerca nel formato [nome]=>[valori per costruire gli input]
+     * @brief Elenco dei campi di ricerca nel formato [nome]=>[valori per costruire gli input]
      * @var array
      */
     private $_fields;
     
     /**
-     * Elenco dei nomi dei campi di ricerca
+     * @brief Elenco dei nomi dei campi di ricerca
      * @var array
      */
     private $_fields_name;
 
     /**
-     * Identificare del contenitore in sessione dei parametri di ricerca
+     * @brief Identificare del contenitore in sessione dei parametri di ricerca
      * @var string
      */
     private $_identifier;
@@ -275,7 +279,7 @@ class SearchInterface {
     private $_before_input;
     
     /**
-     * Indica l'apertura o la chiusura del form di ricerca
+     * @brief Indica l'apertura o la chiusura del form di ricerca
      * @var boolean
      */
     private $_open_form;
@@ -303,7 +307,35 @@ class SearchInterface {
     /**
      * @brief Costruttore
      * 
-     * @param array $fields elenco dei campi di ricerca
+     * 
+ * 
+ * Le opzioni valide per ogni tipo di campo di ricerca sono: \n
+ *   - @a label (string), label dell'input
+ *   - @a input (string), tipologie di input:
+ *     - text (default), costruisce \Gino\Input::input_label
+ *     - date, costruisce \Gino\Input::input_date
+ *     - select, costruisce \Gino\Input::select_label
+ *     - radio, costruisce \Gino\Input::radio_label
+ *     - tag, costruisce \Gino\TagInput::input
+ *   - @a type (string), tipologia di dato (int, string)
+ *   - @a data (array), valori dell'input select
+ *   - @a options (array), opzioni degli input (sovrascrivono quelle di default)
+     * 
+     * @param array $fields elenco dei campi di ricerca nel formato [field_name => [input_options][, ...]]; 
+     *   dove le chiavi (field_name) sono i nomi dei parametri di ricerca e i valori sono degli array (input_options) che 
+     *   comprendono le opzioni necessarie per costruire gli input form.
+     *   Le opzioni valide per ogni tipo di campo di ricerca sono:
+     *   - @a label (string), label dell'input
+     *   - @a input (string), tipologie di input:
+     *     - text (default), costruisce \Gino\Input::input_label
+     *     - date, costruisce \Gino\Input::input_date
+     *     - select, costruisce \Gino\Input::select_label
+     *     - radio, costruisce \Gino\Input::radio_label
+     *     - tag, costruisce \Gino\TagInput::input
+     *   - @a type (string), tipologia di dato (int, string)
+     *   - @a data (array), valori degli input select e radio
+     *   - @a default (mixed), default dell'input radio
+     *   - @a options (array), opzioni degli input (sovrascrivono quelle di default)
      * @param array $opts array associativo di opzioni
      *   - @b identifier (string): valore id del contenitore in sessione dei parametri di ricerca (default appSearch)
      *   - @b param_values (array): valori dei parametri di ricerca passati attraverso l'url; gli elementi dell'array sono nel formato:
@@ -405,7 +437,7 @@ class SearchInterface {
      *   - @b submit_value (string): valore del submit di ricerca (default 'cerca')
      *   - @b submit_text_add (string): testo da aggiungere di seguito agli input submit
      *   - @b view_submit_all (boolean): visualizza il submit di ricerca di tutti i record (default true)
-     * @return html
+     * @return string
      */
     public function formSearch($link, $form_id, $options=array()) {
     
@@ -446,6 +478,11 @@ class SearchInterface {
     		{
     			$search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array();
     			$form_search .= Input::select_label($search_name, $search_value, $search_input['data'], $search_input['label'], $search_options);
+    		}
+    		elseif($input == 'radio')
+    		{
+    		    $search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array();
+    		    $form_search .= Input::radio_label($search_name, $search_value, $search_input['data'], $search_input['default'], $search_input['label'], $search_options);
     		}
     		elseif($input == 'tag')
     		{

@@ -3,7 +3,7 @@
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -48,7 +48,7 @@ use \Gino\App\Auth\Permission;
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -775,7 +775,8 @@ oppure variabili di sessione.")."</li>";
         
         $class = $module->classNameNs();
         $class_name = $module->className();
-        $data = null;
+        
+        $data = [];
         
         if(is_a($module, 'ModuleApp')) {
             $instance_name = $class_name;
@@ -788,6 +789,7 @@ oppure variabili di sessione.")."</li>";
         
         if(method_exists($class, 'outputFunctions')) {
             $list = call_user_func(array($class, 'outputFunctions'));
+            
             //@todo aggiungere controllo che sia nell'ini
             foreach($list as $func => $desc) {
                 $method_check = parse_ini_file(APP_DIR.OS.$class_name.OS.$class_name.".ini", TRUE);
@@ -825,7 +827,7 @@ oppure variabili di sessione.")."</li>";
                                 location.hash = 'top';
                             \" />\n";
                     
-                    $data = array(
+                    $data[] = array(
                         \Gino\htmlChars($module->label),
                         $description,
                         $url,

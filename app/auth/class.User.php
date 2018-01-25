@@ -702,7 +702,7 @@ class User extends \Gino\Model {
     /**
      * @brief Verifica se l'utente ha uno dei permessi di una determinata classe
      * @param string $class_name nome della classe
-     * @param int|array $perms id o array di id dei permessi da verificare
+     * @param string|array $perms codice array di codici dei permessi da verificare
      * @param int $instance istanza della classe (0 per classi non istanziabili)
      * @return bool
      */
