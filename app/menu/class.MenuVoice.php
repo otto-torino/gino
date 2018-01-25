@@ -149,8 +149,12 @@ class MenuVoice extends \Gino\Model {
 
         foreach(explode(';', $this->perms) as $perm) {
             
-            $permission = new \Gino\App\Auth\Permission($perm);
-            if($request->user->hasPerm($permission->class, $permission->code, $this->instance)) {
+            $array = explode(',', $perm);
+            $perm_id = $array[0];
+            $instance = $array[1];
+            
+            $permission = new \Gino\App\Auth\Permission($perm_id);
+            if($request->user->hasPerm($permission->class, $permission->code, $instance)) {
                 return TRUE;
             }
         }
