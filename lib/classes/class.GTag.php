@@ -3,7 +3,7 @@
  * @file class.GTag.php
  * @brief Contiene la definizione ed implementazione della classe Gino.GTag
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,7 +15,7 @@ use \Gino\App\Module\ModuleInstance;
 /**
  * @brief Classe per il trattamento di campi di tipo tag
  *
- * @copyright 2014-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -118,8 +118,8 @@ class GTag {
      * 
      * @param string $content_controller_class nome della classe controller del modello cui i tag sono associati
      * @param string $content_class la classe dell'oggetto per il quale cercare contenuti correlati
-     * @param string $content_id la id dell'oggetto per il quale cercare contenuti correlati
-     * @return contenuti correlati
+     * @param string $content_id valore id dell'oggetto per il quale cercare contenuti correlati
+     * @return array, contenuti correlati
      */
     public static function getRelatedContents($content_controller_class, $content_class, $content_id) {
 
@@ -128,9 +128,9 @@ class GTag {
 
         $res = array();
         $db = Db::instance();
-        $where = "tag_id IN (SELECT tag_id FROM ".self::$_table_tag_taggeditem." 
-        		WHERE content_controller_class='".$content_controller_class."' AND content_class='".$content_class."' AND content_id='".$content_id."') 
-        		AND NOT (content_controller_class='".$content_controller_class."' AND content_class='".$content_class."' AND content_id='".$content_id."')";
+        
+        $where = "tag_id IN (SELECT tag_id FROM ".self::$_table_tag_taggeditem."
+        		WHERE content_controller_class='".$content_controller_class."' AND content_class='".$content_class."' AND content_id='".$content_id."')";
         
         $rows = $db->select(
         	'content_controller_class, content_controller_instance, content_class, content_id, COUNT(content_id) AS freq', 
@@ -142,22 +142,26 @@ class GTag {
         ));
         if($rows and count($rows)) {
             foreach($rows as $row) {
-                $controller_name = $row['content_controller_class'];
-                $controller_instance = $row['content_controller_instance'];
-                $content_class = $row['content_class'];
-                $content_id = $row['content_id'];
+                $row_controller_name = $row['content_controller_class'];
+                $row_controller_instance = $row['content_controller_instance'];
+                $row_content_class = $row['content_class'];
+                $row_content_id = $row['content_id'];
                 $freq = $row['freq'];
+                
+                if($row_controller_name == $content_controller_class && $row_content_class == $content_class && $row_content_id == $content_id)
+                    continue;
+                
                 // load the content class
-                Loader::import($controller_name, $content_class);
-                if($controller_instance) {
-                    $module = new ModuleInstance($controller_instance);
+                Loader::import($row_controller_name, $row_content_class);
+                if($row_controller_instance) {
+                    $module = new ModuleInstance($row_controller_instance);
                     if($module->active) {
                         if(!isset($res[$module->label])) {
                             $res[$module->label] = array();
                         }
-                        $class = get_model_app_name_class_ns($controller_name, $content_class);
-                        $controller_class = get_app_name_class_ns($controller_name);
-                        $object = new $class($content_id, new $controller_class($controller_instance));
+                        $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
+                        $controller_class = get_app_name_class_ns($row_controller_name);
+                        $object = new $class($row_content_id, new $controller_class($row_controller_instance));
                         if($object->id)
                         {
                         	if(method_exists($object, 'gtagOutput')) {
@@ -173,13 +177,13 @@ class GTag {
                     }
                 }
                 else {
-                    $module_app = ModuleApp::getFromName($controller_name);
+                    $module_app = ModuleApp::getFromName($row_controller_name);
                     if($module_app->active) {
                         if(!isset($res[$module_app->label])) {
                             $res[$module_app->label] = array();
                         }
-                        $class = get_model_app_name_class_ns($controller_name, $content_class);
-                        $object = new $class($content_id);
+                        $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
+                        $object = new $class($row_content_id);
                         if($object->id)
                         {
                         	if(method_exists($object, 'gtagOutput')) {
@@ -201,9 +205,9 @@ class GTag {
     }
 
     /**
-     * @brief Isrogramma dei tag (array tag->freqeunza)
+     * @brief Istogramma dei tag
      * @description Utile per la scrittura di una tag cloud
-     * @return istogramma tags
+     * @return array, istogramma tags [tag => freqeuenza]
      */
     public static function getTagsHistogram() {
         
