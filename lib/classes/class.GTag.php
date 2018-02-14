@@ -119,10 +119,14 @@ class GTag {
      * @param string $content_controller_class nome della classe controller del modello cui i tag sono associati
      * @param string $content_class la classe dell'oggetto per il quale cercare contenuti correlati
      * @param string $content_id valore id dell'oggetto per il quale cercare contenuti correlati
+     * @param array $options array associativo di opzioni
+     *   - @b limit (int): numero massimo di record per tipologia di modulo (default 3)
      * @return array, contenuti correlati
      */
-    public static function getRelatedContents($content_controller_class, $content_class, $content_id) {
+    public static function getRelatedContents($content_controller_class, $content_class, $content_id, $options=[]) {
 
+        $limit = \Gino\gOpt('limit', $options, 3);
+        
         Loader::import('sysClass', 'ModuleApp');
         Loader::import('module', 'ModuleInstance');
 
@@ -159,20 +163,24 @@ class GTag {
                         if(!isset($res[$module->label])) {
                             $res[$module->label] = array();
                         }
-                        $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
-                        $controller_class = get_app_name_class_ns($row_controller_name);
-                        $object = new $class($row_content_id, new $controller_class($row_controller_instance));
-                        if($object->id)
-                        {
-                        	if(method_exists($object, 'gtagOutput')) {
-                            	$res[$module->label][] = $object->gtagOutput();
-                        	}
-                        	elseif(method_exists($object, 'getUrl')) {
-                            	$res[$module->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
-                        	}
-                        	else {
-                            	$res[$module->label][] = (string) $object;
-                        	}
+                        
+                        // limita il numero di record
+                        if(count($res[$module->label]) < $limit) {
+                            $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
+                            $controller_class = get_app_name_class_ns($row_controller_name);
+                            $object = new $class($row_content_id, new $controller_class($row_controller_instance));
+                            if($object->id)
+                            {
+                                if(method_exists($object, 'gtagOutput')) {
+                                    $res[$module->label][] = $object->gtagOutput();
+                                }
+                                elseif(method_exists($object, 'getUrl')) {
+                                    $res[$module->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
+                                }
+                                else {
+                                    $res[$module->label][] = (string) $object;
+                                }
+                            }
                         }
                     }
                 }
@@ -182,19 +190,23 @@ class GTag {
                         if(!isset($res[$module_app->label])) {
                             $res[$module_app->label] = array();
                         }
-                        $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
-                        $object = new $class($row_content_id);
-                        if($object->id)
-                        {
-                        	if(method_exists($object, 'gtagOutput')) {
-                            	$res[$module_app->label][] = $object->gtagOutput();
-                        	}
-                        	elseif(method_exists($object, 'getUrl')) {
-                            	$res[$module_app->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
-                        	}
-                        	else {
-                            	$res[$module_app->label][] = (string) $object;
-                        	}
+                        
+                        // limita il numero di record
+                        if(count($res[$module_app->label]) < $limit) {
+                            $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
+                            $object = new $class($row_content_id);
+                            if($object->id)
+                            {
+                                if(method_exists($object, 'gtagOutput')) {
+                                    $res[$module_app->label][] = $object->gtagOutput();
+                                }
+                                elseif(method_exists($object, 'getUrl')) {
+                                    $res[$module_app->label][] = "<a href=\"".$object->getUrl()."\">".((string) $object)."</a>";
+                                }
+                                else {
+                                    $res[$module_app->label][] = (string) $object;
+                                }
+                            }
                         }
                     }
                 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file class.PaginatorTest.php
- * @brief Contiene la definizione ed implementazione della classe Gino.Test.PaginatorTest
+ * @brief Contiene la definizione ed implementazione della classe Gino.PHPUnitTest.PaginatorTest
  *
  * @copyright 2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
