@@ -3,7 +3,7 @@
  * @file class.Controller.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -46,7 +46,7 @@ abstract class Controller {
     /**
      * @brief Inizializza il controller
      * @param int $instance_id id modulo, se diverso da zero il modulo è un'istanza di una classe, altrimenti è la classe di sistema
-     * @return istanza di Gino.Controller
+     * @return void, istanza di Gino.Controller
      */
     function __construct($instance_id = 0) {
 
@@ -76,7 +76,7 @@ abstract class Controller {
      * @brief Funzione chiamata quando si cerca di chiamare un metodo inaccessibile
      * @param string $name nome metodo
      * @param array $arguments argomenti
-     * @return Exception
+     * @return \Exception
      */
     function __call($name, $arguments) {
         throw new \Exception(sprintf(_('"%s" is not a method of "%s" class'), $name, get_class($this)));
@@ -118,7 +118,7 @@ abstract class Controller {
      * @brief Restituisce alcune proprietà della classe
      *
      * @description Le informazioni vengono utilizzate per creare o eliminare istanze. Questo metodo dev'essere sovrascritto da tutte le classi figlie.
-     * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+     * @return array, lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
      */
     public static function getClassElements() {
         return array();
@@ -126,7 +126,7 @@ abstract class Controller {
 
     /**
      * @brief Espone l'id valore dell'istanza
-     * @return id
+     * @return integer, id
      */
     public function getInstance() {
         return $this->_instance;
@@ -134,7 +134,7 @@ abstract class Controller {
 
     /**
      * @brief Espone il nome dell'istanza
-     * @return nome istanza
+     * @return string, nome istanza
      */
     public function getInstanceName() {
         return $this->_instance_name;
@@ -142,7 +142,7 @@ abstract class Controller {
 
     /**
      * @brief Espone il nome della classe
-     * @return nome classe
+     * @return string, nome classe
      */
     public function getClassName() {
         return $this->_class_name;
@@ -150,7 +150,7 @@ abstract class Controller {
 
     /**
      * @brief Percorso assoluto alla cartella dei contenuti
-     * @return percorso assoluto
+     * @return string, percorso assoluto
      */
     public function getBaseAbsPath() {
         return $this->_data_dir;
@@ -158,7 +158,7 @@ abstract class Controller {
 
     /**
      * @brief Percorso relativo alla cartella dei contenuti
-     * @return percorso relativo
+     * @return string, percorso relativo
      */
     public function getBasePath() {
         return $this->_data_www;
@@ -257,7 +257,7 @@ abstract class Controller {
      * @brief Interfaccia per la gestione delle opzioni dei moduli
      *
      * @see Gino.Options::manageDoc()
-     * @return interfaccia di amministrazione opzioni
+     * @return string, interfaccia di amministrazione opzioni
      */
     public function manageOptions() {
         $options = new \Gino\Options($this);
@@ -267,7 +267,7 @@ abstract class Controller {
     /**
      * @brief Interfaccia per la gestione delle viste e css (frontend)
      * @see Frontend::manageFrontend()
-     * @return interfaccia di amministrazione frontend (viste, css...)
+     * @return string, interfaccia di amministrazione frontend (viste, css...)
      */
     public function manageFrontend() {
         $frontend = Loader::load('Frontend', array($this));
@@ -277,7 +277,7 @@ abstract class Controller {
     /**
      * @brief Interfaccia per la gestione dei file delle traduzioni
      * @see Locale::manageLocale()
-     * @return interfaccia di amministrazione traduzioni
+     * @return string, interfaccia di amministrazione traduzioni
      */
     public function manageLocale() {
     	$locale = locale::instance_to_class($this->_class_name);
@@ -287,10 +287,93 @@ abstract class Controller {
     /**
      * @brief Eliminazione istanza del modulo
      * @description Questo metodo deve essere sovrascritto dalle classi istanziabili per permettere l'eliminazione delle istanze.
-     *              Se non sovrascritto viene chiamato e getta una Exception
+     *              Se non sovrascritto viene chiamato e lancia una Exception
      */
     public function deleteInstance() {
         throw new \Exception(sprintf(_('La classe %s non implementa il metodo deleteInstance'), get_class($this)));
     }
 
+    /**
+     * @brief Imposta i parametri per SEO
+     * @param array $options array associativo di opzioni
+     *   - @b title (string): titolo della pagina
+     *   - @b description (string): descrizione della pagina
+     *   - @b keywords (string): elenco delle parole chiave
+     *   - @b url (string): indirizzo completo della pagina (@example $this->link($this->_instance_name, 'detail', ['id' => $item->slug], '', ['abs' => true]))
+     *   - @b open_graph (boolean): visualizzazione dei meta tag semantici Open Graph dedicati alle pagine Facebook (default true)
+     *   - @b twitter (boolean): visualizzazione dei meta tag semantici dedicati ai profili Twitter (default true)
+     *   - @b customs (array): meta tag aggiuntivi nel formato [property => content]
+     * @return void
+     */
+    public function setSEOSettings($options=[]) {
+        
+        $title = gOpt('title', $options, null);
+        $description = gOpt('description', $options, null);
+        $keywords = gOpt('keywords', $options, null);
+        $url = gOpt('url', $options, null);
+        $open_graph = gOpt('open_graph', $options, true);
+        $twitter = gOpt('twitter', $options, true);
+        $customs = gOpt('customs', $options, []);
+        
+        if($title) {
+            $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.\Gino\htmlChars($title);
+        }
+        if($description) {
+            $this->_registry->description = \Gino\cutHtmlText($description, 150, '...', true, false, true, '');
+        }
+        if($keywords) {
+            $this->_registry->keywords = $keywords;
+        }
+        
+        if($open_graph) {
+            if($url) {
+                $this->_registry->addMeta(array(
+                    'property' => 'og:url',
+                    'content' => $url
+                ));
+            }
+            if($title) {
+                $this->_registry->addMeta(array(
+                    'property' => 'og:title',
+                    'content' => $title
+                ));
+            }
+            if($description) {
+                $this->_registry->addMeta(array(
+                    'property' => 'og:description',
+                    'content' => $this->_registry->description
+                ));
+            }
+        }
+        
+        if($twitter) {
+            if($url) {
+                $this->_registry->addMeta(array(
+                    'property' => 'twitter:url',
+                    'content' => $url
+                ));
+            }
+            if($title) {
+                $this->_registry->addMeta(array(
+                    'property' => 'twitter:title',
+                    'content' => $title
+                ));
+            }
+            if($description) {
+                $this->_registry->addMeta(array(
+                    'property' => 'twitter:description',
+                    'content' => $this->_registry->description
+                ));
+            }
+        }
+        
+        if(is_array($customs) and count($customs)) {
+            foreach ($customs as $key => $value) {
+                $this->_registry->addMeta(array(
+                    'property' => $key,
+                    'content' => $value
+                ));
+            }
+        }
+    }
 }
