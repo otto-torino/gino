@@ -906,7 +906,8 @@ $buffer = '';
 
 /**
  * @brief Codice condivisione social network con integrazione sharethis e AddToAny
- * @description Se nelle impostazioni è stato inserito il codice ShareThis, le condivisioni vengono gestite da quest'ultimo
+ * @description Se nelle impostazioni è stato inserito il codice ShareThis, le condivisioni vengono gestite da quest'ultimo (@link https://platform.sharethis.com/),
+ * altrimenti le condivisioni vengono gestire da AddToAny (@link https://www.addtoany.com/).
  *
  * @param mixed $social
  *   - string, valore identificativo di raggruppamenti di condivisioni (all, st_all, st_all_large)

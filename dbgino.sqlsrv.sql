@@ -866,15 +866,13 @@ Riportiamo qui di seguito le procedure per accedere a queste impostazioni per i 
 <br />
 <a href="https://support.google.com/chrome/answer/95647?hl=it" rel="external">Chrome</a></p>
 
-<p><a href="http://windows.microsoft.com/it-it/windows-vista/block-or-allow-cookies" rel="external">Internet Explorer</a></p>
+<p><a href="https://support.microsoft.com/en-us/help/17442/windows-internet-explorer-delete-manage-cookies" rel="external">Internet Explorer</a></p>
 
 <p><a href="https://support.mozilla.org/it/kb/Gestione%20dei%20cookie" rel="external">Firefox</a></p>
 
 <p><a href="http://www.opera.com/help/tutorials/security/privacy/" rel="external">Opera</a></p>
 
-<p><a href="https://support.apple.com/kb/PH17191?locale=en_US" rel="external">Safari 6/7</a></p>
-
-<p><a href="https://support.apple.com/kb/PH19214?locale=en_US" rel="external">Safari 8</a></p>
+<p><a href="https://support.apple.com/kb/PH21411?viewlocale=en_US&locale=en_US" rel="external">Safari</a></p>
 
 <p><a href="https://support.apple.com/en-us/HT201265" rel="external">Safari mobile</a></p>', NULL, 0, 1, 0, 0, NULL, 0, NULL, 0, NULL, NULL);
 
