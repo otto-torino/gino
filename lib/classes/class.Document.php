@@ -3,7 +3,7 @@
  * @file class.Document.php
  * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ use \Gino\App\Page\page;
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -73,7 +73,7 @@ class Document {
 
     /**
      * @brief Crea il corpo della risposta HTTP
-     * @return documento html
+     * @return string, documento html
      */
     public function render() {
 
@@ -100,15 +100,18 @@ class Document {
             $template = TPL_DIR.OS.$tpl->filename;
 
             if($tpl->free) {
-                // Il template viene parserizzato 2 volte. La prima volta vengono eseguiti i metodi (definiti nei tag {module...}), 
-                // in questo modo vengono salvate eventuali modifiche al registry che viene utilizzato per includere js e css e meta nell'head del documento.
-                // L'output viene quindi tenuto in memoria, mentre il template non viene toccato.
-                // La seconda volta viene parserizzato per sostituire effettivamente i segnaposto dei moduli con l'output precedentemente salvato nella prima
-                // parserizzazione.
-                // Non si possono sostituire gli output già alla prima parserizzazione, e poi fare un eval del template perché altrimenti eventuali contenuti
-                // degli output potrebbero causare errori di interpretazione dell'eval, è sufficiente una stringa '<?' a far fallire l'eval.
-                // parse modules first time to update registry
-            	
+                /*
+                 * Il template viene parserizzato 2 volte. La prima volta vengono eseguiti i metodi definiti nei tag {module} e 
+                 * vengono letti i file definiti attraverso i tag {%block%}. 
+                 * In questo modo vengono salvate eventuali modifiche al registry che viene utilizzato per includere js, css e meta 
+                 * nell'head del documento. L'output viene quindi tenuto in memoria, mentre il template non viene toccato.
+                 * La seconda volta viene parserizzato per sostituire effettivamente i segnaposto dei moduli con l'output precedentemente 
+                 * salvato nella prima parserizzazione.
+                 * Non si possono sostituire gli output già alla prima parserizzazione, e poi fare un eval del template 
+                 * perché altrimenti eventuali contenuti degli output potrebbero causare errori di interpretazione dell'eval: 
+                 * è sufficiente una stringa '<?' a far fallire l'eval.
+                 * parse modules first time to update registry
+                 */
             	$tpl_content = file_get_contents($template);
             	$regexp = array("#{% block '(.*?)' %}#", "#{module(.*?)}#");
             	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
@@ -139,9 +142,10 @@ class Document {
     }
 
     /**
-     * @brief Parserizza un placeholder del template ritornando la pagina o istanza/metodo corrispondenti
+     * @brief Parserizza un placeholder del template ritornando le corrispondenti porzioni di template oppure l'output di pagine o applicazioni.
+     * 
      * @param array $m placeholder
-     * @return contenuto corrispondente
+     * @return string, contenuto corrispondente
      * 
      * La variabile $m assume valori simili ai seguenti:
      * @code
@@ -161,7 +165,15 @@ class Document {
     	
     	if(preg_match("#{% block '(.*?)' %}#", $regex_marker)) {
     		
-    		$filename = TPL_DIR.OS.$regex_result;
+    	    // case: appname/filename
+    	    if(preg_match("#/#", $regex_result)) {
+    	        $a = explode('/', $regex_result);
+    	        $filename = APP_DIR.OS.$a[0].OS.'templates'.OS.$a[1];
+    	    }
+    	    else {
+    	        $filename = TPL_DIR.OS.$regex_result;
+    	    }
+    	    
     		if(file_exists($filename) && is_file($filename)) {
     			
     			$content = file_get_contents($filename);
@@ -207,8 +219,8 @@ class Document {
     
     /**
      * @brief Recupera la skin da utilizzare per generare il documento
-     *
      * @description La scelta della skin dipende dall'url
+     * 
      * @return Gino.Skin oppure una Exception se la skin non viene trovata
      */
     private function getSkin() {
@@ -341,7 +353,7 @@ class Document {
 
     /**
      * @brief Footline per template non free
-     * @return footline
+     * @return string, footline
      */
     private function footLine() {
 
@@ -386,7 +398,7 @@ class Document {
      * @see modClass()
      * @see modUrl()
      * @param string $mdlMarker placeholder
-     * @return contenuto o Exception se il modulo non viene riconosciuto
+     * @return string or Exception se il modulo non viene riconosciuto
      */
     private function renderModule($mdlMarker) {
 
@@ -404,7 +416,7 @@ class Document {
                 $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
             }
             catch(\Exception $e) {
-                    Logger::manageException($e);
+                Logger::manageException($e);
             }
         }
         elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
@@ -420,7 +432,7 @@ class Document {
      *
      * @see Gino.App.Page.page::box()
      * @param int $mdlId valore ID della pagina
-     * @return contenuto pagina
+     * @return string, contenuto pagina
      */
     private function modPage($mdlId) {
 
@@ -445,7 +457,7 @@ class Document {
      * @param string $mdlFunc metodo
      * @param string $mdlType tipo modulo (sysclass|class)
      * @param string|int $mdlParam valore del parametro da passare al metodo da richiamare
-     * @return contenuto
+     * @return string
      */
     private function modClass($mdlId, $mdlFunc, $mdlType, $mdlParam=null){
 
@@ -514,11 +526,14 @@ class Document {
 
     /**
      * @brief Check dei permessi di accesso ad un metodo di tipo output
-     *
-     * formati:
-     *     sysclass_name.perm_name => cerca il permesso perm_name della classe sysclass_name con istanza 0 (compresa la sysclass fittizia 'core')
-     *     perm_name => cerca il permesso perm_name della classe che definisce outputFunctions con istanza corrente (0 se si tratta di una sysclass)
-     * @return bool
+     * 
+     * @see Gino.App.Auth.User::hasPerm()
+     * @param array $perms elenco dei codici dei permessi da verificare, nei formati:
+     *   @a sysclass_name.perm_name => cerca il permesso perm_name della classe sysclass_name con istanza 0 (compresa la sysclass fittizia 'core')
+     *   @a perm_name => cerca il permesso perm_name della classe che definisce outputFunctions con istanza corrente (0 se si tratta di una sysclass)
+     * @param string $class_name nome della classe
+     * @param integer $instance istanza della classe (0 per classi non istanziabili)
+     * @return boolean
      */
     private function checkOutputFunctionPermissions($perms, $class_name, $instance) {
 
@@ -547,7 +562,7 @@ class Document {
 
     /**
      * @brief Contenuto modulo/pagina richiamato da url
-     * @return contenuto
+     * @return string
      */
     private function modUrl() {
         return $this->_url_content;
@@ -555,7 +570,7 @@ class Document {
 
     /**
      * @brief Codice google analytics
-     * @return codice javascript
+     * @return string, codice javascript
      */
     private function google_analytics(){
 
