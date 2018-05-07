@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -39,7 +39,7 @@ require_once('class.ModelFormUser.php');
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
  * 
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -59,7 +59,7 @@ class auth extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Auth.auth
+     * @return void, istanza di Gino.App.Auth.auth
      */
     function __construct(){
 
@@ -67,44 +67,128 @@ class auth extends \Gino\Controller {
 
         $this->_instance = 0;
         $this->_instanceName = $this->_class_name;
-
-        $this->_users_for_page = $this->setOption('users_for_page');
-        $this->_user_more = $this->setOption('user_more_info');
-        $this->_user_view = $this->setOption('user_card_view');
-
-        $this->_username_as_email = $this->setOption('username_as_email');
-        $this->_aut_pwd = $this->setOption('aut_pwd');
-        $this->_aut_pwd_length = $this->setOption('aut_pwd_length');
-        $this->_pwd_length_min = $this->setOption('pwd_min_length');
-        $this->_pwd_length_max = $this->setOption('pwd_max_length');
-        $this->_pwd_numeric_number = $this->setOption('pwd_numeric_number');
         
-        $this->_ldap_auth = $this->setOption('ldap_auth');
-        $this->_ldap_auth_only = $this->setOption('ldap_auth_only');
-        $this->_ldap_single_user = $this->setOption('ldap_single_user');
-        $this->_ldap_auth_password = $this->setOption('ldap_auth_password');
-
+        $this->setAppOptions();
+    }
+    
+    private function setAppOptions() {
+        
+        $this->_optionsValue = array(
+            
+        );
+        
+        if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
+            
+            $this->_users_for_page = $this->setOption('users_for_page', []);
+            $this->_user_more = $this->setOption('user_more_info', []);
+            $this->_user_view = $this->setOption('user_card_view', []);
+            $this->_username_as_email = $this->setOption('username_as_email', []);
+            $this->_aut_pwd = $this->setOption('aut_pwd', []);
+            $this->_aut_pwd_length = $this->setOption('aut_pwd_length', []);
+            $this->_pwd_length_min = $this->setOption('pwd_min_length', []);
+            $this->_pwd_length_max = $this->setOption('pwd_max_length', []);
+            $this->_pwd_numeric_number = $this->setOption('pwd_numeric_number', []);
+            $this->_ldap_auth = $this->setOption('ldap_auth', []);
+            $this->_ldap_auth_only = $this->setOption('ldap_auth_only', []);
+            $this->_ldap_single_user = $this->setOption('ldap_single_user', []);
+            $this->_ldap_auth_password = $this->setOption('ldap_auth_password', []);
+            
+            $this->_registry->apps->{$this->_instance_name} = array(
+                'users_for_page' => $this->_users_for_page,
+                'user_more_info' => $this->_user_more,
+                'user_card_view' => $this->_user_view,
+                'username_as_email' => $this->_username_as_email,
+                'aut_pwd' => $this->_aut_pwd,
+                'aut_pwd_length' => $this->_aut_pwd_length,
+                'pwd_min_length' => $this->_pwd_length_min,
+                'pwd_max_length' => $this->_pwd_length_max,
+                'pwd_numeric_number' => $this->_pwd_numeric_number,
+                'ldap_auth' => $this->_ldap_auth,
+                'ldap_auth_only' => $this->_ldap_auth_only,
+                'ldap_single_user' => $this->_ldap_single_user,
+                'ldap_auth_password' => $this->_ldap_auth_password
+            );
+        }
+        else {
+            $this->_users_for_page = $this->_registry->apps->{$this->_instance_name}['users_for_page'];
+            $this->_user_more = $this->_registry->apps->{$this->_instance_name}['user_more_info'];
+            $this->_user_view = $this->_registry->apps->{$this->_instance_name}['user_card_view'];
+            $this->_username_as_email = $this->_registry->apps->{$this->_instance_name}['username_as_email'];
+            $this->_aut_pwd = $this->_registry->apps->{$this->_instance_name}['aut_pwd'];
+            $this->_aut_pwd_length = $this->_registry->apps->{$this->_instance_name}['aut_pwd_length'];
+            $this->_pwd_length_min = $this->_registry->apps->{$this->_instance_name}['pwd_min_length'];
+            $this->_pwd_length_max = $this->_registry->apps->{$this->_instance_name}['pwd_max_length'];
+            $this->_pwd_numeric_number = $this->_registry->apps->{$this->_instance_name}['pwd_numeric_number'];
+            $this->_ldap_auth = $this->_registry->apps->{$this->_instance_name}['ldap_auth'];
+            $this->_ldap_auth_only = $this->_registry->apps->{$this->_instance_name}['ldap_auth_only'];
+            $this->_ldap_single_user = $this->_registry->apps->{$this->_instance_name}['ldap_single_user'];
+            $this->_ldap_auth_password = $this->_registry->apps->{$this->_instance_name}['ldap_auth_password'];
+        }
+        
         $this->_options = \Gino\Loader::load('Options', array($this));
         $this->_optionsLabels = array(
-            "users_for_page"=>_("Utenti per pagina"),
-            "user_more_info"=>_("Informazioni aggiuntive utenti"), 
-            "user_card_view"=>_("Schede utenti visibili"),
-            "username_as_email"=>_("Utilizzo email come username"),
-            "aut_pwd"=>_("Generazione automatica password"),
-            "aut_pwd_length"=>_("Caratteri della password automatica"),
-            "pwd_min_length"=>_("Minimo caratteri password"),
-            "pwd_max_length"=>_("Massimo caratteri password"),
-            "pwd_numeric_number"=>_("Caratteri numerici password"), 
-        	"ldap_auth"=>array(
-        		'label'=>_("Attivazione Ldap"), 
-        		'required'=>true, 
-        		'section'=>true,
-                'section_title'=>_('Ldap'),
-                'section_description'=> "<p>"._("Opzioni per la procedura di autenticazione Ldap; per impostare i parametri di connessione al database editare il file config.ldap.php.")."</p>",
-        	),
-            "ldap_auth_only"=>array(_("Autenticazione esclusiva Ldap"), _("se l'autenticazione non è esclusiva viene verificata prima la validità dell'utente nel database Ldap e in caso negativo in quello di gino")),
-            "ldap_single_user"=>array('label'=>_("Utente unico di gino per tutti gli utenti ldap"), 'trnsl'=>false, 'required'=>false),
-            "ldap_auth_password"=>array('label'=>_("Password dell'utente/utenti di gino abbinati agli utenti ldap"), 'trnsl'=>false, 'required'=>false), 
+            "users_for_page" => array(
+                'label' => _("Utenti per pagina"),
+                'value' => null,
+            ),
+            "user_more_info" => array(
+                'label' => _("Informazioni aggiuntive utenti"),
+                'value' => null
+            ),
+            "user_card_view" => array(
+                'label' => _("Schede utenti visibili"),
+                'value' => null
+            ),
+            "username_as_email" => array(
+                'label' => _("Utilizzo email come username"),
+                'value' => null,
+                'section' => true,
+                'section_title' => _('Impostazioni username')
+            ),
+            "aut_pwd" => array(
+                'label' => _("Generazione automatica password"),
+                'value' => null,
+                'section' => true,
+                'section_title' => _('Caratteristiche password')
+            ),
+            "aut_pwd_length" => array(
+                'label' => _("Caratteri della password automatica"),
+                'value' => null
+            ),
+            "pwd_min_length" => array(
+                'label' => _("Minimo caratteri password"),
+                'value' => null
+            ),
+            "pwd_max_length" => array(
+                'label'=>_("Massimo caratteri password"),
+                'value' => null
+            ),
+            "pwd_numeric_number"=>array(
+                'label' => _("Caratteri numerici password"),
+                'value' => null
+            ),
+            "ldap_auth" => array(
+                'label' =>_("Attivazione Ldap"),
+                'value' => null,
+                'required' => true,
+                'section' => true,
+                'section_title' =>_('Ldap'),
+                'section_description' => "<p>"._("Opzioni per la procedura di autenticazione Ldap; per impostare i parametri di connessione al database editare il file config.ldap.php.")."</p>",
+            ),
+            "ldap_auth_only" => array(
+                'label' => array(_("Autenticazione esclusiva Ldap"), _("se l'autenticazione non è esclusiva viene verificata prima la validità dell'utente nel database Ldap e in caso negativo in quello di gino")),
+                'value' => null,
+            ),
+            "ldap_single_user" => array(
+                'label'=>_("Utente unico di gino per tutti gli utenti ldap"), 
+                'trnsl'=>false, 
+                'required'=>false
+            ),
+            "ldap_auth_password" => array(
+                'label' => _("Password dell'utente/utenti di gino abbinati agli utenti ldap"),
+                'trnsl'=>false,
+                'required'=>false
+            ),
         );
     }
 
@@ -173,7 +257,7 @@ class auth extends \Gino\Controller {
      * @param string $path tipo di percorso (default abs)
      *   - abs, assoluto
      *   - rel, relativo
-     * @return percorso
+     * @return string
      */
     public function getBasePath($path = 'abs'){
 
@@ -192,7 +276,7 @@ class auth extends \Gino\Controller {
     /**
      * @brief Percorso della directory dei contenuti (una directory per ogni utente)
      * @param integer $id valore ID dell'utente
-     * @return path directory
+     * @return string, path directory
      */
     public function getAddPath($id) {
 
@@ -984,7 +1068,7 @@ class auth extends \Gino\Controller {
     /**
      * Interfaccia di amministrazione richieste di registrazione
      *
-     * @return html oppure \Gino\Http\Redirect
+     * @return string or \Gino\Http\Redirect
      */
     private function manageRegistrationRequest() {
     	
@@ -1008,7 +1092,7 @@ class auth extends \Gino\Controller {
     /**
      * Interfaccia di amministrazione profili di registrazione
      *
-     * @return html oppure \Gino\Http\Redirect
+     * @return string or \Gino\Http\Redirect
      */
     private function manageRegistrationProfile() {
     	
@@ -1037,6 +1121,7 @@ class auth extends \Gino\Controller {
                 'notes' => FALSE,
                 'img_preview' => FALSE,
             ),
+            'add_information_module_id' => array('trnsl' => false)
         );
 
         $admin_table = Loader::load('AdminTable', array(
@@ -1049,11 +1134,10 @@ class auth extends \Gino\Controller {
     /**
      * @brief Interfaccia di amministrazione utenti
      * @param \Gino\Http\Request istanza di Gino.Http.Request
-     * @see AdminTable_AuthUser::backoffice()
-     * @return html oppure \Gino\Http\Redirect
+     * @return string or \Gino\Http\Redirect
      * 
      * Nell'inserimento di un nuovo utente vengono effettuati i controlli con User::checkPassword() e User::checkUsername(). \n
-     * In inserimento e modifica vengono effettuati i controlli con User::checkEmail() in AdminTable_AuthUser::modelAction().
+     * In inserimento e modifica vengono effettuati i controlli con User::checkEmail().
      * 
      * Lo username e l'email devono essere unici. \n
      * Se si imposta come username l'email (proprietà $_username_as_email), il campo username non viene mostrato nell'inserimento e il campo email nella modifica. \n
@@ -1374,7 +1458,7 @@ class auth extends \Gino\Controller {
      * @see User::formPassword()
      * @see passwordRules()
      * @param \Gino\Http\Request $request
-     * @return html
+     * @return string
      */
     private function changePassword(\Gino\Http\Request $request) {
 
@@ -1488,7 +1572,7 @@ class auth extends \Gino\Controller {
      * Parametri GET: \n
      *   - ref (integer), valore ID dell'utente
      * @param \Gino\Http\Request $request
-     * @return html
+     * @return string
      */
     private function joinUserPermission(\Gino\Http\Request $request) {
 
@@ -1593,7 +1677,7 @@ class auth extends \Gino\Controller {
      *   - ref (integer), valore id del gruppo
      * 
      * @param \Gino\Http\Request $request
-     * @return html, form
+     * @return string
      */
     private function joinGroupPermission($request) {
 
@@ -1695,7 +1779,7 @@ class auth extends \Gino\Controller {
      * @brief Imposta il multicheckbox sui permessi
      * 
      * @param array $checked
-     * @return html, multicheck
+     * @return string, multicheck input
      */
     private function formPermission($checked=array()) {
 
@@ -1741,7 +1825,7 @@ class auth extends \Gino\Controller {
      * @see Gino.Form::multipleCheckbox()
      * @param \Gino\Form $obj_form istanza di Gino.Form
      * @param array $checked array di id di permessi selezionati
-     * @return html, multicheck
+     * @return string, multicheck input
      */
     private function formGroup($obj_form, $checked=array()) {
 
