@@ -26,7 +26,7 @@ class Group extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Auth.Group
+     * @return void, istanza di Gino.App.Auth.Group
      */
     function __construct($id) {
 
@@ -37,7 +37,7 @@ class Group extends \Gino\Model {
 
     /**
      * @brief Rapprensentazione a stringa dell'oggetto
-     * @return nome gruppo
+     * @return string, nome gruppo
      */
     function __toString() {
         return $this->name;

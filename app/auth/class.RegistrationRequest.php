@@ -25,7 +25,7 @@ class RegistrationRequest extends \Gino\Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Auth.RegistrationProfile
+     * @return void, istanza di Gino.App.Auth.RegistrationProfile
      */
     function __construct($id) {
 

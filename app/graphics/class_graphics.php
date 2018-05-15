@@ -17,7 +17,7 @@ namespace Gino\App\Graphics;
 use \Gino\View;
 use \Gino\Document;
 
-require_once('class.GraphicsItem.php');
+require_once 'class.GraphicsItem.php';
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione personalizzata degli header e footer del sistema
@@ -37,7 +37,7 @@ class graphics extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Graphics.graphics
+     * @return void, istanza di Gino.App.Graphics.graphics
      */
     function __construct(){
 
@@ -92,7 +92,7 @@ class graphics extends \Gino\Controller {
      * @brief Stampa l'header/footer
      *
      * @param integer $id valore ID del record
-     * @return html
+     * @return string, html
      */
     private function render($id) {
 

@@ -130,7 +130,7 @@ class Error {
 
     /**
      * @brief Recupera il messaggio di errore e lo toglie dalla sessione
-     * @return messaggio di errore se presente, stringa vuota altrimenti
+     * @return string, messaggio di errore se presente, stringa vuota altrimenti
      */
     public static function getErrorMessage() {
 

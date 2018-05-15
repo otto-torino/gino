@@ -29,7 +29,7 @@ class Logger {
      *
      * @param string $subject titolo messaggio da inviare
      * @param string $message corpo messaggio da inviare
-     * @return vero se la mail è stata correttamente spedita, falso altrimenti
+     * @return bool, vero se la mail è stata correttamente spedita, falso altrimenti
      */
     public static function messageReportAdmins($subject, $message) {
 
@@ -56,7 +56,7 @@ class Logger {
     /**
      * @brief Invia lo stack trace di una exception agli amministratori del sistema se la costante DEBUG in @ref configuration.php è FALSE
      * 
-     * @param Exception $exception oggetto Exception
+     * @param \Exception $exception oggetto Exception
      * @return TRUE se la mail è stata correttamente spedita, FALSE altrimenti
      */
     public static function exceptionReportAdmins($exception) {
@@ -81,7 +81,7 @@ class Logger {
 
     /**
      * @brief Html che mostra il valore di variabili di sistema $_SESSION, $_SERVER, $_REQUEST
-     * @return html
+     * @return string
      */
     private static function systemVariablesHtml() {
         $view = new View(null, 'logger_system_variables');
@@ -122,7 +122,7 @@ class Logger {
     /**
      * @brief Html che mostra lo stack trace di una Exception
      * @param \Exception $exception
-     * @return documento html con stack trace
+     * @return string, documento html con stack trace
      */
     private static function stackTraceHtml($exception) {
         $view = new View(null, 'logger_stack_trace');

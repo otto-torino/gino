@@ -35,7 +35,7 @@ class Paginator {
      * @param int $items_for_page numero di items per pagina
      * @param array $kwargs array associativo
      *              - interval: int, default 2. Numero di pagine da mostrare nella navigazione nell'intorno di quella corrente
-     * @return istanza di Gino.Paginator
+     * @return void, istanza di Gino.Paginator
      */
     function __construct($items_number, $items_for_page, array $kwargs = array()) {
 
@@ -98,7 +98,7 @@ class Paginator {
 
     /**
      * @brief Riassunto elementi pagina corrente
-     * @return codice html riassunto, es 10-20 di 100
+     * @return string, codice html riassunto, es 10-20 di 100
      */
     public function summary() {
         $limit = $this->limit();
@@ -107,7 +107,7 @@ class Paginator {
 
     /**
      * @brief Controllo per la navigazione delle pagine
-     * @return codice html
+     * @return string
      */
     public function navigator() {
 
@@ -181,7 +181,7 @@ class Paginator {
      *   - @b gotopage (array): parametri dell'interfaccia di rimando a una pagina specifica
      *     - @a view (boolean), indica se mostrare l'interfaccia
      *     - parametri del metodo goToPage()
-     * @return codice html paginazione
+     * @return string, codice html paginazione
      */
     public function pagination($options=null) {
         
@@ -200,7 +200,7 @@ class Paginator {
     /**
      * @brief Url che porta alla pagina data
      * @param int $p numero pagina
-     * @return url o null se è la pagina corrente
+     * @return string or null se è la pagina corrente
      */
     private function urlPage($p) {
 

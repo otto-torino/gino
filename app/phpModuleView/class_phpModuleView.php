@@ -90,7 +90,7 @@ class phpModuleView extends \Gino\Controller {
     /**
      * @brief Eliminazione di una istanza
      *
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function deleteInstance() {
 
@@ -237,7 +237,7 @@ class phpModuleView extends \Gino\Controller {
 
     /**
      * @brief Informazioni modulo
-     * @return html, informazioni
+     * @return string
      */
     private function info(){
 

@@ -332,7 +332,7 @@ class Export {
      * @brief Rimuove il BOM (Byte Order Mark)
      *
      * @param string $str
-     * @return stringa senza BOM
+     * @return string
      */
      protected function removeBOM($str=''){
 

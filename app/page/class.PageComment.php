@@ -27,7 +27,7 @@ class PageComment extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Page.PageComment
+     * @return void, istanza di Gino.App.Page.PageComment
      */
     function __construct($id) {
 
@@ -41,7 +41,7 @@ class PageComment extends \Gino\Model {
 
     /**
      * @brief Rappresentazione testuale dell'oggetto
-     * @return data, autore
+     * @return string, data e autore
      */
     function __toString() {
 
@@ -136,7 +136,7 @@ class PageComment extends \Gino\Model {
      * @brief Numero totale di commenti per la pagina
      * 
      * @param integer $entry_id identificativo della pagina
-     * @return numero di commenti
+     * @return integer, numero di commenti
      */
     public static function getCountFromEntry($entry_id) {
 
@@ -185,7 +185,7 @@ class PageComment extends \Gino\Model {
      * @brief Eliminazione commenti legati ad una pagina 
      * 
      * @param int $entry_id identificativo della pagina
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public static function deleteFromEntry($entry_id) {
 

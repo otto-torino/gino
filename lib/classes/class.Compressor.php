@@ -27,7 +27,7 @@ class Compressor {
      * @param array $params Array associativo di parametri
      *                      - css: path o array di path relativi di css
      *                      - js: path o array di path relativi di js
-     * @return istanza di Gino.Compressor
+     * @return void, istanza di Gino.Compressor
      */
     function __construct($params = array()) {
         // paths
@@ -69,7 +69,7 @@ class Compressor {
      * @brief Merge di script js in un unico file
      * @param array $options array associativo di opzioni
      *                       - minify: eseguire il minify dei file oppure no
-     * @return path del file unificato
+     * @return string, percorso del file unificato
      */
     public function mergeJs($options = array()) {
         $minify = gOpt('minify', $options, TRUE);
@@ -105,7 +105,7 @@ class Compressor {
      * @brief Esegue il minify del contenuto js
      * @param string $content contenuto js
      * @see JSMin
-     * @return contenuto minificato
+     * @return string, contenuto minificato
      */
     private function minifyJs($content) {
         return JSMin::minify($content);
@@ -115,7 +115,7 @@ class Compressor {
      * @brief Merge di stylesheet in un unico file
      * @param array $options array associativo di opzioni
      *                       - minify: eseguire il minify dei file oppure no
-     * @return path del file unificato
+     * @return string, percorso del file unificato
      */
     public function mergeCss($options = array()) {
         $minify = gOpt('minify', $options, true);
@@ -139,7 +139,7 @@ class Compressor {
 
     /**
      * @brief Verifica se il file compresso deve essere ricreato
-     * @return vero o falso
+     * @return bool
      */
     private function shouldUpdate($type, $paths_string, $paths) {
 
@@ -153,12 +153,11 @@ class Compressor {
         }
 
         return $ref_mtime > filemtime($cache_path);
-
     }
 
     /**
      * @brief Percorso del file compresso
-     * @return path
+     * @return string
      */
     private function filePath($type, $paths_string) {
     	
@@ -171,7 +170,7 @@ class Compressor {
      * @param string $source path del css sorgente
      * @param string $destination path del css di destinazione
      * @param string $content contenuto del file sorgente
-     * @return contenuto con i path aggiornati
+     * @return string, contenuto con i path aggiornati
      */
     private function moveCss($source, $destination, $content) {
         $relative_regexes = array(
@@ -219,7 +218,7 @@ class Compressor {
      * @param string $path percorso da convertire
      * @param string $from folder attuale
      * @param string $to folder finale
-     * @return path convertito
+     * @return string, path convertito
      */
     private function convertRelativePath($path, $from, $to) {
         $from = $from ? realpath($from) : '';
@@ -296,7 +295,7 @@ class Compressor {
     /**
      * @brief Esegue il minify del contenuto css
      * @param string $content contenuto css
-     * @return contenuto minificato
+     * @return string, contenuto minificato
      */
     private function minifyCss($content) {
         // Remove comments

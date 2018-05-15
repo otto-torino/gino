@@ -29,7 +29,7 @@ interface DbManager {
 
     /**
      * @brief Restituisce informazioni sull'esecuzione delle query
-     * @return informazioni
+     * @return string
      */
     public function getInfoQuery();
 
@@ -84,7 +84,7 @@ interface DbManager {
      * @brief Valore dell'ultimo ID generato da una colonna Auto Increment a seguito di una istruzione INSERT o UPDATE
      * 
      * @param string $table nome della tabella
-     * @return ultimo id generato
+     * @return int, ultimo id generato
      */
     public function getLastId($table);
 
@@ -92,7 +92,7 @@ interface DbManager {
      * @brief Valore di Auto Increment
      * 
      * @param string $table nome della tabella
-     * @return auto increment
+     * @return int
      */
     public function autoIncValue($table);
 
@@ -104,7 +104,7 @@ interface DbManager {
      * @param string $field_id nome del campo condizione (where)
      * @param mixed $id valore del campo condizione (where)
      * @param array $options
-     * @return valore del campo
+     * @return mixed, valore del campo
      */
     public function getFieldFromId($table, $field, $field_id, $id, $options);
 
@@ -122,7 +122,7 @@ interface DbManager {
      * @description Utilizzato dalla classe Gino.Options per costruire il form delle opzioni di una classe.
      *
      * @param string $table nome della tabella
-     * @return informazioni in array
+     * @return array, informazioni in array
      */
     public function fieldInformations($table);
 
@@ -151,7 +151,7 @@ interface DbManager {
      *
      * @param integer $range numero di elementi da mostrare
      * @param integer $offset record di partenza (key)
-     * @return LIMIT condition
+     * @return string, LIMIT condition
      */
     public function limit($range, $offset);
 
@@ -162,7 +162,7 @@ interface DbManager {
      * @param array $options array associativo di opzioni
      *   - @b alias (string): nome dell'alias del distinct
      *   - @b remove_table (boolean): rimuove il nome della tabella dalla definizione del campo
-     * @return DISTINCT statement
+     * @return string, DISTINCT statement
      */
     public function distinct($fields, $options);
 
@@ -176,7 +176,7 @@ interface DbManager {
      * @endcode
      *
      * @param mixed $sequence elenco di campi da concatenare
-     * @return CONCAT statement
+     * @return string, CONCAT statement
      */
     public function concat($sequence);
 
@@ -184,7 +184,7 @@ interface DbManager {
      * @brief Effettua il dump del database
      *
      * @param string $file percorso completo del file da scrivere
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function dumpDatabase($file);
     
@@ -204,7 +204,7 @@ interface DbManager {
      * @param string $where condizione della query
      * @param string $field nome del campo di selezione per il conteggio dei record
      * @param array $options opzioni del metodo select()
-     * @return numero di record
+     * @return int
      */
     public function getNumRecords($table, $where, $field, $options);
     
@@ -222,7 +222,7 @@ interface DbManager {
      *     - string, condizione di limitazione degli elementi
      *     - array, valori per il range di limitazione (array(offset, range))
      *   - @b debug (boolean): se vero stampa a video la query
-     * @return query
+     * @return string, query
      */
     public function query($fields, $tables, $where, $options);
 
@@ -270,7 +270,7 @@ interface DbManager {
      *     @endcode
      * @param string $table nome della tabella
      * @param boolean $debug se vero stampa a video la query
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function insert($fields, $table, $debug);
 
@@ -289,7 +289,7 @@ interface DbManager {
      * @param string $table nome della tabella
      * @param string $where condizione della query
      * @param boolean $debug se vero stampa a video la query
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function update($fields, $table, $where, $debug);
 
@@ -299,7 +299,7 @@ interface DbManager {
      * @param string $table nome della tabella
      * @param string $where condizione della query
      * @param boolean $debug se vero stampa a video la query
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function delete($table, $where, $debug);
 
@@ -307,7 +307,7 @@ interface DbManager {
      * @brief Eliminazione di una tabella
      *
      * @param string $table nome della tabella
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public function drop($table);
 
@@ -336,7 +336,7 @@ interface DbManager {
      *   - inner
      *   - left outer
      *   - right outer
-     * @return join clause
+     * @return string, join clause
      */
     public function join($table, $condition, $option);
 
@@ -371,7 +371,7 @@ interface DbManager {
      *   - @b escaped (string): carattere di escape, cioè quello utilizzato prima dei caratteri speciali
      *   - @b lineend (string): stringa utilizzata come separatore tra i record
      *   - @b hasheader (boolean): indica se il file comincia con una riga contenente i nomi dei campi
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public function restore($table, $filename, $options=array());
 
@@ -385,7 +385,7 @@ interface DbManager {
      *   - @b where (string): condizioni della query
      *   - @b delim (string): stringa che viene usata per separare tra loro i valori dei campi
      *   - @b enclosed (string): carattere utilizzato per racchiudere i valori di tipo stringa
-     * @return stringa (nome del file di dump)
+     * @return string (nome del file di dump)
      */
     public function dump($table, $path_to_file, $options=array());
 
@@ -393,7 +393,7 @@ interface DbManager {
      * @brief Aggiunge le sequenze di escape ai caratteri speciali in una stringa per l'uso in una istruzione SQL, tenendo conto dell'attuale set di caratteri della connessione
      *
      * @param mixed $string
-     * @return stringa
+     * @return string
      */
     public function escapeString($string);
 }

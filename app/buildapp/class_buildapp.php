@@ -44,7 +44,7 @@ class buildapp extends \Gino\Controller {
 
 	/**
      * @brief Costruttore
-     * @return istanza di Gino.App.BuildApp.buildapp
+     * @return void, istanza di Gino.App.BuildApp.buildapp
      */
     function __construct() {
 

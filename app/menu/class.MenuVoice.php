@@ -30,7 +30,7 @@ class MenuVoice extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID della voce di menu
-     * @return istanza di Gino.App.Menu.MenuVoice
+     * @return void, istanza di Gino.App.Menu.MenuVoice
      */
     function __construct($id) {
 

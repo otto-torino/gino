@@ -114,7 +114,7 @@ class PhpModule extends \Gino\Model {
 
     /**
      * @brief Form di inserimento e modifica del codice php
-     * @return html, form
+     * @return string
      */
     public function formPhpModule() {
 

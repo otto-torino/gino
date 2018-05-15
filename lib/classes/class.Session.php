@@ -88,7 +88,7 @@ class Session extends Singleton {
      * @endcode
      *
      * @param string $name nome della variabile di sessione
-     * @return valore variabile di sessione o null
+     * @return mixed, valore variabile di sessione o null
      */
     public function __get($name)
     {
@@ -99,7 +99,7 @@ class Session extends Singleton {
      * @brief Verifica se una variabile di sessione esiste
      *
      * @param string $name nome della variabile di sessione
-     * @return TRUE se esiste, FALSE altrimenti
+     * @return bool
      */
     public function __isset($name)
     {

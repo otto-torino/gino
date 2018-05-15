@@ -46,7 +46,7 @@ class Permission extends \Gino\Model {
     /**
      * @brief Costruttore
      * @param int $id id permesso
-     * @return istanza di Gino.App.Auth.Permission
+     * @return void, istanza di Gino.App.Auth.Permission
      */
     function __construct($id) {
 
@@ -58,7 +58,7 @@ class Permission extends \Gino\Model {
 
     /**
      * @brief Rappresentaazione a stringa dell'oggetto
-     * @return etichetta permesso
+     * @return string, etichetta permesso
      */
     function __toString() {
         return (string) $this->label;
@@ -113,7 +113,7 @@ class Permission extends \Gino\Model {
      * @brief Restituisce un oggetto dato il codice completo
      * 
      * @param string $code codice nel formato classname.code_perm
-     * @return istanza di Gino.App.Auth.Permission o null se non lo trova
+     * @return Gino.App.Auth.Permission or null (se non lo trova)
      */
     public static function getFromFullCode($code) {
 

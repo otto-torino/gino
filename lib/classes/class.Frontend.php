@@ -33,7 +33,7 @@ class Frontend {
      * @brief Costruttore
      *
      * @param \Gino\Controller $controller istanza della classe di tipo Gino.Controller
-     * @return istanza di Gino.Frontend
+     * @return void, istanza di Gino.Frontend
      */
     function __construct($controller) {
 
@@ -100,7 +100,7 @@ class Frontend {
      *
      * @param string $file nome del file
      * @param string $ext estensione del file
-     * @return nome file
+     * @return string, nome file
      */
     private function fileName($file, $ext) {
 
@@ -112,7 +112,7 @@ class Frontend {
      * @brief Percorso assoluto della directory dei file di front-end
      *
      * @param string $code
-     * @return percorso
+     * @return string
      */
     private function pathToFile($code) {
 
@@ -136,7 +136,7 @@ class Frontend {
      * @see self::moduleList()
      * @see self::formModuleFile()
      * @see self::actionModuleFile()
-     * @return interfaccia
+     * @return string
      */
     public function manageFrontend() {
 
@@ -172,7 +172,7 @@ class Frontend {
      *
      * @description Utilizza la libraria javascript CodeMirror
      * @param string $code 'css' o 'view'
-     * @return codice html
+     * @return string
      */
     private function moduleList($code) {
 
@@ -224,7 +224,7 @@ class Frontend {
      * @brief Form di modifica file
      * @param string $code 'css' o 'view'
      * @param \Gino\Http\Request oggetto Gino.Http.Request
-     * @return codice html form
+     * @return string
      */
     private function formModuleFile($code, $request) {
 

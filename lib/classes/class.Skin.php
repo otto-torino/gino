@@ -34,7 +34,7 @@ class Skin extends Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.Skin
+     * @return void, istanza di Gino.Skin
      */
     function __construct($id) {
 

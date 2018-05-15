@@ -49,7 +49,7 @@ class AttachmentItem extends \Gino\Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Attachment.AttachmentItem
+     * @return void, istanza di Gino.App.Attachment.AttachmentItem
      */
     function __construct($id) {
 
@@ -68,7 +68,7 @@ class AttachmentItem extends \Gino\Model {
     
     /**
      * @brief Rappresentazione a stringa del modello
-     * @return nome file
+     * @return string, nome file
      */
     function __toString() {
 
@@ -226,7 +226,7 @@ class AttachmentItem extends \Gino\Model {
      *
      * @see path()
      * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
-     * @return link preview
+     * @return string, link preview
      */
     public function previewLink($label = 'filename') {
 

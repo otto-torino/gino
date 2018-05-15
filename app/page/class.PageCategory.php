@@ -25,7 +25,7 @@ class PageCategory extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Page.PageCategory
+     * @return void, istanza di Gino.App.Page.PageCategory
      */
     function __construct($id) {
 
@@ -38,7 +38,7 @@ class PageCategory extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome categoria
+     * @return string, nome categoria
      */
     function __toString() {
 

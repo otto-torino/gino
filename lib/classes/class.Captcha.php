@@ -62,7 +62,7 @@ class Captcha {
      * @param array $opts
      *   array associativo di opzioni
      *   - @b allow_numbers (boolean): permettere o meno caratteri di tipo numero, default FALSE
-     * @return istanza di Gino.Captcha
+     * @return void, istanza di Gino.Captcha
      */
     function __construct($name, $opts=null) {
 
@@ -80,7 +80,7 @@ class Captcha {
 
     /**
      * @brief Verifica se l'immagine captcha può essere generata
-     * @return risultato verifica, bool
+     * @return bool, risultato verifica
      */
     private function checkRequirements(){
 
@@ -101,7 +101,7 @@ class Captcha {
      *   array associativo di opzioni
      *   - @b bkg_color (string): hex code del colore del background, default #00ff00
      *   - @b color (string): hex code del colore dei caratteri, default #000000
-     * @return immagine captcha e form input
+     * @return string, immagine captcha e form input
      */
     public function render($opts=null) {
 
@@ -213,7 +213,7 @@ class Captcha {
 
     /**
      * @brief Controlla che il codice inserito dall'utente sia corretto
-     * @return risultato controllo, bool
+     * @return bool, risultato controllo
      */
     public function check() {
 

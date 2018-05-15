@@ -41,7 +41,7 @@ class Apps extends Singleton {
 	 * @brief Ritorna il valore di una variabile
 	 *
 	 * @param string $index nome della variabile
-	 * @return valore variabile o null se non definita
+	 * @return mixed, valore variabile o null se non definita
 	 */
 	public function __get($index) {
 		return isset($this->vars[$index]) ? $this->vars[$index] : null;
@@ -50,7 +50,7 @@ class Apps extends Singleton {
 	/**
 	 * @brief Controlla se è stata caricata una istanza
 	 *
-	 * @param $instance nome dell'istanza
+	 * @param string $instance nome dell'istanza
 	 * @return TRUE se è definita, FALSE altrimenti
 	 */
 	public function instanceExists($instance) {

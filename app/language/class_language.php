@@ -18,7 +18,7 @@ use \Gino\Http\Response;
 use \Gino\View;
 use \Gino\Document;
 
-require_once('class.Lang.php');
+require_once 'class.Lang.php';
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione delle lingue disponibili per le traduzioni
@@ -39,7 +39,7 @@ class language extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Language.language
+     * @return void, istanza di Gino.App.Language.language
      */
     function __construct(){
 
@@ -71,7 +71,7 @@ class language extends \Gino\Controller {
      * @brief Vista scelta lingua (includibile in template)
      * @description Se l'impostazione multilingua è FALSE ritorna una risposta di contenuto vuoto
      *
-     * @return html
+     * @return string
      */
     public function choiceLanguage(){
 
@@ -146,7 +146,7 @@ class language extends \Gino\Controller {
     /**
      * @brief Interfaccia di amministrazione lingue installate nel sistema
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request
-     * @return html, interfaccia
+     * @return string, interfaccia
      */
     private function manageLang(\Gino\Http\Request $request) {
 

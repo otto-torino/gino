@@ -25,7 +25,7 @@ class ModuleApp extends \Gino\Model {
 	/**
      * @brief Costruttore
      * @param int $id
-     * @return istanza di Gino.App.SysClass.ModuleApp
+     * @return void, istanza di Gino.App.SysClass.ModuleApp
      */
     function __construct($id) {
 
@@ -36,7 +36,7 @@ class ModuleApp extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return label modulo
+     * @return string, label modulo
      */
     function __toString() {
         return $this->label;
@@ -44,7 +44,7 @@ class ModuleApp extends \Gino\Model {
 
     /**
      * @brief Nome della classe di sistema
-     * @return nome classe (senza namespace)
+     * @return string, nome classe (senza namespace)
      */
     public function className() {
 
@@ -53,7 +53,7 @@ class ModuleApp extends \Gino\Model {
 
     /**
      * @brief Nome della classe di sistema con namespace completo
-     * @return nome classe (con namespace)
+     * @return string, nome classe (con namespace)
      */
     public function classNameNs() {
 
@@ -63,7 +63,7 @@ class ModuleApp extends \Gino\Model {
     /**
      * @brief Recupera l'oggetto dato il nome della classe di sistema
      * @param string $name nome classe senza namespace
-     * @return istanza di Gino.App.SysClass.ModuleApp
+     * @return Gino.App.SysClass.ModuleApp
      */
     public static function getFromName($name) {
 
@@ -131,7 +131,7 @@ class ModuleApp extends \Gino\Model {
     
     /**
      * @brief Elenco dei moduli installati in gino
-     * @return unknown[], array id => name
+     * @return array[], id => name
      */
     public static function getModuleList() {
     	

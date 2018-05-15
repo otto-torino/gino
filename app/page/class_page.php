@@ -180,7 +180,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Page.page
+     * @return void, istanza di Gino.App.Page.page
      */
     function __construct() {
 
@@ -355,7 +355,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Restituisce alcune proprietà della classe
-     * @return lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
+     * @return array, lista delle proprietà utilizzate per la creazione di istanze di tipo pagina
      */
     public static function getClassElements() {
 
@@ -401,7 +401,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Linee guida sulla costruzione di un template
-     * @return html
+     * @return string
      */
     public static function explanationTemplate() {
 
@@ -445,7 +445,7 @@ class page extends \Gino\Controller {
      *
      * @param integer $id valore ID della pagina
      * @param boolean $box se TRUE restituisce l'indirizzo per una pagina inserita nel template del layout
-     * @return url
+     * @return string
      */
     public static function getUrlPage($id, $box = FALSE) {
 
@@ -454,7 +454,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Getter dell'opzione comment_notification 
-     * @return proprietà comment_notification
+     * @return boolean, proprietà comment_notification
      */
     public function commentNotification() {
 
@@ -467,7 +467,7 @@ class page extends \Gino\Controller {
      * @param string $path tipo di percorso (default abs)
      *   - abs, assoluto
      *   - rel, relativo
-     * @return percorso
+     * @return string
      */
     public function getBasePath($path='abs'){
 
@@ -485,7 +485,7 @@ class page extends \Gino\Controller {
      * @brief Percorso della directory di una pagina a partire dal percorso base
      *
      * @param integer $id valore id della pagina
-     * @return percorso
+     * @return string
      */
     public function getAddPath($id) {
 
@@ -505,7 +505,7 @@ class page extends \Gino\Controller {
      *   array associativo di opzioni
      *   - @b page_obj (object): oggetto della pagina
      *   - @b page_id (integer): valore ID della pagina
-     * @return accesso, bool
+     * @return bool
      */
     public function accessPage($options = array()) {
 
@@ -537,7 +537,7 @@ class page extends \Gino\Controller {
     /**
      * @brief Front end vetrina pagine più lette
      * @description Visualizzazione come slider
-     * @return html
+     * @return string
      */
     public function showcase() {
 
@@ -601,7 +601,7 @@ class page extends \Gino\Controller {
      * @see self::accessPage()
      * @see self::parseTemplate()
      * @param int $id valore ID della pagina
-     * @return html
+     * @return string
      */
     public function box($id=null) {
 
@@ -774,7 +774,7 @@ class page extends \Gino\Controller {
 
     /**
      * @brief Form di inserimento commento
-     * @return html, form
+     * @return string, form
      */
     private function formComment($entry) {
 
@@ -873,7 +873,7 @@ class page extends \Gino\Controller {
     /**
      * @brief Lista di contenuti correlati per tag
      * @param \Gino\App\Page\PageEntry $page_entry istanza di Gino.App.Page.PageEntry
-     * @return lista contenuti correlati
+     * @return string, lista contenuti correlati
      */
     public function relatedContentsList($page_entry) {
     	
@@ -891,7 +891,7 @@ class page extends \Gino\Controller {
      * @param \Gino\App\Page\PageEntry $entry istanza di Gino.App.Page.PageEntry
      * @param string $tpl codice del template
      * @param array $matches matches delle variabili da sostituire
-     * @return template parserizzato
+     * @return string, template parserizzato
      */
     private function parseTemplate($entry, $tpl, $matches) {
 
@@ -921,7 +921,7 @@ class page extends \Gino\Controller {
      * @param string $property proprietà da sostituire
      * @param string $filter filtro applicato
      * @param \Gino\App\Page\PageEntry $obj istanza di Gino.App.Page.PageEntry
-     * @return replace del parametro proprietà
+     * @return string, replace del parametro proprietà
      */
     private function replaceTplVar($property, $filter, $obj) {
 
@@ -1363,7 +1363,7 @@ class page extends \Gino\Controller {
      * @see Gino.App.SearchSite
      * @see Gino.Search
      * @param array $results array associativo contenente i risultati della ricerca
-     * @return html, presentazione item tra i risultati della ricerca
+     * @return string, presentazione item tra i risultati della ricerca
      */
     public function searchSiteResult($results) {
 
@@ -1407,7 +1407,7 @@ class page extends \Gino\Controller {
     /**
      * @brief Contenuto di una pagina quanto inserita in una newsletter
      * @param int $id identificativo della pagina
-     * @return contenuto pagina
+     * @return string, contenuto pagina
      */
     public function systemNewsletterRender($id) {
 

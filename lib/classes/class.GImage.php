@@ -33,7 +33,7 @@ class GImage {
     /**
      * @brief Costruttore
      * @param string $abspath percorso assoluto del file
-     * @return istanza di Gino.GImage
+     * @return void, istanza di Gino.GImage
      */
     public function __construct($abspath) {
 
@@ -67,7 +67,7 @@ class GImage {
     /**
      * @brief Ritorna il percorso relativo dell'immagine (da usare come attributo src del tag img)
      * @see Gino.relativePath
-     * @return path relativo immagine
+     * @return string, path relativo immagine
      */
     public function getPath() {
         return relativePath($this->_abspath);
@@ -75,7 +75,7 @@ class GImage {
 
     /**
      * @brief Ritorna la larghezza dell'immagine
-     * @return larghezza immagine in px
+     * @return int, larghezza immagine in px
      */
     public function getWidth() {
         return $this->_width;
@@ -83,7 +83,7 @@ class GImage {
 
     /**
      * @brief Ritorna l'altezza dell'immagine
-     * @return altezza immagine in px
+     * @return int, altezza immagine in px
      */
     public function getHeight() {
         return $this->_height;
@@ -135,7 +135,7 @@ class GImage {
      *   echo "<img src='data:image/jpeg;base64," . base64_encode( $i )."'>";
      * @endcode
      * @param int $compression compressione, default 75
-     * @return stream immagine
+     * @return string, stream immagine
      */
     public function stream($compression=75) {
 
@@ -148,7 +148,6 @@ class GImage {
         elseif($this->_image_type == IMAGETYPE_PNG) {
             imagepng($this->_image);
         }
-
     }
 
     /*
@@ -236,7 +235,7 @@ class GImage {
      * @param int $width Larghezza dell'immagine dopo l'operazione
      * @param int $height Altezza dell'immagine dopo l'operazione
      * @params array $options Opzioni
-     * @return chiave univoca
+     * @return string, chiave univoca
      */
     private function toKey($abspath, $width, $height, $options) {
         $json_obj = array(
@@ -413,7 +412,7 @@ class GImage {
 
     /**
      * @brief Clona una risorsa immagine
-     * @param resopurce $image risorsa
+     * @param resource $image risorsa
      * @return resource clone
      */
     private function cloneImage($image) {
@@ -427,7 +426,7 @@ class GImage {
      * @param resource $image
      * @param int $target_size dimensione finale
      * @param string $axis asse h=orizzontale, v=verticale
-     * @return coordinata dalla quale tagliare
+     * @return float, coordinata dalla quale tagliare
      */
     private function slice($image, $target_size, $axis) {
 

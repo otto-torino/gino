@@ -64,7 +64,7 @@ class menu extends \Gino\Controller {
     /**
      * @brief Costruttore
      * @param int $instance id istanza
-     * @return istanza di Gino.App.Menu.menu
+     * @return void, istanza di Gino.App.Menu.menu
      */
     function __construct($instance) {
 

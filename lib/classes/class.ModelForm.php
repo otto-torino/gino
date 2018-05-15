@@ -145,7 +145,7 @@ class ModelForm extends Form {
      *     - @a dump (boolean): per eseguire il dump della tabella prima di importare il file
      *     - @a dump_path (string): percorso del file di dump
      * @param array $options_field opzioni per formattare i valori dei campi da salvare nel database
-     * @return risultato operazione, bool o errori
+     * @return bool, risultato operazione
      */
     public function save($options=array(), $options_field=array()) {
     
@@ -265,7 +265,7 @@ class ModelForm extends Form {
      * @param \Gino\ManyToManyThroughField $m2m_object istanza della classe di tipo Gino.Field che rappresenta il campo
      * @param \Gino\Model $model istanza del model cui appartiene il campo
      * @param $options array associativo di opzioni (@see self::save)
-     * @return risultato operazione, bool o errori
+     * @return bool, risultato operazione
      */
     private function m2mThroughAction($m2m_name, $m2m_object, $model, $options=array()) {
     

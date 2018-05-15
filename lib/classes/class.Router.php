@@ -333,7 +333,7 @@ class Router extends Singleton {
      * @param array $kwargs array associativo
      *                      - pretty: bool, default TRUE. Creare un pretty url o un url espanso
      *                      - abs: bool, default FALSE. Se TRUE viene ritornato un url assoluto
-     * @return url
+     * @return string
      */
     public function link($instance_name, $method, array $params = array(), $query_string = '', array $kwargs = array()) {
 
@@ -380,7 +380,7 @@ class Router extends Singleton {
      * @brief Trasformazione di un path con aggiunta o rimozione di parametri dalla query string
      * @param array $add parametri da aggiungere nella forma parametro => valore
      * @param array $remove parametri da rimuovere
-     * @return path trasformato
+     * @return string, path trasformato
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {
 

@@ -11,6 +11,7 @@ namespace Gino\App\Auth;
 
 use Gino\Registry;
 use Gino\IntegerField;
+
 /**
  * @brief Classe tipo Gino.Model che rappresenta un profilo di registrazione utenti
  *
@@ -31,7 +32,7 @@ class RegistrationProfile extends \Gino\Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Auth.RegistrationProfile
+     * @return void, istanza di Gino.App.Auth.RegistrationProfile
      */
     function __construct($id) {
 
@@ -42,7 +43,7 @@ class RegistrationProfile extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return descrizione profilo
+     * @return string, descrizione profilo
      */
     function __toString() {
         
@@ -128,7 +129,7 @@ class RegistrationProfile extends \Gino\Model {
     /**
      * @brief Url pagina di registrazione profilo
      *
-     * @return url
+     * @return string
      */
     public function getUrl()
     {
@@ -138,7 +139,7 @@ class RegistrationProfile extends \Gino\Model {
     /**
      * Istanza del modulo utilizzato per gestire informazioni aggiuntive
      *
-     * @return istanza modulo, object
+     * @return object, istanza modulo
      */
     public function informationApp()
     {

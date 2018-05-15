@@ -20,7 +20,7 @@ class Javascript {
 
     /**
      * @brief Include il file javascript con la libreria delle mappe
-     * @return codice html
+     * @return string
      */
     public static function abiMapLib() {
 
@@ -82,7 +82,7 @@ class Javascript {
     /**
      * @brief Funzioni javascript caricate all'interno della sezione HEAD dell'html
      * @param \Gino\Skin $skinObj istanza di Gino.Skin associata alla pagina
-     * @return codice html
+     * @return string
      */
     public static function onLoadFunction($skinObj = null) {
 
@@ -154,7 +154,7 @@ class Javascript {
 
     /**
      * @brief Include librerie js di terze parti
-     * @return codice html
+     * @return string
      */
     public static function vendor() {
         $buffer = '';
@@ -169,7 +169,7 @@ class Javascript {
 
     /**
      * @brief Codice html inclusione libreria sharethis (sharethis.com)
-     * @return codice html
+     * @return string
      */
     private static function sharethis($key) {
 
@@ -182,7 +182,7 @@ class Javascript {
 
     /**
      * @brief Include il codice per attivare google analytics
-     * @return codice html
+     * @return string
      */
     public static function analytics() {
 

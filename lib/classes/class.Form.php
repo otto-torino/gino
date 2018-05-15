@@ -123,8 +123,8 @@ class Form {
      *   - @b form_id (string): valore id del tag form; occorre definirla nel caso di action form e di verifca del token
      *   - @b form_class (string): classe del tag form
      *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
-     * @throws Exception se viene rilevato un attacco CSRF
-     * @return istanza di Gino.Form
+     * @throws \Exception se viene rilevato un attacco CSRF
+     * @return void, istanza di Gino.Form
      */
     function __construct($options=array()){
 
@@ -395,7 +395,7 @@ class Form {
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
      *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma; require validation true
      *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
-     * @return parte iniziale del form, html
+     * @return string, parte iniziale del form
      */
     public function open($action, $upload, $list_required, $options=array()) {
 
@@ -449,7 +449,7 @@ class Form {
 
     /**
      * @brief Chiusura form, FORM TAG
-     * @return chiusura form, html
+     * @return string, chiusura form
      */
     public function close(){
 
@@ -458,7 +458,7 @@ class Form {
 
     /**
      * @brief Controlla la compilazione dei campi obbligatori
-     * @return numero campi obbligatori non compilati
+     * @return int, numero campi obbligatori non compilati
      */
     public function checkRequired() {
 
@@ -564,7 +564,7 @@ class Form {
      * 
      * @see self::checkReCaptcha()
      * @see self::checkDefaultCaptcha()
-     * @return result, bool or string
+     * @return bool or string
      */
     public function checkCaptcha($request) {
 
@@ -585,7 +585,7 @@ class Form {
      * 
      * @param object $request
      * @param string $secret_key
-     * @return result, bool or string
+     * @return bool or string
      */
 	private function checkReCaptcha($request, $secret_key) {
 
@@ -609,7 +609,7 @@ class Form {
      * @brief Verifica captcha utilizzando la libreria Gino.Captcha
      *
      * @see Gino.Captcha::check()
-     * @return risultato della verifica, bool
+     * @return bool, risultato della verifica
      */
     private function checkDefaultCaptcha() {
 
@@ -625,7 +625,7 @@ class Form {
      * @param string $field nome del campo con il testo da tradurre
      * @param integer $width lunghezza del tag input o numero di colonne (textarea)
      * @param string $toolbar nome della toolbar dell'editor html
-     * @return codice html interfaccia
+     * @return string
      */
     public static function formFieldTranslation($type, $table, $field, $id_value, $width, $toolbar='') {
 
