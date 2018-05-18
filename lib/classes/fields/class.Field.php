@@ -3,7 +3,7 @@
  * @file class.Field.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Field
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\Request;
 /**
  * @brief Gestisce le caratteristiche del tipo di campo (colonne)
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -161,7 +161,7 @@ class Field {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return valore del campo
+     * @return string, nome del campo
      */
     public function __toString() {
 
@@ -170,7 +170,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà name
-     * @return nome del campo
+     * @return string, nome del campo
      */
     public function getName() {
 
@@ -189,7 +189,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà label
-     * @return etichetta del campo
+     * @return string, etichetta del campo
      */
     public function getLabel() {
 
@@ -208,7 +208,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà default
-     * @return valore di default del campo
+     * @return mixed, valore di default del campo
      */
     public function getDefault() {
         
@@ -227,7 +227,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà length
-     * @return lunghezza del campo
+     * @return int, lunghezza del campo
      */
     public function getLenght() {
 
@@ -246,7 +246,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà auto_increment
-     * @return TRUE se il campo è autoincrement, FALSE altrimenti
+     * @return bool, TRUE se il campo è autoincrement, FALSE altrimenti
      */
     public function getAutoIncrement() {
 
@@ -265,7 +265,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà primary_key
-     * @return TRUE se il campo è una chiave primaria, FALSE altrimenti
+     * @return bool, TRUE se il campo è una chiave primaria, FALSE altrimenti
      */
     public function getPrimaryKey() {
 
@@ -284,7 +284,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà unique_key
-     * @return TRUE se il campo ha chiave unica, FALSE altrimenti
+     * @return bool, TRUE se il campo ha chiave unica, FALSE altrimenti
      */
     public function getUniqueKey() {
 
@@ -303,7 +303,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà required
-     * @return TRUE se il campo è obbligatorio, FALSE altrimenti
+     * @return bool, TRUE se il campo è obbligatorio, FALSE altrimenti
      */
     public function getRequired() {
 
@@ -322,7 +322,7 @@ class Field {
 
     /**
      * @brief Getter della proprietà widget
-     * @return widget
+     * @return string
      */
     public function getWidget() {
 
@@ -378,7 +378,7 @@ class Field {
     }
 
     /**
-     * Proprietà defnite per il campo
+     * @brief Proprietà defnite per il campo
      * 
      * @return array
      */

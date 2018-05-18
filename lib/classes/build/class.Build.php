@@ -2,8 +2,8 @@
 /**
  * @file class.Build.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Build
- *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\Request;
 /**
  * @brief Gestisce i campi del modello
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -135,7 +135,7 @@ class Build {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return valore del campo
+     * @return mixed, valore del campo
      */
     public function __toString() {
 
@@ -153,7 +153,7 @@ class Build {
     
     /**
      * @brief Getter della proprietà name
-     * @return nome del campo
+     * @return string, nome del campo
      */
     public function getName() {
     
@@ -172,7 +172,7 @@ class Build {
     
     /**
      * @brief Getter della proprietà value
-     * @return valore del campo
+     * @return mixed, valore del campo
      */
     public function getValue() {
 
@@ -191,7 +191,7 @@ class Build {
     
     /**
      * @brief Getter della proprietà table
-     * @return nome della tabella
+     * @return string, nome della tabella
      */
     public function getTable() {
     
@@ -209,8 +209,8 @@ class Build {
     }
     
     /**
-     * @brief Getter della proprietà value
-     * @return valore del campo
+     * @brief Getter della proprietà view_input
+     * @return boolean
      */
     public function getViewInput() {
     
@@ -218,7 +218,7 @@ class Build {
     }
     
     /**
-     * @brief Setter della proprietà value
+     * @brief Setter della proprietà view_input
      * @param boolean $value
      * @return void
      */
@@ -229,7 +229,7 @@ class Build {
     
     /**
      * @brief Getter della proprietà required
-     * @return TRUE se il campo è obbligatorio, FALSE altrimenti
+     * @return boolean, TRUE se il campo è obbligatorio, FALSE altrimenti
      */
     public function getRequired() {
     
@@ -248,7 +248,7 @@ class Build {
     
     /**
      * @brief Getter della proprietà widget
-     * @return widget
+     * @return string
      */
     public function getWidget() {
     
@@ -307,7 +307,7 @@ class Build {
      *       - @a email
      *       - @a unit
      *     - @b required (boolean): campo obbligatorio
-     * @return controllo del campo, html
+     * @return string
      * 
      * Definisce le opzioni: trnsl_id, trnsl_table, form_id, value_input, value_retrieve.
      * 
@@ -369,10 +369,10 @@ class Build {
     }
     
     /**
-     * @brief Stampa un elemento del form di filtri area amministrativa
+     * @brief Stampa un elemento del form dei filtri di ricerca nell'area amministrativa
      * 
      * @param array $options array associativo di opzioni di formElement()
-     * @return controllo del campo, html
+     * @return string
      */
     public function formFilter($options)
     {
@@ -388,7 +388,7 @@ class Build {
      *
      * @param mixed $value
      * @param array $options array associativo di opzioni specifiche dei tipi di campo
-     * @return where clause
+     * @return string, where clause
      */
     public function filterWhereClause($value, $options=array()) {
     
@@ -396,7 +396,7 @@ class Build {
     }
     
     /**
-     * @brief Ripulisce un input usato come filtro in area amministrativa
+     * @brief Ripulisce un input usato come filtro nell'area amministrativa
      * 
      * @param mixed $request_value valore della variabile in una richiesta HTTP
      * @param $options array associativo di opzioni
@@ -416,7 +416,7 @@ class Build {
      * @param array $options array associativo di opzioni
      *   - opzioni delle funzioni di tipo clean
      *   - @b model_id (integer): valore id del modello	(@see Gino.ModelForm::save())
-     * @return valore ripulito dell'input
+     * @return mixed, valore ripulito dell'input
      * 
      * Tabella del clean associato al tipo di campo: \n
      *   CLASSE				OPT_BUILD			FUNC
