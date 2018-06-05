@@ -510,7 +510,7 @@
  * @file plugin.mpdf.php
  * @brief Contiene le classi gino_mpdf, plugin_mpdf
  * 
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -527,7 +527,7 @@ require_once LIB_DIR.OS."func.mpdf.php";
 /**
  * @brief Classe che funge da interfaccia alla classe plugin_mpdf
  * 
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -2313,12 +2313,12 @@ mpdf-->";
 				
 				if(!is_null($resetpagenum)) $option_page['resetpagenum'] = $resetpagenum;
 				if(!is_null($suppress)) $option_page['suppress'] = $suppress;
-				if(!is_null($margin_left)) $option_page['margin_left'] = $margin_left;
-				if(!is_null($margin_right)) $option_page['margin_right'] = $margin_right;
-				if(!is_null($margin_top)) $option_page['margin_top'] = $margin_top;
-				if(!is_null($margin_bottom)) $option_page['margin_bottom'] = $margin_bottom;
-				if(!is_null($margin_header)) $option_page['margin_header'] = $margin_header;
-				if(!is_null($margin_footer)) $option_page['margin_footer'] =  $margin_footer;
+				if(!is_null($margin_left)) $option_page['margin-left'] = $margin_left;
+				if(!is_null($margin_right)) $option_page['margin-right'] = $margin_right;
+				if(!is_null($margin_top)) $option_page['margin-top'] = $margin_top;
+				if(!is_null($margin_bottom)) $option_page['margin-bottom'] = $margin_bottom;
+				if(!is_null($margin_header)) $option_page['margin-header'] = $margin_header;
+				if(!is_null($margin_footer)) $option_page['margin-footer'] =  $margin_footer;
 				
 				$mpdf->AddPageByArray($option_page);
 				$mpdf->WriteHTML($html);
