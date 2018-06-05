@@ -39,7 +39,7 @@ class sysClass extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.SysClass.sysclass
+     * @return void, istanza di Gino.App.SysClass.sysclass
      */
     function __construct(){
 
@@ -116,7 +116,7 @@ class sysClass extends \Gino\Controller {
      * @brief Elenco dei moduli di sistema
      *
      * @param integer $sel_id valore ID del modulo selezionato
-     * @return html, elenco moduli
+     * @return string
      */
     private function sysClassList() {
 
@@ -173,7 +173,7 @@ class sysClass extends \Gino\Controller {
 
     /**
      * @brief Form di installazione di un modulo di sistema
-     * @return html, form
+     * @return string
      */
     private function formInsertSysClass() {
 
@@ -364,7 +364,7 @@ class sysClass extends \Gino\Controller {
     /**
      * @brief Form per l'installazione manuale di un modulo di sistema
      *
-     * @return html, form
+     * @return string
      */
     private function formManualSysClass() {
 
@@ -458,7 +458,7 @@ class sysClass extends \Gino\Controller {
      * @brief Form di modifica di un modulo di sistema
      *
      * @param integer $id valore ID del modulo
-     * @return html, form
+     * @return string
      */
     private function formEditSysClass($id) {
 
@@ -495,7 +495,7 @@ class sysClass extends \Gino\Controller {
      * @brief Form di attivazione del modulo
      * 
      * @param int $id valore ID del modulo
-     * @return html, form
+     * @return string
      */
     private function formActivateSysClass($id) {
 
@@ -530,7 +530,7 @@ class sysClass extends \Gino\Controller {
      * @brief Form di aggiornamento del modulo
      *
      * @param int $id valore ID del modulo
-     * @return html, form
+     * @return string
      */
     private function formUpgradeSysClass($id) {
 
@@ -768,7 +768,7 @@ class sysClass extends \Gino\Controller {
      * @param string $files_dir
      * @param string $module_dir
      * @param array $noCopyFiles array di nommi di files da non copiare/sovrascrivere
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     private function upgradeFolders($files_dir, $module_dir, $noCopyFiles) {
 
@@ -795,7 +795,7 @@ class sysClass extends \Gino\Controller {
      * @brief Form di eliminazione di un modulo di sistema
      *
      * @param int $id valore ID del modulo
-     * @return html, form
+     * @return string
      */
     private function formRemoveSysClass($id) {
 
@@ -902,7 +902,7 @@ class sysClass extends \Gino\Controller {
 
     /**
      * @brief Informazioni modulo
-     * @return html, informazioni
+     * @return string
      */
     private function info() {
 

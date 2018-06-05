@@ -26,7 +26,7 @@ class ModuleInstance extends \Gino\Model {
     /**
      * @brief Costruttore
      * @param int $id
-     * @return istanza di Gino.App.Module.ModuleInstance
+     * @return void, istanza di Gino.App.Module.ModuleInstance
      */
     function __construct($id) {
 
@@ -37,7 +37,7 @@ class ModuleInstance extends \Gino\Model {
 	/**
 	 * Nome della classe
 	 * 
-	 * @return nome classe
+	 * @return string, nome classe
 	 */
 	public function className() {
 		
@@ -48,7 +48,7 @@ class ModuleInstance extends \Gino\Model {
     /**
 	 * Nome della classe con namespace completo
 	 * 
-	 * @return nome classe con namespace
+	 * @return string, nome classe con namespace
 	 */
 	public function classNameNs($ns=true) {
 		$module_app = $this->moduleApp();
@@ -58,7 +58,7 @@ class ModuleInstance extends \Gino\Model {
     /**
      * @brief Recupera l'oggetto dato il nome dell'istanza
      * @param string $name nome istanza senza namespace
-     * @return istanza di Gino.App.Module.ModuleInstance
+     * @return Gino.App.Module.ModuleInstance or null
      */
     public static function getFromName($name) {
 
@@ -93,7 +93,7 @@ class ModuleInstance extends \Gino\Model {
 
     /**
      * @brief Modulo di sitema dell'istanza
-     * @return istanza di Gino.App.SysClass.ModuleApp
+     * @return Gino.App.SysClass.ModuleApp
      */
 	public function moduleApp() {
 		

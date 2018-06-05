@@ -47,7 +47,7 @@ class Css extends Model {
      *   - @b module (integer): valore ID del modulo
      *   - @b name (string): nome del modulo
      *   - @b label (string): etichetta del modulo
-     * @return istanza di Gino.Css
+     * @return void, istanza di Gino.Css
      */
     function __construct($type, $params=array()) {
 
@@ -131,7 +131,7 @@ class Css extends Model {
 
     /**
      * @brief Ricava il nome del file css dell'istanza di un modulo
-     * @return nome file
+     * @return string, nome file
      */
     private function cssFileName($css_file) {
 
@@ -157,7 +157,7 @@ class Css extends Model {
 
     /**
      * @brief Form per la creazione e la modifica di un file css (layout)
-     * @return codice html form
+     * @return string, codice html form
      */
     public function formCssLayout() {
 
@@ -251,7 +251,7 @@ class Css extends Model {
     /**
      * @brief Form per l'eliminazione di un file css (layout)
      *
-     * @return codice html form
+     * @return string, codice html form
      */
     public function formDelCssLayout() {
 
@@ -302,7 +302,7 @@ class Css extends Model {
     /**
      * @brief Descrizione della procedura
      *
-     * @return informazioni, codice html
+     * @return string, informazioni
      */
     public static function layoutInfo() {
 

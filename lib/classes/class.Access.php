@@ -31,13 +31,12 @@ class Access {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.Access
+     * @return void, istanza di Gino.Access
      */
     function __construct(){
 
         $this->_db = Db::instance();
         $this->_session = Session::instance();
-
     }
 
     /**
@@ -112,7 +111,7 @@ class Access {
      * @see logAccess()
      * @param string $username
      * @param string $password
-     * @return risultato autenticazione, bool
+     * @return bool, risultato autenticazione
      */
     private function AuthenticationMethod($username, $password){
 
@@ -141,7 +140,7 @@ class Access {
      * @brief Registra il log dell'accesso all'applicazione
      *
      * @param integer $userid valore ID dell'utente
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     private function logAccess($userid) {
 

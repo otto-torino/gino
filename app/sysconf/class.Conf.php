@@ -26,7 +26,7 @@ class Conf extends \Gino\Model {
     
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Sysconf.Conf
+     * @return void, istanza di Gino.App.Sysconf.Conf
      */
     function __construct() {
 

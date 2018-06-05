@@ -26,7 +26,7 @@ class AttachmentCtg extends \Gino\Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Attachment.AttachmentCtg
+     * @return void, istanza di Gino.App.Attachment.AttachmentCtg
      */
     function __construct($id) {
 
@@ -38,7 +38,7 @@ class AttachmentCtg extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome categoria
+     * @return string, nome categoria
      */
     function __toString() {
 
@@ -116,7 +116,7 @@ class AttachmentCtg extends \Gino\Model {
      *   - rel: relativo alla DOCUMENT ROOT
      *   - view: realtivo alla ROOT
      *   - url: url assoluto
-     * @return percorso directory
+     * @return string
      */
     public function path($type) {
 

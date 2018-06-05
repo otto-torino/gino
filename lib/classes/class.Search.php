@@ -45,7 +45,7 @@ class Search {
      * @param array $opts
      *   array associativo di opzioni
      *   - @b highlight_range (integer)
-     * @return istanza di Gino.Search
+     * @return void, istanza di Gino.Search
      */
     function __construct($table, $opts=array()) {
 
@@ -57,7 +57,7 @@ class Search {
      * @brief Ripulisce la stringa di ricerca
      * @description Elimina parole con poco significato
      * @param string $search_string
-     * @return stringa ripulita
+     * @return string
      */
     private function clearSearchString($search_string) {
 
@@ -102,7 +102,7 @@ class Search {
      *   @code
      *   array("p.title"=>array("weight"=>3), "p.subtitle"=>array("weight"=>2), "pb.text"=>array("weight"=>1))
      *   @endcode
-     * @return query
+     * @return string, query
      */
     public function makeQuery($selected_fields, $required_clauses, $weight_clauses){
 

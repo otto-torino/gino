@@ -20,7 +20,7 @@ use \Gino\Error;
 use \Gino\Http\Response;
 use \Gino\Http\Redirect;
 
-require_once('class.ModuleInstance.php');
+require_once 'class.ModuleInstance.php';
 
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
@@ -33,7 +33,7 @@ class module extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Module.module
+     * @return void, istanza di Gino.App.Module.module
      */
     function __construct(){
 
@@ -98,7 +98,7 @@ class module extends \Gino\Controller {
      * @brief Elenco dei moduli
      *
      * @param integer $sel_id valore ID del modulo selezionato
-     * @return html, lista moduli
+     * @return string, lista moduli
      */
     private function listModule(){
 
@@ -161,7 +161,7 @@ class module extends \Gino\Controller {
      * @brief Form di eliminazione di un modulo
      * 
      * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
-     * @return html, form
+     * @return string, form
      */
     private function formRemoveModule($module) {
 
@@ -245,7 +245,7 @@ class module extends \Gino\Controller {
     /**
      * @brief Form di inserimento/modifica di un modulo
      * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
-     * @return html, form
+     * @return string, form
      */
     private function formModule($module) {
 
@@ -458,7 +458,7 @@ class module extends \Gino\Controller {
      * @brief Form di attivazione e disattivazione di un modulo
      *
      * @param \Gino\App\Module\ModuleInstance $module istanza di Gino.App.Module.ModuleInstance
-     * @return html, form
+     * @return string, form
      */
     private function formActivateModule($module) {
 

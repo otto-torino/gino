@@ -52,7 +52,7 @@ class sysconf extends \Gino\Controller {
 
    /**
     * @brief Costruttore
-    * @return istanza di Gino.App.Sysconf.sysconf
+    * @return void, istanza di Gino.App.Sysconf.sysconf
     */
     function __construct(){
         parent::__construct();

@@ -3,7 +3,7 @@
  * @file class.ManyToManyBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyField
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ Loader::import('class/build', '\Gino\Build');
 /**
  * @brief Gestisce i campi di tipo many to many
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -54,7 +54,7 @@ class ManyToManyBuild extends Build {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return rappresentazione a stringa dei modelli associati separati da virgola
+     * @return string, rappresentazione a stringa dei modelli associati separati da virgola
      */
     public function __toString() {
 
@@ -70,10 +70,19 @@ class ManyToManyBuild extends Build {
         }
         return implode(', ', $res);
     }
+    
+    /**
+     * {@inheritDoc}
+     * @see \Gino\Build::canBeOrdered()
+     */
+    public function canBeOrdered() {
+        
+        return false;
+    }
 
     /**
      * @brief Getter della proprietà join_table
-     * @return proprietà join_table
+     * @return string, proprietà join_table
      */
     public function getJoinTable() {
         return $this->_join_table;

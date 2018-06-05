@@ -3,7 +3,7 @@
  * @file class.ManyToManyThroughBuild.php
  * @brief Contiene la definizione ed implementation della classe Gino.ManyToManyThroughBuild
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ Loader::import('class/build', '\Gino\Build');
 /**
  * @brief Gestisce i campi di tipo many to many con associazione attraverso un modello che porta informazioni aggiuntive
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -53,7 +53,7 @@ class ManyToManyThroughBuild extends Build {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return lista rappresentazioni a stringa dei modelli correlati separati da virgola
+     * @return string, lista rappresentazioni a stringa dei modelli correlati separati da virgola
 	 */
 	public function __toString() {
 
@@ -68,6 +68,15 @@ class ManyToManyThroughBuild extends Build {
             $res[] = (string) $obj;
         }
         return implode(', ', $res);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Gino\Build::canBeOrdered()
+	 */
+	public function canBeOrdered() {
+	    
+	    return false;
 	}
     
     /**
@@ -115,7 +124,7 @@ class ManyToManyThroughBuild extends Build {
 
     /**
      * @brief Restituisce la tabella dati della classe m2m
-     * @return nome tabella
+     * @return string, nome tabella
      */
     public function getM2mTable() {
         
@@ -131,7 +140,7 @@ class ManyToManyThroughBuild extends Build {
 
     /**
      * @brief Restituisce il nome del campo che immagazzina l'id del modello che ha la relazione m2m
-     * @return nome del campo
+     * @return string, nome del campo
      */
     public function getModelTableId() {
         return $this->_model_table_id;

@@ -110,7 +110,7 @@ class statistics extends \Gino\Controller {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Statistics.statistics
+     * @return void, istanza di Gino.App.Statistics.statistics
      */
     function __construct() {
 
@@ -123,7 +123,7 @@ class statistics extends \Gino\Controller {
     
     /**
      * @brief Restituisce alcune proprietà della classe
-     * @return lista delle proprietà dell'applicazione
+     * @return array, lista delle proprietà dell'applicazione
      */
     public static function getClassElements() {
     
@@ -185,7 +185,7 @@ class statistics extends \Gino\Controller {
 
     /**
      * @brief Statistiche sugli accessi all'area privata
-     * @return html, statistiche
+     * @return string
      */
     private function viewlogAccess() {
 
@@ -232,7 +232,7 @@ class statistics extends \Gino\Controller {
      * @brief Pagina statistiche
      * 
      * @param $request object Gino.Http.Request
-     * @return html
+     * @return string
      */
     private function stats(\Gino\Http\Request $request){
 
@@ -333,7 +333,7 @@ class statistics extends \Gino\Controller {
      * 
      * @see https://github.com/erebusnz/gapi-google-analytics-php-interface
      * @param $request object Gino.Http.Request
-     * @return html
+     * @return string
      */
     private function getGaStats(\Gino\Http\Request $request) {
     	

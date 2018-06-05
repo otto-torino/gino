@@ -30,7 +30,7 @@ class index extends \Gino\Controller{
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Index.index
+     * @return void, istanza di Gino.App.Index.index
      */
     function __construct(){
         parent::__construct();
@@ -86,7 +86,7 @@ class index extends \Gino\Controller{
 
     /**
      * @brief Home page amministrazione
-     * @param \Gino\HttpRequest $request istanza di Gino.Http.Request
+     * @param Gino.Http.Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Response home page amministrazione
      */
     public function admin_page(\Gino\Http\Request $request){

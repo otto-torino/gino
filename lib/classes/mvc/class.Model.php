@@ -3,7 +3,7 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -33,7 +33,7 @@ namespace Gino;
  * Le tabelle devono essere coerenti con la definizione del modello per cui, ad esempio, i campi obbligatori devono essere 'not null' e gli eventuali valori di default 
  * devono essere indicati anche nel campo della tabella.
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -101,7 +101,7 @@ namespace Gino;
      * Costruttore
      *
      * @param integer $id valore ID del record dell'oggetto
-     * @return istanza di Gino.Model
+     * @return void, istanza di Gino.Model
      */
     function __construct($id = null) {
 
@@ -124,7 +124,7 @@ namespace Gino;
     /**
      * @brief Rappresentazione a stringa dell'oggetto
      * @description Sovrascrivere questo metodo nella classe figlia per restituire un valore parlante
-     * @return id
+     * @return int, valore id
      */
     public function __toString() {
 
@@ -134,7 +134,7 @@ namespace Gino;
     /**
      * @brief Etichetta del campo
      * @param string $field nome campo
-     * @return etichetta
+     * @return string
      */
 	public function fieldLabel($field) {
 
@@ -175,7 +175,7 @@ namespace Gino;
      * Per i m2mt la proprietà è uguale ad un array con gli id dei modelli correlati. \n
      * 
      * @param string $pName nome della proprietà
-     * @return valore proprietà
+     * @return mixed, valore proprietà
      */
     public function __get($pName) {
     	
@@ -226,11 +226,11 @@ namespace Gino;
     }
 
     /**
-     * @brief Ritorna l'oggetto ManyToMany Through Model
+     * @brief Ritorna l'oggetto della classe attraverso la quale si esprime la relazione molti a molti
      * 
      * @param string $m2mt_field nome del campo m2mt
-     * @param int $id id del record
-     * @return oggetto
+     * @param int $id valore id del record
+     * @return object, oggetto di tipo Gino.Build
      */
     public function m2mtObject($m2mt_field, $id) {
         
@@ -267,7 +267,7 @@ namespace Gino;
     /**
      * @brief Struttura dei campi del modello
      * @description Un array associativo che contiene tutti i campi come chiavi e le relative classi di tipo @ref Field come valore
-     * @return struttura dati
+     * @return array
      */
     public function getStructure() {
         
@@ -328,9 +328,9 @@ namespace Gino;
 
     /**
      * @brief Recupera l'oggetto a partire dallo slug
-     * @param string $slug slug
-     * @param mixed $controller istanza del controller.
-     * @return oggetto che matcha lo slug dato
+     * @param string $slug valore dello slug
+     * @param mixed $controller istanza del controller
+     * @return object, oggetto di tipo Gino.Model corrispondente allo slug
      */
     public static function getFromSlug($slug, $controller = null) {
     	
@@ -354,7 +354,7 @@ namespace Gino;
 
     /**
      * @brief Controller del modello
-     * @return istanza del controller o null se non esiste istanza
+     * @return object, istanza del controller o null se non esiste istanza
      */
     public function getController() {
         return $this->_controller ? $this->_controller : null;
@@ -537,7 +537,7 @@ namespace Gino;
 
     /**
      * @brief Elimina le proprietà su db del modello e le traduzioni
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public function deleteDbData() {
         
@@ -600,7 +600,7 @@ namespace Gino;
     /**
      * @brief Errore conseguente ad una violazione delle constraint in eliminazione
      * @param array $res array delle regole contraint violate
-     * @return html errore
+     * @return string
      */
     protected function isConstraintError($res) {
         $html = "<p>"._("Il record che si intende eliminare compare come riferimento nei seguenti oggetti").":</p>";
@@ -683,7 +683,7 @@ namespace Gino;
 
     /**
      * @brief Elimina le associazioni m2m
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
 	public function deletem2m() {
         
@@ -702,7 +702,7 @@ namespace Gino;
 
     /**
      * @brief Elimina le associazioni m2mt
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public function deletem2mthrough() {
         
@@ -720,7 +720,7 @@ namespace Gino;
      * @brief Elimina le associazioni di un campo m2mt
      * 
      * @param string $field_name nome campo
-     * @return risultato dell'operazione, bool
+     * @return bool, risultato dell'operazione
      */
     public function deletem2mthroughField($field_name) {
         
@@ -750,7 +750,7 @@ namespace Gino;
 
     /**
      * @brief Etichetta del modello
-     * @return label
+     * @return string
      */
     public function getModelLabel() {
         return $this->_model_label;
@@ -758,7 +758,7 @@ namespace Gino;
 
     /**
      * @brief Tabella principale dei dati
-     * @return nome tabella
+     * @return string, nome tabella
      */
     public function getTable() {
         return $this->_tbl_data;
@@ -909,11 +909,11 @@ namespace Gino;
     }
     
     /**
-     * Classe Build del campo di tabella
+     * @brief Classe Build del campo di tabella
      * 
      * @description Le eventuali proprietà del modello dipendenti dai valori del record sovrascrivono le proprietà del campo
-     * @param object $field_obj oggetto della classe del tipo di campo
-     * @return object
+     * @param object $field_obj oggetto della classe del tipo di campo (Gino.Field)
+     * @return object Gino.Build
      */
     public function build($field_obj) {
     	
@@ -973,7 +973,12 @@ namespace Gino;
 					$this->_p[$field_name] = $build->getValue();
 				}
 				else {
-					$this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
+				    if(array_key_exists($field_name, $row[0])) {
+				        $this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
+				    }
+				    else {
+				        $this->_p[$field_name] = null;
+				    }
 				}
 			}
 			else {

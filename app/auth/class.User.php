@@ -32,7 +32,7 @@ class User extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return istanza di Gino.App.Auth.User
+     * @return void, istanza di Gino.App.Auth.User
      */
     function __construct($id) {
 
@@ -857,8 +857,8 @@ class User extends \Gino\Model {
     }
 
     /**
-     * @brief Eliminazione utente
-     * @see Model::delete()
+     * {@inheritDoc}
+     * @see \Gino\Model::delete()
      */
     public function delete() {
 

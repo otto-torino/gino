@@ -83,7 +83,7 @@ class MobileDetect {
     /**
      * @brief Verifica se il dispositivo è un particolare device
      * @param string $device nome device (android, opera, blackberry, ...)
-     * @return risultato verifica, bool
+     * @return bool, risultato verifica
      */
     protected function isDevice($device) {
         $var    = "is" . ucfirst($device);

@@ -38,7 +38,7 @@ class Translation {
      * @brief Costruttore
      * @param string $language lingua di navigazione
      * @param string $language_dft lingua di default
-     * @return istanza di Gino.Translation
+     * @return void, istanza di Gino.Translation
      */
     function __construct($language, $language_dft) {
 
@@ -60,7 +60,7 @@ class Translation {
      * @param string $field nome del campo da tradurre
      * @param mixed $reference valore del campo di riferimento 
      * @param string $id_name nome del campo di riferimento
-     * @return traduzione
+     * @return string, traduzione
      */
     public function selectTXT($table, $field, $reference, $id_name='id')
     {
@@ -87,7 +87,7 @@ class Translation {
      * @brief Gestisce le traduzioni nei form
      * 
      * @param object $request oggetto Request
-     * @return oggetto Response o null
+     * @return Gino.Http.Response o null
      */
     public function manageTranslation($request) {
     	
@@ -115,7 +115,7 @@ class Translation {
      * @param string $tbl nome della tabella del testo da tradurre
      * @param string $ord_field nome del campo da tradurre e in base al quale ordinare
      * @param string $ord_type tipo di ordinamento (asc, desc)
-     * @return risultati ordinati
+     * @return array, risultati ordinati
      */
     public function listItemOrdered($query, $id_name, $tbl, $ord_field, $ord_type) {
 
@@ -209,7 +209,7 @@ class Translation {
 
     /**
      * @brief Inserimento e modifica delle traduzioni
-     * @return risultato operazione
+     * @return bool, risultato operazione
      *
      */
     public function actionTranslation(\Gino\Http\Request $request) {
@@ -256,7 +256,7 @@ class Translation {
      * 
      * @param string $tbl nome della tabella con il campo da tradurre
      * @param integer $tbl_id valore dell'ID del record di riferimento per la traduzione
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public static function deleteTranslations($tbl, $tbl_id) {
 

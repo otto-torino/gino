@@ -25,7 +25,7 @@ class Cache {
 
     /**
      * @brief Costtruttore
-     * @return istanza di Gino.Cache
+     * @return void, istanza di Gino.Cache
      */
     function __construct() {
 
@@ -56,7 +56,7 @@ class Cache {
     /**
      * @brief Legge il contenuto del file self::getFilename()
      * @see self::getFilename()
-     * @return contenuto file
+     * @return string, contenuto file
      */
     protected function read() {
 
@@ -65,7 +65,7 @@ class Cache {
 
     /**
      * @brief Nome file di cache
-     * @return nome file
+     * @return string, nome file
      */
     protected function getFilename() {
 
@@ -89,7 +89,7 @@ class Cache {
      * @brief Elimina il file di cache corrsipondente al gruppo e id dati
      * @param string $grp gruppo
      * @param string $id
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     public function delete($grp, $id) {
         $this->_grp = $grp;
@@ -134,7 +134,7 @@ class OutputCache extends Cache {
      * @brief Costruttore
      * @param string $buffer contenuto al quale appendere il contenuto da mettere/prelevare dalla cache
      * @param bool $enabled abilitazione cache, default TRUE
-     * @return istanza di Gino.OutputCache
+     * @return void, istanza di Gino.OutputCache
      */
     function __construct(&$buffer, $enabled = TRUE) {
 
@@ -211,7 +211,7 @@ class DataCache extends cache {
      * @brief Fornisce i dati in cache o ritorna FALSE se non presenti o scaduti
      * @param string $grp gruppo
      * @param string $id
-     * @return dati deserializzati o FALSE
+     * @return string (dati deserializzati) or FALSE
      */
     public function get($grp, $id, $tc) {
 

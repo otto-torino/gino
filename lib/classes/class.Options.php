@@ -52,7 +52,7 @@ class Options {
     /**
      * @brief Costruttore
      * @param \Gino\Controller $controller istanza di Gino.Controller
-     * @return istanza di Gino.Options
+     * @return void, istanza di Gino.Options
      */
     function __construct($controller){
 
@@ -112,7 +112,7 @@ class Options {
      * @brief Interfaccia per la gestione delle opzioni di una istanza/modulo (Form)
      * 
      * @see Gino.Db::fieldInformations()
-     * @return interfaccia
+     * @return string
      */
     public function manageDoc(){
 

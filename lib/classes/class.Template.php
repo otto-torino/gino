@@ -34,7 +34,7 @@ class Template extends Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return istanza di Gino.Template
+     * @return void, istanza di Gino.Template
      */
     function __construct($id) {
 
@@ -116,7 +116,7 @@ class Template extends Model {
     /**
      * @brief Descrizione della procedura
      *
-     * @return html, informazioni
+     * @return string, informazioni
      */
     public static function layoutInfo() {
 
@@ -133,10 +133,10 @@ class Template extends Model {
     }
 
     /**
-     * @brief For di inserimento/modifica dati template
+     * @brief Form di inserimento/modifica dati template
      * @param \Gino\Form $gform istanza di Gino.Form
      * @param bool $free indica se il template è di tipo free (TRUE) o a blocchi
-     * @return html, form
+     * @return string
      */
     private function formData($gform, $free = FALSE) {
 
@@ -170,7 +170,7 @@ class Template extends Model {
 
     /**
      * @brief Form di inserimento/modifica template di tipo free
-     * @return html, form
+     * @return string
      */
     public function formFreeTemplate() {
 
@@ -282,7 +282,7 @@ class Template extends Model {
      * @brief Form di inserimento/modifica di un template a blocchi
      *
      * @see self::formBlock()
-     * @return html, form
+     * @return string
      */
     public function formTemplate() {
 
@@ -313,7 +313,7 @@ class Template extends Model {
     /**
      * @brief Form che introduce alla modifica dello schema dei template a blocchi
      *
-     * @return html, form
+     * @return string
      */
     public function formOutline() {
 
@@ -343,7 +343,7 @@ class Template extends Model {
     /**
      * @brief Form di duplicazione di un template a blocchi
      *
-     * @return html, form
+     * @return string
      */
     public function formCopyTemplate() {
 
@@ -377,7 +377,7 @@ class Template extends Model {
      *
      * @see tplBlockForm()
      * @param \Gino\Form $gform istanza di Gino.Form
-     * @return html
+     * @return string
      */
     private function formBlock($gform) {
 
@@ -401,7 +401,7 @@ class Template extends Model {
     /**
      * @brief Parte del form template a blocchi per inserimento/modifica di un blocco
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request default null
-     * @return html
+     * @return string
      */
     public function tplBlockForm($request = null) {
 
@@ -495,7 +495,7 @@ class Template extends Model {
      * 
      * @param integer $ref numero del blocco nella sequenza corretta, default null
      * @param \Gino\Http\Request $request istanza di Gino.Http.Request, default null
-     * @return html
+     * @return string
      */
     public function addBlockForm($ref = null, $request = null) {
 
@@ -528,7 +528,7 @@ class Template extends Model {
     /**
      * @brief Form di eliminazione di un template
      *
-     * @return html, form
+     * @return string
      */
     public function formDelTemplate() {
 
@@ -586,7 +586,7 @@ class Template extends Model {
      * @see self::renderNave()
      * @param \Gino\Css $css istanza di Gino.Css
      * @param integer $tpl_id valore ID del template
-     * @return html, interfaccia di modifica interativa del template
+     * @return string, interfaccia di modifica interativa del template
      */
     public function manageTemplate($css, $tpl_id=0) {
 
@@ -709,7 +709,7 @@ class Template extends Model {
      * @brief Creazione template interfaccia interattiva
      * @param int $blocks_number numero blocchi
      * @paqram string $template
-     * @return html
+     * @return string
      */
     private function createTemplate($blocks_number, $template='') {
 
@@ -765,7 +765,7 @@ class Template extends Model {
      * @param int $width larghezza
      * @param int $pos posizione
      * @param string $template
-     * @return html
+     * @return string
      */
     private function printBlock($num, $align, $rows, $cols, $um, $width, $pos=0, $template='') {
 
@@ -831,7 +831,7 @@ class Template extends Model {
      *   - $matches[3] match div id, es. nav_1_1
      *   - $matches[4] match div content, es. {module classid=20 func=blockList}
      *   - $matches[5] match close tag, es. </div>
-     * @return html
+     * @return string
      */
     private function renderNave($matches) {
 
@@ -922,7 +922,7 @@ class Template extends Model {
     /**
      * @brief Controlli di una cella nell'interfaccia interattiva di gestione template a blocchi
      * @param int $id id cella
-     * @return html
+     * @return string
      */
     private function cellCtrl($id) {
 
@@ -1037,7 +1037,7 @@ class Template extends Model {
      * @param int $align allineamento (1: sinistra, 2: centrato, 3: destra)
      * @param int $rows numero righe
      * @param int $cols numero colonne
-     * @return risultato, bool
+     * @return bool, risultato
      */
     private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
 
@@ -1088,7 +1088,7 @@ class Template extends Model {
 
     /**
      * @brief Eliminazione blocchi template
-     * @return risultato operazione, bool
+     * @return bool, risultato operazione
      */
     private function deleteBlocks() {
 

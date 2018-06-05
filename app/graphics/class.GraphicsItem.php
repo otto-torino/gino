@@ -26,7 +26,7 @@ class GraphicsItem extends \Gino\Model {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Graphics.GraphicsItem
+     * @return void, istanza di Gino.App.Graphics.GraphicsItem
      */
     function __construct($id) {
 
@@ -38,7 +38,7 @@ class GraphicsItem extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return descrizione
+     * @return string, descrizione
      */
     function __toString() {
         return (string) $this->description;

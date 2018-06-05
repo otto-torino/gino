@@ -39,7 +39,7 @@ class sysfunc extends \Gino\Controller {
      * @see Gino.Exception.Exception404
      * @param string $title titolo della pagina 
      * @param string $message messaggio mostrato
-     * @return pagina di errore
+     * @return string
      */
     public static function page404($title = '', $message = '') {
 
@@ -70,7 +70,7 @@ class sysfunc extends \Gino\Controller {
      * @param string $title titolo della pagina 
      * @param string $message messaggio mostrato
      * @access public
-     * @return pagina di errore
+     * @return string
      */
     public static function page403($title = '', $message = '') {
 
@@ -101,7 +101,7 @@ class sysfunc extends \Gino\Controller {
      * @param string $title titolo della pagina 
      * @param string $message messaggio mostrato
      * @access public
-     * @return pagina di errore
+     * @return string
      */
     public static function page500($title = '', $message = '') {
 

@@ -125,7 +125,7 @@ class Locale extends Singleton {
      * @see self::fileName()
      * @see self::pathToBaseDir()
      * @param string $class_name nome classe
-     * @return percorso
+     * @return string
      */
     private function pathToFile() {
 
@@ -146,7 +146,7 @@ class Locale extends Singleton {
     /**
      * @brief Recupera la traduzione corrispondente alla chiave data
      * @param string $key chiave
-     * @return traduzione o la chiave stessa se la traduzione non è presente
+     * @return string, traduzione o la chiave stessa se la traduzione non è presente
      */
     public function get($key) {
         return array_key_exists($key, $this->_strings) ? $this->_strings[$key] : $key;
@@ -245,7 +245,7 @@ class Locale extends Singleton {
      * @brief Lingua dello User Agent
      * 
      * @see get_languages()
-     * @return lingua user agent o FALSE se non trovata
+     * @return string or false, lingua user agent o FALSE se non trovata
      */
     private static function userLanguage(){
 
@@ -521,7 +521,7 @@ class Locale extends Singleton {
      * @brief Percorso assoluto della directory dei file delle traduzioni
      *
      * @param string $code codice della lingua
-     * @return percorso
+     * @return string
      */
     private function pathToBaseDir($code=null) {
     
@@ -535,7 +535,7 @@ class Locale extends Singleton {
     /**
      * @brief Nome del file delle traduzioni
      *
-     * @return nome file
+     * @return string, nome file
      */
     private function fileName() {
     
@@ -579,7 +579,7 @@ class Locale extends Singleton {
      * @see self::formModuleFile()
      * @see self::actionModuleFile()
      * @param object $controller controller
-     * @return interfaccia
+     * @return string
      */
     public function manageLocale($controller) {
     
@@ -664,7 +664,7 @@ class Locale extends Singleton {
      * @brief Tabella con l'elenco dei file delle traduzioni del modulo
      *
      * @description Utilizza la libraria javascript CodeMirror
-     * @return codice html
+     * @return string
      */
     private function moduleList() {
     
@@ -708,7 +708,7 @@ class Locale extends Singleton {
     /**
      * @brief Form di modifica file
      * @param \Gino\Http\Request oggetto Gino.Http.Request
-     * @return codice html form
+     * @return string
      */
     private function formModuleFile($request) {
     
@@ -787,7 +787,7 @@ class Locale extends Singleton {
     /**
      * @brief Form di creazione di un file delle traduzioni
      * @param \Gino\Http\Request oggetto Gino.Http.Request
-     * @return codice html form
+     * @return string
      */
     private function formCreateFile($request) {
     

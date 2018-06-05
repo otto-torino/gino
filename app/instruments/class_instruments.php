@@ -44,7 +44,7 @@ class instruments extends \Gino\Controller {
     /**
      * @brief Interfaccia amministrativa alla gestione degli strumenti
      * @param \Gino\Http\Request $request istanza di Gino.App.Instruments.instruments
-     * @return interfaccia di amministrazione
+     * @return string, interfaccia di amministrazione
      */
     public function manageInstruments(\Gino\Http\Request $request) {
 
@@ -80,7 +80,7 @@ class instruments extends \Gino\Controller {
     /**
      * @brief Strumento - mostra l'elenco delle risorse disponibili (con i relativi link)
      *
-     * @return html, elenco risporse con link
+     * @return string, elenco risporse con link
      */
     private function links(){
 
@@ -218,7 +218,7 @@ class instruments extends \Gino\Controller {
     /**
      * @brief Strumento - mostra l'elenco dei mime type (include come iframe il file mime-type-table.html)
      * @param \Gino\Http\Request $request
-     * @return html, elenco mime type
+     * @return string, elenco mime type
      */
     private function mimeTypes(\Gino\Http\Request $request){
 

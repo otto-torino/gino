@@ -39,7 +39,7 @@ class searchSite extends \Gino\Controller {
     /**
      * @brief @brief Costruttore
      *
-     * @return istanza di Gino.App.SearchSite.searchSite
+     * @return void, istanza di Gino.App.SearchSite.searchSite
      */
     function __construct() {
 
@@ -161,7 +161,7 @@ class searchSite extends \Gino\Controller {
 
     /**
      * @brief Form di ricerca
-     * @return html, form di ricerca
+     * @return string
      */
     public function form() {
 
@@ -187,7 +187,7 @@ class searchSite extends \Gino\Controller {
 
     /**
      * @brief Pannello con le opzioni di ricerca
-     * @return html, pannello
+     * @return string
      */
     private function checkOptions() {
 
@@ -358,7 +358,7 @@ class searchSite extends \Gino\Controller {
 
     /**
      * @brief Informazioni modulo
-     * @return html, informazioni
+     * @return string
      */
     public function info() {
 

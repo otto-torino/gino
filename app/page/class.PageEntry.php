@@ -44,7 +44,7 @@ class PageEntry extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return titolo
+     * @return string, titolo
      */
     function __toString() {
 
@@ -244,7 +244,7 @@ class PageEntry extends \Gino\Model {
      *
      * @param mixed $slug lo slug oppure il valore ID della pagina
      * @param null $controller per compatibilità con il metodo Gino.Model::getFromSlug
-     * @return istanza di Gino.App.Page.PageEntry
+     * @return Gino.App.Page.PageEntry
      */
     public static function getFromSlug($slug, $controller = null) {
 
@@ -268,9 +268,9 @@ class PageEntry extends \Gino\Model {
     }
     
     /**
-     * Elenco delle pagine che possono essere modificate da un utente
+     * @brief Elenco delle pagine che possono essere modificate da un utente
      * 
-     * @see permission can_edit_single_page
+     * @desc Gli utenti devono essere associati al permesso can_edit_single_page
      * @param integer $user_id
      * @return array(pages id)
      */
@@ -293,7 +293,7 @@ class PageEntry extends \Gino\Model {
 
     /**
      * @brief Url relativo pagina
-     * @return url
+     * @return string
      */
     public function getUrl() {
 
@@ -305,7 +305,7 @@ class PageEntry extends \Gino\Model {
      *
      * @param integer $user_id valore ID dell'utente
      * @param boolean $view_private indica se l'utente ha associato il permesso @a can_view_private
-     * @return where clause
+     * @return string, where clause
      */
     private static function viewPrivatePages($user_id, $view_private) {
 
@@ -407,7 +407,7 @@ class PageEntry extends \Gino\Model {
      *   - @b category (integer)
      *   - @b user_id (integer): valore ID dell'utente in sessione (per l'accesso limitato a specifici utenti)
      *   - @b view_private (boolean): identifica se l'utente in sessione ha il permesso @a can_view_private
-     * @return numero di pagine
+     * @return integer, numero di pagine
      */
     public static function getCount($options = null) {
 
@@ -523,7 +523,7 @@ class PageEntry extends \Gino\Model {
 
     /**
      * @brief Path relativo dell'immagine associata 
-     * @return path relativo dell'immagine
+     * @return string, percorso relativo dell'immagine
      */
     public function imgPath() {
 

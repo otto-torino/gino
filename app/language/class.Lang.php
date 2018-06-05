@@ -27,7 +27,7 @@ class Lang extends \Gino\Model {
     /**
      * @brief Costruttore
      * @param int $id id lingua
-     * @return istanza di Gino.App.Language.Lang
+     * @return void, istanza di Gino.App.Language.Lang
      */
     function __construct($id = null) {
 
@@ -40,7 +40,7 @@ class Lang extends \Gino\Model {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return nome lingua
+     * @return string, nome lingua
      */
     function __toString() {
         return $this->language;
@@ -48,7 +48,7 @@ class Lang extends \Gino\Model {
 
     /**
      * @brief Codice completo lingua es it_IT
-     * @return codice lingua
+     * @return string, codice lingua
      */
     public function code() {
         return $this->language_code.'_'.$this->country_code;

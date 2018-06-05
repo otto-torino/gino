@@ -48,7 +48,7 @@ class Document {
     /**
      * @brief Costruttore
      * @param string $url_content contenuto fornito dal metodo chiamato via url
-     * @return istanza di Gino.Document
+     * @return void, istanza di Gino.Document
      */
     function __construct($url_content) {
     	

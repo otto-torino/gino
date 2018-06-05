@@ -24,7 +24,7 @@ class LogAccess extends \Gino\Model {
 
     /**
      * @brief Costruttore
-     * @return istanza di Gino.App.Statistics.LogAccess
+     * @return void, istanza di Gino.App.Statistics.LogAccess
      */
     function __construct($id) {
     	
@@ -66,7 +66,7 @@ class LogAccess extends \Gino\Model {
     /**
      * @brief Totale di accessi utente
      * @param int $user_id id utente
-     * @return numero di accessi
+     * @return integer, numero di accessi
      */
     public static function getCountForUser($user_id) {
 

@@ -20,8 +20,8 @@ use \Gino\Loader;
 use \Gino\Document;
 use \Gino\Http\Response;
 
-require_once('class.AttachmentItem.php');
-require_once('class.AttachmentCtg.php');
+require_once 'class.AttachmentItem.php';
+require_once 'class.AttachmentCtg.php';
 
 /**
  * @brief Classe controller del modulo di gestione di archivi di file categorizzati
@@ -46,7 +46,7 @@ class attachment extends \Gino\Controller {
 
     /**
      *  @brief Percorso assoluto alla directory dei contenuti
-     *  @return percorso assoluto
+     *  @return string, percorso assoluto
      */
     public function getDataDir() {
 
@@ -55,7 +55,7 @@ class attachment extends \Gino\Controller {
 
     /**
      *  @brief Percorso relativo alla directory dei contenuti
-     *  @return percorso relativo
+     *  @return string, percorso relativo
      */
     public function getDataWWW() {
 
@@ -66,7 +66,7 @@ class attachment extends \Gino\Controller {
      * @brief Percorso della directory di una categoria di allegati
      *
      * @param integer $ctg_id valore id della categoria
-     * @return percorso
+     * @return string
      */
     public function getPath($ctg_id) {
 
