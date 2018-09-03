@@ -376,7 +376,7 @@ namespace Gino;
      */
     public function save($options=array()) {
 
-    	$only_update = array_key_exists('only_update', $options) ? $options['only_update'] : null;
+    	$only_update = array_key_exists('only_update', $options) ? $options['only_update'] : array();
     	$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
     	
     	$event_dispatcher = EventDispatcher::instance();
