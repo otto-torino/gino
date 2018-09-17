@@ -376,7 +376,7 @@ namespace Gino;
      */
     public function save($options=array()) {
 
-    	$only_update = array_key_exists('only_update', $options) ? $options['only_update'] : null;
+    	$only_update = array_key_exists('only_update', $options) ? $options['only_update'] : array();
     	$no_update = array_key_exists('no_update', $options) && is_array($options['no_update']) ? $options['no_update'] : array();
     	
     	$event_dispatcher = EventDispatcher::instance();
@@ -1002,5 +1002,15 @@ namespace Gino;
     public function refreshModel() {
     	
     	$this->fetchColumns($this->id);
+    }
+    
+    /**
+     * @brief Definisce le condizioni di visualizzazione di un modello, ad esempio nei contenuti correlati basati sulle corrispondenze di tag
+     * @description Estendere e sovrascrivere nei Modelli che possono avere restrizioni nella visualizzazione dei contenuti.
+     * @return boolean
+     */
+    public function displayItem() {
+        
+        return true;
     }
 }

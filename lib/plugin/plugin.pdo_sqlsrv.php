@@ -3,7 +3,7 @@
  * @file plugin.pdo_sqlsrv.php
  * @brief Contiene la classe pdo_sqlsrv
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\SqlParse;
 /**
  * @brief Driver specifico per la connessione a un database SQL Server attraverso la libreria PDO
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -290,6 +290,7 @@ class pdo_sqlsrv extends pdo {
 		$tables = \Gino\gOpt('tables', $options, null);
 		$where = \Gino\gOpt('where', $options, null);
 		$group_by = \Gino\gOpt('group_by', $options, null);
+		$having = \Gino\gOpt('having', $options, null);
 		$order = \Gino\gOpt('order', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);	// top command
 		$debug = \Gino\gOpt('debug', $options, false);
@@ -310,6 +311,7 @@ class pdo_sqlsrv extends pdo {
 			$query .= "$fields FROM $tables";
 			if($where) $query .= ' '.$where;
 			if($group_by) $query .= ' '.$group_by;
+			if($having) $query .= ' HAVING '.$having;
 			if($order) $query .= ' '.$order;
 		}
 	

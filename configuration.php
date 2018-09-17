@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -138,6 +138,12 @@ define('SESSION_NAME', 'GINO_SESSID');
  * Dimensione massima dei file per l'upload (2Mb => 2*1024*1024)
  */
 define('MAX_FILE_SIZE', 5242880);
+
+/**
+ * Numero minimo di frequenze dei tag necessarie per poterli visualizzare nel tag cloud
+ * @var integer
+ */
+define('TAG_CLOUD_MIN_NUMBER_FREQUENCES', 0);
 
 /**
  * @brief Definitions for the administrative area

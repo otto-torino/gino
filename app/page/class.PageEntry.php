@@ -531,7 +531,7 @@ class PageEntry extends \Gino\Model {
     }
     
     /**
-     * Elimina la directory della pagina
+     * @brief Elimina la directory della pagina
      * 
      * @throws \Exception
      * @return boolean
@@ -544,6 +544,20 @@ class PageEntry extends \Gino\Model {
     			throw new \Exception(sprintf(_("La directory %s non è stata eliminata"), $dirname));
     	}
     	return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     * @see \Gino\Model::displayItem()
+     */
+    public function displayItem() {
+        
+        if($this->published == 1) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 

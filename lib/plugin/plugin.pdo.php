@@ -3,7 +3,7 @@
  * @file plugin.pdo.php
  * @brief Contiene la classe pdo
  * 
- * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database
  * 
- * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -271,9 +271,9 @@ class pdo implements \Gino\DbManager {
 	 * @return string
 	 * 
 	 * A prescindere dalla modalità che è impostato, c'è un codice di errore interno che viene impostato e che si può controllare 
-	 * utilizzando i metodi errorCode() e errorInfo() degli oggetti POD e PDOStatement. \n
-	 * errorCode() restituisce una stringa di 5 caratteri, come definito nella ANSI SQL-92. \n
-	 * errorInfo() è generalmente più utile in quanto restituisce un array che comprende un messaggio di errore in aggiunta al codice a 5 caratteri.
+	 * utilizzando i metodi @a errorCode() e @a errorInfo() degli oggetti POD e PDOStatement. \n
+	 * @a errorCode() restituisce una stringa di 5 caratteri, come definito nella ANSI SQL-92. \n
+	 * @a errorInfo() è generalmente più utile in quanto restituisce un array che comprende un messaggio di errore in aggiunta al codice a 5 caratteri.
 	 */
 	private function getError() {
 		
@@ -351,7 +351,7 @@ class pdo implements \Gino\DbManager {
 	 *     - @a true, prima prepara e poi esegue la query
 	 *     - @a false (default), esegue la query
 	 *   - @b values (array): elenco dei valori da sostituire alle variabili parametrizzate
-	 * @return PDOStatement object or boolean
+	 * @return \PDOStatement object or boolean
 	 * 
 	 * Synthesis of returns whereas parameterized queries return a boolean value: \n
 	 * - select query -> return PDOStatement object or FALSE
@@ -649,7 +649,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::multiActionQuery()
-	 * @see driver
 	 */
 	public function multiActionQuery($queries) {
 	
@@ -683,7 +682,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::autoIncValue()
-	 * @see driver
 	 */
 	public function autoIncValue($table) {
 
@@ -709,7 +707,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::tableexists()
-	 * @see driver
 	 */
 	public function tableexists($table){
 		
@@ -757,7 +754,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::conformFieldType()
-	 * @see driver
 	 */
 	public function conformFieldType($meta) {
 		
@@ -766,7 +762,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::limit()
-	 * @see driver
 	 */
 	public function limit($range, $offset) {
 		
@@ -775,7 +770,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::distinct()
-	 * @see driver
 	 */
 	public function distinct($fields, $options=array()) {
 		
@@ -784,7 +778,6 @@ class pdo implements \Gino\DbManager {
 	
 	/**
 	 * @see Gino.DbManager::concat()
-	 * @see driver
 	 */
 	public function concat($sequence) {
 		
@@ -793,7 +786,6 @@ class pdo implements \Gino\DbManager {
 
 	/**
 	 * @see Gino.DbManager::dumpDatabase()
-	 * @see driver
 	 */
 	public function dumpDatabase($file) {
 
@@ -831,6 +823,7 @@ class pdo implements \Gino\DbManager {
 	
 		$order = \Gino\gOpt('order', $options, null);
 		$group_by = \Gino\gOpt('group_by', $options, null);
+		$having = \Gino\gOpt('having', $options, null);
 		$distinct = \Gino\gOpt('distinct', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);
 		$debug = \Gino\gOpt('debug', $options, false);
@@ -850,13 +843,14 @@ class pdo implements \Gino\DbManager {
 		if($distinct) $qfields = $distinct.", ".$qfields;
 		
 		$query = $this->buildQuery(array(
-			'fields'=>$qfields,
-			'tables'=>$qtables,
-			'where'=>$qwhere,
-			'group_by'=>$qgroup_by,
-			'order'=>$qorder,
-			'limit'=>$limit, 
-			'debug'=>$debug
+			'fields' => $qfields,
+			'tables' => $qtables,
+			'where' => $qwhere,
+			'group_by' => $qgroup_by,
+		    'having' => $having,
+			'order' => $qorder,
+			'limit' => $limit, 
+			'debug' => $debug
 		));
 		
 		if($debug) echo $query;
@@ -1289,9 +1283,8 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
-	 * Costruisce la query (personalizzata per ogni driver)
+	 * @brief Costruisce la query (personalizzata per ogni driver)
 	 * 
-	 * @see driver
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b statement (string): tipo di istruzione sql (default @a select)
@@ -1299,6 +1292,7 @@ class pdo implements \Gino\DbManager {
 	 *   - @b tables (string)
 	 *   - @b where (string)
 	 *   - @b group_by (string)
+	 *   - @b having (string)
 	 *   - @b order (string)
 	 *   - @b limit (array|string)
 	 *   - @b debug (boolean)

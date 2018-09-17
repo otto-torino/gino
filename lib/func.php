@@ -3,7 +3,7 @@
  * @file func.php
  * @brief Racchiude funzioni generali utilizzate da gino
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -34,7 +34,7 @@ function isSecure() {
 /**
  * @brief Ricava il percorso relativo a partire da un percorso assoluto
  * @param string $abspath percorso assoluto
- * @return percorso relativo
+ * @return string
  */
 function relativePath($abspath) {
     $path = SITE_WWW.preg_replace("#".preg_quote(SITE_ROOT)."#", "", $abspath);
@@ -46,7 +46,7 @@ function relativePath($abspath) {
 /**
  * @brief Ricava il percorso assoluto a partire da un percorso relativo
  * @param string $relpath percorso relativo
- * @return percorso assoluto
+ * @return string
  */
 function absolutePath($relpath) {
 	
@@ -351,7 +351,7 @@ function timeDiff($firstTime, $lastTime){
  * @param string $datefrom datetime iniziale
  * @param string $dateto datetime finale
  * @param boolean $using_timestamps indica se i valori di $datefrom e $dateto sono in formato timestamp (default false)
- * @return differenza di tempo
+ * @return number, differenza di tempo
  */
 function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
 
@@ -446,9 +446,9 @@ function dateDiff($interval, $datefrom, $dateto, $using_timestamps=false) {
  *     - @a s, differenza in secondi (default)
  *     - @a i, differenza in minuti
  *     - @a h. differenza in ore
- * @return differenza di tempo
+ * @return number, differenza di tempo
  *
- * Utilizza la classe \DateTime.
+ * @description Utilizza la classe \DateTime.
  */
 function getDateDiff($start_date, $end_date=null, $options=array()) {
 
@@ -536,7 +536,7 @@ function isValid($type, $var)
  * @param array $options
  *   array associativo di opzioni
  *   - @b endingPosition (string) [in|out]: posizionamento dei caratteri dell'ending nella struttura html o al di fuori della struttura html (dopo che sono stati chiusi tutti i TAG)
- * @return stringa accorciata
+ * @return string, stringa accorciata
  */
 function cutHtmlText($html, $length, $ending, $strip_tags, $cut_words, $cut_images, $options=null) {
 
@@ -863,13 +863,46 @@ function listProv() {
 }
 
 /**
+ * @brief Ricava il nome di una nazione in riferimento alla lingua di navigazione
+ *
+ * @param \Gino\Session $session
+ * @param interger valore id del record della tabella nation
+ * @return string
+ */
+function getNationName($session, $nation) {
+    
+    // fields name of nation table
+    $lang = array('it_IT', 'en_US', 'fr_FR');
+    $lang_default = $lang[1];
+    
+    $lng_dft = $session->lngDft;
+    $lng_nav = $session->lng;
+    
+    if(!in_array($lng_nav, $lang)) {
+        $lang_search = in_array($lng_dft, $lang) ? $lng_dft : $lang_default;
+    }
+    else {
+        $lang_search = $lang_default;
+    }
+    
+    $db = \Gino\Db::instance();
+    $rows = $db->select($lang_search, TBL_NATION, "id='$nation'");
+    if (count($rows)) {
+        return $rows[0][$lang_search];
+    }
+    else {
+        return null;
+    }
+}
+
+/**
  * @brief Codice html di condivisione social network
  *
  * @param string $site tipo di condivisione (facebook, twitter, linkedin, googleplus)
  * @param string $url indirizzo da condividere
  * @param string $title titolo della condivisione
  * @param string $description descrizione
- * @return codice
+ * @return string
  */
 function share($site, $url, $title=null, $description=null) {
 
@@ -915,7 +948,7 @@ $buffer = '';
  * @param string $url indirizzo da condividere
  * @param string $title titolo della condivisione
  * @param string $description descrizione
- * @return codice
+ * @return string
  */
 function shareAll($social, $url, $title=null, $description=null) {
 
@@ -1028,7 +1061,7 @@ function shareAll($social, $url, $title=null, $description=null) {
  *
  * @param mixed $numero valore da convertire (float|integer)
  * @param boolean $decimale se vero, mostra il decimale ([/00])
- * @return numero in cifre
+ * @return string
  */
 function traslitterazione($numero, $decimale=false)
 {

@@ -3,7 +3,7 @@
  * @file class.Response.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Http.Response
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,7 +23,7 @@ use \Gino\Document;
  * ritornano un oggetto Gino.Http.Response o una sua sottoclasse. Questo oggetto si preoccupa di
  * settare gli header e di inviare il contenuto della risposta HTTP
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -41,7 +41,7 @@ class Response {
      * @brief Costruttore
      * @param string $content contenuto della risposta
      * @param array $kwargs array associativo di argomenti
-     * @return istanza di Gino.Http.Response
+     * @return void, istanza di Gino.Http.Response
      */
     function __construct($content, array $kwargs = array()) {
 
@@ -77,7 +77,7 @@ class Response {
 
     /**
      * @bief Getter del contenuto
-     * @return contenuto della risposta http
+     * @return string, contenuto della risposta http
      */
     public function getContent() {
         return $this->_content;

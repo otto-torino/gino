@@ -3,16 +3,18 @@
  * @file class.Input.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Input
  *
- * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
+include(LIB_DIR.OS.'datepicker.php');
+
 /**
  * @brief Input form
  *
- * @copyright 2015-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -31,7 +33,7 @@ class Input {
      * @param string $name nome dell'etichetta
      * @param mixed $text testo dell'etichetta, testo o array (array-> array('label'=>_("..."), 'description'=>_("...")))
      * @param boolean $required campo obbligatorio
-     * @return label tag, html
+     * @return string
      */
     public static function label($name, $text, $required){
     
@@ -58,7 +60,7 @@ class Input {
      *   - string
      *   - array, ad esempio array(_("etichetta"), _("spiegazione"))
      * @param string $value contenuto della seconda colonna
-     * @return codice html riga del form
+     * @return string
      */
     public static function noinput($label, $value) {
     	
@@ -167,7 +169,7 @@ class Input {
      *   - @b trnsl (boolean): attiva la traduzione
      *   - @b trnsl_id (integer): valore id del record del modello
      *   - @b trnsl_table (string): nome della tabella del modello
-     * @return codice html riga form, label + input
+     * @return string, label + input
      */
     public static function input_label($name, $type, $value, $label, $options=array()){
     
@@ -214,45 +216,41 @@ class Input {
      *   - @b required (boolean): campo obbligatorio (default false)
      *   - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo (default false)
      *   - @b text_add (string): testo da aggiungere dopo il tag input
-     * @return codice html riga form, input + label
+     *   - @b datepickers (array): opzioni del calendario (@see lib/datepicker.php)
+     * @return string, input + label
      */
     public static function input_date($name, $value, $label, $options=array()){
-    
-    	$inputClickEvent = gOpt('inputClickEvent', $options, false);
-    	$required = gOpt('required', $options, false);
-    	$text_add = gOpt('text_add', $options, null);
-    	
-    	if($inputClickEvent) {
-    		$options['other'] = "onclick=\"gino.printCalendar($(this).getNext('img'), $(this))\"";
-    	}
-    	$options['id'] = $name;
-    	$options['size'] = 10;
-    	$options['maxlength'] = 10;
-    	$options['pattern'] = "^\d\d/\d\d/\d\d\d\d$";
-    	$options['hint'] = _("dd/mm/yyyy");
-    	
-    	$ico_calendar_path = SITE_IMG."/ico_calendar.png";
-    	
-    	$buffer = "<div class=\"form-row\">";
-    	$buffer .= self::label($name, $label, $required);
-    	
-    	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
-    	}
-    	$buffer .= self::input($name, 'text', $value, $options);
-    	$days = "['"._("Domenica")."', '"._("Lunedì")."', '"._("Martedì")."', '"._("Mercoledì")."', '"._("Giovedì")."', '"._("Venerdì")."', '"._("Sabato")."']";
-    	$months = "['"._("Gennaio")."', '"._("Febbraio")."', '"._("Marzo")."', '"._("Aprile")."', '"._("Maggio")."', '"._("Giugno")."', '"._("Luglio")."', '"._("Agosto")."', '"._("Settembre")."', '"._("Ottobre")."', '"._("Novembre")."', '"._("Dicembre")."']";
-    
-    	$buffer .= "<span style=\"margin-left:5px;margin-bottom:2px;cursor:pointer;\" class=\"fa fa-calendar calendar-tooltip\" title=\""._("calendario")."\" id=\"cal_button_$name\" src=\"".$ico_calendar_path."\" onclick=\"gino.printCalendar($(this), $(this).getPrevious('input'), $days, $months)\"></span>";
-    	if($text_add) {
-    		$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
-    	}
-    	$buffer .= "</div>";
-    
-    	return $buffer;
+        
+        $inputClickEvent = gOpt('inputClickEvent', $options, false);
+        $required = gOpt('required', $options, false);
+        $text_add = gOpt('text_add', $options, null);
+        $datepickers = gOpt('datepickers', $options, []);
+        
+        $options['id'] = $name;
+        $options['size'] = 10;
+        $options['maxlength'] = 10;
+        $options['pattern'] = "^\d\d/\d\d/\d\d\d\d$";
+        $options['hint'] = _("dd/mm/yyyy");
+        
+        $buffer = "<div class=\"form-row\">";
+        $buffer .= self::label($name, $label, $required);
+        
+        if(is_array($label)) {
+            $options['helptext'] = array(
+                'title' => isset($label['label']) ? $label['label'] : $label[0],
+                'text' => isset($label['description']) ? $label['description'] : $label[1]
+            );
+        }
+        $buffer .= self::input($name, 'text', $value, $options);
+        
+        if($text_add) {
+            $buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+        }
+        $buffer .= "</div>";
+        
+        $buffer .= \Gino\getDatePicker($name, $datepickers);
+        
+        return $buffer;
     }
     
     /**
@@ -272,7 +270,7 @@ class Input {
      *   - @b trnsl (boolean): attiva la traduzione
      *   - @b trnsl_id (integer): valore id del record del modello
      *   - @b trsnl_table (string): nome della tabella con il campo da tradurre
-     * @return codice htlm riga form, textarea + label
+     * @return string, textarea + label
      */
     public static function textarea_label($name, $value, $label, $options=array()){
     
@@ -451,7 +449,7 @@ class Input {
      * $buffer = "<script type=\"text/javascript\" language=\"javascript\">initCounter($('id_elemento'), maxlength})</script>";
      * @endcode
      *
-     * @return codice html
+     * @return string
      */
     public static function jsCountCharText(){
     
@@ -553,7 +551,7 @@ class Input {
     /**
      * @brief Codice per la visualizzazione allegati contestualmente all'editor CKEDITOR
      * @see Gino.App.Attachment.attachment::editorList()
-     * @return codice html
+     * @return string
      */
     private static function imagePreviewer() {
     
@@ -588,7 +586,7 @@ class Input {
      *   opzioni specifiche
      *     - @b required (boolean): campo obbligatorio (default false)
      *     - @b text_add (string): testo da aggiungere dopo il checkbox
-     * @return codice html riga form, input + label
+     * @return string, input + label
      */
     public static function checkbox_label($name, $checked, $value, $label, $options=array()){
     
@@ -651,7 +649,7 @@ class Input {
      *   - @b preview (boolean): mostra l'anteprima di una immagine (default false)
      *   - @b previewSrc (string): percorso relativo dell'immagine
      *   - @b text_add (string): testo da aggiungere in coda al tag input
-     * @return codice html riga form, input file + label
+     * @return string, input file + label
      */
     public static function input_file($name, $value, $label, $options=array()){
     
@@ -768,7 +766,7 @@ class Input {
      *     - string: nome del campo con il testo da tradurre
      *     - array: nomi dei campi da concatenare
      *   - @b idName (string): nome del campo di riferimento (default id)
-     * @return codice html riga form, input multicheck + label
+     * @return string, input multicheck + label
      */
     public static function multipleCheckbox($name, $checked, $data, $label, $options=array()){
     
@@ -971,7 +969,7 @@ class Input {
      *   array associativo di opzioni (aggiungere quelle del metodo radio())
      *   - @b required (boolean): campo obbligatorio (default false)
      *   - @b text_add (boolean): testo da aggiungere dopo i pulsanti radio
-     * @return codice html riga form, input radio + label
+     * @return string, input radio + label
      */
     public static function radio_label($name, $value, $data, $default, $label, $options=array()){
     	
@@ -1066,7 +1064,7 @@ class Input {
      *   opzioni specifiche
      *   - @b required (boolean): campo obbligatorio (default false)
      *   - @b text_add (string): testo da aggiungere dopo il select
-     * @return codice html riga form, select + label
+     * @return string, select + label
      */
     public static function select_label($name, $value, $data, $label, $options=array()) {
     
