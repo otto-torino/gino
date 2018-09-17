@@ -1003,4 +1003,14 @@ namespace Gino;
     	
     	$this->fetchColumns($this->id);
     }
+    
+    /**
+     * @brief Definisce le condizioni di visualizzazione di un modello, ad esempio nei contenuti correlati basati sulle corrispondenze di tag
+     * @description Estendere e sovrascrivere nei Modelli che possono avere restrizioni nella visualizzazione dei contenuti.
+     * @return boolean
+     */
+    public function displayItem() {
+        
+        return true;
+    }
 }

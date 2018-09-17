@@ -3,7 +3,7 @@
  * @file class.TagBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.TagBuild
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Gestisce i campi per inserimento tag
  *
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -74,19 +74,33 @@ class TagBuild extends Build {
 
     /**
      * @brief Tag cloud
-     * @return tag cloud
+     * @description Le frequenze vengono conformate a un valore massimo in modo da non avere stringhe con dimensioni troppo grandi. 
+     * Il riferimento viene preso sul valore di massima frequenza.
+     * 
+     * @param array $options array associativo di opzioni di \Gino\GTag::getTagsHistogram()
+     * @return string
      */
-    public static function tagCloud() {
+    public static function tagCloud($options=[]) {
         
-    	$db = Db::instance();
-        $histogram = GTag::getTagsHistogram();
-
+        $db = Db::instance();
+        $histogram = GTag::getTagsHistogram($options);
+        
+        $max_freq = max($histogram);
+        $max_value = 50;
+        
         $buffer = '<p>';
-        foreach($histogram as $tag=>$freq) {
-            $buffer .= "<span class=\"link\" onclick=\"addTag(this)\" style=\"font-size: ".(1 + (0.2 * $freq - 0.2))."em\">".$tag."</span> ";
+        foreach($histogram as $tag => $freq) {
+            
+            if($max_freq > $max_value) {
+                $freq = ($freq*$max_value)/$max_freq;
+            }
+            
+            $font_size = 1 + (0.05 * $freq - 0.2);
+            $font_size = preg_replace("#,#", '.', $font_size);
+            $buffer .= "<span class=\"link\" onclick=\"addTag(this)\" style=\"font-size: ".$font_size."em\">".$tag."</span> ";
         }
         $buffer .= "</p>";
-
+        
         return $buffer;
     }
 }

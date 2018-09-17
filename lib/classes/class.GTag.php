@@ -94,16 +94,52 @@ class GTag {
 
         return $res;
     }
+    
+    /**
+     * @brief Elenco dei tag a partire da un numero minmo di frequenza
+     * @param integer $number_min_frequences
+     * @return array
+     */
+    private static function getTags($number_min_frequences) {
+        
+        $db = Db::instance();
+        
+        $rows = $db->select(
+            self::$_table_tag.".tag, COUNT(".self::$_table_tag_taggeditem.".tag_id) as freq",
+            [self::$_table_tag,  self::$_table_tag_taggeditem],
+            self::$_table_tag.'.id = '.self::$_table_tag_taggeditem.'.tag_id',
+            array(
+                'group_by' => self::$_table_tag_taggeditem.'.tag_id',
+                'having' => "freq >= ".$number_min_frequences."",
+                'order' => 'tag',
+                'debug' => false
+            )
+        );
+        return $rows;
+    }
 
     /**
      * @brief Array di tutti i tag presenti nel sistema
      * @return array di tag
      */
-    public static function getAllTags() {
+    public static function getAllTags($options=[]) {
         
-    	$res = array();
+        $freq_min = gOpt('freq_min', $options, TAG_CLOUD_MIN_NUMBER_FREQUENCES);
+        
+        if(!is_int($freq_min)) {
+            $freq_min = 0;
+        }
+        
+        $res = array();
         $db = Db::instance();
-        $rows = $db->select('tag', self::$_table_tag, '', array('order' => 'tag'));
+        
+        if($freq_min == 0) {
+            // All tags
+            $rows = $db->select('tag', self::$_table_tag, '', array('order' => 'tag'));
+        }
+        else {
+            $rows = self::getTags($freq_min);
+        }
         if($rows and count($rows)) {
             foreach($rows as $row) {
                 $res[] = $row['tag'];
@@ -152,9 +188,9 @@ class GTag {
                 $row_content_id = $row['content_id'];
                 $freq = $row['freq'];
                 
-                if($row_controller_name == $content_controller_class && $row_content_class == $content_class && $row_content_id == $content_id)
+                if($row_controller_name == $content_controller_class && $row_content_class == $content_class && $row_content_id == $content_id) {
                     continue;
-                
+                }
                 // load the content class
                 Loader::import($row_controller_name, $row_content_class);
                 if($row_controller_instance) {
@@ -169,7 +205,7 @@ class GTag {
                             $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
                             $controller_class = get_app_name_class_ns($row_controller_name);
                             $object = new $class($row_content_id, new $controller_class($row_controller_instance));
-                            if($object->id)
+                            if($object->id && $object->displayItem())
                             {
                                 if(method_exists($object, 'gtagOutput')) {
                                     $res[$module->label][] = $object->gtagOutput();
@@ -181,6 +217,10 @@ class GTag {
                                     $res[$module->label][] = (string) $object;
                                 }
                             }
+                        }
+                        // delete the label if there are no items
+                        if(count($res[$module->label]) == 0) {
+                            unset($res[$module->label]);
                         }
                     }
                 }
@@ -195,7 +235,7 @@ class GTag {
                         if(count($res[$module_app->label]) < $limit) {
                             $class = get_model_app_name_class_ns($row_controller_name, $row_content_class);
                             $object = new $class($row_content_id);
-                            if($object->id)
+                            if($object->id && $object->displayItem())
                             {
                                 if(method_exists($object, 'gtagOutput')) {
                                     $res[$module_app->label][] = $object->gtagOutput();
@@ -208,6 +248,10 @@ class GTag {
                                 }
                             }
                         }
+                        // delete the label if there are no items
+                        if(count($res[$module_app->label]) == 0) {
+                            unset($res[$module_app->label]);
+                        }
                     }
                 }
             }
@@ -219,30 +263,51 @@ class GTag {
     /**
      * @brief Istogramma dei tag
      * @description Utile per la scrittura di una tag cloud
-     * @return array, istogramma tags [tag => freqeuenza]
+     * @param array $options array associativo di opzioni
+     *   - @b freq_min (integer): numero minmo di frequenza dei tag per poter essere selezionati
+     * @return array, istogramma dei tag nel formato [(string)tag => (int)frequenza]
      */
-    public static function getTagsHistogram() {
+    public static function getTagsHistogram($options=[]) {
         
-    	$res = array();
+        $freq_min = gOpt('freq_min', $options, TAG_CLOUD_MIN_NUMBER_FREQUENCES);
+        
+        if(!is_int($freq_min)) {
+            $freq_min = 0;
+        }
+        
+        $res = array();
         $db = Db::instance();
         
-        $rows = $db->select(
-        	self::$_table_tag.'.tag', 
-        	array(self::$_table_tag,  self::$_table_tag_taggeditem), 
-        	self::$_table_tag.'.id = '.self::$_table_tag_taggeditem.'.tag_id', 
-        	array('order' => self::$_table_tag_taggeditem.'.tag_id')
-        );
-        if($rows and count($rows)) {
-            foreach($rows as $row) {
-                if(!isset($res[$row['tag']])) {
-                    $res[$row['tag']] = 0;
+        if($freq_min == 0) {
+            // All tags
+            $rows = $db->select(
+                self::$_table_tag.'.tag',
+                array(self::$_table_tag,  self::$_table_tag_taggeditem),
+                self::$_table_tag.'.id = '.self::$_table_tag_taggeditem.'.tag_id',
+                array('order' => self::$_table_tag_taggeditem.'.tag_id')
+                );
+            if($rows and count($rows)) {
+                foreach($rows as $row) {
+                    if(!isset($res[$row['tag']])) {
+                        $res[$row['tag']] = 0;
+                    }
+                    $res[$row['tag']]++;
                 }
-                $res[$row['tag']]++;
             }
         }
-
+        else {
+            $rows = self::getTags($freq_min);
+            
+            if($rows and count($rows)) {
+                foreach($rows as $row) {
+                    if(!isset($res[$row['tag']])) {
+                        $res[$row['tag']] = $row['freq'];
+                    }
+                }
+            }
+        }
         ksort($res);
-
+        
         return $res;
     }
     

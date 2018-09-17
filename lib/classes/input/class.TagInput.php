@@ -3,7 +3,7 @@
  * @file class.TagInput.php
  * @brief Contiene la definizione ed implementazione della classe Gino.TagInput
  *
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Input form di tipo Tag
  *
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -41,7 +41,7 @@ class TagInput extends Input {
 		$text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); win.display();\"></span>";
 		
 		$tag_options = array('id' => $name, 'text_add' => $text_add);
-		$opt = count($options) ? array_merge($options, $tag_options): $tag_options;
+		$opt = is_array($options) && count($options) ? array_merge($options, $tag_options): $tag_options;
 		
 		$field = Input::input_label($name, 'text', $value, $label, $opt);
 		

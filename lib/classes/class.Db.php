@@ -3,7 +3,7 @@
  * @file class.Db.php
  * @brief Contiene l'interfaccia Gino.DbManager e le classi Gino.Db e Gino.SqlParse
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,7 +15,7 @@ namespace Gino;
  *
  * Definisce i metodi che le librerie di connessione al database devono implementare.
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -217,6 +217,7 @@ interface DbManager {
      * @param array $options array associativo di opzioni
      *   - @b order (string): ordinamento
      *   - @b group_by (string): elenco dei campi da raggruppare (istruzione GROUP BY)
+     *   - @b having (string): clausola collegata all'istruzione 'GROUP BY'
      *   - @b distinct (string): nome/nomi dei campi sui quali applicare la keyword DISTINCT
      *   - @b limit (mixed): limitazione degli elementi
      *     - string, condizione di limitazione degli elementi

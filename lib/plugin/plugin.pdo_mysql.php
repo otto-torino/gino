@@ -3,7 +3,7 @@
  * @file plugin.pdo_mysql.php
  * @brief Contiene la classe pdo_mysql
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ namespace Gino\Plugin;
 /**
  * @brief Driver specifico per la connessione a un database MYSQL attraverso la libreria PDO
  * 
- * @copyright 2015-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -276,6 +276,7 @@ class pdo_mysql extends pdo {
 		$tables = \Gino\gOpt('tables', $options, null);
 		$where = \Gino\gOpt('where', $options, null);
 		$group_by = \Gino\gOpt('group_by', $options, null);
+		$having = \Gino\gOpt('having', $options, null);
 		$order = \Gino\gOpt('order', $options, null);
 		$limit = \Gino\gOpt('limit', $options, null);
 		$debug = \Gino\gOpt('debug', $options, false);
@@ -297,6 +298,7 @@ class pdo_mysql extends pdo {
 			$query = "SELECT $fields FROM $tables";
 			if($where) $query .= ' '.$where;
 			if($group_by) $query .= ' '.$group_by;
+			if($having) $query .= ' HAVING '.$having;
 			if($order) $query .= ' '.$order;
 			if($qlimit) $query .= ' '.$qlimit;
 		}

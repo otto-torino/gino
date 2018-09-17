@@ -258,7 +258,8 @@ class Document {
         
         // Custom styles
         $stylesheets[] = CSS_WWW."/styles.css";
-        $stylesheets[] = CSS_WWW."/datepicker_jqui.css";
+        $stylesheets[] = CSS_WWW."/jquery-ui.min-1.12.1.css";
+        $stylesheets[] = CSS_WWW."/jquery-ui.min-1.12.1-update.css";
         
         if($skin->css) {
             $css = Loader::load('Css', array('layout', array('id'=>$skin->css)));
@@ -287,6 +288,7 @@ class Document {
         
         // jQuery and Bootstrap
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-2.2.4.min.js");
+        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-ui-1.12.1.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
         $this->_registry->addCoreJs(SITE_JS."/bootstrap/js/bootstrap.min.js");
