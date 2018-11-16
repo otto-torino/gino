@@ -213,4 +213,9 @@ define('MIDDLEWARE', [
     'HEADERS' => true   // @see Gino.Middleware.Headers
 ]);
 
+/**
+ * JWT
+ */
+define('JWT_SECRET', 'MY-SECRET-KEY');
+
 ?>

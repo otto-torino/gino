@@ -39,6 +39,15 @@ require_once('class.ModelFormUser.php');
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
  * 
+ * #JWT
+ * I metodi:
+ * - getJsonData=getJsonData
+ * - whoami=whoami
+ * - deleteToken=deleteToken
+ * - refreshToken=refreshToken
+ * 
+ * implementano JWT e possono essere utilizzati per l'autenticazione di applicazioni javascript.
+ * 
  * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
@@ -2012,5 +2021,160 @@ class auth extends \Gino\Controller {
         );
         $document = new Document($view->render($dict));
         return $document();
+    }
+    
+    /**
+     * @brief Json of login credentials
+     * @description Create the jwt payload
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function getJsonData(\Gino\Http\Request $request) {
+        
+        // Verifica se le credenziali inserite nel login sono corrette
+        // Richiama Gino.Access::AuthenticationMethod() che imposta le variabili di sessione in gino
+        $check = $this->_access->CheckLogin($request);
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        
+        if($check) {
+            $user = new User($this->_session->user_id);
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $jwt_token = $plugin_jwt->JWT_encode($user);
+            
+            $data = [
+                'userData' => [
+                    'userId' => $user->id,
+                    'userName' => $user->firstname.' '.$user->lastname,
+                    'userEmail' => $user->email,
+                    'isSuperUser' => $user->is_admin
+                ],
+                'tokenData' => $jwt_token
+            ];
+            
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "login failed"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: invalid credentials']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Ritorna i dati dell'utente che effettua la richiesta
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function whoami(\Gino\Http\Request $request) {
+        
+        $jwt = \Gino\cleanVar($request->GET, 'jwt', 'string');
+        if($jwt == 'undefined' or $jwt=='null') {
+            $jwt = '';
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        $data = [];
+        
+        if($jwt) {
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $token = $plugin_jwt->JWT_decode($jwt);
+            
+            if($plugin_jwt->verifyToken($token)) {
+                $data = [
+                    'userData' => [
+                        'userId' => $token->data->userId,
+                        'userName' => $token->data->userName,
+                        'userEmail' => $token->data->userEmail,
+                        'isSuperUser' => $token->data->isSuperUser
+                    ],
+                    'tokenData' => $jwt
+                ];
+            }
+        }
+        
+        if(count($data)) {
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "invalid token"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: invalid token']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Elimina la sessione se è verificato il Token
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function deleteToken(\Gino\Http\Request $request) {
+        
+        $jwt = \Gino\cleanVar($request->GET, 'jwt', 'string');
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        
+        if($jwt && $jwt != 'undefined') {
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $token = $plugin_jwt->JWT_decode($jwt);
+            
+            if($plugin_jwt->verifyToken($token)) {
+                
+                $this->_session->destroy();
+                if(isset($this->_session->user_id) && $this->_session->user_id) {
+                    $delete = false;
+                }
+                else {
+                    $delete = true;
+                }
+            }
+            else {
+                $delete = false;
+            }
+            
+            $data = [
+                'deleteSession' => (int)$delete
+            ];
+            
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "undefined token"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: undefined token']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Ritorna il Token
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function refreshToken(\Gino\Http\Request $request) {
+        
+        $token = \Gino\cleanVar($request->POST, 'token', 'string');
+        
+        if($token && $token != 'undefined') {
+            $data = ['tokenData' => $token];
+        }
+        else {
+            $data = [];
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        return new \Gino\Http\ResponseJson($data);
     }
 }

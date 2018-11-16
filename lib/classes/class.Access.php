@@ -3,7 +3,7 @@
  * @file class.Access.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Access
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -20,7 +20,7 @@ use \Gino\App\Auth\Ldap;
  * 
  * La classe gestisce il processo di autenticazione e l'accesso al sito e alle sue funzionalità
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -74,6 +74,35 @@ class Access {
         else {
             $request->user = new User($this->_session->user_id);
             return FALSE;
+        }
+    }
+    
+    /**
+     * @brief Verifica se le credenziali inserite nel login sono corrette
+     * @param \Gino\Http\Request $request
+     * @return boolean
+     */
+    public function CheckLogin(\Gino\Http\Request $request){
+        
+        if(isset($request->POST) &&
+            is_array($request->POST) &&
+            array_key_exists('username', $request->POST) &&
+            array_key_exists('password', $request->POST)) {
+                
+                $username = cleanVar($request->POST, 'username', 'string', '');
+                $password = cleanVar($request->POST, 'password', 'string', '');
+                
+                $result = $this->AuthenticationMethod($username, $password);
+                
+                if($result) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+        }
+        else {
+            return false;
         }
     }
 
