@@ -206,4 +206,11 @@ define('GOOGLE_ANALYTICS_VIEW_ACCOUNT', null);
  */
 define('GOOGLE_ANALYTICS_VIEW_ID', null);
 
+/**
+ * @brief Imposta i Middleware
+ */
+define('MIDDLEWARE', [
+    'HEADERS' => true   // @see Gino.Middleware.Headers
+]);
+
 ?>
