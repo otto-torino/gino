@@ -32,6 +32,11 @@ require_once('class.ModelFormUser.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
  *
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * #Descrizione
  * I permessi delle applicazioni sono definiti nella tabella @a auth_permission. Il campo @a admin indica se il permesso necessita dell'accesso all'area amministrativa. \n
  * Ogni utente può essere associato a un permesso definito nella tabella @a auth_permission, e tale associazione viene registrata nella tabella @a auth_user_perm. \n
  * La tabella @a auth_user_perm registra il valore id dell'utente, del permesso e dell'istanza relativa all'applicazione del permesso. \n
@@ -47,10 +52,6 @@ require_once('class.ModelFormUser.php');
  * - refreshToken=refreshToken
  * 
  * implementano JWT e possono essere utilizzati per l'autenticazione di applicazioni javascript.
- * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class auth extends \Gino\Controller {
 
