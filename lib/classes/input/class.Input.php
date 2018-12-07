@@ -9,6 +9,9 @@
  */
 namespace Gino;
 
+use \Gino\View;
+use Predis\Command\SetAdd;
+
 include(LIB_DIR.OS.'datepicker.php');
 
 /**
@@ -20,6 +23,8 @@ include(LIB_DIR.OS.'datepicker.php');
  */
 class Input {
 
+    private static $_view_folder = VIEWS_DIR.OS.'inputs';
+    
 	/**
 	 * @brief Costruttore
 	 */
@@ -27,26 +32,185 @@ class Input {
 
     }
     
-	/**
-     * @brief TAG LABEL
-     *
-     * @param string $name nome dell'etichetta
-     * @param mixed $text testo dell'etichetta, testo o array (array-> array('label'=>_("..."), 'description'=>_("...")))
-     * @param boolean $required campo obbligatorio
+    /**
+     * @brief Imposta le classi dei tag input
+     * 
+     * @param string $input_type
+     * @param string $additional_class
+     * @return string|NULL
+     */
+    private static function setInputClasses($input_type, $additional_class=null) {
+        
+        $classname = '';
+        
+        if($input_type == 'input' or $input_type == 'select' or $input_type == 'textarea') {
+            $classname .= "form-control";
+        }
+        elseif ($input_type == 'file') {
+            $classname .= "form-control-file";
+        }
+        elseif ($input_type == 'checkbox' or $input_type == 'radio') {
+            $classname .= "form-check-input";
+        }
+        
+        if($additional_class) {
+            $classname .= ' '.$additional_class;
+        }
+        
+        $clean = trim($classname);
+        if($clean) {
+            return "class=\"".$classname."\"";
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * @brief Imposta la label string
+     * @param mixed $value
      * @return string
      */
-    public static function label($name, $text, $required){
+    private static function setLabelString($value) {
+        
+        if(is_array($value)) {
+            $label = array_key_exists('label', $value) ? $value['label'] : $value[0];
+        }
+        else {
+            $label = $value;
+        }
+        return $label;
+    }
     
-    	if(!$text) return '<label></label>';
+    /**
+     * @brief Imposta le classi del tag label
+     * @param boolean $required
+     * @param string $classes
+     * @return string
+     */
+    private static function setLabelClasses($required=false, $classes=null) {
+        
+        $buffer = '';
+        
+        if($classes) {
+            $buffer .= $classes.' ';
+        }
+        if($required) {
+            $buffer .= 'req';
+        }
+        return $buffer;
+    }
     
+    /**
+     * @brief Imposta l'helper di un input
+     * 
+     * @param array $helptext with keys: @a title | @a text
+     * @return string|NULL
+     */
+    private static function setHelper($helptext) {
+        
+        if(is_array($helptext)) {
+            $title = $helptext['title'];
+            $text = $helptext['text'];
+            return "<span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * @brief Imposta il link di inserimento record correlato a un input
+     * @param array $add_related con chiavi: title|id|url
+     * @return string|NULL
+     */
+    private static function setAddRelated($add_related) {
+        
+        if(is_array($add_related) && count($add_related)) {
+            $title = $add_related['title'];
+            $id = $add_related['id'];
+            $url = $add_related['url'];
+            
+            return "<a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * @brief Imposta la directory del file della vista
+     * @param string $custom_folder
+     * @return string
+     */
+    private static function setViewFolder($custom_folder) {
+        
+        if($custom_folder) {
+            $path_to_dir = $custom_folder;
+        }
+        else {
+            $path_to_dir = self::$_view_folder;
+        }
+        return $path_to_dir;
+    }
+    
+    /**
+     * @brief Imposta il file della vista
+     * @param string $view_file file di default della vista
+     * @param string $custom_file file personalizzato della vista
+     * @param boolean $form_inline indica se il form viene mostrato inline
+     * @return string
+     */
+    private static function setViewFile($view_file, $custom_file, $form_inline) {
+        
+        if($custom_file) {
+            $filename = $custom_file;
+        }
+        else {
+            $filename = $view_file;
+            if($form_inline) {
+                $filename .= '_inline';
+            }
+        }
+        return $filename;
+    }
+    
+	/**
+     * @brief LABEL Tag
+     *
+     * @param string $name nome dell'etichetta
+     * @param mixed $text testo dell'etichetta; if array: [label(string), description(string)]
+     * @param boolean $required campo obbligatorio
+     * @param array $options
+     *   - @b classes (string)
+     * @return string
+     */
+    public static function label($name, $text, $required, $options=[]){
+        
+        $classes = gOpt('classes', $options, null);
+        
+        if($classes or $required) {
+            $classname = " class=\"";
+            if($classes) {
+                $classname .= $classes;
+            }
+            if($required) {
+                $classname .= ' req';
+            }
+            $classname .= "\"";
+        }
+        else {
+            $classname = '';
+        }
+        
     	if(is_array($text)) {
     		$label = isset($text['label']) ? $text['label'] : $text[0];
     	}
     	else {
     		$label = $text;
     	}
-    
-    	$buffer = "<label for=\"$name\"".($required ? "class=\"req\"":"").">";
+
+    	$buffer = "<label for=\"$name\"".$classname.">";
     	$buffer .= $label;
     	$buffer .= "</label>";
     
@@ -54,26 +218,67 @@ class Input {
     }
     
     /**
-     * @brief Simula un campo ma senza input
-     *
-     * @param string $label contenuto della prima colonna
-     *   - string
-     *   - array, ad esempio array(_("etichetta"), _("spiegazione"))
-     * @param string $value contenuto della seconda colonna
+     * @brief Link della traduzione di un input
+     * @param string $label
+     * @param string $onclick
+     * @param array $options
      * @return string
      */
-    public static function noinput($label, $value) {
-    	
-    	$buffer = '';
-    	if(!empty($label) OR !empty($value))
-    	{
-    		$buffer = "<div class=\"form-row\">";
-    		$buffer .= self::label('', $label, FALSE);
-    		$buffer .= "<div class=\"form-noinput\">$value</div>\n";
-    		$buffer .= "</div>";
-    	}
+    public static function linkTranslation($label, $onclick, $options=[]) {
+        
+        $classes = gOpt('classes', $options, null);
+        
+        $view = new View(self::$_view_folder, 'link_translation');
+        $dict = [
+            'classes' => $classes,
+            'label' => $label,
+            'onclick' => $onclick
+        ];
+        
+        return $view->render($dict);
+    }
     
-    	return $buffer;
+    /**
+     * @brief Contenitore delle righe di input
+     *
+     * @param mixed $label testo della label (prima colonna); string or array, ad esempio [_("etichetta"), _("spiegazione")]
+     * @param string $value contenuto della seconda colonna
+     * @param array $options array associativo di opzioni
+     *   - @b additional_class (string)
+     * @return string
+     */
+    public static function placeholderRow($label, $value, $options=[]) {
+    	
+        $additional_class = gOpt('additional_class', $options, null);
+        
+    	$buffer = '';
+    	if(!empty($label) OR !empty($value)) {
+    	    $input = $value;
+    	}
+    	else {
+    	    $input = null;
+    	}
+    	
+    	$view = new View(self::$_view_folder, 'input_placeholder');
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'label_string' => self::setLabelString($label),
+    	    'label_class' => self::setLabelClasses(),
+    	    'value' => $input
+    	];
+    	
+    	return $view->render($dict);
+    }
+    
+    /**
+     * @brief Contenitore delle righe di input
+     * @todo per vecchie versioni, da eliminare
+     * @see placeholderRow()
+     * @return string
+     */
+    public static function noinput($label, $value, $options=[]) {
+        
+        return self::placeholderRow($label, $value, $options);
     }
     
     /**
@@ -82,8 +287,8 @@ class Input {
      * @param string $name nome del tag
      * @param mixed $value valore del tag
      * @param array $options
-     *     array associativo di opzioni
-     *     - @b id (string): valore ID del tag
+     *   array associativo di opzioni
+     *   - @b id (string): valore ID del tag
      * @return widget html
      */
     public static function hidden($name, $value, $options=array()) {
@@ -91,6 +296,39 @@ class Input {
     	$id = gOpt('id', $options, null);
     	
     	return "<input type=\"hidden\" name=\"$name\" value=\"$value\" ".($id ? "id=\"".$id."\"" : '')."/>";
+    }
+    
+    /**
+     * @brief Submit Button Tag
+     * 
+     * @param string $name
+     * @param string $value
+     * @param array $options
+     *   - @b type (string): default @a submit; values: @a submit | @a button
+     *   - @b classField (string)
+     *   - @b onclick (string)
+     * @return string
+     */
+    public static function submit($name, $value, $options=[]) {
+        
+        $type = gOpt('type', $options, 'submit');
+        $classField = gOpt('classField', $options, null);
+        $onclick = gOpt('onclick', $options, null);
+        
+        if(!is_string($classField)) {
+            $classField = null;
+        }
+        
+        $view = new View(self::$_view_folder, 'input_button');
+        $dict = [
+            'classes' => $classField,
+            'name' => $name,
+            'value' => $value,
+            'type' => $type,
+            'onclick' => $onclick
+        ];
+        
+        return $view->render($dict);
     }
     
     /**
@@ -111,7 +349,8 @@ class Input {
      *     - @b js (string): javascript
      *     - @b readonly (boolean): campo di sola lettura
      *     - @b other (string): altro nel tag
-     *     - @b helptext (array): help text (array(title=>string, text=>string))
+     *     - @b helptext (array): help text, @see setHelper()
+     *     - @b input_type (string): default @a input
      * @return widget html
      */
     public static function input($name, $type, $value, $options=array()) {
@@ -128,25 +367,31 @@ class Input {
     	$other = gOpt('other', $options, null);
     	$helptext = gOpt('helptext', $options, null);
     	
+    	// for overwrite input type
+    	$input_type = gOpt('input_type', $options, 'input');
+    	
     	$buffer = "<input type=\"$type\" name=\"$name\" value=\"$value\" ";
     	
     	$buffer .= $id ? "id=\"$id\" ":"";
     	$buffer .= $required ? "required ":"";
     	$buffer .= $pattern ? "pattern=\"$pattern\" ":"";
     	$buffer .= $hint ? "placeholder=\"$hint\" ":"";
-    	$buffer .= $classField ? "class=\"$classField\" ":"";
+    	
+    	$buffer .= self::setInputClasses($input_type, $classField);    ////////////////////////////////////////////
+    	
     	$buffer .= $size ? "size=\"$size\" ":"";
     	$buffer .= $maxlength ? "maxlength=\"$maxlength\" ":"";
     	$buffer .= $readonly ? "readonly=\"readonly\" ":"";
     	$buffer .= $js ? $js." ":"";
     	$buffer .= $other ? $other." ":"";
-    
+        
     	$buffer .= "/>";
-    
+        
     	if(is_array($helptext)) {
-    		$title = $helptext['title'];
-    		$text = $helptext['text'];
-    		$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    	    $buffer .= self::setHelper(array(
+    	        'title' => $helptext['title'],
+    	        'text' => $helptext['text']
+    	    ));
     	}
     
     	return $buffer;
@@ -169,6 +414,11 @@ class Input {
      *   - @b trnsl (boolean): attiva la traduzione
      *   - @b trnsl_id (integer): valore id del record del modello
      *   - @b trnsl_table (string): nome della tabella del modello
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, label + input
      */
     public static function input_label($name, $type, $value, $label, $options=array()){
@@ -176,31 +426,48 @@ class Input {
     	$required = gOpt('required', $options, false);
     	$size = gOpt('size', $options, null);
     	$text_add = gOpt('text_add', $options, null);
-    	
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
+    	// Translations
     	$trnsl = gOpt('trnsl', $options, false);
     	$trnsl_id = gOpt('trnsl_id', $options, null);
     	$trnsl_table = gOpt('trnsl_table', $options, null);
     	
-    	$buffer = "<div class=\"form-row\">";
-    	$buffer .= self::label($name, $label, $required)."\n";
-    	
     	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
+    	    $helptext = self::setHelper(array(
+    	        'title' => isset($label['label']) ? $label['label'] : $label[0],
+    	        'text' => isset($label['description']) ? $label['description'] : $label[1]
+    	    ));
     	}
-    	$buffer .= self::input($name, $type, $value, $options);
+    	else {
+    	    $helptext = null;
+    	}
+    	
+    	$input = self::input($name, $type, $value, $options);
+    	
     	if($trnsl && $trnsl_id && $trnsl_table) {
-    		$buffer .= Form::formFieldTranslation('input', $trnsl_table, $name, $trnsl_id, $size);
+    	    $trnsl_input = Form::formFieldTranslation('input', $trnsl_table, $name, $trnsl_id, $size);
+    	}
+    	else {
+    	    $trnsl_input = null;
     	}
     	
-    	if($text_add) {
-    		$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
-    	}
-    	$buffer .= "</div>";
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_text', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'label_for' => $name,
+    	    'label_string' => self::setLabelString($label),
+    	    'label_class' => self::setLabelClasses($required),
+    	    'input' => $input,
+    	    'trnsl_input' => $trnsl_input, 
+    	    'text_add' => $text_add,
+    	    'helper' => $helptext
+    	];
     	
-    	return $buffer;
+    	return $view->render($dict);
     }
     
     /**
@@ -217,14 +484,24 @@ class Input {
      *   - @b inputClickEvent (boolean): per attivare l'evento sulla casella di testo (default false)
      *   - @b text_add (string): testo da aggiungere dopo il tag input
      *   - @b datepickers (array): opzioni del calendario (@see lib/datepicker.php)
+     *   
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, input + label
      */
     public static function input_date($name, $value, $label, $options=array()){
         
-        $inputClickEvent = gOpt('inputClickEvent', $options, false);
+        //$inputClickEvent = gOpt('inputClickEvent', $options, false);
         $required = gOpt('required', $options, false);
         $text_add = gOpt('text_add', $options, null);
         $datepickers = gOpt('datepickers', $options, []);
+        // Grid
+        $additional_class = gOpt('additional_class', $options, null);
+        $form_inline = gOpt('form_inline', $options, false);
+        $custom_folder = gOpt('custom_folder', $options, null);
+        $custom_file = gOpt('custom_file', $options, null);
         
         $options['id'] = $name;
         $options['size'] = 10;
@@ -232,25 +509,31 @@ class Input {
         $options['pattern'] = "^\d\d/\d\d/\d\d\d\d$";
         $options['hint'] = _("dd/mm/yyyy");
         
-        $buffer = "<div class=\"form-row\">";
-        $buffer .= self::label($name, $label, $required);
-        
         if(is_array($label)) {
-            $options['helptext'] = array(
+            $helptext = self::setHelper(array(
                 'title' => isset($label['label']) ? $label['label'] : $label[0],
                 'text' => isset($label['description']) ? $label['description'] : $label[1]
-            );
+            ));
         }
-        $buffer .= self::input($name, 'text', $value, $options);
-        
-        if($text_add) {
-            $buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+        else {
+            $helptext = null;
         }
-        $buffer .= "</div>";
         
-        $buffer .= \Gino\getDatePicker($name, $datepickers);
+        $input = self::input($name, 'text', $value, $options);
         
-        return $buffer;
+        $view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_date', $custom_file, $form_inline));
+        $dict = [
+            'additional_class' => $additional_class,
+            'label_for' => $name,
+            'label_string' => self::setLabelString($label),
+            'label_class' => self::setLabelClasses($required),
+            'input' => $input,
+            'text_add' => $text_add,
+            'helper' => $helptext,
+            'datepicker' => \Gino\getDatePicker($name, $datepickers)
+        ];
+        
+        return $view->render($dict);
     }
     
     /**
@@ -270,6 +553,11 @@ class Input {
      *   - @b trnsl (boolean): attiva la traduzione
      *   - @b trnsl_id (integer): valore id del record del modello
      *   - @b trsnl_table (string): nome della tabella con il campo da tradurre
+     *   
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, textarea + label
      */
     public static function textarea_label($name, $value, $label, $options=array()){
@@ -277,31 +565,44 @@ class Input {
     	$required = gOpt('required', $options, false);
     	$cols = gOpt('cols', $options, null);
     	$text_add = gOpt('text_add', $options, null);
-    	
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
+    	// Translations
     	$trnsl = gOpt('trnsl', $options, false);
     	$trnsl_id = gOpt('trnsl_id', $options, null);
     	$trnsl_table = gOpt('trnsl_table', $options, null);
     	
-    	$buffer = "<div class=\"form-row\">";
-    	$buffer .= self::label($name, $label, $required)."\n";
-    
     	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
+    	    $options['helptext'] = array(
+    	        'title' => isset($label['label']) ? $label['label'] : $label[0],
+    	        'text' => isset($label['description']) ? $label['description'] : $label[1]
+    	    );
     	}
-    	$buffer .= self::textarea($name, $value, $options);
+    	
+    	$input = self::textarea($name, $value, $options);
+    	
     	if($trnsl && $trnsl_id && $trnsl_table) {
-    		$buffer .= Form::formFieldTranslation('textarea', $trnsl_table, $name, $trnsl_id, $cols);
+    	    $trnsl_input = Form::formFieldTranslation('textarea', $trnsl_table, $name, $trnsl_id, $cols);
     	}
-    
-    	if($text_add) {
-    		$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+    	else {
+    	    $trnsl_input = null;
     	}
-    	$buffer .= "</div>";
-    
-    	return $buffer;
+    	
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_textarea', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'label_for' => $name,
+    	    'label_string' => self::setLabelString($label),
+    	    'label_class' => self::setLabelClasses($required),
+    	    'input' => $input,
+    	    'trnsl_input' => $trnsl_input,
+    	    'text_add' => $text_add
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
@@ -358,11 +659,10 @@ class Input {
     	$text_add = gOpt('text_add', $options, null);
     	$img_preview = gOpt('img_preview', $options, null);
     	$form_id = gOpt('form_id', $options, null);
-    	
+    	// Translations
     	$trnsl = gOpt('trnsl', $options, false);
     	$trnsl_id = gOpt('trnsl_id', $options, null);
     	$trnsl_table = gOpt('trnsl_table', $options, null);
-    	
     	
     	if($ckeditor && !$id) $id = $name;
     
@@ -371,7 +671,7 @@ class Input {
     	$textarea = "<textarea name=\"$name\" ";
     	$textarea .= $id ? "id=\"$id\" " : "";
     	$textarea .= $required ? "required=\"required\" ":"";
-    	$textarea .= $classField ? "class=\"$classField\" ":"";
+    	$textarea .= self::setInputClasses('textarea', $classField);    ////////////////////////////////////////////
     	$textarea .= $rows ? "rows=\"$rows\" ":"";
     	$textarea .= $cols ? "cols=\"$cols\" ":"";
     	$textarea .= $readonly ? "readonly=\"readonly\" ":"";
@@ -379,7 +679,7 @@ class Input {
     	$textarea .= $other ? $other." ":"";
     	$textarea .= ">";
     	$textarea .= "$value</textarea>";
-    
+        
     	if($ckeditor)
     	{
     		$label = gOpt('label', $options, null);
@@ -389,38 +689,42 @@ class Input {
     		$width = gOpt('width', $options, null);
     		$height = gOpt('height', $options, null);
     		
+    		$text_note = null;
+    		$previewer = null;
+    		$trnsl_input = null;
+    		
     		if($ckeditor_container)
     		{
-    			$text_note = '';
     			if($notes) {
-    				$text_note .= "[Enter] "._("inserisce un &lt;p&gt;");
+    				$text_note = "[Enter] "._("inserisce un &lt;p&gt;");
     				$text_note .= " - [Shift+Enter] "._("inserisce un &lt;br&gt;");
     			}
-    
-    			$buffer .= "<div class=\"form-row\">";
-    			$buffer .= "<div class=\"form-ckeditor\">\n";
-    			$buffer .= self::label($name, $label, $required);
     			
-    			if($text_note) $buffer .= "<div>".$text_note."</div>";
-    			if($img_preview) $buffer .= self::imagePreviewer();
-    		}
-    		 
-    		$buffer .= $textarea;
-    		 
-    		$buffer .= self::editorHtml($name, $value, array('toolbar'=>$ckeditor_toolbar, 'width'=>$width, 'height'=>$height));
-    		 
-    		if($ckeditor_container)
-    		{
+    			if($img_preview) {
+    			    $previewer = self::imagePreviewer();
+    			}
+    			
     			if($trnsl && $trnsl_id && $trnsl_table) {
-    				$buffer .= Form::formFieldTranslation('editor', $trnsl_table, $name, $trnsl_id, $width, $ckeditor_toolbar);
+    			    $trnsl_input = Form::formFieldTranslation('editor', $trnsl_table, $name, $trnsl_id, $width, $ckeditor_toolbar);
     			}
-    
-    			if($text_add) {
-    				$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
-    			}
-    			$buffer .= "</div>\n";
-    			$buffer .= "</div>\n";
     		}
+    		
+    		$input = $textarea;
+    		$input .= self::editorHtml($name, $value, array('toolbar' => $ckeditor_toolbar, 'width' => $width, 'height' => $height));
+    		
+    		$view = new View(self::$_view_folder, 'input_ckeditor');
+    		$dict = [
+    		    'text_note' => $text_note,
+    		    'img_previewer' => $previewer,
+    		    'label_for' => $name,
+    		    'label_string' => self::setLabelString($label),
+    		    'label_class' => self::setLabelClasses($required),
+    		    'input' => $input,
+    		    'trnsl_input' => $trnsl_input,
+    		    'text_add' => $text_add
+    		];
+    		
+    		$buffer .= $view->render($dict);
     	}
     	else
     	{
@@ -584,38 +888,66 @@ class Input {
      * @param array $options array associativo di opzioni
      *   opzioni del metodo checkbox()
      *   opzioni specifiche
-     *     - @b required (boolean): campo obbligatorio (default false)
-     *     - @b text_add (string): testo da aggiungere dopo il checkbox
+     *   - @b required (boolean): campo obbligatorio (default false)
+     *   - @b text_add (string): testo da aggiungere dopo il checkbox
+     *   - @b inline (boolean): default false
+     *   - @b show_label (boolean): default false
+     *   - @b return_string (boolean): default false
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, input + label
      */
     public static function checkbox_label($name, $checked, $value, $label, $options=array()){
     
     	$required = gOpt('required', $options, false);
     	$text_add = gOpt('text_add', $options, null);
+    	$inline = gOpt('inline', $options, false);
+    	$show_label = gOpt('show_label', $options, false);
+    	$return_string = gOpt('return_string', $options, false);
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
     	
-    	$buffer = "<div class=\"form-row\">";
-    	$buffer .= self::label($name, $label, $required)."\n";
-    	$buffer .= self::checkbox($name, $checked, $value, $options);
+    	$options['return_string'] = $return_string;
+    	$options['show_label'] = $show_label;
+    	$options['label'] = $label;
+    	$options['inline'] = $inline;
+    	$input = self::checkbox($name, $checked, $value, $options);
     	
-    	if($text_add) {
-    		$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
-    	}
-    	$buffer .= "</div>\n";
-    	return $buffer;
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_radio', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    // the legend parameters are the same as the label
+    	    'legend_string' => self::setLabelString($label),
+    	    'legend_class' => self::setLabelClasses($required),
+    	    'checkboxes' => $input,
+    	    'inline' => $inline,
+    	    'text_add' => $text_add
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
-     * @brief Input checkbox
+     * @brief Input (single) checkbox
      *
      * @param string $name nome input
      * @param boolean $checked valore selezionato
-     * @param mixed    $value valore del tag input
+     * @param mixed $value valore del tag input
      * @param array $options array associativo di opzioni
      *   - @b id (string): valore ID del tag input
      *   - @b classField (string): nome della classe del tag input
      *   - @b js (string): javascript
      *   - @b other (string): altro nel tag
-     * @return widget html
+     *   - @b show_label (boolean): default true
+     *   - @b label (mixed): string or array
+     *   - @b return_string (boolean): default true
+     * @return mixed, array [input=>string, label=>string] or string
      */
     public static function checkbox($name, $checked, $value, $options=array()){
     
@@ -623,15 +955,39 @@ class Input {
     	$classField = gOpt('classField', $options, null);
     	$js = gOpt('js', $options, null);
     	$other = gOpt('other', $options, null);
+    	$show_label = gOpt('show_label', $options, true);
+    	$label = gOpt('label', $options, null);
+    	$return_string = gOpt('return_string', $options, true);
     	
-    	$buffer = "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked ? "checked=\"checked\"":"")." ";
-    	$buffer .= $id ? "id=\"$id\" ":"";
-    	$buffer .= $classField ? "class=\"$classField\" ":"";
-    	$buffer .= $js ? $js." ":"";
-    	$buffer .= $other ? $other." ":"";
-    	$buffer .= "/>";
-    
-    	return $buffer;
+    	$input = "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked ? "checked=\"checked\"":"")." ";
+    	$input .= $id ? "id=\"$id\" ":"";
+    	$input .= self::setInputClasses('checkbox', $classField);
+    	$input .= $js ? $js." ":"";
+    	$input .= $other ? $other." ":"";
+    	$input .= "/>";
+    	
+    	// Set Label
+    	$label_string = null;
+    	
+    	if((is_array($label) && count($label)) or $label) {
+    	    $label_string = self::setLabelString($label);
+    	    
+    	    if($show_label) {
+    	        $label_string = "<label class=\"form-check-label\" for=\"$id\">$label_string</label>";
+    	    }
+    	}
+    	// /Label
+        
+    	if($return_string) {
+    	    $buffer = $input;
+    	    if($label_string) {
+    	        $buffer .= ' '.$label_string;
+    	    }
+    	    return $buffer;
+    	}
+    	else {
+    	    return ['input' => $input, 'label' => $label];
+    	}
     }
     
     /**
@@ -649,6 +1005,11 @@ class Input {
      *   - @b preview (boolean): mostra l'anteprima di una immagine (default false)
      *   - @b previewSrc (string): percorso relativo dell'immagine
      *   - @b text_add (string): testo da aggiungere in coda al tag input
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, input file + label
      */
     public static function input_file($name, $value, $label, $options=array()){
@@ -658,39 +1019,44 @@ class Input {
     	$preview = gOpt('preview', $options, false);
     	$previewSrc = gOpt('previewSrc', $options, null);
     	$text_add = gOpt('text_add', $options, null);
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
     
     	$text = (is_array($valid_extension) AND sizeof($valid_extension) > 0) ? "[".(count($valid_extension) ? implode(', ', $valid_extension) : _("non risultano formati permessi."))."]":"";
     	$finLabel = array();
     	$finLabel['label'] = is_array($label) ? $label[0]:$label;
     	$finLabel['description'] = (is_array($label) && $label[1]) ? $text."<br/>".$label[1]:$text;
-    
-    	$GFORM = "<div class=\"form-row\">";
-    	$GFORM .= self::label($name, $finLabel, $required)."\n";
-    
+        
     	if(is_array($finLabel)) {
-    		$options['helptext'] = array(
-    			'title' => _('Formati consentiti'),
-    			'text' => $finLabel['description']
-    		);
+    		$helptext = self::setHelper(array(
+    		    'title' => _('Formati consentiti'),
+    		    'text' => $finLabel['description']
+    		));
     	}
-    
-    	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
+    	else {
+    	    $helptext = null;
     	}
-    
+    	
+    	$options['input_type'] = 'file';
+    	$checkbox_delete = null;
+    	$value_link = null;
+        
     	if(!empty($value)) {
     		
     		if($preview && $previewSrc) {
     			if(self::isImage($previewSrc)) {
-    				$value_link = "<a href=\"$previewSrc\" 
-    				class=\"modal-overlay\" 
-    				data-title=\""._("Anteprima immagine")."\" 
-    				data-class=\"autoWidth\" 
-    				data-buttons=\"[{className:'right modal-close','text':'Close'}]\" 
-    				data-esc-close=\"true\">$value</a>";
+    				
+    			    $modal_body = "<img src=\"$previewSrc\" />";
+    			    
+    			    $modal = new \Gino\Modal([
+    			        'modal_id' => $name.'ModalCenter',
+    			        'modal_title_id' => $name.'ModalCenterTitle',
+    			    ]);
+    				$value_link = $modal->buttonTrigger($value, ['button_class' => 'btn btn-secondary btn-sm']);
+    				$value_link .= $modal->render(_("Media"), $modal_body);
     			}
     			else {
     				$value_link = sprintf('<a target="_blank" href="%s">%s</a>', $previewSrc, $value);
@@ -703,29 +1069,42 @@ class Input {
     		// Ridefinizione dell'opzione required
     		$options['required'] = FALSE;
     		
-    		$GFORM .= self::input($name, 'file', $value, $options);
-    		$GFORM .= "<div class=\"form-file-check\">";
+    		$input = self::input($name, 'file', $value, $options);
+    		
+    		$form_file_check = true;
     		if(!$required) {
-    			$GFORM .= "<input type=\"checkbox\" name=\"check_del_$name\" value=\"ok\" />";
-    			$GFORM .= " "._("elimina")." ";
+    			$checkbox_delete = "<input type=\"checkbox\" name=\"check_del_$name\" value=\"ok\" />";
     		}
-    		$GFORM .= _("file caricato").": <b>$value_link</b>";
-    		$GFORM .= "</div>";
-    		$GFORM .= $text_add;
     	}
     	else
     	{
-    		$GFORM .= self::input($name, 'file', $value, $options);
-    		$GFORM .= $text_add;
+    	    $form_file_check = false;
+    	    $input = self::input($name, 'file', $value, $options);
     	}
     
     	if($value) {
-    		$GFORM .= self::hidden('old_'.$name, $value);
+    		$input_hidden = self::hidden('old_'.$name, $value);
     	}
-    
-    	$GFORM .= "</div>";
-    
-    	return $GFORM;
+    	else {
+    	    $input_hidden = null;
+    	}
+    	
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_file', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'label_for' => $name,
+    	    'label_string' => self::setLabelString($finLabel['label']),
+    	    'label_class' => self::setLabelClasses($required),
+    	    'input' => $input,
+    	    'form_file_check' => $form_file_check,
+    	    'checkbox_delete' => $checkbox_delete,
+    	    'link_file' => $value_link,
+    	    'input_hidden' => $input_hidden,
+    	    'text_add' => $text_add,
+    	    'helper' => $helptext
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
@@ -759,7 +1138,12 @@ class Input {
      *   - @b required (string): campo obbligatorio (default false)
      *   - @b checkPosition (stringa): posizionamento del checkbox (left|right)
      *   - @b encode_html (boolean): attiva la conversione del testo dal database ad html (default TRUE)
-     *   - @b add_related (array): array(title=>string, id=>int, url=>string)
+     *   - @b add_related (array): @see SetAddRelated()
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      *   opzioni delle traduzioni
      *   - @b table (string): nome della tabella con il campo da tradurre
      *   - @b field (mixed): nome o nomi dei campi da recuperare
@@ -779,6 +1163,11 @@ class Input {
     	$checkPosition = gOpt('checkPosition', $options, null);
     	$encode_html = gOpt('encode_html', $options, true);
     	$add_related = gOpt('add_related', $options, null);
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
     	
     	$table = gOpt('table', $options, null);
     	$field = gOpt('field', $options, null);
@@ -788,54 +1177,53 @@ class Input {
     		$checked = array();
     	}
     	
-    	$GFORM = "<div class=\"form-row\">";
-    	$GFORM .= self::label($name, $label, $required)."\n";
-    
     	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
+    	    $helptext = self::setHelper(array(
+    	        'title' => isset($label['label']) ? $label['label'] : $label[0],
+    	        'text' => isset($label['description']) ? $label['description'] : $label[1]
+    	    ));
     	}
-    
-    	$GFORM .= "<div class=\"form-multicheck\">\n";
-    	$GFORM .= "<table class=\"table table-hover table-striped table-bordered\">\n";
+    	else {
+    	    $helptext = null;
+    	}
+        
+    	$multicheck = "<div class=\"form-multicheck\">\n";
+    	$multicheck .= "<table class=\"table table-hover table-striped table-bordered\">\n";
     
     	if(is_string($data))
     	{
     		$db = Db::instance();
-    		$a = $db->select(null, null, null, array('custom_query'=>$data));
+    		$a = $db->select(null, null, null, array('custom_query' => $data));
     		if(sizeof($a) > 0)
     		{
-    			$GFORM .= "<thead>";
+    		    $multicheck .= "<thead>";
     			if(sizeof($data) > 10) {
-    				$GFORM .= "<tr>";
-    				$GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
-    				$GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
-    				$GFORM .= "</tr>";
+    			    $multicheck .= "<tr>";
+    			    $multicheck .= "<th class=\"light\">"._("Filtra")."</th>";
+    			    $multicheck .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+    			    $multicheck .= "</tr>";
     			}
-    			$GFORM .= "<tr>";
-    			$GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-    			$GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
-    			$GFORM .= "</tr>";
-    			$GFORM .= "</thead>";
+    			$multicheck .= "<tr>";
+    			$multicheck .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
+    			$multicheck .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+    			$multicheck .= "</tr>";
+    			$multicheck .= "</thead>";
     			foreach($a AS $b)
     			{
     				$b = array_values($b);
     				$val1 = $b[0];
     				$val2 = $b[1];
-    
-    				if(in_array($val1, $checked)) $check = "checked=\"checked\""; else $check = '';
-    
-    				$GFORM .= "<tr>\n";
-    
-    				$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$val1\" $check";
-    				$checkbox .= $id ?"id=\"$id\" ":"";
-    				$checkbox .= $classField ? "class=\"$classField\" ":"";
-    				$checkbox .= $readonly ? "readonly=\"readonly\" ":"";
-    				$checkbox .= $js ? $js." ":"";
-    				$checkbox .= $other ? $other." ":"";
-    				$checkbox .= " />";
+                    
+    				if(in_array($val1, $checked)) $check = true; else $check = false;
+    				
+    				$checkbox = self::checkbox($name, $check, $val1, [
+    				    'classField' => $classField, 
+    				    'readonly' => $readonly,
+    				    'id' => $id, 
+    				    'js' => $js, 
+    				    'other' => $other, 
+    				    'show_label' => false
+    				]);
     
     				if(is_array($field) && count($field))
     				{
@@ -871,88 +1259,95 @@ class Input {
     				else $value_name = '';
     
     				if($encode_html && $value_name) $value_name = htmlChars($value_name);
-    
+    				
+    				$multicheck .= "<tr>\n";
+    				
     				if($checkPosition == 'left') {
-    					$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-    					$GFORM .= "<td>".$value_name."</td>";
+    				    $multicheck .= "<td style=\"text-align:left\">$checkbox</td>";
+    				    $multicheck .= "<td>".$value_name."</td>";
     				}
     				else {
-    					$GFORM .= "<td>".$value_name."</td>";
-    					$GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
+    				    $multicheck .= "<td>".$value_name."</td>";
+    				    $multicheck .= "<td style=\"text-align:right\">$checkbox</td>";
     				}
-    				$GFORM .= "</tr>\n";
+    				$multicheck .= "</tr>\n";
     			}
     		}
-    		else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
+    		else {
+    		    $multicheck .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
+    		}
     	}
     	elseif(is_array($data))
     	{
     		$i = 0;
     		if(sizeof($data)>0)
     		{
-    			$GFORM .= "<thead>";
+    		    $multicheck .= "<thead>";
     			if(sizeof($data) > 10) {
-    				$GFORM .= "<tr>";
-    				$GFORM .= "<th class=\"light\">"._("Filtra")."</th>";
-    				$GFORM .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
-    				$GFORM .= "</tr>";
+    			    $multicheck .= "<tr>";
+    			    $multicheck .= "<th class=\"light\">"._("Filtra")."</th>";
+    			    $multicheck .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+    			    $multicheck .= "</tr>";
     			}
-    			$GFORM .= "<tr>";
-    			$GFORM .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-    			$GFORM .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
-    			$GFORM .= "</tr>";
-    			$GFORM .= "</thead>";
+    			$multicheck .= "<tr>";
+    			$multicheck .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
+    			$multicheck .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+    			$multicheck .= "</tr>";
+    			$multicheck .= "</thead>";
     			foreach($data as $k=>$v)
     			{
-    				$check = in_array($k, $checked)? "checked=\"checked\"": "";
     				$value_name = $v;
     				if($encode_html && $value_name) $value_name = htmlChars($value_name);
     
-    				$GFORM .= "<tr>\n";
-    
-    				$checkbox = "<input type=\"checkbox\" name=\"$name\" value=\"$k\" $check";
-    				$checkbox .= $id ? "id=\"$id\" ":"";
-    				$checkbox .= $classField ? "class=\"$classField\" ":"";
-    				$checkbox .= $readonly ? "readonly=\"readonly\" ":"";
-    				$checkbox .= $js ? $js." ":"";
-    				$checkbox .= $other ? $other." ":"";
-    				$checkbox .= " />";
-    
+    				if(in_array($k, $checked)) $check = true; else $check = false;
+    				
+    				$checkbox = self::checkbox($name, $check, $k, [
+    				    'classField' => $classField,
+    				    'readonly' => $readonly,
+    				    'id' => $id,
+    				    'js' => $js,
+    				    'other' => $other,
+    				    'show_label' => false
+    				]);
+    				
+    				$multicheck .= "<tr>\n";
+    				
     				if($checkPosition == 'left') {
-    					$GFORM .= "<td style=\"text-align:left\">$checkbox</td>";
-    					$GFORM .= "<td>$value_name</td>";
+    				    $multicheck .= "<td style=\"text-align:left\">$checkbox</td>";
+    				    $multicheck .= "<td>$value_name</td>";
     				}
     				else {
-    					$GFORM .= "<td>$value_name</td>";
-    					$GFORM .= "<td style=\"text-align:right\">$checkbox</td>";
+    				    $multicheck .= "<td>$value_name</td>";
+    				    $multicheck .= "<td style=\"text-align:right\">$checkbox</td>";
     				}
     
-    				$GFORM .= "</tr>\n";
+    				$multicheck .= "</tr>\n";
     
     				$i++;
     			}
-    			$GFORM .= "</table>\n";
+    			$multicheck .= "</table>\n";
     		}
-    		else $GFORM .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
+    		else {
+    		    $multicheck .= "<tr><td>"._("non risultano scelte disponibili")."</td></tr>";
+    		}
     	}
     
-    	$GFORM .= "</table>\n";
-    	$GFORM .= "</div>\n";
+    	$multicheck .= "</table>\n";
+    	$multicheck .= "</div>\n";
     
-    	if(isset($options['helptext'])) {
-    		$title = $options['helptext']['title'];
-    		$text = $options['helptext']['text'];
-    		$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
-    	}
-    	if(is_array($add_related) && count($add_related)) {
-    		$title = $add_related['title'];
-    		$id = $add_related['id'];
-    		$url = $add_related['url'];
-    		$GFORM .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
-    	}
-    	$GFORM .= "</div>\n";
-    
-    	return $GFORM;
+    	$add_related = self::setAddRelated($add_related);
+    	
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_mcheckbox', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'legend_string' => self::setLabelString($label),
+    	    'legend_class' => self::setLabelClasses($required),
+    	    'checkboxes' => $multicheck,
+    	    'add_related' => $add_related,
+    	    'helper' => $helptext
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
@@ -964,20 +1359,31 @@ class Input {
      * @param string $value valore attivo
      * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
      * @param mixed $default valore di default
-     * @param mixed $label testo <label>
+     * @param mixed $label testo label/legend
      * @param array $options
      *   array associativo di opzioni (aggiungere quelle del metodo radio())
      *   - @b required (boolean): campo obbligatorio (default false)
      *   - @b text_add (boolean): testo da aggiungere dopo i pulsanti radio
+     *   - @b inline (boolean): pulsanti radio inline
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, input radio + label
      */
     public static function radio_label($name, $value, $data, $default, $label, $options=array()){
     	
     	$required = gOpt('required', $options, false);
     	$text_add = gOpt('text_add', $options, null);
+    	$inline = gOpt('inline', $options, false);
+    	$return_string = gOpt('return_string', $options, false);
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
     	
-    	$GFORM = "<div class=\"form-row\">";
-    	$GFORM .= self::label($name, $label, $required)."\n";
     	if(is_array($label)) {
     		$options['helptext'] = array(
     			'title' => isset($label['label']) ? $label['label'] : $label[0],
@@ -985,12 +1391,21 @@ class Input {
     		);
     	}
     	
-    	$GFORM .= self::radio($name, $value, $data, $default, $options);
-    	if($text_add) {
-    		$GFORM .= "<div class=\"form-textadd\">".$text_add."</div>";
-    	}
-    	$GFORM .= "</div>\n";
-    	return $GFORM;
+    	$options['return_string'] = $return_string;
+    	$options['inline'] = $inline;
+    	$input = self::radio($name, $value, $data, $default, $options);
+    	
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_radio', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'legend_string' => self::setLabelString($label),
+    	    'legend_class' => self::setLabelClasses($required),
+    	    'radios' => $input,
+    	    'inline' => $inline,
+    	    'text_add' => $text_add
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
@@ -998,17 +1413,18 @@ class Input {
      *
      * @param string $name nome input
      * @param string $value valore attivo
-     * @param array $data elementi dei pulsanti radio (array(value=>text[,]))
+     * @param array $data elementi dei pulsanti radio (array(value=>label[,]))
      * @param mixed $default valore di default
      * @param array $options
      *     array associativo di opzioni
-     *     - @b aspect (string): col valore 'v' gli elementi vengono messi uno sotto l'altro
      *     - @b id (string): valore ID del tag <input>
      *     - @b classField (string): valore CLASS del tag <input>
      *     - @b js (string): javascript
      *     - @b other (string): altro nel tag
      *     - @b helptext (array)
-     * @return widget html
+     *     - @b inline (boolean): pulsanti radio inline (default false)
+     *     - @b return_string (boolean): default true
+     * @return mixed, array or string
      */
     public static function radio($name, $value, $data, $default, $options=array()){
     
@@ -1016,39 +1432,59 @@ class Input {
     	$classField = gOpt('classField', $options, null);
     	$js = gOpt('js', $options, null);
     	$other = gOpt('other', $options, null);
-    	$aspect = gOpt('aspect', $options, null);
     	$helptext = gOpt('helptext', $options, null);
+    	$inline = gOpt('inline', $options, false);
+    	$return_string = gOpt('return_string', $options, true);
     	
-    	$GFORM = '';
+    	$buffer = '';
     	$comparison = is_null($value) ? $default : $value;
-    	$space = $aspect == 'v'? "<br />" : "&nbsp;";
-    	$container = $aspect == 'v'? TRUE : FALSE;
-    
-    	if($container) {
-    		$GFORM .= "<div class=\"form-radio-group\">";
-    	}
-    	if(is_array($data)) {
-    		$i=0;
+        
+    	$radios = [];
+    	
+    	if(is_array($data) && count($data)) {
+    		$i = 0;
     		foreach($data AS $k => $v) {
-    			$GFORM .= ($i?$space:'')."<input type=\"radio\" name=\"$name\" value=\"$k\" ".(!is_null($comparison) && $comparison==$k?"checked=\"checked\"":"")." ";
-    			$GFORM .= $id ? "id=\"$id\" ":"";
-    			$GFORM .= $classField ? "class=\"$classField\" ":"";
-    			$GFORM .= $js ? $js." ":"";
-    			$GFORM .= $other ? $other." ":"";
-    			$GFORM .= "/> ".$v;
+    		    
+    		    $input = "<input type=\"radio\" name=\"$name\" value=\"$k\" ".(!is_null($comparison) && $comparison==$k?"checked=\"checked\"":"")." ";
+    		    $input .= $id ? "id=\"$id\" ":"";
+    		    $input .= self::setInputClasses('radio', $classField);    ////////////////////////////////////////////
+    		    $input .= $js ? $js." ":"";
+    		    $input .= $other ? $other." ":"";
+    		    $input .= "/>";
+    		    
+    		    $label = "<label class=\"form-check-label\" for=\"$id\">$v</label>";
+    		    
+    		    $radios[$i] = ['input' => $input, 'label' => $label]; // 'disabled' => 
     			$i++;
     		}
     	}
-    	if(is_array($helptext) && count($helptext)) {
-    		$title = $helptext['title'];
-    		$text = $helptext['text'];
-    		$GFORM .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    	
+    	if($return_string) {
+    	    
+    	    $buffer = '';
+    	    if(count($radios)) {
+    	        foreach ($radios AS $radio) {
+    	            $buffer .= $radio['input'].' '.$radio['label'];
+    	            if($inline) {
+    	                $buffer .= "&nbsp;";
+    	            }
+    	            else {
+    	                $buffer .= "<br />";
+    	            }
+    	        }
+    	    }
+    	    
+    	    if(is_array($helptext) && count($helptext)) {
+    	        $buffer .= self::setHelper(array(
+    	            'title' => $helptext['title'],
+    	            'text' => $helptext['text']
+    	        ));
+    	    }
+    	    return $buffer;
     	}
-    	if($container) {
-    		$GFORM .= "</div>";
+    	else {
+    	    return $radios;
     	}
-    
-    	return $GFORM;
     }
     
     /**
@@ -1064,28 +1500,53 @@ class Input {
      *   opzioni specifiche
      *   - @b required (boolean): campo obbligatorio (default false)
      *   - @b text_add (string): testo da aggiungere dopo il select
+     *   - @b add_related (array): array, @see setAddRelated()
+     *   // Grid
+     *   - @b additional_class (string)
+     *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
+     *   - @b custom_folder (string): percorso alla directory personalizzata della vista
+     *   - @b custom_file (string): file personalizzato della vista
      * @return string, select + label
      */
     public static function select_label($name, $value, $data, $label, $options=array()) {
     
     	$required = gOpt('required', $options, false);
     	$text_add = gOpt('text_add', $options, null);
+    	$add_related = gOpt('add_related', $options, null);
+    	// Grid
+    	$additional_class = gOpt('additional_class', $options, null);
+    	$form_inline = gOpt('form_inline', $options, false);
+    	$custom_folder = gOpt('custom_folder', $options, null);
+    	$custom_file = gOpt('custom_file', $options, null);
     	
-    	$buffer = "<div class=\"form-row\">";
-    	$buffer .= self::label($name, $label, $required)."\n";
     	if(is_array($label)) {
-    		$options['helptext'] = array(
-    			'title' => isset($label['label']) ? $label['label'] : $label[0],
-    			'text' => isset($label['description']) ? $label['description'] : $label[1]
-    		);
+    		$helptext = self::setHelper(array(
+    		    'title' => isset($label['label']) ? $label['label'] : $label[0],
+    		    'text' => isset($label['description']) ? $label['description'] : $label[1]
+    		));
     	}
-    	$buffer .= self::select($name, $value, $data, $options);
-    	if($text_add) {
-    		$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+    	else {
+    	    $helptext = null;
     	}
-    	$buffer .= "</div>";
-    
-    	return $buffer;
+    	
+    	$add_related = self::setAddRelated($add_related);
+    	$options['add_related'] = null;
+    	
+    	$input = self::select($name, $value, $data, $options);
+    	
+    	$view = new View(self::setViewFolder($custom_folder), self::setViewFile('input_select', $custom_file, $form_inline));
+    	$dict = [
+    	    'additional_class' => $additional_class,
+    	    'label_for' => $name,
+    	    'label_string' => self::setLabelString($label),
+    	    'label_class' => self::setLabelClasses($required),
+    	    'input' => $input,
+    	    'text_add' => $text_add,
+    	    'helper' => $helptext,
+    	    'add_related' => $add_related
+    	];
+    	
+    	return $view->render($dict);
     }
     
     /**
@@ -1111,7 +1572,7 @@ class Input {
      *     - false (default), visualizza la stringa fino alla parola precedente a quella che ricade nel numero massimo di caratteri impostato
      *     - true, mostra la stringa fino al numero massimo di caratteri
      *   - @b helptext (array)
-     *   - @b add_related (array): array(title=>string, id=>int, url=>string)
+     *   - @b add_related (array): array, @see setAddRelated()
      *   - @b disabled (boolean): disabilita la selezione dell'input
      * @return widget html
      */
@@ -1137,7 +1598,7 @@ class Input {
     	$buffer .= $id ? "id=\"$id\" " : "";
     	$buffer .= $required ? "required " : "";
     	$buffer .= $disabled ? "disabled " : '';
-    	$buffer .= $classField ? "class=\"$classField\" " : "";
+    	$buffer .= self::setInputClasses('select', $classField);    ////////////////////////////////////////////
     	$buffer .= $size ? "size=\"$size\" " : "";
     	$buffer .= $multiple ? "multiple=\"multiple\" " : "";
     	$buffer .= $js ? $js." " : "";
@@ -1187,20 +1648,19 @@ class Input {
     	}
     
     	$buffer .= "</select>\n";
-    
+        
     	if(is_array($helptext) && count($helptext)) {
-    		$title = $helptext['title'];
-    		$text = $helptext['text'];
-    		$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    	    $buffer .= self::setHelper(array(
+    	        'title' => $helptext['title'],
+    	        'text' => $helptext['text']
+    	    ));
     	}
-    
-    	if(is_array($add_related) && count($add_related)) {
-    		$title = $add_related['title'];
-    		$id = $add_related['id'];
-    		$url = $add_related['url'];
-    		$buffer .= " <a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
+    	
+    	$add_related = self::setAddRelated($add_related);
+    	if($add_related) {
+    	    $buffer .= ' '.$add_related;
     	}
-    
+        
     	return $buffer;
     }
 }

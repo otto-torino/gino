@@ -71,7 +71,7 @@ class Javascript {
     	
     	$onclick = "onclick=\"Asset.javascript('https://maps.google.com/maps/api/js?".$gmk."sensor=true&callback=convert')\"";
     	
-    	$convert_button = \Gino\Input::input($button_id, 'button', _("converti"), array("id" => $button_id, "classField" => "generic", "js" => $onclick));
+    	$convert_button = \Gino\Input::input($button_id, 'button', _("converti"), array("id" => $button_id, "classField" => "btn btn-outline-primary", "js" => $onclick));
     	
     	$input = \Gino\Input::input_label($map_id, 'text', '', $label,
     		array("size" => 40, "maxlength" => 200, "id" => $map_id, "text_add" => "<p>".$convert_button."</p>"));

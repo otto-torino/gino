@@ -15,7 +15,7 @@ namespace Gino\App\Menu;
  * - **admin_voice**: voce di menu che rimanda all'area amministrativa
  * - **logout_voice**: voce di menu che effettua il logout
  *
- * @copyright 2005-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2005-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -23,41 +23,48 @@ namespace Gino\App\Menu;
 <? //@cond no-doxygen ?>
 <?php
 if(!function_exists('\Gino\App\Menu\printVoice')) {
-	function printVoice($v, $selected) {
-    
-		$active = $selected == $v['id'] ? true : false;
-  	
-		if($v['url']) {
-			$url = $v['url'];
-		} else {
-			$url= '#';
-		}
-		if($v['type'] == 'ext') {
-			$ext = "rel=\"external\"";
-		} else {
-			$ext = '';
-		}
-    
-		if(!count($v['sub'])) {
-			return "<li class=\"".($active ? 'active' : '')."\"><a href=\"$url\" $ext>".$v['label']."</a></li>\n";
-		}
-		else {
-			$buffer = "<li class=\"dropdown".($active ? ' active' : '')."\" >";
-			$buffer .= "<a href=\"$url\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">".$v['label']." 
- 			<span class=\"caret\"></span></a>";
-
-			// submenu
-			$buffer .= "<ul class=\"dropdown-menu\">\n";
-			foreach($v['sub'] as $sv) {
-				$buffer .= printVoice($sv, $selected);
-			}
-			$buffer .= "</ul></li>\n";
-			return $buffer;
-		}
-	}
+    function printVoice($v, $selected, $dropdown_voice=false) {
+        
+        $active = $selected == $v['id'] ? true : false;
+        
+        if($v['url']) {
+            $url = $v['url'];
+        } else {
+            $url= '#';
+        }
+        if($v['type'] == 'ext') {
+            $ext = "rel=\"external\"";
+        } else {
+            $ext = '';
+        }
+        
+        if(!count($v['sub'])) {
+            if($dropdown_voice) {
+                return "<a class=\"dropdown-item\" href=\"$url\" $ext>".$v['label']."</a>\n";
+            }
+            else {
+                return "<li class=\"nav-item".($active ? ' active' : '')."\"><a class=\"nav-link\" href=\"$url\" $ext>".$v['label']."</a></li>\n";
+            }
+        }
+        else {
+            $dropdown_id = "navbarDropdownMenu".$v['id'];
+            $buffer = "<li class=\"nav-item dropdown\" >";
+            $buffer .= "<a href=\"$url\" class=\"nav-link dropdown-toggle\" id=\"$dropdown_id\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+            $buffer .= $v['label']."</a>";
+            
+            // submenu
+            $buffer .= "<div class=\"dropdown-menu\" aria-labelledby=\"$dropdown_id\">\n";
+            foreach($v['sub'] as $sv) {
+                $buffer .= printVoice($sv, $selected, true);
+            }
+            $buffer .= "</div></li>\n";
+            return $buffer;
+        }
+    }
 }
 ?>
-<ul class="nav navbar-nav navbar-left main-menu">
+
+<ul class="navbar-nav main-menu">
 <?php
 $i = 0;
 foreach($tree as $v) {
@@ -65,26 +72,11 @@ foreach($tree as $v) {
 	$i++;
 }
 if($admin_voice) {
-	echo "<li><a href=\"$admin_voice\">"._("Amministrazione")."</a></li>\n";
+    echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"$admin_voice\">"._("Amministrazione")."</a></li>\n";
 }
 if($logout_voice) {
-	echo "<li><a href=\"$logout_voice\">"._("Logout")."</a></li>\n";
+    echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"$logout_voice\">"._("Logout")."</a></li>\n";
 }
 ?>
 </ul>
-
-<script>
-//MooTools
-window.addEvent('domready',function() {
-    Element.prototype.hide = function() {
-        // Do nothing
-    };
-});
-
-if($$('ul.main-menu li.active').length) {
-	$$('ul.main-menu li.active').getParents('li').each(function(li) {
-		li.addClass('active');
-	})
-}
-</script>
 <? // @endcond ?>

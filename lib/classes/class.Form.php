@@ -121,7 +121,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form; occorre definirla nel caso di action form e di verifca del token
-     *   - @b form_class (string): classe del tag form
+     *   - @b form_class (string): classe del tag form; il valore @a form-inline costruisce un form con gli input inline
      *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
      * @throws \Exception se viene rilevato un attacco CSRF
      * @return void, istanza di Gino.Form
@@ -389,7 +389,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form
-     *   - @b form_class (string): nome della classe del tag form
+     *   - @b form_class (string): nome della classe del tag form; il valore @a form-inline costruisce un form con gli input inline
      *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
      *   - @b view_info (boolean): visualizzazione delle informazioni (default @a true)
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
@@ -399,8 +399,9 @@ class Form {
      */
     public function open($action, $upload, $list_required, $options=array()) {
 
-    	// opzioni disponibili richiamando direttamente questo metodo;
-    	// passando dalla classe ModelForm (AdminTable) queste opzioni vengono definite in render() e makeInputForm()
+    	/*
+         * Le opzioni form_id, form_class, verifyToken possono essere impostate istanziando la classe Gino.Form
+         */
     	$form_id = gOpt('form_id', $options, null);
     	$form_class = gOpt('form_class', $options, null);
         $validation = gOpt('validation', $options, null);
@@ -522,7 +523,7 @@ class Form {
 		$captcha = "<div class=\"g-recaptcha\" data-sitekey=\"$site_key\"></div>";
 		
 		if($form_row) {
-			$buffer .= Input::noinput('', $captcha);
+		    $buffer .= Input::placeholderRow('', $captcha);
 		}
 		else {
 			$buffer .= $captcha;
@@ -651,7 +652,9 @@ class Form {
             foreach($langs AS $lang) {
                 $label = htmlChars($lang->label);
                 $code = $lang->language_code.'_'.$lang->country_code;
-                $buffer .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
+                
+                $onclick = "gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$registry->request->absolute_url."&trnsl=1')";
+                $buffer .= Input::linkTranslation($label, $onclick)." &#160;";
                 
                 $first = FALSE;
             }
@@ -885,7 +888,7 @@ class Form {
     			}
     
     			// Input form
-    			$structure[$field] = $build->formElement($this, $options_input);
+    			$structure[$field] = $build->formElement($this, $options_input); ///////////////////////// 'form_inline' => $inline_opt
     			
     			// Form settings 
     			if($build instanceof ManyToManyThroughBuild) {
@@ -976,8 +979,21 @@ class Form {
     	}
     	
     	if(!$only_inputs) {
-    		$save_and_continue = Input::input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-    		$submit = Input::input_label($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
+    		$submit = Input::submit($s_name, $s_value, [
+    		    "classField"=>$s_classField
+    		]);
+    		$save_and_continue = Input::submit('save_and_continue', _('salva e continua la modifica'), [
+    		    "classField"=>$s_classField
+    		]);
+    		
+    		if($popup or !$show_save_and_continue) {
+    		    $submit = $submit;
+    		}
+    		else {
+    		    $submit = $submit.' '.$save_and_continue;
+    		}
+    		
+    		$submit = Input::placeholderRow(null, $submit);
     	}
     	
     	$view = new View($view_folder_form);

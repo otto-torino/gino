@@ -1909,6 +1909,7 @@ class auth extends \Gino\Controller {
         $form = $mform->view(
         	array(
         		'form_id' => 'login',
+        	    'form_class' => 'myform',
         		'show_save_and_continue' => false,
         		'view_info' => false,
         		'view_title' => false,

@@ -34,7 +34,7 @@ require_once('class.MenuVoice.php');
  * @author abidibo abidibo@gmail.com
  * 
  * ##DESCRIZIONE
- * Il menu utilizza il plugin jQuery SmartMenus (@see https://www.smartmenus.org/).
+ * Vengono utilizzate le classi di Bootstrap 4.
  */
 class menu extends \Gino\Controller {
 
@@ -64,7 +64,7 @@ class menu extends \Gino\Controller {
     /**
      * @brief Costruttore
      * @param int $instance id istanza
-     * @return void, istanza di Gino.App.Menu.menu
+     * @return void
      */
     function __construct($instance) {
 
@@ -208,10 +208,6 @@ class menu extends \Gino\Controller {
 
         $session = \Gino\Session::instance();
         $sel_voice = MenuVoice::getSelectedVoice($this->_instance);
-        
-        $this->_registry->addCustomJs($this->_class_www.'/smartmenus/jquery.smartmenus.min.js', array('compress'=>false, 'minify'=>false));
-        $this->_registry->addCustomJs($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.min.js", array('compress'=>false, 'minify'=>false));
-        $this->_registry->addCss($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.css");
         
         $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
         
