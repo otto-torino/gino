@@ -85,19 +85,21 @@ class TagBuild extends Build {
         $db = Db::instance();
         $histogram = GTag::getTagsHistogram($options);
         
-        $max_freq = max($histogram);
-        $max_value = 50;
-        
         $buffer = '<p>';
-        foreach($histogram as $tag => $freq) {
+        if(count($histogram)) {
+            $max_freq = max($histogram);
+            $max_value = 50;
             
-            if($max_freq > $max_value) {
-                $freq = ($freq*$max_value)/$max_freq;
+            foreach($histogram as $tag => $freq) {
+                
+                if($max_freq > $max_value) {
+                    $freq = ($freq*$max_value)/$max_freq;
+                }
+                
+                $font_size = 1 + (0.05 * $freq - 0.2);
+                $font_size = preg_replace("#,#", '.', $font_size);
+                $buffer .= "<span class=\"link\" onclick=\"addTag(this)\" style=\"font-size: ".$font_size."em\">".$tag."</span> ";
             }
-            
-            $font_size = 1 + (0.05 * $freq - 0.2);
-            $font_size = preg_replace("#,#", '.', $font_size);
-            $buffer .= "<span class=\"link\" onclick=\"addTag(this)\" style=\"font-size: ".$font_size."em\">".$tag."</span> ";
         }
         $buffer .= "</p>";
         
