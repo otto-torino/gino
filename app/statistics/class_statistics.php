@@ -3,7 +3,7 @@
  * @file class_statistics.php
  * @brief Contiene la definizione ed implementazione della classe statistics
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,7 +24,7 @@ require_once('class.LogAccess.php');
 /**
  * @brief Gestisce le statistiche del sito: accessi all'area privata e statistiche Google Analytics
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -154,8 +154,8 @@ class statistics extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Analytics'));
-        $link_log_access = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=log_access'), _('Accessi area privata'));
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Analytics')];
+        $link_log_access = ['link' => $this->linkAdmin(array(), 'block=log_access'), 'label' => _('Accessi area privata')];
         $sel_link = $link_dft;
 
         if($block == 'log_access') {
@@ -171,7 +171,7 @@ class statistics extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Centro statistiche'),
             'links' => array($link_log_access, $link_dft),

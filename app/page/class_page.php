@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -85,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -1120,12 +1120,12 @@ class page extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin', 'can_publish', 'can_edit', 'can_edit_single_page'));
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_locale = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=locale'), _('Traduzioni'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_comment = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=comment'), _('Commenti'));
-        $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Contenuti'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_locale = ['link' => $this->linkAdmin(array(), 'block=locale'), 'label' => _('Traduzioni')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_comment = ['link' => $this->linkAdmin(array(), 'block=comment'), 'label' => _('Commenti')];
+        $link_ctg = ['link' => $this->linkAdmin(array(), 'block=ctg'), 'label' => _('Categorie')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Contenuti')];
 
         $sel_link = $link_dft;
 
@@ -1166,7 +1166,7 @@ class page extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Pagine'),
             'links' => $links_array,

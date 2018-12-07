@@ -70,11 +70,11 @@ class layout extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
-        $link_tpl = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template'), _('Template'));
-        $link_skin = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=skin'), _('Skin'));
-        $link_css = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=css'), _('CSS'));
-        $link_view = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=view'), _('Viste'));
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Informazioni')];
+        $link_tpl = ['link' => $this->linkAdmin(array(), 'block=template'), 'label' => _('Template')];
+        $link_skin = ['link' => $this->linkAdmin(array(), 'block=skin'), 'label' => _('Skin')];
+        $link_css = ['link' => $this->linkAdmin(array(), 'block=css'), 'label' => _('CSS')];
+        $link_view = ['link' => $this->linkAdmin(array(), 'block=view'), 'label' => _('Viste')];
 
         $sel_link = $link_dft;
 
@@ -103,7 +103,7 @@ class layout extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Layout'),
             'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),

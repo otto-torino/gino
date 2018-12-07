@@ -332,9 +332,9 @@ class menu extends \Gino\Controller {
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Gestione'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Gestione')];
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -379,7 +379,7 @@ class menu extends \Gino\Controller {
             $links_array = array($link_dft);
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => $this->_title,
             'links' => $links_array,

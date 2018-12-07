@@ -3,7 +3,7 @@
  * @file class_sysClass.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SysClass.sysClass
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ require_once('class.ModuleApp.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione dei moduli di sistema
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -59,10 +59,10 @@ class sysClass extends \Gino\Controller {
         $id = \Gino\cleanVar($request->GET, 'id', 'int', '');
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-        $link_list = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=list'), _("Gestione moduli installati"));
-        $link_install = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=install'), _("Installazione pacchetto"));
-        $link_minstall = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=minstall'), _("Installazione manuale"));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _("Informazioni"));
+        $link_list = ['link' => $this->linkAdmin(array(), 'block=list'), 'label' => _("Gestione moduli installati")];
+        $link_install = ['link' => $this->linkAdmin(array(), 'block=install'), 'label' => _("Installazione pacchetto")];
+        $link_minstall = ['link' => $this->linkAdmin(array(), 'block=minstall'), 'label' => _("Installazione manuale")];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _("Informazioni")];
         $sel_link = $link_dft;
 
         if($block == 'list') {
@@ -100,7 +100,7 @@ class sysClass extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Moduli di sistema'),
             'links' => array($link_minstall, $link_install, $link_list, $link_dft),

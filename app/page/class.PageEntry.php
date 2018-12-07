@@ -3,18 +3,18 @@
  * @file class.PageEntry.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 namespace Gino\App\Page;
 
-use Gino\GTag;
+use \Gino\GTag;
 
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */

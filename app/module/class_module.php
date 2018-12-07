@@ -3,7 +3,7 @@
  * @file class_module.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.module
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -25,7 +25,7 @@ require_once 'class.ModuleInstance.php';
 /**
  * @brief Classe di tipo Gino.Controller per la gestione di istanze di moduli di sistema
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -54,7 +54,7 @@ class module extends \Gino\Controller {
 
         $module = new ModuleInstance($id);
 
-        $link_dft = "<a href=\"".$this->linkAdmin()."\">"._("Gestione istanze")."</a>";
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _("Gestione istanze")];
         $sel_link = $link_dft;
 
         $action = \Gino\cleanVar($request->GET, 'action', 'string', null);
@@ -82,10 +82,10 @@ class module extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Moduli istanziabili'),
-            'links' => $link_dft,
+            'links' => [$link_dft],
             'selected_link' => $sel_link,
             'content' => $backend
         );
