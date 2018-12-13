@@ -199,7 +199,7 @@ class Translation {
             ));
         }
         $GINO .= "</p>";
-        $GINO .= "<p>".Input::submit('submit', _("applica"), ['type'=> 'button', 'onclick' => $onclick])."</p>";
+        $GINO .= "<p>".\Gino\Input::submit('submit', _("applica"), ['type'=> 'button', 'onclick' => $onclick])."</p>";
         $GINO .= "</div>";
 
         return $GINO;

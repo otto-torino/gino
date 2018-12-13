@@ -1599,7 +1599,7 @@ class auth extends \Gino\Controller {
         $content .= \Gino\Input::hidden('id', $obj_user->id);
         $content .= $this->formPermission($checked);
 
-        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
+        $content .= \Gino\Input::submit('submit', _("associa"));
         $content .= $gform->close();
         
         $description = _("IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff).");

@@ -3,7 +3,7 @@
  * @file class.Css.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Css
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Redirect;
 /**
  * @brief Libreria per la gestione dei file css dei singoli moduli e dei file css del layout (da associare alle skin)
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,7 +23,6 @@ class Css extends Model {
     public static $table = 'sys_layout_css';
     public static $columns;
     
-    protected $_tbl_data;
     private $_class, $_module, $_name, $_label, $_css_list;
     private $_instance_class;
     private $_mdlLink;
@@ -37,39 +36,62 @@ class Css extends Model {
      * Se il modulo non è istanziabile il metodo getClassElements() dovrà riportare anche la chiave @a instance con valore @a false. \n
      * 
      * @see getClassElements()
-     * @param string $type tipo di utilizzo
-     *   - @b module
-     *   - @b layout
+     * 
+     * @param integer $id
      * @param array $params
      *   array associativo di opzioni
+     *   - @b type (string): tipo di utilizzo; @a module, @a layout
      *   - @b id (integer): valore ID del record
      *   - @b class (string): nome della classe
      *   - @b module (integer): valore ID del modulo
      *   - @b name (string): nome del modulo
      *   - @b label (string): etichetta del modulo
-     * @return void, istanza di Gino.Css
+     * @return void
      */
-    function __construct($type, $params=array()) {
+    function __construct($id = null, $params=array()) {
 
-        $db = db::instance();
-        if($type=='module') {
-            $this->_class = $params['class'];
-            $this->_module = $params['module'];
-            $this->_name = $params['name'];
-            $this->_label = $params['label'];
-            $classElements = call_user_func(array($this->_class, 'getClassElements'));
-            $this->_css_list = $classElements['css'];
-            $this->_instance_class = array_key_exists('instance', $classElements) ? $classElements['instance'] : true;
-            $method = $this->_instance_class ? 'manageDoc' : 'manage'.ucfirst($this->_class);
-            $this->_mdlLink = $this->_registry->router->link($this->_name, $method, array(), "block=css");
+        $this->_tbl_data = self::$table;
+        
+        $type = null;
+        if(is_array($params) && count($params)) {
+            if(array_key_exists('type', $params) && $params['type']) {
+                $type = $params['type'];
+            }
         }
-        elseif($type=='layout') {
-            $id = $params['id'];
-            $this->_tbl_data = self::$table;
+        
+        if($type) {
+            if($type == 'module') {
+                $this->_class = $params['class'];
+                $this->_module = $params['module'];
+                $this->_name = $params['name'];
+                $this->_label = $params['label'];
+                $classElements = call_user_func(array($this->_class, 'getClassElements'));
+                $this->_css_list = $classElements['css'];
+                $this->_instance_class = array_key_exists('instance', $classElements) ? $classElements['instance'] : true;
+                $method = $this->_instance_class ? 'manageDoc' : 'manage'.ucfirst($this->_class);
+                $this->_mdlLink = $this->_registry->router->link($this->_name, $method, array(), "block=css");
+            }
+            elseif($type == 'layout') {
+                $id = $params['id'];
+                parent::__construct($id);
+                
+                $this->_interface = 'layout';
+            }
+        }
+        else {
             parent::__construct($id);
-
+            
             $this->_interface = 'layout';
         }
+    }
+    
+    /**
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return string
+     */
+    function __toString() {
+        
+        return (string) $this->ml('label');
     }
     
     /**
@@ -80,9 +102,9 @@ class Css extends Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    		'name'=>'id',
-    		'primary_key'=>true,
-    		'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
     	));
     	$columns['filename'] = new \Gino\FileField(array(
     		'name' => 'filename',
@@ -101,7 +123,7 @@ class Css extends Model {
     		'max_lenght' => 200,
     	));
     	$columns['description'] = new \Gino\TextField(array(
-    		'name'=>'description',
+    		'name' => 'description',
     		'label' => _("Descrizione"),
     		'required' => false
     	));
@@ -122,7 +144,7 @@ class Css extends Model {
         $rows = $db->select('id', self::$table, '', array('order' => $order));
         if($rows and count($rows)) {
             foreach($rows as $row) {
-                $res[] = new Css('layout', array('id'=>$row['id']));
+                $res[] = new Css($row['id']);
             }
         }
 
@@ -131,7 +153,7 @@ class Css extends Model {
 
     /**
      * @brief Ricava il nome del file css dell'istanza di un modulo
-     * @return string, nome file
+     * @return string
      */
     private function cssFileName($css_file) {
 
@@ -149,7 +171,7 @@ class Css extends Model {
         $res = null;
         $rows = $db->select('id', self::$table, "filename='$filename'");
         if($rows and count($rows)) {
-            $res = new Css('layout', array('id'=>$rows[0]['id']));
+            $res = new Css($rows[0]['id']);
         }
 
         return $res;
@@ -161,29 +183,30 @@ class Css extends Model {
      */
     public function formCssLayout() {
 
-    	$gform = Loader::load('Form', array());
-        $gform->load('dataform');
-        
         $title = $this->id ? sprintf(_('Modifica "%s"'), htmlChars($this->label)) : _("Nuovo foglio di stile");
         
-        $formaction = $this->_registry->router->link($this->_interface, 'actionCss');
+        $mform = \Gino\Loader::load('ModelForm', array($this, array(
+            'form_id' => 'gform',
+        )));
         
-        $buffer = $gform->open($formaction, true, 'label', array('form_id'=>'gform'));
-        $buffer .= \Gino\Input::hidden('id', $this->id);
-        
-        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>false));
-        $buffer .= \Gino\Input::input_file('filename', $this->filename, _("File"), array('extensions' => array("css")));
-        
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
-        
-        $buffer .= $gform->close();
+        $buffer = $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'show_save_and_continue' => false,
+                'view_title' => false,
+                'f_action' => $this->_registry->router->link($this->_interface, 'actionCss'),
+                's_value' => (($this->id) ? _("modifica") : _("inserisci")),
+            ),
+            array(
+                'description' => array("trnsl"=>false)
+            )
+        );
         
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
         	'title' => $title,
-        	'class' => 'admin',
+        	'class' => null,
         	'content' => $buffer
         );
         
@@ -251,7 +274,7 @@ class Css extends Model {
     /**
      * @brief Form per l'eliminazione di un file css (layout)
      *
-     * @return string, codice html form
+     * @return string
      */
     public function formDelCssLayout() {
 
@@ -264,14 +287,17 @@ class Css extends Model {
         
         $buffer .= $gform->open($this->_registry->router->link($this->_interface, 'actionDelCss'), '', '', array('form_id'=>'gform'));
         $buffer .= \Gino\Input::hidden('id', $this->id);
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', _("elimina"));
+        $buffer .= \Gino\Input::placeholderRow( _('Sicuro di voler procedere?'), $submit);
+        
         $buffer .= $gform->close();
 
         $view = new view();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -302,7 +328,7 @@ class Css extends Model {
     /**
      * @brief Descrizione della procedura
      *
-     * @return string, informazioni
+     * @return string
      */
     public static function layoutInfo() {
 

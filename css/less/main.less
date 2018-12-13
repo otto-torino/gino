@@ -23,12 +23,16 @@
 .icon {
 }
 
-/* sections */
-section {
-	padding: 10px;
+/* section style */
+.gino-container {
+	
 }
-section.admin {
-	padding: 10px 20px;
+.gino-container-header {
+	display: flex;
+	justify-content: space-between;
+}
+.gino-container-links {
+	clear: both;
 }
 
 /* text */
@@ -37,7 +41,7 @@ section.admin {
 }
 
 h1 {
-	/*font-family: "Roboto Slab", "Helvetica Neue", Helvetica, serif;*/
+	font-family: "Roboto Slab", "Helvetica Neue", Helvetica, serif;
 }
 
 /* float */
@@ -49,6 +53,14 @@ h1 {
 }
 .null, .clear {
 	.clearfix;
+}
+
+/* Tables */
+.table-wrapper-scroll-y {
+	display: block;
+	max-height: 200px;
+	overflow-y: auto;
+	-ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 /* tabs */
@@ -187,6 +199,15 @@ section.gino-admin .gino-admin-header {
 	border-left: 5px solid #ccc;
 	padding: 10px;
 	margin: 10px 0;
+}
+
+/* Admin page */
+.admin-app-card {
+	margin: 4px;
+	padding: 2px;
+}
+.card-title > a, .card-title > a:link, .card-title > a:focus, .card-title > a:visited, .card-title > a:hover {	/* overwrite bootstrap style */
+	color: #fff !important;
 }
 
 /*

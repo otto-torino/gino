@@ -2062,19 +2062,20 @@
   margin: 0px 4px;
 }
 /* icons */
-/* sections */
-section {
-  padding: 10px;
+/* section style */
+.gino-container-header {
+  display: flex;
+  justify-content: space-between;
 }
-section.admin {
-  padding: 10px 20px;
+.gino-container-links {
+  clear: both;
 }
 /* text */
 .nowrap {
   white-space: nowrap;
 }
 h1 {
-  /*font-family: "Roboto Slab", "Helvetica Neue", Helvetica, serif;*/
+  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, serif;
 }
 /* float */
 .left {
@@ -2086,6 +2087,13 @@ h1 {
 .null,
 .clear {
   zoom: 1;
+}
+/* Tables */
+.table-wrapper-scroll-y {
+  display: block;
+  max-height: 200px;
+  overflow-y: auto;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 /* tabs */
 .tab-container {
@@ -2227,6 +2235,19 @@ section.gino-admin .gino-admin-header {
   padding: 10px;
   margin: 10px 0;
 }
+/* Admin page */
+.admin-app-card {
+  margin: 4px;
+  padding: 2px;
+}
+.card-title > a,
+.card-title > a:link,
+.card-title > a:focus,
+.card-title > a:visited,
+.card-title > a:hover {
+  /* overwrite bootstrap style */
+  color: #fff !important;
+}
 /*
  * Javascript layerWindow styles
  */
@@ -2365,6 +2386,15 @@ form.myform {
 .form-addrelated {
   display: inline;
   vertical-align: middle;
+}
+.form-multicheck {
+  max-height: 250px;
+}
+.form-multicheck table {
+  margin-bottom: 0;
+}
+label.req {
+  font-weight: bold;
 }
 /*
 form {
@@ -2568,8 +2598,6 @@ input[type=submit], input[type=button] {
 @media (max-width: 768px) {
   .navbar-tools {
     float: none;
-    /*display: none;*/
-    /* ?????? */
   }
 }
 /* menu */
@@ -2678,16 +2706,12 @@ input[type=submit], input[type=button] {
   margin: auto;
   width: 960px;
 }
-/*
 @font-face {
-	font-family: 'Roboto Slab';
-	src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype')
-}*/
+  font-family: 'Roboto Slab';
+  src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype');
+}
 body {
-  margin-top: 80px !important;
+  margin-top: 90px !important;
 }
 .bg-white {
   background-color: #fff;

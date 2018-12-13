@@ -220,9 +220,10 @@ class layout extends \Gino\Controller {
     private function manageCss($request) {
 
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
-        $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
 
+        $css = \Gino\Loader::load('Css', array($id));
+        
         if($action == 'insert' or $action == 'modify') {
 
             if($request->checkGETKey('trnsl', '1'))
@@ -299,7 +300,9 @@ class layout extends \Gino\Controller {
                 $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=delete"), \Gino\icon('delete'));
                 $link_sort = $i ? sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=sortup"), \Gino\icon('sort-up')) : '';
                 $tpl = new \Gino\Template($skin->template);
-                $css = new \Gino\Css('layout', array('id' => $skin->css));
+                //$css = new \Gino\Css('layout', array('id' => $skin->css));
+                
+                $css = new \Gino\Css(null, array('type' => 'layout', 'id' => $skin->css));
                 
                 $settings = array();
                 if($skin->highest) {
@@ -344,7 +347,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco skin'),
-            'class' => 'admin',
+            'class' => null,
             'header_links' => $link_insert,
             'content' => $buffer
         );
@@ -402,7 +405,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
         'title' => _('Elenco template'),
-        'class' => 'admin',
+            'class' => null,
         'header_links' => array($link_insert, $link_insert_free),
         'content' => $buffer
         );
@@ -477,7 +480,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco fogli di stile'),
-            'class' => 'admin',
+            'class' => null,
             'header_links' => $link_insert,
             'content' => $buffer
         );
@@ -535,7 +538,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco viste generali di sistema'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -571,7 +574,7 @@ oppure variabili di sessione.")."</li>";
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Layout'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $GINO
         );
 
@@ -606,6 +609,10 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
         $skin = \Gino\Loader::load('Skin', array($id));
 
         return $skin->actionDelSkin($request);
@@ -623,7 +630,7 @@ oppure variabili di sessione.")."</li>";
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
         
-        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+        $css = \Gino\Loader::load('Css', array($id));
 
         return $css->actionCssLayout($request);
     }
@@ -639,7 +646,11 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
+        $css = \Gino\Loader::load('Css', array($id));
 
         return $css->actionDelCssLayout($request);
     }
@@ -680,6 +691,10 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
         $tpl = \Gino\Loader::load('Template', array($id));
 
         return $tpl->actionDelTemplate($request);
@@ -1300,7 +1315,7 @@ oppure variabili di sessione.")."</li>";
 
         if(is_file($pathToFile))
         {
-            $gform = \Gino\Loader::load('Form', array());	// array("tblLayout"=>false)
+            $gform = \Gino\Loader::load('Form', array());
             $gform->load('dataform');
             $buffer = $gform->open($this->link($this->_class_name, 'actionFiles'), '', '', array('form_id'=>'gform'));
             $buffer .= \Gino\Input::hidden('fname', $filename);
@@ -1308,13 +1323,13 @@ oppure variabili di sessione.")."</li>";
             $buffer .= \Gino\Input::hidden('action', $action);
 
             $contents = file_get_contents($pathToFile);
-            $buffer .= "<div class=\"form-row\">";
+            $buffer .= "<div class=\"form-group\">";
             $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
             $buffer .= "</div>";
 
-            $buffer .= "<div class=\"form-row\">";
-            $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-            $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
+            $buffer .= "<div class=\"form-group\">";
+            $buffer .= \Gino\Input::submit('submit_action', _("salva"));
+            $buffer .= \Gino\Input::submit('submit_action', _("annulla"), ['onclick' => "location.href='$link_return'\" class=\"generic\""]);
             $buffer .= "</div>";
 
             $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
@@ -1326,7 +1341,7 @@ oppure variabili di sessione.")."</li>";
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 

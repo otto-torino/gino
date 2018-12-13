@@ -795,14 +795,17 @@ class Form {
      *   array associativo di opzioni
      *   - @b removeFields (array): elenco dei campi da non mostrare nel form
      *   - @b viewFields (array): elenco dei campi da mostrare nel form
-     *   - @b addCell (array): elementi da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
-     *     Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
-     *     - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
+     *   - @b addCell (array): elementi/campi aggiuntivi da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
+     *     Le chiavi di questo array sono i nomi dei campi prima dei quali verranno inseriti gli elementi aggiuntivi; 
+     *     i valori associati a queste chiavi sono invece altri array con le chiavi @a name e @a field:
+     *     - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro); 
+     *       un nome particolare è @a last_cell, che inserisce l'elemento alla fine del form
      *     - @a field, codice da implementare
-     *       Riassumento, la struttura di addCell è la seguente:
+     *       Riassumendo, la struttura di addCell è la seguente:
      *       @code
      *       array('next_field_name' => array('name' => 'name_item_add', 'field' => 'content_item_add'))
      *       @endcode
+     *   - @b additional_text (string): blocco di testo da mostrare tra l'ultimo input form e il submit
      *   // layout
      *   - @b view_folder_form (string): directory del file della vista
      *   - @b view_file_form (string): nome del file della vista del form (default @a form)
@@ -821,9 +824,11 @@ class Form {
      *   // input submit
      *   - @b s_name (string): nome dell'input submit (se non indicato viene impostato automaticamente)
      *   - @b s_value (string): valore dell'input submit (default 'salva')
-     *   - @b s_classField (string): valore dell'opzione classField dell'input submit (default 'submit')
+     *   - @b s_classField (string): valore dell'opzione classField dell'input submit (default @a submit)
+     *   - @b savecontinue_name (string): nome dell'input submit "save and continue" (default @a save_and_continue)
      * 
-     * @param array $inputs opzioni specifiche dei campi del form nel formato array(field_name=>array(option=>value[,...])); queste opzioni vengono passate in Gino.Build::formElement()
+     * @param array $inputs opzioni specifiche dei campi del form nel formato: array(field_name => array(option=>value[,...]));
+     *                      queste opzioni vengono passate in Gino.Build::formElement()
      * @return form di inserimento/modifica
      */
     protected function makeInputForm($model, $fields, $options=array(), $inputs=array()) {
@@ -838,6 +843,7 @@ class Form {
     	$removeFields = gOpt('removeFields', $options, null);
     	$viewFields = gOpt('viewFields', $options, null);
     	$addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
+    	$additional_text = array_key_exists('additional_text', $options) ? $options['additional_text'] : null;
     	
     	// - layout
     	$view_folder_form = gOpt('view_folder_form', $options, null);
@@ -856,24 +862,25 @@ class Form {
     	$s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit_'.$this->_form_id;
     	$s_value = array_key_exists('s_value', $options) ? $options['s_value'] : _('salva');
     	$s_classField = array_key_exists('s_classField', $options) ? $options['s_classField'] : 'submit';
+    	$savecontinue_name = array_key_exists('savecontinue_name', $options) ? $options['savecontinue_name'] : 'save_and_continue';
     	// /Options
     	
     	$structure = array();
     	$form_upload = false;
     	$form_required = array();
-    
+        
     	foreach($fields as $field=>$build)
     	{
-    		if($addCell)
+    		// Additional Rows
+    	    if($addCell)
     		{
-    			foreach($addCell AS $ref_key=>$cell)
-    			{
-    				if($ref_key == $field)
-    				{
+    			foreach($addCell AS $ref_key => $cell) {
+    				if($ref_key == $field) {
     					$structure[$cell['name']] = $cell['field'];
     				}
     			}
     		}
+    		// /Additional
     		
     		if($this->permission($options, $field) && (
     			($removeFields && !in_array($field, $removeFields)) ||
@@ -888,9 +895,9 @@ class Form {
     			}
     
     			// Input form
-    			$structure[$field] = $build->formElement($this, $options_input); ///////////////////////// 'form_inline' => $inline_opt
+    			$structure[$field] = $build->formElement($this, $options_input); // 'form_inline' => $inline_opt ???
     			
-    			// Form settings 
+    			// Form settings
     			if($build instanceof ManyToManyThroughBuild) {
     				$m2mtf_file = $model->checkM2mtFileField($field, $model->id);
     			}
@@ -908,6 +915,12 @@ class Form {
     			// /Form settings
     		}
     	}
+    	
+    	// The last additional row
+    	if($addCell && array_key_exists('last_cell', $addCell)) {
+    	    $structure[$addCell['last_cell']['name']] = $addCell['last_cell']['field'];
+    	}
+    	// /the_last_additional_row
     	
     	if(sizeof($form_required) > 0) {
     		$form_required = implode(',', $form_required);
@@ -980,10 +993,10 @@ class Form {
     	
     	if(!$only_inputs) {
     		$submit = Input::submit($s_name, $s_value, [
-    		    "classField"=>$s_classField
+    		    "classField" => $s_classField
     		]);
-    		$save_and_continue = Input::submit('save_and_continue', _('salva e continua la modifica'), [
-    		    "classField"=>$s_classField
+    		$save_and_continue = Input::submit($savecontinue_name, _('salva e continua la modifica'), [
+    		    "classField" => $s_classField
     		]);
     		
     		if($popup or !$show_save_and_continue) {
@@ -1003,6 +1016,7 @@ class Form {
     	$view->assign('open', $open_form);
     	$view->assign('hidden_inputs', $a_hidden_inputs);
     	$view->assign('inputs', $a_inputs);
+    	$view->assign('additional_text', $additional_text);
     	$view->assign('submit', $submit);
     	
     	return $view->render();

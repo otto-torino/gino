@@ -33,40 +33,6 @@ class Input {
     }
     
     /**
-     * @brief Imposta le classi dei tag input
-     * 
-     * @param string $input_type
-     * @param string $additional_class
-     * @return string|NULL
-     */
-    private static function setInputClasses($input_type, $additional_class=null) {
-        
-        $classname = '';
-        
-        if($input_type == 'input' or $input_type == 'select' or $input_type == 'textarea') {
-            $classname .= "form-control";
-        }
-        elseif ($input_type == 'file') {
-            $classname .= "form-control-file";
-        }
-        elseif ($input_type == 'checkbox' or $input_type == 'radio') {
-            $classname .= "form-check-input";
-        }
-        
-        if($additional_class) {
-            $classname .= ' '.$additional_class;
-        }
-        
-        $clean = trim($classname);
-        if($clean) {
-            return "class=\"".$classname."\"";
-        }
-        else {
-            return null;
-        }
-    }
-    
-    /**
      * @brief Imposta la label string
      * @param mixed $value
      * @return string
@@ -304,9 +270,11 @@ class Input {
      * @param string $name
      * @param string $value
      * @param array $options
-     *   - @b type (string): default @a submit; values: @a submit | @a button
-     *   - @b classField (string)
-     *   - @b onclick (string)
+     *   - @b type (string): tipologia di button, valori validi: @a submit (default), @a button
+     *     - @a submit processa il form e redirige all'indirizzo specificato
+     *     - @b button processa l'onclick e non redirige
+     *   - @b classField (string): valore della proprietà class
+     *   - @b onclick (string): valore della proprietà onclick
      * @return string
      */
     public static function submit($name, $value, $options=[]) {
@@ -377,8 +345,20 @@ class Input {
     	$buffer .= $pattern ? "pattern=\"$pattern\" ":"";
     	$buffer .= $hint ? "placeholder=\"$hint\" ":"";
     	
-    	$buffer .= self::setInputClasses($input_type, $classField);    ////////////////////////////////////////////
+    	// Set class
+    	$class = '';
+    	if($input_type == 'file') {
+    	    $class = 'form-control-file';
+    	}
+    	elseif($input_type == 'input') {
+    	    $class = 'form-control';
+    	}
+    	if($classField) {
+    	    $class .= ' '.$classField;
+    	}
+    	// /Set
     	
+    	$buffer .= $class ? "class=\"".trim($class)."\" " : '';
     	$buffer .= $size ? "size=\"$size\" ":"";
     	$buffer .= $maxlength ? "maxlength=\"$maxlength\" ":"";
     	$buffer .= $readonly ? "readonly=\"readonly\" ":"";
@@ -671,7 +651,15 @@ class Input {
     	$textarea = "<textarea name=\"$name\" ";
     	$textarea .= $id ? "id=\"$id\" " : "";
     	$textarea .= $required ? "required=\"required\" ":"";
-    	$textarea .= self::setInputClasses('textarea', $classField);    ////////////////////////////////////////////
+    	
+    	// Set class
+    	$class = 'form-control';
+    	if($classField) {
+    	    $class .= ' '.$classField;
+    	}
+    	// /Set
+    	
+    	$textarea .= $class ? "class=\"".$class."\" " : '';
     	$textarea .= $rows ? "rows=\"$rows\" ":"";
     	$textarea .= $cols ? "cols=\"$cols\" ":"";
     	$textarea .= $readonly ? "readonly=\"readonly\" ":"";
@@ -944,9 +932,10 @@ class Input {
      *   - @b classField (string): nome della classe del tag input
      *   - @b js (string): javascript
      *   - @b other (string): altro nel tag
-     *   - @b show_label (boolean): default true
+     *   - @b show_label (boolean): default @a true
      *   - @b label (mixed): string or array
-     *   - @b return_string (boolean): default true
+     *   - @b return_string (boolean): default @a true
+     *   - @b show_bootstrap (boolean): permette di non richiamare la classe di bootstrap @a form-check-input; default @a true
      * @return mixed, array [input=>string, label=>string] or string
      */
     public static function checkbox($name, $checked, $value, $options=array()){
@@ -958,10 +947,21 @@ class Input {
     	$show_label = gOpt('show_label', $options, true);
     	$label = gOpt('label', $options, null);
     	$return_string = gOpt('return_string', $options, true);
+    	$show_bootstrap = gOpt('show_bootstrap', $options, true);
+    	
+    	// Set class
+    	$class = '';
+    	if($show_bootstrap) {
+    	    $class = 'form-check-input';
+    	}
+    	if($classField) {
+    	    $class .= ' '.$classField;
+    	}
+    	// /Set
     	
     	$input = "<input type=\"checkbox\" name=\"$name\" value=\"$value\" ".($checked ? "checked=\"checked\"":"")." ";
     	$input .= $id ? "id=\"$id\" ":"";
-    	$input .= self::setInputClasses('checkbox', $classField);
+    	$input .= $class ? "class=\"".trim($class)."\" " : '';
     	$input .= $js ? $js." ":"";
     	$input .= $other ? $other." ":"";
     	$input .= "/>";
@@ -993,7 +993,8 @@ class Input {
     /**
      * @brief Input file con label
      * @description Integra il checkbox di eliminazione del file e non è gestita l'obbligatorietà del campo.
-     *
+     * Se il campo è readonly viene mostrato soltanto il nome del file.
+     * 
      * @see self::label()
      * @param string $name nome input
      * @param string $value nome del file
@@ -1005,6 +1006,7 @@ class Input {
      *   - @b preview (boolean): mostra l'anteprima di una immagine (default false)
      *   - @b previewSrc (string): percorso relativo dell'immagine
      *   - @b text_add (string): testo da aggiungere in coda al tag input
+     *   - @b readonly (boolean): campo di sola lettura (@see placeholderRow())
      *   // Grid
      *   - @b additional_class (string)
      *   - @b form_inline (boolean): indica se l'input è da visualizzare inline (default @a false)
@@ -1019,12 +1021,19 @@ class Input {
     	$preview = gOpt('preview', $options, false);
     	$previewSrc = gOpt('previewSrc', $options, null);
     	$text_add = gOpt('text_add', $options, null);
+    	$readonly = gOpt('readonly', $options, false);
     	// Grid
     	$additional_class = gOpt('additional_class', $options, null);
     	$form_inline = gOpt('form_inline', $options, false);
     	$custom_folder = gOpt('custom_folder', $options, null);
     	$custom_file = gOpt('custom_file', $options, null);
-    
+    	
+    	// Readonly field
+    	if($readonly) {
+    	    return self::placeholderRow($label, $value);
+    	}
+    	// /Readonly
+        
     	$text = (is_array($valid_extension) AND sizeof($valid_extension) > 0) ? "[".(count($valid_extension) ? implode(', ', $valid_extension) : _("non risultano formati permessi."))."]":"";
     	$finLabel = array();
     	$finLabel['label'] = is_array($label) ? $label[0]:$label;
@@ -1055,7 +1064,7 @@ class Input {
     			        'modal_id' => $name.'ModalCenter',
     			        'modal_title_id' => $name.'ModalCenterTitle',
     			    ]);
-    				$value_link = $modal->buttonTrigger($value, ['button_class' => 'btn btn-secondary btn-sm']);
+    				$value_link = $modal->trigger($value, ['class' => 'btn btn-secondary btn-sm']);
     				$value_link .= $modal->render(_("Media"), $modal_body);
     			}
     			else {
@@ -1081,7 +1090,7 @@ class Input {
     	    $form_file_check = false;
     	    $input = self::input($name, 'file', $value, $options);
     	}
-    
+        
     	if($value) {
     		$input_hidden = self::hidden('old_'.$name, $value);
     	}
@@ -1152,7 +1161,7 @@ class Input {
      *   - @b idName (string): nome del campo di riferimento (default id)
      * @return string, input multicheck + label
      */
-    public static function multipleCheckbox($name, $checked, $data, $label, $options=array()){
+    public static function multipleCheckbox($name, $checked, $data, $label, $options=[]){
     
     	$id = gOpt('id', $options, null);
     	$required = gOpt('required', $options, false);
@@ -1187,9 +1196,9 @@ class Input {
     	    $helptext = null;
     	}
         
-    	$multicheck = "<div class=\"form-multicheck\">\n";
+    	$multicheck = "<div class=\"table-wrapper-scroll-y form-multicheck\">\n";
     	$multicheck .= "<table class=\"table table-hover table-striped table-bordered\">\n";
-    
+    	
     	if(is_string($data))
     	{
     		$db = Db::instance();
@@ -1222,9 +1231,10 @@ class Input {
     				    'id' => $id, 
     				    'js' => $js, 
     				    'other' => $other, 
-    				    'show_label' => false
+    				    'show_label' => false,
+    				    'show_bootstrap' => false
     				]);
-    
+                    
     				if(is_array($field) && count($field))
     				{
     					if(sizeof($field) > 1)
@@ -1307,7 +1317,8 @@ class Input {
     				    'id' => $id,
     				    'js' => $js,
     				    'other' => $other,
-    				    'show_label' => false
+    				    'show_label' => false,
+    				    'show_bootstrap' => false
     				]);
     				
     				$multicheck .= "<tr>\n";
@@ -1438,6 +1449,13 @@ class Input {
     	
     	$buffer = '';
     	$comparison = is_null($value) ? $default : $value;
+    	
+    	// Set class
+    	$class = 'form-check-input';
+    	if($classField) {
+    	    $class .= ' '.$classField;
+    	}
+    	// /Set
         
     	$radios = [];
     	
@@ -1447,7 +1465,7 @@ class Input {
     		    
     		    $input = "<input type=\"radio\" name=\"$name\" value=\"$k\" ".(!is_null($comparison) && $comparison==$k?"checked=\"checked\"":"")." ";
     		    $input .= $id ? "id=\"$id\" ":"";
-    		    $input .= self::setInputClasses('radio', $classField);    ////////////////////////////////////////////
+    		    $input .= $class ? "class=\"".$class."\" " : '';
     		    $input .= $js ? $js." ":"";
     		    $input .= $other ? $other." ":"";
     		    $input .= "/>";
@@ -1598,7 +1616,15 @@ class Input {
     	$buffer .= $id ? "id=\"$id\" " : "";
     	$buffer .= $required ? "required " : "";
     	$buffer .= $disabled ? "disabled " : '';
-    	$buffer .= self::setInputClasses('select', $classField);    ////////////////////////////////////////////
+    	
+    	// Set class
+    	$class = 'form-control';
+    	if($classField) {
+    	    $class .= ' '.$classField;
+    	}
+    	// /Set
+    	
+    	$buffer .= $class ? "class=\"".$class."\" " : '';
     	$buffer .= $size ? "size=\"$size\" " : "";
     	$buffer .= $multiple ? "multiple=\"multiple\" " : "";
     	$buffer .= $js ? $js." " : "";

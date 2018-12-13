@@ -149,7 +149,8 @@ class module extends \Gino\Controller {
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco moduli installati'),
-            'class' => 'admin',
+            'class' => 'gino-admin',
+            'header_class' => 'gino-admin-header',
             'header_links' => $link_insert,
             'content' => $GINO
         );
@@ -172,14 +173,16 @@ class module extends \Gino\Controller {
 
         $GINO .= $gform->open($this->link($this->_class_name, 'actionRemoveModule'), '', '');
         $GINO .= \Gino\Input::hidden('id', $module->id);
-        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("sicuro di voler procedere?"), array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', _("elimina"), []);
+        $GINO .= \Gino\Input::placeholderRow(_("sicuro di voler procedere?"), $submit);
         $GINO .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => sprintf(_('Eliminazione istanza "%s"'), $module->label),
-            'class' => 'admin',
+            'class' => null,
             'content' => $GINO
         );
 
@@ -262,14 +265,16 @@ class module extends \Gino\Controller {
         $GINO .= \Gino\Input::input_label('name', 'text', $gform->retvar('name', $module->name), array(_("Nome"), _("Deve contenere solamente caratteri alfanumerici o il carattere '_'")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\w\d_]*$", "hint"=>_("solo caratteri alfanumerici o underscore"), 'other' => $module->id ? 'disabled' : ''));
         $GINO .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', $module->label), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id));
         $GINO .= \Gino\Input::textarea_label('description', $gform->retvar('description', $module->description), _("Descrizione"), array("cols"=>45, "rows"=>4, "trnsl"=>true, "trnsl_table"=>TBL_MODULE, "trnsl_id"=>$module->id));
-        $GINO .= \Gino\Input::input_label('submit_action', 'submit', _("salva"), '', array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', _("salva"), []);
+        $GINO .= \Gino\Input::placeholderRow(null, $submit);
         $GINO .= $gform->close();
         
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $module->id ? sprintf(_('Modifica istanza "%s"'), $module->label) : _('Nuova istanza'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $GINO
         );
 
@@ -472,14 +477,16 @@ class module extends \Gino\Controller {
 
         $GINO .= $gform->open($this->link($this->_class_name, 'actionEditModuleActive'), '', '');
         $GINO .= \Gino\Input::hidden('id', $module->id);
-        $GINO .= \Gino\Input::input_label('submit_action', 'submit', $module->active ? _("disattiva") : _('attiva'), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', $module->active ? _('disattiva') : _('attiva'), []);
+        $GINO .= \Gino\Input::placeholderRow(_('Sicuro di voler procedere?'), $submit);
         $GINO .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $module->active ? _('Disattivazione') : _('Attivazione'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $GINO
         );
 

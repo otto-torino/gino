@@ -12,76 +12,86 @@
  * - **view_hidden_apps**: bool, per visualizzare le applicazioni nascoste
  *
  * @version 1.0.0
- * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2017-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
 ?>
+<? $card_style = [
+    'text-white bg-primary',
+    'text-white bg-secondary',
+    'text-white bg-success',
+    'text-white bg-danger',
+    'text-white bg-warning',
+    'text-white bg-info',
+    //'bg-light',
+    'text-white bg-dark',
+];
+$cs_count = count($card_style); ?>
 <section class="admin-home">
 <div class="row">
-    <div class="col-md-6">
-        <!-- <h2>Moduli di sistema</h2> -->
-        <div class="row">
-            <? $i=0; $hide_list=array(); ?>
-            <? foreach($sysmdls as $sm): ?>
-                <? if(!in_array($sm['name'], $hide)): ?>
-                    <div class="col-md-6">
-                    <div style="cursor: pointer" class="panel panel-danger" onclick="location.href='<?= $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name']))?>'">
-                            <div class="panel-heading">
-                                <h3 class="panel-title"><a href="<?= $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])) ?>"><?= $sm['label'] ?></a></h3>
-                            </div>
-                            <div class="panel-body text-center">
-                                <p class="text-center">
-									<? if (array_key_exists($sm['name'], $fas)): ?>
-										<i class="fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
-									<? else: ?>
-										<?= _("impostare l'icona nel file configuration.php") ?>
-                    				<? endif ?>
-								</p>
-                                <div class="small"><?= \Gino\htmlchars($sm['description']) ?></div>
-                            </div>
-                        </div>
-                    </div>
-                    <? if (++$i%2 == 0): ?>
-                        <div class="clearfix"></div>
-                    <? endif ?>
-                <? else: ?>
-                	<?php $hide_list[] = array('link' => $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])), 'label' => $sm['label']); ?>
-                <? endif ?>
-            <? endforeach ?>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="row">
-            <!-- <h2>Moduli istanziabili</h2> -->
-            <? $i=0; ?>
-            <? foreach($mdls as $m): ?>
-                <? if(!in_array($m['name'], $hide)): ?>
-                    <div class="col-md-6">
-                    <div style="cursor: pointer" class="panel panel-info" onclick="location.href='<?= $ctrl->link($m['name'], 'manageDoc') ?>'">
-                            <div class="panel-heading">
-                                <h3 class="panel-title"><a href="<?= $ctrl->link($m['name'], 'manageDoc') ?>"><?= $m['label'] ?></a></h3>
-                            </div>
-                            <div class="panel-body text-center">
-                                <p class="text-center">
-                                	<? if (array_key_exists($m['name'], $fas)): ?>
-										<i class="fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
-									<? else: ?>
-										<?= _("impostare l'icona nel file configuration.php") ?>
-                    				<? endif ?>
-                                </p>
-                                <div class="small"><?= \Gino\htmlchars($m['description']) ?></div>
-                            </div>
-                        </div>
-                    </div>
-                    <? if (++$i%2 == 0): ?>
-                        <div class="clearfix"></div>
-                    <? endif ?>
-                <? else: ?>
-                	<?php $hide_list[] = array('link' => $ctrl->link($m['name'], 'manageDoc'), 'label' => $m['label']); ?>
-                <? endif ?>
-            <? endforeach ?>
-        </div>
+    <!-- <h2>Moduli di sistema</h2> -->
+    <div class="col-md-8">
+    	<div class="row">
+    	
+    	<? $cs=0; $hide_list=array(); ?>
+        <? foreach($sysmdls as $sm): ?>
+			<? if(!in_array($sm['name'], $hide)): ?>
+				
+				<?php if($cs >= $cs_count) {$cs = 0;} ?>
+				<?php $class_card = $card_style[$cs]; $cs++; ?>
+            	<div class="card text-center admin-app-card <?= $class_card ?>" style="max-width: 18rem;">
+                    <!-- Graphic -->
+					<? if (array_key_exists($sm['name'], $fas)): ?>
+						<i class="card-img-top fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
+					<? else: ?>
+						<?= _("impostare l'icona nel file configuration.php") ?>
+					<? endif ?>
+					
+					<div class="card-body">
+						<!-- Title -->
+						<h5 class="card-title"><a href="<?= $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])) ?>"><?= $sm['label'] ?></a></h5>
+						<!-- Description -->
+						<p class="card-text"><?= \Gino\htmlchars($sm['description']) ?></p>
+					</div>
+				</div>
+			<? else: ?>
+                <?php $hide_list[] = array('link' => $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])), 'label' => $sm['label']); ?>
+            <? endif ?>
+		<? endforeach ?>
+		</div>
+	</div>
+	
+	<!-- <h2>Moduli istanziabili</h2> -->
+    <div class="col-md-4">
+    	<div class="row">
+    	
+        <? $cs=0; ?>
+        <? foreach($mdls as $m): ?>
+			<? if(!in_array($m['name'], $hide)): ?>
+				
+				<?php if($cs >= $cs_count) {$cs = 0;} ?>
+				<?php $class_card = $card_style[$cs]; $cs++; ?>
+            	<div class="card text-center admin-app-card <?= $class_card ?>" style="max-width: 18rem;">
+                    <!-- Graphic -->
+					<? if (array_key_exists($m['name'], $fas)): ?>
+						<i class="card-img-top fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
+					<? else: ?>
+						<?= _("impostare l'icona nel file configuration.php") ?>
+					<? endif ?>
+					
+					<div class="card-body">
+						<!-- Title -->
+						<h5 class="card-title"><a href="<?= $ctrl->link($m['name'], 'manageDoc') ?>"><?= $m['label'] ?></a></h5>
+						<!-- Description -->
+						<p class="card-text"><?= \Gino\htmlchars($m['description']) ?></p>
+					</div>
+				</div>
+			<? else: ?>
+                <?php $hide_list[] = array('link' => $ctrl->link($m['name'], 'manageDoc'), 'label' => $m['label']); ?>
+            <? endif ?>
+		<? endforeach ?>
+		</div>
     </div>
 </div>
 

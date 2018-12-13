@@ -3,7 +3,7 @@
  * @file class.Template.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Template
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Redirect;
 /**
  * @brief Libreria per la gestione dei template del documento html da associare alle @ref Gino.Skin
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -34,7 +34,7 @@ class Template extends Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return void, istanza di Gino.Template
+     * @return void
      */
     function __construct($id) {
 
@@ -52,7 +52,16 @@ class Template extends Model {
     }
     
     /**
-     * Struttura dei campi della tabella di un modello
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return string
+     */
+    function __toString() {
+        
+        return (string) $this->ml('label');
+    }
+    
+    /**
+     * @brief Struttura dei campi della tabella di un modello
      *
      * @return array
      */
@@ -63,22 +72,27 @@ class Template extends Model {
     		'primary_key' => true,
     		'auto_increment' => true,
     	));
-     	$columns['filename'] = new \Gino\FileField(array(
-     		'name' => 'filename',
-     		'required' => true,
-     		'max_lenght' => 200
+     	$columns['label'] = new \Gino\CharField(array(
+     	    'name' => 'label',
+     	    'label' => _("Etichetta"),
+     	    'required' => true,
+     	    'max_lenght' => 200
      	));
-    	$columns['label'] = new \Gino\CharField(array(
-    		'name' => 'label',
-    		'required' => true,
-    		'max_lenght' => 200
-    	));
+     	$columns['filename'] = new \Gino\CharField(array(
+     	    'name' => 'filename',
+     	    'label' => [_("Nome file"), _("Inserire senza estensione")],
+     	    'required' => true,
+     	    'max_lenght' => 200,
+     	    'trnsl' => false
+     	));
     	$columns['description'] = new \Gino\TextField(array(
     		'name' => 'description',
+    	    'label' => _("Descrizione"),
     		'required' => true
     	));
     	$columns['free'] = new \Gino\BooleanField(array(
     		'name' => 'free',
+    	    'label' => _("Template libero"),
     		'required' => true
     	));
     	return $columns;
@@ -116,7 +130,7 @@ class Template extends Model {
     /**
      * @brief Descrizione della procedura
      *
-     * @return string, informazioni
+     * @return string
      */
     public static function layoutInfo() {
 
@@ -133,106 +147,80 @@ class Template extends Model {
     }
 
     /**
-     * @brief Form di inserimento/modifica dati template
-     * @param \Gino\Form $gform istanza di Gino.Form
-     * @param bool $free indica se il template è di tipo free (TRUE) o a blocchi
-     * @return string
-     */
-    private function formData($gform, $free = FALSE) {
-
-        if($free) {
-            $formaction = $this->_registry->router->link($this->_interface, 'actionTemplate', array(), array('free' => 1));
-        }
-        else {
-            $formaction = $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => 'mngtpl'));
-        }
-        
-        $buffer = $gform->open($formaction, '', 'label', array('form_id'=>'gform'));
-        $buffer .= \Gino\Input::hidden('id', $this->id);
-        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-        $buffer .= ($this->id)
-            ? \Gino\Input::input_label('filename', 'text', htmlInput($this->filename), _("Nome file"), array("other"=>"disabled", "size"=>40, "maxlength"=>200))
-            : \Gino\Input::input_label('filename', 'text', $gform->retvar('filename', htmlInput($this->filename)), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
-        $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', htmlInput($this->description)), _("Descrizione"), array("required"=>true, "cols"=>45, "rows"=>4, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-
-        if(!$free) {
-
-            Loader::import('class', '\Gino\Css');
-            $css_list = array();
-            foreach(Css::getAll('label') as $css) {
-                $css_list[$css->id] = htmlInput($css->label);
-            }
-            $buffer .= \Gino\Input::select_label('css', $gform->retvar('css', $this->css), $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")), null);
-        }
-
-        return $buffer;
-    }
-
-    /**
      * @brief Form di inserimento/modifica template di tipo free
      * @return string
      */
     public function formFreeTemplate() {
-
-        $registry = Registry::instance();
-        $registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
-        $registry->addCss(CSS_WWW."/codemirror.css");
-
-        $registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-        $registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-        $registry->addJs(SITE_JS."/CodeMirror/css.js");
-        $registry->addJs(SITE_JS."/CodeMirror/xml.js");
-        $registry->addJs(SITE_JS."/CodeMirror/clike.js");
-        $registry->addJs(SITE_JS."/CodeMirror/php.js");
-        $options = "{
-            lineNumbers: true,
-            matchBrackets: true,
-            mode: \"application/x-httpd-php\",
-            indentUnit: 4,
-            indentWithTabs: true,
-            enterMode: \"keep\",
-            tabMode: \"shift\"
-        }";
-
+        
+        $codemirror = \Gino\Loader::load('CodeMirror', array(['type' => 'view']));
+        
         if($this->id) {
+            $title = _("Modifica template")." '".htmlChars($this->label)."'";
             $code = file_get_contents(TPL_DIR.OS.$this->filename);
         }
         else {
+            $title = _("Nuovo template");
             $code = file_get_contents(TPL_DIR.OS."default_free_tpl.php");
         }
-
-        $gform = Loader::load('Form', array());
-        $gform->load('dataform');
-
-        $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
-
-        $buffer = "<div class=\"backoffice-info\">";
-        $buffer .= "<p>"._('La scrittura di template in modalità libera consente di scrivere direttamente il template utilizzando codice php. È uno strumento molto potente quanto pericoloso, si consiglia di non modificare template amministrativi in questo modo, in quanto se dovessero verificarsi degli errori non sarebbe in alcuni casi possibile correggerli.')."</p>";
-        $buffer .= "<p>"._('Tutte le classi di gino sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di gino per maggiori informazioni.')."</p>";
-        $buffer .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), "var w = new gino.layerWindow({
+        
+        $info = "<div class=\"backoffice-info\">";
+        $info .= "<p>"._('La scrittura di template in modalità libera consente di scrivere direttamente il template utilizzando codice php. È uno strumento molto potente quanto pericoloso, si consiglia di non modificare template amministrativi in questo modo, in quanto se dovessero verificarsi degli errori non sarebbe in alcuni casi possibile correggerli.')."</p>";
+        $info .= "<p>"._('Tutte le classi di gino sono disponibili attraverso il modulo Loader, ed il registro $register è già disponibile. Consultare le reference di gino per maggiori informazioni.')."</p>";
+        $info .= "<p>".sprintf(_('Le viste disponibili sono inseribili all\'interno del template utilizzando una particolare sintassi. <span class="link" onclick="%s">CLICCA QUI</span> per ottenere un elenco.'), 
+        "var w = new gino.layerWindow({
         'title': '"._('Moduli e pagine')."',
         'url': '".$this->_registry->router->link($this->_interface, 'modulesCodeList')."',
         'width': 800,
         'height': 500,
         'overlay': false
         }); w.display();")."</p>";
-        $buffer .= "</div>";
-
-        $buffer .= $this->formData($gform, TRUE);
-        $buffer .= \Gino\Input::hidden('free', 1);
-        $buffer .= \Gino\Input::textarea_label('code', $gform->retvar('code', $code), _("Codice PHP"), array("cols"=>45, "rows"=>14, 'id'=>'codemirror'));
-        $save_and_continue = \Gino\Input::input('savecontinue_action', 'submit', _('salva e continua la modifica'), array("classField"=>"submit"));
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _('salva'), '', array("classField"=>"submit", 'text_add'=>$save_and_continue));
-        $buffer .= $gform->close();
-
-        $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
-
+        $info .= "</div>";
+        
+        if($this->id) {
+            $file_readonly = true;
+            $file_pattern = null;
+            $file_hint = null;
+        }
+        else {
+            $file_readonly = false;
+            $file_pattern = "^[\d\w_-]*$";
+            $file_hint = _("caratteri alfanumerici, '_', '-'");
+        }
+        
+        $mform = \Gino\Loader::load('ModelForm', array($this, array(
+            'form_id' => 'gform',
+        )));
+        
+        $buffer = $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'view_title' => false,
+                'f_action' => $this->_registry->router->link($this->_interface, 'actionTemplate', array(), array('free' => 1)),
+                's_value' => _("salva"),
+                'show_save_and_continue' => true,
+                'savecontinue_name' => 'savecontinue_action',
+                'removeFields' => ['free'],
+                'addCell' => [
+                    'filename' => ['name' => 'free', 'field' => \Gino\Input::hidden('free', 1)],
+                    'last_cell' => [
+                        'name' => 'code', 
+                        'field' => $codemirror->inputText('code', $code, ['label' => _("Codice PHP")])
+                    ]
+                ]
+            ),
+            array(
+                'filename' => ['readonly' => $file_readonly, "pattern" => $file_pattern, "hint" => $file_hint]
+            )
+        );
+        
+        $buffer .= $codemirror->renderScript();
+        
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
-            'content' => $buffer
+            'class' => null,
+            'content' => $info.$buffer
         );
 
         return $view->render($dict);
@@ -250,7 +238,9 @@ class Template extends Model {
         $this->label = cleanVar($request->POST, 'label', 'string', '');
         $this->description = cleanVar($request->POST, 'description', 'string', '');
         $tplFilename = cleanVar($request->POST, 'filename', 'string', '');
-        if($tplFilename) $this->filename = $tplFilename.".php";
+        if($tplFilename) {
+            $this->filename = $tplFilename.".php";
+        }
 
         $action = ($this->id) ? 'modify' : 'insert';
         $link_error = $this->_registry->router->link($this->_interface, 'manageLayout', array(), 'block=template&action=$action&free=1');
@@ -261,12 +251,14 @@ class Template extends Model {
 
         if($fp = @fopen(TPL_DIR.OS.$this->filename, "wb")) {
           $code = filter_input(INPUT_POST, 'code');
-            if(!fwrite($fp, $code))
+          if(!fwrite($fp, $code)) {
                 return Error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
-
-            fclose($fp);
+          }
+          fclose($fp);
         }
-        else return Error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+        else {
+            return Error::errorMessage(array('error'=>_("Impossibile creare il file"), 'hint'=>_("Controllare i permessi in scrittura all'interno della cartella ".TPL_DIR.OS)), $link_error);
+        }
 
         $this->save();
 
@@ -286,24 +278,57 @@ class Template extends Model {
      */
     public function formTemplate() {
 
-        $gform = Loader::load('Form', array());
-        $gform->load('dataform');
-
-        $title = ($this->id) ? _("Modifica template")." '".htmlChars($this->label)."'" : _("Nuovo template");
-
-        $buffer = $this->formData($gform);
         if($this->id) {
-            $buffer .= \Gino\Input::hidden('modTpl', 1);
+            $title = _("Modifica template")." '".htmlChars($this->label)."'";
+            $add_cell_modtpl = ['name' => 'modTpl', 'field' => \Gino\Input::hidden('modTpl', 1)];
+            $file_readonly = true;
+            $s_value = _("procedi con la modifica del template");
         }
-        $buffer .= $this->formBlock($gform);
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("procedi con la modifica del template"):_("crea template")), '', array("classField"=>"submit"));
-        $buffer .= $gform->close();
-
+        else {
+            $title = _("Nuovo template");
+            $add_cell_modtpl = null;
+            $file_readonly = false;
+            $s_value = _("crea template");
+        }
+        
+        Loader::import('class', '\Gino\Css');
+        $css_list = array();
+        foreach(Css::getAll('label') as $css) {
+            $css_list[$css->id] = htmlInput($css->label);
+        }
+        $css_input = \Gino\Input::select_label('css', $this->css, $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")));
+        
+        $mform = \Gino\Loader::load('ModelForm', array($this, array(
+            'form_id' => 'gform',
+        )));
+        
+        $buffer = $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'show_save_and_continue' => false,
+                'view_title' => false,
+                'f_action' => $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => 'mngtpl')),
+                's_value' => $s_value,
+                'removeFields' => ['free'],
+                'addCell' => [
+                    'label' => $add_cell_modtpl,
+                    'last_cell' => [
+                        'name' => 'css',
+                        'field' => $css_input
+                    ]
+                ],
+                'additional_text' => $this->formBlock($mform)
+            ),
+            array(
+                'filename' => ['readonly' => $file_readonly, "pattern" => "^[\d\w_-]*$", "hint" => _("caratteri alfanumerici, '_', '-'")]
+            )
+        );
+        
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -318,22 +343,44 @@ class Template extends Model {
     public function formOutline() {
 
         if(!$this->id) return null;
-
-        $gform = Loader::load('Form', array());
-        $gform->load('dataform');
-
-        $title = _("Modifica lo schema");
-
-        $buffer = $this->formData($gform);
-        $buffer .= \Gino\Input::input_label('blocks_number', 'text', $this->_blocks_number, _('numero blocchi'), array("other"=>"disabled", 'size'=>1));
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("vai allo schema"), '', array("classField"=>"submit"));
-        $buffer .= $gform->close();
-
+        
+        Loader::import('class', '\Gino\Css');
+        $css_list = array();
+        foreach(Css::getAll('label') as $css) {
+            $css_list[$css->id] = htmlInput($css->label);
+        }
+        $css_input = \Gino\Input::select_label('css', $this->css, $css_list, array(_("Css"), _("Selezionare il css qualora lo si voglia associare al template nel momento di definizione della skin (utile per la visualizzazione delle anteprime nello schema)")));
+        
+        $mform = \Gino\Loader::load('ModelForm', array($this, array(
+            'form_id' => 'gform',
+        )));
+        
+        $buffer = $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'show_save_and_continue' => false,
+                'view_title' => false,
+                'f_action' => $this->_registry->router->link($this->_interface, 'manageLayout', array(), array('block' => 'template', 'action' => 'mngtpl')),
+                's_value' => _("vai allo schema"),
+                'removeFields' => ['free'],
+                'addCell' => [
+                    'last_cell' => [
+                        'name' => 'css',
+                        'field' => $css_input
+                    ]
+                ],
+                'additional_text' => \Gino\Input::input_label('blocks_number', 'text', $this->_blocks_number, _('numero blocchi'), array("readonly" => true, 'size'=>1))
+            ),
+            array(
+                'filename' => ['readonly' => true, "pattern" => "^[\d\w_-]*$", "hint" => _("caratteri alfanumerici, '_', '-'")]
+            )
+        );
+        
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
-            'title' => $title,
-            'class' => 'admin',
+            'title' => _("Modifica lo schema"),
+            'class' => null,
             'content' => $buffer
         );
 
@@ -357,15 +404,17 @@ class Template extends Model {
         $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', ''), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200));
         $buffer .= \Gino\Input::input_label('filename', 'text', $gform->retvar('filename', ''), array(_("Nome file"), _("Senza estensione, es. home_page")), array("required"=>true, "size"=>40, "maxlength"=>200, "pattern"=>"^[\d\w_-]*$", "hint"=>_("caratteri alfanumerici, '_', '-'")));
         $buffer .= \Gino\Input::textarea_label('description', $gform->retvar('description', ''), _("Descrizione"), array("cols"=>45, "rows"=>4));
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("crea template"), '', array("classField"=>"submit"));
-
+        
+        $submit = \Gino\Input::submit('submit_action', _("crea template"));
+        $buffer .= \Gino\Input::placeholderRow(null, $submit);
+        
         $buffer .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -539,14 +588,17 @@ class Template extends Model {
         
         $buffer .= $gform->open($this->_registry->router->link($this->_interface, 'actionDelTemplate'), '', '', array('form_id'=>'gform'));
         $buffer .= \Gino\Input::hidden('id', $this->id);
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _("Sicuro di voler procedere?"), array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', _("elimina"));
+        $buffer .= \Gino\Input::placeholderRow(_("Sicuro di voler procedere?"), $submit);
+        
         $buffer .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => sprintf(_('Elimina template "%s"'), htmlChars($this->label)),
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -586,7 +638,7 @@ class Template extends Model {
      * @see self::renderNave()
      * @param \Gino\Css $css istanza di Gino.Css
      * @param integer $tpl_id valore ID del template
-     * @return string, interfaccia di modifica interativa del template
+     * @return string
      */
     public function manageTemplate($css, $tpl_id=0) {
 
@@ -877,7 +929,9 @@ class Template extends Model {
                     $title = _("Modulo da url");
                     $jsurl = null;
                 }
-                else throw new \Exception(_("Tipo di modulo sconosciuto"));
+                else {
+                    throw new \Exception(_("Tipo di modulo sconosciuto"));
+                }
 
                 $buffer .= "<div id=\"mdlContainer_".$matches[3]."_$count\">";
                 $buffer .= "<div class=\"mdlContainerCtrl\">";
@@ -957,8 +1011,12 @@ class Template extends Model {
         $this->free = 0;
         $this->label = cleanVar($request->POST, 'label', 'string', '');
         $this->description = cleanVar($request->POST, 'description', 'string', '');
+        
         $tplFilename = cleanVar($request->POST, 'filename', 'string', '');
-        if($tplFilename) $this->filename = $tplFilename.".tpl";
+        if($tplFilename) {
+            $this->filename = $tplFilename.".tpl";
+        }
+        
         $modTpl = cleanVar($request->POST, 'modTpl', 'int', '');
         
         $action = ($this->id) ? "modify":"insert";
@@ -972,7 +1030,6 @@ class Template extends Model {
         	if(!fwrite($fp, $tplContent)) {
         		return Error::errorMessage(array('error'=>_("Impossibile scrivere il file")), $link_error);
             }
-
             fclose($fp);
         }
         else {
@@ -1037,7 +1094,7 @@ class Template extends Model {
      * @param int $align allineamento (1: sinistra, 2: centrato, 3: destra)
      * @param int $rows numero righe
      * @param int $cols numero colonne
-     * @return bool, risultato
+     * @return boolean, risultato dell'operazione
      */
     private function saveBlock($id, $position, $width, $um, $align, $rows, $cols) {
 
@@ -1088,7 +1145,7 @@ class Template extends Model {
 
     /**
      * @brief Eliminazione blocchi template
-     * @return bool, risultato operazione
+     * @return boolean, risultato dell'operazione
      */
     private function deleteBlocks() {
 

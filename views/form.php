@@ -8,9 +8,10 @@ namespace Gino;
 * - **open**: string, tag form
 * - **hidden_inputs**: array
 * - **inputs**: array
+* - **additional_text**: string
 * - **submit**: string
 * 
-* @copyright 2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2016-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -33,8 +34,9 @@ namespace Gino;
 <!-- input -->
 <?php if(count($inputs)): ?>
     <? foreach($inputs AS $input): ?>
-    	<!-- fieldset -->
+    	
     	<?php if(is_array($input) and array_key_exists('fieldset', $input) and $input['fieldset']): ?>
+    		<!-- fieldset -->
     		<fieldset>
     		<?php if($input['legend']): ?>
     			<legend><?= $input['legend'] ?></legend>
@@ -48,15 +50,16 @@ namespace Gino;
     			<? endforeach ?>
     		<?php endif ?>
     		</fieldset>
-    	<!-- /fieldset -->
-    	
+            <!-- /fieldset -->
     	<?php else: ?>
-    		
     		<?= $input ?>
-    		
     	<?php endif ?>
     	
     <? endforeach ?>
+<?php endif ?>
+
+<?php if($additional_text): ?>
+    <?= $additional_text ?>
 <?php endif ?>
 
 <!-- submit -->

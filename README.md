@@ -22,7 +22,7 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 - gestione errori http 404, 403, 500
 - ricerca full-text
 - installazione di pacchetti aggiuntivi con un click
-- integrazione Bootstrap 3 (less) e Font-awesome
+- integrazione Bootstrap 4 (less) e Font-awesome
 - integrazione Mootools > 1.6.0 e jQuery 2.2.4
 - gestione dispositivi mobile separata se necessario
 - moduli aggiuntivi disponibili sull'[account github di Otto](http://github.com/otto-torino)

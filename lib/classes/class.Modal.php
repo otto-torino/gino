@@ -50,7 +50,7 @@ namespace Gino;
  *   'modal_id' => $name.'ModalCenter',
  *   'modal_title_id' => $name.'ModalCenterTitle',
  * ]);
- * $value_link = $modal->buttonTrigger($value, ['button_class' => 'btn btn-secondary btn-sm']);
+ * $value_link = $modal->trigger($label, ['tagname' => 'button', 'class' => 'btn btn-secondary btn-sm']);
  * $value_link .= $modal->render(_("Media"), "HTML data");
  * @endcode
  * 
@@ -107,16 +107,34 @@ class Modal {
         return $this->_popup_trigger;
     }
     
-    // <!-- Trigger the modal with a button -->
-    // <button type="button" class="btn btn-success openBtn">Open Modal</button>
-    
-    public function buttonTrigger($value, $options=[]) {
+    /**
+     * @brief Link/button for trigger the modal
+     * @param string $label
+     * @param array $options
+     *   - @b class (string)
+     *   - @b tagname (string): nome del tag; valori disponibili @a button (default), @a span
+     * @return string
+     */
+    public function trigger($label, $options=[]) {
         
-        $button_class = gOpt('button_class', $options, 'btn btn-primary');
+        $class = gOpt('class', $options, null);
+        $tagname = gOpt('tagname', $options, 'button');
         
-        $buffer = "<button type=\"button\" class=\"$button_class\"
+        if($tagname == 'button') {
+            $tag = 'button';
+            if(!$class) {
+                $class = 'btn btn-primary';
+            }
+            $add = "type=\"button\"";
+        }
+        elseif ($tagname == 'span') {
+            $tag = 'span';
+            $add = null;
+        }
+        
+        $buffer = "<".$tag." $add class=\"$class\"
     	data-toggle=\"modal\" data-target=\"#".$this->_modal_id."\">";
-        $buffer .= $value."</button>";
+        $buffer .= $label."</".$tag.">";
         
         return $buffer;
     }

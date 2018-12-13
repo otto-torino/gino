@@ -3,7 +3,7 @@
  * @file class.Skin.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Skin
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,11 +18,10 @@ use Gino\Http\Redirect;
  * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
  * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
  * @see Gino.App.Layout
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
-
 class Skin extends Model {
 
 	public static $table = 'sys_layout_skin';
@@ -34,7 +33,7 @@ class Skin extends Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return void, istanza di Gino.Skin
+     * @return void
      */
     function __construct($id) {
 
@@ -45,7 +44,22 @@ class Skin extends Model {
     	$this->_interface = 'layout';
     }
     
+    /**
+     * @brief Rappresentazione a stringa dell'oggetto
+     * @return string
+     */
+    function __toString() {
+        
+        return (string) $this->ml('label');
+    }
+    
+    /**
+     * 
+     * @return array
+     */
     public static function columns() {
+        
+        $registry = Registry::instance();
     	
     	$columns['id'] = new \Gino\IntegerField(array(
     		'name' => 'id',
@@ -61,17 +75,17 @@ class Skin extends Model {
     	));
     	$columns['session'] = new \Gino\CharField(array(
     		'name' => 'session',
-    	    'label' => _("Variabile di sessione"),
+    	    'label' => array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:%s%s"), "<br />", "mobile=1")),
     		'max_lenght' => 128
     	));
     	$columns['rexp'] = new \Gino\CharField(array(
     		'name' => 'rexp',
-    	    'label' => _("Espressione regolare"),
+    	    'label' => array(_("Espressione regolare"), sprintf(_("esempi:%s%s"), "<br />", $registry->router->exampleUrl('regexp'))),
     		'max_lenght' => 200
     	));
     	$columns['urls'] = new \Gino\CharField(array(
     		'name' => 'urls',
-    	    'label' => _("Indirizzi"),
+    	    'label' => array(_("Indirizzi"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:%s%s"), "<br />", $registry->router->exampleUrl('url'))),
     		'max_lenght' => 200
     	));
     	$columns['highest'] = new \Gino\BooleanField(array(
@@ -80,15 +94,25 @@ class Skin extends Model {
     		'required' => true,
     		'default' => 0
     	));
-    	$columns['template'] = new \Gino\CharField(array(
-    		'name' => 'template',
-    		'required' => true,
-    		'max_lenght' => 200
+    	$columns['template'] = new \Gino\ForeignKeyField(array(
+    	    'name' => 'template',
+    	    'label' => _("Template"),
+    	    'required' => true,
+    	    'foreign' => '\Gino\Template',
+    	    'foreign_order' => 'label ASC',
+    	    'add_related' => false,
+    	    'max_lenght' => 11,
     	));
-    	$columns['css'] = new \Gino\IntegerField(array(
-    		'name' => 'css',
-    		'max_lenght' => 11,
+    	$columns['css'] = new \Gino\ForeignKeyField(array(
+    	    'name' => 'css',
+    	    'label' => _("Css"),
+    	    'required' => false,
+    	    'foreign' => '\Gino\Css',
+    	    'foreign_order' => 'label ASC',
+    	    'add_related' => false,
+    	    'max_lenght' => 11,
     	));
+    	
     	$columns['priority'] = new \Gino\IntegerField(array(
     		'name' => 'priority',
     		'required' => true,
@@ -96,12 +120,14 @@ class Skin extends Model {
     	));
     	$columns['auth'] = new \Gino\EnumField(array(
     		'name' => 'auth',
+    	    'label' => array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')),
     		'required' => true,
     		'choice' => array("" => _("si & no"), "yes" => _("si"), "no" => _("no")),
     		'value_type' => 'string'
     	));
     	$columns['cache'] = new \Gino\IntegerField(array(
     		'name' => 'cache',
+    	    'label' => array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")),
     		'required' => true,
     		'default' => 0
     	));
@@ -306,60 +332,32 @@ class Skin extends Model {
 
         Loader::import('class', array('\Gino\Css', '\Gino\Template'));
 
-        $gform = Loader::load('Form', array());
-        $gform->load('dataform');
-
         $title = ($this->id)? _("Modifica")." ".htmlChars($this->label):_("Nuova skin");
         
-        $formaction = $this->_registry->router->link($this->_interface, 'actionSkin');
-
-        $buffer = $gform->open($formaction, '', 'template', array('form_id'=>'gform'));
-        $buffer .= \Gino\Input::hidden('id', $this->id);
+        $mform = \Gino\Loader::load('ModelForm', array($this, array(
+            'form_id' => 'gform',
+        )));
         
-        $buffer .= \Gino\Input::input_label('label', 'text', $gform->retvar('label', htmlInput($this->label)), _("Etichetta"), array("required"=>true, "size"=>40, "maxlength"=>200, "trnsl"=>true, "trnsl_table"=>$this->_tbl_data, "trnsl_id"=>$this->id));
-        $buffer .= \Gino\Input::input_label('session', 'text', $gform->retvar('session', $this->session), array(_("Variabile di sessione"), sprintf(_("impostare le regole di matching di url e classi; come esempio:%s%s"), "<br />", "mobile=1")), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('rexp', 'text', $gform->retvar('rexp', $this->rexp), array(_("Espressione regolare"), sprintf(_("esempi:%s%s"), "<br />", $this->_registry->router->exampleUrl('regexp'))), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::input_label('urls', 'text', $gform->retvar('urls', htmlInput($this->urls)), array(_("Indirizzi"), sprintf(_("Indicare uno o più indirizzi separati da virgole; esempi:%s%s"), "<br />", $this->_registry->router->exampleUrl('url'))), array("size"=>40, "maxlength"=>200));
-        $buffer .= \Gino\Input::radio_label(
-        	'highest', 
-        	$gform->retvar('highest', $this->highest), 
-        	array(1 => _("si"), 0 => _("no")),
-        	0,
-        	array(_("Priorità massima"), _("da utilizzare per bypassare le skin con variabile di sessione")), 
-        	array("required" => true)
+        $buffer = $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'show_save_and_continue' => false,
+                'view_title' => false,
+                'f_action' => $this->_registry->router->link($this->_interface, 'actionSkin'),
+                's_value' => (($this->id) ? _("modifica") : _("inserisci")),
+                'removeFields' => ['priority']
+            ),
+            array(
+                'description' => array("cols" => 45, "rows" => 4, "trnsl" => false),
+                'cache' => ["pattern" => "^\d*$"]
+            )
         );
-        
-        $css_list = array();
-        
-        foreach(Css::getAll() as $css) {
-            $css_list[$css->id] = htmlInput($css->label);
-        }
-        $buffer .= \Gino\Input::select_label('css', $gform->retvar('css', $this->css), $css_list, _("Css"));
-        
-        $tpl_list = array();
-        foreach(Template::objects(null, array('order' => 'label')) as $tpl) {
-            $tpl_list[$tpl->id] = htmlInput($tpl->label);
-        }
-        $buffer .= \Gino\Input::select_label('template', $gform->retvar('template', $this->template), $tpl_list, _("Template"), array("required"=>true));
-        $buffer .= \Gino\Input::radio_label(
-            'auth', 
-            $gform->retvar('auth', $this->auth), 
-            array(""=>"si & no", "yes"=>_("si"),"no"=>_("no")), 
-            '', 
-            array(_("Autenticazione"), _('<b>si</b>: la skin viene considerata solo se l\'utente è autenticato.<br /><b>no</b>: viceversa.<br /><b>si & no</b>: la skin viene sempre considerata.')), 
-            array("required" => true)
-        );
-        $buffer .= \Gino\Input::input_label('cache', 'text', $gform->retvar('cache', $this->cache), array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")), array("size"=>6, "maxlength"=>16, "pattern"=>"^\d*$"));
-
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', (($this->id)?_("modifica"):_("inserisci")), '', array("classField"=>"submit"));
-
-        $buffer .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -423,14 +421,16 @@ class Skin extends Model {
 
         $buffer .= $gform->open($formaction, '', '', array('form_id'=>'gform', 'validation'=>false));
         $buffer .= \Gino\Input::hidden('id', $this->id);
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("elimina"), _('Sicuro di voler procedere?'), array("classField"=>"submit"));
+        
+        $submit = \Gino\Input::submit('submit_action', _("elimina"));
+        $buffer .= \Gino\Input::placeholderRow( _('Sicuro di voler procedere?'), $submit);
         $buffer .= $gform->close();
 
         $view = new View();
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 

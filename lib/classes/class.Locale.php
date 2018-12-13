@@ -3,7 +3,7 @@
  * @file class.Locale.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Locale
  * 
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -78,7 +78,7 @@ use Gino\App\Language\Lang;
  * );
  * @endcode
  * 
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -145,15 +145,16 @@ class Locale extends Singleton {
 
     /**
      * @brief Recupera la traduzione corrispondente alla chiave data
+     * @description Se la traduzione non è presente ritorna la chiave stessa
      * @param string $key chiave
-     * @return string, traduzione o la chiave stessa se la traduzione non è presente
+     * @return string
      */
     public function get($key) {
         return array_key_exists($key, $this->_strings) ? $this->_strings[$key] : $key;
     }
     
     /**
-     * @brief Setta la lingua del client
+     * @brief Imposta la lingua del client
      *
      * @return TRUE
      */
@@ -245,7 +246,7 @@ class Locale extends Singleton {
      * @brief Lingua dello User Agent
      * 
      * @see get_languages()
-     * @return string or false, lingua user agent o FALSE se non trovata
+     * @return mixed, lingua user agent o FALSE se non trovata
      */
     private static function userLanguage(){
 
@@ -535,7 +536,7 @@ class Locale extends Singleton {
     /**
      * @brief Nome del file delle traduzioni
      *
-     * @return string, nome file
+     * @return string
      */
     private function fileName() {
     
@@ -714,25 +715,7 @@ class Locale extends Singleton {
     
     	$key = cleanVar($request->GET, 'key', 'string', '');
     	
-    	$registry = registry::instance();
-    
-    	$registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
-    	$registry->addCss(CSS_WWW."/codemirror.css");
-    	$registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-    	$registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-    	$registry->addJs(SITE_JS."/CodeMirror/css.js");
-    	$registry->addJs(SITE_JS."/CodeMirror/xml.js");
-    	$registry->addJs(SITE_JS."/CodeMirror/clike.js");
-    	$registry->addJs(SITE_JS."/CodeMirror/php.js");
-    	$options = "{
-        	lineNumbers: true,
-        	matchBrackets: true,
-        	mode: \"application/x-httpd-php\",
-    		indentUnit: 4,
-    		indentWithTabs: true,
-    		enterMode: \"keep\",
-    		tabMode: \"shift\"
-        }";
+    	$codemirror = \Gino\Loader::load('CodeMirror', array(['type' => 'view']));
     	 
     	$path_to_file = $this->pathToBaseDir($key).$this->fileName();
     	 
@@ -744,21 +727,22 @@ class Locale extends Singleton {
     	$buffer = $gform->open($this->_mdlLink."&action=save&key=$key", '', '');
     
     	$contents = file_get_contents($path_to_file);
-    
-    	$buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
-    
-    	$buffer .= "<div class=\"form-row\">";
-    	$buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-    	$buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+    	
+    	$buffer .= $codemirror->inputText('file_content', $contents, ['classField' => null]);
+        
+    	$buffer .= "<div class=\"form-group\">";
+    	$buffer .= \Gino\Input::submit('submit_action', _("salva"));
+    	$buffer .= \Gino\Input::submit('cancel_action', _("annulla"), ['onclick' => "location.href='$this->_mdlLink'"]);
     	$buffer .= "</div>";
+    	
     	$buffer .= $gform->close();
-    
-    	$buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+    	
+    	$buffer .= $codemirror->renderScript();
     
     	$view = new View(null, 'section');
     	$dict = array(
     		'title' => $title,
-    		'class' => 'admin',
+    		'class' => null,
     		'content' => $buffer
     	);
     
@@ -807,7 +791,9 @@ class Locale extends Singleton {
     	$query = $db->query($concat." AS lang, language", Lang::$table, $where, array('order'=>'language ASC'));
     	
     	$buffer .= \Gino\Input::select_label('lang', null, $query, _("Lingua"), array('required'=>true));
-    	$buffer .= \Gino\Input::input_label('submit_action', 'submit', _("crea"), null, array("classField"=>"submit"));
+    	
+    	$submit = \Gino\Input::submit('submit_action', _("crea"));
+    	$buffer .= \Gino\Input::placeholderRow(null, $submit);
     	
     	$buffer .= $gform->close();
     	
@@ -815,7 +801,7 @@ class Locale extends Singleton {
     	$dict = array(
     			'title' => $title,
     			'subtitle' => $subtitle, 
-    			'class' => 'admin',
+    			'class' => null,
     			'content' => $buffer
     	);
     
