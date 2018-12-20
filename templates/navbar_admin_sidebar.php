@@ -3,11 +3,19 @@
 
 <!-- You can also remove the .navbar-expand-md class to ALWAYS hide navbar links and display the toggler button -->
 
-<nav class="navbar navbar-expand-md navbar-dark bg-info fixed-top">
+<nav class="navbar navbar-expand-md navbar-dark bg-info">
+
+	<!-- Sidebar Button -->
+	<button type="button" id="sidebarCollapse" class="btn btn-secondary" style="margin-right: 4px;">
+		<i class="fa fa-fw fa-bars"></i>
+		<span>Toggle Sidebar</span>
+	</button>
+	
 	<!-- Brand image -->
 	<a class="navbar-brand" href="#" itemprop="url" title="Otto">
 		<img class="" itemprop="logo" alt="Logo Otto" src="img/logo.png" style="width: 109px; height: 50px;">
 	</a>
+	
 	<button class="navbar-toggler" type="button" 
 		data-toggle="collapse" 
 		data-target="#bs-gino-navbar-collapse" 

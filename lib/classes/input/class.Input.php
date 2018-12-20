@@ -155,18 +155,9 @@ class Input {
         
         $classes = gOpt('classes', $options, null);
         
-        if($classes or $required) {
-            $classname = " class=\"";
-            if($classes) {
-                $classname .= $classes;
-            }
-            if($required) {
-                $classname .= ' req';
-            }
-            $classname .= "\"";
-        }
-        else {
-            $classname = '';
+        $classname = self::setLabelClasses($required, $classes);
+        if($classname) {
+            $classname = " class=\"".$classname."\"";
         }
         
     	if(is_array($text)) {

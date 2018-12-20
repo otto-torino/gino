@@ -175,9 +175,6 @@ define('HIDDEN_APPS', serialize(array('graphics', 'topbar', 'topbaradmin', 'menu
 /* visualizzare le applicazioni nascoste */
 define('VIEW_HIDDEN_APPS', false);
 
-/* gestione della barra laterale delle applicazioni in modalità apri/chiudi */
-define('OPEN_CLOSE_SIDENAV', false);
-
 /**
  * @brief Google Maps Key
  */

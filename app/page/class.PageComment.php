@@ -3,7 +3,7 @@
  * @file class.PageComment.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageComment
  *
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -13,7 +13,7 @@ namespace Gino\App\Page;
 /**
  * @brief Classe tipo Gino.Model che rappresenta un commento ad una pagina
  *
- * @copyright 2013-2016 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ class PageComment extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return void, istanza di Gino.App.Page.PageComment
+     * @return void
      */
     function __construct($id) {
 
@@ -67,23 +67,23 @@ class PageComment extends \Gino\Model {
     public static function columns() {
     
     	$columns['id'] = new \Gino\IntegerField(array(
-    		'name'=>'id',
-    		'primary_key'=>true,
-    		'auto_increment'=>true,
+    		'name' => 'id',
+    		'primary_key' => true,
+    		'auto_increment' => true,
     	));
     	$columns['entry'] = new \Gino\ForeignKeyField(array(
-    		'name'=>'entry',
-    		'label'=>_('Pagina'),
-            'required'=>true,
-    		'foreign'=>'\Gino\App\Page\PageEntry',
-    		'foreign_order'=>'last_edit_date',
+    		'name' => 'entry',
+    		'label' => _('Pagina'),
+            'required' => true,
+    		'foreign' => '\Gino\App\Page\PageEntry',
+    		'foreign_order' => 'last_edit_date',
     	));
     	$columns['datetime'] = new \Gino\DatetimeField(array(
-    		'name'=>'datetime',
-    		'label'=>_('Data'),
-    		'required'=>true,
-    		'auto_now'=>false,
-    		'auto_now_add'=>true,
+    		'name' => 'datetime',
+    		'label' => _('Data'),
+    		'required' => true,
+    		'auto_now' => false,
+    		'auto_now_add' => true,
     	));
     	$columns['author'] = new \Gino\CharField(array(
     		'name' => 'author',
@@ -93,21 +93,21 @@ class PageComment extends \Gino\Model {
     		'trnsl' => false
     	));
     	$columns['email'] = new \Gino\EmailField(array(
-    		'name'=>'email',
-    		'label'=>_("Email"),
-    		'required'=>true,
-    		'max_lenght'=>200,
+    		'name' => 'email',
+    		'label' => _("Email"),
+    		'required' => true,
+    		'max_lenght' => 200,
     	));
     	$columns['web'] = new \Gino\CharField(array(
     		'name' => 'web',
     		'label' => _("Sito web"),
-    		'required' => true,
+    		'required' => false,
     		'max_lenght' => 200,
     		'trnsl' => false
     	));
     	$columns['text'] = new \Gino\TextField(array(
     		'name' => 'text',
-    		'label' => _("Descrizione"),
+    	    'label' => [_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')],
     		'required' => true
     	));
     	$columns['notification'] = new \Gino\BooleanField(array(
@@ -136,7 +136,7 @@ class PageComment extends \Gino\Model {
      * @brief Numero totale di commenti per la pagina
      * 
      * @param integer $entry_id identificativo della pagina
-     * @return integer, numero di commenti
+     * @return integer
      */
     public static function getCountFromEntry($entry_id) {
 
@@ -185,7 +185,7 @@ class PageComment extends \Gino\Model {
      * @brief Eliminazione commenti legati ad una pagina 
      * 
      * @param int $entry_id identificativo della pagina
-     * @return bool, risultato dell'operazione
+     * @return boolean, risultato dell'operazione
      */
     public static function deleteFromEntry($entry_id) {
 

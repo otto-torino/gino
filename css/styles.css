@@ -2036,10 +2036,17 @@
 .clearfix {
   zoom: 1;
 }
+/* Import the fonts */
+/*
 @font-face {
-  font-family: "Chicken";
-  src: url(../fonts/chics.eot);
-  src: local("ChickenScratch"), url(../fonts/chics.ttf) format('truetype');
+	font-family: "Chicken";
+	src: url('../../fonts/chicken/chics.eot');
+	src: local("ChickenScratch"), url('../../fonts/chicken/chics.ttf') format('truetype');
+}
+*/
+@font-face {
+  font-family: 'Roboto Slab';
+  src: url('../../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'), url('../../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'), url('../../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'), url('../../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype');
 }
 .hidden {
   display: none;
@@ -2219,10 +2226,10 @@ div.tab-int-selected a:visited {
   height: 17px;
 }
 /* Backoffice */
-section.gino-admin {
+.gino-admin {
   padding: 10px 20px;
 }
-section.gino-admin .gino-admin-header {
+.gino-admin-header {
   display: flex;
   justify-content: space-between;
 }
@@ -2369,10 +2376,9 @@ div.abiWinOverlay {
   height: 400px;
   overflow: auto;
 }
-/* Breadcrumbs */
-#breadcrumbs div.inline {
-  float: left;
-  padding: 4px;
+/* Breadcrumb */
+ol.breadcrumb {
+  background-color: #d9d9d9;
 }
 form.myform {
   max-width: 500px;
@@ -2393,7 +2399,8 @@ form.myform {
 .form-multicheck table {
   margin-bottom: 0;
 }
-label.req {
+label.req,
+legend.req {
   font-weight: bold;
 }
 /*
@@ -2706,18 +2713,24 @@ input[type=submit], input[type=button] {
   margin: auto;
   width: 960px;
 }
-@font-face {
-  font-family: 'Roboto Slab';
-  src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'), url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype');
-}
 body {
-  margin-top: 90px !important;
+  margin-top: 90px;
+}
+body.without-fixed-top {
+  margin-top: 0px;
 }
 .bg-white {
   background-color: #fff;
 }
 article {
   clear: both;
+}
+/* Contenuto delle pagine con Sidebar */
+#content {
+  width: 100%;
+  padding: 0px;
+  min-height: 100vh;
+  transition: all 0.3s;
 }
 /* Video */
 .video-wrapper {
@@ -2824,6 +2837,83 @@ article {
   right: 20px;
 }
 /* /Claim */
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  /* stretch value will equalize both page content and sidebar height */
+}
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100vh;
+  /* As we do not know if the content will vertically fill the entire screen, we will set the minimum height of the sidebar to 100vh */
+}
+#sidebar.active {
+  margin-left: -250px;
+}
+/* Media query */
+@media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+  }
+  #sidebar.active {
+    margin-left: 0;
+  }
+}
+#sidebar {
+  /* Additional Style */
+  background: #6c757d;
+  color: #fff;
+  transition: all 0.3s;
+  /* Styling dropdowns */
+}
+#sidebar .dropdown-toggle::after {
+  /* This class adds a small triangle next to the drop-down links */
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+}
+#sidebar a[data-toggle="collapse"] {
+  position: relative;
+}
+#sidebar .sidebar-header {
+  padding: 20px;
+  background: #474d52;
+}
+#sidebar ul.components {
+  padding: 20px 0;
+  border-bottom: 1px solid #adb3b8;
+}
+#sidebar ul p {
+  color: #fff;
+  padding: 10px;
+}
+#sidebar ul li a {
+  padding: 10px;
+  font-size: 1.1em;
+  /* display: block; */
+  color: #fff;
+}
+#sidebar ul li a:hover,
+#sidebar ul li a:focus {
+  color: #cccccc;
+  text-decoration: none;
+  /*background: #fff;*/
+  transition: all 0.3s;
+}
+#sidebar ul li.active > a,
+#sidebar ul li.active > a[aria-expanded="true"] {
+  color: #fff;
+  background: #6d7fcc;
+}
+#sidebar ul li a {
+  font-size: 0.9em !important;
+  padding-left: 30px !important;
+  /*background: #cccccc;*/
+}
 body > footer {
   background: #2e2f2d;
   font-size: 12px;

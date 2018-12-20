@@ -27,7 +27,7 @@ namespace Gino;
  */
 ?>
 <? //@cond no-doxygen ?>
-<section class="gino-admin">
+<div class="gino-admin">
 	<div class="gino-admin-header">
 		<h1><?= $title ?></h1>
 		
@@ -59,7 +59,7 @@ namespace Gino;
 		</div>
 	</div>
 	
-	<div class="container">
+	<div class="gino-admin-items">
 	<?php if($form_filters): ?>
 		<div class="collapse" id="collapseFormFilter">
 			<div class="card card-body">
@@ -82,7 +82,7 @@ namespace Gino;
 	<?= $pagination ?>
 	
 	</div>
-</section>
+</div>
 <script>
 (function($) {
 	$('#collapseLink').click(function() {

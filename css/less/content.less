@@ -5,17 +5,11 @@
 @claim-btn-bkg: #cd3200;
 @claim-btn-color: #fff;
 
-// Import the fonts
-@font-face {
-	font-family: 'Roboto Slab';
-	src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype')
-}
-
 body {
-	margin-top: 90px !important;
+	margin-top: 90px;
+}
+body.without-fixed-top {
+	margin-top: 0px;
 }
 
 .bg-white {
@@ -24,6 +18,14 @@ body {
 
 article {
 	clear: both;
+}
+
+/* Contenuto delle pagine con Sidebar */
+#content {
+	width: 100%;
+	padding: 0px;
+	min-height: 100vh;
+	transition: all 0.3s;
 }
 
 /* Video */

@@ -64,7 +64,7 @@ if(!function_exists('\Gino\App\Menu\printVoice')) {
 }
 ?>
 
-<ul class="navbar-nav main-menu">
+<ul class="navbar-nav">
 <?php
 $i = 0;
 foreach($tree as $v) {

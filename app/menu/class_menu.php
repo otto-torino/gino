@@ -202,7 +202,7 @@ class menu extends \Gino\Controller {
      * @brief Visualizzazione menu
      * 
      * @see Gino.App.Menu.MenuVoice::getSelectedVoice()
-     * @return string, menu
+     * @return string
      */
     public function render() {
 

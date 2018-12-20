@@ -300,7 +300,6 @@ class layout extends \Gino\Controller {
                 $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=delete"), \Gino\icon('delete'));
                 $link_sort = $i ? sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=sortup"), \Gino\icon('sort-up')) : '';
                 $tpl = new \Gino\Template($skin->template);
-                //$css = new \Gino\Css('layout', array('id' => $skin->css));
                 
                 $css = new \Gino\Css(null, array('type' => 'layout', 'id' => $skin->css));
                 

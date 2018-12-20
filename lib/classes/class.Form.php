@@ -227,10 +227,17 @@ class Form {
     
     /**
      * @brief Imposta la proprietà $_hidden (campi hidden del form)
-     * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente
+     * @description Campi di tipo Hidden del form che non vengono impostati automaticamente attraverso il Modello
+     * 
+     * @param array $hidden array delle accoppiate nome-valore dei campi hidden; la struttura dell'array è la seguente:
+     *   [
+     *     field_key1(string) => field_value1(mixed), 
+     *     field_key2(string) => field_array2['value' => field_value2(mixed), 'options' => field_options2(array)],
+     *     ...
+     *   ]
      * @return void
      */
-    public function setHidden($hidden=array()) {
+    public function setHidden($hidden=[]) {
     	$this->_hidden = $hidden;
     }
 
@@ -480,7 +487,7 @@ class Form {
      * Sono previsti due controlli captcha: \n
      * 1. con le librerie reCAPTCHA (attivo automaticamente se sono state inserite la site key e la secret key reCaptcha nelle 'Impostazioni di sistema')
      * 2. con la classe captcha di gino
-     *
+     * 
      * @see self::reCaptcha()
      * @see self::defaultCaptcha()
      * @param array $options
@@ -550,12 +557,14 @@ class Form {
         $text_add = gOpt('text_add', $options, null);
         
         $captcha = Loader::load('Captcha', array('captcha_input'));
-
-        $buffer = Input::label('captcha_input', _("Inserisci il codice dell'immagine"), true)."\n";
-        $buffer .= $captcha->render();
+        $captcha_code = $captcha->render();
         if($text_add) {
-        	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+            $captcha_code .= "<div class=\"form-textadd\">".$text_add."</div>";
         }
+        
+        $captcha_label = \Gino\Input::label('captcha_input', _("Inserisci il codice dell'immagine"), true);
+
+        $buffer = \Gino\Input::placeholderRow($captcha_label, $captcha_code);
 
         return $buffer;
     }
@@ -952,13 +961,13 @@ class Form {
     	
     	if(is_array($this->_hidden) and sizeof($this->_hidden) > 0)
     	{
-    		foreach($this->_hidden AS $key=>$value)
+    		foreach($this->_hidden AS $key => $value)
     		{
-    			if(is_array($value))
+    			if(is_array($value)) // [value => mixed, options => array]
     			{
-    				$h_value = array_key_exists('value', $options) ? $options['value'] : '';
-    				$h_id = array_key_exists('id', $options) ? $options['id'] : '';
-    				$a_hidden_inputs[] = Input::hidden($key, $h_value, array('id'=>$h_id));
+    				$h_value = array_key_exists('value', $value) ? $value['value'] : null;
+    			    $h_options = array_key_exists('options', $value) ? $value['options'] : [];
+    			    $a_hidden_inputs[] = Input::hidden($key, $h_value, $h_options);
     			}
     			else {
     				$a_hidden_inputs[] = Input::hidden($key, $value);

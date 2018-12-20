@@ -1,0 +1,86 @@
+
+.wrapper {
+	display: flex;
+	width: 100%;
+	align-items: stretch;	/* stretch value will equalize both page content and sidebar height */
+}
+
+#sidebar {
+	min-width: 250px;
+	max-width: 250px;
+	min-height: 100vh;	/* As we do not know if the content will vertically fill the entire screen, we will set the minimum height of the sidebar to 100vh */
+}
+
+#sidebar.active {
+	margin-left: -250px;
+}
+
+/* Media query */
+@media (max-width: 768px) {
+	#sidebar {
+		margin-left: -250px;
+	}
+	#sidebar.active {
+		margin-left: 0;
+	}
+}
+
+#sidebar {
+	/* Additional Style */
+	background: #6c757d;
+	color: #fff;
+	transition: all 0.3s;
+	
+	.dropdown-toggle::after {	/* This class adds a small triangle next to the drop-down links */
+		display: block;
+		position: absolute;
+		top: 50%;
+		right: 20px;
+		transform: translateY(-50%);
+	}
+	
+	/* Styling dropdowns */
+	a[data-toggle="collapse"] {
+		position: relative;
+	}
+	
+	.sidebar-header {
+		padding: 20px;
+		background: #474d52;
+	}
+
+	ul.components {
+		padding: 20px 0;
+		border-bottom: 1px solid #adb3b8;
+	}
+
+	ul p {
+		color: #fff;
+		padding: 10px;
+	}
+
+	ul li a {
+		padding: 10px;
+		font-size: 1.1em;
+		/* display: block; */
+		color: #fff;
+	}
+	ul li a:hover, ul li a:focus {
+		color: #cccccc;
+		text-decoration: none;
+		/*background: #fff;*/
+		transition: all 0.3s;
+	}
+
+	ul li.active > a, ul li.active > a[aria-expanded="true"] {
+		color: #fff;
+		background: #6d7fcc;
+	}
+	ul li a {
+		font-size: 0.9em !important;
+		padding-left: 30px !important;
+		/*background: #cccccc;*/
+	}
+}
+
+

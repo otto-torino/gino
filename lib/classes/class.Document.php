@@ -116,9 +116,6 @@ class Document {
             	$regexp = array("#{% block '(.*?)' %}#", "#{module(.*?)}#");
             	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
             	
-            	// for compatibility; instantiate the registry variable directly in the template file
-            	$registry = $this->_registry;
-            	
             	ob_start();
             	include($template);
             	$tpl_content = ob_get_contents();
@@ -286,10 +283,12 @@ class Document {
         }
         
         // jQuery and Bootstrap
-        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-2.2.4.min.js");
+        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-3.3.1.min.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-ui-1.12.1.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
+        // A kickass library used to manage poppers in web applications
+        $this->_registry->addCoreJs(SITE_JS."/popper.min.js");
         $this->_registry->addCoreJs(SITE_JS."/bootstrap-4.1.3/js/bootstrap.min.js");
     }
 

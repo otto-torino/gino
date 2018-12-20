@@ -777,29 +777,38 @@ class page extends \Gino\Controller {
      * @return string, form
      */
     private function formComment($entry) {
-
-        $myform = \Gino\Loader::load('Form', array());
-        $myform->load('dataform');
-
+        
+        $item = new PageComment(null);
+        
+        $mform = \Gino\Loader::load('ModelForm', array($item, array(
+            'form_id' => 'form_comment',
+        )));
+        
+        $mform->setHidden(['entry' => $entry->id, 'form_reply' => ['value' => 0, 'options' => ['id'=>'form_reply']]]);
+        
         $buffer = '';
-
+        
         if($this->_comment_moderation) {
             $buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
         }
-
-        $buffer .= $myform->open($this->link($this->_instance_name, 'actionComment'), false, 'author,email', array('form_id'=>'form_comment'));
-        $buffer .= \Gino\Input::hidden('entry', $entry->id);
-        $buffer .= \Gino\Input::hidden('form_reply', 0, array('id'=>'form_reply'));
-        $buffer .= \Gino\Input::input_label('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= \Gino\Input::input_label('email', 'text', \Gino\htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= \Gino\Input::input_label('web', 'text', \Gino\htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
-        $buffer .= \Gino\Input::textarea_label('text', \Gino\htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
-        $buffer .= \Gino\Input::radio_label('notification', \Gino\htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
-        $buffer .= $myform->captcha();
-        $buffer .= \Gino\Input::input_label('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
-
-        $buffer .= $myform->close();
-
+        
+        $buffer .= $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'view_title' => false,
+                'f_action' => $this->link($this->_instance_name, 'actionComment'),
+                's_value' => _("invia"),
+                'show_save_and_continue' => false,
+                'removeFields' => ['entry', 'reply', 'published'],
+                'addCell' => ['last_cell' => ['name' => 'the_last_row', 'field' => $mform->captcha()]]
+            ),
+            array(
+                'author' => ['label' => _("Nome")],
+                'email' => ['label' => [_('Email'), _('Non verrà pubblicata')], 'pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido')],
+                'notification' => ['label' => _("Inviami un'email quando vengono postati altri commenti")]
+            )
+        );
+        
         return $buffer;
     }
 
