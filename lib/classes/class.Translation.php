@@ -93,9 +93,10 @@ class Translation {
     	
     	Loader::import('class/http', '\Gino\Http\ResponseNotFound');
     	
-    	if(!$request->checkGETKey('trnsl', '1'))
+    	if(!$request->checkGETKey('trnsl', '1')) {
     		return new \Gino\Http\ResponseNotFound();
-		
+    	}
+    	
     	if($request->checkGETKey('save', '1')) {
 			
 			$res = $this->actionTranslation($request);

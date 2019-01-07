@@ -1,4 +1,7 @@
 
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
 .wrapper {
 	display: flex;
 	width: 100%;
@@ -13,16 +16,6 @@
 
 #sidebar.active {
 	margin-left: -250px;
-}
-
-/* Media query */
-@media (max-width: 768px) {
-	#sidebar {
-		margin-left: -250px;
-	}
-	#sidebar.active {
-		margin-left: 0;
-	}
 }
 
 #sidebar {
@@ -83,4 +76,27 @@
 	}
 }
 
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+@media (max-width: 768px) {
+	#sidebar {
+		margin-left: -250px;
+	}
+	#sidebar.active {
+		margin-left: 0;
+	}
+	#sidebarCollapse span {
+		display: none;
+	}
+}
 
+/* ---------------------------------------------------
+    CONTENT STYLE
+----------------------------------------------------- */
+#content {
+	width: 100%;
+	padding: 0px;
+	min-height: 100vh;
+	transition: all 0.3s;
+}

@@ -3,7 +3,7 @@
  * @file class.Form.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Form
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,10 +15,9 @@ use \Gino\App\Language\language;
 
 /**
  * @brief Classe per la creazione ed il salvataggio dati di un form
- *
- * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
+ * @description Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -662,7 +661,15 @@ class Form {
                 $label = htmlChars($lang->label);
                 $code = $lang->language_code.'_'.$lang->country_code;
                 
-                $onclick = "gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$registry->request->absolute_url."&trnsl=1')";
+                $url = $registry->request->absolute_url;
+                if(preg_match("#\?#", $url)) {
+                    $url = $url."&trnsl=1";
+                }
+                else {
+                    $url = $url."?trnsl=1";
+                }
+                
+                $onclick = "gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$url."')";
                 $buffer .= Input::linkTranslation($label, $onclick)." &#160;";
                 
                 $first = FALSE;

@@ -2725,13 +2725,6 @@ body.without-fixed-top {
 article {
   clear: both;
 }
-/* Contenuto delle pagine con Sidebar */
-#content {
-  width: 100%;
-  padding: 0px;
-  min-height: 100vh;
-  transition: all 0.3s;
-}
 /* Video */
 .video-wrapper {
   position: relative;
@@ -2837,6 +2830,9 @@ article {
   right: 20px;
 }
 /* /Claim */
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
 .wrapper {
   display: flex;
   width: 100%;
@@ -2851,15 +2847,6 @@ article {
 }
 #sidebar.active {
   margin-left: -250px;
-}
-/* Media query */
-@media (max-width: 768px) {
-  #sidebar {
-    margin-left: -250px;
-  }
-  #sidebar.active {
-    margin-left: 0;
-  }
 }
 #sidebar {
   /* Additional Style */
@@ -2913,6 +2900,29 @@ article {
   font-size: 0.9em !important;
   padding-left: 30px !important;
   /*background: #cccccc;*/
+}
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+@media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+  }
+  #sidebar.active {
+    margin-left: 0;
+  }
+  #sidebarCollapse span {
+    display: none;
+  }
+}
+/* ---------------------------------------------------
+    CONTENT STYLE
+----------------------------------------------------- */
+#content {
+  width: 100%;
+  padding: 0px;
+  min-height: 100vh;
+  transition: all 0.3s;
 }
 body > footer {
   background: #2e2f2d;

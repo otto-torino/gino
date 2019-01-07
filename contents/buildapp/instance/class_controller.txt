@@ -2,7 +2,7 @@
 /**
  * @file class_{{CONTROLLER}}.php
  * @brief Contiene la definizione della classe Gino.App.{{CONTROLLER_NS}}.{{CONTROLLER}}
- * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2017-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @author marco guidotti
  * @author abidibo
  */
@@ -24,7 +24,7 @@ require_once 'class.Category.php';
  * @brief Classe di tipo Gino.Controller
  *
  * @version 0.1.0
- * @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2017-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @author Marco Guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -384,10 +384,10 @@ class {{CONTROLLER}} extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string');
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Elementi'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_ctg = ['link' => $this->linkAdmin(array(), 'block=ctg'), 'label' => _('Categorie')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Elementi')];
         $sel_link = $link_dft;
 
         if($block == 'frontend' && $this->userHasPerm('can_admin')) {
@@ -418,7 +418,7 @@ class {{CONTROLLER}} extends \Gino\Controller {
             $links_array = array($link_ctg, $link_dft);
         }
 
-        $view = new View(null, 'tab');
+        $view = new View(null, 'tabs');
         $dict = array(
           'title' => _('Gestione record'),
           'links' => $links_array,
