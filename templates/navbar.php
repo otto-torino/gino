@@ -18,28 +18,27 @@
 	</button>
 	
 	<!-- Collect the nav links, forms, and other content for toggling -->
-	<div class="collapse navbar-collapse" id="bs-gino-navbar-collapse">
+	<div class="collapse navbar-collapse justify-content-between align-items-center" id="bs-gino-navbar-collapse">
 		<!-- Menu -->
 		{module classid=4 func=render}
+		
+		<div class="navbar-tools">
+		    <!-- Choice language -->
+			<div class="navbar-language">
+				{module sysclassid=2 func=choiceLanguage}
+			</div>
+		
+		    <!-- Search -->
+			<div class="navbar-search">
+				{module sysclassid=13 func=form}
+			</div>
+			
+		    <!-- Link to login -->
+			<?php if(!$registry->session->user_id): ?>
+			<div class="navbar-login">
+				<a href="auth/login">Accedi</a>
+			</div>
+			<?php endif; ?>
+		</div><!-- /.navbar-tools -->
 	</div><!-- /.navbar-collapse -->
-	
-	<div class="navbar-tools">
-	
-		<!-- Choice language -->
-		<div class="navbar-language">
-			{module sysclassid=2 func=choiceLanguage}
-		</div>
-		
-		<!-- Search -->
-		<div class="navbar-search">
-			{module sysclassid=13 func=form}
-		</div>
-		
-		<!-- Link to login -->
-		<?php if(!$registry->session->user_id): ?>
-		<div class="navbar-login">
-			<a href="auth/login">Accedi</a>
-		</div>
-		<?php endif; ?>
-	</div>
 </nav>

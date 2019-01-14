@@ -6,3 +6,8 @@
 #hidelist ul {
 	list-style-type: none;
 }
+
+/* Administration Page */
+.admin-home a:link, .admin-home a:hover, .admin-home a:focus, .admin-home a:visited {
+	color: #fff;
+}

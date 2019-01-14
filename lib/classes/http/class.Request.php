@@ -3,7 +3,7 @@
  * @file class.Request.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Http.Request
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,7 +24,7 @@ use \Gino\Session;
  * Contiene tutte le informazioni importanti di una richiesta HTTP. La classe è un singleton quindi tutte le classi
  * che la utilizzano si scambiano la stessa istanza. Le proprietà sono pubbliche e aperte in lettura e scrittura.
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -51,7 +51,7 @@ class Request extends Singleton {
     /**
      * @brief Costruttore
      * @description Il costruttore è protetto in modo da garantire il pattern Singleton
-     * @return nuova istanza di Gino.Http.Request
+     * @return void
      */
     protected function __construct() {
 
@@ -92,11 +92,19 @@ class Request extends Singleton {
 
         $this->session = Session::instance();
     }
+    
+    /**
+     * @brief Imposta la proprietà $GET
+     * @param array $array elenco dei parametri GET nel formato [(string) name => (array) value]
+     */
+    public function setGET($array=[]) {
+        $this->GET = $array;
+    }
 
     /**
      * @brief Calcola l'url nella forma espansa a partire dai parametri GET
      * @description Quando viene effettuato url rewriting da parte di Gino.Router
-     *              viene chimato questo metodo per calcolare l'url non espanso
+     *              viene chiamato questo metodo per calcolare l'url non espanso
      *              utilizzando la proprietà GET che è stata opportunamente modificata.
      *              L'url parte dalla site root senza / iniziale, es. index.php?evt[page.view]&id=test
      * @return void
@@ -146,7 +154,7 @@ class Request extends Singleton {
      * @brief Valore associato alla chiave data di un array o null
      * @param array $array
      * @param string $key
-     * @return valore associato alla $key data o null
+     * @return mixed, valore associato alla $key data o null
      */
     private function valueOrNull(array $array, $key) {
         return isset($array[$key]) ? $array[$key] : null;

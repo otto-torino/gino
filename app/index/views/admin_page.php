@@ -12,7 +12,7 @@
  * - **view_hidden_apps**: bool, per visualizzare le applicazioni nascoste
  *
  * @version 1.0.0
- * @copyright 2017-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2017-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -43,7 +43,9 @@ $cs_count = count($card_style); ?>
             	<div class="card text-center admin-app-card <?= $class_card ?>" style="max-width: 18rem;">
                     <!-- Graphic -->
 					<? if (array_key_exists($sm['name'], $fas)): ?>
-						<i class="card-img-top fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
+						<a href="<?= $ctrl->link($sm['name'], 'manage'.ucfirst($sm['name'])) ?>">
+							<i class="card-img-top fa fa-<?= $fas[$sm['name']] ?> fa-3x"></i>
+						</a>
 					<? else: ?>
 						<?= _("impostare l'icona nel file configuration.php") ?>
 					<? endif ?>
@@ -75,7 +77,9 @@ $cs_count = count($card_style); ?>
             	<div class="card text-center admin-app-card <?= $class_card ?>" style="max-width: 18rem;">
                     <!-- Graphic -->
 					<? if (array_key_exists($m['name'], $fas)): ?>
-						<i class="card-img-top fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
+						<a href="<?= $ctrl->link($m['name'], 'manageDoc') ?>">
+							<i class="card-img-top fa fa-<?= $fas[$m['name']] ?> fa-3x"></i>
+						</a>
 					<? else: ?>
 						<?= _("impostare l'icona nel file configuration.php") ?>
 					<? endif ?>
