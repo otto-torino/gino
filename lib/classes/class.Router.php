@@ -158,7 +158,6 @@ class Router extends Singleton {
                     $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%sindex', $paths[0], URL_SEPARATOR) => '');
                 }
             }
-            return TRUE;
         }
         elseif($tot === 2) {
             
@@ -181,13 +180,15 @@ class Router extends Singleton {
                 $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
             }
         }
-        
         // I path oltre i primi due (nome istanza e metodo) sono normali coppie chiave/valore da inserire nella proprietà GET
-        if($tot > 2) {
-            // numero dispari di path, il terzo è un id
+        elseif($tot > 2) {
+            
+            $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
+            
+            // se il numero di elementi è dispari, il terzo elemento è un id
             if($tot % 2 !== 0) {
                 $this->_request->GET['id'] = urldecode($paths[2]);
-                // e lo rimuovo
+                // quindi lo rimuovo
                 unset($paths[2]);
                 // e rimetto a posto le chiavi
                 $paths = array_values($paths);
@@ -199,7 +200,7 @@ class Router extends Singleton {
             }
         }
         
-        return TRUE;
+        return true;
     }
 
     /**

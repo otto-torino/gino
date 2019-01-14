@@ -112,7 +112,9 @@ class Request extends Singleton {
     public function updateUrl() {
 
         $params = implode('&', array_map(function($k, $v) {
-            if($k === self::EVT_NAME) return self::EVT_NAME.'[' . key($v) . ']';
+            if($k === self::EVT_NAME) {
+                return self::EVT_NAME.'[' . key($v) . ']';
+            }
             return $v !== '' ? sprintf('%s=%s', $k, $v) : $k;
         }, array_keys($this->GET), array_values($this->GET)));
 
