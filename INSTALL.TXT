@@ -64,11 +64,6 @@ to follow:	www-data.www-data
 
 ## GETTING STARTED ##
 
-Accedere a gino digitando sulla barra del browser l'indirizzo dell'applicazione, ad esempio http://localhost/gino.
-
-Prendendo a riferimento l'esempio precedente, per accedere all'area amministrativa digitare: http://localhost/gino/admin.
-In gino è presente un utente amministratore predefinito con i parametri:
-
 Access to gino typing on the browser bar the application address, such as http://localhost/gino.
 
 With reference to the previous example, to access the administrative area type http://localhost/gino/admin.
