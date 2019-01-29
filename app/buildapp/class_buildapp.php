@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.BuildApp.buildapp.
  *
  * @version 1.0
- * @copyright 2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2017-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -36,7 +36,7 @@ require_once('class.FormAdminTable.php');
  * ##PERMESSI
  * - amministrazione modulo (@a can_admin)
  * 
- * @copyright 2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2017-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -125,8 +125,8 @@ class buildapp extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin'));
         
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Applicazioni'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Applicazioni')];
 
         $sel_link = $link_dft;
 
@@ -145,7 +145,7 @@ class buildapp extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Moduli generati'),
             'links' => $links_array,

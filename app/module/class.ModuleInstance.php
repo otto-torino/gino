@@ -3,7 +3,7 @@
  * @file class.ModuleInstance.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Module.ModuleInstance
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\App\SysClass\ModuleApp;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un'istanza di un modulo di sistema
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ class ModuleInstance extends \Gino\Model {
     /**
      * @brief Costruttore
      * @param int $id
-     * @return void, istanza di Gino.App.Module.ModuleInstance
+     * @return void
      */
     function __construct($id) {
 
@@ -37,7 +37,7 @@ class ModuleInstance extends \Gino\Model {
 	/**
 	 * Nome della classe
 	 * 
-	 * @return string, nome classe
+	 * @return string
 	 */
 	public function className() {
 		
@@ -48,7 +48,7 @@ class ModuleInstance extends \Gino\Model {
     /**
 	 * Nome della classe con namespace completo
 	 * 
-	 * @return string, nome classe con namespace
+	 * @return string
 	 */
 	public function classNameNs($ns=true) {
 		$module_app = $this->moduleApp();
@@ -58,7 +58,7 @@ class ModuleInstance extends \Gino\Model {
     /**
      * @brief Recupera l'oggetto dato il nome dell'istanza
      * @param string $name nome istanza senza namespace
-     * @return Gino.App.Module.ModuleInstance or null
+     * @return Gino.App.Module.ModuleInstance
      */
     public static function getFromName($name) {
 
@@ -115,24 +115,29 @@ class ModuleInstance extends \Gino\Model {
 		));
 		$columns['label'] = new \Gino\CharField(array(
 			'name'=>'label',
+		    'label' => _("Etichetta"),
 			'required'=>true,
      		'max_lenght'=>100,
 		));
 		$columns['name'] = new \Gino\CharField(array(
 			'name'=>'name',
+		    'label' => _("Nome"),
 			'required'=>true,
      		'max_lenght'=>100,
 		));
 		$columns['module_app'] = new \Gino\IntegerField(array(
 			'name'=>'module_app',
+		    'label' => _("Modulo"),
 			'required'=>true
 		));
 		$columns['active'] = new \Gino\BooleanField(array(
 			'name'=>'active',
+		    'label' => _("Attivo"),
 			'required'=>true,
 		));
 		$columns['description'] = new \Gino\TextField(array(
 			'name'=>'description',
+		    'label' => _("Descrizione"),
 			'required'=>false
 		));
 		

@@ -3,7 +3,7 @@
  * @file settings.php
  * @brief Definizione dei percorsi dell'applicazione
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,6 +24,9 @@ define('URL_SEPARATOR', '.');
 
 /** Percorso assoluto alla directory cache */
 define('CACHE_DIR', SITE_ROOT.OS.'cache');
+
+/** Percorso assoluto alla directory config */
+define('CONFIG_DIR', SITE_ROOT.OS.'config');
 
 /** Percorso assoluto alla directory lib */
 define('LIB_DIR', SITE_ROOT.OS.'lib');

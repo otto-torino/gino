@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -85,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -777,29 +777,38 @@ class page extends \Gino\Controller {
      * @return string, form
      */
     private function formComment($entry) {
-
-        $myform = \Gino\Loader::load('Form', array());
-        $myform->load('dataform');
-
+        
+        $item = new PageComment(null);
+        
+        $mform = \Gino\Loader::load('ModelForm', array($item, array(
+            'form_id' => 'form_comment',
+        )));
+        
+        $mform->setHidden(['entry' => $entry->id, 'form_reply' => ['value' => 0, 'options' => ['id'=>'form_reply']]]);
+        
         $buffer = '';
-
+        
         if($this->_comment_moderation) {
             $buffer .= "<p>"._('Il tuo commento verrà sottoposto ad approvazione prima di essere pubblicato.')."</p>";
         }
-
-        $buffer .= $myform->open($this->link($this->_instance_name, 'actionComment'), false, 'author,email', array('form_id'=>'form_comment'));
-        $buffer .= \Gino\Input::hidden('entry', $entry->id);
-        $buffer .= \Gino\Input::hidden('form_reply', 0, array('id'=>'form_reply'));
-        $buffer .= \Gino\Input::input_label('author', 'text', \Gino\htmlInput($myform->retvar('author', '')), _('Nome'), array('size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= \Gino\Input::input_label('email', 'text', \Gino\htmlInput($myform->retvar('email', '')), array(_('Email'), _('Non verrà pubblicata')), array('pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido'), 'size'=>40, 'maxlength'=>40, 'required'=>true));
-        $buffer .= \Gino\Input::input_label('web', 'text', \Gino\htmlInput($myform->retvar('web', '')), _('Sito web'), array('size'=>40, 'maxlength'=>40, 'required'=>false));
-        $buffer .= \Gino\Input::textarea_label('text', \Gino\htmlInput($myform->retvar('text', '')), array(_('Testo'), _('Non è consentito l\'utilizzo di alcun tag html')), array('cols'=>42, 'rows'=>8, 'required'=>true));
-        $buffer .= \Gino\Input::radio_label('notification', \Gino\htmlInput($myform->retvar('notification', '')), array(1=>_('si'), 0=>_('no')), 0, _("Inviami un'email quando vengono postati altri commenti"), null);
-        $buffer .= $myform->captcha();
-        $buffer .= \Gino\Input::input_label('submit', 'submit', _('invia'), '', array('classField'=>'submit'));
-
-        $buffer .= $myform->close();
-
+        
+        $buffer .= $mform->view(
+            array(
+                'session_value' => 'dataform',
+                'view_title' => false,
+                'f_action' => $this->link($this->_instance_name, 'actionComment'),
+                's_value' => _("invia"),
+                'show_save_and_continue' => false,
+                'removeFields' => ['entry', 'reply', 'published'],
+                'addCell' => ['last_cell' => ['name' => 'the_last_row', 'field' => $mform->captcha()]]
+            ),
+            array(
+                'author' => ['label' => _("Nome")],
+                'email' => ['label' => [_('Email'), _('Non verrà pubblicata')], 'pattern'=>'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$', 'hint'=>_('Inserire un indirizzo email valido')],
+                'notification' => ['label' => _("Inviami un'email quando vengono postati altri commenti")]
+            )
+        );
+        
         return $buffer;
     }
 
@@ -1120,12 +1129,12 @@ class page extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin', 'can_publish', 'can_edit', 'can_edit_single_page'));
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_locale = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=locale'), _('Traduzioni'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_comment = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=comment'), _('Commenti'));
-        $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Contenuti'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_locale = ['link' => $this->linkAdmin(array(), 'block=locale'), 'label' => _('Traduzioni')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_comment = ['link' => $this->linkAdmin(array(), 'block=comment'), 'label' => _('Commenti')];
+        $link_ctg = ['link' => $this->linkAdmin(array(), 'block=ctg'), 'label' => _('Categorie')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Contenuti')];
 
         $sel_link = $link_dft;
 
@@ -1166,7 +1175,7 @@ class page extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Pagine'),
             'links' => $links_array,

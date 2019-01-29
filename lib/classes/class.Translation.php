@@ -3,7 +3,7 @@
  * @file class.Translation.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Translation
  * 
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -16,7 +16,7 @@ namespace Gino;
  * La lingua di navigazione è quella ricavata dallo user agent del client, oppure impostata in sessione a seguito di scelta dell'utente.
  * La lingua di default è quella impostata come tale da interfaccia.
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -38,7 +38,7 @@ class Translation {
      * @brief Costruttore
      * @param string $language lingua di navigazione
      * @param string $language_dft lingua di default
-     * @return void, istanza di Gino.Translation
+     * @return void
      */
     function __construct($language, $language_dft) {
 
@@ -60,7 +60,7 @@ class Translation {
      * @param string $field nome del campo da tradurre
      * @param mixed $reference valore del campo di riferimento 
      * @param string $id_name nome del campo di riferimento
-     * @return string, traduzione
+     * @return string
      */
     public function selectTXT($table, $field, $reference, $id_name='id')
     {
@@ -87,15 +87,16 @@ class Translation {
      * @brief Gestisce le traduzioni nei form
      * 
      * @param object $request oggetto Request
-     * @return Gino.Http.Response o null
+     * @return \Gino\Http\Response or null
      */
     public function manageTranslation($request) {
     	
     	Loader::import('class/http', '\Gino\Http\ResponseNotFound');
     	
-    	if(!$request->checkGETKey('trnsl', '1'))
+    	if(!$request->checkGETKey('trnsl', '1')) {
     		return new \Gino\Http\ResponseNotFound();
-		
+    	}
+    	
     	if($request->checkGETKey('save', '1')) {
 			
 			$res = $this->actionTranslation($request);
@@ -146,10 +147,9 @@ class Translation {
 
     /**
      * @brief Form per l'inserimento e la modifica delle traduzioni
+     * @description Il metodo viene richiamato da una request ajax avviata dalla funzione javascript prepareTrlForm().
      *
-     * Il metodo viene richiamato da una request ajax avviata dalla funzione javascript prepareTrlForm().
-     *
-     * @return form inserimento traduzione
+     * @return string
      */
     public function formTranslation() {
         
@@ -199,9 +199,8 @@ class Translation {
             	'width' => '100%'
             ));
         }
-        $onclick = "onclick=\"$onclick\"";
         $GINO .= "</p>";
-        $GINO .= "<p>".Input::input('submit', 'button', _("applica"), array("classField"=>"submit", "js"=>$onclick))."</p>";
+        $GINO .= "<p>".\Gino\Input::submit('submit', _("applica"), ['type'=> 'button', 'onclick' => $onclick])."</p>";
         $GINO .= "</div>";
 
         return $GINO;
@@ -209,7 +208,7 @@ class Translation {
 
     /**
      * @brief Inserimento e modifica delle traduzioni
-     * @return bool, risultato operazione
+     * @return boolean, risultato operazione
      *
      */
     public function actionTranslation(\Gino\Http\Request $request) {

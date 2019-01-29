@@ -44,6 +44,7 @@ class Core {
             '\Gino\Document',
         	'\Gino\BreadCrumbs',
         	'\Gino\Apps',
+            '\Gino\Modal'
         ));
 
         Loader::import('class/exceptions', array(

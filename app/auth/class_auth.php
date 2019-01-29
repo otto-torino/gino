@@ -1006,13 +1006,13 @@ class auth extends \Gino\Controller {
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
         $op = \Gino\cleanVar($request->GET, 'op', 'string', null);
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=group'), _('Gruppi'));
-        $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=perm'), _('Permessi'));
-        $link_profile = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=profile'), _('Profili registrazione'));
-        $link_request = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=request'), _('Richieste registrazione'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Utenti'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_group = ['link' => $this->linkAdmin(array(), 'block=group'), 'label' => _('Gruppi')];
+        $link_perm = ['link' => $this->linkAdmin(array(), 'block=perm'), 'label' => _('Permessi')];
+        $link_profile = ['link' => $this->linkAdmin(array(), 'block=profile'), 'label' => _('Profili registrazione')];
+        $link_request = ['link' => $this->linkAdmin(array(), 'block=request'), 'label' => _('Richieste registrazione')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Utenti')];
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -1068,8 +1068,7 @@ class auth extends \Gino\Controller {
             'content' => $backend
         );
 
-        $view = new View(null, 'tab');
-        $view->setViewTpl('tab');
+        $view = new View(null, 'tabs');
 
         $document = new Document($view->render($dict));
         return $document();
@@ -1600,7 +1599,7 @@ class auth extends \Gino\Controller {
         $content .= \Gino\Input::hidden('id', $obj_user->id);
         $content .= $this->formPermission($checked);
 
-        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
+        $content .= \Gino\Input::submit('submit', _("associa"));
         $content .= $gform->close();
         
         $description = _("IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff).");
@@ -1909,6 +1908,7 @@ class auth extends \Gino\Controller {
         $form = $mform->view(
         	array(
         		'form_id' => 'login',
+        	    'form_class' => 'myform',
         		'show_save_and_continue' => false,
         		'view_info' => false,
         		'view_title' => false,

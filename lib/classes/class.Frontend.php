@@ -3,7 +3,7 @@
  * @file class.Frontend.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Frontend
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ namespace Gino;
  *   - i file css definiti nel metodo getClassElements() della classe del modulo
  *   - i file delle viste presenti nella directory @a views presente nella directory dell'applicazione 
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  *
@@ -33,7 +33,7 @@ class Frontend {
      * @brief Costruttore
      *
      * @param \Gino\Controller $controller istanza della classe di tipo Gino.Controller
-     * @return void, istanza di Gino.Frontend
+     * @return void
      */
     function __construct($controller) {
 
@@ -100,7 +100,7 @@ class Frontend {
      *
      * @param string $file nome del file
      * @param string $ext estensione del file
-     * @return string, nome file
+     * @return string
      */
     private function fileName($file, $ext) {
 
@@ -228,27 +228,15 @@ class Frontend {
      */
     private function formModuleFile($code, $request) {
 
-        $registry = registry::instance();
+        $key = cleanVar($request->GET, 'key', 'int', '');
         
-        $registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
-        $registry->addCss(CSS_WWW."/codemirror.css");
+        $codemirror = \Gino\Loader::load('CodeMirror', array(['type' => $code]));
         
         $gform = Loader::load('Form', array(array('form_id'=>'gform')));
         $gform->load('dataform');
-
-        $key = cleanVar($request->GET, 'key', 'int', '');
         
         if($code == 'css')
         {
-            $registry->addJs(SITE_JS."/CodeMirror/css.js");
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
             $list = $this->_css_list;
             $ext = 'css';
             $filename = $this->fileName($list[$key]['filename'], $ext);
@@ -256,45 +244,31 @@ class Frontend {
         }
         elseif($code == 'view')
         {
-            $registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-            $registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-            $registry->addJs(SITE_JS."/CodeMirror/css.js");
-            $registry->addJs(SITE_JS."/CodeMirror/xml.js");
-            $registry->addJs(SITE_JS."/CodeMirror/clike.js");
-            $registry->addJs(SITE_JS."/CodeMirror/php.js");
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                mode: \"application/x-httpd-php\",
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
             $list = $this->_view_list;
             $ext = 'php';
             $filename = $this->fileName($list[$key]['filename'], $ext);
             $title = sprintf(_("Modifica la vista \"%s\""), $filename);
         }
-
+        
         $buffer = $gform->open($this->_mdlLink."&action=save&code=$code&key=$key", '', '');
-
+        
         $contents = file_get_contents($this->pathToFile($code).$filename);
 
-        $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
-
-        $buffer .= "<div class=\"form-row\">";
-        $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-        $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$this->_mdlLink'\" class=\"generic\""));
+        $buffer .= $codemirror->inputText('file_content', $contents, ['classField' => null]);
+        
+        $buffer .= "<div class=\"form-group\">";
+        $buffer .= \Gino\Input::submit('submit_action', _("salva"));
+        $buffer .= \Gino\Input::submit('cancel_action', _("annulla"), ['onclick' => "location.href='$this->_mdlLink'"]);
         $buffer .= "</div>";
+        
         $buffer .= $gform->close();
 
-        $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
+        $buffer .= $codemirror->renderScript();
 
         $view = new View(null, 'section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 

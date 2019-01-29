@@ -3,7 +3,7 @@
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Request;
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -52,7 +52,7 @@ class Options {
     /**
      * @brief Costruttore
      * @param \Gino\Controller $controller istanza di Gino.Controller
-     * @return void, istanza di Gino.Options
+     * @return void
      */
     function __construct($controller){
 
@@ -262,7 +262,9 @@ class Options {
                 else $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
             }
         }
-        $GINO .= \Gino\Input::input_label('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
+        
+        $submit = Input::submit('submit_action', $submit, []);
+        $GINO .= Input::placeholderRow(null, $submit);
         $GINO .= $gform->close();
 
         $view = new view();

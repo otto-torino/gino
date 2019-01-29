@@ -121,8 +121,8 @@ class attachment extends \Gino\Controller {
 
         \Gino\Loader::import('class', '\Gino\AdminTable');
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('File'));
-        $link_ctg = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=ctg'), _('Categorie'));
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('File')];
+        $link_ctg = ['link' => $this->linkAdmin(array(), 'block=ctg'), 'label' => _('Categorie')];
         $sel_link = $link_dft;
 
         $id = \Gino\cleanVar($request->GET, 'id', 'int');
@@ -148,7 +148,7 @@ class attachment extends \Gino\Controller {
             'content' => $backend
         );
 
-        $view = new View(null, 'tab');
+        $view = new View(null, 'tabs');
         $document = new Document($view->render($dict));
         return $document();
     }

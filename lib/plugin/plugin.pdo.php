@@ -842,22 +842,28 @@ class pdo implements \Gino\DbManager {
 	
 		if($distinct) $qfields = $distinct.", ".$qfields;
 		
-		$query = $this->buildQuery(array(
-			'fields' => $qfields,
-			'tables' => $qtables,
-			'where' => $qwhere,
-			'group_by' => $qgroup_by,
+		$query_params = [
+		    'fields' => $qfields,
+		    'tables' => $qtables,
+		    'where' => $qwhere,
+		    'group_by' => $qgroup_by,
 		    'having' => $having,
-			'order' => $qorder,
-			'limit' => $limit, 
-			'debug' => $debug
-		));
+		    'order' => $qorder,
+		    'limit' => $limit,
+		    'debug' => $debug
+		];
+		$query = $this->buildQuery($query_params);
 		
 		if($debug) echo $query;
 		
-		if(is_null($query))
-			throw new \Exception(_("Errore nella formattazione della query"));
-	
+		if(is_null($query)) {
+		    $dataAttributes = array_map(function($value, $key) {
+		        return $key.'="'.$value.'"';
+		    }, array_values($query_params), array_keys($query_params));
+            
+		    $dataAttributes = implode(' ', $dataAttributes);
+		    throw new \Exception(_("Errore nella formattazione della query con parametri").": ".$dataAttributes);
+		}
 		return $query;
 	}
 	

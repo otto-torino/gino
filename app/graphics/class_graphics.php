@@ -3,7 +3,7 @@
  * @file class_graphics.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Graphics.graphics
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ require_once 'class.GraphicsItem.php';
  *   - grafica, prevede il caricamento di una immagine
  *   - codice, prevede l'inserimento di codice html
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -138,8 +138,8 @@ class graphics extends \Gino\Controller {
 
         $this->requirePerm('can_admin');
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Gestione'));
-        $link_views = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Gestione')];
+        $link_views = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
         $sel_link = $link_dft;
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
@@ -183,7 +183,7 @@ class graphics extends \Gino\Controller {
         );
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
 
         $document = new Document($view->render($dict));
         return $document();

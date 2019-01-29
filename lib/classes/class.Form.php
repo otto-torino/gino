@@ -3,7 +3,7 @@
  * @file class.Form.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Form
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -15,10 +15,9 @@ use \Gino\App\Language\language;
 
 /**
  * @brief Classe per la creazione ed il salvataggio dati di un form
- *
- * Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
+ * @description Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -121,7 +120,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form; occorre definirla nel caso di action form e di verifca del token
-     *   - @b form_class (string): classe del tag form
+     *   - @b form_class (string): classe del tag form; il valore @a form-inline costruisce un form con gli input inline
      *   - @b verifyToken (boolean): verifica il token (contro gli attacchi CSFR)
      * @throws \Exception se viene rilevato un attacco CSRF
      * @return void, istanza di Gino.Form
@@ -227,10 +226,17 @@ class Form {
     
     /**
      * @brief Imposta la proprietà $_hidden (campi hidden del form)
-     * @param array $hidden array delle accoppiate nome-valore dei campi hidden non impostati automaticamente
+     * @description Campi di tipo Hidden del form che non vengono impostati automaticamente attraverso il Modello
+     * 
+     * @param array $hidden array delle accoppiate nome-valore dei campi hidden; la struttura dell'array è la seguente:
+     *   [
+     *     field_key1(string) => field_value1(mixed), 
+     *     field_key2(string) => field_array2['value' => field_value2(mixed), 'options' => field_options2(array)],
+     *     ...
+     *   ]
      * @return void
      */
-    public function setHidden($hidden=array()) {
+    public function setHidden($hidden=[]) {
     	$this->_hidden = $hidden;
     }
 
@@ -389,7 +395,7 @@ class Form {
      * @param array $options
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form
-     *   - @b form_class (string): nome della classe del tag form
+     *   - @b form_class (string): nome della classe del tag form; il valore @a form-inline costruisce un form con gli input inline
      *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
      *   - @b view_info (boolean): visualizzazione delle informazioni (default @a true)
      *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
@@ -399,8 +405,9 @@ class Form {
      */
     public function open($action, $upload, $list_required, $options=array()) {
 
-    	// opzioni disponibili richiamando direttamente questo metodo;
-    	// passando dalla classe ModelForm (AdminTable) queste opzioni vengono definite in render() e makeInputForm()
+    	/*
+         * Le opzioni form_id, form_class, verifyToken possono essere impostate istanziando la classe Gino.Form
+         */
     	$form_id = gOpt('form_id', $options, null);
     	$form_class = gOpt('form_class', $options, null);
         $validation = gOpt('validation', $options, null);
@@ -479,7 +486,7 @@ class Form {
      * Sono previsti due controlli captcha: \n
      * 1. con le librerie reCAPTCHA (attivo automaticamente se sono state inserite la site key e la secret key reCaptcha nelle 'Impostazioni di sistema')
      * 2. con la classe captcha di gino
-     *
+     * 
      * @see self::reCaptcha()
      * @see self::defaultCaptcha()
      * @param array $options
@@ -522,7 +529,7 @@ class Form {
 		$captcha = "<div class=\"g-recaptcha\" data-sitekey=\"$site_key\"></div>";
 		
 		if($form_row) {
-			$buffer .= Input::noinput('', $captcha);
+		    $buffer .= Input::placeholderRow('', $captcha);
 		}
 		else {
 			$buffer .= $captcha;
@@ -549,12 +556,14 @@ class Form {
         $text_add = gOpt('text_add', $options, null);
         
         $captcha = Loader::load('Captcha', array('captcha_input'));
-
-        $buffer = Input::label('captcha_input', _("Inserisci il codice dell'immagine"), true)."\n";
-        $buffer .= $captcha->render();
+        $captcha_code = $captcha->render();
         if($text_add) {
-        	$buffer .= "<div class=\"form-textadd\">".$text_add."</div>";
+            $captcha_code .= "<div class=\"form-textadd\">".$text_add."</div>";
         }
+        
+        $captcha_label = \Gino\Input::label('captcha_input', _("Inserisci il codice dell'immagine"), true);
+
+        $buffer = \Gino\Input::placeholderRow($captcha_label, $captcha_code);
 
         return $buffer;
     }
@@ -651,7 +660,17 @@ class Form {
             foreach($langs AS $lang) {
                 $label = htmlChars($lang->label);
                 $code = $lang->language_code.'_'.$lang->country_code;
-                $buffer .= "<span class=\"trnsl-lng\" onclick=\"gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$registry->request->absolute_url."&trnsl=1')\">".$label."</span> &#160;";
+                
+                $url = $registry->request->absolute_url;
+                if(preg_match("#\?#", $url)) {
+                    $url = $url."&trnsl=1";
+                }
+                else {
+                    $url = $url."?trnsl=1";
+                }
+                
+                $onclick = "gino.translations.prepareTrlForm('$code', $(this), '$table', '$field', '$type', '$id_value', '$width', '$toolbar', '".$url."')";
+                $buffer .= Input::linkTranslation($label, $onclick)." &#160;";
                 
                 $first = FALSE;
             }
@@ -792,14 +811,17 @@ class Form {
      *   array associativo di opzioni
      *   - @b removeFields (array): elenco dei campi da non mostrare nel form
      *   - @b viewFields (array): elenco dei campi da mostrare nel form
-     *   - @b addCell (array): elementi da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
-     *     Le chiavi dell'array sono i nomi dei campi che seguono gli elementi aggiuntivi, mentre i valori sono altri array che hanno come chiavi:
-     *     - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro)
+     *   - @b addCell (array): elementi/campi aggiuntivi da mostrare nel form in aggiunta agli input form generati dalla struttura. \n
+     *     Le chiavi di questo array sono i nomi dei campi prima dei quali verranno inseriti gli elementi aggiuntivi; 
+     *     i valori associati a queste chiavi sono invece altri array con le chiavi @a name e @a field:
+     *     - @a name, nome dell'elemento da aggiungere (nome dell'input form o altro); 
+     *       un nome particolare è @a last_cell, che inserisce l'elemento alla fine del form
      *     - @a field, codice da implementare
-     *       Riassumento, la struttura di addCell è la seguente:
+     *       Riassumendo, la struttura di addCell è la seguente:
      *       @code
      *       array('next_field_name' => array('name' => 'name_item_add', 'field' => 'content_item_add'))
      *       @endcode
+     *   - @b additional_text (string): blocco di testo da mostrare tra l'ultimo input form e il submit
      *   // layout
      *   - @b view_folder_form (string): directory del file della vista
      *   - @b view_file_form (string): nome del file della vista del form (default @a form)
@@ -818,9 +840,11 @@ class Form {
      *   // input submit
      *   - @b s_name (string): nome dell'input submit (se non indicato viene impostato automaticamente)
      *   - @b s_value (string): valore dell'input submit (default 'salva')
-     *   - @b s_classField (string): valore dell'opzione classField dell'input submit (default 'submit')
+     *   - @b s_classField (string): valore dell'opzione classField dell'input submit (default @a submit)
+     *   - @b savecontinue_name (string): nome dell'input submit "save and continue" (default @a save_and_continue)
      * 
-     * @param array $inputs opzioni specifiche dei campi del form nel formato array(field_name=>array(option=>value[,...])); queste opzioni vengono passate in Gino.Build::formElement()
+     * @param array $inputs opzioni specifiche dei campi del form nel formato: array(field_name => array(option=>value[,...]));
+     *                      queste opzioni vengono passate in Gino.Build::formElement()
      * @return form di inserimento/modifica
      */
     protected function makeInputForm($model, $fields, $options=array(), $inputs=array()) {
@@ -835,6 +859,7 @@ class Form {
     	$removeFields = gOpt('removeFields', $options, null);
     	$viewFields = gOpt('viewFields', $options, null);
     	$addCell = array_key_exists('addCell', $options) ? $options['addCell'] : null;
+    	$additional_text = array_key_exists('additional_text', $options) ? $options['additional_text'] : null;
     	
     	// - layout
     	$view_folder_form = gOpt('view_folder_form', $options, null);
@@ -853,24 +878,25 @@ class Form {
     	$s_name = array_key_exists('s_name', $options) ? $options['s_name'] : 'submit_'.$this->_form_id;
     	$s_value = array_key_exists('s_value', $options) ? $options['s_value'] : _('salva');
     	$s_classField = array_key_exists('s_classField', $options) ? $options['s_classField'] : 'submit';
+    	$savecontinue_name = array_key_exists('savecontinue_name', $options) ? $options['savecontinue_name'] : 'save_and_continue';
     	// /Options
     	
     	$structure = array();
     	$form_upload = false;
     	$form_required = array();
-    
+        
     	foreach($fields as $field=>$build)
     	{
-    		if($addCell)
+    		// Additional Rows
+    	    if($addCell)
     		{
-    			foreach($addCell AS $ref_key=>$cell)
-    			{
-    				if($ref_key == $field)
-    				{
+    			foreach($addCell AS $ref_key => $cell) {
+    				if($ref_key == $field) {
     					$structure[$cell['name']] = $cell['field'];
     				}
     			}
     		}
+    		// /Additional
     		
     		if($this->permission($options, $field) && (
     			($removeFields && !in_array($field, $removeFields)) ||
@@ -885,9 +911,9 @@ class Form {
     			}
     
     			// Input form
-    			$structure[$field] = $build->formElement($this, $options_input);
+    			$structure[$field] = $build->formElement($this, $options_input); // 'form_inline' => $inline_opt ???
     			
-    			// Form settings 
+    			// Form settings
     			if($build instanceof ManyToManyThroughBuild) {
     				$m2mtf_file = $model->checkM2mtFileField($field, $model->id);
     			}
@@ -905,6 +931,12 @@ class Form {
     			// /Form settings
     		}
     	}
+    	
+    	// The last additional row
+    	if($addCell && array_key_exists('last_cell', $addCell)) {
+    	    $structure[$addCell['last_cell']['name']] = $addCell['last_cell']['field'];
+    	}
+    	// /the_last_additional_row
     	
     	if(sizeof($form_required) > 0) {
     		$form_required = implode(',', $form_required);
@@ -936,13 +968,13 @@ class Form {
     	
     	if(is_array($this->_hidden) and sizeof($this->_hidden) > 0)
     	{
-    		foreach($this->_hidden AS $key=>$value)
+    		foreach($this->_hidden AS $key => $value)
     		{
-    			if(is_array($value))
+    			if(is_array($value)) // [value => mixed, options => array]
     			{
-    				$h_value = array_key_exists('value', $options) ? $options['value'] : '';
-    				$h_id = array_key_exists('id', $options) ? $options['id'] : '';
-    				$a_hidden_inputs[] = Input::hidden($key, $h_value, array('id'=>$h_id));
+    				$h_value = array_key_exists('value', $value) ? $value['value'] : null;
+    			    $h_options = array_key_exists('options', $value) ? $value['options'] : [];
+    			    $a_hidden_inputs[] = Input::hidden($key, $h_value, $h_options);
     			}
     			else {
     				$a_hidden_inputs[] = Input::hidden($key, $value);
@@ -976,8 +1008,21 @@ class Form {
     	}
     	
     	if(!$only_inputs) {
-    		$save_and_continue = Input::input('save_and_continue', 'submit', _('salva e continua la modifica'), array('classField' => $s_classField));
-    		$submit = Input::input_label($s_name, 'submit', $s_value, '', array("classField"=>$s_classField, 'text_add' => ($popup or !$show_save_and_continue) ? '' : $save_and_continue));
+    		$submit = Input::submit($s_name, $s_value, [
+    		    "classField" => $s_classField
+    		]);
+    		$save_and_continue = Input::submit($savecontinue_name, _('salva e continua la modifica'), [
+    		    "classField" => $s_classField
+    		]);
+    		
+    		if($popup or !$show_save_and_continue) {
+    		    $submit = $submit;
+    		}
+    		else {
+    		    $submit = $submit.' '.$save_and_continue;
+    		}
+    		
+    		$submit = Input::placeholderRow(null, $submit);
     	}
     	
     	$view = new View($view_folder_form);
@@ -987,6 +1032,7 @@ class Form {
     	$view->assign('open', $open_form);
     	$view->assign('hidden_inputs', $a_hidden_inputs);
     	$view->assign('inputs', $a_inputs);
+    	$view->assign('additional_text', $additional_text);
     	$view->assign('submit', $submit);
     	
     	return $view->render();

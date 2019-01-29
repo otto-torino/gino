@@ -42,7 +42,7 @@ define("SHOW_STATS", FALSE);
  * @brief Amministratori sistema
  * @description Ricevono notifiche di errori di sistema. Il valore deve essere necessariamente un array serializzato
  */
-define("ADMINS", serialize(array('marco.guidotti@otto.to.it', 'stefano.contini@otto.to.it')));
+define("ADMINS", serialize(array('marco.guidotti@otto.to.it')));
 
 // Database
 
@@ -174,9 +174,6 @@ define('HIDDEN_APPS', serialize(array('graphics', 'topbar', 'topbaradmin', 'menu
 
 /* visualizzare le applicazioni nascoste */
 define('VIEW_HIDDEN_APPS', false);
-
-/* gestione della barra laterale delle applicazioni in modalità apri/chiudi */
-define('OPEN_CLOSE_SIDENAV', false);
 
 /**
  * @brief Google Maps Key

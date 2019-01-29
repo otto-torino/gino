@@ -12,7 +12,7 @@ namespace Gino;
 use \Gino\Http\Request;
 
 /**
- * @brief Gestisce le caratteristiche del tipo di campo (colonne)
+ * @brief Gestisce le caratteristiche del tipo di campo (di una tabella di database)
  *
  * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
@@ -30,7 +30,7 @@ use \Gino\Http\Request;
  * <tr><td>EnumField()</td><td>ENUM</td><td>radio</td></tr>
  * <tr><td>FileField()</td><td>CHAR, VARCHAR</td><td>file</td></tr>
  * <tr><td>FloatField()</td><td>FLOAT, DOUBLE, DECIMAL</td><td>float</td></tr>
- * <tr><td>foreignKeyField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>select</td></tr>
+ * <tr><td>ForeignKeyField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>select</td></tr>
  * <tr><td>ImageField()</td><td>CHAR, VARCHAR</td><td>image</td></tr>
  * <tr><td>IntegerField()</td><td>SMALLINT, INT, MEDIUMINT</td><td>text</td></tr>
  * <tr><td>ManyToManyField()</td><td>-</td><td>multicheck</td></tr>
@@ -43,9 +43,18 @@ use \Gino\Http\Request;
  * <tr><td>YearField()</td><td>YEAR</td><td>text</td></tr>
  * </table>
  * 
- * ##PROPRIETÅ GENERALI DEI CAMPI
- * Le seguenti proprietà definite per tutti i tipi di campo dalla classe Gino.Field(): \n
- * $_name, $_default, $_lenght, $_auto_increment, $_primary_key, $_unique_key, $_required, $int_digits, $decimal_digits. 
+ * ##PROPRIETÀ GENERALI DEI CAMPI
+ * Le seguenti proprietà sono definite per tutti i tipi di campo dalla classe Gino.Field(): \n
+ * - $_name
+ * - $_default
+ * - $_lenght
+ * - $_auto_increment
+ * - $_primary_key
+ * - $_unique_key
+ * - $_required
+ * - $int_digits
+ * - $decimal_digits
+ * - $_widget
  * 
  * Queste proprietà hanno dei valori di default che possono venire sovrascritti passandoli come opzioni del tipo di campo al costruttore. \n
  * Infine, queste proprietà vengono esposte attraverso i relativi metodi __get e __set.
@@ -127,7 +136,7 @@ class Field {
     protected $_default_widget;
 
     /**
-     * Costruttore
+     * @brief Costruttore
      * 
      * @param array $options array associativo di opzioni del campo del database
      *   - @b name (string): nome del campo
@@ -138,9 +147,9 @@ class Field {
      *   - @b primary_key (boolean): campo chiave primaria
      *   - @b unique_key (boolean): campo chiave unica
      *   - @b required (boolean): valore indicatore del campo obbligatorio
-     *   - @b widget (string)
      *   - @b int_digits (integer): numero di cifre intere di un campo float
      *   - @b decimal_digits (integer): numero di cifre decimali di un campo float
+     *   - @b widget (string): widget associato al campo (le classi che estendono Gino.Field impostano un valore predefinito nella proprietà $_default_widget)
      */
     function __construct($options) {
 
@@ -378,7 +387,7 @@ class Field {
     }
 
     /**
-     * @brief Proprietà defnite per il campo
+     * @brief Elenco delle proprietà defnite per il campo
      * 
      * @return array
      */

@@ -3,7 +3,7 @@
  * @file class_index.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Index.index
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ use \Gino\Loader;
 /**
  * @brief Classe di tipo Gino.Controller del modulo che gestisce la home amministrativa
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -48,7 +48,7 @@ class index extends \Gino\Controller{
 
         $list = array(
             "admin_page" => array("label" => _("Home page amministrazione"), "permissions"=>array('core.is_staff')),
-        	'sidenav' => array("label" => _("Menu amministrativo laterale"), "permissions"=>array('core.is_staff')),
+        	'sidebar' => array("label" => _("Menu amministrativo laterale"), "permissions"=>array('core.is_staff')),
         );
 
         return $list;
@@ -58,7 +58,7 @@ class index extends \Gino\Controller{
      * @brief Barra laterale con l'elenco delle applicazioni
      * @return NULL|string
      */
-    public function sidenav() {
+    public function sidebar() {
     	
     	$request = \Gino\Http\Request::instance();
     	
@@ -71,14 +71,13 @@ class index extends \Gino\Controller{
     	$sysMdls = $this->sysModulesManageArray($request);
     	$mdls = $this->modulesManageArray($request);
     	
-    	$view = new view($this->_view_dir, 'sidenav');
+    	$view = new view($this->_view_dir, 'sidebar');
     	$dict = array(
     		'sysmdls' => $sysMdls,
     		'mdls' => $mdls,
     		'ctrl' => $this,
     		'fas' => unserialize(INSTALLED_APPS),
     		'hide' => unserialize(HIDDEN_APPS),
-    		'openclose' => OPEN_CLOSE_SIDENAV
     	);
     	
     	return $view->render($dict);
@@ -86,7 +85,7 @@ class index extends \Gino\Controller{
 
     /**
      * @brief Home page amministrazione
-     * @param Gino.Http.Request $request istanza di Gino.Http.Request
+     * @param \Gino\Http\Request $request istanza di Gino.Http.Request
      * @return Gino.Http.Response home page amministrazione
      */
     public function admin_page(\Gino\Http\Request $request){

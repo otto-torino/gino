@@ -43,7 +43,7 @@ class TagBuild extends Build {
      */
     public function formElement($mform, $options=array()) {
         
-    	return TagInput::input($this->_name, $this->_value, $this->_label);
+        return TagInput::input($this->_name, $this->_value, $this->_label, $options);
     }
 
     /**

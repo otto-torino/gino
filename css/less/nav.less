@@ -1,11 +1,14 @@
 
+/* nav links, forms, and other content */
+.navbar-tools {
+	font-size: 14px;
+	
+	@media(max-width: @screen-sm-min){
+		
+	}
+}
+
 /* menu */
-.navbar-toggle {
-	
-}
-.navbar-toggle .icon-bar {
-	
-}
 @media (max-width: @screen-sm-min) {
 	.navbar-collapse {
 		width: 100%;
@@ -15,7 +18,7 @@
 /* login */
 .navbar-login {
 	float: left;
-	margin-top: 15px;
+	margin-top: 0px;
 }
 .navbar-login a {
 	color: #9d9d9d;
@@ -33,7 +36,7 @@
 	float: left;
 	margin-left: 10px;
 	margin-right: 10px;
-	margin-top: 15px;
+	margin-top: 0px;
 }
 
 /* search */
@@ -43,7 +46,7 @@
 	color: #fff;
 	margin-left: 10;
 	margin-right: 10px;
-	margin-top: 15px;
+	margin-top: 0px;
 }
 
 @media (max-width: @screen-sm-min) {
@@ -55,8 +58,9 @@
     	margin-top: 0px;
     }
     .navbar-search {
-    	position: absolute;
-    	top: 2px;
-    	left: 160px;
+    	display: none;
+    	/*position: absolute;
+    	top: 24px;
+    	left: 160px;*/
     }
 }

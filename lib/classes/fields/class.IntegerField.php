@@ -26,14 +26,16 @@ class IntegerField extends Field {
      * @see Gino.Field::__construct()
      * @param array $options array associativo di opzioni del campo del database
      *   - opzioni generali definite come proprietà nella classe Field()
-     * @return istanza di Gino.IntegerField
+     * @return void
      */
     function __construct($options) {
 
         $this->_default_widget = 'text';
         parent::__construct($options);
 
-        if($this->_auto_increment) $this->_widget = 'hidden';
+        if($this->_auto_increment) {
+            $this->_widget = 'hidden';
+        }
     }
     
     /**
@@ -41,7 +43,7 @@ class IntegerField extends Field {
      * @return null or integer
      */
     public function valueFromDb($value) {
-    	 
+    	
     	if(is_null($value)) {
     		return null;
     	}

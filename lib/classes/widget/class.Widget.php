@@ -3,7 +3,7 @@
  * @file class.Widget.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Widget
  *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Definisce quale tipo di input associare a ciascun widget
  * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -66,13 +66,22 @@ class Widget {
     /**
      * @brief Definisce il formato del valore del campo da visualizzare nell'input form
      * 
+     * @see Gino.Build::formElement()
      * @param mixed $value
      * @param array $options
+     *   - @b data_type (string): tipo di dato visualizzato nell'input form; valori validi: @a regexp
      * @return mixed
      */
     public function inputValue($value, $options=array()) {
     	
-    	return htmlInput($value);
+        $data_type = array_key_exists('data_type', $options) ? $options['data_type'] : null;
+        
+        if($data_type == 'regexp') {
+            return $value;
+        }
+        else {
+            return htmlInput($value);
+        }
     }
     
     /**

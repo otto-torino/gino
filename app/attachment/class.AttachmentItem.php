@@ -3,7 +3,7 @@
  * @file class.AttachmentItem.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.AttachmentItem.
  *
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Attachment;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una singolo allegato
  *
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -49,7 +49,7 @@ class AttachmentItem extends \Gino\Model {
      * @brief Costruttore
      *
      * @param integer $id valore ID del record
-     * @return void, istanza di Gino.App.Attachment.AttachmentItem
+     * @return void
      */
     function __construct($id) {
 
@@ -221,40 +221,56 @@ class AttachmentItem extends \Gino\Model {
 
     /**
      * @brief Link al preview dell'allegato
-     *
      * @description Lightbox per le immagini e download per altri tipi di file
      *
      * @see path()
      * @params string $label etichetta da mostrare nel link, i possibili valori sono filename | path
-     * @return string, link preview
+     * @return string
      */
     public function previewLink($label = 'filename') {
 
         $alabel = $label == 'path' ? $this->path('view') : $this->file;
 
         if($this->type() === 'img') {
-            $onclick = "Slimbox.open('".$this->path('view')."')";
-            return sprintf('<span class="link" onclick="%s">%s</label>', $onclick, $alabel);
+            
+            $modal_body = "<img src=\"".$this->path('view')."\" />";
+            
+            $modal = new \Gino\Modal([
+                'modal_id' => 'ModalCenter'.$this->id,
+                'modal_title_id' => 'ModalCenterTitle'.$this->id,
+            ]);
+            
+            $link = $modal->trigger($alabel, []);
+            $link .= $modal->render(_("Media"), $modal_body);
+            return $link;
         }
         else {
             return sprintf('<a href="%s">%s</a>', $this->_registry->router->link('attachment', 'downloader', array('id' => $this->id)), $alabel);
          }
     }
 
-    /*+
+    /**
      * @brief Icona download con link preview file (lightbox immagini, download files)
-     * @return html, icona con link preview
+     * @return string, icona con link preview
      */
     public function previewAdminList() {
 
         if($this->type() === 'img') {
-            $onclick = "Slimbox.open('".$this->path('view')."')";
-            return sprintf('<span class="link" onclick="%s">%s</label>', $onclick, \Gino\icon('export'));
+            
+            $modal_body = "<img src=\"".$this->path('view')."\" />";
+            
+            $modal = new \Gino\Modal([
+                'modal_id' => 'ModalCenter'.$this->id,
+                'modal_title_id' => 'ModalCenterTitle'.$this->id,
+            ]);
+            
+            $link = $modal->trigger(\Gino\icon('export'), ['tagname' => 'span']);
+            $link .= $modal->render(_("Media"), $modal_body);
+            return $link;
         }
         else {
             return sprintf('<a href="%s">%s</a>', $this->_registry->router->link('attachment', 'downloader', array('id' => $this->id)), \Gino\icon('export'));
          }
     }
-
 }
 AttachmentItem::$columns=AttachmentItem::columns();

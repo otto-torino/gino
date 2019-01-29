@@ -24,7 +24,7 @@ class TagInput extends Input {
 	 * @param string $name nome
 	 * @param string $value valore
 	 * @param string $label label
-	 * @param array $options opzioni
+	 * @param array $options opzioni array associativo di opzioni di Gino.Input::input_label()
 	 * @return string
 	 */
 	public static function input($name, $value, $label, $options=array()) {

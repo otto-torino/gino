@@ -3,7 +3,7 @@
  * @file class_sysconf.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Sysconf.sysconf
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -44,7 +44,7 @@ require_once('class.Conf.php');
  *   - Ottimizzazione per dispositivi mobili (Palmari, Iphone)
  *   - Contenuto file robots.txt
  *
- * @copyright 2013-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -52,7 +52,7 @@ class sysconf extends \Gino\Controller {
 
    /**
     * @brief Costruttore
-    * @return void, istanza di Gino.App.Sysconf.sysconf
+    * @return void
     */
     function __construct(){
         parent::__construct();
@@ -69,16 +69,14 @@ class sysconf extends \Gino\Controller {
 
         $conf = new Conf(1);
 		$mform = \Gino\Loader::load('ModelForm', array($conf));
-        
-        if(isset($request->POST['empty_cache'])) {
+		
+		if(isset($request->POST['empty_cache'])) {
             \Gino\deleteFileDir(CACHE_DIR, FALSE);
             return new Redirect($this->linkAdmin());
         }
         elseif(isset($request->POST['id'])) {
             
-        	// VERIFICARE
-        	
-        	$result = $mform->save();	// $mform->save($options_form, $options_field);
+            $result = $mform->save();	// $mform->save($options_form, $options_field);
         	
         	$robots = filter_input(INPUT_POST, 'robots');
             if($fp = @fopen(SITE_ROOT.OS."robots.txt", "wb")) {
@@ -101,7 +99,7 @@ class sysconf extends \Gino\Controller {
             			),
                     	'enable_cache' => array(
                         	'name' => 'empty_cache',
-                        	'field' => \Gino\Input::input_label('empty_cache', 'submit', _('svuota'), _('svuota la cache'), null)
+                        	'field' => \Gino\Input::placeholderRow(_('svuota la cache'), \Gino\Input::submit('empty_cache', _('svuota')))
                     	)
                 	),
                 	'fieldsets' => array(
