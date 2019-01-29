@@ -3,7 +3,7 @@
  * @file class.Skin.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Skin
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ use Gino\Http\Redirect;
  * Le Skin sono l'unione di un template, un css (opzionale), e delle rules che permettono di associarle ad un url.
  * Dato un url il sistema ricava la skin associata ed utilizza il template per generare il documento html completo.
  * @see Gino.App.Layout
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -81,7 +81,7 @@ class Skin extends Model {
     	$columns['rexp'] = new \Gino\CharField(array(
     		'name' => 'rexp',
     	    'label' => array(_("Espressione regolare"), sprintf(_("esempi:%s%s"), "<br />", $registry->router->exampleUrl('regexp'))),
-    		'max_lenght' => 200
+    		'max_lenght' => 200,
     	));
     	$columns['urls'] = new \Gino\CharField(array(
     		'name' => 'urls',
@@ -127,7 +127,7 @@ class Skin extends Model {
     	));
     	$columns['cache'] = new \Gino\IntegerField(array(
     		'name' => 'cache',
-    	    'label' => array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o settare a 0")),
+    	    'label' => array(_("Tempo di caching dei contenuti (s)"), _("Se non si vogliono tenere in cache o non se ne conosce il significato lasciare vuoto o impostare a 0")),
     		'required' => true,
     		'default' => 0
     	));
@@ -138,7 +138,7 @@ class Skin extends Model {
      * @brief Recupera la skin corrispondente all'url della request
      * 
      * @param \Gino\Http\Request $request
-     * @return skin trovata oppure FALSE
+     * @return \Gino\Skin|false
      */
     public static function getSkin(\Gino\Http\Request $request) {
     
@@ -258,6 +258,30 @@ class Skin extends Model {
     	
     	return null;
     }
+    
+    /**
+     * @brief Elenco delle regole impostate in una Skin
+     * @return string[]|NULL[]
+     */
+    public function getRules() {
+        
+        $settings = array();
+        
+        if($this->highest) {
+            $settings[] = _("maximum");
+        }
+        if($this->session) {
+            $settings[] = _("sessione")." \"".$this->session."\"";
+        }
+        if($this->urls) {
+            $settings[] = _("url")." \"".$this->urls."\"";
+        }
+        if($this->rexp) {
+            $settings[] = _("regexp")." \"".$this->rexp."\"";
+        }
+        
+        return $settings;
+    }
 
     /**
      * @brief Elimina dalla tabella delle skin il riferimento a uno specifico file css
@@ -348,8 +372,10 @@ class Skin extends Model {
                 'removeFields' => ['priority']
             ),
             array(
-                'description' => array("cols" => 45, "rows" => 4, "trnsl" => false),
-                'cache' => ["pattern" => "^\d*$"]
+                'cache' => ["pattern" => "^\d*$"],
+                'rexp' => ['data_type' => 'regexp', 'trnsl' => false], 
+                'urls' => ['trnsl' => false], 
+                'session' => ['trnsl' => false], 
             )
         );
 

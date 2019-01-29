@@ -2654,6 +2654,18 @@ body.without-fixed-top {
 article {
   clear: both;
 }
+/* Images (for compatibility) */
+.img-responsive {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.img-rounded {
+  border-radius: 6px;
+}
+.img-circle {
+  border-radius: 50%;
+}
 /* Video */
 .video-wrapper {
   position: relative;
@@ -2854,7 +2866,7 @@ article {
   transition: all 0.3s;
 }
 body > footer {
-  background: #2e2f2d;
+  /*background: #2e2f2d;*/
   font-size: 12px;
   position: relative;
   clear: both;

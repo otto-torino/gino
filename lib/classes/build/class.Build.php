@@ -267,26 +267,12 @@ class Build {
     
     /**
      * @brief Stampa un elemento del form facendo riferimento al valore della chiave @a widget
-     *
-     * Nella chiamata del form occorre definire la chiave @a widget nell'array degli elementi input. \n
-     * Nel caso in cui la chiave @a widget non sia definita, verrà presa la chiave di default specificata nelle proprietà del modello. \n
-     * Esempio
-     * @code
-     * array(
-     *   'ctg'=>array('required'=>true),
-     *   'field_text1'=>array(
-     *     'widget'=>'editor',
-     *     'notes'=>false,
-     *     'img_preview'=>false,
-     *     'fck_height'=>100),
-     *   'field_text2'=>array('maxlength'=>$maxlength_summary, 'id'=>'summary', 'rows'=>6, 'cols'=>55)
-     * )
-     * @endcode
-     *
+     * @description Definisce le opzioni @a trnsl_id, @a trnsl_table, @a form_id, @a value_input, @a value_retrieve.
+     * 
      * @see Gino.Widget::printInputForm()
      * @param object $mform istanza di Gino.Form o Gino.ModelForm
      * @param array $options opzioni del campo del form
-     *   - opzioni dei metodi della classe Form
+     *   - opzioni dei metodi della classe Gino.Form
      *   - opzioni che sovrascrivono le impostazioni del campo/modello
      *     - @b widget (string): tipo di input form; può assumere uno dei seguenti valori
      *       - @a hidden
@@ -309,8 +295,24 @@ class Build {
      *     - @b required (boolean): campo obbligatorio
      * @return string
      * 
-     * Definisce le opzioni: trnsl_id, trnsl_table, form_id, value_input, value_retrieve.
+     * ## Valore @a widget
+     * Nelle proprietà del modello (classi di tipo Gino.Field) viene predefinito un valore di widget (proprietà $_default_widget). 
+     * Questo valore può essere sovrascritto indicando la chiave @a widget nell'array degli elementi input definito nella chiamata del form.
      * 
+     * @example
+     * @code
+     * array(
+     *   'ctg' => array('required'=>true),
+     *   'field_text1' => array(
+     *     'widget'=>'editor',
+     *     'notes'=>false,
+     *     'img_preview'=>false,
+     *     'fck_height'=>100),
+     *   'field_text2' => array('maxlength'=>$maxlength_summary, 'id'=>'summary', 'rows'=>6, 'cols'=>55)
+     * )
+     * @endcode
+     * 
+     * ## Schema dell'associazione Widget / valore da utilizzare nell'input
      * Il valore da utilizzare nel parametro @a value di ogni input varia in base al tipo di Widget; lo schema è il seguente: \n
      *   - CheckboxWidget		$this->_value
      *   - ConstantWidget		$this->_value_input
@@ -333,7 +335,7 @@ class Build {
      */
     public function formElement($mform, $options=array()) {
     
-    	$widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
+        $widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
     	
     	if($widget == null) {
     		return '';

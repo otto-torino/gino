@@ -3,7 +3,7 @@
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -48,7 +48,7 @@ use \Gino\App\Auth\Permission;
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -302,27 +302,13 @@ class layout extends \Gino\Controller {
                 $tpl = new \Gino\Template($skin->template);
                 
                 $css = new \Gino\Css(null, array('type' => 'layout', 'id' => $skin->css));
-                
-                $settings = array();
-                if($skin->highest) {
-                	$settings[] = "<b>"._("maximum")."</b>";
-                }
-                if($skin->session) {
-                	$settings[] = _("sessione");
-                }
-                if($skin->urls) {
-                	$settings[] = _("url");
-                }
-                if($skin->rexp) {
-                	$settings[] = _("regexp");
-                }
-                $settings = implode("<br />", $settings);
+                $rules = implode("<br />", $skin->getRules());
                 
                 $tbl_rows[] = array(
                     $skin->ml('label'),
                     $tpl->ml('label'),
                     $css->label ? $css->label." (".$css->filename.")" : null,
-                	$settings,
+                    $rules,
                     $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
                     $skin->cache ? _('si') : _('no'),
                     array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
@@ -1262,49 +1248,26 @@ oppure variabili di sessione.")."</li>";
 
     /**
      * @brief Form di modifica files (css, viste)
+     * 
+     * @see Gino.CodeMirror
      * @param string $filename
      * @param string $code css|view
      */
     private function formFiles($filename, $code) {
 
-        $this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
-        $this->_registry->addCss(CSS_WWW."/codemirror.css");
+        $codemirror = \Gino\Loader::load('CodeMirror', array(['type' => $code]));
 
         if($code == 'css')
         {
-            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
             $title = sprintf(_("Modifica il foglio di stile \"%s\""), $filename);
             $dir = CSS_DIR;
             $block = "css";
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
         }
         elseif($code == 'view')
         {
-            $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
             $title = sprintf(_("Modifica la vista \"%s\""), $filename);
             $dir = VIEWS_DIR;
             $block = "view";
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                mode: \"application/x-httpd-php\",
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
         }
 
         $buffer = '';
@@ -1322,17 +1285,15 @@ oppure variabili di sessione.")."</li>";
             $buffer .= \Gino\Input::hidden('action', $action);
 
             $contents = file_get_contents($pathToFile);
-            $buffer .= "<div class=\"form-group\">";
-            $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
-            $buffer .= "</div>";
-
+            $buffer .= $codemirror->inputText('file_content', $contents, ['classField' => null]);
+            
             $buffer .= "<div class=\"form-group\">";
             $buffer .= \Gino\Input::submit('submit_action', _("salva"));
-            $buffer .= \Gino\Input::submit('submit_action', _("annulla"), ['onclick' => "location.href='$link_return'\" class=\"generic\""]);
+            $buffer .= \Gino\Input::submit('cancel_action', _("annulla"), ['onclick' => "location.href='$link_return'"]);
             $buffer .= "</div>";
-
-            $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
-
+            
+            $buffer .= $codemirror->renderScript();
+            
             $buffer .= $gform->close();
         }
 

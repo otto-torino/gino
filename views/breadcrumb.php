@@ -28,7 +28,7 @@ namespace Gino;
 			<? endif ?>
 			</li>
 		<? endfor ?>
-		</ol>>
+		</ol>
 	</nav>
 <? endif ?>
 <? // @endcond ?>
