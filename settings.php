@@ -43,6 +43,9 @@ define('APP_DIR', SITE_ROOT.OS.'app');
 /** Percorso assoluto alla directory che contiene plugins */
 define('PLUGIN_DIR', LIB_DIR.OS.'plugin');
 
+/** Percorso assoluto alla directory che contiene i file di customizzazione di CKEditor */
+define('CUSTOM_CKEDITOR_DIR', LIB_DIR.OS.'custom_ckeditor');
+
 /** Percorso assoluto alla directory che contiene css */
 define('CSS_DIR', SITE_ROOT.OS.'css');
 

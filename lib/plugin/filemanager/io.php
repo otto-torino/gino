@@ -128,7 +128,7 @@ EOF;
  * This is the function that sends the results of the uploading process to CKEditor
  * 
  * @param integer $errorNumber
- * @param unknown $CKECallback
+ * @param string $CKECallback
  * @param string $fileUrl
  * @param string $fileName
  * @param string $customMsg

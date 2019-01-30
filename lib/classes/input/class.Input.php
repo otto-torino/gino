@@ -3,21 +3,20 @@
  * @file class.Input.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Input
  *
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 use \Gino\View;
-use Predis\Command\SetAdd;
 
-include(LIB_DIR.OS.'datepicker.php');
+require_once LIB_DIR.OS.'datepicker.php';
 
 /**
  * @brief Input form
  *
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -580,7 +579,7 @@ class Input {
      * @brief Textarea
      *
      * @see imagePreviewer()
-     * @see editorHtml()
+     * @see Gino.CKEditor::replace()
      * @param string $name nome input
      * @param string $value valore attivo
      * @param array $options array associativo di opzioni
@@ -688,8 +687,10 @@ class Input {
     			}
     		}
     		
+    		require_once CUSTOM_CKEDITOR_DIR.OS.'class.CKEditor.php';
+    		
     		$input = $textarea;
-    		$input .= self::editorHtml($name, $value, array('toolbar' => $ckeditor_toolbar, 'width' => $width, 'height' => $height));
+    		$input .= \Gino\CKEditor::replace($name, $value, ['toolbar' => $ckeditor_toolbar, 'width' => $width, 'height' => $height]);
     		
     		$view = new View(self::$_view_folder, 'input_ckeditor');
     		$dict = [
@@ -772,62 +773,6 @@ class Input {
             limit_text.inject(field, 'after');
         }";
     	$buffer .= "</script>";
-    	return $buffer;
-    }
-    
-    
-    /**
-     * @brief Inizializza l'editor visuale CKEditor
-     *
-     * @param string $name
-     * @param string $value
-     * @param array $options array associativo di opzioni
-     *   - @b toolbar (string): nome della toolbar
-     *   - @b width (string): larghezza dell'editor (pixel o %)
-     *   - @b height (integer): altezza dell'editor (pixel)
-     * @return string, script js
-     */
-    public static function editorHtml($name, $value, $options=array()){
-    
-    	$toolbar = gOpt('toolbar', $options, null);
-    	$width = gOpt('width', $options, '100%');
-    	$height = gOpt('height', $options, 300);
-    
-    	$height .= 'px';
-    
-    	if(empty($value)) $value = '';
-    	if(!$toolbar) $toolbar = 'Full';
-    	
-    	$registry = Registry::instance();
-    
-    	$registry->addCustomJs(SITE_WWW.'/ckeditor/ckeditor.js', array('compress'=>false, 'minify'=>false));
-    	
-    	// Replace the textarea id $name
-    	$buffer = "<script>
-    	CKEDITOR.replace('$name', {
-    	customConfig: '".SITE_CUSTOM_CKEDITOR."/config.js',
-        	contentsCss: '".SITE_CUSTOM_CKEDITOR."/stylesheet.css',
-            	toolbar: '$toolbar',
-            	width: '$width',
-            	height: '$height',
-    	});";
-    
-    	if($toolbar == 'Basic')
-    	{
-    		$buffer .= "
-    		CKEDITOR.replace('$name', {
-    		toolbarGroups: [
-    		{ name: 'document',	   groups: [ 'mode', 'document' ] },
-    		{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-    		'/',
-    		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-    		{ name: 'links' }
-    		]
-    	});";
-    	}
-    
-    	$buffer .= "</script>";
-    
     	return $buffer;
     }
     
