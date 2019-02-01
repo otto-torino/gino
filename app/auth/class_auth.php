@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -32,7 +32,7 @@ require_once('class.ModelFormUser.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -1199,10 +1199,15 @@ class auth extends \Gino\Controller {
         else
         {
             $url = $this->link($this->_class_name, 'checkUsername');
-            $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
-            $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
+            $div_id = 'check_user';
+            $onclick = "gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), '$div_id')";
+            $check_message = "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;color:#ff0000;\"></div>\n";
             
-            $check_username = \Gino\Input::input_label('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
+            $check_username = \Gino\Input::submit('check_username', _("controlla"), ['onclick' => $onclick, 'type' => 'button']);
+            $check_username .= $check_message;
+            
+            $check_username = \Gino\Input::placeholderRow(_("Disponibilità username"), $check_username);
+            
             $check_email = \Gino\Input::input_label('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
 
             $removeFields = array();

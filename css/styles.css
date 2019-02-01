@@ -2317,6 +2317,9 @@ form.myform {
 .form-trnsl {
   padding: 4px 0px;
 }
+.form-ckeditor .notes {
+  padding-left: 15px;
+}
 .form-textadd {
   display: inline-block;
 }
@@ -2333,6 +2336,20 @@ form.myform {
 label.req,
 legend.req {
   font-weight: bold;
+}
+/* Inline Form */
+form.form-inline .form-control,
+form.form-inline .form-check {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+form.form-inline button {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+form.form-inline .link-tag-cloud {
+  margin-left: 2px;
+  margin-right: 4px;
 }
 /*
 form {

@@ -14,7 +14,7 @@ namespace Gino;
 * - **trnsl_input**: string
 * - **text_add**: string
 * 
-* @copyright 2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -28,10 +28,14 @@ namespace Gino;
     		</label>
 		<?php endif ?>
 		
-		<?php if($text_note): ?>
-			<div><?= $text_note ?></div>
+		<?php if($text_note or $img_previewer): ?>
+			<div class="notes">
+			<?php if($text_note): ?>
+				<div><?= $text_note ?></div>
+			<?php endif ?>
+			<?= $img_previewer ?>
+			</div>
 		<?php endif ?>
-		<?= $img_previewer ?>
 		
 		<div class="col-sm-10">
 			<?= $input ?>

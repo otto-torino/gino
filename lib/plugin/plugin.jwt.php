@@ -51,11 +51,11 @@ use \Firebase\JWT\JWT;
  * Dentro il token, oltre il payload viene inserita la firma dal server (costituto dal payload stesso criptato 
  * con la sua chiave segreta in codifica hash 256). 
  * Il client riceve il token e se vuole sarà libero di leggere il payload contenuto ma non potrà modificarlo 
- * poichè se lo facesse il token sarà invalidato dal server. 
+ * poiché se lo facesse il token sarà invalidato dal server. 
  * Il client dovrà comunicare al server il token ricevuto per tutte le successive chiamate in cui è richiesta l’autenticazione. 
  * Il server riceverà il token ed estrapolerà il payload ma prima si assicurerà che il token sia stato firmato e autentificato 
  * con la sua chiave privata. 
- * Poichè il token contiene il payload con tutte le informazioni necessarie all’autenticazione (es. iduser), il server potrà evitare 
+ * Poiché il token contiene il payload con tutte le informazioni necessarie all’autenticazione (es. iduser), il server potrà evitare 
  * di passare ogni volta dal database per verificare a quale utente corrisponde quel token (ottimo per la scalabilità).
  * 
  * ##Meccanismo di creazione del Token

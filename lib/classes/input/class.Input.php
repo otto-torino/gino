@@ -121,6 +121,8 @@ class Input {
     
     /**
      * @brief Imposta il file della vista
+     * @description Nel caso in cui il form sia inline, il metodo aggiunge '_inline' in coda al nome della vista.
+     * 
      * @param string $view_file file di default della vista
      * @param string $custom_file file personalizzato della vista
      * @param boolean $form_inline indica se il form viene mostrato inline
@@ -577,6 +579,7 @@ class Input {
     
     /**
      * @brief Textarea
+     * @description Gestisce anche l'input editor.
      *
      * @see imagePreviewer()
      * @see Gino.CKEditor::replace()
@@ -1318,6 +1321,9 @@ class Input {
      *   - @b custom_folder (string): percorso alla directory personalizzata della vista
      *   - @b custom_file (string): file personalizzato della vista
      * @return string, input radio + label
+     * 
+     * ##Viste
+     * La viste richiamate sono @a input_radio e @a input_radio_inline (@see self::setViewFile()).
      */
     public static function radio_label($name, $value, $data, $default, $label, $options=array()){
     	

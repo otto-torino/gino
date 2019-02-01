@@ -17,9 +17,9 @@
  */
 
 $config_url_alias = [
-    
+    // ex. 'page/view/slug-page' => 'alias-page'
 ];
 
 $config_instances_alias = [
-    
+    // ex. 'news/archive' => 'hotnews/view'
 ];

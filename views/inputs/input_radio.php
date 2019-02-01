@@ -12,7 +12,7 @@ namespace Gino;
 * - **inline**: boolean
 * - **text_add**: string
 * 
-* @copyright 2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2018-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -27,7 +27,6 @@ namespace Gino;
 		<div class="col-sm-10">
 			<?php if(count($radios)): ?>
 				<?php foreach($radios as $radio): ?>
-					<!-- disabled -->
 					<div class="form-check <?php if($inline): ?>form-check-inline<?php endif ?>">
 						<?= $radio['input'] ?>
 						<?= $radio['label'] ?>

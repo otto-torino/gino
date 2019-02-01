@@ -119,7 +119,7 @@ class AdminTable {
     protected $_filter_add;
     
     /**
-     * @brief Per visualizzare inline il form dei filtri
+     * @brief Per visualizzare inline gli input del form dei filtri
      * @var boolean
      */
     protected $_form_filters_inline;
@@ -149,7 +149,7 @@ class AdminTable {
      *   - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
      *     - @a string, 'all' -> tutti
      *     - @a array, elenco ID
-     *   - @b form_filters_inline (boolean): per visualizzare inline il form dei filtri (default @a true)
+     *   - @b form_filters_inline (boolean): per visualizzare inline gli input del form dei filtri (default @a true)
      * @return void
      */
     function __construct($controller, $opts = array()) {
@@ -1245,7 +1245,7 @@ class AdminTable {
      * @param array $remove_params elenco parametri da rimuovere dal path (Gino.Http.Request::path)
      * @return string, url ricostruito
      */
-    protected function editUrl($add_params = array(), $remove_params = array()) {
+     protected function editUrl($add_params = array(), $remove_params = array()) {
 
         return $this->_registry->router->transformPathQueryString($add_params, $remove_params);
      }
