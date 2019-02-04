@@ -20,14 +20,14 @@ namespace Gino;
  * #MODO D'USO
  * 
  * ##Case 1: il contenuto viene caricato dinamicamente recuperando i dati da una sorgente esterna
- * (Gino.AdminTable::adminList -> opt advanced_export -> view admin_table_list)
+ * (Gino.AdminTable::adminList -> advanced_export option -> admin_table_list view)
  * 
  * 1. impostare il link per l'apertura della modale
  * @code
  * <span class="icon fa fa-download fa-2x <?= $trigger_modal ?> link"></span>
  * @endcode
  * 
- * 2. inserire la renderizzazione della modale e lo script per caircare dinamicamente i contenuti
+ * 2. inserire la renderizzazione della modale e lo script per caricare dinamicamente i contenuti
  * @code
  * <?= $render_modal ?>
  * <?= $script_modal ?>
@@ -163,7 +163,8 @@ class Modal {
     
     /**
      * @brief Renderizza la modale
-     *
+     * 
+     * @see views/modal.php
      * @param string $title
      * @param string $body
      * @param array $options
@@ -233,8 +234,9 @@ class Modal {
     }
     
     /**
-     * @brief Renderizza il popup
+     * @brief Renderizza la modale come un popup
      * 
+     * @see views/modal_popup.php
      * @param string $title
      * @param string $body
      * @param array $options
