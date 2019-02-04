@@ -14,7 +14,6 @@
 	<?=  $registry->variables('head_links') ?>
 	<!-- system css -->
 	<?=  $registry->variables('css') ?>
-	<!-- <link type="text/css" rel="stylesheet" href="css/admin.css" /> -->
 	<!-- core js -->
 	<?=  $registry->variables('core_js') ?>
 	<!-- apps js -->

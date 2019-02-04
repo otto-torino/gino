@@ -3,7 +3,7 @@
  * @file class.User.php
  * Contiene la definizione ed implementazione della classe Gino.App.Auth.User.
  * 
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino\App\Auth;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta un utente
  *
- * @copyright 2013-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -32,7 +32,7 @@ class User extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID del record
-     * @return void, istanza di Gino.App.Auth.User
+     * @return void
      */
     function __construct($id) {
 
@@ -249,7 +249,7 @@ class User extends \Gino\Model {
       *   - @b form_action (string): indirizzo del form action
       *   - @b rules (string): descrizione delle regole alle quali è sottoposta la password
       *   - @b maxlength (integer): numero massimo di caratteri
-      * @return string, form
+      * @return string
       */
      public function formPassword($options=array()) {
 
@@ -266,7 +266,7 @@ class User extends \Gino\Model {
          $buffer .= \Gino\Input::input_label('userpwd', 'password', '', array(_("Password"), $rules), array("required"=>true, "size"=>40, "maxlength"=>$maxlength));
          $buffer .= \Gino\Input::input_label('check_userpwd', 'password', '', _("Verifica password"), array("required"=>true, "size"=>40, "maxlength"=>$maxlength, "other"=>"autocomplete=\"off\""));
 
-         $buffer .= \Gino\Input::input_label('submit_action', 'submit', _("procedi"), '', array("classField"=>"submit"));
+         $buffer .= \Gino\Input::placeholderRow(null, \Gino\Input::submit('submit_action', _("procedi")));
 
          $buffer .= $gform->close();
 
@@ -407,7 +407,7 @@ class User extends \Gino\Model {
      * @param array $options
      *   array associativo di opzioni
      *   - @b aut_password_length (integer): numero di caratteri della password automatica
-     * @return string, password
+     * @return string
      */
     public static function generatePassword($options=array()){
 
@@ -857,8 +857,8 @@ class User extends \Gino\Model {
     }
 
     /**
-     * {@inheritDoc}
-     * @see \Gino\Model::delete()
+     * @brief Eliminazione utente
+     * @see Gino.Model::delete()
      */
     public function delete() {
 

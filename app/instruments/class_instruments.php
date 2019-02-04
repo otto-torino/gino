@@ -3,7 +3,7 @@
  * @file class_instruments.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Instruments.instruments
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ use \Gino\App\Layout\layout;
  *   - associare nel metodo viewItem() il valore del campo id dello strumento con un suo metodo personalizzato (ad es. itemNew)
  *   - creare il metodo personalizzato (ad es. itemNew)
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -52,8 +52,8 @@ class instruments extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
         
-        $link_mime = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=mime'), _("Mime-Type"));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Collegamenti'));
+        $link_mime = ['link' => $this->linkAdmin(array(), 'block=mime'), 'label' => _("Mime-Type")];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Collegamenti')];
         $sel_link = $link_dft;
 
         if($block == 'mime') {
@@ -71,7 +71,7 @@ class instruments extends \Gino\Controller {
             'content' => $content
         );
 
-        $view = new View(null, 'tab');
+        $view = new View(null, 'tabs');
         $document = new Document($view->render($dict));
 
         return $document();

@@ -14,7 +14,7 @@ namespace Gino\App\Page;
  * - **url**: string
  * - **related_contents_list**: string
  *
- * @copyright 2012-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2012-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -26,12 +26,13 @@ namespace Gino\App\Page;
     <? endif ?>
     <?= $tpl ?>
     
-    <!-- related contents -->
+    <!-- Related contents -->
     <? if($related_contents_list): ?>
     	<h2><?= _('Potrebbe interessarti anche...') ?></h2>
     	<?= $related_contents_list ?>
 	<? endif ?>
 	
+	<!-- Comments -->
     <? if($enable_comments): ?>
         <h2><?= _('Commenti') ?></h2>
         <p><a class="link" name="comments" onclick="javascript:$('page_form_comment').toggle();$('form_reply').value = '0';"><?= _('Inserisci un commento') ?></a></p>

@@ -113,10 +113,10 @@ class config {
 	protected $_file_absolute_path, $_image_absolute_path, $_flash_absolute_path, $_media_absolute_path;
 	
 	/**
-	 * After file is uploaded, sometimes it is required to change its permissions so that it was possible to access it at the later time
-	 * 
+	 * @brief After file is uploaded, sometimes it is required to change its permissions so that it was possible to access it at the later time
 	 * If possible, it is recommended to set more restrictive permissions, like 0755. Set to 0 to disable this feature.
 	 * Note: not needed on Windows-based servers
+	 * 
 	 * @var integer
 	 */
 	protected $_chmod_on_upload;
@@ -124,7 +124,6 @@ class config {
 	/**
 	 * Used when creating folders that does not exist
 	 *
-	 * @see comments above
 	 * @var integer
 	 */
 	protected $_chmod_on_folder_create;

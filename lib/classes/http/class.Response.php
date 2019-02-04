@@ -140,11 +140,21 @@ class Response {
         header(sprintf('HTTP/%s %s %s', $this->_version, $this->_status_code, $this->_status_text), true, $this->_status_code);
         // content type, encoding
         header(sprintf('Content-Type: %s; charset=%s', $this->_content_type, $this->_encoding), false, $this->_status_code);
-
+        
         foreach($this->_headers as $key => $value) {
             header(sprintf('%s: %s', $key, $value));
         }
-
+        
+        if(MIDDLEWARE['HEADERS'] === true) {
+            $headers = Loader::load('middleware/Headers', [], '\Gino\Middleware\\');
+            
+            $a = $headers->inject();
+            if(count($a)) {
+                foreach ($a as $key => $value) {
+                    header(sprintf('%s: %s', $key, $value));
+                }
+            }
+        }
     }
 
     /**

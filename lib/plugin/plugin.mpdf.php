@@ -139,9 +139,29 @@
  * 
  * ##HEADER/FOOTER
  * ---------------
- * L'header e il footer del pdf devono essere passati come opzioni al metodo plugin_mpdf::htmlStart(); 
- * per non stampare il footer occorre impostare il parametro @a footer a @a false. \n
+ * L'header e il footer del pdf devono essere passati come opzioni al metodo @a plugin_mpdf::htmlStart(). 
+ * Per personalizzare il footer occorre impostare i seguenti parametri a seconda che i contenuti siano definiti in un unico blocco (stringa) 
+ * oppure in un insieme di blocchi (array):
+ *   - nel primo caso occorre impostare il parametro @a footer passandogli il footer; 
+ *     per non stampare il footer occorre impostare il parametro @a footer a @a false
+ *   - nel secondo caso occorre impostare il parametro @a footer_page in ogni elemento dell'array passandogli il footer; 
+ *     se non si definisce il parametro @a footer_page, oppure lo si definisce come null, viene stampato il footer di default; 
+ *     per non stampare il footer occorre impostare il parametro @a footer_remove a @a false
+ * 
  * Per visualizzare un esempio di header e footer vedere i metodi gino_mpdf::defaultHeader() e gino_mpdf::defaultFooter().
+ * 
+ * Segue un esempio di contenuto del file PDF costruito come un insieme di blocchi:
+ * @code
+ * $html1 = $this->frontpage(array('title' => $this->mText($this->_locale->get('pdf_model')), 'img_dir' => $options['img_dir']));
+ * $html2 = $this->section01($options);
+ * $html3 = $this->backpage();
+ * 
+ * return array(
+ *   array('html' => $html1, 'header_page' => null, 'footer_page' => $this->footer(), 'margin_top' => 14, 'debug_exit' => false), 
+ *   array('html' => $html2, 'header_page' => $this->header(), 'footer_page' => $this->footer(), 'margin_top' => 28),
+ *   array('html' => $html3, 'header_page' => null, 'footer_remove' => true, 'margin_left' => 8, 'margin_right' => 8, 'margin_top' => 14)
+ * );
+ * @endcode
  * 
  * ##OUTPUT
  * ---------------
@@ -1883,7 +1903,9 @@ class plugin_mpdf {
 	 *     - string, percorso al file css (default css/mpdf.css)
 	 *     - array, elenco dei file css da caricare
 	 *   - @b css_style (string): stili css personalizzati (in un tag style)
-	 *   - @b header (string): header personalizzato
+	 *   - @b header (mixed):
+	 *     - boolean, col valore @a false l'header non viene mostrato
+	 *     - string, header personalizzato
 	 *   - @b footer (mixed):
 	 *     - boolean, col valore @a false il footer non viene mostrato
 	 *     - string, footer personalizzato, sono implementate le stringhe sostitutive:
@@ -1914,11 +1936,15 @@ class plugin_mpdf {
 			$html .= "<link href=\"$css_file\" type=\"text/css\" rel=\"stylesheet\" />";
 		}
 		
-		if($css_style)
-			$html .= "<style>".$css_style."</style>";
-		
+		if($css_style) {
+		    $html .= "<style>".$css_style."</style>";
+		}
 		$html .= "</head>";
 		$html .= "<body>\n";
+		
+		if(is_bool($header) && $header===false) {
+		    $header = '';
+		}
 		
 		if(is_bool($footer) && $footer===false)
 		{
@@ -2096,9 +2122,33 @@ mpdf-->";
 	 *   opzioni sui contenuti
 	 *   - @b content (mixed): contenuto del file; se nullo legge il metodo self::content()
 	 *     - @a string, contenuti con pagine aventi la stessa formattazione
-	 *     - @a array, contenuti con pagine che possono cambiare formattazione, come ad esempio l'orientamento; struttura dell'array:
-	 *     array([, string html], array(orientation=>[, string [L|P]], html=>[, string]), ...)
-	 *   - @b object (object): oggetto @a gino_mpdf
+	 *     - @a array, insieme di contenuti con pagine che possono cambiare formattazione, come ad esempio l'orientamento; struttura dell'array:
+	 *       @code
+	 *       array(
+	 *         string (html) or array,
+	 *         string (html) or array,
+	 *         [...]
+	 *       )
+	 *       @endcode
+	 *       Ogni elemento "array" può avere le seguenti chiavi:
+	 *         - @a html, string
+	 *         - @a debug_exit, default true
+	 *         // Optional parameters @see \Mpdf\Mpdf::AddPageByArray()
+	 *         - @a orientation, default 'P'
+	 *         - @a resetpagenum
+	 *         - @a suppress
+	 *         - @a margin_left
+	 *         - @a margin_right
+	 *         - @a margin_top
+	 *         - @a margin_bottom
+	 *         - @a margin_header
+	 *         - @a margin_footer
+	 *         // Custom header/footer
+	 *         - @a header_page
+	 *         - @a footer_page
+	 *         - @a header_remove
+	 *         - @a footer_remove
+	 *   - @b object (object): oggetto @a \Gino\Plugin\gino_mpdf
 	 *   opzioni dei metodi Gino.Plugin.gino_mpdf::header e Gino.Plugin.gino_mpdf::footer
 	 *   - @b img_dir (string): percorso ai file immagine di header/footer
 	 * @return mixed
@@ -2225,7 +2275,7 @@ mpdf-->";
 			$mpdf->StartProgressBarOutput($progress_bar);
 		}
 		
-		// Def contents
+		// Contents definition
 		$content = \Gino\gOpt('content', $options, null);
 		$object = \Gino\gOpt('object', $options, null);
 		
@@ -2239,7 +2289,7 @@ mpdf-->";
 		}
 		else
 		{
-			if(is_object($object))	// obj gino_mpdf
+			if(is_object($object))	// \Gino\Plugin\gino_mpdf object
 			{
 				$options['header'] = $object->header($options);
 				$options['footer'] = $object->footer($options);
@@ -2275,6 +2325,8 @@ mpdf-->";
 					// Custom header/footer
 					$header_page = array_key_exists('header_page', $pages[$i]) ? $pages[$i]['header_page'] : null;
 					$footer_page = array_key_exists('footer_page', $pages[$i]) ? $pages[$i]['footer_page'] : null;
+					$header_remove = array_key_exists('header_remove', $pages[$i]) && is_bool($pages[$i]['header_remove']) ? $pages[$i]['header_remove'] : false;
+					$footer_remove = array_key_exists('footer_remove', $pages[$i]) && is_bool($pages[$i]['footer_remove']) ? $pages[$i]['footer_remove'] : false;
 					
 					$html = array_key_exists('html', $pages[$i]) ? $pages[$i]['html'] : '';
 					$debug_exit_page = array_key_exists('debug_exit', $pages[$i]) ? $pages[$i]['debug_exit'] : true;
@@ -2293,17 +2345,25 @@ mpdf-->";
 					
 					$header_page = null;
 					$footer_page = null;
+					$header_remove = false;
+					$footer_remove = false;
 					
 					$html = $pages[$i];
 					$debug_exit_page = true;
 				}
 				
 				$opt = $options;
-				if($header_page) {
-					$opt['header'] = $header_page;
+				if($header_page && !$header_remove) {
+				    $opt['header'] = $header_page;
 				}
-				if($footer_page) {
-					$opt['footer'] = $footer_page;
+				elseif($header_remove) {
+				    $opt['header'] = false;
+				}
+				if($footer_page && !$footer_remove) {
+				    $opt['footer'] = $footer_page;
+				}
+				elseif($footer_remove) {
+				    $opt['footer'] = false;
 				}
 				$opt['debug_exit'] = $debug_exit_page;
 				

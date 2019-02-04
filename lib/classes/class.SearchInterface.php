@@ -450,7 +450,7 @@ class SearchInterface {
     	$submit_text_add = gOpt('submit_text_add', $options, null);
     	
     	$myform = Loader::load('Form', array());
-    	$form_search = $myform->open($link, false, '', array('form_id'=>$form_id));
+    	$form_search = $myform->open($link, false, '', array('form_id' => $form_id));
     	
     	foreach($this->_fields AS $search_field => $search_input)
     	{
@@ -466,41 +466,71 @@ class SearchInterface {
     		
     		if($input == 'text')
     		{
-    			$search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array('size'=>20, 'maxlength'=>40);
+    			if(array_key_exists('options', $search_input)) {
+    			    $search_options = $search_input['options'];
+    			}
+    			else {
+    			    $search_options = ['size' => 20, 'maxlength' => 40];
+    			}
+    			
     			$form_search .= Input::input_label($search_name, 'text', $search_value, $search_input['label'], $search_options);
     		}
     		elseif($input == 'date')
     		{
-    			$search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array();
+    			if(array_key_exists('options', $search_input)) {
+    			    $search_options = $search_input['options'];
+    			}
+    			else {
+    			    $search_options = [];
+    			}
+    			
     			$form_search .= Input::input_date($search_name, $search_value, $search_input['label'], $search_options);
     		}
     		elseif($input == 'select')
     		{
-    			$search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array();
+    			if(array_key_exists('options', $search_input)) {
+    			    $search_options = $search_input['options'];
+    			}
+    			else {
+    			    $search_options = [];
+    			}
+    			
     			$form_search .= Input::select_label($search_name, $search_value, $search_input['data'], $search_input['label'], $search_options);
     		}
     		elseif($input == 'radio')
     		{
-    		    $search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array();
+    		    if(array_key_exists('options', $search_input)) {
+    		        $search_options = $search_input['options'];
+    		    }
+    		    else {
+    		        $search_options = [];
+    		    }
+    		    
     		    $form_search .= Input::radio_label($search_name, $search_value, $search_input['data'], $search_input['default'], $search_input['label'], $search_options);
     		}
     		elseif($input == 'tag')
     		{
-    			$search_options = array_key_exists('options', $search_input) ? $search_input['options'] : array('size'=>20, 'maxlength'=>40);
+    			if(array_key_exists('options', $search_input)) {
+    			    $search_options = $search_input['options'];
+    			}
+    			else {
+    			    $search_options = ['size' => 20, 'maxlength' => 40];
+    			}
     			$form_search .= TagInput::input($search_name, $search_value, $search_input['label'], $search_options);
     		}
     	}
     	
-    	$text_add = '';
+    	// Submits
+    	$form_search .= Input::submit($this->_submit_name, $submit_value);
+    	
     	if($view_submit_all) {
-    		$submit_all = Input::input($this->_submit_all_name, 'submit', _('tutti'), array('classField'=>'submit'));
-    		$text_add .= ' '.$submit_all;
+    	    $form_search .= ' '.Input::submit($this->_submit_all_name, _('tutti'));
     	}
     	if($submit_text_add) {
-    		$text_add .= ' '.$submit_text_add;
+    	    $form_search .= ' '.$submit_text_add;
     	}
+    	// /Submits
     	
-    	$form_search .= Input::input_label($this->_submit_name, 'submit', $submit_value, '', array('classField' => 'submit', 'text_add' => $text_add));
     	$form_search .= $myform->close();
     
     	return $form_search;

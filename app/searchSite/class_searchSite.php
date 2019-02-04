@@ -3,7 +3,7 @@
  * @file class_searchSite.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.SearchSite.searchSite
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ use \Gino\App\SysClass\ModuleApp;
 /**
  * @brief Gestisce le ricerche full text sui contenuti dell'applicazione
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -125,9 +125,9 @@ class searchSite extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string');
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Informazioni')];
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -147,7 +147,7 @@ class searchSite extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => $this->_title,
             'links' => array($link_frontend, $link_options, $link_dft),

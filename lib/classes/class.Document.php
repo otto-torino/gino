@@ -116,9 +116,6 @@ class Document {
             	$regexp = array("#{% block '(.*?)' %}#", "#{module(.*?)}#");
             	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
             	
-            	// for compatibility; instantiate the registry variable directly in the template file
-            	$registry = $this->_registry;
-            	
             	ob_start();
             	include($template);
             	$tpl_content = ob_get_contents();
@@ -254,7 +251,7 @@ class Document {
         $stylesheets = array();
         
         // Bootstrap
-        $stylesheets[] = SITE_JS."/bootstrap/css/bootstrap.min.css";
+        $stylesheets[] = SITE_JS."/bootstrap-4.1.3/css/bootstrap.min.css";
         
         // Custom styles
         $stylesheets[] = CSS_WWW."/styles.css";
@@ -272,8 +269,7 @@ class Document {
         $scripts = array(
         	SITE_JS."/MooTools-More-1.6.0-compressed.js",
         	SITE_JS."/modernizr.js",
-        	SITE_JS."/gino-min.js",
-        	SITE_JS."/Modal.js",
+        	SITE_JS."/gino-min.js"
         );
         $browser = get_browser_info();
         if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
@@ -287,11 +283,13 @@ class Document {
         }
         
         // jQuery and Bootstrap
-        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-2.2.4.min.js");
+        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-3.3.1.min.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-ui-1.12.1.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
-        $this->_registry->addCoreJs(SITE_JS."/bootstrap/js/bootstrap.min.js");
+        // A kickass library used to manage poppers in web applications
+        $this->_registry->addCoreJs(SITE_JS."/popper.min.js");
+        $this->_registry->addCoreJs(SITE_JS."/bootstrap-4.1.3/js/bootstrap.min.js");
     }
 
     /**

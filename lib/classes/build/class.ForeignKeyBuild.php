@@ -49,7 +49,7 @@ class ForeignKeyBuild extends Build {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return valore campo
+     * @return string, valore campo
      */
     public function __toString() {
 

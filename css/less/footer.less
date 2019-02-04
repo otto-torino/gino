@@ -1,73 +1,14 @@
 body > footer {
-	background: #2e2f2d;
+	/*background: #2e2f2d;*/
+	font-size: 12px;
+	
 	position: relative;
+	clear: both;
 	padding: 4px 0px;
 	color: #999999;
 	font-size: 14px;
 	
 	a, a:hover, a:focus {
 		color: #999999;
-	}
-
-	.sitemap {
-		.make-row();
-		.topics, .projects, .social {
-			.make-xs-column(6);
-			.make-sm-column(4);
-			border-right: 1px solid #444;
-			border-left: 1px solid #000;
-			ul {
-				.list-unstyled;
-				padding-left: 15px;
-			}
-		}
-		.topics {
-			border-left-width: 0;
-		}
-		.projects {
-			border-right-width: 0px;
-			@media(min-width: @screen-sm-min) {
-				border-right-width: 1px;
-			}
-		}
-		.social {
-			display: none;
-			border-right-width: 0;
-			@media(min-width: @screen-sm-min) {
-				display: block;
-			}
-			i {
-				color: #F4AB26;
-				display: inline-block;
-				width: 15px;
-			}
-		}
-	}
-	h1 {
-		color: #aaa;
-		font-size: 1.2em;
-		text-shadow: 1px 1px 1px #000;
-	}
-	.mobile-social, .manifest {
-		clear:both;
-		i {
-			color: #F4AB26;
-			display: inline-block;
-			width: 36px;
-		}
-		background: #222;
-		padding: 20px 0;
-		border-top: 1px solid #444;
-		color: #ccc;
-	}
-	.manifest {
-		padding: 20px 0 40px;
-	}
-	.signature {
-		font-family:Chicken; 
-		font-size:1.8em;
-		position:absolute; 
-		bottom:10px;
-		right:20px;
 	}
 }

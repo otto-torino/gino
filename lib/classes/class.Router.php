@@ -3,7 +3,7 @@
  * @file class.Router.php
  * @brief Contiene la definizione ed implementazione della class Gino.Router
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -21,20 +21,14 @@ use \Gino\App\Module\ModuleInstance;
 /**
  * @brief Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta
  * 
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
  * ##Definizione di alias route
- * Nel file lib/route.php è possibile definire degli alias agli indirizzi delle risorse. 
- * L'unica accortezza da adottare è quella di non utilizzare il carattere della costante URL_SEPARATOR nei nomi degli alias.
- * 
- * @code
- * $route->setInstanceAlias('instancename', 'instancealias');
- * $route->instancename = array(
- *   'methodname' => 'methodalias'
- * );
- * @endcode
+ * Nel file config/route.inc è possibile definire gli alias agli indirizzi delle risorse. 
+ * Nei nomi degli alias non è possibile utilizzare il carattere della costante URL_SEPARATOR.
+ * @see config/route.inc
  */
 class Router extends Singleton {
 
@@ -58,81 +52,38 @@ class Router extends Singleton {
             $_controller_view; // callable
     
 	/**
-	 * @brief Elenco degli output di una istanza
-	 * @var array nel formato array([instance_name] => array([method_name] => [method_alias]))
-	 */
-	private $_methods_alias;
-	
-	/**
-	 * @brief Elenco degli alias delle istanze
-	 * @var array nel formato array([instance_name] => [instance_alias])
+	 * @brief Elenco degli alias degli indirizzi di tipo istanza/metodo
+	 * @var array nel formato array([instance/method] => [instance-alias/method-alias])
 	 */
 	private $_instances_alias;
+	
+	/**
+	 * @brief Elenco degli alias di indirizzi di tipo istanza/metodo/(id|slug)
+	 * @var array nel formato array([istance/method/id] => [url-alias])
+	 */
+	private $_url_alias;
 
     /**
      * @brief Costruttore
-     * @description Esegue l'url rewriting quando si utilizzano pretty urls e setta le variabili che 
-     *              contengono le informazioni della classe e metodo chiamati da url
+     * @description Esegue l'url rewriting quando si utilizzano permalink (pretty url) e imposta le variabili che 
+     *              contengono le informazioni di classe e metodo chiamati da url
      */
     protected function __construct() {
 
         $this->_registry = Registry::instance();
         $this->_request = $this->_registry->request;
-        $this->urlRewrite();
         
-        $this->_methods_alias = array();
-        $this->_instances_alias = array();
+        require_once CONFIG_DIR.OS.'route.inc';
+        
+        $this->_instances_alias = $config_instances_alias;
+        $this->_url_alias = $config_url_alias;
+        
+        $this->urlRewrite();
     }
     
-    /**
-     * @brief Imposta gli alias degli output di una istanza
-     * @description Non si può utilizzare il carattere della costante URL_SEPARATOR.
-     *
-     * Esempio
-     * @code
-     * $instance->foo = 'bar';
-     * @endcode
-     *
-     * @param string $name nome dell'istanza
-     * @param array $value nomi degli output nel formato array([true_name] => [alias_name])
-     * @return void
-     */
-    public function __set($name , $value) {
-    
-    	$this->_methods_alias[$name] = $value;
-    }
-    
-    /**
-     * @brief Ritorna gli alias degli output di una istanza
-     *
-     * Esempio
-     * @code
-     * echo $instance->foo;
-     * @endcode
-     *
-     * @param string $name nome dell'istanza
-     * @return array o null
-     */
-    public function __get($name) {
-    
-    	return isset($this->_methods_alias[$name]) ? $this->_methods_alias[$name] : null;
-    }
-    
-    /**
-     * @brief Imposta l'alias di una istanza
-     * @description Non si può utilizzare il carattere -
-     * 
-     * @param string $name nome dell'istanza
-     * @param string $value nome dell'alias
-     */
-    public function setInstanceAlias($name, $value) {
-    	
-    	$this->_instances_alias[$name] = $value;
-    }
-
     /**
      * @brief Url rewriting
-     * @description Se l'url non è nella forma pretty riscrive le proprietà GET e REQUEST dell'oggetto
+     * @description Se l'url non è nella forma pretty (permalink) riscrive le proprietà GET e REQUEST dell'oggetto
      *              @ref Gino.Http.Request parserizzando l'url. Chiama Gino.Http.Request per fare un update
      *              della proprietà url.
      * @return void
@@ -161,54 +112,99 @@ class Router extends Singleton {
     }
 
     /**
-     * @brief Riscrittura URL path info
-     * @param array $paths parti del path info
+     * @brief Riscrittura URL PathInfo quando l'indirizzo è nel formato permalink
+     * 
+     * @see config/route.inc
+     * @param array $paths parti del PathInfo (@see urlRewrite())
      * @return TRUE
      */
     private function rewritePathInfo(array $paths) {
 
         $tot = count($paths);
-
+        
         /**
          * http://example.com/admin
          */
         if($tot === 1) {
-            // admin porta alla home di amministrazione
+            // admin porta alla home page amministrativa
             if($paths[0] === 'admin') {
                 $this->_request->GET[self::EVT_NAME] = array(sprintf('index%sadmin_page', URL_SEPARATOR) => '');
             }
-            // il path viene interpretato come <nome-istanza>/index
+            // il path viene controllato con gli alias URL e, in caso di non corrispondenza, interpretato come <nome-istanza>/index
             elseif($paths[0] !== 'home') {
-                $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%sindex', $paths[0], URL_SEPARATOR) => '');
+                
+                $check_alias = false;
+                if(is_array($this->_url_alias) and count($this->_url_alias)) {
+                    $url_alias = $this->_url_alias;
+                    
+                    $found_url = array_search($paths[0], $url_alias);
+                    if($found_url) {
+                        $u = explode("/", $found_url);
+                        if(end($u) == '') {
+                            array_pop($u);
+                        }
+                        $u_mdl = $u[0];
+                        $u_method = $u[1];
+                        
+                        $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $u_mdl, URL_SEPARATOR, $u_method) => '');
+                        if(count($u) == 3) {
+                            $this->_request->GET['id'] = $u[2];
+                        }
+                        $check_alias = true;
+                    }
+                }
+                
+                if(!$check_alias) {
+                    $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%sindex', $paths[0], URL_SEPARATOR) => '');
+                }
             }
-            return TRUE;
         }
-
-        // esistono due o più path, i primi due sono nome istanza e metodo
-        $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
-
-        // ulteriori path sono normali coppie chiave/valore da inserire nella proprietà GET
-        if($tot > 2) {
-            // numero dispari di path, il terzo è un id
+        elseif($tot === 2) {
+            
+            $check_alias = false;
+            if(is_array($this->_instances_alias) and count($this->_instances_alias)) {
+                $instances_alias = $this->_instances_alias;
+                
+                $found_url = array_search(implode('/', $paths), $instances_alias);
+                if($found_url) {
+                    $u = explode("/", $found_url);
+                    $u_mdl = $u[0];
+                    $u_method = $u[1];
+                    
+                    $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $u_mdl, URL_SEPARATOR, $u_method) => '');
+                    $check_alias = true;
+                }
+            }
+            
+            if(!$check_alias) {
+                $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
+            }
+        }
+        // I path oltre i primi due (nome istanza e metodo) sono normali coppie chiave/valore da inserire nella proprietà GET
+        elseif($tot > 2) {
+            
+            $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
+            
+            // se il numero di elementi è dispari, il terzo elemento è un id
             if($tot % 2 !== 0) {
                 $this->_request->GET['id'] = urldecode($paths[2]);
-                // e lo rimuovo
+                // quindi lo rimuovo
                 unset($paths[2]);
                 // e rimetto a posto le chiavi
                 $paths = array_values($paths);
             }
-
+            
             // devo ricontare i paths
             for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
                 $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? urldecode($paths[$i + 1]) : '';
             }
         }
-
-        return TRUE;
+        
+        return true;
     }
 
     /**
-     * @brief Riscrittura URL della query_string
+     * @brief Riscrittura URL della query_string quando l'indirizzo è nel formato permalink
      * @param array $pairs coppie chiave-valore
      * @return void
      */
@@ -240,24 +236,6 @@ class Router extends Singleton {
         else {
             list($mdl, $method) = explode(URL_SEPARATOR, $evt_key);
 
-            // Search alias route
-            require_once LIB_DIR.OS.'route.php';
-            
-            $found_mdl = array_search($mdl, $this->_instances_alias);
-            if($found_mdl) {
-            	$mdl = $found_mdl;
-            }
-            
-            $mdl_route = $this->$mdl;	// call self::__get()
-            if($mdl_route) {
-            	
-            	$found_key = array_search($method, $mdl_route);
-            	if($found_key) {
-            		$method = $found_key;
-            	}
-            }
-            // /Search
-            
             Loader::import('module', 'ModuleInstance');
             Loader::import('sysClass', 'ModuleApp');
             $module_app = ModuleApp::getFromName($mdl);
@@ -328,7 +306,7 @@ class Router extends Singleton {
      * @brief Url che linka un metodo di una istanza di controller con parametri dati
      * @param string|\Gino\Controller $instance_name nome istanza o istanza del @ref Gino.Controller
      * @param string $method nome metodo
-     * @param array $params parametri da aggiungere come path info nel caso di pretty url
+     * @param array $params parametri da aggiungere come path info nel caso di pretty url (permalink)
      * @param array|string $query_string parametri aggiuntivi da trattare come query_string in entrambi i casi (pretty, espanso)
      * @param array $kwargs array associativo
      *                      - pretty: bool, default TRUE. Creare un pretty url o un url espanso
@@ -380,7 +358,7 @@ class Router extends Singleton {
      * @brief Trasformazione di un path con aggiunta o rimozione di parametri dalla query string
      * @param array $add parametri da aggiungere nella forma parametro => valore
      * @param array $remove parametri da rimuovere
-     * @return string, path trasformato
+     * @return string
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {
 

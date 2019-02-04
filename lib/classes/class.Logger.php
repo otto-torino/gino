@@ -3,7 +3,7 @@
  * @file class.Logger.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Logger
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -18,7 +18,7 @@ namespace Gino;
  *              L' email non viene inviata soltanto nel caso in cui la risposta HTTP sia di tipo 403 (Forbidden) e 404 (Not Found).
  *              Gestisce il comportamento a seguito del throw di una exception. La risposta si differenzia a seconda del valore della costante DEBUG.
  *
- * @copyright 2014-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -93,20 +93,21 @@ class Logger {
      *
      * @description Con DEBUG attivo stampa a video il trace, in produzione invia una mail con il trace agli ADMINS definiti nel file @ref configuration.php 
      * 				e ritorna una Gino.Http.Response definita dalla classe Exception oppure una Gino.Http.ResponseServerError. 
-     *              L' email non viene inviata soltanto nel caso in cui la risposta HTTP sia di tipo 403 e 404.
+     *              L'email non viene inviata soltanto nel caso in cui la risposta HTTP sia di tipo 403 e 404.
      * @param \Exception $exception oggetto Exception
      * return void
      */
     public static function manageException($exception) {
         
-    	if(DEBUG) {
-        	echo self::stackTraceHtml($exception);
-        	exit;
+        if(DEBUG) {
+            $response = new \Gino\Http\ResponseServerError();
+            $response->setAddContent(self::stackTraceHtml($exception));
+            $response();
         }
         else {
-        	if(!preg_match("#Exception404#", get_class($exception)) and !preg_match("#Exception403#", get_class($exception))) {
-        		self::exceptionReportAdmins($exception);
-        	}
+            if(!preg_match("#Exception404#", get_class($exception)) and !preg_match("#Exception403#", get_class($exception))) {
+                self::exceptionReportAdmins($exception);
+            }
             
             if(method_exists($exception, 'httpResponse')) {
                 $response = $exception->httpResponse();
@@ -114,7 +115,7 @@ class Logger {
             else {
                 $response = new \Gino\Http\ResponseServerError();
             }
-
+            
             $response();
         }
     }

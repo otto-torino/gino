@@ -34,7 +34,7 @@ require_once('class.MenuVoice.php');
  * @author abidibo abidibo@gmail.com
  * 
  * ##DESCRIZIONE
- * Il menu utilizza il plugin jQuery SmartMenus (@see https://www.smartmenus.org/).
+ * Vengono utilizzate le classi di Bootstrap 4.
  */
 class menu extends \Gino\Controller {
 
@@ -64,7 +64,7 @@ class menu extends \Gino\Controller {
     /**
      * @brief Costruttore
      * @param int $instance id istanza
-     * @return void, istanza di Gino.App.Menu.menu
+     * @return void
      */
     function __construct($instance) {
 
@@ -202,16 +202,12 @@ class menu extends \Gino\Controller {
      * @brief Visualizzazione menu
      * 
      * @see Gino.App.Menu.MenuVoice::getSelectedVoice()
-     * @return string, menu
+     * @return string
      */
     public function render() {
 
         $session = \Gino\Session::instance();
         $sel_voice = MenuVoice::getSelectedVoice($this->_instance);
-        
-        $this->_registry->addCustomJs($this->_class_www.'/smartmenus/jquery.smartmenus.min.js', array('compress'=>false, 'minify'=>false));
-        $this->_registry->addCustomJs($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.min.js", array('compress'=>false, 'minify'=>false));
-        $this->_registry->addCss($this->_class_www."/smartmenus/addons/bootstrap/jquery.smartmenus.bootstrap.css");
         
         $this->_registry->addCss($this->_class_www."/menu_".$this->_instance_name.".css");
         
@@ -336,9 +332,9 @@ class menu extends \Gino\Controller {
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
         $block = \Gino\cleanVar($request->GET, 'block', 'string', '');
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Gestione'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Gestione')];
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -383,7 +379,7 @@ class menu extends \Gino\Controller {
             $links_array = array($link_dft);
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => $this->_title,
             'links' => $links_array,

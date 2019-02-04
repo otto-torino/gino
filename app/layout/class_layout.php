@@ -3,7 +3,7 @@
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -48,7 +48,7 @@ use \Gino\App\Auth\Permission;
  * ## LAYOUT FREE
  * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -70,11 +70,11 @@ class layout extends \Gino\Controller {
 
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
 
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
-        $link_tpl = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template'), _('Template'));
-        $link_skin = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=skin'), _('Skin'));
-        $link_css = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=css'), _('CSS'));
-        $link_view = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=view'), _('Viste'));
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Informazioni')];
+        $link_tpl = ['link' => $this->linkAdmin(array(), 'block=template'), 'label' => _('Template')];
+        $link_skin = ['link' => $this->linkAdmin(array(), 'block=skin'), 'label' => _('Skin')];
+        $link_css = ['link' => $this->linkAdmin(array(), 'block=css'), 'label' => _('CSS')];
+        $link_view = ['link' => $this->linkAdmin(array(), 'block=view'), 'label' => _('Viste')];
 
         $sel_link = $link_dft;
 
@@ -103,7 +103,7 @@ class layout extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => _('Layout'),
             'links' => array($link_view, $link_css, $link_skin, $link_tpl, $link_dft),
@@ -220,9 +220,10 @@ class layout extends \Gino\Controller {
     private function manageCss($request) {
 
         $id = \Gino\cleanVar($request->REQUEST, 'id', 'int', '');
-        $css = \Gino\Loader::load('Css', array('layout', array('id' => $id)));
         $action = \Gino\cleanVar($request->GET, 'action', 'string');
 
+        $css = \Gino\Loader::load('Css', array($id));
+        
         if($action == 'insert' or $action == 'modify') {
 
             if($request->checkGETKey('trnsl', '1'))
@@ -299,28 +300,15 @@ class layout extends \Gino\Controller {
                 $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=delete"), \Gino\icon('delete'));
                 $link_sort = $i ? sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=skin&id={$skin->id}&action=sortup"), \Gino\icon('sort-up')) : '';
                 $tpl = new \Gino\Template($skin->template);
-                $css = new \Gino\Css('layout', array('id' => $skin->css));
                 
-                $settings = array();
-                if($skin->highest) {
-                	$settings[] = "<b>"._("maximum")."</b>";
-                }
-                if($skin->session) {
-                	$settings[] = _("sessione");
-                }
-                if($skin->urls) {
-                	$settings[] = _("url");
-                }
-                if($skin->rexp) {
-                	$settings[] = _("regexp");
-                }
-                $settings = implode("<br />", $settings);
+                $css = new \Gino\Css(null, array('type' => 'layout', 'id' => $skin->css));
+                $rules = implode("<br />", $skin->getRules());
                 
                 $tbl_rows[] = array(
                     $skin->ml('label'),
                     $tpl->ml('label'),
                     $css->label ? $css->label." (".$css->filename.")" : null,
-                	$settings,
+                    $rules,
                     $skin->auth == 'yes' ? _('si') : ($skin->auth == 'no' ? _('no') : _('si & no')),
                     $skin->cache ? _('si') : _('no'),
                     array('text' => implode(' &#160; ', array($link_modify, $link_delete, $link_sort)), 'class' => 'nowrap')
@@ -344,7 +332,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco skin'),
-            'class' => 'admin',
+            'class' => null,
             'header_links' => $link_insert,
             'content' => $buffer
         );
@@ -402,7 +390,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
         'title' => _('Elenco template'),
-        'class' => 'admin',
+            'class' => null,
         'header_links' => array($link_insert, $link_insert_free),
         'content' => $buffer
         );
@@ -477,7 +465,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco fogli di stile'),
-            'class' => 'admin',
+            'class' => null,
             'header_links' => $link_insert,
             'content' => $buffer
         );
@@ -535,7 +523,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Elenco viste generali di sistema'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 
@@ -571,7 +559,7 @@ oppure variabili di sessione.")."</li>";
         $view->setViewTpl('section');
         $dict = array(
             'title' => _('Layout'),
-            'class' => 'admin',
+            'class' => null,
             'content' => $GINO
         );
 
@@ -606,6 +594,10 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
         $skin = \Gino\Loader::load('Skin', array($id));
 
         return $skin->actionDelSkin($request);
@@ -623,7 +615,7 @@ oppure variabili di sessione.")."</li>";
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
         
-        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+        $css = \Gino\Loader::load('Css', array($id));
 
         return $css->actionCssLayout($request);
     }
@@ -639,7 +631,11 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
-        $css = \Gino\Loader::load('Css', array('layout', array('id'=>$id)));
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
+        $css = \Gino\Loader::load('Css', array($id));
 
         return $css->actionDelCssLayout($request);
     }
@@ -680,6 +676,10 @@ oppure variabili di sessione.")."</li>";
         $this->requirePerm('can_admin');
 
         $id = \Gino\cleanVar($request->POST, 'id', 'int', '');
+        
+        if(!$id) {
+            throw new \Gino\Exception\Exception404();
+        }
         $tpl = \Gino\Loader::load('Template', array($id));
 
         return $tpl->actionDelTemplate($request);
@@ -1248,49 +1248,26 @@ oppure variabili di sessione.")."</li>";
 
     /**
      * @brief Form di modifica files (css, viste)
+     * 
+     * @see Gino.CodeMirror
      * @param string $filename
      * @param string $code css|view
      */
     private function formFiles($filename, $code) {
 
-        $this->_registry->addJs(SITE_JS."/CodeMirror/codemirror.js");
-        $this->_registry->addCss(CSS_WWW."/codemirror.css");
+        $codemirror = \Gino\Loader::load('CodeMirror', array(['type' => $code]));
 
         if($code == 'css')
         {
-            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
             $title = sprintf(_("Modifica il foglio di stile \"%s\""), $filename);
             $dir = CSS_DIR;
             $block = "css";
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
         }
         elseif($code == 'view')
         {
-            $this->_registry->addJs(SITE_JS."/CodeMirror/htmlmixed.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/matchbrackets.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/css.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/xml.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/clike.js");
-            $this->_registry->addJs(SITE_JS."/CodeMirror/php.js");
             $title = sprintf(_("Modifica la vista \"%s\""), $filename);
             $dir = VIEWS_DIR;
             $block = "view";
-            $options = "{
-                lineNumbers: true,
-                matchBrackets: true,
-                mode: \"application/x-httpd-php\",
-                indentUnit: 4,
-                indentWithTabs: true,
-                enterMode: \"keep\",
-                tabMode: \"shift\"
-            }";
         }
 
         $buffer = '';
@@ -1300,7 +1277,7 @@ oppure variabili di sessione.")."</li>";
 
         if(is_file($pathToFile))
         {
-            $gform = \Gino\Loader::load('Form', array());	// array("tblLayout"=>false)
+            $gform = \Gino\Loader::load('Form', array());
             $gform->load('dataform');
             $buffer = $gform->open($this->link($this->_class_name, 'actionFiles'), '', '', array('form_id'=>'gform'));
             $buffer .= \Gino\Input::hidden('fname', $filename);
@@ -1308,17 +1285,15 @@ oppure variabili di sessione.")."</li>";
             $buffer .= \Gino\Input::hidden('action', $action);
 
             $contents = file_get_contents($pathToFile);
-            $buffer .= "<div class=\"form-row\">";
-            $buffer .= "<textarea id=\"codemirror\" class=\"form-no-check\" name=\"file_content\" style=\"width:98%; padding-top: 10px; padding-left: 10px; height:580px;overflow:auto;\">".$contents."</textarea>\n";
+            $buffer .= $codemirror->inputText('file_content', $contents, ['classField' => null]);
+            
+            $buffer .= "<div class=\"form-group\">";
+            $buffer .= \Gino\Input::submit('submit_action', _("salva"));
+            $buffer .= \Gino\Input::submit('cancel_action', _("annulla"), ['onclick' => "location.href='$link_return'"]);
             $buffer .= "</div>";
-
-            $buffer .= "<div class=\"form-row\">";
-            $buffer .= \Gino\Input::input('submit_action', 'submit', _("salva"), array("classField"=>"submit"));
-            $buffer .= " ".\Gino\Input::input('cancel_action', 'button', _("annulla"), array("js"=>"onclick=\"location.href='$link_return'\" class=\"generic\""));
-            $buffer .= "</div>";
-
-            $buffer .= "<script>var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('codemirror'), $options);</script>";
-
+            
+            $buffer .= $codemirror->renderScript();
+            
             $buffer .= $gform->close();
         }
 
@@ -1326,7 +1301,7 @@ oppure variabili di sessione.")."</li>";
         $view->setViewTpl('section');
         $dict = array(
             'title' => $title,
-            'class' => 'admin',
+            'class' => null,
             'content' => $buffer
         );
 

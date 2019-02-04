@@ -4,7 +4,7 @@ namespace Gino;
  * @file table.php
  * @brief Template utilizzato per visualizzare le tabelle
  *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -32,12 +32,14 @@ namespace Gino;
  */
 ?>
 <? //@cond no-doxygen ?>
-<? if(isset($form_start)) echo $form_start; ?>
-<table class="<?= $class ?>"<?= isset($id) ? " id=\"".$id."\"" : '' ?>>
-<? if(isset($caption) and $caption): ?>
-<caption><?= $caption ?></caption>
-<? endif ?>
-    <thead>
+<div class="table-responsive">
+	<? if(isset($form_start)) echo $form_start; ?>
+	<table class="<?= $class ?>"<?= isset($id) ? " id=\"".$id."\"" : '' ?>>
+		<? if(isset($caption) and $caption): ?>
+			<caption><?= $caption ?></caption>
+		<? endif ?>
+		
+		<thead>
         <?php
         if(isset($heads) && (!isset($multiple_heads) or !$multiple_heads)) {
             echo "<tr>";
@@ -61,8 +63,8 @@ namespace Gino;
             }
         }
         ?>
-    </thead>
-    <tbody>
+		</thead>
+		<tbody>
         <?php
             foreach($rows as $row) {
                 if(isset($row['evidence']) && $row['evidence'] && $tr_class)
@@ -78,21 +80,32 @@ namespace Gino;
                     $cell_rowspan = (is_array($cell) && isset($cell['rowspan']) && $cell['rowspan']) ? " rowspan=\"".$cell['rowspan']."\"" : "";
                     $title = (is_array($cell) && isset($cell['title'])) ? " title=\"".$cell['title']."\"" : '';
                     $text = (is_array($cell) && isset($cell['text'])) ? $cell['text'] : $cell;
-                    if(is_array($cell) && isset($cell['class'])) echo "<$cell_tag$cell_rowspan$cell_colspan$title class=\"".$cell['class']."\">".$text."</$cell_tag>\n";
-                    else echo "<$cell_tag$cell_rowspan$cell_colspan$title>$text</$cell_tag>\n";
+                    if(is_array($cell) && isset($cell['class'])) {
+                        echo "<$cell_tag$cell_rowspan$cell_colspan$title class=\"".$cell['class']."\">".$text."</$cell_tag>\n";
+                    }
+                    else {
+                        echo "<$cell_tag$cell_rowspan$cell_colspan$title>$text</$cell_tag>\n";
+                    }
                 }
                 echo "</tr>\n";
             }
         ?>
-    </tbody>
-    <tfoot>
-        <tr>
-        <?php
-            if(isset($foots) && is_array($foots)) foreach($foots as $f) echo "<td>$f</td>";
-            elseif(isset($foots)) echo "<td colspan=\"".count($rows[0])."\">$foots</td>";
-        ?>
-        </tr>
-    </tfoot>
-</table>
-<? if(isset($form_end)) echo $form_end; ?>
+		</tbody>
+		<tfoot>
+        	<tr>
+        	<?php
+            if(isset($foots) && is_array($foots)) {
+                foreach($foots as $f) {
+                    echo "<td>$f</td>";
+                }
+            }
+            elseif(isset($foots)) {
+                echo "<td colspan=\"".count($rows[0])."\">$foots</td>";
+            }
+            ?>
+            </tr>
+		</tfoot>
+	</table>
+	<? if(isset($form_end)) echo $form_end; ?>
+</div>
 <? // @endcond ?>

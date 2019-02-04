@@ -5,21 +5,36 @@
 @claim-btn-bkg: #cd3200;
 @claim-btn-color: #fff;
 
-// Import the fonts
-@font-face {
-	font-family: 'Roboto Slab';
-	src: url('../fonts/roboto-slab/RobotoSlab-Bold.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Light.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Regular.ttf') format('truetype'),
-		url('../fonts/roboto-slab/RobotoSlab-Thin.ttf') format('truetype')
-}
-
 body {
-	margin-top: 50px !important;
+	margin-top: 90px;
+}
+body.without-fixed-top {
+	margin-top: 0px;
 }
 
 .bg-white {
 	background-color: #fff;
+}
+
+.jumbotron{
+	background-color: #E6E6E6;
+}
+
+article {
+	clear: both;
+}
+
+/* Images (for compatibility) */
+.img-responsive {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+.img-rounded {
+	border-radius: 6px;
+}
+.img-circle {
+	border-radius: 50%;
 }
 
 /* Video */

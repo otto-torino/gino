@@ -3,7 +3,7 @@
  * @file class_phpModuleView.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.PhpModuleView.phpModuleView
  *
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -22,7 +22,7 @@ require_once('class.PhpModule.php');
 /**
  * @brief Permette la creazione di moduli di classe in grado di eseguire codice php completamente personalizzabile
  * 
- * @copyright 2005-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -184,10 +184,10 @@ class phpModuleView extends \Gino\Controller {
             return $this->_trd->manageTranslation($request);
         }
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_edit = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'action=modify'), _('Contenuto'));
-        $link_info = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Informazioni'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_edit = ['link' => $this->linkAdmin(array(), 'action=modify'), 'label' => _('Contenuto')];
+        $link_info = ['link' => $this->linkAdmin(), 'label' => _('Informazioni')];
         $sel_link = $link_info;
 
         $links_array = array($link_frontend, $link_options, $link_edit, $link_info);
@@ -223,7 +223,7 @@ class phpModuleView extends \Gino\Controller {
         }
 
         $view = new View();
-        $view->setViewTpl('tab');
+        $view->setViewTpl('tabs');
         $dict = array(
             'title' => $this->_instance_label,
             'links' => $links_array,

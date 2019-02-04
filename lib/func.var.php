@@ -3,7 +3,7 @@
  * @file func.var.php
  * @brief Racchiude le librerie per il trattamento di stringhe e dei valori da e per un input/database
  *
- * @copyright 2005-2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,7 +13,7 @@ namespace Gino;
  * @brief Converte l'encoding di un valore preso da un campo di un database (non UTF-8) nella codifica UTF-8
  *
  * @param string $value valore da convertire
- * @return valore convertito
+ * @return string
  */
 function convertToHtml($value)
 {
@@ -27,7 +27,7 @@ function convertToHtml($value)
  * @param string $value valore da convertire
  * @param string $character_set set di caratteri del database
  *   - @a CP1252, per SQL Server
- * @return valore convertito
+ * @return string
  */
 function convertToDatabase($value, $character_set=null)
 {
@@ -44,7 +44,7 @@ function convertToDatabase($value, $character_set=null)
  * @param string $text testo
  * @param boolean $strip_js rimuove gli attributi javascript (default true)
  * @param boolean $strip_attributes rimuove alcune proprietà quando risultano vuote (default true)
- * @return testo ripulito
+ * @return string
  */
 function strip_tags_attributes($text, $strip_js=true, $strip_attributes=true)
 {
@@ -67,7 +67,7 @@ function strip_tags_attributes($text, $strip_js=true, $strip_attributes=true)
  * @param string $text testo
  * @param string $tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
  * @param boolean $stripContent rimuove anche il testo contenuto tra l'apertura e la chiusura del tag (default false)
- * @return stringa ripulita
+ * @return string
  */
 function strip_selected_tags($text, $tags='', $stripContent=false)
 {
@@ -407,10 +407,10 @@ function clean_array($value, $options=array()) {
  * @param string $type tipo di variabile (bool,int,float,string,array)
  * @param string $strip_tags stringa con i tag da rimuovere, ad esempio "<a><p><quote>"
  * @param array $options array associativo di opzioni
- * @return testo ripulito
+ * @return mixed
  */
-function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
-{
+function cleanVar($method, $name, $type, $strip_tags = '', $options = array()) {
+    
 	$options['strip_tags'] = $strip_tags;
 	
 	if(array_key_exists($name, $method)) {
@@ -450,7 +450,7 @@ function cleanVar($method, $name, $type, $strip_tags = '', $options = array())
  * @brief Conversione dei dati Unicode $_GET/$_POST (generati dalla funzione javascript escape()) in UTF8 per il processo server-side
  *
  * @param string $value
- * @return stringa decodificata
+ * @return string
  */
 function utf8_urldecode($value) {
 
@@ -470,7 +470,7 @@ function utf8_urldecode($value) {
  *   array associativo di opzioni
  *   - @b width (string): sovrascrive la larghezza di visualizzazione di una immagine
  *   - @b height (string): sovrascrive l'altezza di visualizzazione di una immagine
- * @return testo modificato
+ * @return string
  */
 function codeToDB($method, $name, $options=array()){
 
@@ -504,10 +504,10 @@ function codeToDB($method, $name, $options=array()){
  * @param array $options
  *   array associativo di opzioni
  *   - @b newline (boolean): inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i caratteri newline)
- * @return stringa modificata
+ * @return string
  */
-function htmlChars($string, $id='', $options=array())
-{
+function htmlChars($string, $id='', $options=array()) {
+    
     $newline = array_key_exists('newline', $options) ? $options['newline'] : false;
 
     $string = convertToHtml($string);
@@ -534,7 +534,7 @@ function htmlChars($string, $id='', $options=array())
  *
  * @see codeToDB()
  * @param string $string
- * @return testo modificato
+ * @return string
  */
 function preCodeParser($string) {
 
@@ -569,7 +569,7 @@ function preCodeParser($string) {
  * @see preCodeParser()
  * @param string $string
  * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
- * @return testo modificato
+ * @return string
  */
 function codeParser($string, $id='') {
 
@@ -620,7 +620,7 @@ function codeParser($string, $id='') {
  * 
  * @param string $string testo
  * @param string $id codice che raggruppa un insieme di immagini da visualizzare con le librerie slimbox
- * @return testo modificato
+ * @return string
  */
 function slimboxReplace($string, $id) {
     
@@ -670,10 +670,10 @@ function slimboxReplace($string, $id) {
  * @description Inserisce dei tag BR prima di ogni nuova linea in una stringa (sostituisce i caratteri di fine riga \\r\\n)
  *
  * @param string $string
- * @return testo modificato
+ * @return string
  */
-function htmlCharsText($string)
-{
+function htmlCharsText($string) {
+    
     $string = convertToHtml($string);
 
     $string = trim($string);
@@ -693,15 +693,18 @@ function htmlCharsText($string)
  * @brief Modifica il valore di un campo di tipo testo per visualizzarlo in un input form
  *
  * @param string $string
- * @return testo modificato
+ * @return mixed
  */
-function htmlInput($string)
-{
-	if(is_null($string) or empty($string)) {
+function htmlInput($value) {
+    
+    if(is_int($value)) {
+        return $value;
+    }
+    if(is_null($value) or empty($value)) {
     	return null;
     }
 
-    $string = convertToHtml($string);
+    $string = convertToHtml($value);
 
     $string = trim($string);
     $string = stripslashes($string);
@@ -715,7 +718,7 @@ function htmlInput($string)
  * @brief Modifica il valore di un campo di tipo testo per visualizzarlo in un input form di tipo "solo testo"
  *
  * @param string $string
- * @return testo modificato
+ * @return string
  */
 function codeInput($string) {
 
@@ -727,11 +730,10 @@ function codeInput($string) {
 
 /**
  * @brief Racchiude il testo tra virgolette singole
- *
- * La funzione viene utilizzata ad esempio per racchiudere i campi nelle email e nelle esportazioni di file 
+ * @description La funzione viene utilizzata ad esempio per racchiudere i campi nelle email e nelle esportazioni di file.
  *
  * @param string $string
- * @return testo racchiuso tra virgolette
+ * @return string
  */
 function enclosedField($string){
 
@@ -744,10 +746,10 @@ function enclosedField($string){
  *
  * @param string $string
  * @param boolean $newline mantiene gli 'a capo' (default false)
- * @return testo escaped
+ * @return string
  */
-function jsVar($string, $newline=false)
-{
+function jsVar($string, $newline=false) {
+    
     if($newline)
     {
         $string = str_replace("\n",'\\n',$string);
@@ -774,8 +776,8 @@ function jsVar($string, $newline=false)
  * @param string $string
  * @return string
  */
-function jsHtml($string)
-{
+function jsHtml($string) {
+    
 	$string = str_replace("\n",'',$string);
 	$string = str_replace("\r",'',$string);
 	$string = str_replace("\t",'',$string);
@@ -790,24 +792,24 @@ function jsHtml($string)
  * @brief Escape testo che deve essere racchiuso in attributi html
  *
  * @param string $string
- * @return testo escaped
+ * @return string
  */
-function attributeVar($string)
-{
-  $string = str_replace("\n",'',$string);
-  $string = str_replace("\r",'',$string);
-  $string = str_replace("\t",'',$string);
-  $string = str_replace("&#039;",'\\\'',$string);
-  $string = str_replace("\"","\'",$string);
+function attributeVar($string) {
+    
+    $string = str_replace("\n",'',$string);
+    $string = str_replace("\r",'',$string);
+    $string = str_replace("\t",'',$string);
+    $string = str_replace("&#039;",'\\\'',$string);
+    $string = str_replace("\"","\'",$string);
 
-  return $string;
+    return $string;
 }
 
 /**
  * @brief Converte le entities HTML, ma non i tag
  *
  * @param string $string
- * @return testo convertito
+ * @return string
  */
 function htmlToEntities($string){
 
@@ -830,9 +832,9 @@ function htmlToEntities($string){
  * @brief Codifica i parametri url
  *
  * @param string $params parametri url
- * @return stringa codificata
+ * @return string
  */
-function encode_params($params){
+function encode_params($params) {
 
     if(!empty($params))
     {
@@ -846,9 +848,9 @@ function encode_params($params){
  * @brief Decodifica i parametri url
  *
  * @param string $params parametri url
- * @return stringa decodificata
+ * @return string
  */
-function decode_params($params){
+function decode_params($params) {
 
     if(!empty($params))
     {

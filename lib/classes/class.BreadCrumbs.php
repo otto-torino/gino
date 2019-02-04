@@ -3,7 +3,7 @@
  * @file class.BreadCrumbs.php
  * @brief Contiene la definizione ed implementazione della classe Gino.BreadCrumbs
  *
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Gestione di generiche briciole di pane
  *
- * @copyright 2016 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -46,7 +46,7 @@ namespace Gino;
  * <? if($breadcrumbs): ?>
  *   <?= $breadcrumbs ?>
  * <? endif ?>
- * <section id="gallery-category">
+ * <section>
  *   ...
  * </section>
  * @endcode
@@ -56,7 +56,7 @@ class BreadCrumbs {
 	private $_id, $_items;
 
     /**
-     * Costruttore
+     * @brief Costruttore
      *
      * @return void
      */
@@ -67,7 +67,7 @@ class BreadCrumbs {
     }
     
     /**
-     * Recupera tutti gli elementi in ordine (parent->son)
+     * @brief Recupera tutti gli elementi in ordine (parent -> child)
      *
      * @return string
      */
@@ -76,7 +76,7 @@ class BreadCrumbs {
     }
     
     /**
-     * Imposta l'identificativo delle briciole di pane
+     * @brief Imposta l'identificativo delle briciole di pane
      *
      * @param string $id identificativo breadcrumbs
      * @return void
@@ -86,7 +86,7 @@ class BreadCrumbs {
     }
     
     /**
-     * Recupera tutti gli elementi in ordine (parent->son)
+     * @brief Recupera tutti gli elementi in ordine (parent->son)
      *
      * @return array di elementi
      */
@@ -95,7 +95,7 @@ class BreadCrumbs {
     }
     
     /**
-     * Imposta gli elementi che compongono le briciole di pane
+     * @brief Imposta gli elementi che compongono le briciole di pane
      * 
      * @param array $items elementi briciole di pane
      * @return void
@@ -113,7 +113,7 @@ class BreadCrumbs {
     public function render() {
     	
         $view = new View();
-        $view->setViewTpl('breadcrumbs');
+        $view->setViewTpl('breadcrumb');
         $dict = array(
             'id' => $this->_id,
         	'items' => $this->_items,

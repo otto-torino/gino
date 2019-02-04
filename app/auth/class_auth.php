@@ -3,7 +3,7 @@
  * @file class_auth.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Auth.auth
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -32,6 +32,11 @@ require_once('class.ModelFormUser.php');
 /**
  * @brief Classe di tipo Gino.Controller per la gestione degli utenti, gruppi e permessi
  *
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @author marco guidotti guidottim@gmail.com
+ * @author abidibo abidibo@gmail.com
+ * 
+ * #Descrizione
  * I permessi delle applicazioni sono definiti nella tabella @a auth_permission. Il campo @a admin indica se il permesso necessita dell'accesso all'area amministrativa. \n
  * Ogni utente può essere associato a un permesso definito nella tabella @a auth_permission, e tale associazione viene registrata nella tabella @a auth_user_perm. \n
  * La tabella @a auth_user_perm registra il valore id dell'utente, del permesso e dell'istanza relativa all'applicazione del permesso. \n
@@ -39,9 +44,14 @@ require_once('class.ModelFormUser.php');
  *
  * I gruppi sono definiti nella tabella @a auth_group. I gruppi possono essere associati ai permessi e alle istanze (auth_group_perm) e gli utenti ai gruppi (auth_group_user).
  * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * #JWT
+ * I metodi:
+ * - getJsonData=getJsonData
+ * - whoami=whoami
+ * - deleteToken=deleteToken
+ * - refreshToken=refreshToken
+ * 
+ * implementano JWT e possono essere utilizzati per l'autenticazione di applicazioni javascript.
  */
 class auth extends \Gino\Controller {
 
@@ -996,13 +1006,13 @@ class auth extends \Gino\Controller {
         $block = \Gino\cleanVar($request->GET, 'block', 'string', null);
         $op = \Gino\cleanVar($request->GET, 'op', 'string', null);
 
-        $link_frontend = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=frontend'), _('Frontend'));
-        $link_options = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=options'), _('Opzioni'));
-        $link_group = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=group'), _('Gruppi'));
-        $link_perm = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=perm'), _('Permessi'));
-        $link_profile = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=profile'), _('Profili registrazione'));
-        $link_request = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=request'), _('Richieste registrazione'));
-        $link_dft = sprintf('<a href="%s">%s</a>', $this->linkAdmin(), _('Utenti'));
+        $link_frontend = ['link' => $this->linkAdmin(array(), 'block=frontend'), 'label' => _('Frontend')];
+        $link_options = ['link' => $this->linkAdmin(array(), 'block=options'), 'label' => _('Opzioni')];
+        $link_group = ['link' => $this->linkAdmin(array(), 'block=group'), 'label' => _('Gruppi')];
+        $link_perm = ['link' => $this->linkAdmin(array(), 'block=perm'), 'label' => _('Permessi')];
+        $link_profile = ['link' => $this->linkAdmin(array(), 'block=profile'), 'label' => _('Profili registrazione')];
+        $link_request = ['link' => $this->linkAdmin(array(), 'block=request'), 'label' => _('Richieste registrazione')];
+        $link_dft = ['link' => $this->linkAdmin(), 'label' => _('Utenti')];
         $sel_link = $link_dft;
 
         if($block == 'frontend') {
@@ -1058,8 +1068,7 @@ class auth extends \Gino\Controller {
             'content' => $backend
         );
 
-        $view = new View(null, 'tab');
-        $view->setViewTpl('tab');
+        $view = new View(null, 'tabs');
 
         $document = new Document($view->render($dict));
         return $document();
@@ -1190,10 +1199,15 @@ class auth extends \Gino\Controller {
         else
         {
             $url = $this->link($this->_class_name, 'checkUsername');
-            $onclick = "onclick=\"gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), 'check')\"";
-            $check = "<div id=\"check\" style=\"color:#ff0000;\"></div>\n";
+            $div_id = 'check_user';
+            $onclick = "gino.ajaxRequest('post', '$url', 'username='+$('username').getProperty('value'), '$div_id')";
+            $check_message = "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;color:#ff0000;\"></div>\n";
             
-            $check_username = \Gino\Input::input_label('check_username', 'button', _("controlla"), _("Disponibilità username"), array('js'=>$onclick, "text_add"=>$check));
+            $check_username = \Gino\Input::submit('check_username', _("controlla"), ['onclick' => $onclick, 'type' => 'button']);
+            $check_username .= $check_message;
+            
+            $check_username = \Gino\Input::placeholderRow(_("Disponibilità username"), $check_username);
+            
             $check_email = \Gino\Input::input_label('check_email', 'text', '', _("Controllo email"), array("required"=>true, "size"=>40, "maxlength"=>100, "other"=>"autocomplete=\"off\""));
 
             $removeFields = array();
@@ -1590,7 +1604,7 @@ class auth extends \Gino\Controller {
         $content .= \Gino\Input::hidden('id', $obj_user->id);
         $content .= $this->formPermission($checked);
 
-        $content .= \Gino\Input::input('submit', 'submit', _("associa"));
+        $content .= \Gino\Input::submit('submit', _("associa"));
         $content .= $gform->close();
         
         $description = _("IMPORTANTE: per permettere a un utente l'accesso a funzionalità amministrative di qualsiasi applicazione non è sufficiente assegnargli i permessi relativi, ma occorre anche assegnargli il permesso di accedere all'area amministrativa (Modulo: core -> appartenenza allo staff).");
@@ -1899,6 +1913,7 @@ class auth extends \Gino\Controller {
         $form = $mform->view(
         	array(
         		'form_id' => 'login',
+        	    'form_class' => 'myform',
         		'show_save_and_continue' => false,
         		'view_info' => false,
         		'view_title' => false,
@@ -2012,5 +2027,160 @@ class auth extends \Gino\Controller {
         );
         $document = new Document($view->render($dict));
         return $document();
+    }
+    
+    /**
+     * @brief Json of login credentials
+     * @description Create the jwt payload
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function getJsonData(\Gino\Http\Request $request) {
+        
+        // Verifica se le credenziali inserite nel login sono corrette
+        // Richiama Gino.Access::AuthenticationMethod() che imposta le variabili di sessione in gino
+        $check = $this->_access->CheckLogin($request);
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        
+        if($check) {
+            $user = new User($this->_session->user_id);
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $jwt_token = $plugin_jwt->JWT_encode($user);
+            
+            $data = [
+                'userData' => [
+                    'userId' => $user->id,
+                    'userName' => $user->firstname.' '.$user->lastname,
+                    'userEmail' => $user->email,
+                    'isSuperUser' => $user->is_admin
+                ],
+                'tokenData' => $jwt_token
+            ];
+            
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "login failed"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: invalid credentials']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Ritorna i dati dell'utente che effettua la richiesta
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function whoami(\Gino\Http\Request $request) {
+        
+        $jwt = \Gino\cleanVar($request->GET, 'jwt', 'string');
+        if($jwt == 'undefined' or $jwt=='null') {
+            $jwt = '';
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        $data = [];
+        
+        if($jwt) {
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $token = $plugin_jwt->JWT_decode($jwt);
+            
+            if($plugin_jwt->verifyToken($token)) {
+                $data = [
+                    'userData' => [
+                        'userId' => $token->data->userId,
+                        'userName' => $token->data->userName,
+                        'userEmail' => $token->data->userEmail,
+                        'isSuperUser' => $token->data->isSuperUser
+                    ],
+                    'tokenData' => $jwt
+                ];
+            }
+        }
+        
+        if(count($data)) {
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "invalid token"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: invalid token']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Elimina la sessione se è verificato il Token
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function deleteToken(\Gino\Http\Request $request) {
+        
+        $jwt = \Gino\cleanVar($request->GET, 'jwt', 'string');
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        
+        if($jwt && $jwt != 'undefined') {
+            
+            require_once(PLUGIN_DIR.OS.'plugin.jwt.php');
+            $plugin_jwt = new \Gino\Plugin\plugin_jwt();
+            $token = $plugin_jwt->JWT_decode($jwt);
+            
+            if($plugin_jwt->verifyToken($token)) {
+                
+                $this->_session->destroy();
+                if(isset($this->_session->user_id) && $this->_session->user_id) {
+                    $delete = false;
+                }
+                else {
+                    $delete = true;
+                }
+            }
+            else {
+                $delete = false;
+            }
+            
+            $data = [
+                'deleteSession' => (int)$delete
+            ];
+            
+            return new \Gino\Http\ResponseJson($data);
+        }
+        else {
+            return new \Gino\Http\ResponseJson(
+                ['error' => "undefined token"],
+                ['status' => ['code' => 400, 'text' => 'Bad Request: undefined token']]
+            );
+        }
+    }
+    
+    /**
+     * @brief Ritorna il Token
+     *
+     * @param \Gino\Http\Redirect $redirect istanza di Gino.Http.Redirect
+     * @return Gino.Http.ResponseJson
+     */
+    public function refreshToken(\Gino\Http\Request $request) {
+        
+        $token = \Gino\cleanVar($request->POST, 'token', 'string');
+        
+        if($token && $token != 'undefined') {
+            $data = ['tokenData' => $token];
+        }
+        else {
+            $data = [];
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        return new \Gino\Http\ResponseJson($data);
     }
 }

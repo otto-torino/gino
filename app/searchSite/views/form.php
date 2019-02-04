@@ -10,7 +10,7 @@ namespace Gino\App\SearchSite;
  * - **check_options**: se $choices è vero mostra il pannello con le scelte di ricerca
  * 
  * @version 1.0.0
- * @copyright 2005-2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2005-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  * 
@@ -36,14 +36,14 @@ function openHideSearchSite() {
 <div><span style="cursor: pointer;" onclick="openHideSearchSite()" class="fa fa-search"></span></div>
 
 <div id="fulltextsearch" style="display: none;">
-	<form method="post" class="navbar-form navbar-left searchsite-form" action="<?= $form_action ?>" role="search">
+	<form method="post" class="form-inline searchsite-form" action="<?= $form_action ?>" role="search">
     	<?php if($choices): ?>
         <div class='form-group'>
             <input type="button" id="search_site_check" value="" />
         </div>
     	<?php endif ?>
-    	<div class='form-group'>
-        	<input type="text" name="search_site" placeholder="<?= _('Cerca')?>" />
+    	<div class='form-group mr-1'>
+        	<input type="text" class="form-control" name="search_site" placeholder="<?= _('Cerca')?>" />
     	</div>
     	
 		<div class='form-group'>

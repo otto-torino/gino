@@ -23,25 +23,22 @@ class ResponseJson extends Response {
      * @brief Costruttore
      * @param mixed $content contenuto della risposta. Se diverso da stringa viene codificato in json
      * @param array $kwargs array associativo di argomenti
-     *   - @b response_headers (boolean): HTTP response headers that servers send back for access control requests 
-     *   as defined by the Cross-Origin Resource Sharing specification (https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+     *   - @b status (array): imposta lo status code ed accetta le chiavi @a code e @a text
      * @return void, istanza di \Gino\Http\ResponseJson
      */
     function __construct($content, array $kwargs = array()) {
 
-        $response_headers = \Gino\gOpt('response_headers', $kwargs, false);
+        $status = \Gino\gOpt('status', $kwargs, null);
         
         if(!is_string($content)) {
             $content = json_encode($content);
         }
-
+        
         parent::__construct($content, $kwargs);
         $this->setContentType('application/json');
-        if($response_headers) {
-            $this->setHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Credentials' => 'true'
-            ]);
+        
+        if(is_array($status) and count($status) == 2) {
+            $this->setStatus($status['code'], $status['text']);
         }
     }
 

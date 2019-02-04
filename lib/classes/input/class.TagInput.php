@@ -3,7 +3,7 @@
  * @file class.TagInput.php
  * @brief Contiene la definizione ed implementazione della classe Gino.TagInput
  *
- * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Input form di tipo Tag
  *
- * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,11 +24,13 @@ class TagInput extends Input {
 	 * @param string $name nome
 	 * @param string $value valore
 	 * @param string $label label
-	 * @param array $options opzioni
+	 * @param array $options opzioni array associativo di opzioni di Gino.Input::input_label()
 	 * @return string
 	 */
 	public static function input($name, $value, $label, $options=array()) {
-		 
+		
+	    $form_inline = gOpt('form_inline', $options, false);
+	    
 		// moocomplete
 		$registry = registry::instance();
 		$registry->addJs(SITE_JS.'/MooComplete.js');
@@ -38,9 +40,13 @@ class TagInput extends Input {
 		$tags = GTag::getAllTags();
 		$js_tags_list = "['".implode("','", jsVar($tags))."']";
 		
-		$text_add = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); win.display();\"></span>";
+		$link_layer = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); win.display();\"></span>";
 		
-		$tag_options = array('id' => $name, 'text_add' => $text_add);
+		$tag_options = ['id' => $name];
+		if(!$form_inline) {
+		    $tag_options['text_add'] = $link_layer;
+		}
+		
 		$opt = is_array($options) && count($options) ? array_merge($options, $tag_options): $tag_options;
 		
 		$field = Input::input_label($name, 'text', $value, $label, $opt);
@@ -66,6 +72,10 @@ class TagInput extends Input {
             }
         }";
 		$field .= "</script>";
+		
+		if($form_inline) {
+		    $field .= "<div class=\"link-tag-cloud\">".$link_layer."</div>";
+		}
 		
 		return $field;
 	}

@@ -10,8 +10,8 @@ namespace Gino\App\Auth;
  */
 ?>
 <? //@cond no-doxygen ?>
-<section class="auth-login">
+<div class="auth-login">
   <h1><?= $title ?></h1>
   <?= $form ?>
-</section>
+</div>
 <? // @endcond ?>

@@ -17,7 +17,7 @@ use \Gino\Http\Request;
  * @description dati il numero di elementi totali ed il numero di elementi per pagina, ricava i limiti per
  *              creare il sottoinsieme di elementi da mostrare e gestisce la navigazione tra le pagine.
  *
- * @copyright 2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -35,7 +35,7 @@ class Paginator {
      * @param int $items_for_page numero di items per pagina
      * @param array $kwargs array associativo
      *              - interval: int, default 2. Numero di pagine da mostrare nella navigazione nell'intorno di quella corrente
-     * @return void, istanza di Gino.Paginator
+     * @return void
      */
     function __construct($items_number, $items_for_page, array $kwargs = array()) {
 
@@ -46,7 +46,6 @@ class Paginator {
         $this->_interval = isset($kwargs['interval']) ? (int) $kwargs['interval'] : 2;
 
         $this->setCurrentPage();
-
     }
 
     /**
@@ -68,9 +67,9 @@ class Paginator {
         }
     }
 
-    /*+
+    /**
      * @brief Getter pagina corrente
-     * @return pagina corrente, int
+     * @return integer
      */
     public function getCurrentPage() {
         return $this->_current_page;
@@ -98,7 +97,7 @@ class Paginator {
 
     /**
      * @brief Riassunto elementi pagina corrente
-     * @return string, codice html riassunto, es 10-20 di 100
+     * @return string, es 10-20 di 100
      */
     public function summary() {
         $limit = $this->limit();
@@ -107,10 +106,18 @@ class Paginator {
 
     /**
      * @brief Controllo per la navigazione delle pagine
+     * 
+     * @param array $options
+     *   array associativo di opzioni
+     *   - @b additional_classes (string): classi aggiuntive del tag UL;
+     *     - change the alignment of pagination components with flexbox utilities (like @a justify-content-center)
+     *     - fancy larger or smaller pagination with .pagination-lg or .pagination-sm
      * @return string
      */
-    public function navigator() {
+    public function navigator($options=[]) {
 
+        $additional_classes = gOpt('additional_classes', $options, null);
+        
         $pages = $this->pages();
         $pages_link = array();
         foreach($pages as $page) {
@@ -132,7 +139,8 @@ class Paginator {
         return $view->render(array(
             'pages' => $pages_link,
             'prev' => $prev,
-            'next' => $next
+            'next' => $next,
+            'additional_classes' => $additional_classes
         ));
     }
 
@@ -181,7 +189,8 @@ class Paginator {
      *   - @b gotopage (array): parametri dell'interfaccia di rimando a una pagina specifica
      *     - @a view (boolean), indica se mostrare l'interfaccia
      *     - parametri del metodo goToPage()
-     * @return string, codice html paginazione
+     *   - opzioni del metodo navigator()
+     * @return string
      */
     public function pagination($options=null) {
         
@@ -192,7 +201,7 @@ class Paginator {
         return $view->render(array(
             'summary' => $this->summary(),
         	'summary_label' => $summary_label,
-            'navigator' => $this->navigator(), 
+            'navigator' => $this->navigator($options), 
         	'gotopage' => (is_array($gotopage) && array_key_exists('view', $gotopage) && $gotopage['view']) ? $this->goToPage($gotopage) : null
         ));
     }

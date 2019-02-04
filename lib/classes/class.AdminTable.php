@@ -3,7 +3,7 @@
  * @file class.AdminTable.php
  * @brief Contiene la definizione ed implementazione della classe Gino.AdminTable
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -76,7 +76,7 @@ namespace Gino;
  * );
  * @endcode
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -117,6 +117,12 @@ class AdminTable {
      * @var array
      */
     protected $_filter_add;
+    
+    /**
+     * @brief Per visualizzare inline gli input del form dei filtri
+     * @var boolean
+     */
+    protected $_form_filters_inline;
 
     protected $_list_display, $_list_remove;
     protected $_ifp;
@@ -143,7 +149,8 @@ class AdminTable {
      *   - @b delete_deny (mixed): indica quali sono gli ID dei record che non posssono essere eliminati
      *     - @a string, 'all' -> tutti
      *     - @a array, elenco ID
-     * @return istanza di Gino.AdminTable
+     *   - @b form_filters_inline (boolean): per visualizzare inline gli input del form dei filtri (default @a true)
+     * @return void
      */
     function __construct($controller, $opts = array()) {
 
@@ -163,6 +170,8 @@ class AdminTable {
         $this->_edit_allow = gOpt('edit_allow', $opts, null);
         $this->_edit_deny = gOpt('edit_deny', $opts, array());
         $this->_delete_deny = gOpt('delete_deny', $opts, array());
+        
+        $this->_form_filters_inline = gOpt('form_filters_inline', $opts, true);
         
         $this->_model_form = '\Gino\ModelForm';
     }
@@ -308,7 +317,7 @@ class AdminTable {
      *   array associativo di opzioni
      *   - @b link_return (string): indirizzo al quale si viene rimandati dopo un esito positivo del form (se non presente viene costruito automaticamente)
      * @param array $options_field
-     * @return \Gino\Http\Response or \Gino\Http\Redirect
+     * @return mixed, \Gino\Http\Response or \Gino\Http\Redirect
      */
     public function action($model_form, $options_form, $options_field) {
     	
@@ -809,19 +818,34 @@ class AdminTable {
         $this->_view->assign('title', $list_title);
         $this->_view->assign('description', $list_description);
         
+        // Open Modal
         if($advanced_export)
         {
-        	// @see formGetData()
-        	$this->_view->assign('link_modal', $this->editUrl(array(
-        		'action' => 'getdata',
-        		'where' => base64_encode(implode(' AND ', $query_where)),
-        		'model' => base64_encode(get_class($model))
-        	)));
-        	$this->_view->assign('model_name', get_class($model));
+            $model_name = get_class($model);
+            $this->_view->assign('model_name', $model_name);
+            
+            // @see formGetData()
+            $link_modal = $this->editUrl(array(
+                'action' => 'getdata',
+                'where' => base64_encode(implode(' AND ', $query_where)),
+                'model' => base64_encode(get_class($model))
+            ));
+            $this->_view->assign('link_modal', $link_modal);
+            
+        	$modal = new Modal(['modal_id' => "myModal", 'modal_title_id' => 'myModalTitle']);
+        	
+        	$modal_title = sprintf(_("Esportazione dei dati del modello %s"), $model_name);
+        	
+        	$this->_view->assign('trigger_modal', $modal->getModalTrigger());
+        	$this->_view->assign('script_modal', $modal->loadDinamycData($link_modal));
+        	$this->_view->assign('render_modal', $modal->render($modal_title, null));
         }
         else {
-        	$this->_view->assign('link_modal', null);
-        	$this->_view->assign('model_name', null);
+            $this->_view->assign('model_name', null);
+            $this->_view->assign('link_modal', null);
+        	$this->_view->assign('trigger_modal', null);
+        	$this->_view->assign('script_modal', null);
+        	$this->_view->assign('render_modal', null);
         }
         
         $this->_view->assign('link_insert', $link_insert);
@@ -1087,11 +1111,21 @@ class AdminTable {
         $model_structure = $model->getStructure();
         $class_name = get_class($model);
 
+        if($this->_form_filters_inline) {
+            $form_class = 'form-inline';
+            $inline_opt = true;
+        }
+        else {
+            $form_class = null;
+            $inline_opt = false;
+        }
+        
         $gform = new Form();
 
         $form = $gform->open($this->editUrl(array(), array('start')), false, '', array(
         	'form_id' => 'atbl_filter_form', 
-        	'validation' => false
+            'form_class' => $form_class,
+        	'validation' => false,
         ));
 
         foreach($this->_filter_fields as $fname) {
@@ -1108,21 +1142,29 @@ class AdminTable {
                 $build = $model->build($field);
                 $build->setValue($this->_session->{$class_name.'_'.$fname.'_filter'});
                 
-                $form .= $build->formFilter(array('default'=>null));
+                $form .= $build->formFilter(['default'=>null, 'form_inline' => $inline_opt]);
 
                 $form .= $this->formFiltersAdd($this->_filter_join, $fname, $class_name);
                 $form .= $this->formFiltersAdd($this->_filter_add, $fname, $class_name);
             }
         }
-
-        $onclick = "onclick=\"$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {
+        
+        $onclick = "$$('#atbl_filter_form input, #atbl_filter_form select').each(function(el) {
             if(el.get('type')==='text') el.value='';
             else if(el.get('type')==='radio') el.removeProperty('checked');
             else if(el.get('tag')=='select') el.getChildren('option').removeProperty('selected');
-        });\"";
-
-        $input_reset = Input::input('ats_reset', 'button', _("tutti"), array("classField"=>"generic", "js"=>$onclick));
-        $form .= Input::input_label('ats_submit', 'submit', _("filtra"), '', array("classField"=>"submit", "text_add"=>' '.$input_reset));
+        });";
+        
+        $button_all = Input::submit('ats_reset', _("tutti"), [
+            "classField" => 'btn-secondary',
+            'type' => 'button',
+            'onclick' => $onclick
+        ]);
+        $button_filter = Input::submit('ats_submit', _("filtra"), [
+            
+        ]);
+        
+        $form .= $button_all.' '.$button_filter;
         $form .= $gform->close();
 
         return $form;
@@ -1154,6 +1196,13 @@ class AdminTable {
 
         if(count($filters))
         {
+            if($this->_form_filters_inline) {
+                $inline_opt = true;
+            }
+            else {
+                $inline_opt = false;
+            }
+            
             foreach($filters AS $array)
             {
                 $field = gOpt('field', $array, null);
@@ -1169,19 +1218,19 @@ class AdminTable {
 
                     if($ff_input == 'radio')
                     {
-                        $form .= Input::radio_label($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, array('required'=>false));
+                        $form .= Input::radio_label($ff_name, $ff_value, $ff_data, $ff_default, $ff_label, ['required'=>false, 'form_inline' => $inline_opt]);
                     }
                     elseif($ff_input == 'select')
                     {
-                        $form .= Input::select_label($ff_name, $ff_value, $ff_data, $ff_label, array('required'=>false));
+                        $form .= Input::select_label($ff_name, $ff_value, $ff_data, $ff_label, ['required'=>false, 'form_inline' => $inline_opt]);
                     }
                     elseif($ff_input == 'date')
                     {
-                    	$form .= Input::input_date($ff_name, $ff_value, $ff_label, array('required'=>false));
+                        $form .= Input::input_date($ff_name, $ff_value, $ff_label, ['required'=>false, 'form_inline' => $inline_opt]);
                     }
                     else
                     {
-                        $form .= Input::input_label($ff_name, 'text', $ff_value, $ff_label, array('required'=>false));
+                        $form .= Input::input_label($ff_name, 'text', $ff_value, $ff_label, ['required'=>false, 'form_inline' => $inline_opt]);
                     }
                 }
             }
@@ -1196,7 +1245,7 @@ class AdminTable {
      * @param array $remove_params elenco parametri da rimuovere dal path (Gino.Http.Request::path)
      * @return string, url ricostruito
      */
-    protected function editUrl($add_params = array(), $remove_params = array()) {
+     protected function editUrl($add_params = array(), $remove_params = array()) {
 
         return $this->_registry->router->transformPathQueryString($add_params, $remove_params);
      }
@@ -1254,7 +1303,10 @@ class AdminTable {
     			
     			// rimuovere i campi ManyToManyThroughField dall'esportazione
     			if(!is_a($field_object, '\Gino\ManyToManyThroughField')) {
-    				$checkbox .= Input::checkbox('fields[]', $checked, $field_name, array()).' '.$field_object->getLabel()."<br />";
+    				
+    			    $field_label = $field_object->getLabel();
+    			    $label = is_array($field_label) ? $field_label[0] : $field_label;
+    				$checkbox .= Input::checkbox('fields[]', $checked, $field_name, []).' '."$label<br />";
     			}
     		}
     	}
@@ -1263,7 +1315,7 @@ class AdminTable {
     	$this->_view->assign('form_action', $this->editUrl());
     	$this->_view->assign('hidden', $hidden);
     	$this->_view->assign('checkbox', $checkbox);
-    
+        
     	return new \Gino\Http\Response($this->_view->render());
     }
     
