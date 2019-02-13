@@ -52,7 +52,7 @@ function platforms(){
  * @brief Informazioni browser
  * @param string $arg proprietà da ritornare (invece di un array completo)
  * @param string $agent HTTP AGENT, default $_SERVER['HTTP_USER_AGENT']
- * @return informazioni browser, una sola proprietà o un array (agent, name, version, is_bot, platform)
+ * @return mixed, informazioni browser, una sola proprietà o un array (agent, name, version, is_bot, platform)
  */
 function get_browser_info($arg='',$agent='')
 {
@@ -92,8 +92,11 @@ function get_browser_info($arg='',$agent='')
             if (strripos($agent,"version") < strripos($agent,strtolower($name)) ){
             	$version= $matches['version'][0];
             }
+            elseif(count($matches['version']) > 1) {
+                $version= $matches['version'][1];
+            }
             else {
-            	$version= $matches['version'][1];
+                $version = 0;
             }
         }
         else {

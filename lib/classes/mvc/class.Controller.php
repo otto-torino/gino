@@ -3,7 +3,7 @@
  * @file class.Controller.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -375,5 +375,23 @@ abstract class Controller {
                 ));
             }
         }
+    }
+    
+    /**
+     * @brief Web Service Restful
+     * 
+     * @see \Gino\Http\ResponseJson
+     * @param string|array $data contenuto della risposta (se diverso da stringa viene codificato in json)
+     * @param array $options opzioni del costruttore di Gino.Http.ResponseJson
+     * @return \Gino\Http\ResponseJson
+     */
+    public function REST($data, $options=[]) {
+        
+        if(!is_array($data) and !is_string($data)) {
+            $data = [];
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        return new \Gino\Http\ResponseJson($data);
     }
 }

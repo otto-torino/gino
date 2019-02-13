@@ -356,22 +356,39 @@ class Router extends Singleton {
 
     /**
      * @brief Trasformazione di un path con aggiunta o rimozione di parametri dalla query string
-     * @param array $add parametri da aggiungere nella forma parametro => valore
-     * @param array $remove parametri da rimuovere
+     * 
+     * @see self::changeUrlQueryString()
+     * @param array $add parametri da aggiungere nel formato [param1 => value1, param2 => value2[,]]
+     * @param array $remove parametri da rimuovere nel formato [param1, param2[,]]
      * @return string
      */
     public function transformPathQueryString(array $add = array(), array $remove = array()) {
 
-        $url = $this->_request->path;
-
-        if(count($remove)) {
-            foreach($remove as $param) {
+        return $this->changeUrlQueryString($this->_request->path, ['add_params' => $add, 'remove_params' => $remove]);
+    }
+    
+    /**
+     * @brief Modifica un indirizzo con aggiunta o rimozione di parametri dalla query string
+     * 
+     * @param string $url indirizzo da modificare
+     * @param array $options array associativo di opzioni
+     *   - @b add_params (array): parametri da aggiungere nel formato [param1 => value1, param2 => value2[,]]
+     *   - @b remove_params (array): parametri da rimuovere nel formato [param1, param2[,]]
+     * @return string
+     */
+    public function changeUrlQueryString($url, array $options = []) {
+        
+        $add_params = gOpt('add_params', $options, []);
+        $remove_params = gOpt('remove_params', $options, []);
+        
+        if(is_array($remove_params) && count($remove_params)) {
+            foreach($remove_params as $param) {
                 $url = preg_replace("#(\?|&)".preg_quote($param)."(?:=[^&]*)#", '', $url);
             }
         }
-
-        if(count($add)) {
-            foreach($add as $param => $value) {
+        
+        if(is_array($add_params) && count($add_params)) {
+            foreach($add_params as $param => $value) {
                 // se presente va riscritto
                 if(preg_match("#\b".preg_quote($param)."(=[^&]*)#", $url, $matches)) {
                     $url = preg_replace("#\b".preg_quote($param)."(?:=[^&]*)#", $param.'='.$value, $url);
@@ -381,7 +398,7 @@ class Router extends Singleton {
                 }
             }
         }
-
+        
         return substr($url, 0, 1) === '/' ? substr($url, 1) : $url;
     }
 
