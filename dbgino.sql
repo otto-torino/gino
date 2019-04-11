@@ -1230,7 +1230,8 @@ CREATE TABLE IF NOT EXISTS `sys_tag_taggeditem` (
   `content_controller_instance` int(11) NOT NULL,
   `content_class` varchar(64) NOT NULL,
   `content_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_tagid` (`tag_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
