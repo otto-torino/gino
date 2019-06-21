@@ -3,7 +3,7 @@
  * @file func.php
  * @brief Racchiude funzioni generali utilizzate da gino
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -55,6 +55,21 @@ function absolutePath($relpath) {
 	}
 	
     return SITE_ROOT.$relpath;
+}
+
+/**
+ * @brief Nome di dominio/url dell'indirizzo richiesto, completo di protocollo
+ * @return string
+ */
+function getDomainUrl(){
+    
+    if(isset($_SERVER['HTTPS'])){
+        $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+    }
+    else{
+        $protocol = 'http';
+    }
+    return $protocol . "://" . $_SERVER['HTTP_HOST'];
 }
 
 /**

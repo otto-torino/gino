@@ -19,7 +19,7 @@
 <nav id="sidebar">
 	<div class="sidebar-header">
 		<h3>Settings Sidebar</h3>
-	</di>
+	</div>
 	
 	<!-- https://bootstrapious.com/p/bootstrap-sidebar -->
 	
