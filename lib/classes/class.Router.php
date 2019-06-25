@@ -62,6 +62,12 @@ class Router extends Singleton {
 	 * @var array nel formato array([istance/method/id] => [url-alias])
 	 */
 	private $_url_alias;
+	
+	/**
+	 * @brief Elenco degli indirizzi interni da ridefinire
+	 * @var array
+	 */
+	private $_url_change;
 
     /**
      * @brief Costruttore
@@ -77,6 +83,7 @@ class Router extends Singleton {
         
         $this->_instances_alias = $config_instances_alias;
         $this->_url_alias = $config_url_alias;
+        $this->_url_change = $config_url_change;
         
         $this->urlRewrite();
     }
@@ -120,6 +127,25 @@ class Router extends Singleton {
      */
     private function rewritePathInfo(array $paths) {
 
+        if(is_array($this->_url_change) && count($this->_url_change)) {
+            $check_value = implode('/', $paths);
+            
+            if (array_key_exists($check_value, $this->_url_change)) {
+                $url_rewrite = $this->_url_change[$check_value];
+            }
+            elseif (array_key_exists($check_value.'/', $this->_url_change)) {
+                $url_rewrite = $this->_url_change[$check_value.'/'];
+            }
+            else {
+                $url_rewrite = null;
+            }
+            
+            // Rewrite $paths
+            if($url_rewrite) {
+                $paths = explode('/', $url_rewrite);
+            }
+        }
+        
         $tot = count($paths);
         
         /**
