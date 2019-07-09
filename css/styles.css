@@ -2060,6 +2060,13 @@
   color: #fc2e69;
   cursor: pointer;
 }
+/* Custom modal */
+@media (min-width: 768px) {
+  .modal-xl {
+    width: 90%;
+    max-width: 1200px;
+  }
+}
 /* tag links */
 .tags a:link,
 .tags a:hover,
@@ -2829,11 +2836,11 @@ article {
   position: relative;
 }
 #sidebar .sidebar-header {
-  padding: 20px;
+  padding: 20px 20px 14px 20px;
   background: #474d52;
 }
 #sidebar ul.components {
-  padding: 20px 0;
+  padding: 20px 10px;
   border-bottom: 1px solid #adb3b8;
 }
 #sidebar ul p {

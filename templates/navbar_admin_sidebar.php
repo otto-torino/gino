@@ -8,7 +8,7 @@
 	<!-- Sidebar Button -->
 	<button type="button" id="sidebarCollapse" class="btn btn-secondary" style="margin-right: 4px;">
 		<i class="fa fa-fw fa-bars"></i>
-		<span>Toggle Sidebar</span>
+		<!-- <span>Toggle Sidebar</span> -->
 	</button>
 	
 	<!-- Brand image -->

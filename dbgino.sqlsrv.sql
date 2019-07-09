@@ -1429,3 +1429,6 @@ CREATE TABLE sys_tag_taggeditem (
  content_id int NOT NULL,
  CONSTRAINT PK_sys_tag_taggeditem PRIMARY KEY (id)
 )
+
+CREATE INDEX idx_sys_tag_taggeditem_tag_id on sys_tag_taggeditem(tag_id);
+

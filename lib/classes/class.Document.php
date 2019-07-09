@@ -241,7 +241,7 @@ class Document {
      */
     private function setHeadVariables($skin) {
 
-        // meta
+        // Meta
         $this->_registry->title = $this->_registry->title ? $this->_registry->title : $this->_registry->sysconf->head_title;
         $this->_registry->description = $this->_registry->description ? $this->_registry->description : $this->_registry->sysconf->head_description;
         $this->_registry->keywords = $this->_registry->keywords ? $this->_registry->keywords : $this->_registry->sysconf->head_keywords;

@@ -3,7 +3,7 @@
  * @file class.Controller.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -294,12 +294,15 @@ abstract class Controller {
     }
 
     /**
-     * @brief Imposta i parametri per SEO
+     * @brief Imposta i parametri per SEO per una specifica pagina
+     * 
      * @param array $options array associativo di opzioni
-     *   - @b title (string): titolo della pagina
-     *   - @b description (string): descrizione della pagina
-     *   - @b keywords (string): elenco delle parole chiave
+     *   - @b title (string): titolo
+     *   - @b description (string): descrizione
+     *   - @b keywords (string): elenco delle parole chiave 
      *   - @b url (string): indirizzo completo della pagina (@example $this->link($this->_instance_name, 'detail', ['id' => $item->slug], '', ['abs' => true]))
+     *   - @b image (string): url dell'immagine
+     *   - @b type (string): tipologia di pagina (es. @a article)
      *   - @b open_graph (boolean): visualizzazione dei meta tag semantici Open Graph dedicati alle pagine Facebook (default true)
      *   - @b twitter (boolean): visualizzazione dei meta tag semantici dedicati ai profili Twitter (default true)
      *   - @b customs (array): meta tag aggiuntivi nel formato [property => content]
@@ -311,12 +314,24 @@ abstract class Controller {
         $description = gOpt('description', $options, null);
         $keywords = gOpt('keywords', $options, null);
         $url = gOpt('url', $options, null);
+        $image = gOpt('image', $options, null);
+        $type = gOpt('type', $options, null);
         $open_graph = gOpt('open_graph', $options, true);
         $twitter = gOpt('twitter', $options, true);
         $customs = gOpt('customs', $options, []);
         
+        // Def strings
         if($title) {
-            $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.\Gino\htmlChars($title);
+            $title = \strip_tags($title);
+            $title = \htmlspecialchars($title, ENT_COMPAT);
+        }
+        if($description) {
+            $description = \strip_tags($description);
+            $description = \htmlspecialchars($description, ENT_COMPAT);
+        }
+        
+        if($title) {
+            $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.$title;
         }
         if($description) {
             $this->_registry->description = \Gino\cutHtmlText($description, 150, '...', true, false, true, '');
@@ -344,6 +359,18 @@ abstract class Controller {
                     'content' => $this->_registry->description
                 ));
             }
+            if($image) {
+                $this->_registry->addMeta(array(
+                    'property' => 'og:image',
+                    'content' => $image
+                ));
+            }
+            if($type) {
+                $this->_registry->addMeta(array(
+                    'property' => 'og:type',
+                    'content' => $type
+                ));
+            }
         }
         
         if($twitter) {
@@ -365,6 +392,12 @@ abstract class Controller {
                     'content' => $this->_registry->description
                 ));
             }
+            if($image) {
+                $this->_registry->addMeta(array(
+                    'property' => 'twitter:image',
+                    'content' => $image
+                ));
+            }
         }
         
         if(is_array($customs) and count($customs)) {
@@ -375,5 +408,23 @@ abstract class Controller {
                 ));
             }
         }
+    }
+    
+    /**
+     * @brief Web Service Restful
+     * 
+     * @see \Gino\Http\ResponseJson
+     * @param string|array $data contenuto della risposta (se diverso da stringa viene codificato in json)
+     * @param array $options opzioni del costruttore di Gino.Http.ResponseJson
+     * @return \Gino\Http\ResponseJson
+     */
+    public function REST($data, $options=[]) {
+        
+        if(!is_array($data) and !is_string($data)) {
+            $data = [];
+        }
+        
+        \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
+        return new \Gino\Http\ResponseJson($data);
     }
 }

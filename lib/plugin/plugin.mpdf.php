@@ -6,7 +6,7 @@
  *   @link https://github.com/mpdf/mpdf
  *   @link https://mpdf.github.io/
  *   @link https://packagist.org/packages/mpdf/mpdf
- * mPDF is a PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support.
+ * mPDF 7+ is a PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support.
  * 
  * ##INSTALLATION
  * ---------------
@@ -21,7 +21,6 @@
  * - ??? mpdf/ttfontdata/
  * - ??? mpdf/graph_cache/
  * 
- * I permessi read/write alla directory "tmp" sono necessari quando si attiva la visualizzazione della barra di progresso. \n
  * ??? I permessi read/write alla directory mpdf/ttfontdata/ sono necessari per evitare gli errori di questo tipo:
  * @code
  * file_put_contents(/.../lib/mpdf/ttfontdata/dejavusanscondensed.GSUBGPOStables.dat): failed to open stream: Permission denied ...
@@ -129,9 +128,7 @@
  *     $pdf = $this->create([...]);
  *     if($html)
  *       return $pdf;
- *     
- *     if($link_return)
- *       $this->redirect($link_return);
+ *     // ...
  *     return null;
  *   }
  * }
@@ -190,34 +187,30 @@
  * La libreria mPDF utilizza una quantità notevole di memoria; nel caso in cui venga visualizzato un messaggio di errore 
  * di superamento del limite di memoria come ad esempio
  * @code
- * Fatal error: Allowed memory size of 134.217.728 bytes exhausted (tried to allocate 261904 bytes) in C:\inetpub\wwwroot\lib\MPDF\mpdf.php on line 22048
+ * Fatal error: Allowed memory size of 134.217.728 bytes exhausted (tried to allocate 261904 bytes) 
+ * in C:\inetpub\wwwroot\lib\MPDF\mpdf.php on line 22048
  * @endcode
  * 
  * occorre approntare alcuni accorgimenti elencati nella seguente pagina @link https://mpdf.github.io/troubleshooting/memory-problems.html
  * 
  * L'aumento di memoria allo script php può essere gestito a livello di: \n
- *   - file php.ini
+ * - file di configurazione php.ini
  *   @code
  *   memory_limit = 128M
  *   @endcode
- *   - file php
+ * - file php
  *   @code
  *   ini_set("memory_limit","128M")
  *   @endcode
- *   - virtualhost
+ * - virtualhost
  *   @code
  *   php_admin_value memory_limit "128M"
  *   @endcode
  * 
  * Limpostazione massima del limite di memoria per lo script php è
  * @code
- * ini_set("memory_limit","-1")
+ * ini_set("memory_limit", '-1')
  * @endcode
- * 
- * ####Windows
- * La memoria può esaurirsi rapidamente durante l'esecuzione di PHP 5.3.x su Windows, e questo potrebbe essere dovuto da un bug nella versione di php per Windows. 
- * Uno script che esaurisce 256 MB di memoria su Windows può invece utilizzare solo 18MB quando viene eseguito su Linux. E sembra che non accada esclusivamente quando si utilizzano tabelle. \n
- * Quindi, se si utilizza solo Windows in un ambiente di prova e Linux per la produzione, si dovrebbe considerare di impostare il limite di memoria massimo su Windows.
  * 
  * ###Errori PHP
  * Un qualsiasi errore generato dallo script php (anche se soltanto un warning o un notice), blocca la generazione del pdf. 
@@ -231,24 +224,11 @@
  * \Gino\Plugin\plugin_mpdf::setPhpParams(array('disable_error'=>true));
  * @endcode
  * 
- * ###Progress bar
- * La progress bar non è raccomandata per un utilizzo generale ma può essere di aiuto in fase di sviluppo o nella generazione di documenti lenti. \n
- * Per impostare il valore a livello globale occorre editare il valore per @a progressBar nel file di configurazione config.php.
- * 
- * Per attivare la barra di progresso nella generazione inline di un PDF occorre assegnare i permessi 777 alla directory mpdf/tmp/, 
- * in quanto la libreria salva un file temporaneo in questa directory e poi lo mostra a video attraverso il file mpdf/includes/out.php.
- * 
- * ####Personalizzazione
- * La pagina della progress bar può essere personalizzata attraverso la definizione dell'opzione @a progbar_altHTML nel metodo plugin_mpdf::makeFile(). 
- * Ad esempio
+ * ###Altre impostazioni personalizzate
+ * Nel caso di generazione di file molto grandi potrebbe essere necessario impostare:
  * @code
- * $mpdf->progbar_altHTML = '<html><body>
- * <div style="margin-top: 5em; text-align: center; font-family: Verdana; font-size: 12px;">
- * <img style="vertical-align: middle" src="img/loading.gif" /> Creating PDF file. Please wait...</div>'
+ * ini_set("pcre.backtrack_limit", "5000000");
  * @endcode
- * 
- * Inoltre è possibile sovrascrivere direttamente il metodo che genera la pagina della progress bar, ad esempio per personalizzarne la lingua o le stringhe. \n
- * In questo caso occorre modificare il metodo custom_mpdf::StartProgressBarOutput().
  * 
  * ##GESTIONE DEI CONTENUTI
  * ---------------
@@ -530,7 +510,7 @@
  * @file plugin.mpdf.php
  * @brief Contiene le classi gino_mpdf, plugin_mpdf
  * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -547,7 +527,7 @@ require_once LIB_DIR.OS."func.mpdf.php";
 /**
  * @brief Classe che funge da interfaccia alla classe plugin_mpdf
  * 
- * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -606,9 +586,7 @@ class gino_mpdf {
 			'creator' => 'Marco Guidotti', 
 			'landscape' => false, 
 			'margin_top' => 20, 
-			'margin_bottom' => 30, 
-			'progressBar' => false, 
-			'progbar_heading'=> _("Generazione pdf - Stato di avanzamento"), 
+			'margin_bottom' => 30,
 		);
 		
 		return $options;
@@ -846,9 +824,9 @@ class gino_mpdf {
 		}
 		
 		if($link_return) {
-			$this->redirect($link_return);
+		    $this->redirect($link_return);
 		}
-		return null;
+		exit();
 	}
 	
 	/**
@@ -891,9 +869,6 @@ class gino_mpdf {
 	 *   - @b margin_footer (integer)
 	 *   - @b simpleTables (boolean)
 	 *   - @b showStats (boolean)
-	 *   - @b progressBar (mixed)
-	 *   - @b progbar_heading (string)
-	 *   - @b progbar_altHTML (string)
 	 *   opzioni specifiche del metodo plugin_mpdf::definePage():
 	 *   - @b header (string)
 	 *   - @b footer (string)
@@ -917,8 +892,8 @@ class gino_mpdf {
 		
 		$pdf = new plugin_mpdf(
 			array(
-				'output'=>$output, 
-				'debug'=>$debug
+				'output' => $output, 
+				'debug' => $debug
 			)
 		);
 		
@@ -961,16 +936,18 @@ class gino_mpdf {
 	}
 	
 	/**
-	 * Redirige il processo di creazione del file all'indirizzo specificato
+	 * @brief Redirige il processo di creazione del file all'indirizzo specificato
 	 * 
-	 * Si utilizza il javascript perché la funzione header() ritorna l'errore: \n
+	 * Da verificare se la funzione header() ritorna l'errore: \n
 	 * Warning: Cannot modify header information - headers already sent in ...
 	 * 
 	 * @param string $link
 	 */
-	protected function redirect($link) {
+    protected function redirect($link) {
 		
-		echo "<script type=\"text/javascript\">window.location.href='".$link."';</script>";
+        $http = new \Gino\Http\Redirect($link_return);
+	    $http->send();
+	    //echo "<script type=\"text/javascript\">window.location.href='".$link."';</script>";
 		exit();
 	}
 	
@@ -1731,7 +1708,7 @@ class gino_mpdf {
 /**
  * @brief Classe per la generazione di file pdf
  * 
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -2065,7 +2042,7 @@ mpdf-->";
 	 * 
 	 * @see \Mpdf\Mpdf::WriteHTML()
 	 * @see \Mpdf\Mpdf::Output()
-	 * @param string $filename nome del file pdf
+	 * @param string $file nome del file pdf, completo di percorso nel caso di output @a file
 	 * @param array $options
 	 *   array associativo di opzioni
 	 *   - @b title (string): titolo del pdf
@@ -2105,20 +2082,13 @@ mpdf-->";
 	 *   - @b simpleTables (boolean): disabilita gli stili css complessi delle tabelle (bordi, padding, ecc.) per incrementare le performance (default false)
 	 *   - @b showStats (boolean): visualizza i valori di performance relativi al file pdf (default false); 
 	 *     l'opzione sopprime l'output del file pdf e visualizza i dati sul browser, tipo:
-	 *     @code
-	 *     Generated in 0.45 seconds
-	 *     Compiled in 0.46 seconds (total)
-	 *     Peak Memory usage 10.25MB
-	 *     PDF file size 37kB
-	 *     Number of fonts 6
-	 *     @endcode
-	 *   - @b progressBar (mixed): abilita la visualizzazione di una barra di progresso durante la generazione del file; 
-	 *     non è raccomandata come utilizzo generale ma può essere utile in ambiente di sviluppo e nella generazione lenta di documenti
-	 *     - 1, visualizza la progress bar
-	 *     - 2, visualizza più di una progress bar per un esame dettagliato del progresso
-	 *     - false, disabilita la progress bar (default)
-	 *   - @b progbar_heading (string): heading personalizzato della progressBar
-	 *   - @b progbar_altHTML (string): progressBar personalizzata (html)
+	 *       @code
+	 *       Generated in 0.45 seconds
+	 *       Compiled in 0.46 seconds (total)
+	 *       Peak Memory usage 10.25MB
+	 *       PDF file size 37kB
+	 *       Number of fonts 6
+	 *       @endcode
 	 *   opzioni sui contenuti
 	 *   - @b content (mixed): contenuto del file; se nullo legge il metodo self::content()
 	 *     - @a string, contenuti con pagine aventi la stessa formattazione
@@ -2177,7 +2147,7 @@ mpdf-->";
 	 *   margin_header: 9
 	 *   margin_footer: 9
 	 */
-	public function makeFile($filename, $options=array()){
+	public function makeFile($file, $options=array()){
 		
 		$title = \Gino\gOpt('title', $options, '');
 		$author = \Gino\gOpt('author', $options, '');
@@ -2198,9 +2168,6 @@ mpdf-->";
 		$orientation = \Gino\gOpt('orientation', $options, 'P');
 		$simple_tables = \Gino\gOpt('simpleTables', $options, false);
 		$show_stats = \Gino\gOpt('showStats', $options, false);
-		$progress_bar = \Gino\gOpt('progressBar', $options, false);
-		$progress_bar_heading = \Gino\gOpt('progbar_heading', $options, null);
-		$progress_bar_alt = \Gino\gOpt('progbar_altHTML', $options, null);
 		
 		if($landscape) $format .= '-L';
 		
@@ -2246,6 +2213,11 @@ mpdf-->";
 		    'tempDir' => $this->_temp_dir,
 		]);
 		
+		// 2019-05-27
+		if($this->_debug) {
+		    $mpdf->allow_output_buffering = true;
+		}
+		
 		$mpdf->simpleTables = $simple_tables;
 		$mpdf->showStats = $show_stats;
 		$mpdf->useOnlyCoreFonts = true;
@@ -2264,16 +2236,6 @@ mpdf-->";
 		//$mpdf->allow_charset_conversion = true;
 		//$mpdf->charset_in = 'iso-8859-1';	// default 'utf-8'
 		//$mpdf->shrink_tables_to_fit = 0;	// prevent all tables from resizing
-		
-		// Progress bar
-		if($progress_bar)
-		{
-			if($progress_bar_heading) $mpdf->progbar_heading = $progress_bar_heading;
-			if($progress_bar_alt) $mpdf->progbar_altHTML = $progress_bar_alt;
-			if($progress_bar === true) $progress_bar = 1;
-			
-			$mpdf->StartProgressBarOutput($progress_bar);
-		}
 		
 		// Contents definition
 		$content = \Gino\gOpt('content', $options, null);
@@ -2381,25 +2343,46 @@ mpdf-->";
 				if(!is_null($margin_footer)) $option_page['margin-footer'] =  $margin_footer;
 				
 				$mpdf->AddPageByArray($option_page);
-				$mpdf->WriteHTML($html);
+				// 2019-05-27
+				if(!is_null($html)) {
+				    $mpdf->WriteHTML($html);
+				}
 			}
 		}
 		
-		$filename = $this->conformFile($filename);
+		$filename = $this->conformFile($file);
 		
 		if($this->_output == 'S')
 		{
-			return $mpdf->Output($filename, $this->_output);
+		    return $mpdf->Output($filename, \Mpdf\Output\Destination::STRING_RETURN);
 		}
-		elseif($this->_output == 'I' || $this->_output == 'D')
+		elseif($this->_output == 'I')
 		{
-			$mpdf->Output($filename, $this->_output);
-			exit();
+		    $mpdf->Output($filename, \Mpdf\Output\Destination::INLINE);
+		    exit();
 		}
-		else	// F
+		elseif($this->_output == 'D')
 		{
-			$mpdf->Output($filename, $this->_output);
-			return true;
+		    $mpdf->Output($filename, \Mpdf\Output\Destination::DOWNLOAD);
+		    exit();
+		}
+		elseif($this->_output == 'F')
+		{
+		    $mpdf->Output($file, \Mpdf\Output\Destination::FILE);
+		    
+		    header('Content-Description: Download');
+		    header('Content-Type: application/pdf');
+		    header('Content-Disposition: attachment; filename="'.basename($file).'"');
+		    header('Content-Transfer-Encoding: binary');
+		    header('Expires: 0');
+		    header('Pragma: public');
+		    header('Content-Length: ' . filesize($file));
+		    header('Cache-control: private');
+		    readfile($file);
+		    exit();
+		}
+		else {
+		    return null;
 		}
 	}
 	
