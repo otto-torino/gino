@@ -176,7 +176,7 @@ class Input {
     }
     
     /**
-     * @brief Link della traduzione di un input
+     * @brief Collegamento all'input form della traduzione
      * @param string $label
      * @param string $onclick
      * @param array $options
