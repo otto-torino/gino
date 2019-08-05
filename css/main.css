@@ -463,10 +463,10 @@ div.abiWin {
 	position: absolute;
 	padding: 5px;
 	background-color: #e7e7e7;
-  background: linear-gradient(to bottom, #ddd, #eee);
+	background: linear-gradient(to bottom, #ddd, #eee);
 	border: 1px solid #aaa;
 	z-index: 10000;
-  box-shadow: 0px 0px 10px #999;
+	box-shadow: 0px 0px 10px #999;
 }
 
 div.abiWin header.abiHeader {
@@ -484,19 +484,19 @@ div.abiWin div.body {
 }
 div.abiWin span.close {
 	background-color: #fff;
-       	border: 1px solid #000;
+	border: 1px solid #000;
 	cursor: pointer;
 	padding: 2px;
-        position: absolute;
-       	right: 5px;
-       	top: 4px;
+	position: absolute;
+	right: 5px;
+	top: 4px;
 }
 div.abiWin span.close_img {
 	cursor: pointer;
 	padding: 2px;
-        position: absolute;
-       	right: 5px;
-       	top: 4px;
+	position: absolute;
+	right: 5px;
+	top: 4px;
 	width: 13px;
 	height: 13px;
 	background: url('../img/ico_close2.gif') no-repeat center center;
@@ -505,9 +505,9 @@ div.abiWin span.close_img {
 div.abiWin img.close {
 	cursor: pointer;
 	padding: 2px;
-        position: absolute;
-       	right: 5px;
-       	top: 4px;
+	position: absolute;
+	right: 5px;
+	top: 4px;
 }
 div.abiWin footer {
 	text-align: center;
