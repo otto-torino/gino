@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Livello_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
+<g>
+	<rect fill="none" width="150" height="150"/>
+	<g>
+		<g>
+			<path fill="#FFFFFF" d="M75,102.468c-15.146,0-27.468-12.322-27.468-27.468S59.854,47.532,75,47.532S102.468,59.854,102.468,75
+				S90.146,102.468,75,102.468z M75,54.661c-11.215,0-20.339,9.124-20.339,20.339S63.785,95.339,75,95.339S95.339,86.215,95.339,75
+				S86.215,54.661,75,54.661z"/>
+		</g>
+		<circle fill="#FFFFFF" cx="75" cy="75" r="10.065"/>
+		<g>
+			<rect x="71.016" y="15" fill="#FFFFFF" width="7.968" height="24.325"/>
+			<rect x="71.016" y="110.675" fill="#FFFFFF" width="7.968" height="24.325"/>
+		</g>
+		<g>
+			<rect x="110.675" y="71.016" fill="#FFFFFF" width="24.325" height="7.968"/>
+			<rect x="15" y="71.016" fill="#FFFFFF" width="24.325" height="7.968"/>
+		</g>
+	</g>
+</g>
+</svg>

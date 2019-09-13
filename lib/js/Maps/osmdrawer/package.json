@@ -1,0 +1,46 @@
+{
+  "name": "osmdrawer",
+  "version": "0.1.0",
+  "description": "Open Street Map Drawer Library",
+  "main": "osmdrawer.js",
+  "scripts": {
+    "compile": "./node_modules/webpack/bin/webpack.js -p",
+    "dev": "webpack-dev-server --progress --colors --config ./webpack.config.babel.js",
+    "docs": "./node_modules/jsdoc/jsdoc.js ./src/js/* -R README.md -d ./docs"
+  },
+  "author": "abidibo",
+  "license": "MIT",
+  "dependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-loader": "^6.2.4",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-register": "^6.9.0",
+    "css-loader": "^0.23.1",
+    "cssnano": "^3.7.1",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "json-loader": "^0.5.4",
+    "leaflet": "^1.5.1",
+    "leaflet-defaulticon-compatibility": "^0.1.1",
+    "leaflet-geosearch": "^2.7.0",
+    "node-sass": "^3.8.0",
+    "postcss-loader": "^0.9.1",
+    "sass-loader": "^4.0.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.1.0",
+    "eslint": "^3.0.0",
+    "eslint-config-standard": "^5.3.1",
+    "eslint-plugin-babel": "^3.3.0",
+    "eslint-plugin-flow-vars": "^0.4.0",
+    "eslint-plugin-promise": "^1.3.2",
+    "eslint-plugin-standard": "^1.3.2",
+    "jsdoc": "^3.4.0",
+    "webpack-dev-server": "^1.14.1"
+  }
+}

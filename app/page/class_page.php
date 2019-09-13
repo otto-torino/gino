@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -85,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -1195,7 +1195,7 @@ class page extends \Gino\Controller {
      */
     private function manageEntry($request) {
 
-        $this->_registry->addJs($this->_class_www.'/page.js');
+        //$this->_registry->addJs($this->_class_www.'/page.js');
 
         $allow_insertion = true;
         $delete_deny = null;
@@ -1221,14 +1221,15 @@ class page extends \Gino\Controller {
         // Controllo unicità slug
         $url = $this->link($this->_instance_name, 'checkSlug');
         $div_id = 'check_slug';
-        $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
+        $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('#id').prop('value')+'&slug='+$('#slug').prop('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 
         $admin_table = new \Gino\AdminTable($this, array(
         		'allow_insertion'=>$allow_insertion, 
         		'delete_deny'=>$delete_deny,
         		'edit_deny'=>$edit_deny, 
-        		'edit_allow'=>$edit_allow
+        		'edit_allow'=>$edit_allow,
+                'form_filters_inline' => true
         ));
         
         $backend = $admin_table->backOffice(
@@ -1236,7 +1237,8 @@ class page extends \Gino\Controller {
             array(
                 'list_display' => $list_display,
                 'list_title'=>_("Elenco pagine"), 
-                'filter_fields'=>array('title', 'category_id', 'tags', 'published')
+                'filter_fields'=>array('title', 'category_id', 'tags', 'published'),
+                'advanced_export' => false
             ),
         	array(
                 'removeFields' => $remove_fields

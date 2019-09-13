@@ -8,12 +8,13 @@ namespace Gino;
 * - **modal_id**: string
 * - **modal_title_id**: string
 * - **vertically_centered**: boolean
+* - **size_modal**: string
 * - **title**: string
 * - **body**: string
 * - **close_button**: boolean
 * - **save_button**: boolean
 * 
-* @copyright 2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+* @copyright 2018-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
 * @authors Marco Guidotti guidottim@gmail.com
 * @authors abidibo abidibo@gmail.com
 */
@@ -22,7 +23,9 @@ namespace Gino;
 <div class="modal fade" 
 id="<?= $modal_id ?>" tabindex="-1" role="dialog"
 aria-labelledby="<?= $modal_title_id ?>" aria-hidden="true">
-	<div class="modal-dialog <?php if($vertically_centered): ?>modal-dialog-centered<?php endif ?>" role="document">
+	<div class="modal-dialog
+	<?php if($vertically_centered): ?> modal-dialog-centered<?php endif ?>
+	<?php if($size_modal): ?> <?= $size_modal ?><?php endif ?>" role="document">
 		<!-- Modal content-->
 		<div class="modal-content">
 			<div class="modal-header">

@@ -3,7 +3,7 @@
  * @file class_attachment.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Attachment.attachment
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -26,7 +26,7 @@ require_once 'class.AttachmentCtg.php';
 /**
  * @brief Classe controller del modulo di gestione di archivi di file categorizzati
  *
- * @copyright 2013-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -106,7 +106,6 @@ class attachment extends \Gino\Controller {
         else {
             throw new \Gino\Exception\Exception404();
         }
-
     }
 
     /**
@@ -232,11 +231,11 @@ class attachment extends \Gino\Controller {
                     'firstVoice' => _('tutte le categorie'),
                     'firstValue' => 0
                 ))."
-                <span class=\"right link\" onclick=\"$('attachment-list-help').toggleClass('hidden')\">".\Gino\icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
+                <span class=\"right link\" onclick=\"$('#attachment-list-help').toggleClass('hidden')\">".\Gino\icon('help', array('text'=>_('informazioni'), 'scale'=>2))."</span>
             </p>";
 
         $buffer .= "<div id=\"attachment-list-help\" class=\"hidden\">";
-        $buffer .= "<p>"._('Puoi effettuare il "drag and drop" degli allegati direttamente dentro all\'editor:')."</p>";
+        $buffer .= "<p>"._('Puoi effettuare il "drag and drop" degli allegati direttamente dentro l\'editor:')."</p>";
         $buffer .= "
             <dl>
                 <dt><b>"._('Drag vista elemento')."</b></dt>
@@ -267,14 +266,17 @@ class attachment extends \Gino\Controller {
         $items = AttachmentItem::objects(null, array('where' => $where));
 
         $buffer = "
-            <table class=\"table table-striped table-bordered\">
+        <table class=\"table table-striped table-bordered\">
+            <thead>
                 <tr>
-                    <th>"._('Categoria')."</th>
-                    <th>"._('File')."</th>
-                    <th>"._('Note')."</th>
-                    <th>"._('Drag vista elemento')."</th>
-                    <th>"._('Drag link download')."</th>
-                    </tr>";
+                    <th scope=\"col\">"._('Categoria')."</th>
+                    <th scope=\"col\">"._('File')."</th>
+                    <th scope=\"col\">"._('Note')."</th>
+                    <th scope=\"col\">"._('Drag vista elemento')."</th>
+                    <th scope=\"col\">"._('Drag link download')."</th>
+                </tr>
+            </thead>
+            <tbody>";
         foreach($items as $item) {
             if($item->type() == 'img') {
                 $drag_view = "<img src=\"".$item->path('view')."\" class=\"img-responsive\" />";
@@ -302,19 +304,18 @@ class attachment extends \Gino\Controller {
             $ctg = new AttachmentCtg($item->category, $this);
             $buffer .= "
                 <tr>
-                    <td>".\Gino\htmlChars($ctg->name)."</td>
+                    <td scope=\"row\">".\Gino\htmlChars($ctg->name)."</td>
                     <td>".$item->previewLink('path')."</td>
                     <td>".\Gino\htmlChars($item->notes)."</td>
                     <td class=\"drag-attachment-view\">".$drag_view."</td>
                     <td class=\"drag-attachment-download\">".$drag_download."</td>
-                </tr>
-            ";
+                </tr>";
         }
         $buffer .= "
-            </table>";
+            </tbody>
+        </table>";
 
         return new Response($buffer);
-
     }
 
     /**

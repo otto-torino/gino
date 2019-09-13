@@ -1,0 +1,153 @@
+@import '~leaflet/dist/leaflet.css';
+@import '~leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css'; // Re-uses images from ~leaflet package
+$container-bkg: #37474f;
+$color: #fff;
+$tools-separator-color: #f6f6f6;
+$tips-bkg: #fff;
+$tips-color: #000;
+$tips-border-color: #fff;
+
+.osmdrawer-container {
+  background: $container-bkg;
+  border: 2px solid $container-bkg;
+  color: $color;
+  max-width: 100%;
+
+  .osmdrawer-ctrls-tools-container,
+  .osmdrawer-ctrls-actions-container,
+  .osmdrawer-ctrls-geocoder-container,
+  .osmdrawer-ctrls-screen-container {
+    float: left;
+
+    &::after {
+      clear: both;
+      content: '';
+      display: block;
+    }
+
+    * {
+      margin: 5px;
+    }
+  }
+
+  .osmdrawer-ctrls-tools-container,
+  .osmdrawer-ctrls-geocoder-container {
+    border-right: 1px dotted $tools-separator-color;
+  }
+
+  [class^=osmdrawer-ctrl-] {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: transparent;
+    cursor: pointer;
+    float: left;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+  }
+
+  .osmdrawer-ctrl-point-tool {
+    background-image: url('../svg/ic_point.svg');
+
+    &.osmdrawer-selected {
+      background-image: url('../svg/ic_point_selected.svg');
+    }
+  }
+
+  .osmdrawer-ctrl-polyline-tool {
+    background-image: url('../svg/ic_polyline.svg');
+
+    &.osmdrawer-selected {
+      background-image: url('../svg/ic_polyline_selected.svg');
+    }
+  }
+
+  .osmdrawer-ctrl-polygon-tool {
+    background-image: url('../svg/ic_polygon.svg');
+
+    &.osmdrawer-selected {
+      background-image: url('../svg/ic_polygon_selected.svg');
+    }
+  }
+
+  .osmdrawer-ctrl-circle-tool {
+    background-image: url('../svg/ic_circle.svg');
+
+    &.osmdrawer-selected {
+      background-image: url('../svg/ic_circle_selected.svg');
+    }
+  }
+
+  .osmdrawer-ctrl-clear-map {
+    background-image: url('../svg/ic_clear.svg');
+  }
+
+  .osmdrawer-ctrl-export-map {
+    background-image: url('../svg/ic_export.svg');
+  }
+
+  .osmdrawer-geocoder-field {
+    float: left;
+    height: 24px;
+    margin-right: 5px;
+    width: 140px;
+  }
+
+  .osmdrawer-ctrl-geocoder-center-btn {
+    background-image: url('../svg/ic_center.svg');
+  }
+
+  .osmdrawer-ctrl-geocoder-draw-btn {
+    background-image: url('../svg/ic_draw.svg');
+  }
+
+  .osmdrawer-ctrl-fullscreen {
+    background-image: url('../svg/ic_fullscreen.svg');
+  }
+
+  .osmdrawer-tips-map {
+    background: $tips-bkg;
+    border: 1px solid $tips-border-color;
+    color: $tips-color;
+    clear: both;
+    font-family: sans-serif;
+    font-size: 12px;
+    padding: 5px;
+  }
+
+}
+
+// scss-lint:disable ImportantRule
+.osmdrawer-fullscreen {
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100% !important;
+
+  .osmdrawer-ctrls-container {
+    background: $container-bkg;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 101;
+  }
+
+  .osmdrawer-map-canvas {
+    height: 100% !important;
+    z-index: 100;
+  }
+
+  .osmdrawer-ctrl-fullscreen {
+    background-image: url('../svg/ic_minimize.svg');
+  }
+}
+
+@media (min-width: 767px) {
+  .osmdrawer-container {
+    .osmdrawer-ctrls-screen-container {
+      float: right !important;
+    }
+  }
+}

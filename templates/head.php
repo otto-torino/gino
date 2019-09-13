@@ -14,8 +14,10 @@
 	<?=  $registry->variables('head_links') ?>
 	<!-- system css -->
 	<?=  $registry->variables('css') ?>
+	<?=  $registry->variables('raw_css') ?>
 	<!-- core js -->
 	<?=  $registry->variables('core_js') ?>
+	<?=  $registry->variables('raw_js') ?>
 	<!-- apps js -->
 	<?=  $registry->variables('js') ?>
 	<?= \Gino\Document::errorMessages() ?>

@@ -131,6 +131,13 @@ class Skin extends Model {
     		'required' => true,
     		'default' => 0
     	));
+    	$columns['administrative_area'] = new \Gino\BooleanField(array(
+    	    'name' => 'administrative_area',
+    	    'label' => _("Skin legata all'area amministrativa"),
+    	    'required' => true,
+    	    'default' => 0
+    	));
+    	
     	return $columns;
     }
 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OpenStreetMapDrawer base demo</title>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=sons-of-obsidian"></script>
+    <style>
+body {
+  font-family: sans-serif;
+}
+      pre {
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>window.OSM_TOKEN = 'pk.eyJ1Ijoib3R0b3NybCIsImEiOiJjanZwNnA0NTQwMW14NDNscTVxMzB3Nmt2In0.OSK-k5UDfV-Ci213Vkzd7w';</script>
+    <!-- <script type="text/javascript" src="http://localhost:8080/dist/osmdrawer.min.js"></script> -->
+    <script type="text/javascript" src="../dist/osmdrawer.min.js"></script>
+    <div style="margin: auto; width: 70%;">
+      <h1>geodrawer base demo</h1>
+      <p>
+      <a href="./custom.html">See the custom controllers example</a> | 
+      <a href="./advanced.html">See the dynamic tools example</a>
+      </p>
+      <p>Simple usage of geodrawer library without custom fields. A set of initial data is imported in the map.</p>
+      <p>Here neither bootstrap nor jquery are loaded. The jQuery library (v3) is loaded automatically by the library.</p>
+      <div id="map-canvas" style="width: 100%; height: 600px;"></div>
+      <div style="margin-top: 20px; border: 1px dotted #eee; padding: 16px;">
+        <p><b>Exported data:</b></p>
+        <div id="exported-data">Click the export icon!</div>
+      </div>
+
+      <h2>js code:</h2>
+      <pre class="prettyprint linenums">
+var cb = function () {
+  var mymap = new OpenStreetMapDrawer.Map('#map-canvas', {
+    tools: {
+      point: {
+        options: {
+          maxItemsAllowed: 5,
+        }
+      },
+      polyline: {
+        options: {
+          maxItemsAllowed: 2,
+        }
+      },
+      polygon: { options: { maxItemsAllowed: 2 } },
+      circle: {}
+    },
+    exportMapCb: function (data) {
+      console.log(arguments);
+      jQuery('#exported-data').html(JSON.stringify(data))
+    }
+  });
+  mymap.render();
+  mymap.importMap({
+    point: [{"lat":43.72148995228584,"lng":-0.18539655372620922},{"lat":45.04053733158769,"lng":14.995162740707105},{"lat":41.900232768420246,"lng":9.19535426931725}],
+    polygon: [[{"lat":43.65793702655821,"lng":-2.294686804074553},{"lat":44.68232453976496,"lng":1.3082245190615585},{"lat":44.05403780323783,"lng":2.582424865048712}],[{"lat":42.2752765520868,"lng":8.623892022746526},{"lat":39.66914219401815,"lng":10.611120666127382},{"lat":41.79998325207397,"lng":16.235177365656927}]],
+    circle: [{"lat":41.306697618181886,"lng":6.877803095266738,"radius":94761.7295446671}]
+  });
+}
+OpenStreetMapDrawer.ready(cb);
+      </pre>
+    </div>
+    <script type="text/javascript">
+var cb = function () {
+  var mymap = new OpenStreetMapDrawer.Map('#map-canvas', {
+    tools: {
+      point: {
+        options: {
+          maxItemsAllowed: 5,
+        }
+      },
+      polyline: {
+        options: {
+          maxItemsAllowed: 2,
+        }
+      },
+      polygon: { options: { maxItemsAllowed: 2 } },
+      circle: {}
+    },
+    exportMapCb: function (data) {
+      console.log(arguments);
+      jQuery('#exported-data').html(JSON.stringify(data))
+    }
+  });
+  mymap.render();
+  mymap.importMap({
+    point: [{"lat":43.72148995228584,"lng":-0.18539655372620922},{"lat":45.04053733158769,"lng":14.995162740707105},{"lat":41.900232768420246,"lng":9.19535426931725}],
+    polygon: [[{"lat":43.65793702655821,"lng":-2.294686804074553},{"lat":44.68232453976496,"lng":1.3082245190615585},{"lat":44.05403780323783,"lng":2.582424865048712}],[{"lat":42.2752765520868,"lng":8.623892022746526},{"lat":39.66914219401815,"lng":10.611120666127382},{"lat":41.79998325207397,"lng":16.235177365656927}]],
+    circle: [{"lat":41.306697618181886,"lng":6.877803095266738,"radius":94761.7295446671}]
+  });
+}
+OpenStreetMapDrawer.ready(cb);
+    </script>
+  </body>
+</html>
