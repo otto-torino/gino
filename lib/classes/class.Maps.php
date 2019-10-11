@@ -160,9 +160,11 @@ class Maps {
         if($elevation) {
             // D3 Resources
             $this->_registry->addRawJs("<script src=\"https://unpkg.com/d3@4.13.0/build/d3.min.js\" charset=\"utf-8\"></script>");
+            // leaflet-gpx
+            //$this->_registry->addRawJs("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.js\" charset=\"utf-8\"></script>");
             
-            $this->_registry->addRawJs("<script src=\"https://unpkg.com/@raruto/leaflet-elevation@latest/leaflet-elevation.js\"></script>");
-            $this->_registry->addRawCss("<link rel=\"stylesheet\" href=\"https://unpkg.com/@raruto/leaflet-elevation@latest/leaflet-elevation.css\" />");
+            $this->_registry->addRawJs("<script src=\"https://unpkg.com/@raruto/leaflet-elevation@0.4.1/leaflet-elevation.min.js\"></script>");
+            $this->_registry->addRawCss("<link rel=\"stylesheet\" href=\"https://unpkg.com/@raruto/leaflet-elevation@0.4.1/leaflet-elevation.min.css\" />");
         }
         
         if($elevation_mm) {
