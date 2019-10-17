@@ -77,7 +77,10 @@ class Input {
         if(is_array($helptext)) {
             $title = $helptext['title'];
             $text = $helptext['text'];
-            return "<span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+            
+            return "<span class=\"fa fa-question-circle\" 
+            data-toggle=\"tooltip\" data-placement=\"right\" 
+            title=\"".$title.":\n".$text."\"></span>";
         }
         else {
             return null;
@@ -96,7 +99,21 @@ class Input {
             $id = $add_related['id'];
             $url = $add_related['url'];
             
-            return "<a target=\"_blank\" href=\"".$url."\" onclick=\"return gino.showAddAnotherPopup($(this))\" id=\"".$id."\" class=\"fa fa-plus-circle form-addrelated\" title=\"".attributeVar($title)."\"></a>";
+            $buffer = "<a target=\"_blank\" 
+href=\"".$url."\" 
+id=\"".$id."\" 
+class=\"fa fa-plus-circle form-addrelated\" 
+title=\"".attributeVar($title)."\">
+</a>";
+            $buffer .= "
+<script>
+$(document).ready(function() {
+    $('#' + $.escapeSelector('".$id."')).click(function() {
+        return gino.showAddAnotherPopup(this);
+    });
+});
+</script>";
+            return $buffer;
         }
         else {
             return null;
@@ -266,6 +283,7 @@ class Input {
      *     - @a submit processa il form e redirige all'indirizzo specificato
      *     - @b button processa l'onclick e non redirige
      *   - @b classField (string): valore della proprietà class
+     *   - @b id (string): valore ID del tag
      *   - @b onclick (string): valore della proprietà onclick
      * @return string
      */
@@ -273,6 +291,7 @@ class Input {
         
         $type = gOpt('type', $options, 'submit');
         $classField = gOpt('classField', $options, null);
+        $id = gOpt('id', $options, null);
         $onclick = gOpt('onclick', $options, null);
         
         if(!is_string($classField)) {
@@ -285,6 +304,7 @@ class Input {
             'name' => $name,
             'value' => $value,
             'type' => $type,
+            'id' => $id,
             'onclick' => $onclick
         ];
         
@@ -581,7 +601,6 @@ class Input {
      * @brief Textarea
      * @description Gestisce anche l'input editor.
      *
-     * @see imagePreviewer()
      * @see Gino.CKEditor::replace()
      * @param string $name nome input
      * @param string $value valore attivo
@@ -630,7 +649,7 @@ class Input {
     	$maxlength = gOpt('maxlength', $options, null);
     	$helptext = gOpt('helptext', $options, null);
     	$text_add = gOpt('text_add', $options, null);
-    	$img_preview = gOpt('img_preview', $options, null);
+    	$img_preview = gOpt('img_preview', $options, false);
     	$form_id = gOpt('form_id', $options, null);
     	// Translations
     	$trnsl = gOpt('trnsl', $options, false);
@@ -660,7 +679,7 @@ class Input {
     	$textarea .= $other ? $other." ":"";
     	$textarea .= ">";
     	$textarea .= "$value</textarea>";
-        
+    	
     	if($ckeditor)
     	{
     		$label = gOpt('label', $options, null);
@@ -671,7 +690,9 @@ class Input {
     		$height = gOpt('height', $options, null);
     		
     		$text_note = null;
-    		$previewer = null;
+    		$trigger_modal = null;
+    		$script_modal = null;
+    		$render_modal = null;
     		$trnsl_input = null;
     		
     		if($ckeditor_container)
@@ -682,7 +703,13 @@ class Input {
     			}
     			
     			if($img_preview) {
-    			    $previewer = self::imagePreviewer();
+    			    $modal = new \Gino\Modal(['modal_id' => "attModal", 'modal_title_id' => 'attModalTitle']);
+    			    $modal->setModalTrigger('attachmentModalList');
+    			    $trigger_modal = $modal->getModalTrigger();
+    			    
+    			    $router = \Gino\Router::instance();
+    			    $script_modal = $modal->loadDinamycData($router->link('attachment', 'editorList'));
+    			    $render_modal = $modal->render('Elenco Allegati', null, ['size_modal' => 'extra-large']);
     			}
     			
     			if($trnsl && $trnsl_id && $trnsl_table) {
@@ -698,13 +725,16 @@ class Input {
     		$view = new View(self::$_view_folder, 'input_ckeditor');
     		$dict = [
     		    'text_note' => $text_note,
-    		    'img_previewer' => $previewer,
     		    'label_for' => $name,
     		    'label_string' => self::setLabelString($label),
     		    'label_class' => self::setLabelClasses($required),
     		    'input' => $input,
     		    'trnsl_input' => $trnsl_input,
-    		    'text_add' => $text_add
+    		    'text_add' => $text_add,
+    		    'img_preview' => $img_preview,
+    		    'trigger_modal' => $trigger_modal,
+    		    'script_modal' => $script_modal,
+    		    'render_modal' => $render_modal
     		];
     		
     		$buffer .= $view->render($dict);
@@ -712,13 +742,14 @@ class Input {
     	else
     	{
     		$buffer .= $textarea;
-    		 
-    		if($helptext) {
-    			$title = $helptext['title'];
-    			$text = $helptext['text'];
-    			$buffer .= " <span class=\"fa fa-question-circle label-tooltipfull\" title=\"".attributeVar($title.'::'.$text)."\"></span>";
+    		
+    		if(is_array($helptext)) {
+    		    $buffer .= self::setHelper(array(
+    		        'title' => $helptext['title'],
+    		        'text' => $helptext['text']
+    		    ));
     		}
-    
+
     		if(is_int($maxlength) AND $maxlength > 0)	// Limite caratteri con visualizzazione del numero di quelli restanti
     		{
     			$buffer .= self::jsCountCharText();
@@ -776,30 +807,6 @@ class Input {
             limit_text.inject(field, 'after');
         }";
     	$buffer .= "</script>";
-    	return $buffer;
-    }
-    
-    /**
-     * @brief Codice per la visualizzazione allegati contestualmente all'editor CKEDITOR
-     * @see Gino.App.Attachment.attachment::editorList()
-     * @return string
-     */
-    private static function imagePreviewer() {
-    
-    	$router = Router::instance();
-    	
-    	$onclick = "if(typeof window.att_win == 'undefined' || !window.att_win.showing) {
-            window.att_win = new gino.layerWindow({
-            'title': '"._('Allegati')."',
-            'width': 1000,
-            'overlay': false,
-            'maxHeight': 600,
-            'url': '".$router->link('attachment', 'editorList')."'
-            });
-            window.att_win.display();
-        }";
-    	$buffer = "<p><span class=\"link\" onclick=\"$onclick\">"._("Visualizza file disponibili in allegati")."</span></p>";
-    
     	return $buffer;
     }
     
@@ -1148,14 +1155,15 @@ class Input {
     			if(sizeof($data) > 10) {
     			    $multicheck .= "<tr>";
     			    $multicheck .= "<th class=\"light\">"._("Filtra")."</th>";
-    			    $multicheck .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+    			    $multicheck .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).parent('.form-multicheck')[0])\" /></th>";
     			    $multicheck .= "</tr>";
     			}
     			$multicheck .= "<tr>";
     			$multicheck .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-    			$multicheck .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+    			$multicheck .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).parent('.form-multicheck')[0]);\" /></th>";
     			$multicheck .= "</tr>";
     			$multicheck .= "</thead>";
+    			
     			foreach($a AS $b)
     			{
     				$b = array_values($b);
@@ -1235,12 +1243,17 @@ class Input {
     			if(sizeof($data) > 10) {
     			    $multicheck .= "<tr>";
     			    $multicheck .= "<th class=\"light\">"._("Filtra")."</th>";
-    			    $multicheck .= "<th class=\"light\"><input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" onkeyup=\"gino.filterMulticheck($(this), $(this).getParents('.form-multicheck')[0])\" /></th>";
+    			    $multicheck .= "<th class=\"light\">
+<input type=\"text\" class=\"no-check no-focus-padding\" size=\"6\" 
+onkeyup=\"gino.filterMulticheck($(this), $(this).parents('.form-multicheck')[0])\" />
+</th>";
     			    $multicheck .= "</tr>";
     			}
     			$multicheck .= "<tr>";
     			$multicheck .= "<th class=\"light\">"._("Seleziona tutti/nessuno")."</th>";
-    			$multicheck .= "<th style=\"text-align: right\" class=\"light\"><input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).getParents('.form-multicheck')[0]);\" /></th>";
+    			$multicheck .= "<th style=\"text-align: right\" class=\"light\">
+<input type=\"checkbox\" onclick=\"gino.checkAll($(this), $(this).parents('.form-multicheck')[0]);\" />
+</th>";
     			$multicheck .= "</tr>";
     			$multicheck .= "</thead>";
     			foreach($data as $k=>$v)

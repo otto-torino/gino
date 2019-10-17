@@ -814,19 +814,19 @@ oppure variabili di sessione.")."</li>";
                     $registry = \Gino\Registry::instance();
                     
                     $url = $registry->router->link($instance_name, $func);
-                    
                     $button = "<input data-perm=\"".implode(';', $perms_js)."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-                                $('url').set('value', '".$url."');
-                                $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-                                perms = $(this).get('data-perm');
+                                $('#url').prop('value', '".$url."');
+                                $('.form-multicheck input[type=checkbox][value]').removeProp('checked');
+                                var perms = $(this).attr('data-perm');
+
                                 if(perms) {
-                                    perms.split(';').each(function(p) {
-                                        $$('input[value=' + p + ',".$instance."]').setProperty('checked', 'checked');
+                                    var arr = perms.split(';');
+                                    $.each(arr, function(index, p) {
+                                        $('input[type=checkbox][value=\'' + p + ',".$instance."\']').prop('checked', 'checked');
                                     })
                                 }
                                 location.hash = 'top';
                             \" />\n";
-                    
                     $data[] = array(
                         \Gino\htmlChars($module->label),
                         $description,
@@ -867,11 +867,12 @@ oppure variabili di sessione.")."</li>";
         $p = \Gino\App\Auth\Permission::getFromFullCode('page.can_view_private');
         
         $button = "<input data-private=\"".$page->private."\" type=\"button\" value=\""._("aggiungi dati")."\" onclick=\"
-        $('url').set('value', '".$page->getUrl()."');
-        $$('.form-multicheck input[type=checkbox][value]').removeProperty('checked');
-        var private = $(this).get('data-private');
-        if(private.toInt()) {
-            $$('input[value=".$p->id.",0]').setProperty('checked', 'checked');
+        $('#url').prop('value', '".$page->getUrl()."');
+        $('.form-multicheck input[type=checkbox][value]').removeProp('checked');
+        var private = $(this).attr('data-private');
+
+        if(parseInt($(private))) {
+            $('input[value=\'".$p->id.",0\']').prop('checked', 'checked');
         }
         location.hash = 'top';
         \" />\n";

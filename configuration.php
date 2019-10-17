@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -176,9 +176,10 @@ define('HIDDEN_APPS', serialize(array('graphics', 'topbar', 'topbaradmin', 'menu
 define('VIEW_HIDDEN_APPS', false);
 
 /**
- * @brief Google Maps Key
+ * @brief Maps Key
  */
 define('GOOGLE_MAPS_KEY', null);
+define('OPENSTREETMAP_KEY', null);
 
 /**
  * @brief Google Analytics

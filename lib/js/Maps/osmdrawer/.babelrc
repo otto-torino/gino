@@ -1,0 +1,6 @@
+// NOTE: These options are overriden by the babel-loader configuration
+// for webpack, which can be found in ~/build/webpack.config.
+{
+  "presets": ["es2015", "stage-0", "es2017"],
+
+}

@@ -2362,6 +2362,14 @@ form.form-inline .link-tag-cloud {
   margin-left: 2px;
   margin-right: 4px;
 }
+/* Footnote */
+.footnote {
+  margin-bottom: 2px;
+}
+.footnote .annotations {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
 /*
 form {
   margin: 10px 0;
@@ -2867,7 +2875,7 @@ article {
 }
 #sidebar ul li a {
   font-size: 0.9em !important;
-  padding-left: 30px !important;
+  /*padding-left: 30px !important;*/
   /*background: #cccccc;*/
 }
 /* ---------------------------------------------------

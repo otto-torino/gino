@@ -3,7 +3,7 @@
  * @file class.MenuVoice.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.MenuVoice
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\View;
 /**
  * @brief Classe di tipo Gino.Model che rappresenta una voce di menu
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -30,7 +30,7 @@ class MenuVoice extends \Gino\Model {
      * @brief Costruttore
      * 
      * @param integer $id valore ID della voce di menu
-     * @return void, istanza di Gino.App.Menu.MenuVoice
+     * @return void
      */
     function __construct($id) {
 
@@ -203,7 +203,7 @@ class MenuVoice extends \Gino\Model {
 
         $buffer .= \Gino\Input::multipleCheckbox('perm[]', explode(';', $this->perms), \Gino\App\Auth\Permission::getForMulticheck(), array(_('Permessi'), _('Se si intende mostrare la voce di menu a tutti gli utenti non selezionare alcun permesso')), null);
 
-        $buffer .= \Gino\Input::input_label('submit_action', 'submit', $submit, '', array("classField"=>"submit"));
+        $buffer .= \Gino\Input::submit('submit_action', $submit, array("classField"=>"submit"));
         $buffer .= $gform->close();
 
         $view = new View(null, 'section');

@@ -109,6 +109,7 @@ class Modal {
     
     /**
      * @brief Link/button for trigger the modal
+     * 
      * @param string $label
      * @param array $options
      *   - @b class (string)
@@ -141,6 +142,7 @@ class Modal {
     
     /**
      * @brief Script che permette di visualizzare la modale recuperando i contenuti in modo dinamico da un indirizzo web
+     * 
      * @param string $url
      * @return string
      */
@@ -166,9 +168,11 @@ class Modal {
      * 
      * @see views/modal.php
      * @param string $title
-     * @param string $body
+     * @param string $body null if the text is dinamically loaded
      * @param array $options
+     *   array associativo di opzioni:
      *   - @b vertically_centered (boolean): add .modal-dialog-centered to .modal-dialog to vertically center the modal
+     *   - @b size-modal (string): modal dimension (small, large, extra-large)
      *   - @b close_button (boolean)
      *   - @b save_button (boolean)
      * @return string
@@ -176,12 +180,26 @@ class Modal {
     public function render($title, $body, $options=[]) {
         
         $vertically_centered = gOpt('vertically_centered', $options, true);
+        $size_modal = gOpt('size_modal', $options, null);
         $close_button = gOpt('close_button', $options, true);
         $save_button = gOpt('save_button', $options, false);
+        
+        if($size_modal) {
+            if($size_modal == 'small') {
+                $size_modal = 'modal-sm';
+            }
+            elseif($size_modal == 'large') {
+                $size_modal = 'modal-lg';
+            }
+            elseif($size_modal == 'extra-large') {
+                $size_modal = 'modal-lg modal-xl';
+            }
+        }
         
         $view = new View(null, 'modal');
         $dict = [
             'vertically_centered' => $vertically_centered,
+            'size_modal' => $size_modal,
             'modal_id' => $this->_modal_id,
             'modal_title_id' => $this->_modal_title_id,
             'title' => $title,
@@ -213,6 +231,8 @@ class Modal {
             $('.modal-body').load(dataURL,function(){
                 $('#".$this->_modal_id."').modal({show:true});
             });
+
+            $('.modal-content').css('width', '');
         });
     });
 })(jQuery);

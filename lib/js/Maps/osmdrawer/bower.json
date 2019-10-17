@@ -1,0 +1,20 @@
+{
+  "name": "osmdrawer",
+  "version": "0.1.0",
+  "homepage": "https://github.com/otto-torino/osmdrawer",
+  "authors": [
+    "abidibo <abidibo@gmail.com>"
+  ],
+  "description": "Open Street Map Drawer Library",
+  "main": "dist/osmdrawer.min.js",
+  "moduleType": [
+    "es6",
+    "es7",
+    "globals"
+  ],
+  "keywords": [
+    "maps",
+    "open-street-map"
+  ],
+  "license": "MIT"
+}

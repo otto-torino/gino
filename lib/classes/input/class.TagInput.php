@@ -33,14 +33,18 @@ class TagInput extends Input {
 	    
 		// moocomplete
 		$registry = registry::instance();
-		$registry->addJs(SITE_JS.'/MooComplete.js');
+		$registry->addJs(SITE_JS.'/jQComplete.js');
+		//$registry->addJs(SITE_JS.'/MooComplete.js');
 		$registry->addCss(CSS_WWW.'/MooComplete.css');
 		
 		// all tags
 		$tags = GTag::getAllTags();
 		$js_tags_list = "['".implode("','", jsVar($tags))."']";
 		
-		$link_layer = "<span class=\"fa fa-cloud link\" onclick=\"var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); win.display();\"></span>";
+		$link_layer = "<span class=\"fa fa-cloud link\" 
+onclick=\"
+var win = new gino.layerWindow({overlay: false, title: '".jsVar(_('Tag cloud'))."', html: '".jsVar(TagBuild::tagCloud())."'}); 
+win.display();\"></span>";
 		
 		$tag_options = ['id' => $name];
 		if(!$form_inline) {
@@ -53,8 +57,9 @@ class TagInput extends Input {
 		
 		$field .= "<script>";
 		// moocomplete script
-		$field .= "window.addEvent('load', function() {
-        	var tag_input = new MooComplete('".$name."', {
+		//$field .= "window.addEvent('load', function() {
+        $field .= "$(function () {";
+        $field .= "var tag_input = MooComplete('".$name."', {
 	    		list: $js_tags_list, // elements to use to suggest.
 	    		mode: 'tag', // suggestion mode (tag | text)
 	    		size: 8 // number of elements to suggest
@@ -62,13 +67,13 @@ class TagInput extends Input {
 		});\n";
 		// clound functionality
 		$field .= "var addTag = function(el) {
-            var tag = el.get('text');
-            var field = $('".$name."');
-            if(field.value.substr(field.value.length - 1) == ',' || field.value == '') {
-                field.value = field.value + tag;
+            var tag = $(el).text();
+            var field = $('#".$name."');
+            if(field.val().substr(field.val().length - 1) == ',' || field.val() == '') {
+                field.val(field.val() + tag);
             }
             else {
-                field.value = field.value + ',' + tag;
+                field.val(field.val() + ',' + tag);
             }
         }";
 		$field .= "</script>";

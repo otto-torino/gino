@@ -24,10 +24,10 @@ use \Gino\App\Language\language;
  * ##Impostazione proprietà
  * La proprietà $_requestVar viene definita congiuntamente alla proprietà $_method nel metodo setMethod().
  * 
- * Nel costruttore vengono definiti i valori predefiniti delle proprietà $_form_id, $_validation, $_method, $_requestVar. \n
+ * Nel costruttore vengono definiti i valori predefiniti delle proprietà $_form_id, $_method, $_requestVar. \n
  * Inoltre è possibile definire un valore personalizzato della proprietà $_form_id, necesariamente nel caso di action form e di verifca del token (opzione @a verifyToken). \n
- * Nel metodo open() vengono impostate le proprietà $_form_id, $_validation. \n
- * Nel metodo render() vengono impostate le proprietà $_form_id, $_validation, $_method, $_requestVar, $_session_value.
+ * Nel metodo open() vengono impostate le proprietà $_form_id. \n
+ * Nel metodo render() vengono impostate le proprietà $_form_id, $_method, $_requestVar, $_session_value.
  * 
  * ##Opzioni sui campi nella generazione del form da un modello
  * Con le opzioni @a removeFields, @a viewFields e @a addCell è possibile intervenire sui campi da mostrare o da non mostrare nel form. \n
@@ -41,7 +41,6 @@ use \Gino\App\Language\language;
  * Nella costruzione del form vengono impostati i seguenti parametri di default:
  * - @b form_id, valore generato
  * - @b method, post
- * - @b validation, true
  * - @b session_value, valore generato
  * - @b upload, viene impostato a TRUE se l'oggetto di un campo del form appartiene almeno a una classe Gino.FileField() o Gino.ImageField()
  * - @b required, l'elenco dei campi obbigatori viene costruito controllando il valore della proprietà @a $_required dell'oggetto del campo
@@ -91,12 +90,6 @@ class Form {
 	private $_requestVar;
 	
 	/**
-	 * @brief Indica se è attiva la validazione javascript (tag form)
-	 * @var boolean
-	 */
-	private $_validation;
-	
-	/**
 	 * @brief Nome della variabile di sessione dei dati del form
 	 * @var string
 	 */
@@ -142,7 +135,6 @@ class Form {
     	$this->setFormId($form_id);
     	$this->setFormClass($form_class);
     	$this->setMethod('POST');
-    	$this->setValidation(true);
     	$this->_hidden = null;
     	
     	if($verify_token) {
@@ -180,17 +172,6 @@ class Form {
         $this->_requestVar = $method == 'POST' ? $this->_request->POST : ($method=='GET' ? $this->_request->GET : $this->_request->REQUEST);
 
         if(is_null($this->_session->form)) $this->_session->form = array();
-    }
-
-    /**
-     * @brief Setter della proprietà $_validation
-     * 
-     * @param bool $validation indica se eseguire o meno la validazione del form (attiva la chiamata javascript validateForm())
-     * @return void
-     */
-    public function setValidation($validation) {
-
-        $this->_validation = (bool) $validation;
     }
     
     public function setFormId($form_id) {
@@ -387,7 +368,7 @@ class Form {
 
     /**
      * @brief Parte inziale del form, FORM TAG, TOKEN, REQUIRED
-     * @description Imposta le proprietà $_form_id, $_validation
+     * @description Imposta le proprietà $_form_id
      *
      * @param string $action indirizzo dell'action
      * @param boolean $upload attiva l'upload di file
@@ -396,10 +377,9 @@ class Form {
      *   array associativo di opzioni
      *   - @b form_id (string): valore id del tag form
      *   - @b form_class (string): nome della classe del tag form; il valore @a form-inline costruisce un form con gli input inline
-     *   - @b validation (boolean): attiva il javascript di validazione gino.validateForm
      *   - @b view_info (boolean): visualizzazione delle informazioni (default @a true)
-     *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend()); require validation true
-     *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma; require validation true
+     *   - @b func_confirm (string): nome della funzione js da chiamare (es. window.confirmSend())
+     *   - @b text_confirm (string): testo del messaggio che compare nel box di conferma
      *   - @b generateToken (boolean): costruisce l'input hidden token (contro gli attacchi CSFR)
      * @return string, parte iniziale del form
      */
@@ -410,7 +390,6 @@ class Form {
          */
     	$form_id = gOpt('form_id', $options, null);
     	$form_class = gOpt('form_class', $options, null);
-        $validation = gOpt('validation', $options, null);
         $view_info = gOpt('view_info', $options, true);
         
         if($form_id) {
@@ -419,24 +398,21 @@ class Form {
         if($form_class) {
         	$this->setFormClass($form_class);
         }
-        if(is_bool($validation)) {
-        	$this->setValidation($validation);
-        }
     	
     	$confirm = '';
         if(isset($options['func_confirm']) && $options['func_confirm']) {
-        	$confirm = " && ".$options['func_confirm'];
+        	$confirm = $options['func_confirm'];
         }
         if(isset($options['text_confirm']) && $options['text_confirm']) {
-        	$confirm = " && confirmSubmit('".$options['text_confirm']."')";
+        	$confirm = "confirmSubmit('".$options['text_confirm']."')";
         }
         
         $buffer = "<form ".($upload?"enctype=\"multipart/form-data\"":"")." id=\"".$this->_form_id."\" name=\"".$this->_form_id."\" action=\"$action\" method=\"$this->_method\"";
         if($this->_form_class) {
         	$buffer .= " class=\"$this->_form_class\"";
         }
-        if($this->_validation) {
-        	$buffer .= " onsubmit=\"return (gino.validateForm($(this))".$confirm.")\"";
+        if($confirm) {
+            $buffer .= " onsubmit=\"return (".$confirm.")\"";
         }
         $buffer .= ">\n";
 
@@ -683,7 +659,7 @@ class Form {
     
     /**
      * @brief Wrapper per la stampa del form
-     * @description Imposta le proprietà $_form_id, $_validation, $_method, $_requestVar, $_session_value
+     * @description Imposta le proprietà $_form_id, $_method, $_requestVar, $_session_value
      * 
      * @see self::makeInputForm()
      * @see self::editUrl()
@@ -700,7 +676,6 @@ class Form {
      *       - @b form_class (string): nome della classe del tag form
      *       - @b session_value (string)
      *       - @b method (string): metodo del form (get/post/request); default post
-     *       - @b validation (boolean); attiva il controllo di validazione tramite javascript (default true)
      *     - @b opzioni del layout
      *       - @b view_folder_section (string): directory del file della vista del contenitore
      *       - @b view_file_section (string): nome del file della vista del contenitore del form (default @a section_form)
@@ -728,7 +703,6 @@ class Form {
     	$form_id = gOpt('form_id', $options_form, null);
     	$form_class = gOpt('form_class', $options_form, null);
     	$method = gOpt('method', $options_form, null);
-    	$validation = gOpt('validation', $options_form, true);
     	$this->_session_value = gOpt('session_value', $options_form, null);
     	
     	if($form_id) {
@@ -736,7 +710,6 @@ class Form {
     	}
     	$this->setFormClass($form_class);
     	$this->setMethod($method);
-    	$this->setValidation($validation);
     	
     	// 2. opzioni del layout
     	$view_folder_section = gOpt('view_folder_section', $options_form, null);

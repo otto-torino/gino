@@ -3,7 +3,7 @@
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Javascript
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Contiene i metodi per includere alcuni javascript
  * 
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -24,7 +24,7 @@ class Javascript {
      */
     public static function abiMapLib() {
 
-        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/abiMap.js\"></script>\n";
+        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/Maps/abiMap.js\"></script>\n";
         return $buffer;
     }
     
@@ -88,29 +88,6 @@ class Javascript {
 
         $buffer = "<script type=\"text/javascript\">\n";
 
-        // Mootools Cass: Tips
-        $buffer .= "function updateTooltips() {
-
-                $$('*[class$=tooltipfull]').each(function(el) {
-                    if(el.getProperty('title')) {
-                        var title = el.getProperty('title').split('::')[0];
-                        var text = el.getProperty('title').split('::')[1];
-
-                        el.store('tip:title', title);
-                        el.store('tip:text', text);
-                    }
-                });
-
-                var myTips = new Tips('[class$=tooltip]', {className: 'tipsbase'});
-
-                var myTipsFull = new Tips('[class$=tooltipfull]', {
-                    className: 'tipsfull',
-                    hideDelay: 50,
-                    showDelay: 50
-                });
-
-            }";
-
         $buffer .= "function externalLinks() {
             if (!document.getElementsByTagName) return;
             var anchors = document.getElementsByTagName('a');
@@ -126,10 +103,9 @@ class Javascript {
                     anchor.setAttribute('href', 'javascript:;');
                 }
             }
-            };\n";
+        };\n";
 
         $buffer .= "function parseFunctions() {
-            updateTooltips();
             externalLinks();
         };\n";
 
@@ -137,7 +113,7 @@ class Javascript {
                 var element = document.createElement(\"script\");\n
         		element.src = src;\n
         		document.body.appendChild(element);\n
-            }\n";
+        }\n";
         $buffer .= "function onLoadFunction() {\n
                 parseFunctions();\n";
         $buffer .= "}\n";

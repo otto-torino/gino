@@ -3,7 +3,7 @@
  * @file class.Registry.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Registry
  *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -11,8 +11,8 @@ namespace Gino;
 
 /**
  * @brief Registro di gino
- *
- * @copyright 2005-2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -29,11 +29,12 @@ namespace Gino;
  *   - @a handle_core_js (array), file javascript caricati come core di gino ma manipolati (opzioni compress/minify)
  *   - @a js (array di path di file javascript)
  *   - @a custom_js (array di path di file javascript con eventuali opzioni)
+ *   - @a raw_js
  *   - @a meta (tag meta aggiuntivi)
  *   - @a head_links (link)
  * 
  * Poi è il metodo variables() che permette di caricare codice HTML direttamente nel tag HEAD del documento (ad esempio nel template). \n
- * Le chiavi valide per caricare i meta, css, js sohno le seguenti: \n
+ * Le chiavi valide per caricare i meta, css, js sono le seguenti: \n
  *   - @b title
  *   - @b description
  *   - @b keywords
@@ -41,6 +42,7 @@ namespace Gino;
  *   - @b css
  *   - @b core_js (per le chiavi del registro core_js, handle_core_js)
  *   - @b js (per le chiavi del registro js, custom_js)
+ *   - @b raw_js (per la chiave di registro raw_js)
  *   - @b meta
  *   - @b head_links
  * 
@@ -69,6 +71,9 @@ namespace Gino;
  * Se il valore di @a compress è True il file viene inglobato nel file generale che comprende i file caricati con Registry::addJS(). 
  * Naturalmente il file compresso viene anche minificato. \n
  * Se il valore di @a compress è False e il valore di @a minify è True il file viene minificato, altrimenti viene caricata la sua versione originale.
+ * 
+ * ####Registry::addRawJs()
+ * 
  */
 class Registry extends Singleton {
 
@@ -208,6 +213,36 @@ class Registry extends Singleton {
     	else {
     		$this->vars['core_js'][] = $js;
     	}
+    }
+    
+    /**
+     * @brief Caricamento di un file javascript stile html
+     * 
+     * @param string $string
+     * @param array $options
+     *
+     * @example
+     * <script src="https://api.example.com/leaflet.js"
+     *   integrity="dfbyoiht54ykdj" crossorigin=""></script>
+     */
+    public function addRawJs($string, $options=[]) {
+        
+        $this->vars['raw_js'][] = $string;
+    }
+    
+    /**
+     * @brief Caricamento di un file css stile html
+     * 
+     * @param string $string
+     * @param array $options
+     *
+     * @example
+     * <link rel="stylesheet" href="https://style.example.com/leaflet.css"
+     *   integrity="dfbyoiht54ykdj" crossorigin=""/>
+     */
+    public function addRawCss($string, $options=[]) {
+        
+        $this->vars['raw_css'][] = $string;
     }
 
     /**
@@ -414,6 +449,19 @@ class Registry extends Singleton {
         	}
         	
         	return $buffer;
+        }
+        elseif($var == 'raw_js' or $var == 'raw_css')
+        {
+            $buffer = '';
+            
+            if(isset($this->vars[$var]) && sizeof($this->vars[$var]) > 0)
+            {
+                foreach($this->vars[$var] as $call) {
+                    $buffer .= $call;
+                }
+            }
+            
+            return $buffer;
         }
         elseif($var == 'meta')
         {

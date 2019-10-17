@@ -985,6 +985,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
   `priority` int(11) NOT NULL,
   `auth` enum('yes','no','') NOT NULL,
   `cache` bigint(16) NOT NULL DEFAULT '0',
+  `administrative_area` TINYINT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
@@ -993,17 +994,17 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
 --
 
 INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `highest`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
-(1, 'Home Pubblica', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 9, 'no', 0),
-(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 7, 'no', 0),
-(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index.admin_page]', 0, '4', 0, 6, 'yes', 0),
-(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+.((manage)|(wrapper))\\w*\\]#', NULL, 0, '5', NULL, 5, 'yes', 0),
-(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[auth.login]', 0, '3', 0, 3, 'no', 0),
-(6, 'Default', NULL, '#^.*$#', NULL, 0, '1', NULL, 11, '', 0),
-(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 8, 'yes', 0),
-(8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 10, 'yes', 0),
-(9, 'Pagine Mobile', 'L_mobile=1', '#.*#', NULL, 0, '8', 1, 2, '', 0),
-(10, 'Home Mobile', 'L_mobile=1', '#^index.php$#', NULL, 0, '7', 1, 1, '', 0),
-(11, '_popup', NULL, '#&_popup=1#', NULL, 0, '6', 2, 4, 'yes', 0);
+(1, 'Home Pubblica', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 9, 'no', 0, 0),
+(2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 7, 'no', 0, 0),
+(3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index.admin_page]', 0, '4', 0, 6, 'yes', 0, 1),
+(4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+.((manage)|(wrapper))\\w*\\]#', NULL, 0, '5', NULL, 5, 'yes', 0, 1),
+(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[auth.login]', 0, '3', 0, 3, 'no', 0, 0),
+(6, 'Default', NULL, '#^.*$#', NULL, 0, '1', NULL, 11, '', 0, 0),
+(7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 8, 'yes', 0, 0),
+(8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 10, 'yes', 0, 0),
+(9, 'Pagine Mobile', 'L_mobile=1', '#.*#', NULL, 0, '8', 1, 2, '', 0, 0),
+(10, 'Home Mobile', 'L_mobile=1', '#^index.php$#', NULL, 0, '7', 1, 1, '', 0, 0),
+(11, '_popup', NULL, '#&_popup=1#', NULL, 0, '6', 2, 4, 'yes', 0, 1);
 
 -- --------------------------------------------------------
 

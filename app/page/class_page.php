@@ -4,7 +4,7 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Page.page.
  *
  * @version 1.0
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -85,7 +85,7 @@ require_once('class.PageComment.php');
  * Questo template può essere sovrascritto compilando il campo "Template box" (@box_tpl_code) nel form della pagina.
  * 
  *
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -286,70 +286,75 @@ class page extends \Gino\Controller {
     			'label'=>_("Numero di elementi visualizzati"),
     			'value'=>$this->_optionsValue['last_number'],
     		),
-    		"last_tpl_code"=>array(
-    			'label'=>array(_("Template singolo elemento vista ultime pagine"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['last_tpl_code'],
-    		),
-    		"showcase_title"=>array(
-    			'label'=>_("Titolo vetrina pagine più lette"),
-    			'value'=>$this->_optionsValue['showcase_title'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista vetrina pagine più lette'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"showcase_number"=>array(
-    			'label'=>_("Numero di elementi in vetrina"),
-    			'value'=>$this->_optionsValue['showcase_number'],
-    		),
-    		"showcase_auto_start"=>array(
-    			'label'=>_("Avvio automatico animazione"),
-    			'value'=>$this->_optionsValue['showcase_auto_start'],
-    		),
-    		"showcase_auto_interval"=>array(
-    			'label'=>_("Intervallo animazione automatica (ms)"),
-    			'value'=>$this->_optionsValue['showcase_auto_interval'],
-    		),
-    		"showcase_tpl_code"=>array(
-    			'label'=>array(_("Template singolo elemento vista vetrina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['showcase_tpl_code'],
-    		),
-    		"entry_tpl_code"=>array(
-    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['entry_tpl_code'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista pagina'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"box_tpl_code"=>array(
-    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['box_tpl_code'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista pagina inserita nel template'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"comment_moderation"=>array(
-    			'label'=>array(_("Moderazione commenti"), _("In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei 'pubblicatori'. Tali utenti saranno notificati della presenza di un nuovo commento con una email")),
-    			'value'=>$this->_optionsValue['comment_moderation'],
-    			'section'=>true,
-    				'section_title'=>_('Opzioni commenti')
-    		),
-    		"comment_notification"=>array(
-    			'label'=>array(_("Notifica commenti"), _("In tal caso l'autore della pagina riceverà una email per ogni commento pubblicato")),
-    			'value'=>$this->_optionsValue['comment_notification'],
-    		),
-    		"newsletter_entries_number"=>array(
-    			'label'=>_('Numero di elementi presentati nel modulo newsletter'),
-    			'value'=>$this->_optionsValue['newsletter_entries_number'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni newsletter'),
-    			'section_description'=> $newsletter_module
-    			? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
-    			: "<p>"._('Il modulo newsletter non è installato')."</p>",
-    		),
-    		"newsletter_tpl_code"=>array(
-    			'label'=>array(_("Template pagina in inserimento newsletter"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['newsletter_tpl_code'],
-    		),
+    	    "last_tpl_code"=>array(
+    	        'label' => _("Template singolo elemento vista ultime pagine"),
+    	        'value' => $this->_optionsValue['last_tpl_code'],
+    	        'footnote' => self::explanationTemplate()
+    	    ),
+    	    "showcase_title"=>array(
+    	        'label'=>_("Titolo vetrina pagine più lette"),
+    	        'value'=>$this->_optionsValue['showcase_title'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista vetrina pagine più lette'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "showcase_number"=>array(
+    	        'label'=>_("Numero di elementi in vetrina"),
+    	        'value'=>$this->_optionsValue['showcase_number'],
+    	    ),
+    	    "showcase_auto_start"=>array(
+    	        'label'=>_("Avvio automatico animazione"),
+    	        'value'=>$this->_optionsValue['showcase_auto_start'],
+    	    ),
+    	    "showcase_auto_interval"=>array(
+    	        'label'=>_("Intervallo animazione automatica (ms)"),
+    	        'value'=>$this->_optionsValue['showcase_auto_interval'],
+    	    ),
+    	    "showcase_tpl_code"=>array(
+    	        'label' => _("Template singolo elemento vista vetrina"),
+    	        'value'=>$this->_optionsValue['showcase_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	    ),
+    	    "entry_tpl_code"=>array(
+    	        'label' => _("Template vista dettaglio pagina"),
+    	        'value' => $this->_optionsValue['entry_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista pagina'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "box_tpl_code"=>array(
+    	        'label' => _("Template vista dettaglio pagina"),
+    	        'value'=>$this->_optionsValue['box_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista pagina inserita nel template'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "comment_moderation"=>array(
+    	        'label'=>array(_("Moderazione commenti"), _("In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei 'pubblicatori'. Tali utenti saranno notificati della presenza di un nuovo commento con una email")),
+    	        'value'=>$this->_optionsValue['comment_moderation'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni commenti')
+    	    ),
+    	    "comment_notification"=>array(
+    	        'label'=>array(_("Notifica commenti"), _("In tal caso l'autore della pagina riceverà una email per ogni commento pubblicato")),
+    	        'value'=>$this->_optionsValue['comment_notification'],
+    	    ),
+    	    "newsletter_entries_number"=>array(
+    	        'label'=>_('Numero di elementi presentati nel modulo newsletter'),
+    	        'value'=>$this->_optionsValue['newsletter_entries_number'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni newsletter'),
+    	        'section_description'=> $newsletter_module
+    	        ? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
+    	        : "<p>"._('Il modulo newsletter non è installato')."</p>",
+    	    ),
+    	    "newsletter_tpl_code"=>array(
+    	        'label' => _("Template pagina in inserimento newsletter"),
+    	        'value' => $this->_optionsValue['newsletter_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	    ),
     	);
     }
 
@@ -1195,7 +1200,7 @@ class page extends \Gino\Controller {
      */
     private function manageEntry($request) {
 
-        $this->_registry->addJs($this->_class_www.'/page.js');
+        //$this->_registry->addJs($this->_class_www.'/page.js');
 
         $allow_insertion = true;
         $delete_deny = null;
@@ -1221,14 +1226,15 @@ class page extends \Gino\Controller {
         // Controllo unicità slug
         $url = $this->link($this->_instance_name, 'checkSlug');
         $div_id = 'check_slug';
-        $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('id').getProperty('value')+'&slug='+$('slug').getProperty('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
+        $availability = "&nbsp;&nbsp;<span class=\"link\" onclick=\"gino.ajaxRequest('post', '$url', 'id='+$('#id').prop('value')+'&slug='+$('#slug').prop('value'), '$div_id')\">"._("verifica disponibilità")."</span>";
         $availability .= "<div id=\"$div_id\" style=\"display:inline; margin-left:10px; font-weight:bold;\"></div>\n";
 
         $admin_table = new \Gino\AdminTable($this, array(
         		'allow_insertion'=>$allow_insertion, 
         		'delete_deny'=>$delete_deny,
         		'edit_deny'=>$edit_deny, 
-        		'edit_allow'=>$edit_allow
+        		'edit_allow'=>$edit_allow,
+                'form_filters_inline' => true
         ));
         
         $backend = $admin_table->backOffice(
@@ -1236,7 +1242,8 @@ class page extends \Gino\Controller {
             array(
                 'list_display' => $list_display,
                 'list_title'=>_("Elenco pagine"), 
-                'filter_fields'=>array('title', 'category_id', 'tags', 'published')
+                'filter_fields'=>array('title', 'category_id', 'tags', 'published'),
+                'advanced_export' => false
             ),
         	array(
                 'removeFields' => $remove_fields

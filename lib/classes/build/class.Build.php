@@ -3,7 +3,7 @@
  * @file class.Build.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Build
  * 
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\Http\Request;
 /**
  * @brief Gestisce i campi del modello
  *
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -33,7 +33,8 @@ class Build {
     	$_required,
     	$_widget,
     	$_int_digits,
-    	$_decimal_digits;
+    	$_decimal_digits,
+        $_footnote;
 
     /**
      * @brief Istanza del modello cui il campo appartiene
@@ -94,6 +95,7 @@ class Build {
     	$this->_widget = $options['widget'];
     	$this->_int_digits = $options['int_digits'];
     	$this->_decimal_digits = $options['decimal_digits'];
+    	$this->_footnote = $options['footnote'];
     	
     	// from Gino.Model::getProperties()
     	$this->_model = $options['model'];
@@ -366,7 +368,18 @@ class Build {
     		$opt['value_input'] = $input_value;
     		$opt['value_retrieve'] = $mform->retvar($opt['name'], $input_value);
     		
-    		return $widget_obj->printInputForm($opt);
+    		$input_form = $widget_obj->printInputForm($opt);
+    		
+    		if($opt['footnote']) {
+    		    
+    		    Loader::import('class', array(
+    		        '\Gino\InputNote'
+    		    ));
+    		    $input_note = new \Gino\InputNote(['note' => $opt['footnote'], 'collapse_id' => $this->_name]);
+    		    $input_form .= $input_note->render();
+    		}
+    		
+    		return $input_form;
     	}
     }
     

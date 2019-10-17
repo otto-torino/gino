@@ -3,7 +3,7 @@
  * @file class.Document.php
  * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ use \Gino\App\Page\page;
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -266,11 +266,19 @@ class Document {
         $this->_registry->css = array_merge($stylesheets, $this->_registry->css);
 
         // javascript core
-        $scripts = array(
-        	SITE_JS."/MooTools-More-1.6.0-compressed.js",
-        	SITE_JS."/modernizr.js",
-        	SITE_JS."/gino-min.js"
-        );
+        if($skin->administrative_area) {
+            $scripts = array(
+                SITE_JS."/modernizr.js",
+                SITE_JS."/gino-min.js",
+            );
+        }
+        else {
+            $scripts = array(
+                SITE_JS."/MooTools-More-1.6.0-compressed.js",
+                SITE_JS."/modernizr.js",
+                SITE_JS."/gino-min.js",
+            );
+        }
         $browser = get_browser_info();
         if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
             $scripts[] = SITE_JS."/respond.js";
@@ -285,7 +293,9 @@ class Document {
         // jQuery and Bootstrap
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-3.3.1.min.js");
         $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-ui-1.12.1.js");
-        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
+        if(!$skin->administrative_area) {
+            $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
+        }
         $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
         // A kickass library used to manage poppers in web applications
         $this->_registry->addCoreJs(SITE_JS."/popper.min.js");

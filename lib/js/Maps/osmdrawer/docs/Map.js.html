@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Map.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Map.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-disable new-cap */
+import L from 'leaflet'
+import { OpenStreetMapProvider } from 'leaflet-geosearch'
+import { capitalize, sprintf } from 'utils'
+import Tool from 'Tool'
+
+// default options
+const _dftOpts = {
+  center: [45, 7],
+  zoom: 8,
+  tools: {},
+  fullscreen: true,
+  clearMapCtrl: 'default',
+  exportMapCtrl: 'default',
+  exportMapCb: null,
+  geocoderMapField: true,
+  tipsMapCtrl: 'default'
+}
+
+/**
+ * Open Street Map maps drawing class, provides tools for drawing over an open street  map canvas, and export drawn data.
+ *
+ *      &lt;p>This class handles the drawing tools used to draw over a map and allows
+ *      data exportation.&lt;/p>
+ *      &lt;p>The map manages also some controllers&lt;/p>
+ *      &lt;ul>
+ *      &lt;li>clear map controller&lt;/li>
+ *      &lt;li>export map controller&lt;/li>
+ *      &lt;li>geocoder text field controller&lt;/li>
+ *      &lt;li>tips controller&lt;/li>
+ *      &lt;/ul>
+ *      &lt;p>Moreover every drawing tool has its own controller, which may be specifically set or used in
+ *      its default form.&lt;/p>
+ *      &lt;p>Each map controller may be specified as custom, may be removed by setting the
+ *      related option to &lt;code>null&lt;/code> or used in its default form.&lt;/p>
+ *      &lt;p>Once instantiated the class and set the tools by options or instantiating direclty
+ *      the drawing tool classes and adding them to the map,
+ *      see {@link Map#addTool}, call the render method in order to render the widget.&lt;br />
+ *      It is possible to continue configuring the widget adding or removing tools and
+ *      customize the map instance which is returned by the {@link Map#gmap} method.&lt;/p>
+ *      &lt;p>When defining specific map controllers, be sure to make them handle the proper map methods.&lt;/p>
+ *
+ *
+ * @example
+ * var mymap = new osmdrawer.Map('my_map_canvas_id', {
+ *   tools: {
+ *     point: {
+ *       options: {
+ *         max_items: 5
+ *       }
+ *     },
+ *     circle: {}
+ *   }
+ * });
+ *
+ */
+const Map = class {
+  /**
+   * @summary Constrcuts a Map
+   *
+   * @param {Element|String} canvas
+   *    The map container element as selector or jQuery element
+   * @param {Object} [options]
+   *    A class options object
+   * @param {Array} [options.center=new Array(45, 7)]
+   *    The initial map center coordinates, (lat, lng).
+   * @param {Number} [options.zoom=8]
+   *    The the initial map zoom level.
+   * @param {Object} [options.tools={}]
+   *    The object containing the tool's names and options to be activated
+   *    when initializing the map.
+   *    It's a shortcut to easily define set and active tools objects.
+   * @param {Number} [options.fullscreen=true]
+   *    Whether or not to enable fullscreen functionality
+   * @param {Object} [options.tools.point=undefined]
+   *    The point tool init object
+   * @param {String|Element} [options.tools.point.ctrl=undefined]
+   *    The selector or jQuery element
+   *    which controls the tool, default the built-in menu voice
+   * @param {Object} [options.tools.point.options=undefined]
+   *    The tool options object,
+   *    see {@link PointTool} for available properties
+   * @param {Object} [options.tools.polyline=undefined]
+   *    The polyline tool init object
+   * @param {String|Element} [options.tools.polyline.ctrl=undefined]
+   *    The selector or jQuery element which controls the tool,
+   *    default the built-in menu voice
+   * @param {Object} [options.tools.polyline.options=undefined]
+   *    The tool options object, see {@link PolylineTool} for available properties
+   * @param {Object} [options.tools.polygon=undefined]
+   *    The polygon tool init object
+   * @param {String|Element} [options.tools.polygon.ctrl=undefined]
+   *    The selector or jQuery element which controls the tool, default the built-in menu voice
+   * @param {Object} [options.tools.polygon.options=undefined]
+   *    The tool options object, see {@link PolygonTool} for available properties
+   * @param {Object} [options.tools.circle=undefined]
+   *    The circle tool init object
+   * @param {String|Element} [options.tools.circle.ctrl=undefined]
+   *    The selctor or jQuery element which controls the tool, default the built-in menu voice
+   * @param {Object} [options.tools.circle.options=undefined]
+   *    The tool options object, see {@link CircleTool} for available properties
+   * @param {String|Element} [options.clearMapCtrl='default']
+   *    The clear map controller (clears all drawings over the map).
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the clear map
+   *    functionality is removed. If id attribute or an element the clear map functionality is attached to the element.
+   * @param {String|Element} [options.exportMapCtrl='default']
+   *    The export map controller (exports all shapes drawed over the map).
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the export map
+   *    functionality is removed. If id attribute or an element the clear map functionality is attached to the element.
+   * @param {Function} [options.exportMapCb=null]
+   *    The callback function to call when the export map button is pressed.
+   *    The callback function receives one argument, the exported data as
+   *    returned by the osmdrawer.Map#exportMap method.
+   * @param {Boolean} [options.geocoderMapField=true]
+   *    Whether or not to add the gecoder functionality which allows to center the map in a point
+   *    defined through an address, or to pass the lat,lng coordinates found to the map click handlers
+   *    (exactly as click over the map in a lat,lng point).
+   * @param {String|Element} [options.tipsMapCtrl='default']
+   *    The help tips map controller (shows tips about drawing tools).
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the tips box is not shown,
+   *    if id attribute or an element the functionality is attached to the element.
+   */
+  constructor (canvas, options) {
+    this._dom = {}
+    this._dom.canvas = jQuery(canvas).addClass('osmdrawer-map-canvas')
+    // check canvas exists
+    if (!this._dom.canvas.length) {
+      throw new Error('Canvas container not found!')
+    }
+
+    // wrap canvas inside a container and add controllers container
+    this._dom.container = jQuery('&lt;div />', {
+      class: 'osmdrawer-container'
+    }).css({
+      width: this._dom.canvas.css('width')
+    })
+    this._dom.controllersContainer = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrls-container'
+    })
+    this._dom.toolsCtrlsContainer = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrls-tools-container'
+    })
+    this._dom.actionsCtrlsContainer = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrls-actions-container'
+    })
+    this._dom.geocoderCtrlsContainer = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrls-geocoder-container'
+    })
+    this._dom.screenCtrlsContainer = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrls-screen-container'
+    })
+    this._dom.controllersContainer.append(
+      this._dom.toolsCtrlsContainer,
+      this._dom.geocoderCtrlsContainer,
+      this._dom.actionsCtrlsContainer,
+      this._dom.screenCtrlsContainer
+    )
+    this._dom.container = this._dom.canvas
+      .wrap(this._dom.container)
+      .before(this._dom.controllersContainer)
+      .parent()
+
+    // let's extend default options
+    this._options = jQuery.extend({}, _dftOpts, options)
+
+    this._supportedTools = ['point', 'polyline', 'polygon', 'circle']
+
+    // internal state
+    this._state = {
+      drawingTool: null, // actual drawing tool
+      tools: [] // available tools
+    }
+
+    this._map = null
+    // when importing data we need bounds to fit them into the map
+    this._bounds = L.latLngBounds()
+
+    // controllers
+    this._ctrlContainer = null
+    this._controllers = {
+      clearMap: null,
+      clearMapCb: null,
+      exportMap: null,
+      exportMapCb: null,
+      tipsMap: null,
+      geocoder: null,
+      geocoderField: null,
+      geocoderCenterButton: null,
+      geocoderDrawButton: null,
+      fullscreen: null
+    }
+
+    // check options!
+    this._processOptions()
+  }
+
+  /**
+   * @summary Processes the options object setting properly some class properties
+   * @ignore
+   * @return void
+   */
+  _processOptions () {
+    // init tools
+    var self = this
+    this._supportedTools.reverse().forEach((toolName, index) => {
+      if (self._options.tools.hasOwnProperty(toolName)) {
+        var handler = null
+        var ctrl = self._options.tools[toolName].ctrl || null
+        // set tool
+        if (ctrl) {
+          handler = jQuery(ctrl)
+          if (!handler.length) {
+            throw new Error(
+              sprintf(
+                'The given control handler for the {0} tool is not a DOM element',
+                toolName
+              )
+            )
+          }
+        }
+        // add the tool
+        self.addTool(
+          new OpenStreetMapDrawer[capitalize(toolName) + 'Tool'](
+            self,
+            handler,
+            self._options.tools[toolName].options || null
+          )
+        )
+      }
+    })
+  }
+
+  /**
+   * @summary Initializes the map and its events
+   * @ignore
+   * @return void
+   */
+  _initMap () {
+    let mapCenter = L.latLng(this._options.center[0], this._options.center[1])
+    let mapOptions = {}
+
+    this._map = L.map(this._dom.canvas[0], { editable: true }).setView(
+      mapCenter,
+      this._options.zoom
+    )
+    L.tileLayer(
+      'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
+      {
+        attribution:
+          'Map data &amp;copy; &lt;a href="https://www.openstreetmap.org/">OpenStreetMap&lt;/a> contributors, &lt;a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA&lt;/a>, Imagery © &lt;a href="https://www.mapbox.com/">Mapbox&lt;/a>',
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        accessToken: window.OSM_TOKEN
+      }
+    ).addTo(this._map)
+    this.geocoder = new OpenStreetMapProvider()
+
+    this._map.on('click', evt => {
+      this._mapClick(evt)
+    })
+  }
+
+  /**
+   * @summary Initializes all the map controllers
+   * @ignore
+   * @return void
+   */
+  _initControllers () {
+    if (this._options.clearMapCtrl) {
+      this._setClearMapController()
+    }
+
+    if (this._options.exportMapCtrl &amp;&amp; this._options.exportMapCb) {
+      this._setExportMapController()
+    }
+
+    if (this._options.geocoderMapField) {
+      this._setGeocoderMapFieldController()
+    }
+
+    if (this._options.fullscreen) {
+      this._setFullscreenController()
+    }
+
+    if (this._options.tipsMapCtrl) {
+      this._setTipsMapController()
+    }
+  }
+
+  /**
+   * @summary Initializes the map set tools
+   * @ignore
+   * @return void
+   */
+  _initTools () {
+    for (let k in this._state.tools) {
+      if (this._supportedTools.indexOf(k) !== -1) {
+        this._state.tools[k].activate()
+      }
+    }
+  }
+
+  /**
+   * @summary Sets the clear map controller depending on the options.clearMapCtrl value
+   * @ignore
+   * @return void
+   */
+  _setClearMapController () {
+    if (this._options.clearMapCtrl === 'default') {
+      this._controllers.clearMap = jQuery('&lt;div />', {
+        class: 'osmdrawer-ctrl-clear-map'
+      })
+        .attr('title', 'clear map')
+        .appendTo(this._dom.actionsCtrlsContainer)
+    } else if (this._options.clearMapCtrl) {
+      this._controllers.clearMap = jQuery(this._options.clearMapCtrl)
+      if (!this._controllers.clearMap) {
+        throw new Error('The given clear map controller is not a DOM element')
+      }
+    }
+    this._controllers.clearMapCb = this.clearMap.bind(this)
+    this._controllers.clearMap.on('click', this._controllers.clearMapCb)
+  }
+
+  /**
+   * @summary Removes the clear map event and the controller if the default one
+   * @ignore
+   * @return void
+   */
+  _removeClearMapController () {
+    this._controllers.clearMap.off('click', null, this._controllers.clearMapCb)
+    if (this._options.clearMapCtrl === 'default') {
+      this._controllers.clearMap.remove()
+    }
+  }
+
+  /**
+   * @summary Sets the export map controller depending on the options.exportMapCtrl value
+   * @ignore
+   * @return void
+   */
+  _setExportMapController () {
+    if (this._options.exportMapCtrl === 'default') {
+      this._controllers.exportMap = jQuery('&lt;div />', {
+        class: 'osmdrawer-ctrl-export-map'
+      })
+        .attr('title', 'export map')
+        .appendTo(this._dom.actionsCtrlsContainer)
+    } else if (this._options.exportMapCtrl) {
+      this._controllers.exportMap = jQuery(this._options.exportMapCtrl)
+      if (!this._controllers.exportMap.length) {
+        throw new Error('The given export map controller is not a DOM element')
+      }
+    }
+
+    this._controllers.exportMapCb = function () {
+      this._options.exportMapCb(this.exportMap())
+    }.bind(this)
+    this._controllers.exportMap.on('click', this._controllers.exportMapCb)
+  }
+
+  /**
+   * @summary Removes the export map event and the controller if the default one
+   * @ignore
+   * @return void
+   */
+  _removeExportMapController () {
+    this._controllers.exportMap.off(
+      'click',
+      null,
+      this._controllers.exportMapCb
+    )
+    if (this._options.exportMapCtrl === 'default') {
+      this._controllers.exportMap.remove()
+    }
+  }
+
+  /**
+   * @summary Sets the help tips map controller depending on the options.tips_map_ctrl value
+   * @ignore
+   * @return void
+   */
+  _setTipsMapController () {
+    if (this._options.tipsMapCtrl === 'default') {
+      this._controllers.tipsMap = jQuery('&lt;div />', {
+        class: 'osmdrawer-tips-map'
+      }).appendTo(this._dom.controllersContainer)
+    } else if (this._options.tipsMapCtrl) {
+      this._controllers.tipsMap = jQuery(this._options.tipsMapCtrl)
+      if (!this._controllers.tipsMap.length) {
+        throw new Error('The given tips map controller is not a DOM element')
+      }
+    }
+
+    if (this._controllers.tipsMap.length) {
+      this.updateTips(this._initMapTips())
+    }
+  }
+
+  /**
+   * @summary Removes the tips map controller if the default one
+   * @ignore
+   * @return void
+   */
+  _removeTipsMapController () {
+    if (this._options.tipsMapCtrl === 'default') {
+      this._controllers.tipsMap.remove()
+    }
+  }
+
+  /**
+   * @summary Sets the geocoder input text field and its controllers
+   * @ignore
+   * @return void
+   */
+  _setGeocoderMapFieldController () {
+    this._controllers.geocoderField = jQuery('&lt;input />', {
+      class: 'osmdrawer-geocoder-field',
+      type: 'text',
+      placeholder: 'insert an address'
+    }).on('focus', () => {
+      this.updateTips(
+        'Write an address in the field, then center the map in the calculated point, ' +
+          'or use it to draw the selected shape (acts as a click on the map).'
+      )
+    })
+
+    this._controllers.geocoderCenterButton = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrl-geocoder-center-btn',
+      title: 'center in geolocalized point'
+    })
+
+    this._controllers.geocoderDrawButton = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrl-geocoder-draw-btn',
+      title: 'draw the geolocalized point'
+    })
+
+    this._controllers.geocoderCenterButton.on(
+      'click',
+      this.geocoderCenter.bind(this)
+    )
+    this._controllers.geocoderDrawButton.on(
+      'click',
+      this.geocoderDraw.bind(this)
+    )
+
+    this._dom.geocoderCtrlsContainer.append(
+      this._controllers.geocoderField,
+      this._controllers.geocoderCenterButton,
+      this._controllers.geocoderDrawButton
+    )
+  }
+
+  /**
+   * @summary Removes the geocoder input text field and its controllers
+   * @ignore
+   * @return void
+   */
+  _removeGeocoderMapField () {
+    this._controllers.geocoderCenterButton.off()
+    this._controllers.geocoderDrawButton.off()
+    this._controllers.geocoderField.remove()
+    this._controllers.geocoderCenterButton.remove()
+    this._controllers.geocoderDrawButton.remove()
+  }
+
+  /**
+   * @summary Sets the fullscreen controller
+   * @ignore
+   * @return void
+   */
+  _setFullscreenController () {
+    this._controllers.fullscreen = jQuery('&lt;div />', {
+      class: 'osmdrawer-ctrl-fullscreen',
+      title: 'fullscreen'
+    })
+      .appendTo(this._dom.screenCtrlsContainer)
+      .on('click', () => {
+        this._dom.container.toggleClass('osmdrawer-fullscreen')
+        this._controllers.fullscreen.attr(
+          'title',
+          this._controllers.fullscreen.attr('title') === 'fullscreen'
+            ? 'exit fullscreen'
+            : 'fullscreen'
+        )
+        this._map._onResize()
+      })
+  }
+
+  /**
+   * @summary Removes the fullscreen controller
+   * @ignore
+   * @return void
+   */
+  _removeFullscreenController () {
+    this._controllers.fullscreen.off()
+    this._controllers.fullscreen.remove()
+  }
+
+  /**
+   * @summary Returns the init text shown in the tips controller
+   * @ignore
+   * @return {String} text The initial tip text
+   */
+  _initMapTips () {
+    return 'Displays help tips about drawing tools.'
+  }
+
+  /**
+   * @summary Handles the click event over the map, calling the active tool handler
+   * @ignore
+   * @param {Object} point an object with a key latlng storing the LatLng point
+   * @return void
+   */
+  _mapClick (point) {
+    if (this._state.drawingTool === null) {
+      return false
+    }
+    this._state.drawingTool.clickHandler(point)
+  }
+
+  // PUBLIC METHODS (to be intended as public ;)
+
+  /**
+   * @summary Adds a drawing tool
+   * @param {osmdrawer.Tool} tool The tool object
+   * @return {Map} map object
+   */
+  addTool (tool) {
+    if (!(tool instanceof Tool)) {
+      throw new Error('The given tool object is not of the proper type')
+    }
+
+    let toolName = tool.getToolName()
+
+    if (this._supportedTools.indexOf(toolName) === -1) {
+      throw new Error(sprintf('The tool {0} is not supported', toolName))
+    }
+    this._state.tools[toolName] = tool
+    return this
+  }
+
+  /**
+   * @summary Gets a tool object giving its name
+   * @param {String} toolName One of the supported tools name
+   * @return {osmdrawer.Tool | null} The tool object if set or null
+   */
+  getTool (toolName) {
+    if (this._supportedTools.indexOf(toolName) === -1) {
+      throw new Error(sprintf('The {0} tool is not supported', toolName))
+    }
+    return this._state.tools[toolName]
+  }
+
+  /**
+   * @summary Removes a drawing tool
+   * @param {String} toolName The name of the tool to be removed
+   * @param {osmdrawer.Tool} tool The tool object
+   * @return {Map} map object
+   */
+  removeTool (toolName) {
+    if (toolName &amp;&amp; this._supportedTools.indexOf(toolName) === -1) {
+      throw new Error(sprintf('The {0} tool is not supported', toolName))
+    }
+    if (this._state.tools[toolName]) {
+      this._state.tools[toolName].deactivate(true)
+      delete this._state.tools[toolName]
+    }
+    return this
+  }
+
+  /**
+   * @summary Gets the active drawing tool
+   * @return {osmdrawer.Tool} The drawing tool
+   */
+  getDrawingTool () {
+    return this._state.drawingTool
+  }
+
+  /**
+   * @summary Sets the active drawing tool name
+   * @param {osmdrawer.Tool|null} tool The actual drawing tool, null to have no active tool
+   * @return {Map} map object
+   */
+  setDrawingTool (tool) {
+    if (
+      tool !== null &amp;&amp;
+      !this._state.tools.hasOwnProperty(tool.getToolName())
+    ) {
+      throw new Error("Can't set the drawing tool since it's not active")
+    }
+    Object.keys(this._state.tools).forEach(k =>
+      this._state.tools[k].setUnselected()
+    )
+    this._state.drawingTool = tool
+    if (tool) {
+      tool.setSelected()
+    }
+    return this
+  }
+
+  /**
+   * @summary Renders the widget
+   * @return {Map} map object
+   */
+  render () {
+    // map initialization
+    this._initMap()
+    // add controllers
+    this._initControllers()
+    // init tools
+    this._initTools()
+
+    return this
+  }
+
+  /**
+   * @summary Adds a controller in the default controllers container
+   * @param {Object} ctrl The jQuery controller element to be added
+   * @return void
+   */
+  addDefaultCtrl (ctrl) {
+    if (!ctrl.length) {
+      throw new Error('The given controller is not an element')
+    }
+    ctrl.prependTo(this._dom.toolsCtrlsContainer)
+  }
+
+  /**
+   * @summary Clears the map
+   * @return {Map} map object
+   */
+  clearMap () {
+    for (let k in this._state.tools) {
+      if (this._supportedTools.indexOf(k) !== -1) {
+        this._state.tools[k].clear()
+      }
+    }
+    console.info('osmdrawer: map cleared')
+    return this
+  }
+
+  /**
+   * @summary Updates the text displayed in the tips controller
+   * @param {String} html The tip text
+   * @return void
+   */
+  updateTips (html) {
+    if (this._controllers.tipsMap.length) {
+      this._controllers.tipsMap.html(html)
+    }
+  }
+
+  /**
+   * @summary Returns the leaflet map instance
+   * @description The leaflet map class instance allows to customize direclty some map properties using
+   *              the Map public interface
+   * @return {Map} The leaflet map instance
+   */
+  gmap () {
+    return this._map
+  }
+
+  /**
+   * @summary Sets the center of the map
+   * @param {Array} center The [lat, lng] coordinates array
+   * @return {Map} map object
+   */
+  setCenter (center) {
+    this._options.center = center
+    if (this._map) {
+      this._map.setView({ lat: center[0], lng: center[1] })
+    }
+    return this
+  }
+
+  /**
+   * @summary Sets the zoom of the map
+   * @param {Number} zoom The zoom level
+   * @return {Map} map object
+   */
+  setZoom (zoom) {
+    this._options.zoom = zoom
+    if (this._map) {
+      this._map.setZoom(zoom)
+    }
+    return this
+  }
+
+  /**
+   * @summary Sets the clear map controller
+   * @param {String|Element} ctrl
+   *    The clear map controller.
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the clear map
+   *    functionality is removed. If selctor or jQuery element the clear map functionality
+   *    is attached to the element.
+   * @return {Map} map object
+   */
+  setClearMapCtrl (ctrl) {
+    if (ctrl !== this._options.clearMapCtrl) {
+      this._removeClearMapController()
+    }
+    this._options.clearMapCtrl = ctrl
+    this._setClearMapController()
+    return this
+  }
+
+  /**
+   * @summary Sets the export map controller
+   * @param {String|Element} ctrl
+   *    The clear map controller.
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the export map
+   *    functionality is removed. If selctor or jQuery element the export map functionality
+   *    is attached to the element.
+   * @return {Map} map object
+   */
+  setExportMapCtrl (ctrl) {
+    if (ctrl !== this._options.exportMapCtrl) {
+      this._removeExportMapController()
+    }
+    this._options.exportMapCtrl = ctrl
+    this._setExportMapController()
+    return this
+  }
+
+  /**
+   * @summary Sets the geocoder map field option
+   * @param {Boolean} activate Whether or not to activate the geocoder functionality
+   * @return {Map} map object
+   */
+  setGeocoderMapField (activate) {
+    this._options.geocoderMapField = activate
+    if (!activate) {
+      this._removeGeocoderMapField()
+    } else {
+      this._setGeocoderMapFieldController()
+    }
+    return this
+  }
+
+  /**
+   * @summary Sets the tips map controller
+   * @param {String|Element} ctrl
+   *    The help tips map controller (shows tips about drawing tools).
+   *    If 'default' the built-in controller is used, if &lt;code>null&lt;/code> the tips box is not shown,
+   *    if selector or jQuery element the functionality is attached to the element
+   * @return {Map} map object
+   */
+  setTipsMapCtrl (ctrl) {
+    if (ctrl !== this._options.tipsMapCtrl) {
+      this._removeTipsMapController()
+    }
+    this._options.tipsMapCtrl = ctrl
+    this._setTipsMapController()
+    return this
+  }
+
+  /**
+   * @summary Sets the fullscreen option
+   * @param {Boolean} activate Whether or not to activate the fullscreen functionality
+   * @return {Map} map object
+   */
+  setFullscreen (activate) {
+    this._options.fullscreen = activate
+    if (!activate) {
+      this._removeFullscreenController()
+    } else {
+      this._setFullscreenController()
+    }
+    return this
+  }
+
+  /**
+   * @summary Exports the map drawed shapes as data points
+   * @return {Object} data The drawed data
+   * @example
+   * // exported data
+   * {
+   *  'point': [
+   *    {lat: 45, lng: 12},
+   *    {lat: 43, lng: 16}
+   *  ],
+   *  'polyline': [
+   *    [
+   *      {lat: 45, lng: 12},
+   *      {lat: 42, lng: 12},
+   *      {lat: 42.6, lng: 11}
+   *    ],
+   *    [
+   *      {lat: 36.7, lng: 11.2},
+   *      {lat: 39, lng: 12}
+   *    ],
+   *  ],
+   *  'circle': [
+   *    {lat: 45, lng: 12, radius: 10000},
+   *    {lat: 44, lng: 11, radius: 230000}
+   *  ]
+   * }
+   */
+  exportMap () {
+    let data = {}
+    for (var k in this._state.tools) {
+      if (this._supportedTools.indexOf(k) !== -1) {
+        data[k] = this._state.tools[k].exportData()
+      }
+    }
+    console.info('osmdrawer: exporting data')
+    return data
+  }
+
+  /**
+   * @summary Imports data
+   * @description Data must be in the same format as the exported ones, see {@link Map#exportMap}
+   * @param {Object} data The data object
+   * @return {Map} map object
+   */
+  importMap (data) {
+    this._supportedTools.forEach(toolName => {
+      if (typeof data[toolName] !== 'undefined') {
+        if (this.getTool(toolName) === null) {
+          let Cls = capitalize(toolName) + 'Tool'
+          let ntool = new Cls(this, null)
+          this.addTool(ntool)
+          ntool.activate()
+        }
+        this.getTool(toolName).importData(data[toolName])
+        this.getTool(toolName).extendBounds(this._bounds)
+      }
+    })
+    this._map.fitBounds(this._bounds)
+    return this
+  }
+
+  /**
+   * @summary Sets the map center converting the geocoder field input address in a LatLng point
+   * @return {Map} map object
+   */
+  async geocoderCenter () {
+    const results = await this.geocoder.search({
+      query: this._controllers.geocoderField.val()
+    })
+    if (results.length) {
+      this._map.setView({ lat: results[0].y, lng: results[0].x })
+    } else {
+      console.log('osmdrawer: geocoder response: ' + results)
+      alert('Cannot retrieve address coordinates')
+    }
+
+    return this
+  }
+
+  /**
+   * @summary Fires a map click in a LatLng point converted from the geocoder field input address
+   * @return {Map} map object
+   */
+  async geocoderDraw () {
+    const results = await this.geocoder.search({
+      query: this._controllers.geocoderField.val()
+    })
+    if (results.length) {
+      if (this._state.drawingTool === null) {
+        alert('select a drawing tool')
+      }
+      this._mapClick({
+        latlng: { lat: results[0].y, lng: results[0].x }
+      })
+    } else {
+      console.log('osmdrawer: geocoder response: ' + results)
+      alert('Cannot retrieve address coordinates')
+    }
+
+    return this
+  }
+}
+
+export default Map
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-osmdrawer.html">osmdrawer</a></li></ul><h3>Namespaces</h3><ul><li><a href="EventDispatcher.html">EventDispatcher</a></li><li><a href="Loader.html">Loader</a></li></ul><h3>Classes</h3><ul><li><a href="CircleTool.html">CircleTool</a></li><li><a href="Map.html">Map</a></li><li><a href="PointTool.html">PointTool</a></li><li><a href="PolygonTool.html">PolygonTool</a></li><li><a href="PolylineTool.html">PolylineTool</a></li><li><a href="Tool.html">Tool</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Thu May 16 2019 11:10:17 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

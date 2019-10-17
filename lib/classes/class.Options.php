@@ -3,7 +3,7 @@
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use Gino\Http\Request;
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -28,6 +28,7 @@ use Gino\Http\Request;
  *   - @b section_title (string): nome del blocco di opzioni
  *   - @b section_description (string): descrizione del blocco di opzioni
  *   - @b editor (boolean): attiva ckEditor in un campo textarea (type text)
+ *   - @b footnote (string): note al campo
  * 
  * ##Informazioni sui campi
  * Le informazioni sui campi della tabella vengono recuperate dal metodo Gino.Db::fieldInformations(), e vengono caricate nei seguenti parametri: \n
@@ -229,6 +230,13 @@ class Options {
                     $field_required = true;
                     $field_trnsl = true;
                 }
+                
+                if(is_array($field_option) AND array_key_exists('footnote', $field_option)) {
+                    $field_note = $field_option['footnote'];
+                }
+                else {
+                    $field_note = null;
+                }
 
                 if($f->type == 'char') {
                     $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name}, $field_label, array("required"=>$field_required, "size"=>40, "maxlength"=>$f->length, "trnsl"=>$field_trnsl, "trnsl_table"=>$this->_tbl_options, "trnsl_id"=>$id));
@@ -259,7 +267,19 @@ class Options {
                 elseif($f->type == 'date') {
                     $GINO .= \Gino\Input::input_date($f->name, dbDateToDate(${$f->name}, '/'),  $field_label, array("required"=>$field_required));
                 }
-                else $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
+                else {
+                    $GINO .= "<p>"._("ATTENZIONE! Tipo di campo non supportato")."</p>";
+                }
+                
+                if($field_note) {
+                    
+                    Loader::import('class', array(
+                        '\Gino\InputNote'
+                    ));
+                    $input_note = new \Gino\InputNote(['note' => $field_note, 'collapse_id' => $f->name]);
+                    $GINO .= $input_note->render();
+                }
+                
             }
         }
         

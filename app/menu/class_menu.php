@@ -3,7 +3,7 @@
  * @file class_menu.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Menu.menu
  * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -29,7 +29,7 @@ require_once('class.MenuVoice.php');
  * @brief Classe di tipo Gino.Controller per la gestione dei menu
  * 
  * @version 1.0.0
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -425,22 +425,34 @@ class menu extends \Gino\Controller {
 
         $GINO = '';
         $rows = $this->_registry->db->select('id', MenuVoice::$tbl_voices, "instance='$this->_instance' AND parent='$parent'", array('order' => 'order_list'));
-        $sort = count($rows)>1 ? true : false;
+        $sort = count($rows) > 1 ? true : false;
+        
         if($rows and count($rows)) {
-            $GINO = "<ul id=\"".($sort ? "sortContainer".$parent : "")."\" class=\"menu-admin list-group\">";
+            
+            //$sort_id = $sort ? "sortContainer".$parent : "";
+            $sort_id = $sort ? "sortable" : "";
+            
+            $GINO .= "<div id=\"info\"></div>";
+            
+            $GINO .= "<ul id=\"".$sort_id."\" class=\"menu-admin list-group\">";
             foreach($rows as $row) {
                 $voice = new MenuVoice($row['id']);
 
                 $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "id={$voice->id}"), \Gino\icon('modify'));
                 $link_delete = "<a href=\"javascript:if(gino.confirmSubmit('"._("l\'eliminazione è definitiva e comporta l\'eliminazione delle eventuali sottovoci, continuare?")."')) location.href='".$this->linkAdmin(array(), "id={$voice->id}&action=delete")."'\">".\Gino\icon('delete')."</a>";
                 $link_subvoice = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "id={$voice->id}&action=insert&parent={$voice->id}"), \Gino\icon('insert', array('text' => _("nuova sottovoce"))));
-                $handle = $sort ? "<span class=\"link sort_handler\">".\Gino\icon('sort')."</span> " : "";
+                $handle = $sort ? "<span class=\"link draggable\">".\Gino\icon('sort')."</span> " : "";
+                
                 $links = $sort ? array($handle) : array();
                 $links[] = $link_subvoice;
                 $links[] = $link_modify;
                 $links[] = $link_delete;
-                $title = ($parent?"<img style=\"padding-bottom:4px\" src=\"".SITE_IMG."/list_mini.gif\" /> &#160;":"").\Gino\htmlChars($voice->label);
-                $GINO .= "<li class=\"list-group-item\" id=\"id$voice->id\">".$title."<span class=\"badge\" style=\"background: #fff;\">".implode(' &#160; ', $links)."</span>".$this->renderMenuAdmin($voice->id)."</li>";
+                $title = ($parent ? "<span class=\"fa fa-angle-right\"></span> ": "").\Gino\htmlChars($voice->label);
+                
+                $GINO .= "<li class=\"list-group-item\" id=\"item-".$voice->id."\">".$title;
+                $GINO .= "<span class=\"badge\" style=\"background: #fff;\">".implode(' &#160; ', $links)."</span>";
+                $GINO .= $this->renderMenuAdmin($voice->id);
+                $GINO .= "</li>";
             }
             $GINO .= "</ul>";
         }
@@ -458,10 +470,9 @@ class menu extends \Gino\Controller {
 
         $this->requirePerm(array('can_admin', 'can_edit'));
 
+        $items = \Gino\cleanVar($request->POST, 'item', 'array', '');
+        
         $res = true;
-
-        $order = \Gino\cleanVar($request->POST, 'order', 'string', '');
-        $items = explode(",", $order);
         $i=1;
         foreach($items as $item) {
             $voice = new menuVoice($item);
@@ -573,12 +584,12 @@ class menu extends \Gino\Controller {
         $gform = new \Gino\Form();
         $gform->setValidation(false);
         $buffer .= $this->jsSearchModulesLib();
+        
         $buffer .= "<div class=\"text-center\">\n";
         $buffer .= _("pagine").": <input type=\"text\" id=\"s_page\" name=\"s_page\" size=\"10\" />&nbsp; &nbsp; ";
         $buffer .= _("moduli").": <input type=\"text\" id=\"s_class\" name=\"s_class\" size=\"10\" />\n";
         $buffer .= "&nbsp; ";
-        $buffer .= \Gino\Input::input('s_all', 'button', _("mostra tutti"), array("classField"=>"generic", "id"=>"s_all"));
-
+        $buffer .= \Gino\Input::submit('s_all',  _("mostra tutti"), array("classField"=>"generic", "id"=>"s_all"));
         $buffer .= "</div>\n";
 
         $buffer .= "<div id=\"items_list\"></div>\n";
@@ -595,71 +606,70 @@ class menu extends \Gino\Controller {
 
     /**
      * @brief Libreria javascript per l'ordinamento delle voci di menu
-     * 
-     * Chiamate Ajax: \n
-     *     - actionUpdateOrder()
+     * @description Chiamata Ajax: @a actionUpdateOrder()
      *
      * @see actionUpdateOrder()
      * @return string, codice js
      */
-    private function jsSortLib() {
+    private function jsSortLib() {  // -> renderMenuAdmin
 
-        $GINO = "<script type=\"text/javascript\">\n";
-        $GINO .= "function menuMessage(response) { alert(response) }";
-        $GINO .= "
-        (function() {
-        	window.addEvent('load', function() { 
-				$$('ul[id^=sortContainer]').each(function(ul) {
-					var menuSortables = new Sortables(ul, {
-						constrain: false,
-						handle: '.sort_handler',
-						clone: false,
-						revert: { duration: 500, transition: 'elastic:out' },
-						onComplete: function() {
-							var order = this.serialize(1, function(element, index) {
-								return element.getProperty('id').replace('id', '');
-							}).join(',');
-							gino.ajaxRequest('post', '".$this->link($this->_instance_name, 'actionUpdateOrder')."', 'order='+order, null, {'callback':menuMessage});
-						}
-					});
-				})
-    		});
-		})()";
-        $GINO .= "</script>";
-        return $GINO;
+        $div_id='#sortable';
+        
+        // Genera una query string del tipo: item[]=2&item[]=1
+        
+        $buffer = "<script type=\"text/javascript\">\n";
+        
+        //$( function() {
+        $buffer .= "
+$(document).ready(function() {
+    $('".$div_id."').sortable({
+        
+        handle : '.draggable',
+        update : function () {          // aggiorno l'ordine ed eseguo una callback
+            var data = $('".$div_id."').sortable('serialize');   // variabile che contiene l'array con il nuovo ordine degli elementi
+            $('#info').text(data);
+            
+            $.ajax({
+                url: '".$this->link($this->_instance_name, 'actionUpdateOrder')."',
+                type: 'POST',
+                data: data,
+                success:function(data) {    // response
+                    $('#info').text(data);
+                }
+            })
+        }
+    });
+});";
+        $buffer .= "</script>";
+        return $buffer;
     }
     
     /**
      * @brief Libreria javascript per la ricerca dei moduli
-     * 
-     * Chiamate Ajax: \n
-     *     - printItemsList()
+     * @description Chiamata Ajax @a printItemsList()
      * 
      * @return string, codice js
      */
     private function jsSearchModulesLib() {
 
         $buffer = "<script type=\"text/javascript\">\n";
-        $buffer .= "window.addEvent('load', function() {
+        $buffer .= "$(function () {
 
                     var myclass, mypage, all, active, other;
                     var url = '".$this->link($this->_instance_name, 'printItemsList')."';
-                    $$('#s_class', '#s_page').each(function(el) {
-                        el.addEvent('keyup', function(e) {
-                            active = el.getProperty('id');
-                            other = (active=='s_class')? 's_page':'s_class';
-                            $(other).setProperty('value', '');
-                            gino.ajaxRequest('post', url, active+'='+$(active).value, 'items_list', {'load':'items_list', 'cache':true});
+                    $('#s_class, #s_page').each(function(index, el) {
+                        $(el).on('keyup', function(e) {
+                            active = $(el).prop('id');
+                            other = (active == 's_class') ? '#s_page' : '#s_class';
+                            $(other).prop('value', '');
+                            gino.ajaxRequest('post', url, active+'='+$('#'+active).val(), 'items_list', {'load':'items_list', 'cache':true});
                         })
                     })
-
-                    $('s_all').addEvent('click', function() {
-
-                            $$('#s_page', '#s_class').setProperty('value', '');
-                            gino.ajaxRequest('post', url, 'all=all', 'items_list', {'load':'items_list', 'cache':true});
-                        }
-                    );
-
+                    
+                    $('#s_all').on('click', function() {
+                        $('#s_page', '#s_class').prop('value', '');
+                        gino.ajaxRequest('post', url, 'all=all', 'items_list', {'load':'items_list', 'cache':true});
+                    });
                 });\n";
         $buffer .= "</script>\n";
 

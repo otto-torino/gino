@@ -6,7 +6,7 @@ namespace Gino;
 *
 * Variabili disponibili:
 * - **text_note**: string
-* - **img_previewer**: string
+* - **img_preview**: string
 * - **label_for**: string
 * - **label_string**: string
 * - **label_class**: string
@@ -28,12 +28,15 @@ namespace Gino;
     		</label>
 		<?php endif ?>
 		
-		<?php if($text_note or $img_previewer): ?>
+		<?php if($text_note or $img_preview): ?>
 			<div class="notes">
 			<?php if($text_note): ?>
 				<div><?= $text_note ?></div>
 			<?php endif ?>
-			<?= $img_previewer ?>
+			
+			<p><span class="link <?= $trigger_modal ?>"><?= _("Visualizza file disponibili in allegati") ?></span></p>
+			<?= $render_modal ?>
+			<?= $script_modal ?>
 			</div>
 		<?php endif ?>
 		
