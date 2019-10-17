@@ -105,11 +105,10 @@ id=\"".$id."\"
 class=\"fa fa-plus-circle form-addrelated\" 
 title=\"".attributeVar($title)."\">
 </a>";
-            
             $buffer .= "
 <script>
 $(document).ready(function() {
-    $(\"#".$id."\").click(function() {
+    $('#' + $.escapeSelector('".$id."')).click(function() {
         return gino.showAddAnotherPopup(this);
     });
 });

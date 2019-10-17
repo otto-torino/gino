@@ -426,6 +426,7 @@ class Skin extends Model {
         $this->css = cleanVar($request->POST, 'css', 'int', null);
         $this->auth = cleanVar($request->POST, 'auth', 'string', null);
         $this->cache = cleanVar($request->POST, 'cache', 'int', null);
+        $this->administrative_area = cleanVar($request->POST, 'administrative_area', 'int', null);
 
         if(!$this->id) {
         	$this->priority = skin::newSkinPriority();
