@@ -3,7 +3,7 @@
  * @file class.Field.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Field
  *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -13,13 +13,13 @@ use \Gino\Http\Request;
 
 /**
  * @brief Gestisce le caratteristiche del tipo di campo (di una tabella di database)
- *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * 
+ * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
  * ##Tabella delle associazioni predefinite del tipo di campo con il tipo input
- *
+ * 
  * <table>
  * <tr><th>Classe</th><th>Tipo di campo (database)</th><th>Widget predefinito</th></tr>
  * <tr><td>BooleanField()</td><td>TINYINT</td><td>text</td></tr>
@@ -46,6 +46,7 @@ use \Gino\Http\Request;
  * ##PROPRIETÀ GENERALI DEI CAMPI
  * Le seguenti proprietà sono definite per tutti i tipi di campo dalla classe Gino.Field(): \n
  * - $_name
+ * - $_label
  * - $_default
  * - $_lenght
  * - $_auto_increment
@@ -55,6 +56,7 @@ use \Gino\Http\Request;
  * - $int_digits
  * - $decimal_digits
  * - $_widget
+ * - $_footnote
  * 
  * Queste proprietà hanno dei valori di default che possono venire sovrascritti passandoli come opzioni del tipo di campo al costruttore. \n
  * Infine, queste proprietà vengono esposte attraverso i relativi metodi __get e __set.
@@ -134,6 +136,12 @@ class Field {
      * @var string
      */
     protected $_default_widget;
+    
+    /**
+     * @brief Annotazioni al campo
+     * @var string
+     */
+    protected $_footnote;
 
     /**
      * @brief Costruttore
@@ -150,6 +158,7 @@ class Field {
      *   - @b int_digits (integer): numero di cifre intere di un campo float
      *   - @b decimal_digits (integer): numero di cifre decimali di un campo float
      *   - @b widget (string): widget associato al campo (le classi che estendono Gino.Field impostano un valore predefinito nella proprietà $_default_widget)
+     *   - @b footnote (string)
      */
     function __construct($options) {
 
@@ -166,6 +175,7 @@ class Field {
         $this->_widget = array_key_exists('widget', $options) ? $options['widget'] : $this->_default_widget;
         $this->_int_digits = array_key_exists('int_digits', $options) ? $options['int_digits'] : 0;
         $this->_decimal_digits = array_key_exists('decimal_digits', $options) ? $options['decimal_digits'] : 0;
+        $this->_footnote = array_key_exists('footnote', $options) ? $options['footnote'] : null;
     }
 
     /**
@@ -405,6 +415,7 @@ class Field {
     		'widget' => $this->_widget,
     		'int_digits' => $this->_int_digits,
     		'decimal_digits' => $this->_decimal_digits,
+    	    'footnote' => $this->_footnote
     	);
     }
     

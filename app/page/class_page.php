@@ -286,70 +286,75 @@ class page extends \Gino\Controller {
     			'label'=>_("Numero di elementi visualizzati"),
     			'value'=>$this->_optionsValue['last_number'],
     		),
-    		"last_tpl_code"=>array(
-    			'label'=>array(_("Template singolo elemento vista ultime pagine"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['last_tpl_code'],
-    		),
-    		"showcase_title"=>array(
-    			'label'=>_("Titolo vetrina pagine più lette"),
-    			'value'=>$this->_optionsValue['showcase_title'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista vetrina pagine più lette'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"showcase_number"=>array(
-    			'label'=>_("Numero di elementi in vetrina"),
-    			'value'=>$this->_optionsValue['showcase_number'],
-    		),
-    		"showcase_auto_start"=>array(
-    			'label'=>_("Avvio automatico animazione"),
-    			'value'=>$this->_optionsValue['showcase_auto_start'],
-    		),
-    		"showcase_auto_interval"=>array(
-    			'label'=>_("Intervallo animazione automatica (ms)"),
-    			'value'=>$this->_optionsValue['showcase_auto_interval'],
-    		),
-    		"showcase_tpl_code"=>array(
-    			'label'=>array(_("Template singolo elemento vista vetrina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['showcase_tpl_code'],
-    		),
-    		"entry_tpl_code"=>array(
-    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['entry_tpl_code'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista pagina'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"box_tpl_code"=>array(
-    			'label'=>array(_("Template vista dettaglio pagina"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['box_tpl_code'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni vista pagina inserita nel template'),
-    			'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
-    		),
-    		"comment_moderation"=>array(
-    			'label'=>array(_("Moderazione commenti"), _("In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei 'pubblicatori'. Tali utenti saranno notificati della presenza di un nuovo commento con una email")),
-    			'value'=>$this->_optionsValue['comment_moderation'],
-    			'section'=>true,
-    				'section_title'=>_('Opzioni commenti')
-    		),
-    		"comment_notification"=>array(
-    			'label'=>array(_("Notifica commenti"), _("In tal caso l'autore della pagina riceverà una email per ogni commento pubblicato")),
-    			'value'=>$this->_optionsValue['comment_notification'],
-    		),
-    		"newsletter_entries_number"=>array(
-    			'label'=>_('Numero di elementi presentati nel modulo newsletter'),
-    			'value'=>$this->_optionsValue['newsletter_entries_number'],
-    			'section'=>true,
-    			'section_title'=>_('Opzioni newsletter'),
-    			'section_description'=> $newsletter_module
-    			? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
-    			: "<p>"._('Il modulo newsletter non è installato')."</p>",
-    		),
-    		"newsletter_tpl_code"=>array(
-    			'label'=>array(_("Template pagina in inserimento newsletter"), self::explanationTemplate()),
-    			'value'=>$this->_optionsValue['newsletter_tpl_code'],
-    		),
+    	    "last_tpl_code"=>array(
+    	        'label' => _("Template singolo elemento vista ultime pagine"),
+    	        'value' => $this->_optionsValue['last_tpl_code'],
+    	        'footnote' => self::explanationTemplate()
+    	    ),
+    	    "showcase_title"=>array(
+    	        'label'=>_("Titolo vetrina pagine più lette"),
+    	        'value'=>$this->_optionsValue['showcase_title'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista vetrina pagine più lette'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "showcase_number"=>array(
+    	        'label'=>_("Numero di elementi in vetrina"),
+    	        'value'=>$this->_optionsValue['showcase_number'],
+    	    ),
+    	    "showcase_auto_start"=>array(
+    	        'label'=>_("Avvio automatico animazione"),
+    	        'value'=>$this->_optionsValue['showcase_auto_start'],
+    	    ),
+    	    "showcase_auto_interval"=>array(
+    	        'label'=>_("Intervallo animazione automatica (ms)"),
+    	        'value'=>$this->_optionsValue['showcase_auto_interval'],
+    	    ),
+    	    "showcase_tpl_code"=>array(
+    	        'label' => _("Template singolo elemento vista vetrina"),
+    	        'value'=>$this->_optionsValue['showcase_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	    ),
+    	    "entry_tpl_code"=>array(
+    	        'label' => _("Template vista dettaglio pagina"),
+    	        'value' => $this->_optionsValue['entry_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista pagina'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "box_tpl_code"=>array(
+    	        'label' => _("Template vista dettaglio pagina"),
+    	        'value'=>$this->_optionsValue['box_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni vista pagina inserita nel template'),
+    	        'section_description'=>"<p>"._("Il template verrà utilizzato per ogni pagina ed inserito all'interno di una section")."</p>"
+    	    ),
+    	    "comment_moderation"=>array(
+    	        'label'=>array(_("Moderazione commenti"), _("In tal caso i commenti dovranno essere pubblicati da un utente iscritto al gruppo dei 'pubblicatori'. Tali utenti saranno notificati della presenza di un nuovo commento con una email")),
+    	        'value'=>$this->_optionsValue['comment_moderation'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni commenti')
+    	    ),
+    	    "comment_notification"=>array(
+    	        'label'=>array(_("Notifica commenti"), _("In tal caso l'autore della pagina riceverà una email per ogni commento pubblicato")),
+    	        'value'=>$this->_optionsValue['comment_notification'],
+    	    ),
+    	    "newsletter_entries_number"=>array(
+    	        'label'=>_('Numero di elementi presentati nel modulo newsletter'),
+    	        'value'=>$this->_optionsValue['newsletter_entries_number'],
+    	        'section'=>true,
+    	        'section_title'=>_('Opzioni newsletter'),
+    	        'section_description'=> $newsletter_module
+    	        ? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
+    	        : "<p>"._('Il modulo newsletter non è installato')."</p>",
+    	    ),
+    	    "newsletter_tpl_code"=>array(
+    	        'label' => _("Template pagina in inserimento newsletter"),
+    	        'value' => $this->_optionsValue['newsletter_tpl_code'],
+    	        'footnote' => self::explanationTemplate(),
+    	    ),
     	);
     }
 
