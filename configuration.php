@@ -73,7 +73,7 @@ define("DB_PORT", "3306");
 /**
  * Nome del database
  */
-define("DB_DBNAME", "dbgino_alpha");    //////////////////////////// MODIFY
+define("DB_DBNAME", "dbgino");
 
 /**
  * Nome dell'utente del database
