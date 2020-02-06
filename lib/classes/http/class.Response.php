@@ -3,7 +3,7 @@
  * @file class.Response.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Http.Response
  *
- * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -23,7 +23,7 @@ use \Gino\Document;
  * ritornano un oggetto Gino.Http.Response o una sua sottoclasse. Questo oggetto si preoccupa di
  * settare gli header e di inviare il contenuto della risposta HTTP
  *
- * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2014-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -145,7 +145,9 @@ class Response {
             header(sprintf('%s: %s', $key, $value));
         }
         
-        if(MIDDLEWARE['HEADERS'] === true) {
+        require CONFIG_DIR.OS.'common.inc';
+        
+        if($MIDDLEWARE['HEADERS'] === true) {
             $headers = Loader::load('middleware/Headers', [], '\Gino\Middleware\\');
             
             $a = $headers->inject();

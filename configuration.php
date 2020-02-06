@@ -5,7 +5,7 @@
  * 
  * Contiene i parametri dell'applicazione
  * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -205,14 +205,7 @@ define('GOOGLE_ANALYTICS_VIEW_ACCOUNT', null);
 define('GOOGLE_ANALYTICS_VIEW_ID', null);
 
 /**
- * @brief Imposta i Middleware
- */
-define('MIDDLEWARE', [
-    'HEADERS' => true   // @see Gino.Middleware.Headers
-]);
-
-/**
- * JWT
+ * @brief JWT
  */
 define('JWT_SECRET', 'MY-SECRET-KEY');
 

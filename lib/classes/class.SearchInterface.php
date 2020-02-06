@@ -3,7 +3,7 @@
  * @file class.SearchInterface.php
  * @brief Contiene la definizione ed implementazione della classe Gino.SearchInterface
  * 
- * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Metodi per gestire le ricerche nelle interfacce utente
  *
- * @copyright 2016-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -653,8 +653,9 @@ class SearchInterface {
      * @return \Gino\Http\Redirect
      * 
      * @description Questo metodo viene utilizzato per superare il problema dei warning "Page Has Expired" 
-     * che possono essere generati quando una pagina nella history (compresa la pagina corrente) è richiesta con il metodo POST. \n
-     * Una soluzione consiste nel far rimandare il form di ricerca a una pagina che salva le chiavi di ricerca in sessione e redirige alla pagina finale. \n 
+     * che si generano quando una pagina nella history (compresa la pagina corrente) è richiesta con il metodo POST. \n
+     * Una soluzione consiste nel far rimandare il form di ricerca a una pagina che salva le chiavi di ricerca in sessione e 
+     * redirige alla pagina finale. \n 
      * Segue un esempio di utilizzo:
      * 
      * @code
@@ -674,9 +675,10 @@ class SearchInterface {
     	
     	if($request->POST)
     	{
-    		$submit = \Gino\cleanVar($request->POST, 'search_submit', 'string');
-    		
-    		if($submit) {
+    	    $submit = \Gino\cleanVar($request->POST, $this->_submit_name, 'string');
+    	    $submit_all = \Gino\cleanVar($request->POST, $this->_submit_all_name, 'string');
+    	    
+    	    if($submit or $submit_all) {
     			$this->sessionSearch();
     		}
     	}

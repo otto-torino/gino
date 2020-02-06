@@ -112,4 +112,4 @@ define('MODEL_CLASS_PREFIX', 'class.');
 define('CORE_CLASS_PREFIX', 'class.');
 
 // Include il file di configurazione dell'applicazione
-include('configuration.php');
+include 'configuration.php';
