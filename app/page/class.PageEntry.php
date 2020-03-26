@@ -3,7 +3,7 @@
  * @file class.PageEntry.php
  * Contiene la definizione ed implementazione della classe Gino.App.Page.PageEntry.
  * 
- * @copyright 2013-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2020 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ use \Gino\GTag;
 /**
  * @brief Classe tipo Gino.Model che rappresenta una pagina
  *
- * @copyright 2013-2019 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2013-2020 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  */
@@ -286,7 +286,7 @@ class PageEntry extends \Gino\Model {
     	{
     		foreach ($rows AS $row)
     		{
-    			$items[] = $row['id'];
+    			$items[] = (int) $row['id'];
     		}
     	}
     	return $items;

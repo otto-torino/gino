@@ -2,9 +2,6 @@
 /**
  * @file datepicker.php
  * @brief Javascript per attivare il DatePicker
- * 
- * @copyright 2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
  */
 namespace Gino;
 
@@ -104,8 +101,6 @@ function getDatePicker($id, $options=[]) {
     
     $months = "['"._("Gennaio")."', '"._("Febbraio")."', '"._("Marzo")."', '"._("Aprile")."', '"._("Maggio")."', '"._("Giugno")."', '"._("Luglio")."', '"._("Agosto")."', '"._("Settembre")."', '"._("Ottobre")."', '"._("Novembre")."', '"._("Dicembre")."']";
     $months_short = "['"._("Gen")."', '"._("Feb")."', '"._("Mar")."', '"._("Apr")."', '"._("Mag")."', '"._("Giu")."', '"._("Lug")."', '"._("Ago")."', '"._("Set")."', '"._("Ott")."', '"._("Nov")."', '"._("Dic")."']";
-    
-    $ico_calendar_path = SITE_IMG."/ico_calendar.png";
     
     $buffer = "<script>
 (function($) {

@@ -1,22 +1,22 @@
-window.addEvent('domready', function() {
 
-    var field = $('search_site');
+$(function () {
+	var field = $('.search_site');
 
-    if($('search_site_check')) {	// (typeof $('search_site_check') != 'undefined')
-        $('search_site_check').addEvent('click', viewCheckOptions.bind($('search_site_check')));
-    }
+	if($('.search_site_check')) {
+		$('.search_site_check').click(viewCheckOptions).bind($('.search_site_check'));
+	}
 })
 
 function viewCheckOptions(height_or, width_or) {
 
-    var optionLayer = $('search_site_check_options');
+    var optionLayer = $('.search_site_check_options');
 
-    if(optionLayer.getStyle('visibility') == 'hidden') {
-        optionLayer.setStyle('visibility', 'visible').fade('in');
+    if(optionLayer.attr('visibility') == 'hidden') {
+        optionLayer.attr('visibility', 'visible').fadeIn();
     }
     else {
-        optionLayer.fade('out');
-        setTimeout(function() { optionLayer.setStyle('visibility', 'hidden'); }, 500);
+        optionLayer.fadeOut();
+        setTimeout(function() { optionLayer.attr('visibility', 'hidden'); }, 500);
     }
 
 }

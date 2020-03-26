@@ -2,12 +2,7 @@
 /**
  * @file configuration.php
  * @brief File di configurazione
- * 
- * Contiene i parametri dell'applicazione
- * 
- * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * @description Contiene i parametri dell'applicazione
  */
 
 /**

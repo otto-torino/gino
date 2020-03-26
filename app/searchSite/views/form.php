@@ -10,7 +10,7 @@ namespace Gino\App\SearchSite;
  * - **check_options**: se $choices è vero mostra il pannello con le scelte di ricerca
  * 
  * @version 1.0.0
- * @copyright 2005-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
+ * @copyright 2005-2020 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
  * @authors Marco Guidotti guidottim@gmail.com
  * @authors abidibo abidibo@gmail.com
  * 
@@ -23,12 +23,12 @@ namespace Gino\App\SearchSite;
 <? //@cond no-doxygen ?>
 <script type="application/javascript">
 function openHideSearchSite() {
-	var d = document.getElementById("fulltextsearch").style.display;
+	var d = $("#fulltextsearch").css('display');
 	if(d == 'block') {
-		$('fulltextsearch').setStyle('display', 'none');
+		$('#fulltextsearch').css('display', 'none');
 	}
 	else {
-		$('fulltextsearch').setStyle('display', 'block');
+		$('#fulltextsearch').css('display', 'block');
 	}
 }
 </script>
