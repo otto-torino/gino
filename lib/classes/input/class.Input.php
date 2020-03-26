@@ -717,7 +717,7 @@ $(document).ready(function() {
     			}
     		}
     		
-    		require_once CUSTOM_CKEDITOR_DIR.OS.'class.CKEditor.php';
+    		require_once CLASSES_DIR.OS.'class.CKEditor.php';
     		
     		$input = $textarea;
     		$input .= \Gino\CKEditor::replace($name, $value, ['toolbar' => $ckeditor_toolbar, 'width' => $width, 'height' => $height]);

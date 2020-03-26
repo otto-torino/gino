@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `auth_permission` (
   `description` text,
   `admin` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=28 ;
 
 --
 -- Dumping data for table `auth_permission`
@@ -148,7 +148,12 @@ INSERT INTO `auth_permission` (`id`, `class`, `code`, `label`, `description`, `a
 (19, 'menu', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
 (20, 'menu', 'can_edit', 'redazione', 'inserimento modifica ed eliminazione di voci di menu.', 1),
 (21, 'statistics', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
-(22, 'buildapp', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo di creazione applicazioni', 1);
+(22, 'buildapp', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo di creazione applicazioni', 1),
+(23, 'post', 'can_admin', 'amministrazione', 'amministrazione completa del modulo', 1),
+(24, 'post', 'can_publish', 'pubblicazione', 'pubblica ed elimina i post', 1),
+(25, 'post', 'can_write', 'redazione', 'inserisce e modifica i post ma non li può pubblicare o eliminare', 1),
+(26, 'post', 'can_view_private', 'visualizzazione post privati', 'visualizzazione dei post privati', 0),
+(27, 'calendar', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo', 1);
 
 -- --------------------------------------------------------
 
@@ -320,6 +325,153 @@ ALTER TABLE `buildapp_item`
 
 ALTER TABLE `buildapp_item`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar_category`
+--
+
+CREATE TABLE `calendar_category` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `description` text
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar_item`
+--
+
+CREATE TABLE `calendar_item` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `duration` smallint(4) NOT NULL DEFAULT '1',
+  `description` text,
+  `time_start` time NOT NULL,
+  `time_end` time NOT NULL,
+  `place` int(11) DEFAULT NULL,
+  `author` int(11) NOT NULL,
+  `insertion_date` datetime NOT NULL,
+  `last_edit_date` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar_item_category`
+--
+
+CREATE TABLE `calendar_item_category` (
+  `id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar_opt`
+--
+
+CREATE TABLE `calendar_opt` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `monday_first_week_day` tinyint(1) NOT NULL,
+  `day_chars` tinyint(2) NOT NULL,
+  `open_modal` tinyint(1) NOT NULL,
+  `items_for_page` smallint(3) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar_place`
+--
+
+CREATE TABLE `calendar_place` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `description` text
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `calendar_category`
+--
+ALTER TABLE `calendar_category`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `calendar_item`
+--
+ALTER TABLE `calendar_item`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `calendar_item_category`
+--
+ALTER TABLE `calendar_item_category`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `calendar_opt`
+--
+ALTER TABLE `calendar_opt`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `calendar_place`
+--
+ALTER TABLE `calendar_place`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `calendar_category`
+--
+ALTER TABLE `calendar_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `calendar_item`
+--
+ALTER TABLE `calendar_item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `calendar_item_category`
+--
+ALTER TABLE `calendar_item_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `calendar_opt`
+--
+ALTER TABLE `calendar_opt`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `calendar_place`
+--
+ALTER TABLE `calendar_place`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 
 -- --------------------------------------------------------
 
@@ -835,6 +987,138 @@ CREATE TABLE IF NOT EXISTS `php_module_opt` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_category`
+--
+
+CREATE TABLE `post_category` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `description` text,
+  `image` varchar(200) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_item`
+--
+
+CREATE TABLE `post_item` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `insertion_date` datetime NOT NULL,
+  `last_edit_date` datetime NOT NULL,
+  `date` date NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `text` text,
+  `tags` varchar(255) DEFAULT NULL,
+  `img` varchar(100) DEFAULT NULL,
+  `attachment` varchar(100) DEFAULT NULL,
+  `private` tinyint(1) NOT NULL DEFAULT '0',
+  `social` tinyint(1) NOT NULL DEFAULT '0',
+  `slideshow` tinyint(1) NOT NULL DEFAULT '0',
+  `published` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_item_category`
+--
+
+CREATE TABLE `post_item_category` (
+  `id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_opt`
+--
+
+CREATE TABLE `post_opt` (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `last_post_number` int(11) NOT NULL,
+  `last_slideshow_view` tinyint(1) NOT NULL DEFAULT '0',
+  `last_slideshow_number` tinyint(2) DEFAULT NULL,
+  `list_nfp` smallint(2) DEFAULT NULL,
+  `showcase_post_number` smallint(2) DEFAULT NULL,
+  `showcase_auto_start` tinyint(1) NOT NULL,
+  `showcase_auto_interval` int(8) NOT NULL,
+  `evidence_number` smallint(2) DEFAULT NULL,
+  `evidence_auto_start` tinyint(1) DEFAULT NULL,
+  `evidence_auto_interval` int(8) DEFAULT NULL,
+  `image_width` smallint(4) DEFAULT NULL,
+  `newsletter_post_number` smallint(3) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `post_category`
+--
+ALTER TABLE `post_category`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `post_item`
+--
+ALTER TABLE `post_item`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `post_item_category`
+--
+ALTER TABLE `post_item_category`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `post_opt`
+--
+ALTER TABLE `post_opt`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `post_category`
+--
+ALTER TABLE `post_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `post_item`
+--
+ALTER TABLE `post_item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `post_item_category`
+--
+ALTER TABLE `post_item_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `post_opt`
+--
+ALTER TABLE `post_opt`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
 -- --------------------------------------------------------
 
 --
@@ -1140,7 +1424,7 @@ CREATE TABLE IF NOT EXISTS `sys_module` (
   `active` tinyint(1) NOT NULL,
   `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
 -- Dumping data for table `sys_module`
@@ -1150,7 +1434,10 @@ INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `active`, `descri
 (4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
 (6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 14, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli');
+(9, 'Top Bar Admin', 'topbaradmin', 14, 1, 'Barra superiore con link diretto all''amministrazione dei singoli moduli'),
+(10, 'Articoli', 'article', '19', '1', 'Gestore di articoli'),
+(11, 'Calendario', 'cal', '20', '1', NULL);
+
 
 -- --------------------------------------------------------
 
@@ -1169,7 +1456,7 @@ CREATE TABLE IF NOT EXISTS `sys_module_app` (
   `removable` tinyint(1) NOT NULL,
   `class_version` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=21 ;
 
 --
 -- Dumping data for table `sys_module_app`
@@ -1192,7 +1479,10 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `active`, `tbl_name`, `inst
 (15, 'Strumenti', 'instruments', 1, 'instruments', 0, 'Alcuni strumenti, quali l''elenco delle risorse disponibili (con i relativi link) e dei mime type', 0, '1.0'),
 (16, 'Autenticazione', 'auth', 1, 'auth', 0, 'Modulo utenti, gruppi e permessi', 0, '1.0'),
 (17, 'Funzioni di sistema', 'sysfunc', 1, 'sysfunc', 0, 'Funzioni di sistema', 0, '1.0'),
-(18, 'Creazione App', 'buildapp', 1, 'buildapp', 0, 'Genera una applicazione predefinita pronta per essere personalizzata e installata in gino', 0, '1.0.0');
+(18, 'Creazione App', 'buildapp', 1, 'buildapp', 0, 'Genera una applicazione predefinita pronta per essere personalizzata e installata in gino', 0, '1.0.0'),
+(19, 'Post', 'post', '1', 'post', '1', 'Gestore di post con categorie', '1', '3.0.0'),
+(20, 'Calendar', 'calendar', '1', 'calendar', '1', 'Calendario appuntamenti', '1', '1.0.0');
+
 
 --
 -- Table structure for table `sys_tag`

@@ -162,6 +162,8 @@ define('INSTALLED_APPS', serialize(array(
 	'menu_admin' => 'bars',
 	'module' => 'puzzle-piece',
 	'sysClass' => 'cubes',
+    'article' => 'bullhorn',
+    'cal' => 'calendar',
 )));
 
 /* elenco delle applicazioni da non visualizzare */

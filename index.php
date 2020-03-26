@@ -50,7 +50,7 @@ include_once(LIB_DIR.OS."const.php");
 include_once(LIB_DIR.OS."global.php");
 
 // Include funzioni utilizzate da tutto il sistema
-include_once(LIB_DIR.OS."func.php");
+include_once(FUNCTIONS_DIR.OS."func.php");
 
 // Include la classe utilizzata per caricare classi di sistema e modelli. I controller sono caricati in maniera automatica
 include(CLASSES_DIR.OS."class.Loader.php");

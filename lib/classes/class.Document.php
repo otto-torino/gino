@@ -303,13 +303,6 @@ class Document {
         
         if($skin->administrative_area) {
             
-            if (($key = array_search(SITE_JS."/MooTools-More-1.6.0-compressed.js", $javascripts['core_js'])) !== false) {
-                unset($javascripts[$key]);
-            }
-            
-            if (($key = array_search(SITE_JS."/jquery/jquery-noconflicts.js", $javascripts['core_js'])) !== false) {
-                unset($javascripts[$key]);
-            }
         }
         
         $browser = get_browser_info();

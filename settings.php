@@ -31,6 +31,9 @@ define('CONFIG_DIR', SITE_ROOT.OS.'config');
 /** Percorso assoluto alla directory lib */
 define('LIB_DIR', SITE_ROOT.OS.'lib');
 
+/** Percorso assoluto alla directory che contiene le funzioni generali */
+define('FUNCTIONS_DIR', LIB_DIR.OS.'functions');
+
 /** Percorso assoluto alla directory che contiene le classi che non fanno parte di moduli */
 define('CLASSES_DIR', LIB_DIR.OS.'classes');
 
@@ -94,8 +97,8 @@ define('SITE_LIB', SITE_WWW.'/lib');
 /** Percorso relativo alla directory che contiene librerie javascript */
 define('SITE_JS', SITE_LIB.'/js');
 
-/** Percorso relativo alla directory che contiene file di customizzazione ckeditor */
-define('SITE_CUSTOM_CKEDITOR', SITE_LIB.'/custom_ckeditor');
+/** Percorso relativo alla directory che contiene file di customizzazione di CKEditor */
+define('SITE_CUSTOM_CKEDITOR', CONFIG_DIR.'/custom_ckeditor');
 
 /** Percorso relativo alla directory che contiene file uploadati dall'utente */
 define('CONTENT_WWW', SITE_WWW.'/contents');

@@ -44,13 +44,11 @@ $PIPELINE = [
     'javascripts' => [
         'core' => [
             'source_filenames' => [
-                SITE_JS."/MooTools-More-1.6.0-compressed.js",   // removed to administrative area
                 SITE_JS."/modernizr.js",
                 SITE_JS."/gino-min.js",
                 // jquery
                 SITE_JS."/jquery/jquery-3.3.1.min.js",
                 SITE_JS."/jquery/jquery-ui-1.12.1.js",
-                SITE_JS."/jquery/jquery-noconflicts.js",    // removed to administrative area
                 SITE_JS."/jquery/core.js",
                 // A kickass library used to manage poppers in web applications
                 SITE_JS."/popper.min.js",
