@@ -3,7 +3,7 @@
  * @file plugin.charts.php
  * @brief Contiene la classe plugin_charts
  * 
- * @copyright 2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2017-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -21,7 +21,7 @@ namespace Gino\Plugin;
  * @see https://developers.google.com/chart/interactive/docs/gallery/piechart#example
  * @see https://developers.google.com/chart/interactive/docs/gallery/areachart#configuration-options
  * 
- * @copyright 2017 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2017-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -47,8 +47,8 @@ namespace Gino\Plugin;
  * require_once PLUGIN_DIR.OS.'plugin.charts.php';
  * $chart = new \Gino\Plugin\plugin_charts();
  * 
- * $chart_js = $chart->gChartJs('pie', $columns, $rows);
- * $chart_div = $chart->gChartContent();
+ * $chart_js = $chart->gChartJs($columns, $rows, ['chart_type' => 'pie']);
+ * $chart_div = $chart->gChartShow();
  * @endcode
  * 
  * ##COLONNE DEL GRAFICO
@@ -127,15 +127,65 @@ class plugin_charts {
 		$this->_id = \Gino\gOpt('id', $options, 'draw_chart');
 	}
 	
+	public function setContentId($value) {
+	    
+	    if(is_string($value)) {
+	        $this->_id = $value;
+	    }
+	}
+	
+	public function loader() {
+	    
+	    $src = "https://www.gstatic.com/charts/loader.js";
+	    return "<script type=\"text/javascript\" src=\"$src\"></script>";
+	}
+	
 	/**
-	 * @brief Costruisce il grafico
+	 * @brief Script per generare i grafici
 	 * 
-	 * @param string $graphic tipo di grafico, identificato dai seguenti valori
-	 *   - @a pie, grafico a torta
-	 *   - @a line, grafico a linee (default)
+	 * @param array $graphs array associativo di opzioni nella forma [function_name => gChartJs()]
+	 * @return string
+	 */
+	public function script($graphs=[]) {
+	    
+	    $buffer = '';
+	    
+	    if(count($graphs)) {
+	        
+	        $buffer = "
+            <script type=\"text/javascript\">
+	        
+            // Load Charts and the corechart package.
+            google.charts.load('current', {'packages':['corechart']});
+            ";
+	        
+	        foreach ($graphs as $function => $graph) {
+	            
+	            // Draw the pie chart and bar chart when Charts is loaded.
+	            $buffer .= "google.charts.setOnLoadCallback(".$function.");\n";
+	            
+	            $buffer .= "
+                function ".$function."()
+                {\n";
+	            $buffer .= $graph;
+	            $buffer .= "}\n";
+	        }
+	        $buffer .= "</script>";
+	    }
+	    
+	    return $buffer;
+	}
+	
+	/**
+	 * @brief Definisce la funzione di un grafico
+	 * 
 	 * @param array $columns
 	 * @param array $rows
-	 * @param array $options array associativo di opzioni
+	 * @param array $options
+	 *   - @b chart_type (string): tipo di grafico
+	 *     - @a line, grafico a linee (default)
+	 *     - @a pie, grafico a torta
+	 *   - @b format_values (array): formato degli elementi di una riga (default ['string', 'int'])
 	 *   - @b div_id (string): valore id del tag del contenuti (sovrascrive il valore definito nel costruttore)
 	 *   - @b width (integer): default 500
 	 *   - @b height (integer): default 240
@@ -150,91 +200,110 @@ class plugin_charts {
 	 *   - @b v_axis (string): parametri dell'asse y, ad esempio: "maxValue: 13, minValue: 0"
 	 * @return string
 	 */
-	public function gChartJs($graphic, $columns, $rows, $options=array()) {
-		
-		$div_id = \Gino\gOpt('div_id', $options, $this->_id);
-		$width = \Gino\gOpt('width', $options, 500);
-		$height = \Gino\gOpt('height', $options, 240);
-		$legend_position = \Gino\gOpt('legend_position', $options, 'right');
-		$title = \Gino\gOpt('title', $options, '');
-		$title_font_size = \Gino\gOpt('title_font_size', $options, 14);
-		$colors = \Gino\gOpt('colors', $options, null);
-		$is_3d = \Gino\gOpt('is_3d', $options, 'false');
-		$line_width = \Gino\gOpt('line_width', $options, null);
-		$background_color = \Gino\gOpt('background_color', $options, '#fff');
-		$h_axis = \Gino\gOpt('h_axis', $options, null);
-		$v_axis = \Gino\gOpt('v_axis', $options, null);
-		
-		$src = "https://www.gstatic.com/charts/loader.js";
-		$package = 'corechart';
-		
-		if($graphic == 'pie') {
-			$visualization = 'PieChart';
-		}
-		elseif($graphic == 'line') {
-			$visualization = 'LineChart';
-		}
-		else {
-			return null;
-		}
-		
-		$buffer = "
-<script type=\"text/javascript\" src=\"$src\"></script>
-<script type=\"text/javascript\">
-	google.charts.load(\"visualization\", \"1\", {packages:[\"".$package."\"]});
-	google.charts.setOnLoadCallback(drawChart);
-	function drawChart()
-	{
-		var data = new google.visualization.DataTable();\n";
-		
-		foreach($columns AS $array)
-		{
-			$buffer .= "data.addColumn('";
-			$buffer .= implode("', '", $array);
-			$buffer .= "');\n";
-		}
-		$buffer .= "data.addRows([";
-		foreach($rows AS $array)
-		{
-			$buffer .= "['";
-			$buffer .= implode("', ", $array);
-			$buffer .= "],\n";
-		}
-		$buffer .= "]);\n";
-		
-		// options chart
-		$buffer .= "
+	public function gChartJs($columns, $rows, $options=array()) {
+	    
+	    $chart_type = \Gino\gOpt('chart_type', $options, 'line');
+	    $format_values = \Gino\gOpt('format_values', $options, ['string', 'int']);
+	    $div_id = \Gino\gOpt('div_id', $options, $this->_id);
+	    $width = \Gino\gOpt('width', $options, 500);
+	    $height = \Gino\gOpt('height', $options, 240);
+	    $legend_position = \Gino\gOpt('legend_position', $options, 'right');
+	    $title = \Gino\gOpt('title', $options, '');
+	    $title_font_size = \Gino\gOpt('title_font_size', $options, 14);
+	    $colors = \Gino\gOpt('colors', $options, null);
+	    $is_3d = \Gino\gOpt('is_3d', $options, 'false');
+	    $line_width = \Gino\gOpt('line_width', $options, null);
+	    $background_color = \Gino\gOpt('background_color', $options, '#fff');
+	    $h_axis = \Gino\gOpt('h_axis', $options, null);
+	    $v_axis = \Gino\gOpt('v_axis', $options, null);
+	    
+	    if($chart_type == 'line') {
+	        $visualization = 'LineChart';
+	    }
+	    elseif ($chart_type == 'pie') {
+	        $visualization = 'PieChart';
+	    }
+	    
+	    $buffer = $this->formatDataTable($columns, $rows, $format_values);
+	    
+	    // options chart
+	    $buffer .= "
 		var options = {
 			width: ".$width.",
 			height: ".$height.",
 			is3D: ".$is_3d.",
 			legend: { position: '".$legend_position."' },
 			legendBackgroundColor: {stroke:'black', fill:'#eee', strokeSize: 1},
-			title: '".$title."', 
+			title: '".$title."',
 			backgroundColor: '".$background_color."',
 			titleFontSize: ".$title_font_size.",";
-			
-		if($colors) {
-			$buffer .= "colors: [".$colors."],";
-		}
-		if($line_width) {
-			$buffer .= "lineWidth: ".$line_width.",";
-		}
-		if($h_axis) {
-			$buffer .= "hAxis: {".$h_axis."},";
-		}
-		if($v_axis) {
-			$buffer .= "hAxis: {".$v_axis."},";
-		}
-		
-		$buffer .= "};";
-		// /options chart
-		
-		$buffer .= "
+	    
+	    if($colors) {
+	        $buffer .= "colors: [".$colors."],";
+	    }
+	    if($line_width) {
+	        $buffer .= "lineWidth: ".$line_width.",";
+	    }
+	    if($h_axis) {
+	        $buffer .= "hAxis: {".$h_axis."},";
+	    }
+	    if($v_axis) {
+	        $buffer .= "vAxis: {".$v_axis."},";
+	    }
+	    
+	    $buffer .= "};";
+	    // /options chart
+	    
+	    $buffer .= "
 		var chart = new google.visualization.".$visualization."(document.getElementById('".$div_id."'));
 		chart.draw(data, options);
+        ";
+	    
+	    return $buffer;
 	}
-</script>";
+	
+	/**
+	 * @brief Formatta i dati del grafico
+	 * 
+	 * @param array $columns
+	 * @param array $rows
+	 * @param array $format_values formato degli elementi di una riga
+	 * @return string
+	 */
+	private function formatDataTable($columns, $rows, $format_values) {
+	    
+	    $buffer = "var data = new google.visualization.DataTable();\n";
+		
+		foreach($columns AS $array)
+		{
+			$buffer .= "data.addColumn(";
+			if(count($array)) {
+			    foreach ($array as $a) {
+			        $buffer .= "'".$a."',";
+			    }
+			}
+			$buffer .= ");\n";
+		}
+		$buffer .= "data.addRows([";
+		foreach($rows AS $array)
+		{
+			$buffer .= "[";
+			if(count($array)) {
+			    $i = 0;
+			    foreach ($array as $a) {
+			        
+			        if(array_key_exists($i, $format_values) && $format_values[$i] == 'string') {
+			            $buffer .= "'".$a."',";
+			        }
+			        else {
+			            $buffer .= $a.",";
+			        }
+			        $i++;
+			    }
+			}
+			$buffer .= "],\n";
+		}
+		$buffer .= "]);\n";
 		
 		return $buffer;
 	}
@@ -244,13 +313,21 @@ class plugin_charts {
 	 * 
 	 * @param array $options array associativo di opzioni
 	 *   - @b div_id (string): valore id del contenitore (sovrascrive il valore definito nel costruttore)
+	 *   - @b title (string)
 	 * @return string
 	 */
-	public function gChartContent($options=array()) {
+	public function gChartShow($options=[]) {
 		
 		$div_id = \Gino\gOpt('div_id', $options, $this->_id);
+		$title = \Gino\gOpt('title', $options, null);
 		
-		return "<div id=\"".$div_id."\"></div>";
+		$buffer = '';
+		if($title) {
+		    $buffer .= "<div class=\"title_graph\">$title</div>";
+		}
+		$buffer .= "<div id=\"".$div_id."\"></div>";
+		
+		return $buffer;
 	}
 }
 ?>

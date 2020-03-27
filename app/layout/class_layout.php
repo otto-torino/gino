@@ -2,10 +2,6 @@
 /**
  * @file class_layout.php
  * @brief Contiene la definizione ed implementazione della classe Gino.App.Layout.layout
- *
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 /**
@@ -35,22 +31,10 @@ use \Gino\App\Auth\Permission;
  *   - file css presenti nella directory @a css
  *   - file delle viste presenti nella directory @a views
  *
- * ## PROCESSO DI GESTIONE DEL LAYOUT A BLOCCHI
- * Lo schema del layout viene stampato dal metodo template::manageTemplate() che legge il file di template e identifica porzioni di codice tipo:
- * @code
- * <div id="nav_3_1_1" style="width:100%;">
- * {module sysclassid=8 func=printFooterPublic}
- * </div>
- * @endcode
- * Queste porzioni di codice vengono passate con la funzione preg_replace_callback() al metodo Gino.Template::renderNave() che recupera il tipo di blocco nello schema del template utilizzando delle funzioni di preg_match(). \n
- * L'elenco dei moduli/pagine disponibili viene gestito dal metodo Gino.App.Layout.layout::modulesList().
- *
- * ## LAYOUT FREE
- * I layout free sono gestiti direttamente editando il file php del template. Anche in questo caso si usa un meta linguaggio per inserire output di moduli nelle posizioni desiderate.
- *
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * ## LAYOUT
+ * I layout free sono gestiti direttamente editando il file php del template. 
+ * Per inserire output di moduli nelle posizioni desiderate si usa un meta linguaggio.
+ * 
  */
 class layout extends \Gino\Controller {
 
@@ -132,12 +116,7 @@ class layout extends \Gino\Controller {
             return $this->_trd->manageTranslation($request);
         }
 
-        if($action == 'mngblocks') {
-
-            $content = $tpl->tplBlockForm($request);
-            return new Response($content);
-        }
-        elseif($action == 'mngtpl') {
+        if($action == 'mngtpl') {
 
             $css_id = \Gino\cleanVar($request->POST, 'css', 'int');
             $css = \Gino\Loader::load('Css', array('layout', array('id'=>$css_id)));
@@ -149,26 +128,9 @@ class layout extends \Gino\Controller {
             if($free) {
                 $buffer = $tpl->formFreeTemplate();
             }
-            else {
-                $buffer = $tpl->formTemplate();
-            }
         }
         elseif($action == 'delete') {
             $buffer = $tpl->formDelTemplate();
-        }
-        elseif($action == 'outline') {
-            $buffer = $tpl->formOutline();
-        }
-        elseif($action=='addblocks') {
-
-            $content = $tpl->addBlockForm(null, $request);
-            return new Response($content);
-        }
-        elseif($action=='copy') {
-            $buffer = $tpl->formCopyTemplate();
-        }
-        elseif($action=='copytpl') {
-            return $tpl->actionCopyTemplate($request);
         }
         else {
             $buffer = $this->templateList();
@@ -342,11 +304,10 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
 
     /**
      * @brief Lista dei template
-     * @return string, lista template
+     * @return string
      */
     private function templateList() {
 
-        $link_insert = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template&action=insert'), \Gino\icon('insert', array('text' => _("nuovo template a blocchi"), 'scale'=>2)));
         $link_insert_free = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), 'block=template&action=insert&free=1'), \Gino\icon('code', array('text' => _("nuovo template libero"), 'scale'=>2)));
 
         $tpl_list = \Gino\Template::objects(null, array('order' => 'label'));
@@ -364,18 +325,12 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
 
                 $link_modify = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=modify&free=".$tpl->free), \Gino\icon('modify', array('text' => _("modifica il template"))));
                 $link_delete = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=delete"), \Gino\icon('delete'));
-                $link_outline = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=outline"), \Gino\icon('layout', array('text' => _("modifica lo schema"))));
-                $link_copy = sprintf('<a href="%s">%s</a>', $this->linkAdmin(array(), "block=template&id={$tpl->id}&action=copy"), \Gino\icon('copy', array('text' => _("crea una copia"))));
-
-                $links = $tpl->free
-                    ? array($link_delete, $link_modify)
-                    : array($link_delete, $link_copy, $link_modify, $link_outline);
-
+                
                 $tbl_rows[] = array(
                     $tpl->ml('label'),
                     $tpl->filename,
                     $tpl->ml('description'),
-                    implode(' &#160; ', $links)
+                    implode(' &#160; ', [$link_delete, $link_modify])
                 );
             }
             $view_table->assign('class', 'table table-striped', 'table-hover');
@@ -391,7 +346,7 @@ Per modificare le priorità cliccare sull'icona a forma di triangolo."), "<br />
         $dict = array(
         'title' => _('Elenco template'),
             'class' => null,
-        'header_links' => array($link_insert, $link_insert_free),
+        'header_links' => array($link_insert_free),
         'content' => $buffer
         );
 
@@ -543,7 +498,7 @@ la quale caricherà il template associato ed eventualmente un foglio di stile. I
 di una pagina o sezione del sito sono i seguenti").":</p>";
         $GINO .= "<ul>";
         $GINO .= "<li>"._("Creare ed uploadare un foglio di stile se necessario")."</li>";
-        $GINO .= "<li>"._("Creare un template a blocchi utilizzando il motore di <i>gino</i> (file .tpl) oppure un template libero (file .php)")."</li>";
+        $GINO .= "<li>"._("Creare un template libero (file .php)")."</li>";
         $GINO .= "<li>"._("Creare una skin alla quale associare il template ed eventualmente il foglio di stile. 
 La skin viene poi associata alla pagina o alla sezione desiderata definendo indirizzi, espressioni regolari di indirizzi 
 oppure variabili di sessione.")."</li>";

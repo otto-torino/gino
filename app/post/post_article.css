@@ -1,0 +1,279 @@
+/* Last posts */
+#last-post-article {
+
+}
+
+/* Detail */
+#detail-post-article {
+	
+}
+
+/* Archive */
+#archive-post-article {
+
+}
+#archive-post-article img.thumbimage {
+	width: 200px;
+}
+
+/* Showcase */
+#showcase-post-article article h1 {
+	font-size: 26px;
+	margin-top: 0;
+}
+#showcase-post-article table {
+    margin: auto;
+}
+#showcase-post-article table td {
+    padding: 5px;
+}
+#showcase-wrapper-post-article {
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+#showcase-post-article .news-showcase-item {
+    background: #FFFFFF;
+    height: 100%;
+    padding: 10px;
+    position: absolute;
+    width: 100%;	/* 755px */
+}
+#showcase-post-article .news-showcase-sym {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 1px #828282 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    height: 20px;
+    overflow: hidden;
+    width: 20px;
+}
+#showcase-post-article .news-showcase-sym span {
+    background: none repeat scroll 0 0 #B84B56;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 2px #000000 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    margin-left: -20px;
+    transition: all 100ms ease 0s;
+    width: 20px;
+}
+#showcase-post-article .news-showcase-sym.on span {
+    margin: 0 !important;
+}
+#showcase-post-article .news-showcase-sym.fwd span {
+    margin-left: 20px;
+}
+#showcase-post-article .news-showcase-sym.rwd span {
+    margin-left: -20px;
+}
+#showcase-post-article .caption {
+    background: none repeat scroll 0 0 #544848;
+    bottom: 0;
+    color: #FFFFFF;
+    opacity: 0.9;
+    padding: 5px 10px;
+    position: absolute;
+    width: 430px;
+}
+#showcase-post-article .caption h1 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 5px 0;
+}
+#showcase-post-article .caption a:link, #showcase-post-article .caption a:visited {
+    color: #DDFD04;
+}
+#showcase-post-article .caption p {
+    font-size: 0.9em;
+    line-height: 1.3em;
+    margin: 5px 0;
+}
+
+/* Overwrite showcase carousel */
+#carousel-post-article {
+	background-color: #eee;
+}
+#carousel-post-article .carousel-item article {
+	padding: 80px;
+}
+
+#carousel-post-article ol.carousel-indicators {
+	
+}
+#carousel-post-article .carousel-indicators li {
+	background-color: #464646;
+}
+#carousel-post-article .carousel-indicators .active {
+	background-color: #A7A7A7;
+}
+
+/* Where you change fill='%23fff' the fff at the end to any hexadecimal value that you want. For example:
+fill='%23000' for black, fill='%23ff0000' for red and so on. */
+#carousel-post-article .carousel-control-prev-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23464646' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+#carousel-post-article .carousel-control-next-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23464646' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+/* Overwrite evidence carousel */
+#carousel-evidence-post-article {
+	background-color: #eee;
+}
+#carousel-evidence-post-article .carousel-item article {
+	padding: 80px;
+}
+#carousel-evidence-post-article .carousel-item article img {
+	width: 100%;
+}
+
+#carousel-evidence-post-article ol.carousel-indicators {
+	
+}
+#carousel-evidence-post-article .carousel-indicators li {
+	background-color: #464646;
+}
+#carousel-evidence-post-article .carousel-indicators .active {
+	background-color: #A7A7A7;
+}
+
+#carousel-evidence-post-article .carousel-control-prev-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23464646' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+#carousel-evidence-post-article .carousel-control-next-icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23464646' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+/* Slider */
+.slick-slide {
+    margin: 0px 20px;
+}
+
+.slick-slide img {
+    width: 100%;
+}
+
+.slick-slider
+{
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+            user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -ms-touch-action: pan-y;
+        touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.slick-list
+{
+    position: relative;
+    display: block;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+.slick-list:focus
+{
+    outline: none;
+}
+.slick-list.dragging
+{
+    cursor: pointer;
+    cursor: hand;
+}
+
+.slick-slider .slick-track,
+.slick-slider .slick-list
+{
+    -webkit-transform: translate3d(0, 0, 0);
+       -moz-transform: translate3d(0, 0, 0);
+        -ms-transform: translate3d(0, 0, 0);
+         -o-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+}
+
+.slick-track
+{
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+}
+.slick-track:before,
+.slick-track:after
+{
+    display: table;
+    content: '';
+}
+.slick-track:after
+{
+    clear: both;
+}
+.slick-loading .slick-track
+{
+    visibility: hidden;
+}
+
+.slick-slide
+{
+    display: none;
+    float: left;
+    height: 100%;
+    min-height: 1px;
+}
+[dir='rtl'] .slick-slide
+{
+    float: right;
+}
+.slick-slide img
+{
+    display: block;
+}
+.slick-slide.slick-loading img
+{
+    display: none;
+}
+.slick-slide.dragging img
+{
+    pointer-events: none;
+}
+.slick-initialized .slick-slide
+{
+    display: block;
+}
+.slick-loading .slick-slide
+{
+    visibility: hidden;
+}
+.slick-vertical .slick-slide
+{
+    display: block;
+    height: auto;
+    border: 1px solid transparent;
+}
+.slick-arrow.slick-hidden {
+    display: none;
+}
+
+/* Slideshow */
+#show-post-article { 
+	height:130px;
+	width:100%;
+	overflow:hidden;
+	position:relative;
+	border:1px solid #ccc;
+	background:#eee;
+}
+#show-post-article .title {
+	font-size: 1.20em;
+}

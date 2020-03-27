@@ -35,7 +35,7 @@ use Gino\Http\Request;
  *   - @b name (string): nome del campo
  *   - @b type (string): tipo di campo; valori validi
  *     - @a char
- *     - @a text
+ *     - @a text (+ l'eventuale opzione @a editor)
  *     - @a int
  *     - @a bool
  *     - @a date
@@ -243,6 +243,7 @@ class Options {
                 }
                 elseif($f->type == 'text') {
                     
+                    $editor = false;
                 	$input_options = array(
                 		"cols" => '50',
                 		"rows" => 4,
@@ -254,9 +255,17 @@ class Options {
                 	if(is_array($field_option) AND array_key_exists('editor', $field_option)) {
                 		if(is_bool($field_option['editor']) and $field_option['editor']) {
                 			$input_options['ckeditor'] = true;
+                			$editor = true;
                 		}
                 	}
-                	$GINO .= \Gino\Input::textarea_label($f->name, ${$f->name},  $field_label, $input_options);
+                	
+                	if($editor) {
+                	    $input_options['label'] = $field_label;
+                	    $GINO .= \Gino\Input::textarea($f->name, ${$f->name}, $input_options);
+                	}
+                	else {
+                	    $GINO .= \Gino\Input::textarea_label($f->name, ${$f->name},  $field_label, $input_options);
+                	}
                 }
                 elseif($f->type == 'int' && $f->length>1) {
                     $GINO .= \Gino\Input::input_label($f->name, 'text', ${$f->name},  $field_label, array("required"=>$field_required, "size"=>$f->length, "maxlength"=>$f->length));

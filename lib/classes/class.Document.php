@@ -3,7 +3,7 @@
  * @file class.Document.php
  * @brief Contiene la definizione ed implementazione della class Gino.Document
  * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ use \Gino\App\Page\page;
 /**
  * @brief Crea il documento html da inviare come corpo della risposta HTTP
  * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -246,60 +246,86 @@ class Document {
         $this->_registry->description = $this->_registry->description ? $this->_registry->description : $this->_registry->sysconf->head_description;
         $this->_registry->keywords = $this->_registry->keywords ? $this->_registry->keywords : $this->_registry->sysconf->head_keywords;
         $this->_registry->favicon = $this->_registry->favicon ? $this->_registry->favicon : SITE_WWW."/favicon.ico";
-
-        // Css
-        $stylesheets = array();
         
-        // Bootstrap
-        $stylesheets[] = SITE_JS."/bootstrap-4.1.3/css/bootstrap.min.css";
+        require CONFIG_DIR.OS.'common.inc';
         
-        // Custom styles
-        $stylesheets[] = CSS_WWW."/styles.css";
-        $stylesheets[] = CSS_WWW."/jquery-ui.min-1.12.1.css";
-        $stylesheets[] = CSS_WWW."/jquery-ui.min-1.12.1-update.css";
+        $common_css = $PIPELINE['stylesheets'];
+        $common_js = $PIPELINE['javascripts'];
+        
+        $opt_css = ['css', 'raw_css'];
+        $opt_js = ['js', 'core_js', 'custom_js'];
+        
+        $stylesheets = ['css' => [], 'raw_css' => []];
+        $javascripts = ['js' => [], 'core_js' => [], 'custom_js' => []];
+        
+        if(count($common_css)) {
+            
+            foreach ($common_css as $key => $value) {
+                
+                $loading = $value['loading'];
+                
+                if(count($value['source_filenames'])) {
+                    foreach ($value['source_filenames'] as $css_file) {
+                        $stylesheets[$loading][] = $css_file;
+                    }
+                }
+            }
+        }
         
         if($skin->css) {
             $css = Loader::load('Css', array('layout', array('id'=>$skin->css)));
-            $stylesheets[] = CSS_WWW."/".$css->filename;
+            $stylesheets['css'][] = CSS_WWW."/".$css->filename;
         }
         
-        $this->_registry->css = array_merge($stylesheets, $this->_registry->css);
-
-        // javascript core
+        foreach ($opt_css as $opt) {
+            if(is_array($this->_registry->$opt)) {
+                $this->_registry->$opt = array_merge($stylesheets[$opt], $this->_registry->$opt);
+            }
+            else {
+                $this->_registry->$opt = $stylesheets[$opt];
+            }
+        }
+        
+        // Javascripts
+        if(count($common_js)) {
+            
+            foreach ($common_js as $key => $value) {
+                
+                $loading = $value['loading'];
+                
+                if(count($value['source_filenames'])) {
+                    foreach ($value['source_filenames'] as $js_file) {
+                        $javascripts[$loading][] = $js_file;
+                    }
+                }
+            }
+        }
+        
         if($skin->administrative_area) {
-            $scripts = array(
-                SITE_JS."/modernizr.js",
-                SITE_JS."/gino-min.js",
-            );
+            
         }
-        else {
-            $scripts = array(
-                SITE_JS."/MooTools-More-1.6.0-compressed.js",
-                SITE_JS."/modernizr.js",
-                SITE_JS."/gino-min.js",
-            );
-        }
+        
         $browser = get_browser_info();
         if($browser['name'] == 'MSIE' and $browser['version'] < 9) {
-            $scripts[] = SITE_JS."/respond.js";
+            $javascripts['core_js'] = SITE_JS."/respond.js";
         }
-        
-        $this->_registry->core_js = $scripts;
         
         if($this->_registry->sysconf->captcha_public and $this->_registry->sysconf->captcha_private) {
-        	$this->_registry->addCoreJs("https://www.google.com/recaptcha/api.js");
+            $javascripts['core_js'] = "https://www.google.com/recaptcha/api.js";
         }
         
-        // jQuery and Bootstrap
-        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-3.3.1.min.js");
-        $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-ui-1.12.1.js");
-        if(!$skin->administrative_area) {
-            $this->_registry->addCoreJs(SITE_JS."/jquery/jquery-noconflicts.js");
+        foreach ($opt_js as $opt) {
+            if(count($javascripts[$opt])) {
+                if(is_array($this->_registry->$opt)) {
+                    $this->_registry->$opt = array_merge($javascripts[$opt], $this->_registry->$opt);
+                }
+                else {
+                    $this->_registry->$opt = $javascripts[$opt];
+                }
+            }
         }
-        $this->_registry->addCoreJs(SITE_JS."/jquery/core.js");
-        // A kickass library used to manage poppers in web applications
-        $this->_registry->addCoreJs(SITE_JS."/popper.min.js");
-        $this->_registry->addCoreJs(SITE_JS."/bootstrap-4.1.3/js/bootstrap.min.js");
+        
+        return null;
     }
 
     /**

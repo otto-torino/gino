@@ -2,12 +2,7 @@
 /**
  * @file configuration.php
  * @brief File di configurazione
- * 
- * Contiene i parametri dell'applicazione
- * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * @description Contiene i parametri dell'applicazione
  */
 
 /**
@@ -167,6 +162,8 @@ define('INSTALLED_APPS', serialize(array(
 	'menu_admin' => 'bars',
 	'module' => 'puzzle-piece',
 	'sysClass' => 'cubes',
+    'article' => 'bullhorn',
+    'cal' => 'calendar',
 )));
 
 /* elenco delle applicazioni da non visualizzare */
@@ -205,14 +202,7 @@ define('GOOGLE_ANALYTICS_VIEW_ACCOUNT', null);
 define('GOOGLE_ANALYTICS_VIEW_ID', null);
 
 /**
- * @brief Imposta i Middleware
- */
-define('MIDDLEWARE', [
-    'HEADERS' => true   // @see Gino.Middleware.Headers
-]);
-
-/**
- * JWT
+ * @brief JWT
  */
 define('JWT_SECRET', 'MY-SECRET-KEY');
 

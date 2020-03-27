@@ -6,12 +6,8 @@ namespace Gino;
 *
 * Variabili disponibili:
 * - **related_contents**: array. Un array associativo $content_type => $links dove:
-*                                - content_type: string, tipo di contenuto (pagine, news...)
+*                                - content_type: string, tipo di contenuto (pagine, articoli, etc.)
 *                                - links: array, array di link completi di tag a
-*
-* @copyright 2014 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
-* @authors Marco Guidotti guidottim@gmail.com
-* @authors abidibo abidibo@gmail.com
 */
 ?>
 <? //@cond no-doxygen ?>

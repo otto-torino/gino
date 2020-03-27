@@ -522,7 +522,7 @@
 namespace Gino\Plugin;
 
 require_once SITE_ROOT . '/vendor/autoload.php';
-require_once LIB_DIR.OS."func.mpdf.php";
+require_once FUNCTIONS_DIR.OS."func.mpdf.php";
 
 /**
  * @brief Classe che funge da interfaccia alla classe plugin_mpdf

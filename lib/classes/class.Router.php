@@ -438,8 +438,8 @@ class Router extends Singleton {
      */
     public function exampleUrl($view='url') {
     	
-    	$e_regexp = "#\?".self::EVT_NAME."\[news".URL_SEPARATOR."(.*)\]#<br />#^news/(.*)#";
-    	$e_url = "index.php?".self::EVT_NAME."[news".URL_SEPARATOR."viewList]<br />news/viewList";
+    	$e_regexp = "#\?".self::EVT_NAME."\[article".URL_SEPARATOR."(.*)\]#<br />#^article/(.*)#";
+    	$e_url = "index.php?".self::EVT_NAME."[article".URL_SEPARATOR."viewList]<br />article/viewList";
     	
     	if($view == 'url') {
     		return $e_url;

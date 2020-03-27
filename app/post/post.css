@@ -1,0 +1,121 @@
+/* Last posts */
+#last-post {
+
+}
+
+/* Detail */
+#detail-post {
+	
+}
+
+/* Archive */
+#archive-post {
+
+}
+#archive-post img.thumbimage {
+	width: 200px;
+}
+
+/* Showcase */
+#showcase-post article h1 {
+	font-size: 26px;
+	margin-top: 0;
+}
+#showcase-post table {
+    margin: auto;
+}
+#showcase-post table td {
+    padding: 5px;
+}
+#showcase-wrapper-post {
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+#showcase-post .post-showcase-item {
+    background: #FFFFFF;
+    height: 100%;
+    padding: 10px;
+    position: absolute;
+    width: 100%;	/* 755px */
+}
+#showcase-post .post-showcase-sym {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 1px #828282 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    height: 20px;
+    overflow: hidden;
+    width: 20px;
+}
+#showcase-post .post-showcase-sym span {
+    background: none repeat scroll 0 0 #B84B56;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: 0 1px 2px #000000 inset, 0 1px 1px #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    margin-left: -20px;
+    transition: all 100ms ease 0s;
+    width: 20px;
+}
+#showcase-post .post-showcase-sym.on span {
+    margin: 0 !important;
+}
+#showcase-post .post-showcase-sym.fwd span {
+    margin-left: 20px;
+}
+#showcase-post .post-showcase-sym.rwd span {
+    margin-left: -20px;
+}
+#showcase-post .caption {
+    background: none repeat scroll 0 0 #544848;
+    bottom: 0;
+    color: #FFFFFF;
+    opacity: 0.9;
+    padding: 5px 10px;
+    position: absolute;
+    width: 430px;
+}
+#showcase-post .caption h1 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 5px 0;
+}
+#showcase-post .caption a:link, #showcase-post .caption a:visited {
+    color: #DDFD04;
+}
+#showcase-post .caption p {
+    font-size: 0.9em;
+    line-height: 1.3em;
+    margin: 5px 0;
+}
+
+/* Slideshow */
+#show-post { 
+	height:130px;
+	width:100%;
+	overflow:hidden;
+	position:relative;
+	border:1px solid #ccc;
+	background:#eee;
+}
+#show-post .title {
+	font-size: 1.20em;
+}
+#show-post ul { 
+	position:absolute;
+	top:0;
+	left:0;
+	list-style-type:none;
+	padding:0;
+	margin:0;
+}
+#show-post ul li { 
+	height:130px;
+	font-size:12px;
+	margin:0;
+	padding:10px;
+	overflow:hidden;
+}

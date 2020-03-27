@@ -3,7 +3,7 @@
 
 <!-- You can also remove the .navbar-expand-md class to ALWAYS hide navbar links and display the toggler button -->
 
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
 	<!-- Brand image -->
 	<a class="navbar-brand" href="#" itemprop="url" title="Otto">
 		<img class="" itemprop="logo" alt="Logo Otto" src="img/logo.png" style="width: 109px; height: 50px;">

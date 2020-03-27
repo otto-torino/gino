@@ -3,7 +3,7 @@
  * @file class.Form.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Form
  *
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ use \Gino\App\Language\language;
  * @brief Classe per la creazione ed il salvataggio dati di un form
  * @description Fornisce gli strumenti per generare gli elementi del form e per gestire l'upload di file
  * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -739,14 +739,13 @@ class Form {
     			// edit
     			if($model_obj->id) {
     				// deny conditions
-    				if((is_array($edit_allow) && !in_array($model_obj->id, $edit_allow)) ||
-    					($edit_deny == 'all') ||
-    					(is_array($edit_deny) && in_array($model_obj->id, $edit_deny))) {
-    					throw new \Gino\Exception\Exception403();
-    				}
-    				elseif(!is_array($edit_allow) && !is_null($edit_allow)) {
-    					throw new \Gino\Exception\Exception500();
-    				}
+    			    if(($edit_deny == 'all') ||
+    			        (is_array($edit_deny) && in_array($model_obj->id, $edit_deny))) {
+    			        
+    			        if((is_array($edit_allow) && !in_array($model_obj->id, $edit_allow))) {
+    			            throw new \Gino\Exception\Exception403();
+    			        }
+    			    }
     				$title = sprintf(_("Modifica \"%s\""), htmlChars((string) $model_obj));
     			}
     			// insert
