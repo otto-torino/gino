@@ -15,11 +15,11 @@
 	color: #999999;
 }
 .language-choice a:hover {
-	color: #FFF;
+	color: #000;
 }
 .language-choice .active {
     cursor: auto;
-    color: #FFF !important;
+    color: #000 !important;
     text-decoration: none !important;
 }
 .language-choice .active img {

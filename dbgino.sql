@@ -1240,7 +1240,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
   `label` varchar(200) NOT NULL,
   `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
 -- Dumping data for table `sys_layout_css`
@@ -1248,8 +1248,7 @@ CREATE TABLE IF NOT EXISTS `sys_layout_css` (
 
 INSERT INTO `sys_layout_css` (`id`, `filename`, `label`, `description`) VALUES
 (1, 'mobile.css', 'Css per la visione mobile', 'Contiene regole per i dispositivi mobile'),
-(2, 'admin.css', 'Css area amministrativa', 'Contiene regole per l''area amministrativa'),
-(3, 'gino-blocks-tpl.css', 'Css per template a blocchi', 'Contiene regole css per il layout a blocchi di gino');
+(2, 'admin.css', 'Css area amministrativa', 'Contiene regole per l''area amministrativa');
 
 -- --------------------------------------------------------
 
@@ -1277,12 +1276,12 @@ CREATE TABLE IF NOT EXISTS `sys_layout_skin` (
 -- Dumping data for table `sys_layout_skin`
 --
 
-INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `highest`, `template`, `css`, `priority`, `auth`, `cache`) VALUES
+INSERT INTO `sys_layout_skin` (`id`, `label`, `session`, `rexp`, `urls`, `highest`, `template`, `css`, `priority`, `auth`, `cache`, `administrative_area`) VALUES
 (1, 'Home Pubblica', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 9, 'no', 0, 0),
 (2, 'Pagine Pubbliche', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 7, 'no', 0, 0),
 (3, 'Home Amministrazione', NULL, NULL, 'index.php?evt[index.admin_page]', 0, '4', 0, 6, 'yes', 0, 1),
 (4, 'Pagine Amministrazione', NULL, '#evt\\[\\w+.((manage)|(wrapper))\\w*\\]#', NULL, 0, '5', NULL, 5, 'yes', 0, 1),
-(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[auth.login]', 0, '3', 0, 3, 'no', 0, 0),
+(5, 'Pagina Autenticazione', NULL, NULL, 'index.php?evt[auth.login]', 0, '9', 0, 3, 'no', 0, 0),
 (6, 'Default', NULL, '#^.*$#', NULL, 0, '1', NULL, 11, '', 0, 0),
 (7, 'Pagine Private', NULL, '#evt\\[(?!index)#', NULL, 0, '3', 0, 8, 'yes', 0, 0),
 (8, 'Home Privata', NULL, '#(index.php(\\?evt\\[index.index_page\\])?[^\\[\\]]*)?$#', NULL, 0, '2', 0, 10, 'yes', 0, 0),
@@ -1303,50 +1302,21 @@ CREATE TABLE IF NOT EXISTS `sys_layout_tpl` (
   `description` text NOT NULL,
   `free` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `sys_layout_tpl`
 --
 
 INSERT INTO `sys_layout_tpl` (`id`, `filename`, `label`, `description`, `free`) VALUES
-(1, 'default.tpl', 'Default', 'Template di default a blocchi', 0),
 (2, 'home.php', 'Home', 'Template home page', 1),
 (3, 'page.php', 'Pagine', 'Template pagine interne', 1),
 (4, 'admin_home.php', 'Home admin', 'Template home area amministrativa', 1),
 (5, 'admin_page.php', 'Pagine admin', 'Template pagine area amministrativa', 1),
 (6, '_popup.php', '_popup', 'Template per l''inserimento di foreign o m2m contestuali', 1),
 (7, 'home_mobile.php', 'Home mobile', 'Template home page dispositivi mobile', 1),
-(8, 'pages_mobile.php', 'Pagine mobile', 'Template pagine interne dispositivi mobile', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sys_layout_tpl_block`
---
-
-CREATE TABLE IF NOT EXISTS `sys_layout_tpl_block` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tpl` int(4) NOT NULL,
-  `position` smallint(2) NOT NULL,
-  `width` int(4) NOT NULL,
-  `um` tinyint(1) NOT NULL,
-  `align` tinyint(1) NOT NULL,
-  `rows` smallint(2) NOT NULL,
-  `cols` smallint(2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
-
---
--- Dumping data for table `sys_layout_tpl_block`
---
-
-INSERT INTO `sys_layout_tpl_block` (`id`, `tpl`, `position`, `width`, `um`, `align`, `rows`, `cols`) VALUES
-(1, 1, 1, 0, 0, 0, 1, 1),
-(2, 1, 2, 0, 0, 0, 1, 1),
-(3, 1, 3, 960, 1, 2, 1, 2),
-(4, 1, 4, 0, 0, 0, 1, 1),
-(5, 1, 5, 960, 1, 2, 1, 2);
+(8, 'pages_mobile.php', 'Pagine mobile', 'Template pagine interne dispositivi mobile', 1),
+(9, 'login.php', 'Login', 'Pagina di login', 1);
 
 -- --------------------------------------------------------
 

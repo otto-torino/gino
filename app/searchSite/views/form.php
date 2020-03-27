@@ -35,7 +35,7 @@ function openHideSearchSite() {
 
 <div><span style="cursor: pointer;" onclick="openHideSearchSite()" class="fa fa-search"></span></div>
 
-<div id="fulltextsearch" style="display: none;">
+<div id="fulltextsearch" style="display: none;" class="rounded">
 	<form method="post" class="form-inline searchsite-form" action="<?= $form_action ?>" role="search">
     	<?php if($choices): ?>
         <div class='form-group'>

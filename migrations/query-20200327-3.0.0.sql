@@ -297,6 +297,12 @@ INSERT INTO `auth_permission` (`class`, `code`, `label`, `description`, `admin`)
 ('post', 'can_view_private', 'visualizzazione post privati', 'visualizzazione dei post privati', 0),
 ('calendar', 'can_admin', 'amministrazione', 'Amministrazione completa del modulo', 1);
 
+-- --------------------------------------------------------
+
+INSERT INTO `sys_layout_tpl` (`filename`, `label`, `description`, `free`) VALUES
+('login.php', 'Login', 'Pagina di login', 1);
+
+DROP TABLE sys_layout_tpl_block";
 
 -- --------------------------------------------------------
 
