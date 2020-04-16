@@ -17,10 +17,10 @@
 				</div>
 			</div>
 			
-			<!-- <div class="row">
-				<div class="col-md-6"></div>
-				<div class="col-md-6"></div>
-			</div> -->
+			<div class="row">
+				<div class="col-md-6">{module classid=10 func=showcase}</div>
+				<div class="col-md-6">{module classid=11 func=calendar}</div>
+			</div>
 		</div>
 		
 		{% block 'footer.php' %}
