@@ -1028,6 +1028,9 @@ CREATE TABLE `post_item` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+INSERT INTO `post_item` (`id`, `instance`, `insertion_date`, `last_edit_date`, `date`, `title`, `slug`, `text`, `tags`, `img`, `attachment`, `private`, `social`, `slideshow`, `published`) VALUES
+(1, 10, '2020-04-02 16:31:54', '2020-04-02 16:31:54', '2020-04-01', 'Ciao mondo!', '01-04-2020-ciao-mondo', '<p>Benvenuto in gino. Questo è il tuo primo articolo. Modificalo o cancellalo e quindi inizia a scrivere!</p>', '', '', '', 0, 0, 0, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -1106,7 +1109,7 @@ ALTER TABLE `post_category`
 -- AUTO_INCREMENT for table `post_item`
 --
 ALTER TABLE `post_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `post_item_category`
 --
