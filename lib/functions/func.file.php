@@ -110,7 +110,7 @@ function extension($filename, $extensions) {
 /**
  * @brief Ricava il nome del file senza l'estensione
  * @param string $filename nome del file
- * @return nome file senza estensione
+ * @return string
  */
 function baseFileName($filename) {
     return substr($filename, 0, strrpos($filename, '.'));
@@ -157,7 +157,7 @@ function deleteFileDir($dir, $delete_dir=TRUE) {
  * @brief Estensione di un file
  *
  * @param string $filename nome del file
- * @return estensione
+ * @return string
  */
 function extensionFile($filename){
     $extension = strtolower(str_replace('.','',strrchr($filename, '.')));

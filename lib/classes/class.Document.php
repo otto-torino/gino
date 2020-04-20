@@ -113,7 +113,8 @@ class Document {
                  * parse modules first time to update registry
                  */
             	$tpl_content = file_get_contents($template);
-            	$regexp = array("#{% block '(.*?)' %}#", "#{module(.*?)}#");
+            	$regexp = array("#{% block '(.*?)' %}#", "#{% block (.*?) %}#", "#{module(.*?)}#");
+            	
             	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
             	
             	ob_start();
@@ -122,16 +123,6 @@ class Document {
             	ob_clean();
             	// parse second time to replace codes
             	$cache->stop(preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content));
-            }
-            else {
-                $tpl_content = file_get_contents($template);
-                $regexp = "/(<div(?:.*?)(id=\"(nav_.*?)\")(?:.*?)>)\n?([^<>]*?)\n?(<\/div>)/";
-                $content = preg_replace_callback($regexp, array($this, 'renderNave'), $tpl_content);
-
-                $headline = $this->headLine($skin);
-                $footline = $this->footLine();
-
-                $cache->stop($headline.$content.$footline);
             }
         }
 
@@ -183,6 +174,49 @@ class Document {
     			return null;
     		}
     	}
+    	elseif(preg_match("#{% block (.*?) %}#", $regex_marker)) {
+    	    
+    	    preg_match("#(\w+)\.(\w+)(\s*param=([0-9]+))?#", $regex_result, $matches);
+    	    
+    	    $instance = (!empty($matches[1])) ? $matches[1] : null;
+    	    // method / slug
+    	    $reference = (!empty($matches[2])) ? $matches[2] : null;
+    	    $param = (isset($matches[4]) && !empty($matches[4])) ? $matches[4] : null;
+    	    
+    	    if($instance == 'page') {
+    	        
+    	        if(!is_int($reference)) {
+    	            
+    	            $db = Db::instance();
+    	            $rows = $db->select('id', 'page_entry', "slug='$reference' AND published='1'");
+    	            if($rows and count($rows)) {
+    	                $reference = $rows[0]['id'];
+    	            }
+    	            else {
+    	                $reference = null;
+    	            }
+    	        }
+    	        
+    	        $mdlContent = $this->modPage($reference);
+    	    }
+    	    elseif($instance and $reference) {
+    	        
+    	        try {
+    	            $mdlContent = $this->modClass($instance, $reference, $param);
+    	        }
+    	        catch(\Exception $e) {
+    	            Logger::manageException($e);
+    	        }
+    	    }
+    	    elseif($instance == null && $reference == null) {
+    	        $mdlContent = $this->_url_content;
+    	    }
+    	    else {
+    	        return $matches[0];
+    	    }
+    	    
+    	    return $mdlContent;
+    	}
     	elseif(preg_match("#{module(.*?)}#", $regex_marker)) {
     		
     		preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))(\s*param=([0-9]+))?#", $regex_result, $matches);
@@ -196,8 +230,9 @@ class Document {
     		}
     		elseif(($mdlType=='class' or $mdlType=='sysclass') and isset($matches[4])) {
     			$mdlFunc = $matches[4];
+    			
     			try {
-    				$mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType, $mdlParam);
+    			    $mdlContent = $this->modClassCompatibility($mdlId, $mdlFunc, $mdlType, $mdlParam);
     			}
     			catch(\Exception $e) {
     				Logger::manageException($e);
@@ -343,127 +378,6 @@ class Document {
     }
 
     /**
-     * @brief Headline per template non free
-     * @return string, headline
-     */
-    private function headLine($skin) {
-
-        Loader::import('class', '\Gino\Javascript');
-
-        $headline = "<!DOCTYPE html>\n";
-        $headline .= "<html lang=\"".LANG."\">\n";
-        $headline .= "<head>\n";
-        $headline .= "<meta charset=\"utf-8\" />\n";
-        $headline .= "<base href=\"".$this->_registry->request->root_absolute_url."\" />\n";
-
-        $headline .= $this->_registry->variables('meta');
-
-        if(!empty($this->_registry->description)) {
-            $headline .= "<meta name=\"description\" content=\"".$this->_registry->description."\" />\n";
-        }
-        if(!empty($this->_registry->keywords)) {
-            $headline .= "<meta name=\"keywords\" content=\"".$this->_registry->keywords."\" />\n";
-        }
-        if($this->_registry->sysconf->mobile && isset($this->_request->session->L_mobile)) {
-            $headline .= "<meta name=\"viewport\" content=\"width=device-width; user-scalable=0; initial-scale=1.0; maximum-scale=1.0;\" />\n"; // iphone,android 
-        }
-        $headline .= $this->_registry->variables('head_links');
-        $headline .= "<title>".$this->_registry->title."</title>\n";
-
-        $headline .= $this->_registry->variables('css');
-        $headline .= $this->_registry->variables('js');
-        $headline .= javascript::vendor();
-        $headline .= javascript::onLoadFunction($skin);
-
-        $headline .= "<link rel=\"shortcut icon\" href=\"".$this->_registry->favicon."\" />";
-        $headline .= "<link href='https://fonts.googleapis.com/css?family=Roboto:300,900,700,300italic' rel='stylesheet' type='text/css' />";
-
-        if($this->_registry->sysconf->google_analytics) {
-            $headline .= $this->google_analytics();
-        }
-        $headline .= "</head>\n";
-        $headline .= "<body>\n";
-
-        return $headline;
-    }
-
-    /**
-     * @brief Footline per template non free
-     * @return string, footline
-     */
-    private function footLine() {
-
-        $footline = $this->errorMessages();
-        $footline .= "</body>";
-        $footline .= "</html>";
-
-        return $footline;
-    }
-
-    /**
-     * @brief Gestisce gli elementi del layout ricavati dal file di template non free
-     * 
-     * @see renderModule()
-     * @param array $matches
-     *     - @b $matches[0] complete matching 
-     *     - @b $matches[1] match open tag, es. <div id="nav_1_1" style="float:left;width:200px">
-     *     - @b $matches[3] match div id, es. nav_1_1
-     *     - @b $matches[4] match div content, es. {module classid=20 func=blockList}
-     *     - @b $matches[5] match close tag, es. </div>
-     * @return string
-     */
-    private function renderNave($matches) {
-
-        $navContent = $matches[1];
-
-        if(preg_match("#module#", $matches[4])) {
-            $mdlMarkers = explode("\n", $matches[4]);
-            foreach($mdlMarkers as $mdlMarker) if(preg_match("#module#", $mdlMarker)) $navContent .= $this->renderModule($mdlMarker);
-        }
-        else $navContent .= "&#160;";
-
-        $navContent .= $matches[5];
-
-        return $navContent;
-    }
-
-    /**
-     * @brief Gestisce il tipo di elemento da richiamare
-     *
-     * @see modPage()
-     * @see modClass()
-     * @see modUrl()
-     * @param string $mdlMarker placeholder
-     * @return string or Exception se il modulo non viene riconosciuto
-     */
-    private function renderModule($mdlMarker) {
-
-        preg_match("#\s(\w+)id=([0-9]+)\s*(\w+=(\w+))?#", $mdlMarker, $matches);
-        
-        $mdlType = (!empty($matches[1]))? $matches[1]:null;
-        $mdlId = (!empty($matches[2]))? $matches[2]:null;
-
-        if($mdlType=='page') {
-            $mdlContent = $this->modPage($mdlId);
-        }
-        elseif($mdlType=='class' || $mdlType=='sysclass') {
-            $mdlFunc = $matches[4];
-            try {
-                $mdlContent = $this->modClass($mdlId, $mdlFunc, $mdlType);
-            }
-            catch(\Exception $e) {
-                Logger::manageException($e);
-            }
-        }
-        elseif($mdlType==null && $mdlId==null) $mdlContent = $this->_url_content;
-        else {
-            throw new \Exception('Tipo di modulo sconosciuto');
-        }
-
-        return $mdlContent;
-    }
-
-    /**
      * @brief Contenuto dei moduli di tipo pagina
      *
      * @see Gino.App.Page.page::box()
@@ -487,7 +401,7 @@ class Document {
     }
 
     /**
-     * @brief Contenuto dei moduli di tipo classe
+     * @brief Contenuto dei moduli di tipo classe (X COMPATIBILITÀ)
      * 
      * @param int $mdlId id istanza/classe
      * @param string $mdlFunc metodo
@@ -495,7 +409,7 @@ class Document {
      * @param string|int $mdlParam valore del parametro da passare al metodo da richiamare
      * @return string
      */
-    private function modClass($mdlId, $mdlFunc, $mdlType, $mdlParam=null){
+    private function modClassCompatibility($mdlId, $mdlFunc, $mdlType, $mdlParam=null){
 
         $db = Db::instance();
 
@@ -557,6 +471,99 @@ class Document {
 
         $this->_outputs[$mdlType.'-'.$mdlId.'-'.$mdlFunc.$paramKey] = $buffer;
 
+        return $buffer;
+    }
+    
+    /**
+     * @brief Contenuto dei moduli di tipo classe
+     *
+     * @param string $instance nome dell'istanza/classe
+     * @param string $mdlFunc metodo
+     * @param string|int $mdlParam valore del parametro da passare al metodo da richiamare
+     * @return string
+     */
+    private function modClass($instance, $mdlFunc, $mdlParam=null){
+        
+        $db = Db::instance();
+        
+        if($mdlParam) {
+            $paramKey = '-'.$mdlParam;
+        }
+        else {
+            $paramKey = '';
+        }
+        
+        $instanceId = null;
+        
+        $db = Db::instance();
+        $rows = $db->select('id', 'sys_module_app', "name='$instance' AND active='1' AND instantiable='0'");
+        if($rows and count($rows)) {
+            $instanceId = $rows[0]['id'];
+            $mdlType = 'sysclass';
+        }
+        if($instanceId == null) {
+            $rows = $db->select('id', 'sys_module', "name='$instance' AND active='1'");
+            if($rows and count($rows)) {
+                $instanceId = $rows[0]['id'];
+                $mdlType = 'class';
+            }
+        }
+        
+        if(!$instanceId) {
+            return null;
+        }
+        
+        if(isset($this->_outputs[$mdlType.'-'.$instanceId.'-'.$mdlFunc.$paramKey])) {
+            return $this->_outputs[$mdlType.'-'.$instanceId.'-'.$mdlFunc.$paramKey];
+        }
+        
+        $obj = $mdlType=='sysclass' ? new ModuleApp($instanceId) : new ModuleInstance($instanceId);
+        
+        $class = $obj->classNameNs();
+        $class_name = $obj->className();
+        
+        if(!isset($this->_instances[$class_name."_".$instanceId]) || !is_object($this->_instances[$class_name."_".$instanceId])) {
+            $this->_instances[$class_name."_".$instanceId] = new $class($instanceId);
+        }
+        
+        $classObj = $this->_instances[$class_name."_".$instanceId];
+        
+        // Permessi
+        $ofs = call_user_func(array($classObj, 'outputFunctions'));
+        $ofp = isset($ofs[$mdlFunc]['permissions']) ? $ofs[$mdlFunc]['permissions'] : array();
+        
+        if($mdlType=='sysclass') {
+            
+            $module_app = new ModuleApp($instanceId);
+            if(!$this->checkOutputFunctionPermissions($ofp, $module_app->name, 0)) {
+                return '';
+            }
+            
+            if($mdlParam) {
+                $buffer = $classObj->$mdlFunc($mdlParam);
+            }
+            else {
+                $buffer = $classObj->$mdlFunc();
+            }
+        }
+        elseif($mdlType=='class') {
+            
+            $module = new ModuleInstance($instanceId);
+            $class_name = $module->className();
+            if(!$this->checkOutputFunctionPermissions($ofp, $class_name, $instanceId)) {
+                return '';
+            }
+            
+            if($mdlParam) {
+                $buffer = $classObj->$mdlFunc($mdlParam);
+            }
+            else {
+                $buffer = $classObj->$mdlFunc();
+            }
+        }
+        
+        $this->_outputs[$mdlType.'-'.$instanceId.'-'.$mdlFunc.$paramKey] = $buffer;
+        
         return $buffer;
     }
 
