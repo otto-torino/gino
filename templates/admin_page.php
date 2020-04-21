@@ -4,14 +4,14 @@
 	<body class="without-fixed-top">
 		<div class="wrapper">
             <!-- Sidebar -->
-			{module sysclassid=12 func=sidebar}
+			{% block index.sidebar %}
 			
 			<!-- Page Content -->
 			<div id="content">
 				{% block 'navbar_admin_sidebar.php' %}
 				
 				<div class="container">
-					{module id=0}
+					{% block url %}
 				</div>
 			</div>
 		</div>

@@ -113,7 +113,11 @@ class Document {
                  * parse modules first time to update registry
                  */
             	$tpl_content = file_get_contents($template);
-            	$regexp = array("#{% block '(.*?)' %}#", "#{% block (.*?) %}#", "#{module(.*?)}#");
+            	$regexp = [
+            	    "#{% block '(.*?)' %}#", 
+            	    "#{% block (.*?) %}#", 
+            	    "#{module(.*?)}#", 
+            	];
             	
             	preg_replace_callback($regexp, array($this, 'parseTpl'), $tpl_content);
             	
@@ -138,12 +142,16 @@ class Document {
      * La variabile $m assume valori simili ai seguenti:
      * @code
      * array (size=2)
-	 * 0 => string '{% block 'footer.php' %}' (length=24)
-	 * 1 => string 'footer.php' (length=10)
+	 * 0 => string '{% block 'footer.php' %}'
+	 * 1 => string 'footer.php'
 	 * 
 	 * array (size=2)
-	 * 0 => string '{module classid=4 func=render}' (length=30)
-	 * 1 => string ' classid=4 func=render' (length=22)
+	 * 0 => string '{% block article.archive %}'
+	 * 1 => string 'article.last'
+	 * 
+	 * array (size=2)
+	 * 0 => string '{module classid=4 func=render}'
+	 * 1 => string ' classid=4 func=render'
 	 * @endcode
      */
     private function parseTpl($m) {
@@ -179,14 +187,12 @@ class Document {
     	    preg_match("#(\w+)\.(\w+)(\s*param=([0-9]+))?#", $regex_result, $matches);
     	    
     	    $instance = (!empty($matches[1])) ? $matches[1] : null;
-    	    // method / slug
-    	    $reference = (!empty($matches[2])) ? $matches[2] : null;
+    	    $reference = (!empty($matches[2])) ? $matches[2] : null;   // method | page slug or page id
     	    $param = (isset($matches[4]) && !empty($matches[4])) ? $matches[4] : null;
     	    
     	    if($instance == 'page') {
     	        
     	        if(!is_int($reference)) {
-    	            
     	            $db = Db::instance();
     	            $rows = $db->select('id', 'page_entry', "slug='$reference' AND published='1'");
     	            if($rows and count($rows)) {
@@ -209,6 +215,7 @@ class Document {
     	        }
     	    }
     	    elseif($instance == null && $reference == null) {
+    	        // {% block url %}
     	        $mdlContent = $this->_url_content;
     	    }
     	    else {
@@ -510,7 +517,7 @@ class Document {
         }
         
         if(!$instanceId) {
-            return null;
+            throw new \Exception(_('Istanza inesistente'));
         }
         
         if(isset($this->_outputs[$mdlType.'-'.$instanceId.'-'.$mdlFunc.$paramKey])) {

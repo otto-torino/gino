@@ -5,7 +5,7 @@
 		{% block 'navbar_admin.php' %}
 		
 		<div class="container">
-			{module id=0}
+			{% block url %}
 		</div>
 	</body>
 </html>

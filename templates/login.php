@@ -5,7 +5,7 @@
 		{% block 'navbar.php' %}
 		
 		<div class="container container-login bg-white">
-			{module id=0}
+			{% block url %}
 		</div>
 		{% block 'footer.php' %}
 	</body>
