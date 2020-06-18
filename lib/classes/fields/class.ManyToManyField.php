@@ -3,7 +3,7 @@
  * @file class.ManyToManyField.php
  * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyField
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -17,7 +17,7 @@ loader::import('class/fields', '\Gino\Field');
  * I valori da associare al campo risiedono in una tabella esterna e i parametri per accedervi devono essere definiti nelle opzioni del campo. \n
  * Tipologie di input associabili: multicheck.
  *
- * @copyright 2005-2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2005-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -27,7 +27,7 @@ class ManyToManyField extends Field {
 	 * Proprietà dei campi specifiche del tipo di campo
 	 */
 	protected $_m2m, $_m2m_order, $_m2m_where;
-	protected $_join_table;
+	protected $_join_table, $_join_table_m2m_id;
 	protected $_add_related, $_add_related_url;
 	
     /**
@@ -46,6 +46,9 @@ class ManyToManyField extends Field {
      *     - @b m2m_order (string): ordinamento dei valori (es. name ASC)
      *     - @b m2m_controller (\Gino\Controller): classe Controller del modello m2m, essenziale se il modello appartiene ad un modulo istanziabile
      *     - @b join_table (string): nome tabella di join
+     *     - @b join_table_m2m_id (string): nome del campo della tabella di join, 
+     *       da impostare quando il join viene effettuato con un modello/tabella appartenente a un'altra app 
+     *       (di default è il nome del modello collegato al quale viene aggiunta la stringa '_id')
      */
     function __construct($options) {
 
@@ -60,6 +63,9 @@ class ManyToManyField extends Field {
         $this->_m2m_order = array_key_exists('m2m_order', $options) ? $options['m2m_order'] : 'id';
         $this->_m2m_controller = array_key_exists('m2m_controller', $options) ? $options['m2m_controller'] : null;
         $this->_join_table = $options['join_table'];
+        
+        $this->_join_table_m2m_id = (array_key_exists('join_table_m2m_id', $options) and is_string($options['join_table_m2m_id']))
+        ? $options['join_table_m2m_id'] : null;
     }
     
     /**
@@ -76,6 +82,7 @@ class ManyToManyField extends Field {
     	$prop['m2m_order'] = $this->_m2m_order;
     	$prop['m2m_controller'] = $this->_m2m_controller;
     	$prop['join_table'] = $this->_join_table;
+    	$prop['join_table_m2m_id'] = $this->_join_table_m2m_id;
     	
     	return $prop;
     }

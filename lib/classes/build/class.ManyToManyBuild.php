@@ -3,7 +3,7 @@
  * @file class.ManyToManyBuild.php
  * @brief Contiene la definizione ed implementazione della classe Gino.ManyToManyField
  *
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -14,7 +14,7 @@ Loader::import('class/build', '\Gino\Build');
 /**
  * @brief Gestisce i campi di tipo many to many
  *
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -47,7 +47,13 @@ class ManyToManyBuild extends Build {
         $this->_join_table = $options['join_table'];
         
 		$this->_join_table_id = strtolower(get_name_class($this->_model)).'_id';
-        $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
+		
+		if(is_string($options['join_table_m2m_id'])) {
+		    $this->_join_table_m2m_id = $options['join_table_m2m_id'];
+		}
+		else {
+		    $this->_join_table_m2m_id = strtolower(get_name_class($this->_m2m)).'_id';
+		}
         
         $this->setValue($this->getJoinM2mValues());
     }
