@@ -24,7 +24,7 @@ class Exception500 extends \Exception {
 
     /**
      * @brief Costruttore
-     * @return istanza Gino.Exception.Exception500
+     * @return void
      */
     function __construct() {
         parent::__construct(_('500 Server Error'));

@@ -28,7 +28,7 @@ class Exception404 extends \Exception {
 
     /**
      * @brief Costruttore
-     * @return istanza Gino.Exception.Exception404
+     * @return void
      */
     function __construct() {
         parent::__construct(_('404 Page Not Found'));

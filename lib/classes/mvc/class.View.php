@@ -48,7 +48,7 @@ class View {
      * @param string $view_folder path alla directory in cui cercare il template, default null.
      *                            Se ha valore null il template viene cercato all'interno della directory dei template generali di gino.
      * @param string $tpl nome template, default null
-     * @return istanza di Gino.View
+     * @return void
      */
     function __construct($view_folder = null, $tpl = null) {
 
