@@ -351,7 +351,7 @@ class pdo implements \Gino\DbManager {
 	 *     - @a true, prima prepara e poi esegue la query
 	 *     - @a false (default), esegue la query
 	 *   - @b values (array): elenco dei valori da sostituire alle variabili parametrizzate
-	 * @return \PDOStatement object or boolean
+	 * @return \PDOStatement object, boolean or null
 	 * 
 	 * Synthesis of returns whereas parameterized queries return a boolean value: \n
 	 * - select query -> return PDOStatement object or FALSE

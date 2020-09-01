@@ -2,6 +2,7 @@
 <html lang="<?= LANG ?>">
 	{% block 'head.php' %}
 	<body>
+		{% block 'debug_alert.php' %}
 		{% block 'navbar.php' %}
 		
 		<div class="container bg-white">
