@@ -29,7 +29,7 @@ class Exception403 extends \Exception {
      * @param array $kwargs array associativo
      *                      - redirect (bool), default FALSE. Se TRUE il metodo Gino.Exception.Exception403::httpResponse()
      *                                                        ritorna un Gino.Http.Redirect alla pagina di login
-     * @return istanza Gino.Exception.Exception403
+     * @return void
      */
     function __construct(array $kwargs = array()) {
         parent::__construct(_('403 Forbidden'));

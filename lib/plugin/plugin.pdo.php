@@ -3,7 +3,7 @@
  * @file plugin.pdo.php
  * @brief Contiene la classe pdo
  * 
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -19,7 +19,7 @@ require_once(PLUGIN_DIR.OS."plugin.phpfastcache.php");
 /**
  * @brief Libreria di connessione ai database
  * 
- * @copyright 2015-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2015-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  * 
@@ -351,7 +351,7 @@ class pdo implements \Gino\DbManager {
 	 *     - @a true, prima prepara e poi esegue la query
 	 *     - @a false (default), esegue la query
 	 *   - @b values (array): elenco dei valori da sostituire alle variabili parametrizzate
-	 * @return \PDOStatement object or boolean
+	 * @return \PDOStatement object, boolean or null
 	 * 
 	 * Synthesis of returns whereas parameterized queries return a boolean value: \n
 	 * - select query -> return PDOStatement object or FALSE
@@ -400,7 +400,8 @@ class pdo implements \Gino\DbManager {
 			{
 				$res = $this->_pdo->query($query);
 				if(!$res) {
-					throw new \Exception(_("Errore nella query").' '.$query);
+					//throw new \Exception(_("Errore nella query").' '.$query); // 2020-08-13
+					return null;
 				}
 				
 				$rows = $this->checkRowsFromSelect($res);

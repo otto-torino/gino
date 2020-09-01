@@ -16,7 +16,7 @@ namespace {
          * @brief Funzione per traduzioni che ritorna la stringa stessa
          * @description La funzione viene definita per evitare errori nel caso in cui le gettext non fossero abilitate
          * @param string $str stringa da tradurre
-         * @return stringa non tradotta
+         * @return string, stringa non tradotta
          */
         function _($str){
             return $str;
@@ -34,7 +34,7 @@ namespace {
      * @brief Recupera il nome della classe senza namespace
      *
      * @param object|string $class oggetto o nome completo della classe
-     * @return nome classe senza namespace
+     * @return string, nome classe senza namespace
      */
     function get_name_class($class) {
 
@@ -57,7 +57,7 @@ namespace {
      *
      * @param string $class nome della classe
      * @param string $namespace nome del namespace, default \Gino
-     * @return nome classe completo di namespace
+     * @return string
      */
     function set_name_class($class, $namespace = '\Gino\\') {
 
@@ -75,7 +75,7 @@ namespace {
      * @brief Nome del namespace di una classe di tipo Gino.Controller
      *
      * @param string $controller_name nome della classe controller
-     * @return namespace
+     * @return string
      */
     function get_app_namespace($controller_name) {
 
@@ -87,7 +87,7 @@ namespace {
      * @brief Nome della classe di tipo Gino.Controller con namespace completo
      * 
      * @param string $controller_name nome della classe controller
-     * @return nome classe completo di namespace
+     * @return string
      */
     function get_app_name_class_ns($controller_name) {
 
@@ -99,7 +99,7 @@ namespace {
      *
      * @param string $controller_name nome della classe controller
      * @param string $model_name nome del modello
-     * @return nome classe completo di namespace
+     * @return string
      */
     function get_model_app_name_class_ns($controller_name, $model_name) {
         return get_app_namespace($controller_name).'\\'.$model_name;

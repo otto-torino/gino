@@ -115,31 +115,37 @@ namespace Gino\App\Statistics;
 	    var activeUsers = new gapi.analytics.ext.ActiveUsers({
 	        container: 'active-users-container',
 	        pollingInterval: 5
-	    });
+	    }).execute();
 	    /**
 	     * Create a new ViewSelector2 instance to be rendered inside of an
 	     * element with the id "view-selector-container".
 	     */
-	    var viewSelector = new gapi.analytics.ext.ViewSelector2({
+	    var viewSelector = new gapi.analytics.ext.ViewSelector({
 	        container: 'view-selector-container',
 	    })
-	    .execute();
+	    
 	    /**
-	     * Update the activeUsers component, the Chartjs charts, and the dashboard
-	     * title whenever the user changes the view.
+	     * Update the activeUsers component, the Chartjs charts, and the dashboard title 
+	     * whenever the user changes the view.
 	     */
-	    viewSelector.on('viewChange', function(data) {
-	        // Start tracking active users for this view.
-	        activeUsers.set(data).execute();
-	    });
+	     viewSelector.on('viewChange', function(data) {
+	         // Start tracking active users for this view.
+	         activeUsers.set(data).execute();
+	     });
+	     viewSelector.execute()
+	     
+	     let baseQuery = {
+	         'ids': 'ga:<?= $ga_view_id ?>',
+	         'start-date': '<?= $start_date ?>',
+	         'end-date': '<?= $end_date ?>'
+	     }
+	     
 	    /**
 	     * Creates a new DataChart instance showing sessions over the past 15 days.
 	     */
 	    var dataChart1 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:sessions,ga:users',
 	            'dimensions': 'ga:date'
 	        },
@@ -157,9 +163,7 @@ namespace Gino\App\Statistics;
 	     */
 	    var dataChart2 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:pageviews',
 	            'dimensions': 'ga:pagePath',
 	            'sort': '-ga:pageviews',
@@ -180,9 +184,7 @@ namespace Gino\App\Statistics;
 	     */
 	    var dataChart3 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:sessions',
 	            'dimensions': 'ga:browser',
 	            'sort': '-ga:sessions',
@@ -203,9 +205,7 @@ namespace Gino\App\Statistics;
 	     */
 	    var dataChart4 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:sessions',
 	            'dimensions': 'ga:source',
 	            'sort': '-ga:sessions',
@@ -226,9 +226,7 @@ namespace Gino\App\Statistics;
 	     */
 	    var dataChart5 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:sessions',
 	            'dimensions': 'ga:country',
 	            'sort': '-ga:sessions',
@@ -249,9 +247,7 @@ namespace Gino\App\Statistics;
 	     */
 	    var dataChart6 = new gapi.analytics.googleCharts.DataChart({
 	        query: {
-	            'ids': 'ga:<?= $ga_view_id ?>',
-	            'start-date': '<?= $start_date ?>',
-	            'end-date': '<?= $end_date ?>',
+	        	...baseQuery,
 	            'metrics': 'ga:socialInteractions',
 	            'dimensions': 'ga:socialInteractionNetwork',
 	            'sort': '-ga:socialInteractions',

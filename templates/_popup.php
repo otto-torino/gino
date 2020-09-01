@@ -3,7 +3,7 @@
 	{% block 'head.php' %}
 	<body>
 		<div class="container">
-			{module id=0}
+			{% block url %}
 		</div>
 	</body>
 </html>

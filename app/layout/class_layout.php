@@ -644,7 +644,7 @@ oppure variabili di sessione.")."</li>";
      * @brief Fornisce le informazioni per accedere a una pagina e per poterla implementare nel template
      * 
      * @param \Gino\App\Page\PageEntry object $page oggetto pagina
-     * @return array array(url => (string), perm => (string), code => (string))
+     * @return array [url => (string), perm => (string), code => (string)]
      */
     public static function getPageData($page) {
     	
@@ -659,7 +659,7 @@ oppure variabili di sessione.")."</li>";
         	$access_txt .= _('pagina pubblica');
         }
 
-        $code_full = "{module pageid=".$page->id." func=full}";
+        $code_full = "{% block page.".$page->id." %}<br />{% block page.".$page->slug." %}";
         $url = $page->getUrl();
         
         return array(
@@ -681,36 +681,38 @@ oppure variabili di sessione.")."</li>";
      */
     public static function getMethodData($method_name, $method_info, $module, $sys_module=false) {
     	
-    	$class_name = $module->className();
-    	
-    	$method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$class_name.".ini", TRUE);
-    	$public_method = @$method_check['PUBLIC_METHODS'][$method_name];
-    	
-    	if(!isset($public_method))
-    	{
-    		$permissions_code = $method_info['permissions'];
-    		$permissions = array();
-    		if($permissions_code and count($permissions_code)) {
-    			foreach($permissions_code as $permission_code) {
-    				
-    				if(!preg_match('#\.#', $permission_code)) {
-    					$permission_code = $class_name.'.'.$permission_code;
-    				}
-    				$p = Permission::getFromFullCode($permission_code);
-    				$permissions[] = $p->label;
-    			}
-    		}
-    		
-    		$param = $sys_module ? 'sysclassid' : 'classid';
-    		
-    		$code = "{module $param=".$module->id." func=".$method_name."}";
-    		
-    		return array(
-    			'info' => $method_info['label'],
-    			'perm' => count($permissions) ? implode(', ', $permissions) : _('pubblico'),
-    			'code' => $code
-    		);
-    	}
+        $class_name = $module->className();
+        
+        $method_check = parse_ini_file(APP_DIR.OS.$module->className().OS.$class_name.".ini", TRUE);
+        $public_method = @$method_check['PUBLIC_METHODS'][$method_name];
+        
+        if(!isset($public_method))
+        {
+            $permissions_code = $method_info['permissions'];
+            $permissions = array();
+            
+            if($permissions_code and count($permissions_code)) {
+                foreach($permissions_code as $permission_code) {
+                    
+                    if(!preg_match('#\.#', $permission_code)) {
+                        $permission_code = $class_name.'.'.$permission_code;
+                    }
+                    $p = Permission::getFromFullCode($permission_code);
+                    
+                    $permissions[] = $p->label;
+                }
+            }
+            
+            $instance = $sys_module ? $class_name : $module->name;
+            
+            $code = "{% block ".$instance.".".$method_name." %}";
+            
+            return array(
+                'info' => $method_info['label'],
+                'perm' => count($permissions) ? implode(', ', $permissions) : _('pubblico'),
+                'code' => $code
+            );
+        }
     	else {
     		return null;
     	}

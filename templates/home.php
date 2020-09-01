@@ -2,6 +2,7 @@
 <html lang="<?= LANG ?>">
 	{% block 'head.php' %}
 	<body>
+		{% block 'debug_alert.php' %}
 		{% block 'navbar.php' %}
 		
 		<div class="container bg-white">
@@ -18,8 +19,8 @@
 			</div>
 			
 			<div class="row">
-				<div class="col-md-6">{module classid=10 func=showcase}</div>
-				<div class="col-md-6">{module classid=11 func=calendar}</div>
+				<div class="col-md-6">{% block article.showcase %}</div>
+				<div class="col-md-6">{% block cal.calendar %}</div>
 			</div>
 		</div>
 		
