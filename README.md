@@ -87,7 +87,8 @@ gino è un CMS framework scritto in PHP che fornisce tutti gli strumenti necessa
 2019/10/17 | v 3.1.0 | Feature  
 2020/03/27 | v 4.0.0 | Release  
 2020/03/27 | v 4.0.1 | Hotfix  
-2020/04/16 | v 4.1.0 | Release  
+2020/04/16 | v 4.1.0 | Feature  
+2020/09/02 | v 4.2.0 | Feature  
 
 # Copyright
 Copyright © 2005-2020 [Otto srl](http://www.otto.to.it), [MIT License](http://opensource.org/licenses/MIT)
