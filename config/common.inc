@@ -7,14 +7,14 @@
  * @author marco guidotti guidottim@gmail.com
  * 
  * #DESCRIZIONE
- * Includere il file al bisogno:
+ * Includere il file ove necessario (@see \Gino\Document):
  * @code
  * require CONFIG_DIR.OS.'common.inc';
  * @endcode
  */
 
 /**
- * @brief Impostazioni per il caricamento dei css e dei javascript
+ * @brief Impostazioni per il caricamento dei file css e javascript
  * 
  * @desc Opzioni disponibili per la chiave @a loading per i css
  *   @a css

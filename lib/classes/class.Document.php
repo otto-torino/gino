@@ -160,17 +160,22 @@ class Document {
     	$regex_result = $m[1];
     	
     	if(preg_match("#{% block '(.*?)' %}#", $regex_marker)) {
-    		
-    	    // case: appname/filename
+    	    // caricamento del contenuto di un file PHP
+    	    
     	    if(preg_match("#/#", $regex_result)) {
-    	        $a = explode('/', $regex_result);
-    	        $filename = APP_DIR.OS.$a[0].OS.'templates'.OS.$a[1];
+    	        
+    	        $filename = TPL_DIR.OS.$regex_result;
+    	        
+    	        if(!file_exists($filename)) {
+    	            $a = explode('/', $regex_result);
+    	            $filename = APP_DIR.OS.$a[0].OS.'templates'.OS.$a[1];
+    	        }
     	    }
     	    else {
     	        $filename = TPL_DIR.OS.$regex_result;
     	    }
-    	    
-    		if(file_exists($filename) && is_file($filename)) {
+    		
+    	    if(file_exists($filename) && is_file($filename)) {
     			
     			$content = file_get_contents($filename);
     			
