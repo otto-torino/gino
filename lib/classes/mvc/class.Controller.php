@@ -3,7 +3,7 @@
  * @file class.Controller.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
- * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -12,7 +12,7 @@ namespace Gino;
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
  *
- * @copyright 2013-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
+ * @copyright 2013-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  * @author marco guidotti guidottim@gmail.com
  * @author abidibo abidibo@gmail.com
  */
@@ -43,6 +43,27 @@ abstract class Controller {
 	 */
 	private $_tbl_name;
 	
+	/**
+	 * @brief Nome della tabella delle opzioni
+	 * @var string
+	 */
+	protected $_tbl_options;
+	
+	/**
+	 * @brief Valori dei cammpi delle opzioni
+	 * @var array, nel formato (string) fieldname => (mixed) value
+	 */
+	protected $_value_options;
+	
+	/**
+	 * @brief Impostazioni dei campi delle opzioni del controller
+	 * @description Richiamato in Gino.Options
+	 * @see Gino.Options
+	 * @var array, nel formato (string) fieldname => (array) 
+	 *     ['label' => mixed, 'value' => mixed, 'section' => boolean, 'section_title' => string, 'section_description' => string]
+	 */
+	public $_optionsLabels;
+	
     /**
      * @brief Inizializza il controller
      * @param int $instance_id id modulo, se diverso da zero il modulo è un'istanza di una classe, altrimenti è la classe di sistema
@@ -70,8 +91,34 @@ abstract class Controller {
         $this->_locale = locale::instance_to_class($this->_class_name);
 
         $this->setPaths();
-      }
-
+        
+        // Options table/values/properties
+        Loader::import('sysClass', 'ModuleApp');
+        $module_app = \Gino\App\SysClass\ModuleApp::getFromName(get_name_class($this->_class_name));
+        $class_prefix = $module_app->tbl_name;
+        
+        $this->_tbl_options = $class_prefix.'_opt';
+        $this->_value_options = $this->appOptions();
+        
+        $this->setPropertyOptions();
+    }
+    
+    /**
+     * @brief Imposta le opzioni del controller come proprietà
+     * @description Nel caso in cui le proprietà vengano dicharate nella classe controller,
+     * queste devono essere dichiarate @a protected o @a public.
+     */
+    protected function setPropertyOptions() {
+        
+        if(count($this->_value_options)) {
+            foreach($this->_value_options as $key => $value) {
+                $key = '_'.$key;
+                $this->$key = $value;
+            }
+        }
+        return null;
+    }
+    
     /**
      * @brief Funzione chiamata quando si cerca di chiamare un metodo inaccessibile
      * @param string $name nome metodo
@@ -426,5 +473,64 @@ abstract class Controller {
         
         \Gino\Loader::import('class/http', '\Gino\Http\ResponseJson');
         return new \Gino\Http\ResponseJson($data);
+    }
+    
+    /**
+     * @brief Impostazione delle opzioni del controller
+     * @description I valori delle opzioni vengono caricate nel registro
+     *
+     * @return mixed[]|NULL[] nel formato: (string) fieldname => (mixed) value
+     */
+    protected function appOptions() {
+        
+        $options_file = APP_DIR.OS.$this->_class_name.OS.'options.php';
+        if(file_exists($options_file)) {
+            include $options_file;
+        }
+        else {
+            $options = [];
+        }
+        
+        \Gino\Loader::load('Options', array($this));
+        $this->_optionsLabels = [];
+        
+        $array = [];
+        $fields = [];
+        
+        if(count($options)) {
+            
+            foreach ($options as $field => $data) {
+                
+                $default_value[$field] = $data['default'];
+                
+                if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
+                    
+                    $value = $this->setOption($field, ['value' => $default_value[$field]]);
+                    $array[$field] = $value;
+                }
+                else {
+                    $value = $this->_registry->apps->{$this->_instance_name}[$field];
+                }
+                
+                $field_input = ['label' => $data['label'], 'value' => $value];
+                if(array_key_exists('section', $data) && is_bool($data['section']) && $data['section']) {
+                    $field_input['section'] = $data['section'];
+                }
+                if(array_key_exists('section_title', $data) && $data['section_title']) {
+                    $field_input['section_title'] = $data['section_title'];
+                }
+                if(array_key_exists('section_description', $data) && $data['section_description']) {
+                    $field_input['section_description'] = $data['section_description'];
+                }
+                
+                $this->_optionsLabels[$field] = $field_input;
+                $fields[$field] = $value;
+            }
+            
+            if(count($array)) {
+                $this->_registry->apps->{$this->_instance_name} = $array;
+            }
+        }
+        return $fields;
     }
 }
