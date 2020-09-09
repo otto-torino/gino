@@ -3,11 +3,11 @@
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
  *
- * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * @copyright 2014-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  */
 namespace Gino;
+
+require_once 'class.ModelTools.php';
 
 /**
  * @brief Classe astratta che definisce un modello, cioè un oggetto che rappresenta una tabella su database
@@ -32,10 +32,6 @@ namespace Gino;
  * 
  * Le tabelle devono essere coerenti con la definizione del modello per cui, ad esempio, i campi obbligatori devono essere 'not null' e gli eventuali valori di default 
  * devono essere indicati anche nel campo della tabella.
- *
- * @copyright 2014-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
  abstract class Model {
 
@@ -96,6 +92,12 @@ namespace Gino;
      * @var object
      */
     private $_trd;
+    
+    /**
+     * @brief Oggetto Gino.ModelTools
+     * @var object
+     */
+    public $tools;
 
     /**
      * Costruttore
@@ -119,6 +121,8 @@ namespace Gino;
         $this->fetchColumns($id);
 
         $this->_trd = new Translation($this->_lng_nav, $this->_lng_dft);
+        
+        $this->tools = new \Gino\ModelTools($this, $this->_controller);
     }
 
     /**
