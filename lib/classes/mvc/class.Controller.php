@@ -4,17 +4,11 @@
  * @brief Contiene la definizione ed implementazione della classe Gino.Controller
  * 
  * @copyright 2013-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
  * @brief Classe astratta primitiva di tipo Controller (MVC), dalla quale tutti i controller delle singole app discendono
- *
- * @copyright 2013-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 abstract class Controller {
 
@@ -532,5 +526,40 @@ abstract class Controller {
             }
         }
         return $fields;
+    }
+    
+    /**
+     * @brief Imposta i parametri della ricerca in una vista
+     * @description Impostare i campi ri ricerca nella variabile @a $search_fields del file @a utils.php
+     * 
+     * @see Gino.SearchInterface
+     * @param array $query_params parametri in arrivo da una request
+     * @return \Gino\SearchInterface|NULL
+     */
+    protected function setSearchParams($query_params=[]) {
+        
+        $utils_file = APP_DIR.OS.$this->_class_name.OS.'utils.php';
+        if(file_exists($utils_file)) {
+            include $utils_file;
+        }
+        else {
+            $search_fields = [];
+        }
+        
+        if(count($search_fields)) {
+            
+            Loader::import('class', array('\Gino\SearchInterface'));
+            $obj = new \Gino\SearchInterface($search_fields, array(
+                'identifier' => $this->_class_name.'Search'.$this->_instance,
+                'param_values' => $query_params
+            ));
+            
+            $obj->sessionSearch();
+            
+            return $obj;
+        }
+        else {
+            return null;
+        }
     }
 }

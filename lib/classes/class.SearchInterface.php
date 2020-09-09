@@ -3,27 +3,17 @@
  * @file class.SearchInterface.php
  * @brief Contiene la definizione ed implementazione della classe Gino.SearchInterface
  * 
- * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * @copyright 2016-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  */
 namespace Gino;
 
 /**
  * @brief Metodi per gestire le ricerche nelle interfacce utente
  *
- * @copyright 2016-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
  * ##UTILIZZO
- * 1. Creare nel modello due metodi statici per definire l'insieme dei campi dei form di ricerca e le condizioni di ricerca dei record.
- * 
- * L'elenco dei campi di ricerca da passare al costruttore è un array di elementi, nel quale le chiavi sono i nomi dei parametri di ricerca input form 
- * e i valori sono degli array che comprendono le opzioni necessarie per costruire gli input form. 
- * Il nome dell'input form viene creato unendo il valore dell'opzione @a before_input del costruttore con il nome del parametro.
- * 
- * Le opzioni valide per ogni tipo di campo di ricerca sono: \n
+ *
+ * 1. Impostare l'elenco dei campi sui quali effettuare la ricerca nella variabile @a $search_fields nel file @a utils.php.\n
+ * L'elenco dei campi è un array nel quale le chiavi sono i nomi dei campi e i valori sono degli array con le seguenti chiavi valide:\n
  *   - @a label (string), label dell'input
  *   - @a input (string), tipologie di input:
  *     - text (default), costruisce \Gino\Input::input_label
@@ -32,223 +22,50 @@ namespace Gino;
  *     - radio, costruisce \Gino\Input::radio_label
  *     - tag, costruisce \Gino\TagInput::input
  *   - @a type (string), tipologia di dato (int, string)
- *   - @a data (array), valori degli input select e radio
+ *   - @a data (array), valori degli input select e radio, ad esempio Category::getForSelect($this)
  *   - @a default (mixed), default dell'input radio
  *   - @a options (array), opzioni degli input (sovrascrivono quelle di default)
- * 
- * Seguono due esempi dei metodi.
+ *
+ * Il nome dell'input form viene creato unendo il valore dell'opzione @a before_input del costruttore con il nome del parametro.
+ *
+ * 2. Verificare se l'interfaccia accetta query string (probabilmente di tipo GET) come parametri per restringere l'insieme
+ * degli elementi. In questo caso recuperateli e caricateli in un array, ad esempio:
+ *
  * @code
- * public static function setSearchFields($controller, $fields) {
- * 
- *   $search_fields = array(
- *     'category' => array(
- *       'label' => _('Categoria'),
- *       'input' => 'select',
- *       'data' => Category::getForSelect($controller),
- *       'type' => 'int',
- *       'options' => null
- *     ),
- *     'name' => array(
- *       'label' => _('Nome'),
- *       'input' => 'text',
- *       'type' => 'string',
- *       'options' => null
- *     ),
- *     'code' => array(
- *       'label' => _('Codice'),
- *       'input' => 'text',
- *       'type' => 'string',
- *       'options' => array('size' => 8)
- *     ),
- *     'date_from' => array(
- *       'label' => _('Da'),
- *       'input' => 'date',
- *       'type' => 'string',
- *       'options' => null
- *     ),
- *     'date_to' => array(
- *       'label' => _('A'),
- *       'input' => 'date',
- *       'type' => 'string',
- *       'options' => null
- *     )
- *   );
- *   
- *   $array = array();
- *   if(count($fields)) {
- *     foreach($fields AS $field)
- *     {
- *       if(array_key_exists($field, $search_fields)) {
- *         $array[$field] = $search_fields[$field];
- *       }
- *     }
- *   }
- *   return $array;
+ * $ctgslug = \Gino\cleanVar($request->GET, 'ctg', 'string');
+ * $tag = \Gino\cleanVar($request->GET, 'tag', 'string');
+ *
+ * if($ctgslug) {
+ *   $ctg = Category::getFromSlug($ctgslug, $this);
+ *   $ctg_id = $ctg ? $ctg->id : 0;
+ * }else {
+ *   $ctg_id = 0;
  * }
+ * $query_params = array('category' => $ctg_id, 'tag' => $tag,);
  * @endcode
- * 
+ *
+ * 3. Richiamate il metodo Gino.Controller::setSearchParams e recuperate i valori dei campi (da GET e di ricerca) per utilizzarli
+ * nelle condizioni della query.
+ *
  * @code
- * public static function setConditionWhere($controller, $options = null) {
- * 
- *   $category = \Gino\gOpt('category', $options, null);
- *   $name = \Gino\gOpt('name', $options, null);
- *   $code = \Gino\gOpt('code', $options, null);
- *   $date_from = \Gino\gOpt('date_from', $options, null);
- *   $date_to = \Gino\gOpt('date_to', $options, null);
- *   
- *   $where = array("instance='".$controller->getInstance()."'");
- *   
- *   if($category) {
- *     $where[] = "category='$category'";
- *   }
- *   if($name) {
- *     $where[] = "name LIKE '%".$name."%'";
- *   }
- *   if($code) {
- *     $where[] = "code LIKE '%".$code."%'";
- *   }
- *   if($date_start) {
- *     $where[] = "insertion_date >= '".$date_start."'";
- *   }
- *   if($date_from) {
- *     $where[] = "insertion_date >= '".$date_from."'";
- *   }
- *   if($date_to) {
- *     $where[] = "insertion_date <= '".$date_to."'";
- *   }
- *   
- *   return implode(' AND ', $where);
- * }
- * @endcode
- * 
- * 
- * 2. Impostare i valori degli eventuali parametri passati attraverso un url
- * 
- * Il formato degli elementi dell'array è [field_name]=>[field_value], dove field_name deve corrispondere 
- * a una chiave dell'elenco dei campi di ricerca (proprietà $_fields).
- * @code
- * $param_values = array(
- *   'category' => $ctg_id,
- *   'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
- * );
- * @endcode
- * 
- * 3. Istanziare la classe
- * 
- * Prima di istanziare la classe impostare i campi da mostrare nel form di ricerca: \n
- * @code
- * $search_fields = ModelItem::setSearchFields($this, array('category', 'name', 'code', 'date_from', 'date_to'));
- * @endcode
- * 
- * @code
- * Loader::import('class', array('\Gino\SearchInterface'));
- * $obj_search = new \Gino\SearchInterface($search_fields, array(
- *   'identifier' => 'appSearch'.$this->_instance,
- *   'param_values' => $param_values
- * ));
- * @endcode
- * 
- * 4. Impostare le chiavi di ricerca in sessione
- * 
- * @code
- * $obj_search->sessionSearch();
- * @endcode
- * 
- * Le fasi 3 e 4 possono venire riunite in un unico metodo nel controllore:
- * @code
- * private function getObjectSearch($fields, $options=array()) {
- * 
- *   $search_fields = ModelItem::setSearchFields($this, $fields);
- *   Loader::import('class', array('\Gino\SearchInterface'));
- *   
- *   $obj_search = new \Gino\SearchInterface($search_fields, $options);
- *   $obj_search->sessionSearch();
- *   return $obj_search;
- * }
- * @endcode
- * 
- * In questo caso per ottenere l'oggetto Gino.SearchInterface basterà richiamare il metodo:
- * @code
- * $obj_search = $this->getObjectSearch(array('category', 'name', 'code', 'date_from', 'date_to'), array(
- *   'identifier' => 'appSearch'.$this->_instance,
- *   'param_values' => $param_values
- * ));
- * @endcode
- * 
- * 5. Ottenere il risultato di una ricerca.
- * 
- * Per recuperare il risultato di una ricerca occorre prima recuperarne i valori, 
- * considerando che i valori provenienti da url sovrascrivono quelli salvati in sessione:
- * @endcode
+ * $obj_search = $this->setSearchParams($query_params);
  * $search_values = $obj_search->getValues();
- * @endcode
- * 
- * I valori vengono poi utilizzati nella definizione delle condizioni della query:
- * @code
- * $conditions = array(
- *   'category' => array_key_exists('category', $search_values) ? $search_values['category'] : null,
- *   'name' => $search_values['name'],
- *   'code' => $search_values['code'],
- *   'date_from' => \Gino\dateToDbDate($search_values['date_from'], '/'),
- *   'date_to' => \Gino\dateToDbDate($search_values['date_to'], '/'),
- * );
- * @endcode
- * 
- * Segue un esempio classico in gino:
- * @code
- * $items_number = ModelItem::getCount($this, $conditions);
- * $paginator = Loader::load('Paginator', array($items_number, $this->_ifp));
- * $limit = $paginator->limitQuery();
- * 
- * $where = ModelItem::setConditionWhere($this, $conditions);
- * $items = ModelItem::objects($this, array('where' => $where, 'limit' => $limit, 'order' => 'insertion_date DESC'));
- * @endcode
- * 
- * 6. Nel dizionario della vista impostare il form e l'apertura del form
- * 
- * @code
- * $dict = array(
+ *
+ * $conditions = [
+ *   'ctg' => array_key_exists('category', $search_values) ? $search_values['category'] : null,
+ *   'tag' => $search_values['tag'],
  *   ...
- *   'search_form' => $obj_search->formSearch($this->link($this->_instance_name, 'archive'), 'form_search_app'),
- *   'open_form' => $obj_search->getOpenform(),
- * );
+ * ]
  * @endcode
- * 
- * Nella vista
+ *
+ * 4. Inserire nella vista il form e il collegamento alla sua apertura/chiusura utilizzando i metodi @a form() e @a linkSearchForm():
  * @code
- * // 1
- * <h1>
- *   <?= _('Items') ?>
- *   <a style="margin-left: 20px" class="fa fa-rss" href="<?= $feed_url ?>"></a> 
- *   <span class="fa fa-search link" onclick="if($('app_form_search').style.display=='block') $('app_form_search').style.display='none'; else $('app_form_search').style.display='block';"></span>
- * </h1>
- * <div id="app_form_search" style="display: <?= $open_form ? 'block' : 'none'; ?>;">
- *   <?= $search_form ?>
- * </div>
- * // 2
- * <h1>
- *   <?= _('Items') ?>
- *   <a style="margin-left: 20px" class="fa fa-rss" href="<?= $feed_url ?>"></a> 
- *   <span class="fa fa-search link" onclick="$('app_form_search').toggleClass('hidden')"></span>
- * </h1>
- * <div id="app_form_search" class="<?= $open_form ? '' : 'hidden' ?>">
- *   <?= $search_form ?>
- * </div>
+ * $dict = [
+ *   ...,
+ *   'search_form' => $obj_search->form($this->link($this->_instance_name, 'archive'), 'form_search_post'),
+ *   'link_form' => $obj_search->linkSearchForm()
+ * ]
  * @endcode
- * 
- * Con due form nella stessa pagina:
- * @code
- * <h1><?= _('Items') ?> 
- * <span class="fa fa-search link" onclick="$('app_form_search').toggleClass('hidden');$('app_form_search2').addClass('hidden')"></span> 
- * <span class="icon fa fa-file-pdf-o icon-tooltip link black transition" onclick="$('app_form_search2').toggleClass('hidden');$('app_form_search').addClass('hidden');"></span>
- * </h1>
- * <div id="app_form_search2" class="<?= $open_form2 ? '' : 'hidden' ?>">
- *   <?= $search_form2 ?>
- * </div>
- * <div id="app_form_search" class="<?= $open_form ? '' : 'hidden' ?>">
- *   <?= $search_form ?>
- * </div>
- * @code
  */
 class SearchInterface {
 
@@ -534,6 +351,60 @@ class SearchInterface {
     	$form_search .= $myform->close();
     
     	return $form_search;
+    }
+    
+    /**
+     * @brief Form di ricerca
+     *
+     * @param string $link indirizzo dell'action form
+     * @param string $form_id valore id del form
+     * @param array $options array associativo di opzioni
+     *   - @b div_id (string): valore id del contenitore del form
+     *   - @b submit_value (string): valore del submit di ricerca (default 'cerca')
+     *   - @b submit_text_add (string): testo da aggiungere di seguito agli input submit
+     *   - @b view_submit_all (boolean): visualizza il submit di ricerca di tutti i record (default true)
+     * @return string
+     */
+    public function form($link, $form_id, $options=[]) {
+        
+        $div_id = gOpt('div_id', $options, 'g_form_search');
+        
+        $form = $this->formSearch($link, $form_id, $options);
+        
+        $check_open_form = $this->getOpenform();
+        if($check_open_form) {
+            $d = 'block';
+        }
+        else {
+            $d = 'none';
+        }
+        
+        $form = "<div id=\"$div_id\" style=\"display: ".$d.";\">".$form."</div>";
+        
+        return $form;
+    }
+    
+    /**
+     * @brief Link di apertura/chiusura del form di ricerca
+     *
+     * @param array $options array associativo di opzioni
+     *   - @b div_id (string): valore id del contenitore del form
+     *   - @b span_class (string): classi aggiuntive del tag span
+     * @return string
+     */
+    public function linkSearchForm($options=[]) {
+        
+        $div_id = gOpt('div_id', $options, 'g_form_search');
+        $span_class = gOpt('span_class', $options, null);
+        
+        $buffer = "<span class=\"fa fa-search link";
+        if($span_class) {
+            $buffer .= " ".$span_class;
+        }
+        $buffer .= "\" onclick=\"";
+        $buffer .= "if($('#$div_id').css('display') == 'block') $('#$div_id').css('display', 'none'); else $('#$div_id').css('display', 'block');";
+        $buffer .= "\"></span>";
+        return $buffer;
     }
     
     /**
