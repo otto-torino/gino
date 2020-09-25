@@ -66,22 +66,26 @@ class ModelTools {
      * @brief Elenco tag con link all'elenco dei post correlati
      * @description I tag sono salvati nel campo @a tags di tipo Gino.TagField
      *
-     * @param array $options
-     *   - @b interfare (string)
-     *   - @b separator (string): separatore dei tag (default ', ')
+     * @see Gino.GTag::viewTags
+     * @param array $options opzioni di Gino.GTag::viewTags
      * @return string
      */
-    public function linkedTags($options=[]) {
+    public function showTags($options=[]) {
         
-        $interface = \Gino\gOpt('interface', $options, 'archive');
-        $separator = \Gino\gOpt('separator', $options, ', ');
+        return \Gino\GTag::viewTags($this->_controller, $this->_model->tags, $options);
+    }
+    
+    /**
+     * @brief Condizione in una select query per trovare i record associati a un determinato tag
+     * 
+     * @see Gino.GTag::whereCondition
+     * @param \Gino\Controller $controller
+     * @param string $tag valore del tag da ricercare
+     * @return string
+     */
+    public static function tagQueryCondition($controller, $tag) {
         
-        $linked_tags = array();
-        foreach(explode(',', $this->_model->tags) as $tag) {
-            $linked_tags[] = "<a href=\"".$this->_controller->link($this->_controller->getInstanceName(), $interface, array('id' => $tag))."\">".$tag."</a>";
-        }
-        
-        return implode($separator, $linked_tags);
+        return \Gino\GTag::whereCondition($controller, $tag);
     }
     
     /**
@@ -91,14 +95,14 @@ class ModelTools {
      * @param array $options associativo di opzioni
      * @return string
      */
-    public static function queryConditions($controller, $options=[]) {
+    /*public static function queryConditions($controller, $options=[]) {
         
         $where = ["instance='".$controller->getInstance()."'"];
         // add other conditions
         $where = implode(' AND ', $where);
         
         return $where;
-    }
+    }*/
     
     /**
      * @brief Restituisce il numero di oggetti selezionati
@@ -108,14 +112,14 @@ class ModelTools {
      * @param array $options array associativo di opzioni
      * @return integer
      */
-    public static function objectCount($controller, $table, $options = []) {
+    /*public static function objectCount($controller, $table, $options = []) {
         
         $db = \Gino\Db::instance();
         
         $where = self::queryConditions($controller, $options);
         
         return $db->getNumRecords($table, $where);
-    }
+    }*/
     
     /**
      * @brief Path relativo all'immagine di un campo Gino.ImageField
@@ -123,7 +127,7 @@ class ModelTools {
      * @param array $options array associativo di opzioni
      * @return string
      */
-    public function imagePath($options = []) {
+    /*public function imagePath($options = []) {
         
         $fieldname = \Gino\gOpt('fieldname', $options, 'image');
         $dir = \Gino\gOpt('dir', $options, null);
@@ -135,7 +139,7 @@ class ModelTools {
         $path .= $this->_model->$fieldname;
         
         return $path;
-    }
+    }*/
     
     /**
      * @brief Path relativo a un file allegato

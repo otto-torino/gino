@@ -317,30 +317,34 @@ class GTag {
      * 
      * @param \Gino\Controller $controller
      * @param string $tags elenco dei tag di un oggetto Gino.Model (@see Gino.TagField)
-     * @param string $interface nome del metodo del link associato al tag (default archive)
+     * @param array $options
+     *   - @b interface (string): nome del metodo del link associato al tag (default archive)
+     *   - @b separator (string): separatore dei tag (default ' ')
      * @return string
      */
-    public static function viewTags($controller, $tags, $interface=null) {
+    public static function viewTags($controller, $tags, $options=[]) {
     	
-    	$buffer = '';
+        $interface = \Gino\gOpt('interface', $options, 'archive');
+        $separator = \Gino\gOpt('separator', $options, ' ');
+        
+        $linked_tags = [];
     	
-    	if($tags)
-    	{
-    		if(!$interface) {
-    			$interface = 'archive';
-    		}
+    	if($tags) {
     		$cleaned_tags = array_map('trim', explode(',', $tags));
-    
+
     		foreach($cleaned_tags AS $tag)
     		{
     			if($tag) {
     				$link = $controller->link($controller->getInstanceName(), $interface, array('tag' => urlencode($tag)));
-    				$buffer .= "<a href=\"".$link."\">$tag</a>";
+    				$linked_tags[] = "<a href=\"".$link."\">$tag</a>";
     			}
     		}
+    		
+    		return implode($separator, $linked_tags);
     	}
-    	
-    	return $buffer;
+    	else {
+    	    return null;
+    	}
     }
     
     /**

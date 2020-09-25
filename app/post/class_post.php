@@ -277,7 +277,7 @@ class post extends \Gino\Controller {
             $conditions['private'] = false;
         }
         
-        $where = Item::setConditionWhere($this, $conditions);
+        $where = Item::queryConditions($this, $conditions);
 
         $items = Item::objects($this, array('where' => $where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>array(0, $this->_showcase_post_number)));
 
@@ -307,7 +307,7 @@ class post extends \Gino\Controller {
     	if(!$this->userHasPerm('can_view_private')) {
     	    $conditions['private'] = false;
     	}
-    	$where = Item::setConditionWhere($this, $conditions);
+    	$where = Item::queryConditions($this, $conditions);
     
     	$items = Item::objects($this, ['where' => $where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>array(0, $this->_evidence_number)]);
     
@@ -334,7 +334,7 @@ class post extends \Gino\Controller {
     	if(!$this->userHasPerm('can_view_private')) {
     	    $conditions['private'] = false;
     	}
-    	$where = Item::setConditionWhere($this, $conditions);
+    	$where = Item::queryConditions($this, $conditions);
     	
     	return Item::objects($this, [
     	    'where' => $where, 
@@ -389,7 +389,7 @@ class post extends \Gino\Controller {
         	}
 		}
 
-		$where = Item::setConditionWhere($this, $conditions);
+		$where = Item::queryConditions($this, $conditions);
 		$items = Item::objects($this, array(
             'where' => $where, 
             'order' => 'date DESC, insertion_date DESC', 
@@ -556,12 +556,12 @@ class post extends \Gino\Controller {
 		    $conditions['private'] = false;
 		}
 		
-		$count = Item::getCount($this, $conditions);
+		$count = Item::objectCount($this, $conditions);
         
 		$paginator = Loader::load('Paginator', array($count, $this->_list_nfp));
         $limit = $paginator->limitQuery();
         
-        $where = Item::setConditionWhere($this, $conditions);
+        $where = Item::queryConditions($this, $conditions);
         
         $items = Item::objects($this, array('where'=>$where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>$limit, 'debug'=>false));
         

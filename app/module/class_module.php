@@ -117,6 +117,7 @@ class module extends \Gino\Controller {
             $heads = array(
                 _('id'),
                 _('etichetta'),
+                _('nome'),
                 _('modulo di sistema'),
                 _('attivo'),
                 '',
@@ -129,6 +130,7 @@ class module extends \Gino\Controller {
                 $tbl_rows[] = array(
                     $module->id,
                     $module->ml('label'),
+                    $module->name,
                     $module_app->label,
                     $module->active ? _('si') : _('no'),
                     implode(' &#160; ', array($link_modify, $link_delete))

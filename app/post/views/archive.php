@@ -49,7 +49,7 @@ namespace Gino\App\Post;
             		<div class="col-sm-12">
         		<? endif ?>
         		
-        		<div class="tags"><time><?= \Gino\dbDateToDate($n->date) ?></time> <?= \Gino\GTag::viewTags($controller, $n->tags) ?></div>
+        		<div class="tags"><time><?= \Gino\dbDateToDate($n->date) ?></time> <?= $n->tools->showTags() ?></div>
                 <?= \Gino\cutHtmlText(\Gino\htmlChars($n->ml('text')), 300, '...', false, false, true, array('endingPosition' => 'in')) ?>
 			</div>
         </article>

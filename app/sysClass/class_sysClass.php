@@ -129,6 +129,7 @@ class sysClass extends \Gino\Controller {
             $heads = array(
                 _('id'),
                 _('etichetta'),
+                _('nome'),
                 _('istanziabile'),
                 _('attivo'),
                 _('versione'),
@@ -143,6 +144,7 @@ class sysClass extends \Gino\Controller {
                 $tbl_rows[] = array(
                     $module_app->id,
                     $module_app->ml('label'),
+                    $module_app->name,
                     $module_app->instantiable ? _('si') : _('no'),
                     $module_app->active ? _('si') : _('no'),
                     $module_app->class_version,

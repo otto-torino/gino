@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="<?= LANG ?>">
-	{% block 'head.php' %}
+	{% block 'core/head.php' %}
 	<body>
 		{% block 'core/debug_alert.php' %}
 		{% block 'navbar.php' %}
@@ -24,6 +24,6 @@
 			</div>
 		</div>
 		
-		{% block 'footer.php' %}
+		{% block 'core/footer.php' %}
 	</body>
 </html>
