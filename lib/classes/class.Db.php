@@ -323,7 +323,16 @@ interface DbManager {
      *   - except_id (integer): valore ID del record per il quale non effettuare il controllo
      * @return TRUE se presente, FALSE altrimenti
      */
-  public function columnHasValue($table, $field, $value, $options=array());
+    public function columnHasValue($table, $field, $value, $options=array());
+    
+    /**
+     * @brief Definisce la regular expression per la ricerca in un camnpo di tipo testo
+     *
+     * @param string $field nome del campo sul quale effettuare la ricerca
+     * @param mixed $value valore da ricercare
+     * @return string
+     */
+    public function wordBoundaries($field, $value);
 
     /**
      * @brief Definizione delle Join

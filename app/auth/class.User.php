@@ -41,7 +41,7 @@ class User extends \Gino\Model {
         $this->_controller = new auth();
 
         $registry = \Gino\Registry::instance();
-        self::$extension_media = \Gino\enabledPng() ? array('png', 'jpg') : array('jpg');
+        self::$extension_media = \Gino\enabledPng() ? array('jpg', 'jpeg', 'png') : array('jpg', 'jpeg');
         
         self::$lng_nav = $this->_lng_nav;
         self::$lng_dft = $this->_lng_dft;

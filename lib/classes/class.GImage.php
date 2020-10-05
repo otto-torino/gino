@@ -316,7 +316,9 @@ class GImage {
 
         $pathinfo = pathinfo($this->_abspath);
 
-        $filename = sprintf('gimage_%d.%s', $db->autoIncValue($this->_table), $pathinfo['extension']);
+        //$filename = sprintf('gimage_%d.%s', $db->autoIncValue($this->_table), $pathinfo['extension']);
+        $filename = sprintf('gimage_%s.%s', $key, $pathinfo['extension']);
+        
         $path = $this->_dir.OS.$filename;
         $data = array(
             'key' => $key,

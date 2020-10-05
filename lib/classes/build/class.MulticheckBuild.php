@@ -46,7 +46,7 @@ class MulticheckBuild extends Build {
 
     /**
      * @brief Rappresentazione a stringa dell'oggetto
-     * @return rappresentazione a stringa dei modelli associati separati da virgola
+     * @return string, rappresentazione a stringa dei modelli associati separati da virgola
      */
     public function __toString() {
 
@@ -65,7 +65,7 @@ class MulticheckBuild extends Build {
 
     /**
      * @brief Getter della proprietà choice
-     * @return proprietà choice
+     * @return array
      */
     public function getChoice() {
         return $this->_choice;
@@ -139,7 +139,14 @@ class MulticheckBuild extends Build {
 
         $parts = array();
         foreach($value as $v) {
-            $parts[] = $this->_table.".".$this->_name." REGEXP '[[:<:]]".$v."[[:>:]]'";
+            
+            // MySQL 5
+            //$regexp = "REGEXP '[[:<:]]".$v."[[:>:]]'";
+            
+            //MySQL up from 8.04
+            $regexp = "REGEXP '".preg_quote('\\b'.$v.'\\b')."'";
+            
+            $parts[] = $this->_table.".".$this->_name.' '.$regexp;
         }
 
         return "(".implode(' OR ', $parts).")";

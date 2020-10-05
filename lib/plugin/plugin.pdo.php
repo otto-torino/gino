@@ -1205,6 +1205,14 @@ class pdo implements \Gino\DbManager {
 	}
 	
 	/**
+	 * @see \Gino\DbManager::wordBoundaries()
+	 */
+	public function wordBoundaries($field, $value) {
+	    
+	    return null;
+	}
+	
+	/**
 	 * @see Gino.DbManager::join()
 	 */
 	public function join($table, $condition, $option) {

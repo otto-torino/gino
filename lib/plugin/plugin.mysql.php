@@ -391,22 +391,23 @@ class mysql implements \Gino\DbManager {
 	/**
 	 * Ottiene il valore del campo AUTO_INCREMENT
 	 * 
-	 * @see DbManager::autoIncValue()
+	 * @see \Gino\DbManager::autoIncValue()
 	 */
 	public function autoIncValue($table){
 
-		$query = "SHOW TABLE STATUS LIKE '$table'";
-		$a = $this->select(null, null, null, array('custom_query'=>$query, 'cache'=>false));
-		if(sizeof($a) > 0)
-		{
-			foreach ($a AS $b)
-			{
-				$auto_increment = $b['Auto_increment'];
-			}
-		}
-		else $auto_increment = 0;
-		
-		return $auto_increment;
+	    // To refresh the information_schema statistics (from MySQL 8; @see information_schema_stats_expiry option)
+	    $res = $this->execCustomQuery("ANALYZE TABLE $table");
+	    
+	    $query = "SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = '".$table."' AND table_schema = DATABASE()";
+	    $res = $this->execCustomQuery($query);
+	    if(is_array($res) and count($res)) {
+	        $auto_increment = $res[0]['AUTO_INCREMENT'];
+	    }
+	    else {
+	        $auto_increment = 0;
+	    }
+	    
+	    return $auto_increment;
 	}
 	
 	/**
