@@ -2,10 +2,6 @@
 /**
  * @file class.ForeignKeyBuild.php
  * @brief Contiene la definizione ed implementazione delal classe Gino.ForeignKeyBuild
- *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
@@ -15,11 +11,7 @@ Loader::import('class/build', '\Gino\Build');
  * @brief Campo di tipo chiave esterna
  *
  * I valori da associare al campo risiedono in una tabella esterna e i parametri per accedervi devono essere definiti nelle opzioni del campo. \n
- * Tipologie di input associabili: select, radio
- *
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ * Tipologie di input associabili: select, radio, hidden
  */
 class ForeignKeyBuild extends Build {
 
@@ -67,7 +59,14 @@ class ForeignKeyBuild extends Build {
      */
     public function formElement($mform, $options=array()) {
 
-    	$db = db::instance();
+        // Campi \Gino\ForeignKeyField di modelli gestiti come \Gino\ManyToManyThroughField
+        $widget = isset($options['widget']) ? $options['widget'] : $this->_widget;
+        
+        if($widget == 'hidden') {
+            return parent::formElement($mform, $options);
+        }
+        
+        $db = db::instance();
     	
     	if($this->_foreign_controller) {
             $foreign = new $this->_foreign(null, $this->_foreign_controller);

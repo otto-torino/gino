@@ -46,7 +46,8 @@ class UnitWidget extends Widget {
 		
 		if(count($inputs))
 		{
-			foreach($inputs AS $input)
+		    // Models with ID value
+		    foreach($inputs AS $input)
 			{
 				$buffer .= "<fieldset>";
 				$buffer .= "<legend><span data-clone-ctrl=\"minus\" class=\"link fa fa-minus-circle\"></span> ".ucfirst($m2m_model->getModelLabel())."</legend>";
@@ -64,6 +65,7 @@ class UnitWidget extends Widget {
 		$buffer .= "<legend><span data-clone-ctrl=\"plus\" class=\"link fa fa-plus-circle\"></span> ".ucfirst($m2m_model->getModelLabel())."</legend>";
 		$buffer .= "<div class=\"hidden\" data-clone=\"1\">";
 		
+		// Model without ID value
 		$mform = Loader::load('ModelForm', array($m2m_model));
 		$buffer .= $mform->view(array('only_inputs' => true), array());
 		

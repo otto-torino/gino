@@ -2,8 +2,6 @@
 /**
  * @file class.Model.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Model
- *
- * @copyright 2014-2020 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
  */
 namespace Gino;
 
@@ -98,6 +96,12 @@ require_once 'class.ModelTools.php';
      * @var object
      */
     public $tools;
+    
+    /**
+     * @brief Proprietà specifiche di un modello
+     * @var array
+     */
+    //private $_properties;
 
     /**
      * Costruttore
@@ -123,6 +127,8 @@ require_once 'class.ModelTools.php';
         $this->_trd = new Translation($this->_lng_nav, $this->_lng_dft);
         
         $this->tools = new \Gino\ModelTools($this, $this->_controller);
+        
+        //$this->_properties = $this->properties($this, $this->getController());
     }
 
     /**
@@ -877,9 +883,9 @@ require_once 'class.ModelTools.php';
     public function getProperties($field_obj) {
     	
     	$field_name = $field_obj->getName();
-    	$controller = $this->getController();
+    	//$prop = $this->_properties;
     	
-    	$prop = $this->properties($this, $controller);
+    	$prop = $this->properties($this, $this->getController());
     	
     	$prop_base = array(
     		'model' => $this,
@@ -888,7 +894,7 @@ require_once 'class.ModelTools.php';
     		'table' => $this->getTable()
     	);
     	
-    	if(array_key_exists($field_name, $prop)) {
+    	if(is_array($prop) and array_key_exists($field_name, $prop)) {
     		$prop_model = $prop[$field_name];
     		
     		if(!is_array($prop_model)) {
@@ -960,35 +966,35 @@ require_once 'class.ModelTools.php';
      */
 	public function fetchColumns($id) {
 		
-		$row = $this->_db->select('*', $this->_tbl_data, "id='$id'", array('debug'=>false));
-		
-		$class = get_class($this);
-		
-		if(!is_array($class::$columns)) {
-			throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
-		}
-		
-		foreach($class::$columns as $field_name=>$field_obj) {
-			
-			if($row && count($row)) {
-				
-				if($this->checkM2m($field_obj)) {
-					$build = $this->build($field_obj);
-					$this->_p[$field_name] = $build->getValue();
-				}
-				else {
-				    if(array_key_exists($field_name, $row[0])) {
-				        $this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
-				    }
-				    else {
-				        $this->_p[$field_name] = null;
-				    }
-				}
-			}
-			else {
-				$this->_p[$field_name] = null;
-			}
-		}
+	    $row = $this->_db->select('*', $this->_tbl_data, "id='$id'", array('debug'=>false));
+	    
+	    $class = get_class($this);
+	    
+	    if(!is_array($class::$columns)) {
+	        throw new \Exception(sprintf(_("Non sono stati definiti nel modello i campi della tabella %s"), $this->_tbl_data));
+	    }
+	    
+	    foreach($class::$columns as $field_name=>$field_obj) {
+	        
+	        if($row && count($row)) {
+	            
+	            if($this->checkM2m($field_obj)) {
+	                $build = $this->build($field_obj);
+	                $this->_p[$field_name] = $build->getValue();
+	            }
+	            else {
+	                if(array_key_exists($field_name, $row[0])) {
+	                    $this->_p[$field_name] = $field_obj->valueFromDb($row[0][$field_name]);
+	                }
+	                else {
+	                    $this->_p[$field_name] = null;
+	                }
+	            }
+	        }
+	        else {
+	            $this->_p[$field_name] = null;
+	        }
+	    }
 	}
 	
 	/**

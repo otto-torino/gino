@@ -37,13 +37,13 @@ $site_www = preg_replace("#".preg_quote($docroot)."?#", "", $siteroot);
 define('SITE_WWW', $site_www);
 
 // Include le variabili con i percorsi dell'applicazione
-include 'core/utilities/paths.php';
+include 'core/base/paths.php';
 
 // Include i nomi delle tabelle utilizzate da tutto il sistema
-include_once CORE_UTILITY_DIR.OS."tables.php";
+include_once CORE_BASE_DIR.OS."tables.php";
 
 // Include le funzioni definite nel namespace globale
-include_once CORE_UTILITY_DIR.OS."global.php";
+include_once CORE_BASE_DIR.OS."global.php";
 
 // Include funzioni utilizzate da tutto il sistema
 include_once FUNCTIONS_DIR.OS."func.php";

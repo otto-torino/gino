@@ -58,8 +58,8 @@ define('CORE_DIR', SITE_ROOT.OS.'core');
 // Directory che contiene le app di sistema
 define('CORE_APP_DIR', CORE_DIR.OS.'app');
 
-// Directory che contiene i file con le utilities
-define('CORE_UTILITY_DIR', CORE_DIR.OS.'utilities');
+// Directory che contiene i file con le impostazioni di base
+define('CORE_BASE_DIR', CORE_DIR.OS.'base');
 
 // Directory delle librerie
 define('LIB_DIR', CORE_DIR.OS.'lib');
@@ -112,8 +112,8 @@ define('SITE_CORE', SITE_WWW.'/core');
 // Directory delle app di sistema
 define('SITE_CORE_APP', SITE_CORE.'/app');
 
-// Directory che contiene i file con le utilities
-define('SITE_CORE_UTILITY', SITE_CORE.'/utilities');
+// Directory che contiene i file con le impostazioni di base
+define('SITE_CORE_BASE', SITE_CORE.'/base');
 
 // Directory delle librerie
 define('SITE_LIB', SITE_CORE.'/lib');
