@@ -3,10 +3,23 @@
  * @file options.php
  * @brief Impostazioni dei campi delle opzioni del controller
  * @description Il formato dei campi:
- *  (string) fieldname => ['default', 'label', 'section', 'section_title', 'section_description']
+ *  (string) fieldname => [
+ *    'default' => mixed, 
+ *    'label' => mixed (string, array [title, text(helptext)]), 
+ *    'value' => mixed, 
+ *    'required' => boolean,
+ *    'trns' => boolean,
+ *    'editor' => boolean,
+ *    'footnote' => string,
+ *    'section' => boolean, 
+ *    'section_title' => string, 
+ *    'section_description' => string
+ *  ]
  * 
  * @see Gino.Controller
+ * @see Gino.Options
  */
+namespace Gino\App\Post;
 
 $registry = \Gino\Registry::instance();
 $db = $registry->db;

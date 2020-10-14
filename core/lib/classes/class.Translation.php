@@ -2,10 +2,6 @@
 /**
  * @file class.Translation.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Translation
- * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
@@ -15,10 +11,6 @@ namespace Gino;
  * Le traduzioni vengono cercate nella lingua di navigazione. Se non presenti viene restituita la traduzione nella lingua di default.
  * La lingua di navigazione è quella ricavata dallo user agent del client, oppure impostata in sessione a seguito di scelta dell'utente.
  * La lingua di default è quella impostata come tale da interfaccia.
- *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class Translation {
 

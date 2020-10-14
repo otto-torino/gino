@@ -2,10 +2,6 @@
 /**
  * @file class.Options.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Options
- * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 use \Gino\App\SysClass\ModuleApp;
@@ -13,14 +9,12 @@ use Gino\Http\Request;
 
 /**
  * @brief Gestisce le opzioni di classe, costruendo il form ed effettuando l'action
- *
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  * 
  * ##Utilizzo
  * Le opzioni che possono essere associate a ciascun campo sono: \n
- *   - @b label (string): nome della label
+ *   - @b label (mixed): nome della label
+ *     - @a string
+ *     - @a array [title, text (helptext)]
  *   - @b value (mixed): valore di default
  *   - @b required (boolean): campo obbligatorio
  *   - @b trnsl (boolean): campo che necessita di traduzione

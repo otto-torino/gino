@@ -6,6 +6,23 @@
 
 namespace Gino;
 
+//@cond no-doxygen
+$siteroot = preg_match("#^[a-zA-Z][:\\\]+#", SITE_ROOT)
+? preg_replace("#\\\#", "/", SITE_ROOT)
+: SITE_ROOT;
+
+// Per compatibilità con l'ambiente Windows ($_SERVER['DOCUMENT_ROOT'] termina con '/')
+$docroot = preg_match("#^[a-zA-Z][:\\\]+#", $_SERVER['DOCUMENT_ROOT'])
+? preg_replace("#\\\#", "/", $_SERVER['DOCUMENT_ROOT'])
+: $_SERVER['DOCUMENT_ROOT'];
+
+$docroot = (substr($docroot, -1) == '\\') ? substr_replace($docroot, '', -1) : $docroot;
+$site_www = preg_replace("#".preg_quote($docroot)."?#", "", $siteroot);
+// @endcond
+
+/** @const SITE_WWW Percorso relativo dell'applicazione a partire dalla root directory */
+define('SITE_WWW', $site_www);
+
 /** Separatore di directory definito dal sistema operativo */
 define('OS', DIRECTORY_SEPARATOR);
 

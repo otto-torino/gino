@@ -2,10 +2,6 @@
 /**
  * @file class.Frontend.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Frontend
- * 
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 namespace Gino;
@@ -15,11 +11,7 @@ namespace Gino;
  *
  * Possono essere selezionati e modificati i file con le seguenti caratteristiche: \n
  *   - i file css definiti nel metodo getClassElements() della classe del modulo
- *   - i file delle viste presenti nella directory @a views presente nella directory dell'applicazione 
- *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
+ *   - i file delle viste presenti nella directory @a views presente nella directory dell'applicazione
  *
  */
 class Frontend {
@@ -116,7 +108,7 @@ class Frontend {
      */
     private function pathToFile($code) {
 
-        $dir = APP_DIR.OS.$this->_class_name.OS;
+        $dir = get_app_dir($this->_class_name).OS;
 
         if($code == 'css')
         {

@@ -52,7 +52,7 @@ abstract class Controller {
 	 * @description Richiamato in Gino.Options
 	 * @see Gino.Options
 	 * @var array, nel formato (string) fieldname => (array) 
-	 *     ['label' => mixed, 'value' => mixed, 'section' => boolean, 'section_title' => string, 'section_description' => string]
+	 *     ['label' => mixed, 'value' => mixed, 'section' => boolean, 'section_title' => string, ...]
 	 */
 	public $_optionsLabels;
 	
@@ -99,6 +99,7 @@ abstract class Controller {
      * @brief Imposta le opzioni del controller come proprietà
      * @description Nel caso in cui le proprietà vengano dicharate nella classe controller,
      * queste devono essere dichiarate @a protected o @a public.
+     * @return null
      */
     protected function setPropertyOptions() {
         
@@ -476,7 +477,9 @@ abstract class Controller {
      */
     protected function appOptions() {
         
-        $options_file = APP_DIR.OS.$this->_class_name.OS.'options.php';
+        $app_dir = get_app_dir($this->_class_name);
+        $options_file = $app_dir.OS.'options.php';
+        
         if(file_exists($options_file)) {
             include $options_file;
         }
@@ -494,11 +497,9 @@ abstract class Controller {
             
             foreach ($options as $field => $data) {
                 
-                $default_value[$field] = $data['default'];
-                
                 if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
                     
-                    $value = $this->setOption($field, ['value' => $default_value[$field]]);
+                    $value = $this->setOption($field, ['value' => $data['default']]);
                     $array[$field] = $value;
                 }
                 else {
@@ -506,6 +507,20 @@ abstract class Controller {
                 }
                 
                 $field_input = ['label' => $data['label'], 'value' => $value];
+                
+                if(array_key_exists('required', $data) && is_bool($data['required'])) {
+                    $field_input['required'] = $data['required'];
+                }
+                if(array_key_exists('trnsl', $data) && is_bool($data['trnsl'])) {
+                    $field_input['trnsl'] = $data['trnsl'];
+                }
+                if(array_key_exists('editor', $data) && is_bool($data['editor'])) {
+                    $field_input['editor'] = $data['editor'];
+                }
+                if(array_key_exists('footnote', $data) && $data['footnote']) {
+                    $field_input['footnote'] = $data['footnote'];
+                }
+                
                 if(array_key_exists('section', $data) && is_bool($data['section']) && $data['section']) {
                     $field_input['section'] = $data['section'];
                 }
@@ -537,7 +552,9 @@ abstract class Controller {
      */
     protected function setSearchParams($query_params=[]) {
         
-        $utils_file = APP_DIR.OS.$this->_class_name.OS.'utils.php';
+        $app_dir = get_app_dir($this->_class_name);
+        $utils_file = $app_dir.OS.'utils.php';
+        
         if(file_exists($utils_file)) {
             include $utils_file;
         }

@@ -2,10 +2,6 @@
 /**
  * @file class.Locale.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Locale
- * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
@@ -77,10 +73,6 @@ use Gino\App\Language\Lang;
  *   'label_comments' => 'Abilita i commenti'
  * );
  * @endcode
- * 
- * @copyright 2013-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class Locale extends Singleton {
 
@@ -92,6 +84,12 @@ class Locale extends Singleton {
      * @var string
      */
     private $_class_name;
+    
+    /**
+     * Directory dell'app
+     * @var string
+     */
+    private $_app_dir;
     
     /**
      * Lista dei file delle traduzioni
@@ -110,11 +108,12 @@ class Locale extends Singleton {
         $this->_session = Session::instance();
         $this->_strings = array();
         $this->_class_name = $class_name;
+        
+        $this->_app_dir = get_app_dir($this->_class_name);
 
         $path_to_file = $this->pathToFile();
 
-        if(file_exists($path_to_file))
-        {
+        if(file_exists($path_to_file)) {
             $this->_strings = include($path_to_file);
         }
     }
@@ -131,7 +130,7 @@ class Locale extends Singleton {
 
         $filename = $this->fileName();
 
-        if(!is_dir(APP_DIR.OS.$this->_class_name))
+        if(!is_dir($this->_app_dir))
         {
             $path_to_file = SITE_ROOT.OS.'languages'.OS.$this->_session->lng.OS.'LC_MESSAGES'.OS.$filename;
         }
@@ -526,7 +525,7 @@ class Locale extends Singleton {
      */
     private function pathToBaseDir($code=null) {
     
-    	$dir = APP_DIR.OS.$this->_class_name.OS.'language'.OS;
+        $dir = $this->_app_dir.OS.'language'.OS;
     	
     	if($code) $dir .= $code.OS;
     
