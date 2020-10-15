@@ -53,9 +53,6 @@ define('TPL_DIR', SITE_ROOT.OS.'templates');
 /** Percorso assoluto alla directory che contiene viste generiche di sistema */
 define('VIEWS_DIR', SITE_ROOT.OS.'views');
 
-/** Percorso assoluto alla directory che contiene file di grafica */
-define('GRAPHICS_DIR', SITE_ROOT.OS.'graphics');
-
 /** Percorso assoluto alla directory che contiene upload degli utenti */
 define('CONTENT_DIR', SITE_ROOT.OS.'contents');
 
@@ -78,23 +75,26 @@ define('CORE_APP_DIR', CORE_DIR.OS.'app');
 // Directory che contiene i file con le impostazioni di base
 define('CORE_BASE_DIR', CORE_DIR.OS.'base');
 
-// Directory delle librerie
-define('LIB_DIR', CORE_DIR.OS.'lib');
+// Percorso assoluto alla directory che contiene le risorse
+define('RESOURCES_DIR', CORE_DIR.OS.'resources');
+
+// Percorso assoluto alla directory che contiene le librerie
+define('LIBRARIES_DIR', RESOURCES_DIR.OS.'libraries');
 
 /** Percorso assoluto alla directory che contiene le funzioni generali */
-define('FUNCTIONS_DIR', LIB_DIR.OS.'functions');
+define('FUNCTIONS_DIR', RESOURCES_DIR.OS.'functions');
 
 /** Percorso assoluto alla directory che contiene le classi che non fanno parte di moduli */
-define('CLASSES_DIR', LIB_DIR.OS.'classes');
+define('CLASSES_DIR', RESOURCES_DIR.OS.'classes');
 
 /** Percorso assoluto alla directory che contiene le classi che descrivono campi di db */
 define('FIELDS_DIR', CLASSES_DIR.OS.'fields');
 
 /** Percorso assoluto alla directory che contiene plugins */
-define('PLUGIN_DIR', LIB_DIR.OS.'plugin');
+define('PLUGIN_DIR', RESOURCES_DIR.OS.'plugin');
 
 /** Percorso assoluto alla directory che contiene i file di customizzazione di CKEditor */
-define('CUSTOM_CKEDITOR_DIR', LIB_DIR.OS.'custom_ckeditor');
+define('CUSTOM_CKEDITOR_DIR', RESOURCES_DIR.OS.'custom_ckeditor');
 
 /**
  * Percorsi relativi
@@ -116,9 +116,6 @@ define('SITE_APP', SITE_WWW.'/app');
 /** Percorso relativo alla directory che contiene immagini si sistema */
 define('SITE_IMG', SITE_WWW.'/img');
 
-/** Percorso relativo alla directory che contiene file di grafica */
-define('SITE_GRAPHICS', SITE_WWW.'/graphics');
-
 /**
  * Percorsi relativi - core
  */
@@ -132,11 +129,14 @@ define('SITE_CORE_APP', SITE_CORE.'/app');
 // Directory che contiene i file con le impostazioni di base
 define('SITE_CORE_BASE', SITE_CORE.'/base');
 
-// Directory delle librerie
-define('SITE_LIB', SITE_CORE.'/lib');
+// Percorso relativo alla directory che contiene le risorse
+define('SITE_RESOURCES', SITE_CORE.'/resources');
+
+// Percorso relativo alla directory che contiene le librerie
+define('SITE_LIBRARIES', SITE_RESOURCES.'/libraries');
 
 /** Percorso relativo alla directory che contiene librerie javascript */
-define('SITE_JS', SITE_LIB.'/js');
+define('SITE_JS', SITE_RESOURCES.'/js');
 
 /** Percorso relativo alla directory che contiene file di customizzazione di CKEditor */
 define('SITE_CUSTOM_CKEDITOR', SETTINGS_DIR.'/custom_ckeditor');

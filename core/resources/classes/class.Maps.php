@@ -2,19 +2,11 @@
 /**
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Maps
- * 
- * @copyright 2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
  * @brief Contiene i metodi per utilizzare le mappe di OpenStreetMap o Gmaps
- * 
- * @copyright 2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  * 
  * Per l'implementazione di mappe OpenStreetMap utilizzo la libreria JavaScript Leaflet che permette di 
  * sviluppare mappe geografiche interattive (WebGIS).
@@ -147,14 +139,14 @@ class Maps {
         );
         
         if($fullscreen) {
-            $this->_registry->addCustomJs(SITE_JS.'/Maps/OpenStreetMap/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js',
+            $this->_registry->addCustomJs(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js',
                 array('compress'=>false, 'minify'=>false));
-            $this->_registry->addCss(SITE_JS.'/Maps/OpenStreetMap/leaflet-fullscreen/dist/leaflet.fullscreen.css');
+            $this->_registry->addCss(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-fullscreen/dist/leaflet.fullscreen.css');
         }
         
         if($search) {
-            $this->_registry->addCustomJs(SITE_JS.'/Maps/OpenStreetMap/leaflet-search/src/leaflet-search.js', array('compress'=>false, 'minify'=>false));
-            $this->_registry->addCss(SITE_JS.'/Maps/OpenStreetMap/leaflet-search/src/leaflet-search.css');
+            $this->_registry->addCustomJs(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-search/src/leaflet-search.js', array('compress'=>false, 'minify'=>false));
+            $this->_registry->addCss(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-search/src/leaflet-search.css');
         }
         
         if($elevation) {
@@ -172,8 +164,8 @@ class Maps {
             $this->_registry->addRawJs("<script src=\"https://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>");
             $this->_registry->addRawJs("<script src=\"https://d3js.org/queue.v1.min.js\"></script>");
             
-            $this->_registry->addCustomJs(SITE_JS.'/Maps/OpenStreetMap/leaflet-elevation-mm/dist/leaflet.elevation-0.0.4.min.js', array('compress'=>false, 'minify'=>false));
-            $this->_registry->addCss(SITE_JS.'/Maps/OpenStreetMap/leaflet-elevation-mm/dist/leaflet.elevation-0.0.4.css');
+            $this->_registry->addCustomJs(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-elevation-mm/dist/leaflet.elevation-0.0.4.min.js', array('compress'=>false, 'minify'=>false));
+            $this->_registry->addCss(SITE_LIBRARIES.'/Maps/OpenStreetMap/leaflet-elevation-mm/dist/leaflet.elevation-0.0.4.css');
         }
         
         return null;
@@ -301,8 +293,8 @@ class Maps {
     private function osmDrawer($options) {
         
         $this->_registry->addRawJs("<script type=\"text/javascript\">window.OSM_TOKEN = '".OPENSTREETMAP_KEY."';</script>");
-        $this->_registry->addRawJs("<script type=\"text/javascript\" src=\"".SITE_JS."/Maps/osmdrawer/dist/osmdrawer.min.js\"></script>");
-        $this->_registry->addRawJs("<script type=\"text/javascript\" src=\"".SITE_JS."/Maps/osm.js\"></script>");
+        $this->_registry->addRawJs("<script type=\"text/javascript\" src=\"".SITE_LIBRARIES."/Maps/osmdrawer/dist/osmdrawer.min.js\"></script>");
+        $this->_registry->addRawJs("<script type=\"text/javascript\" src=\"".SITE_LIBRARIES."/Maps/osm.js\"></script>");
         
         return "<div id=\"map-canvas\" style=\"max-width: 100%; width: 1000px; height: 400px; margin: auto;\"></div>";
         
@@ -326,7 +318,7 @@ class Maps {
      */
     public static function abiMapLib() {
         
-        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/Maps/abiMap.js\"></script>\n";
+        $buffer = "<script type=\"text/javascript\" src=\"".SITE_LIBRARIES."/Maps/abiMap.js\"></script>\n";
         return $buffer;
     }
     

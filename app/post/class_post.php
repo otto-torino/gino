@@ -444,8 +444,8 @@ class post extends \Gino\Controller {
         // /Breadcrumbs
         
         // Set Registry
-        $this->_registry->addJs(SITE_JS."/lightbox/dist/ekko-lightbox.js");
-        $this->_registry->addCss(CSS_WWW."/lightbox/dist/ekko-lightbox.css");
+        $this->_registry->addJs(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.js");
+        $this->_registry->addCss(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.css");
         $this->_registry->addCss($this->_class_www."/post_".$this->_instance_name.".css");
         
         $this->setSEOSettings([
@@ -502,8 +502,8 @@ class post extends \Gino\Controller {
      */
     public function archive(\Gino\Http\Request $request) {
 
-        $this->_registry->addJs(SITE_JS."/lightbox/dist/ekko-lightbox.js");
-        $this->_registry->addCss(CSS_WWW."/lightbox/dist/ekko-lightbox.css");
+        $this->_registry->addJs(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.js");
+        $this->_registry->addCss(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.css");
         $this->_registry->addCss($this->_class_www."/post_".$this->_instance_name.".css");
 
     	$this->_registry->title = $this->_registry->sysconf->head_title . ' | '._("Archivio post");

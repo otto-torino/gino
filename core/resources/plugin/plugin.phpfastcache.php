@@ -2,10 +2,6 @@
 /**
  * @file plugin.phpfastcache.php
  * @brief Contiene la classe plugin_phpfastcache
- * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 /**
@@ -14,16 +10,12 @@
  */
 namespace Gino\Plugin;
 
-require_once(LIB_DIR.OS."phpfastcache".OS."phpfastcache.php");
+require_once LIBRARIES_DIR.OS."phpfastcache".OS."phpfastcache.php";
 
 /**
  * @brief Interfaccia alla libreria phpfastcache
  * 
  * @see http://www.phpfastcache.com/
- * 
- * @copyright 2015 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class plugin_phpfastcache {
 

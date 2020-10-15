@@ -505,9 +505,6 @@ INSERT INTO `language_translation` (`tbl_id_value`, `tbl`, `field`, `language`, 
 (1, 'sys_conf', 'head_title', 'es_ES', 'ESP'),
 (1, 'sys_conf', 'head_title', 'fr_FR', 'FRENCH'),
 (4, 'sys_module', 'label', 'en_US', 'Main menu'),
-(10, 'sys_graphics', 'description', 'en_US', 'footer engli'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
-(10, 'sys_graphics', 'html', 'en_US', 'textarea english f'),
 (4, 'language_opt', 'title', 'en_US', 'Languages'),
 (4, 'language_opt', 'title', 'es_ES', 'Idiomas'),
 (2, 'page_entry', 'title', 'en_US', 'Documentation'),
@@ -1045,29 +1042,6 @@ CREATE TABLE `sys_gimage` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sys_graphics`
---
-
-CREATE TABLE `sys_graphics` (
-  `id` smallint NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `type` tinyint(1) NOT NULL DEFAULT '1',
-  `image` varchar(128) DEFAULT NULL,
-  `html` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `sys_graphics`
---
-
-INSERT INTO `sys_graphics` (`id`, `name`, `description`, `type`, `image`, `html`) VALUES
-(1, 'header', 'Header', 2, '', ''),
-(2, 'footer', 'Footer', 2, '', '');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `sys_layout_css`
 --
 
@@ -1233,8 +1207,6 @@ CREATE TABLE `sys_module` (
 INSERT INTO `sys_module` (`id`, `label`, `name`, `module_app`, `active`, `description`) VALUES
 (4, 'Menu principale', 'mainMenu', 10, 1, 'Menu principale'),
 (5, 'Menu amministrazione', 'menu_admin', 10, 1, 'Menu area amministrativa'),
-(6, 'Top Bar', 'topbar', 14, 1, 'Barra superiore con scelta lingua ed autenticazione'),
-(9, 'Top Bar Admin', 'topbaradmin', 14, 1, 'Barra superiore con link diretto all\'amministrazione dei singoli moduli'),
 (10, 'Articoli', 'article', 19, 1, 'Gestore di articoli'),
 (11, 'Calendario', 'cal', 20, 1, NULL);
 
@@ -1267,7 +1239,6 @@ INSERT INTO `sys_module_app` (`id`, `label`, `name`, `active`, `tbl_name`, `inst
 (4, 'Moduli', 'module', 1, 'sys_module', 0, 'Modifica, installazione e rimozione dei moduli di classi istanziate e moduli funzione', 0, '1.0'),
 (6, 'Statistiche', 'statistics', 1, 'sys_stat', 0, 'Statistiche degli accessi all\'area privata', 0, '1.0'),
 (7, 'Layout', 'layout', 1, 'sys_layout', 0, 'Gestione di css, template, skin ed assegnazione a indirizzi o classi di indirizzi', 0, '1.0'),
-(8, 'Header e Footer', 'graphics', 1, 'sys_graphics', 0, 'Gestione personalizzata degli header e footer del sistema', 0, '1.0'),
 (9, 'Allegati', 'attachment', 1, 'attachment', 0, 'Archivi di file con struttura ad albero', 0, '1.0'),
 (10, 'Menu', 'menu', 1, 'sys_menu', 1, '', 0, '1.0'),
 (11, 'Pagine', 'page', 1, 'page', 0, 'Pagine html con struttura ad albero', 0, '1.0'),
@@ -1529,12 +1500,6 @@ ALTER TABLE `sys_gimage`
   ADD KEY `key` (`key`);
 
 --
--- Indexes for table `sys_graphics`
---
-ALTER TABLE `sys_graphics`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `sys_layout_css`
 --
 ALTER TABLE `sys_layout_css`
@@ -1769,11 +1734,6 @@ ALTER TABLE `sys_conf`
 --
 ALTER TABLE `sys_gimage`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `sys_graphics`
---
-ALTER TABLE `sys_graphics`
-  MODIFY `id` smallint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `sys_layout_css`
 --

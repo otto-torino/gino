@@ -100,17 +100,17 @@ class Calendar {
      */
     public function importFiles() {
         
-        $this->_registry->addCss(SITE_JS.'/fullcalendar-4.4.0/packages/core/main.css');
-        $this->_registry->addCss(SITE_JS.'/fullcalendar-4.4.0/packages/daygrid/main.css');
-        $this->_registry->addCss(SITE_JS.'/fullcalendar-4.4.0/packages/list/main.css');
-        $this->_registry->addCss(SITE_JS.'/fullcalendar-4.4.0/packages/bootstrap/main.css');
+        $this->_registry->addCss(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/core/main.css');
+        $this->_registry->addCss(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/daygrid/main.css');
+        $this->_registry->addCss(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/list/main.css');
+        $this->_registry->addCss(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/bootstrap/main.css');
         
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/core/main.js');
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/daygrid/main.js');
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/timegrid/main.js');
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/list/main.js');
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/interaction/main.js');
-        $this->_registry->addJs(SITE_JS.'/fullcalendar-4.4.0/packages/bootstrap/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/core/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/daygrid/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/timegrid/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/list/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/interaction/main.js');
+        $this->_registry->addJs(SITE_LIBRARIES.'/fullcalendar-4.4.0/packages/bootstrap/main.js');
         
         return null;
     }

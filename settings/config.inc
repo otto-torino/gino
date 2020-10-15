@@ -152,7 +152,6 @@ define('INSTALLED_APPS', serialize(array(
 	'statistics' => 'pie-chart',
 	'layout' => 'th',
 	'buildapp' => 'cube',
-	'graphics' => 'picture-o',
 	'attachment' => 'file',
 	'page' => 'file-text-o',
 	'searchSite' => 'search',
@@ -166,8 +165,8 @@ define('INSTALLED_APPS', serialize(array(
     'cal' => 'calendar',
 )));
 
-/* elenco delle applicazioni da non visualizzare */
-define('HIDDEN_APPS', serialize(array('graphics', 'topbar', 'topbaradmin', 'menu_admin', )));
+/* elenco delle applicazioni da non visualizzare, ad esempio: ['menu_admin',] */
+define('HIDDEN_APPS', serialize([]));
 
 /* visualizzare le applicazioni nascoste */
 define('VIEW_HIDDEN_APPS', false);
@@ -178,7 +177,6 @@ define('CORE_APPS', [
     'attachment',
     'auth',
     'buildapp',
-    'graphics',
     'index',
     'instruments',
     'language',

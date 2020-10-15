@@ -2,10 +2,6 @@
 /**
  * @file class_statistics.php
  * @brief Contiene la definizione ed implementazione della classe statistics
- *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 /**
@@ -23,10 +19,6 @@ require_once('class.LogAccess.php');
 
 /**
  * @brief Gestisce le statistiche del sito: accessi all'area privata e statistiche Google Analytics
- *
- * @copyright 2005-2018 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  * 
  * ##LIBRERIA GAPI
  * L'accesso alle statistiche Google Analytics viene gestito dalla libreria GAPI (Google Analytics PHP5 Interface).
@@ -117,7 +109,7 @@ class statistics extends \Gino\Controller {
         parent::__construct();
         
         $this->_tbl_log_access = TBL_LOG_ACCESS;
-        $this->_ga_lib_dir = LIB_DIR."/gapi-google-analytics-php-interface/";
+        $this->_ga_lib_dir = LIBRARIES_DIR."/gapi-google-analytics-php-interface/";
         $this->_ga_file_key = $this->_ga_lib_dir.GOOGLE_ANALYTICS_VIEW_FILE;
     }
     
@@ -241,7 +233,7 @@ class statistics extends \Gino\Controller {
     	if(!$this->checkGaKey()) {
     		
     		$buffer = "<p>"._("Per attivare la visualizzazione di alcune statistiche di Google Analytics occorre impostare un account di servizio in un progetto di <i>Google Developers</i> e attivare questo account in <i>Google Analytics</i>.")."</p>";
-    		$buffer .= "<p>".sprintf(_("Seguire la procedura descritta nel file %s ed inpostare i valori delle apposite costanti nel file %s."), "app/statistics/class_statistics.php", "configuration.php")."</p>";
+    		$buffer .= "<p>".sprintf(_("Seguire la procedura descritta nel file %s ed inpostare i valori delle apposite costanti nel file %s."), "core/app/statistics/class_statistics.php", "settings/config.inc")."</p>";
     		return $buffer;
     	}
     	
@@ -345,7 +337,7 @@ class statistics extends \Gino\Controller {
     	}
     	// /Filters
     	
-    	require_once(LIB_DIR.'/gapi-google-analytics-php-interface/gapi.class.php');
+    	require_once LIBRARIES_DIR.'/gapi-google-analytics-php-interface/gapi.class.php';
     	
     	$ga = new \gapi(GOOGLE_ANALYTICS_VIEW_ACCOUNT, $this->_ga_file_key);
     	$token = $ga->getToken();

@@ -7,7 +7,7 @@ namespace Gino;
 
 use \Gino\View;
 
-require_once LIB_DIR.OS.'datepicker.php';
+require_once RESOURCES_DIR.OS.'datepicker.php';
 
 /**
  * @brief Input form

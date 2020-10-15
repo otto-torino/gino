@@ -2,10 +2,6 @@
 /**
  * @file sqlcode.php
  * @brief Contiene la classe sqlcode
- * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 namespace Gino;
@@ -13,16 +9,12 @@ namespace Gino;
 /**
  * @brief Contiene query e codice sql personalizzato
  * 
- * @copyright 2013 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
  * Ogni query e ogni porzione di codice sql deve essere inserita in un metodo il cui nome, per praticità, riporta le sue coordinate ed è così composto: \n
  * nome_classe + _ + nome_metodo
  * 
  * Esempio
  * @code
- * include_once(LIB_DIR.OS."sqlcode.php");
+ * include_once(RESOURCES_DIR.OS."sqlcode.php");
  * $obj = new sqlcode();
  * $call = get_class().'_methodName';
  * $query = $obj->$call($param1, $param2, $param3);
