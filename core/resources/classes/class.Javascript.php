@@ -2,19 +2,11 @@
 /**
  * @file class.Javascript.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Javascript
- * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
 /**
  * @brief Contiene i metodi per includere alcuni javascript
- * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class Javascript {
 
@@ -24,7 +16,7 @@ class Javascript {
      */
     public static function abiMapLib() {
 
-        $buffer = "<script type=\"text/javascript\" src=\"".SITE_JS."/Maps/abiMap.js\"></script>\n";
+        $buffer = "<script type=\"text/javascript\" src=\"".SITE_LIBRARIES."/Maps/abiMap.js\"></script>\n";
         return $buffer;
     }
     
