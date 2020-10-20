@@ -35,7 +35,7 @@ CKEDITOR.editorConfig = function( config ) {
 	
 	// Customization
 	var base_href = $('base').attr('href');
-	var file_path = 'lib/plugin/filemanager/plugin.ckeditor.php';
+	var file_path = 'core/resources/plugin/filemanager/plugin.ckeditor.php';
 	config.baseHref = base_href;
 	
 	// The config.filebrowserBrowseUrl setting contains the location of an external file browser 
