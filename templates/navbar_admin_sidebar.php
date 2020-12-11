@@ -28,7 +28,7 @@
 	<!-- Collect the nav links, forms, and other content for toggling -->
 	<div class="collapse navbar-collapse justify-content-between align-items-center" id="bs-gino-navbar-collapse">
 		<!-- Menu -->
-		{module classid=5 func=render}
+		{% block menu_admin.render %}
 		
 		<div class="navbar-tools">
 			

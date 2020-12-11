@@ -9,22 +9,16 @@ namespace Gino\App\Calendar;
 * - **controller**: object Gino.App.Calendar.calendar
 * - **items**: array, eventi @ref Gino.App.Calendar.Item
 * - **ctg**: mixed, categoria @ref Gino.App.Calendar.Category o null
-* - **search_form**: html, form di ricerca
-* - **open_form**: bool, TRUE se il form deve essere mostrato espanso perché compilato
 * - **pagination**: html, paginazione
-*
-* @version 1.0.0
-* @copyright 2017 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
-* @author Marco Guidotti guidottim@gmail.com
-* @author abidibo abidibo@gmail.com
+* - **search_form**: html, form di ricerca
+* - **link_form**: html
 */
 ?>
 <? //@cond no-doxygen ?>
 <section id="archive-calendar-<?= $instance_name ?>">
-    <h1><?= _('Archivio appuntamenti') ?> <span class="fa fa-search link" style="margin-right: 10px;" onclick="if($('events_form_search').style.display == 'block') $('events_form_search').style.display = 'none'; else $('events_form_search').style.display = 'block';"></span></h1>
-    <div id="events_form_search" style="display: <?= $open_form ? 'block' : 'none'; ?>;">
-        <?= $search_form ?>
-    </div>
+    <h1><?= _('Archivio appuntamenti') ?> <?= $link_form ?></h1>
+    <?= $search_form ?>
+    
     <? if(count($items)): ?>
         <table class='table table-striped table-hover'>
             <tr>

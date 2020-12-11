@@ -60,70 +60,64 @@ class post extends \Gino\Controller {
     /**
      * @brief numero di ultimi post
      */
-    private $_last_post_number;
+    protected $_last_post_number;
 
     /**
      * @brief numero di post per pagina nella vista elenco
      */
-    private $_list_nfp;
+    protected $_list_nfp;
 
     /**
      * @brief numero di post nella vetrina
      */
-    private $_showcase_post_number;
+    protected $_showcase_post_number;
 
     /**
      * @brief animazione vetrina start automatico
      */
-    private $_showcase_auto_start;
+    protected $_showcase_auto_start;
 
     /**
      * @brief animazione vetrina intervallo animazione
      */
-    private $_showcase_auto_interval;
+    protected $_showcase_auto_interval;
     
     /**
      * @brief numero di post in evidenza
      */
-    private $_evidence_number;
+    protected $_evidence_number;
     
     /**
      * @brief animazione post in evidenza - start automatico
      */
-    private $_evidence_auto_start;
+    protected $_evidence_auto_start;
     
     /**
      * @brief animazione post in evidenza - intervallo animazione
      */
-    private $_evidence_auto_interval;
+    protected $_evidence_auto_interval;
 
     /**
      * @brief Massima larghezza immagini
      */
-    private $_image_width;
+    protected $_image_width;
 
     /**
      * @brief Numero ultimi post esportati in lista newsletter
      */
-    private $_newsletter_post_number;
+    protected $_newsletter_post_number;
     
     /**
      * @brief Visualizza lo slideshow nella vista ultimi post
      * @var boolean
      */
-    private $_last_slideshow_view;
+    protected $_last_slideshow_view;
     
     /**
      * @brief Numero post visualizzati nello slideshow
      * @var integer
      */
-    private $_last_slideshow_number;
-
-    /**
-     * @brief Tabella di opzioni 
-     * @var string
-     */
-    private $_tbl_opt;
+    protected $_last_slideshow_number;
 
     /**
      * @brief Costruisce un'istanza di tipo post
@@ -134,148 +128,6 @@ class post extends \Gino\Controller {
     function __construct($mdlId) {
 
         parent::__construct($mdlId);
-
-        $this->_tbl_opt = 'post_opt';
-        
-        $this->setAppOptions();
-    }
-    
-    private function setAppOptions() {
-    	
-    	$this->_optionsValue = array(
-    		'last_post_number' => 3,
-    		'last_slideshow_view' => false,
-    		'last_slideshow_number' => 3,
-    		'list_nfp' => 5,
-    		'showcase_post_number' => 5,
-    		'showcase_auto_start' => 0,
-    		'showcase_auto_interval' => 5000,
-    		'evidence_number' => 3,
-    		'evidence_auto_start' => 0,
-    		'evidence_auto_interval' => 5000,
-    		'image_width' => 600,
-    		'newsletter_post_number' => 10,
-    	);
-    	
-    	if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
-    
-    		$this->_last_post_number = $this->setOption('last_post_number', array('value'=>$this->_optionsValue['last_post_number']));
-    		$this->_last_slideshow_view = $this->setOption('last_slideshow_view', array('value'=>$this->_optionsValue['last_slideshow_view']));
-    		$this->_last_slideshow_number = $this->setOption('last_slideshow_number', array('value'=>$this->_optionsValue['last_slideshow_number']));
-    		$this->_list_nfp = $this->setOption('list_nfp', array('value'=>$this->_optionsValue['list_nfp']));
-    		$this->_showcase_post_number = $this->setOption('showcase_post_number', array('value'=>$this->_optionsValue['showcase_post_number']));
-    		$this->_showcase_auto_start = $this->setOption('showcase_auto_start', array('value'=>$this->_optionsValue['showcase_auto_start']));
-    		$this->_showcase_auto_interval = $this->setOption('showcase_auto_interval', array('value'=>$this->_optionsValue['showcase_auto_interval']));
-    		$this->_evidence_number = $this->setOption('evidence_number', array('value'=>$this->_optionsValue['evidence_number']));
-    		$this->_evidence_auto_start = $this->setOption('evidence_auto_start', array('value'=>$this->_optionsValue['evidence_auto_start']));
-    		$this->_evidence_auto_interval = $this->setOption('evidence_auto_interval', array('value'=>$this->_optionsValue['evidence_auto_interval']));
-    		$this->_image_width = $this->setOption('image_width', array('value'=>$this->_optionsValue['image_width']));
-    		$this->_newsletter_post_number = $this->setOption('newsletter_post_number', array('value'=>$this->_optionsValue['newsletter_post_number']));
-    		
-    		$this->_registry->apps->{$this->_instance_name} = array(
-    			'last_post_number' => $this->_last_post_number,
-    			'last_slideshow_view' => $this->_last_slideshow_view,
-    			'last_slideshow_number' => $this->_last_slideshow_number,
-    			'list_nfp' => $this->_list_nfp,
-    			'showcase_post_number' => $this->_showcase_post_number,
-    			'showcase_auto_start' => $this->_showcase_auto_start,
-    			'showcase_auto_interval' => $this->_showcase_auto_interval,
-    			'evidence_number' => $this->_evidence_number,
-    			'evidence_auto_start' => $this->_evidence_auto_start,
-    			'evidence_auto_interval' => $this->_evidence_auto_interval,
-    			'image_width' => $this->_image_width,
-    			'newsletter_post_number' => $this->_newsletter_post_number
-    		);
-    	}
-    	else {
-    		$this->_last_post_number = $this->_registry->apps->{$this->_instance_name}['last_post_number'];
-    		$this->_last_slideshow_view = $this->_registry->apps->{$this->_instance_name}['last_slideshow_view'];
-    		$this->_last_slideshow_number = $this->_registry->apps->{$this->_instance_name}['last_slideshow_number'];
-    		$this->_list_nfp = $this->_registry->apps->{$this->_instance_name}['list_nfp'];
-    		$this->_showcase_post_number = $this->_registry->apps->{$this->_instance_name}['showcase_post_number'];
-    		$this->_showcase_auto_start = $this->_registry->apps->{$this->_instance_name}['showcase_auto_start'];
-    		$this->_showcase_auto_interval = $this->_registry->apps->{$this->_instance_name}['showcase_auto_interval'];
-    		$this->_evidence_number = $this->_registry->apps->{$this->_instance_name}['evidence_number'];
-    		$this->_evidence_auto_start = $this->_registry->apps->{$this->_instance_name}['evidence_auto_start'];
-    		$this->_evidence_auto_interval = $this->_registry->apps->{$this->_instance_name}['evidence_auto_interval'];
-    		$this->_image_width = $this->_registry->apps->{$this->_instance_name}['image_width'];
-    		$this->_newsletter_post_number = $this->_registry->apps->{$this->_instance_name}['newsletter_post_number'];
-    	}
-    	
-    	$res_newsletter = $this->_db->getFieldFromId(TBL_MODULE_APP, 'id', 'name', 'newsletter');
-    	if($res_newsletter) {
-    		$newsletter_module = TRUE;
-    	}
-    	else {
-    		$newsletter_module = FALSE;
-    	}
-    	
-    	$this->_options = \Gino\Loader::load('Options', array($this));
-    	$this->_optionsLabels = array(
-    		"last_post_number" => array(
-    			'label' => _("Numero ultimi post"),
-    			'value' => $this->_optionsValue['last_post_number'],
-    			'section' => true,
-    			'section_title' => _('Ultimi post')
-    		),
-    		"last_slideshow_view"=>array(
-    			'label' => array(_("Visualizza lo slideshow nella vista"), _("impostare i post da mostrare nello slideshow")),
-    			'value' => $this->_optionsValue['last_slideshow_view']
-    		),
-    		"last_slideshow_number"=>array(
-    			'label' => _("Numero di post nello slideshow"),
-    			'value' => $this->_optionsValue['last_slideshow_number']
-    		),
-    		"list_nfp"=>array(
-    			'label'=>_("Numero post per pagina"),
-    			'value'=>$this->_optionsValue['list_nfp'],
-    			'section'=>true,
-    			'section_title'=>_('Archivio post')
-    		),
-    		"showcase_post_number"=>array(
-    			'label' => _("Numero post"),
-    			'value' => $this->_optionsValue['showcase_post_number'],
-    			'section' => true,
-    			'section_title' => _('Vetrina post (showcase view)')
-    		),
-    		"showcase_auto_start"=>array(
-    			'label' => _("Animazione automatica"),
-    			'value' => $this->_optionsValue['showcase_auto_start']
-    		),
-    		"showcase_auto_interval"=>array(
-    			'label' => _("Intervallo animazione automatica (ms)"),
-    			'value' => $this->_optionsValue['showcase_auto_interval']
-    		),
-    		"evidence_number"=>array(
-    			'label'=>_("Numero post"),
-    			'value'=>$this->_optionsValue['evidence_number'],
-    			'section'=>true,
-    			'section_title'=>_('Post in evidenza')
-    		),
-    		"evidence_auto_start"=>array(
-    			'label'=>_("Animazione automatica"),
-    			'value'=>$this->_optionsValue['evidence_auto_start']
-    		),
-    		"evidence_auto_interval"=>array(
-    			'label'=>_("Intervallo animazione automatica (ms)"),
-    			'value'=>$this->_optionsValue['evidence_auto_interval']
-    		),
-    		"image_width"=>array(
-    			'label'=>_("Larghezza massima immagini"),
-    			'value'=>$this->_optionsValue['image_width'],
-    			'section'=>true,
-    			'section_title'=>_('Media')
-    		),
-    		"newsletter_post_number"=>array(
-    			'label'=>_("Numero post esportati nella lista"),
-    			'value'=>$this->_optionsValue['newsletter_post_number'],
-    			'section'=>true,
-    			'section_title'=>_('Newsletter'),
-    			'section_description'=> $newsletter_module
-    			? "<p>"._('La classe si interfaccia al modulo newsletter di gino installato sul sistema')."</p>"
-    			: "<p>"._('Il modulo newsletter non è installato')."</p>",
-    		),
-    	);
     }
 
     /**
@@ -329,9 +181,9 @@ class post extends \Gino\Controller {
         Category::deleteInstance($this);
 
         /* eliminazione da tabella opzioni */
-        $opt_id = $this->_db->getFieldFromId($this->_tbl_opt, "id", "instance", $this->_instance);
-        \Gino\Translation::deleteTranslations($this->_tbl_opt, $opt_id);
-        $result = $this->_db->delete($this->_tbl_opt, "instance=".$this->_instance);
+        $opt_id = $this->_db->getFieldFromId($this->_tbl_options, "id", "instance", $this->_instance);
+        \Gino\Translation::deleteTranslations($this->_tbl_options, $opt_id);
+        $result = $this->_db->delete($this->_tbl_options, "instance=".$this->_instance);
 
         /* eliminazione file css */
         $classElements = $this->getClassElements();
@@ -425,7 +277,7 @@ class post extends \Gino\Controller {
             $conditions['private'] = false;
         }
         
-        $where = Item::setConditionWhere($this, $conditions);
+        $where = Item::queryConditions($this, $conditions);
 
         $items = Item::objects($this, array('where' => $where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>array(0, $this->_showcase_post_number)));
 
@@ -455,7 +307,7 @@ class post extends \Gino\Controller {
     	if(!$this->userHasPerm('can_view_private')) {
     	    $conditions['private'] = false;
     	}
-    	$where = Item::setConditionWhere($this, $conditions);
+    	$where = Item::queryConditions($this, $conditions);
     
     	$items = Item::objects($this, ['where' => $where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>array(0, $this->_evidence_number)]);
     
@@ -482,7 +334,7 @@ class post extends \Gino\Controller {
     	if(!$this->userHasPerm('can_view_private')) {
     	    $conditions['private'] = false;
     	}
-    	$where = Item::setConditionWhere($this, $conditions);
+    	$where = Item::queryConditions($this, $conditions);
     	
     	return Item::objects($this, [
     	    'where' => $where, 
@@ -537,7 +389,7 @@ class post extends \Gino\Controller {
         	}
 		}
 
-		$where = Item::setConditionWhere($this, $conditions);
+		$where = Item::queryConditions($this, $conditions);
 		$items = Item::objects($this, array(
             'where' => $where, 
             'order' => 'date DESC, insertion_date DESC', 
@@ -592,8 +444,8 @@ class post extends \Gino\Controller {
         // /Breadcrumbs
         
         // Set Registry
-        $this->_registry->addJs(SITE_JS."/lightbox/dist/ekko-lightbox.js");
-        $this->_registry->addCss(CSS_WWW."/lightbox/dist/ekko-lightbox.css");
+        $this->_registry->addJs(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.js");
+        $this->_registry->addCss(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.css");
         $this->_registry->addCss($this->_class_www."/post_".$this->_instance_name.".css");
         
         $this->setSEOSettings([
@@ -650,8 +502,8 @@ class post extends \Gino\Controller {
      */
     public function archive(\Gino\Http\Request $request) {
 
-        $this->_registry->addJs(SITE_JS."/lightbox/dist/ekko-lightbox.js");
-        $this->_registry->addCss(CSS_WWW."/lightbox/dist/ekko-lightbox.css");
+        $this->_registry->addJs(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.js");
+        $this->_registry->addCss(SITE_LIBRARIES."/lightbox/dist/ekko-lightbox.css");
         $this->_registry->addCss($this->_class_www."/post_".$this->_instance_name.".css");
 
     	$this->_registry->title = $this->_registry->sysconf->head_title . ' | '._("Archivio post");
@@ -682,54 +534,15 @@ class post extends \Gino\Controller {
         }
         // /Direct
         
-        $search_fields = array(
-        	'category' => array(
-        		'label' => _('Categoria'),
-        		'input' => 'select',
-        		'data' => Category::getForSelect($this),
-        		'type' => 'int',
-        		'options' => null
-        	), 
-        	'tag' => array(
-        		'label' => _('Tag'),
-        		'input' => 'tag',
-        		'type' => 'string',
-        		'options' => null
-        	), 
-        	'text' => array(
-        		'label' => _('Titolo/Testo'),
-        		'input' => 'text',
-        		'type' => 'string',
-        		'options' => null
-        	),
-        	'date_from' => array(
-        		'label' => _('Da'),
-        		'input' => 'date',
-        		'type' => 'string',
-        		'options' => null
-        	),
-        	'date_to' => array(
-        		'label' => _('A'),
-        		'input' => 'date',
-        		'type' => 'string',
-        		'options' => null
-        	)
+        $query_params = array(
+            'category' => $ctg_id,
+            'tag' => $tag,
+            'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
+            'date_to' => $date_to ? \Gino\dbDateToDate($date_to) : null,
         );
         
-        $param_values = array(
-        	'category' => $ctg_id,
-        	'tag' => $tag, 
-        	'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
-        	'date_to' => $date_to ? \Gino\dbDateToDate($date_to) : null,
-        );
-        
-        Loader::import('class', array('\Gino\SearchInterface'));
-        $obj_search = new \Gino\SearchInterface($search_fields, array(
-        	'identifier' => 'postSearch'.$this->_instance,
-        	'param_values' => $param_values
-        ));
-        $obj_search->sessionSearch();
-		$search_values = $obj_search->getValues();
+        $obj_search = $this->setSearchParams($query_params);
+        $search_values = $obj_search->getValues();
         
 		$conditions = array(
         	'published' => TRUE, 
@@ -743,12 +556,12 @@ class post extends \Gino\Controller {
 		    $conditions['private'] = false;
 		}
 		
-		$count = Item::getCount($this, $conditions);
+		$count = Item::objectCount($this, $conditions);
         
 		$paginator = Loader::load('Paginator', array($count, $this->_list_nfp));
         $limit = $paginator->limitQuery();
         
-        $where = Item::setConditionWhere($this, $conditions);
+        $where = Item::queryConditions($this, $conditions);
         
         $items = Item::objects($this, array('where'=>$where, 'order'=>'date DESC, insertion_date DESC', 'limit'=>$limit, 'debug'=>false));
         
@@ -762,8 +575,8 @@ class post extends \Gino\Controller {
         	'tag' => $tag, 
             'items' => $items,
             'pagination' => $paginator->pagination(),
-        	'search_form' => $obj_search->formSearch($this->link($this->_instance_name, 'archive'), 'form_search_post'),
-        	'open_form' => $obj_search->getOpenform(),
+            'search_form' => $obj_search->form($this->link($this->_instance_name, 'archive'), 'form_search_post'),
+            'link_form' => $obj_search->linkSearchForm()
         );
 
         $document = new \Gino\Document($view->render($dict));

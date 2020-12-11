@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="<?= LANG ?>">
-	{% block 'head.php' %}
+	{% block 'core/head.php' %}
 	<body>
-		{% block 'debug_alert.php' %}
+		{% block 'core/debug_alert.php' %}
 		{% block 'navbar.php' %}
 		
 		<div class="container bg-white">
@@ -24,6 +24,6 @@
 			</div>
 		</div>
 		
-		{% block 'footer.php' %}
+		{% block 'core/footer.php' %}
 	</body>
 </html>

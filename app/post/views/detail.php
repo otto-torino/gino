@@ -34,7 +34,7 @@ namespace Gino\App\Post;
                 </p>
             <? endif ?>
             <? if($item->tags): ?>
-                <p class="tags"><span class="fa fa-tag"></span> <?= \Gino\GTag::viewTags($controller, $item->tags) ?></p>
+                <p class="tags"><span class="fa fa-tag"></span> <?= $item->tools->showTags() ?></p>
             <? endif ?>
         </div>
     </div>

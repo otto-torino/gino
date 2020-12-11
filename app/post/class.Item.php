@@ -216,14 +216,14 @@ class Item extends \Gino\Model {
      * @brief Restituisce il numero di record che soddisfano le condizioni date
      *
      * @param \Gino\App\Post\post $controller istanza del controller Gino.App.Post.post
-     * @param array $options opzioni per la definizione delle condizioni della query (@see setConditionWhere())
+     * @param array $options opzioni per la definizione delle condizioni della query (@see queryConditions())
      * @return integer
      */
-    public static function getCount($controller, $options = null) {
+    public static function objectCount($controller, $options = null) {
 
         $db = Db::instance();
         
-        $where = self::setConditionWhere($controller, $options);
+        $where = self::queryConditions($controller, $options);
         
         return $db->getNumRecords(self::$table, $where);
     }
@@ -243,7 +243,7 @@ class Item extends \Gino\Model {
      *   - @b remove_id (array): elenco valori id da non selezionare
      * @return string
      */
-    public static function setConditionWhere($controller, $options = null) {
+    public static function queryConditions($controller, $options = null) {
     	
     	$private = \Gino\gOpt('private', $options, FALSE);
     	$published = \Gino\gOpt('published', $options, TRUE);
@@ -270,7 +270,7 @@ class Item extends \Gino\Model {
     		$where[] = "id IN (SELECT article_id FROM ".self::$table_ctgs." WHERE category_id='".$ctg."')";
     	}
     	if($tag) {
-    		$where[] = \Gino\GTag::whereCondition($controller, $tag);
+    		$where[] = \Gino\ModelTools::tagQueryCondition($controller, $tag);
     	}
     	if($text) {
     		$where[] = "(title LIKE '%".$text."%' OR text LIKE '%".$text."%')";

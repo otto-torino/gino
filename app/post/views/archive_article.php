@@ -13,7 +13,7 @@ namespace Gino\App\Post;
 * - **feed_url**: string, url ai feed RSS
 * - **pagination**: html, paginazione
 * - **search_form**: html, form di ricerca
-* - **open_form**: bool, TRUE se il form deve essere mostrato espanso perché compilato
+* - **link_form**: html
 */
 ?>
 <? //@cond no-doxygen ?>
@@ -27,12 +27,9 @@ namespace Gino\App\Post;
         - tag <?= \Gino\htmlChars($tag); ?>
         <? endif ?>
         <a style="margin-left: 20px" class="fa fa-rss" href="<?= $feed_url ?>"></a> 
-        <span class="fa fa-search link" style="margin-right: 10px;" 
-        onclick="if($('#post_form_search').css('display') == 'block') $('#post_form_search').css('display', 'none'); else $('#post_form_search').css('display', 'block');"></span>
+        <?= $link_form ?>
     </h1>
-    <div id="post_form_search" style="display: <?= $open_form ? 'block' : 'none'; ?>;">
-        <?= $search_form ?>
-    </div>
+    <?= $search_form ?>
     
     <? if(count($items)): ?>
         <? foreach($items as $n): ?>
@@ -52,7 +49,7 @@ namespace Gino\App\Post;
             		<div class="col-sm-12">
         		<? endif ?>
         		
-        		<div class="tags"><time><?= \Gino\dbDateToDate($n->date) ?></time> <?= \Gino\GTag::viewTags($controller, $n->tags) ?></div>
+        		<div class="tags"><time><?= \Gino\dbDateToDate($n->date) ?></time> <?= $n->tools->showTags() ?></div>
                 <?= \Gino\cutHtmlText(\Gino\htmlChars($n->ml('text')), 300, '...', false, false, true, array('endingPosition' => 'in')) ?>
 			</div>
         </article>

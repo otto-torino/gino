@@ -16,6 +16,6 @@
 	<!-- Collect the nav links, forms, and other content for toggling -->
 	<div class="collapse navbar-collapse" id="bs-gino-navbar-collapse">
 		<!-- Menu -->
-		{module classid=4 func=render}
+		{% block mainMenu.render %}
 	</div><!-- /.navbar-collapse -->
 </nav>

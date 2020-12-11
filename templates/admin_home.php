@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="<?= LANG ?>">
-	{% block 'head_admin.php' %}
+	{% block 'core/head_admin.php' %}
 	<body>
 		{% block 'navbar_admin.php' %}
 		

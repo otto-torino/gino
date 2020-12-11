@@ -2,9 +2,6 @@
 /**
  * @file class_calendar.php
  * @brief Contiene la definizione della classe Gino.App.Calendar.calendar
- * @copyright 2017-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
- * @author marco guidotti
- * @author abidibo
  */
 
 /**
@@ -30,9 +27,6 @@ require_once('class.Place.php');
  * @brief Classe di tipo Gino.Controller del modulo Calendario
  *
  * @version 1.0.0
- * @copyright 2017-2018 Otto srl MIT License http://www.opensource.org/licenses/mit-license.php
- * @author Marco Guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  * 
  * ##CONFIGURATION
  * In INSTALLED_APPS aggiungere:
@@ -51,18 +45,13 @@ require_once('class.Place.php');
  */
 class calendar extends \Gino\Controller {
 
-	private $_monday_first_week_day, $_day_chars, $_open_modal;
+    protected $_monday_first_week_day, $_day_chars, $_open_modal;
 	
 	/**
 	 * @brief numero di record per pagina
 	 * @var integer
 	 */
-	private $_items_for_page;
-
-    /**
-     * @brief Tabella di opzioni
-     */
-	private $_tbl_opt;
+    protected $_items_for_page;
 
     /**
      * @brief Costruttore
@@ -72,65 +61,6 @@ class calendar extends \Gino\Controller {
     public function __construct($mdlId) {
     	
         parent::__construct($mdlId);
-
-		$this->_tbl_opt = 'calendar_opt';
-        
-        $this->setAppOptions();
-    }
-    
-    private function setAppOptions() {
-    	 
-    	$this->_optionsValue = array(
-    		'monday_first_week_day' => 1,
-    		'day_chars' => 1,
-    		'open_modal' => 0,
-    		'items_for_page' => 10,
-    	);
-    	
-    	if(!$this->_registry->apps->instanceExists($this->_instance_name)) {
-    
-    		$this->_monday_first_week_day = $this->setOption('monday_first_week_day', array('value' => $this->_optionsValue['monday_first_week_day']));
-    		$this->_day_chars = $this->setOption('day_chars', array('value' => $this->_optionsValue['day_chars']));
-    		$this->_open_modal = $this->setOption('open_modal', array('value' => $this->_optionsValue['open_modal']));
-    		$this->_items_for_page = $this->setOption('items_for_page', array('value' => $this->_optionsValue['items_for_page']));
-    		
-    		$this->_registry->apps->{$this->_instance_name} = array(
-    			'monday_first_week_day' => $this->_monday_first_week_day,
-    			'day_chars' => $this->_day_chars,
-    			'open_modal' => $this->_open_modal,
-    			'items_for_page' => $this->_items_for_page,
-    		);
-    	}
-    	else {
-    		$this->_monday_first_week_day = $this->_registry->apps->{$this->_instance_name}['monday_first_week_day'];
-    		$this->_day_chars = $this->_registry->apps->{$this->_instance_name}['day_chars'];
-    		$this->_open_modal = $this->_registry->apps->{$this->_instance_name}['open_modal'];
-    		$this->_items_for_page = $this->_registry->apps->{$this->_instance_name}['items_for_page'];
-    	}
-    	
-    	$this->_options = \Gino\Loader::load('Options', array($this));
-    	$this->_optionsLabels = array(
-    		'monday_first_week_day' => array(
-    			'label' => _('Lunedì primo giorno della settimana'), 
-    			'section' => true, 
-    			'section_title' => _('Calendario'), 
-    			'value' => $this->_monday_first_week_day
-    		),
-    		'day_chars' => array(
-    			'label' => _('Numero di caratteri rappresentazione giorno'), 
-    			'value' => $this->_day_chars
-    		),
-    		'open_modal' => array(
-    			'label' => _('Visualizza il dettaglio aprendo una modale'), 
-    			'value' => $this->_open_modal
-    		),
-    		'items_for_page' => array(
-    			'label' => _('Appuntamenti per pagina'), 
-    			'section' => true, 
-    			'section_title' => _('Archivio'), 
-    			'value' => $this->_items_for_page
-    		),
-    	);
     }
 
     /**
@@ -426,22 +356,14 @@ class calendar extends \Gino\Controller {
 		// Set Registry
 		$this->_registry->addCss($this->_class_www.'/calendar_'.$this->_instance_name.'.css');
         
-        $this->_registry->title = $this->_registry->sysconf->head_title . ' | '.\Gino\htmlChars($event->ml('name'));
-        $this->_registry->description = \Gino\cutHtmlText($event->ml('description'), 200, '...', true, false, true, '');
-        $this->_registry->keywords = $event->tags;
-        
-        $this->_registry->addMeta(array(
-        	'property' => 'og:url',
-        	'content' => $this->link($this->_instance_name, 'detail', array('id' => $event->slug), '', array('abs'=>true))
-        ));
-        $this->_registry->addMeta(array(
-        	'property' => 'og:title',
-        	'content' => $event->name
-        ));
-        $this->_registry->addMeta(array(
-        	'property' => 'og:description',
-        	'content' => $this->_registry->description
-        ));
+		$this->setSEOSettings([
+		    'title' => $event->ml('name'),
+		    'description' => $event->ml('description'),
+		    'keywords' => $event->tags,
+		    'url' => $this->link($this->_instance_name, 'detail', array('id' => $event->slug), '', array('abs'=>true)),
+		    'type' => 'article',
+		    'image' => null
+		]);
 		// /Registry
 
         $view = new View($this->_view_dir, 'detail_'.$this->_instance_name);
@@ -586,46 +508,13 @@ class calendar extends \Gino\Controller {
         }
         // /Direct
         
-        $search_fields = array(
-        	'category' => array(
-        		'label' => _('Categoria'),
-        		'input' => 'select',
-        		'data' => Category::getForSelect($this),
-        		'type' => 'int',
-        		'options' => null
-        	),
-        	'text' => array(
-        		'label' => _('Titolo/Testo'),
-        		'input' => 'text',
-        		'type' => 'string',
-        		'options' => null
-        	),
-        	'date_from' => array(
-        		'label' => _('Da'),
-        		'input' => 'date',
-        		'type' => 'string',
-        		'options' => null
-        	),
-        	'date_to' => array(
-        		'label' => _('A'),
-        		'input' => 'date',
-        		'type' => 'string',
-        		'options' => null
-        	)
+        $query_params = array(
+            'category' => $ctg_id,
+            'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
+            'date_to' => $date_to ? \Gino\dbDateToDate($date_to) : null,
         );
         
-        $param_values = array(
-        	'category' => $ctg_id,
-        	'date_from' => $date_from ? \Gino\dbDateToDate($date_from) : null,
-        	'date_to' => $date_to ? \Gino\dbDateToDate($date_to) : null,
-        );
-        
-        Loader::import('class', array('\Gino\SearchInterface'));
-        $obj_search = new \Gino\SearchInterface($search_fields, array(
-        		'identifier' => 'calendarSearch'.$this->_instance, 
-        		'param_values' => $param_values
-        ));
-        $obj_search->sessionSearch();
+        $obj_search = $this->setSearchParams($query_params);
         $search_values = $obj_search->getValues();
         
         $conditions = array(
@@ -650,8 +539,8 @@ class calendar extends \Gino\Controller {
             'items' => $items,
             'ctg' => $ctg,
             'pagination' => $paginator->pagination(),
-        	'search_form' => $obj_search->formSearch($this->link($this->_instance_name, 'archive'), 'form_search_calendar'),
-        	'open_form' => $obj_search->getOpenform(),
+            'search_form' => $obj_search->form($this->link($this->_instance_name, 'archive'), 'form_search_calendar'),
+            'link_form' => $obj_search->linkSearchForm()
         );
 
         $document = new \Gino\Document($view->render($dict));
