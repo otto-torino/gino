@@ -465,18 +465,20 @@ class Form {
      * 
      * @see self::reCaptcha()
      * @see self::defaultCaptcha()
-     * @param array $options
-     *   array associativo di opzioni
+     * @param array $options associativo di opzioni
+     *   - @b force_default (boolean): forza l'utilizzo del captcha di gino (default false)
      *   - @b classLabel (string): valore CLASS del tag SPAN in <label>
      *   - @b text_add (string): testo che segue il controllo
      * @return widget captcha
      */
-    public function captcha($options=null) {
+    public function captcha($options=[]) {
 
+        $force_default = gOpt('force_default', $options, false);
+        
         $site_key = $this->_registry->sysconf->captcha_public;
         $secret_key = $this->_registry->sysconf->captcha_private;
 
-        if($site_key && $secret_key) {
+        if($site_key and $secret_key and !$force_default) {
         	return $this->reCaptcha($site_key, $options);
         }
         else {
@@ -522,17 +524,17 @@ class Form {
      * @brief Captcha widget attraverso la libreria Gino.Captcha
      *
      * @see Gino.Captcha::render()
-     * @param array $options
-     *   array associativo di opzioni
+     * @param array $options array associativo di opzioni
      *   - @b text_add (string)
+     *   - opzioni di Gino.Captcha
      * @return widget captcha
      */
     private function defaultCaptcha($options) {
-
+        
         $text_add = gOpt('text_add', $options, null);
         
         $captcha = Loader::load('Captcha', array('captcha_input'));
-        $captcha_code = $captcha->render();
+        $captcha_code = $captcha->render($options);
         if($text_add) {
             $captcha_code .= "<div class=\"form-textadd\">".$text_add."</div>";
         }
@@ -549,14 +551,19 @@ class Form {
      * 
      * @see self::checkReCaptcha()
      * @see self::checkDefaultCaptcha()
+     * @param object $request
+     * @param array $options associativo di opzioni
+     *   - @b force_default (boolean): forza l'utilizzo del captcha di gino (default false)
      * @return bool or string
      */
-    public function checkCaptcha($request) {
+    public function checkCaptcha($request, $options=[]) {
 
+        $force_default = gOpt('force_default', $options, false);
+        
         $site_key = $this->_registry->sysconf->captcha_public;
         $secret_key = $this->_registry->sysconf->captcha_private;
 
-        if($site_key && $secret_key) {
+        if($site_key and $secret_key and !$force_default) {
         	return $this->checkReCaptcha($request, $secret_key);
         }
         else {

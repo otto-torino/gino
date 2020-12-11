@@ -2,10 +2,6 @@
 /**
  * @file class.Captcha.php
  * @brief Contiene la definizione ed implementazione della classe Gino.Captcha
- *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
@@ -13,10 +9,6 @@ namespace Gino;
  * @brief Classe per la generazione di immagini captcha
  *
  * imagettftext() richiede le GD library e le FreeType library.
- *
- * @copyright 2013-2014 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 class Captcha {
 
@@ -59,16 +51,17 @@ class Captcha {
      * @brief Costruttore
      * 
      * @param string $name nome del campo captcha
-     * @param array $opts
-     *   array associativo di opzioni
+     * @param array $opts array associativo di opzioni
+     *   - @b width (integer): image width
+     *   - @b height (integer): image height
      *   - @b allow_numbers (boolean): permettere o meno caratteri di tipo numero, default FALSE
      * @return void, istanza di Gino.Captcha
      */
-    function __construct($name, $opts=null) {
+    function __construct($name, $opts=[]) {
 
         $this->_name = $name;
-        $this->_width = 200;
-        $this->_height = 40;
+        $this->_width = gOpt('width', $opts, 200);
+        $this->_height = gOpt('height', $opts, 40);
 
         $this->_font_file = FONTS_DIR.OS.'initial.ttf';
 
@@ -101,12 +94,16 @@ class Captcha {
      *   array associativo di opzioni
      *   - @b bkg_color (string): hex code del colore del background, default #00ff00
      *   - @b color (string): hex code del colore dei caratteri, default #000000
+     *   - @b show_ellipses (boolean): mostra delle ellissi nell'immagine
+     *   - @b show_lines (boolean): mostra delle linee nell'immagine
      * @return string, immagine captcha e form input
      */
-    public function render($opts=null) {
+    public function render($opts=[]) {
 
         $bkg_color = gOpt("bkg_color", $opts, "#00ff00");
         $color = gOpt("color", $opts, "#000000");
+        $show_ellipses = gOpt("show_ellipses", $opts, true);
+        $show_lines = gOpt("show_lines", $opts, true);
 
         if(!$this->checkRequirements())
             return _("Il codice captcha non può essere generato - verifica i requisiti necessari");
@@ -126,20 +123,24 @@ class Captcha {
         imagettftext($image, 22, -5, 110, 25, $text_c, $this->_font_file, $s2);
 
         // ellipses
-        $i = 0;
-        while($i<$this->_width-5) {
-            $ell_color = ImageColorAllocate($image, rand(0,255), rand(0,255), rand(0,255));
-            imagefilledellipse($image , $i+5 , rand(5, $this->_height-5) , rand(0, 8) , rand(0, 8), $ell_color);
-            $i = $i+20;
+        if($show_ellipses) {
+            $i = 0;
+            while($i<$this->_width-5) {
+                $ell_color = ImageColorAllocate($image, rand(0,255), rand(0,255), rand(0,255));
+                imagefilledellipse($image , $i+5 , rand(5, $this->_height-5) , rand(0, 8) , rand(0, 8), $ell_color);
+                $i = $i+20;
+            }
         }
-
+        
         // lines
-        $i = 0;
-        while($i<$this->_width-3) {
-            $line_color = ImageColorAllocate($image, rand(0,255), rand(0,255), rand(0,255));
-            imagesetthickness($image, rand(0,2));
-            imageline($image, $i , rand(0, $this->_height) , rand($i, $i+20) , rand(0, $this->_height) , $line_color);
-            $i = $i+10;
+        if($show_lines) {
+            $i = 0;
+            while($i<$this->_width-3) {
+                $line_color = ImageColorAllocate($image, rand(0,255), rand(0,255), rand(0,255));
+                imagesetthickness($image, rand(0,2));
+                imageline($image, $i , rand(0, $this->_height) , rand($i, $i+20) , rand(0, $this->_height) , $line_color);
+                $i = $i+10;
+            }
         }
 
         ob_start();
