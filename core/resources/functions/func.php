@@ -2,10 +2,6 @@
 /**
  * @file func.php
  * @brief Racchiude funzioni generali utilizzate da gino
- * 
- * @copyright 2005-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 namespace Gino;
 
@@ -1533,3 +1529,20 @@ function icon($name, $options = array()){
 
     return $GINO;
 }
+
+// ex. 'article/detail/06-02-2020-news-2/' => 'articolo/dettaglio/06-02-2020-news-2/'
+function url_pattern($original_url, $new_url) {
+    
+    return ['regexp', $original_url, $new_url];
+}
+// ex. 'article/archive' => 'articoli/elenco'
+function url_instance($original_url, $new_url) {
+    
+    return ['instance', $original_url, $new_url];
+}
+// ex. 'page/view/slug-page' => 'alias-page'
+function url_alias($original_url, $new_url) {
+    
+    return ['alias', $original_url, $new_url];
+}
+

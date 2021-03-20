@@ -2,10 +2,6 @@
 /**
  * @file class.Router.php
  * @brief Contiene la definizione ed implementazione della class Gino.Router
- *
- * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
  */
 
 namespace Gino;
@@ -21,14 +17,12 @@ use \Gino\App\Module\ModuleInstance;
 /**
  * @brief Gestisce il routing di una request HTTP, chiamando la classe e metodo che devono fornire risposta
  * 
- * @copyright 2014-2019 Otto srl (http://www.opensource.org/licenses/mit-license.php) The MIT License
- * @author marco guidotti guidottim@gmail.com
- * @author abidibo abidibo@gmail.com
- * 
- * ##Definizione di alias route
- * Nel file config/route.inc è possibile definire gli alias agli indirizzi delle risorse. 
+ * #DEFINIZIONE DI ALIAS AGLI INDIRIZZI
+ * Nei file app/[app_name]/urls.php è possibile definire gli alias agli indirizzi delle risorse. 
  * Nei nomi degli alias non è possibile utilizzare il carattere della costante URL_SEPARATOR.
- * @see config/route.inc
+ * 
+ * È poi necessario richiamare nel file settings/urls.php la variabile che comprende gli alias.
+ * @see settings/urls.php
  */
 class Router extends Singleton {
 
@@ -55,19 +49,19 @@ class Router extends Singleton {
 	 * @brief Elenco degli alias degli indirizzi di tipo istanza/metodo
 	 * @var array nel formato array([instance/method] => [instance-alias/method-alias])
 	 */
-	private $_instances_alias;
+	private $_urls_instance;
 	
 	/**
 	 * @brief Elenco degli alias di indirizzi di tipo istanza/metodo/(id|slug)
 	 * @var array nel formato array([istance/method/id] => [url-alias])
 	 */
-	private $_url_alias;
+	private $_urls_alias;
 	
 	/**
 	 * @brief Elenco degli indirizzi interni da ridefinire
 	 * @var array
 	 */
-	private $_url_change;
+	private $_urls_pattern;
 
     /**
      * @brief Costruttore
@@ -79,13 +73,42 @@ class Router extends Singleton {
         $this->_registry = Registry::instance();
         $this->_request = $this->_registry->request;
         
-        require_once SETTINGS_DIR.OS.'route.inc';
+        require_once SETTINGS_DIR.OS.'urls.php';
         
-        $this->_instances_alias = $config_instances_alias;
-        $this->_url_alias = $config_url_alias;
-        $this->_url_change = $config_url_change;
+        $this->setUrlsPattern($rewritten_urls);
         
         $this->urlRewrite();
+    }
+    
+    // $urls è un array (applicazioni) di array (indirizzi dell'applicazione)
+    private function setUrlsPattern($urls) {
+        
+        $urls_instance = $urls_pattern = $urls_alias = [];
+        
+        if(count($urls)) {
+            foreach ($urls as $app) {
+                if(is_array($app) and count($app)){
+                    
+                    foreach ($app as $url) {
+                        
+                        $array = $url;
+                        if(count($array) == 3 and $array[0] == 'instance') {
+                            $urls_instance[$array[1]] = $array[2];
+                        }
+                        elseif(count($array) == 3 and $array[0] == 'regexp') {
+                            $urls_pattern[$array[1]] = $array[2];
+                        }
+                        elseif(count($array) == 3 and $array[0] == 'alias') {
+                            $urls_alias[$array[1]] = $array[2];
+                        }
+                    }
+                }
+            }
+        }
+        
+        $this->_urls_instance = $urls_instance;
+        $this->_urls_pattern = $urls_pattern;
+        $this->_urls_alias = $urls_alias;
     }
     
     /**
@@ -121,20 +144,22 @@ class Router extends Singleton {
     /**
      * @brief Riscrittura URL PathInfo quando l'indirizzo è nel formato permalink
      * 
-     * @see settings/route.inc
+     * @see config/route.inc
      * @param array $paths parti del PathInfo (@see urlRewrite())
      * @return TRUE
      */
     private function rewritePathInfo(array $paths) {
 
-        if(is_array($this->_url_change) && count($this->_url_change)) {
+        // 1. URL ALIAS
+        // ex. maps/view/turismo-rifugi' => 'osm/view/rifugi
+        if(is_array($this->_urls_alias) && count($this->_urls_alias)) {
             $check_value = implode('/', $paths);
             
-            if (array_key_exists($check_value, $this->_url_change)) {
-                $url_rewrite = $this->_url_change[$check_value];
+            if (array_key_exists($check_value, $this->_urls_alias)) {
+                $url_rewrite = $this->_urls_alias[$check_value];
             }
-            elseif (array_key_exists($check_value.'/', $this->_url_change)) {
-                $url_rewrite = $this->_url_change[$check_value.'/'];
+            elseif (array_key_exists($check_value.'/', $this->_urls_alias)) {
+                $url_rewrite = $this->_urls_alias[$check_value.'/'];
             }
             else {
                 $url_rewrite = null;
@@ -160,8 +185,8 @@ class Router extends Singleton {
             elseif($paths[0] !== 'home') {
                 
                 $check_alias = false;
-                if(is_array($this->_url_alias) and count($this->_url_alias)) {
-                    $url_alias = $this->_url_alias;
+                if(is_array($this->_urls_alias) and count($this->_urls_alias)) {
+                    $url_alias = $this->_urls_alias;
                     
                     $found_url = array_search($paths[0], $url_alias);
                     if($found_url) {
@@ -188,8 +213,8 @@ class Router extends Singleton {
         elseif($tot === 2) {
             
             $check_alias = false;
-            if(is_array($this->_instances_alias) and count($this->_instances_alias)) {
-                $instances_alias = $this->_instances_alias;
+            if(is_array($this->_urls_instance) and count($this->_urls_instance)) {
+                $instances_alias = $this->_urls_instance;
                 
                 $found_url = array_search(implode('/', $paths), $instances_alias);
                 if($found_url) {
@@ -206,27 +231,239 @@ class Router extends Singleton {
                 $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
             }
         }
+        // istanza/metodo/[slug|id]
+        elseif($tot === 3) {
+            
+            $this->originalUrlPattern($paths, $tot);
+        }
         // I path oltre i primi due (nome istanza e metodo) sono normali coppie chiave/valore da inserire nella proprietà GET
-        elseif($tot > 2) {
+        elseif($tot > 3) {
             
-            $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
-            
-            // se il numero di elementi è dispari, il terzo elemento è un id
-            if($tot % 2 !== 0) {
-                $this->_request->GET['id'] = urldecode($paths[2]);
-                // quindi lo rimuovo
-                unset($paths[2]);
-                // e rimetto a posto le chiavi
-                $paths = array_values($paths);
-            }
-            
-            // devo ricontare i paths
-            for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
-                $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? urldecode($paths[$i + 1]) : '';
-            }
+            $this->originalUrl();
         }
         
         return true;
+    }
+    
+    private function originalUrl($paths, $number_items) {
+        
+        $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
+        
+        // se il numero di elementi è dispari, il terzo elemento è un id
+        if($number_items % 2 !== 0) {
+            $this->_request->GET['id'] = urldecode($paths[2]);
+            // quindi lo rimuovo
+            unset($paths[2]);
+            // e rimetto a posto le chiavi
+            $paths = array_values($paths);
+        }
+        
+        // devo ricontare i paths
+        for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
+            $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? urldecode($paths[$i + 1]) : '';
+        }
+        return null;
+    }
+    
+    /**
+     * @brief Returns the original url of an urls_pattern with slug
+     * 
+     * @param array $paths
+     * @return NULL
+     * 
+     * @example article/detail/06-02-2020-news-2/ => articolo/dettaglio/06-02-2020-news-2/
+     */
+    private function originalUrlPattern($paths, $number_items) {
+        
+        $items = 3;
+        $check_alias = false;
+        
+        if(is_array($this->_urls_pattern) and count($this->_urls_pattern)) {
+            // Elenco degli urls pattern (@see settings/urls.py)
+            $urls_pattern = $this->_urls_pattern;
+            
+            $address = $_SERVER['REQUEST_URI'];
+            // /gino-test/articolo/dettaglio/06-02-2020-news-2/
+            
+            $aa = explode('/', $address);
+            $bb = [];
+            foreach ($aa as $b) {
+                if($b) {
+                    $bb[] = $b;
+                }
+            }
+            // var_dump($bb) -> array (size=3)
+            // 0 => string 'gino-test', 1 => string 'articolo', 2 => string 'dettaglio'
+            $address_last = array_pop($bb);
+            $count = count($bb);
+            $address_method = $bb[$count-1];
+            $address_instance = $bb[$count-2];
+            
+            $address_check = $address_instance.'/'.$address_method;
+            
+            // var_dump($paths) -> array (size=3)
+            // 0 => string 'articolo', 1 => string 'dettaglio', 2 => string '06-02-2020-news-2'
+            
+            $urls_pattern_to_check = [];
+            foreach ($urls_pattern as $original_url => $new_url) {
+                // 'article/detail/<slug>/' => 'articolo/dettaglio/<slug>/'
+                
+                // Bisogna tradurre <slug> con il valore ricavato da REQUEST_URI
+                
+                // new
+                $cc = explode('/', $new_url);
+                $dd = [];
+                foreach ($cc as $b) {
+                    if($b) {
+                        $dd[] = $b;
+                    }
+                }
+                $new_url_last = $dd[2];
+                $new_url_method = $dd[1];
+                $new_url_instance = $dd[0];
+                
+                // original
+                $cc = explode('/', $original_url);
+                $dd = [];
+                foreach ($cc as $b) {
+                    if($b) {
+                        $dd[] = $b;
+                    }
+                }
+                $original_url_last = $dd[2];
+                $original_url_method = $dd[1];
+                $original_url_instance = $dd[0];
+                
+                $original_path = $original_url_instance.'/'.$original_url_method.'/'.$address_last;
+                
+                // ricostruisco l'url col terzo elemento preso da REQUEST_URI
+                $urls_pattern_to_check[] = $new_url_instance.'/'.$new_url_method.'/'.$address_last;
+                $urls_pattern_to_check[] = $original_path;
+                // due volte perché devo validare sia il path originale che quello tradotto
+                $urls_pattern_original[] = $original_path;
+                $urls_pattern_original[] = $original_path;
+            }
+            // array_search — Searches the array for a given value and returns
+            // the first corresponding key if successful (return int value)
+            // search 'articolo/dettaglio/06-02-2020-news-2' into $urls_pattern_to_check
+            $found_key_url = array_search(implode('/', $paths), $urls_pattern_to_check);    // returns 1 if found
+            
+            if(is_int($found_key_url)) {
+                $found_url = $urls_pattern_original[$found_key_url];    // 'article/detail/06-02-2020-news-2'
+            }
+            else {
+                $found_url = 0;
+            }
+            
+            if($found_url) {
+                $u = explode("/", $found_url);
+                $u_mdl = $u[0];     // article
+                $u_method = $u[1];  // detail
+                $u_pattern = $u[2]; // 06-02-2020-news-2
+                
+                $this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $u_mdl, URL_SEPARATOR, $u_method) => '');
+                $check_alias = true;
+                
+                // se il numero di elementi è dispari, il terzo elemento è un id
+                if($items % 2 !== 0) {
+                    $this->_request->GET['id'] = urldecode($u_pattern);
+                    // quindi lo rimuovo
+                    unset($paths[2]);
+                    // e rimetto a posto le chiavi
+                    $paths = array_values($paths);
+                }
+                
+                // devo ricontare i paths
+                for($i = 2, $tot = count($paths); $i < $tot; $i += 2) {
+                    $this->_request->GET[$paths[$i]] = isset($paths[$i + 1]) ? urldecode($paths[$i + 1]) : '';
+                }
+            }
+        }
+        
+        if(!$check_alias) {
+            //$this->_request->GET[self::EVT_NAME] = array(sprintf('%s%s%s', $paths[0], URL_SEPARATOR, $paths[1]) => '');
+            
+            $this->originalUrl($paths, $number_items);
+        }
+        return null;
+    }
+    
+    /**
+     * @brief Check if the instance and method of the request are included in the urls_pattern (@see settings/urls.py)
+     * @param string $instance
+     * @param string $method
+     * @return mixed[]|string[]|NULL
+     */
+    private function findMatchesUrlPattern($instance, $method) {
+        
+        if(is_array($this->_urls_pattern) and count($this->_urls_pattern)) {
+            
+            $urls_pattern = $this->_urls_pattern;
+            
+            foreach ($urls_pattern as $original_url => $new_url) {
+                // 'article/detail/<slug>/' => 'articolo/dettaglio/<slug>/'
+                
+                // new
+                $cc = explode('/', $new_url);
+                $dd = [];
+                foreach ($cc as $b) {
+                    if($b) {
+                        $dd[] = $b;
+                    }
+                }
+                $new_url_last = $dd[2];
+                $new_url_method = $dd[1];
+                $new_url_instance = $dd[0];
+                
+                // original
+                $cc = explode('/', $original_url);
+                $dd = [];
+                foreach ($cc as $b) {
+                    if($b) {
+                        $dd[] = $b;
+                    }
+                }
+                $original_url_last = $dd[2];
+                $original_url_method = $dd[1];
+                $original_url_instance = $dd[0];
+                
+                if($original_url_instance == $instance and $original_url_method == $method) {
+                    
+                    return ['instance' => $new_url_instance, 'method' => $new_url_method];
+                }
+            }
+            
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @brief Check if the instance and method of the request are included in the urls_instance (@see settings/urls.py)
+     * @param string $instance
+     * @param string $method
+     * @return mixed[]|string[]|NULL
+     */
+    private function findMatchesUrlInstance($instance, $method) {
+        
+        if(is_array($this->_urls_instance) and count($this->_urls_instance)) {
+            
+            $urls_instance = $this->_urls_instance;
+            $url = $instance.'/'.$method;
+            
+            foreach ($urls_instance as $original_url => $new_url) {
+                // 'article/archive' => 'articoli/elenco'
+                
+                $original_url = rtrim($original_url, '/');
+                
+                if($original_url == $url) {
+                    $u = explode('/', $new_url);
+                    return ['instance' => $u[0], 'method' => $u[1]];
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -290,10 +527,10 @@ class Router extends Singleton {
             }
             
             $app_dir = get_app_dir($class_name);
-            
+
             $method_check = parse_ini_file($app_dir.OS.$class_name.".ini", true);
             $public_method = @$method_check['PUBLIC_METHODS'][$method];
-            
+
             if(isset($public_method)) {
                 $this->_url_class = $class_name;
                 $this->_url_instance = $mdl;
@@ -360,8 +597,24 @@ class Router extends Singleton {
 
         // pretty url
         if($pretty) {
+            // Ricerca urls pattern
+            
+            $find_matches = $this->findMatchesUrlPattern($instance_name, $method);
+            if(is_array($find_matches) and count($find_matches)) {
+                $instance_name = $find_matches['instance'];
+                $method = $find_matches['method'];
+            }
+            else {
+                $find_matches = $this->findMatchesUrlInstance($instance_name, $method);
+                if(is_array($find_matches) and count($find_matches)) {
+                    $instance_name = $find_matches['instance'];
+                    $method = $find_matches['method'];
+                }
+            }
+            
             $url = sprintf('%s/%s/', $instance_name, $method);
-            // parametro id tattato diversamente, come 3 elemento
+            
+            // parametro id trattato diversamente, come terzo elemento
             if(isset($params['id'])) {
                 $url .= sprintf('%s/', $params['id']);
             }
